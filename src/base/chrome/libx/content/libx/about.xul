@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is LibX Firefox Extension.
+   -
+   - The Initial Developer of the Original Code is Annette Bailey (libx.org@gmail.com).
+   - Portions created by the Initial Developer are Copyright (C) 2005
+   - the Initial Developer and Virginia Tech. All Rights Reserved.
+   -
+   - Contributor(s): Godmar Back (godmar@gmail.com)
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://libx/skin/about.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://libx/locale/definitions.dtd">
+
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" buttons="accept"
+	id="libx-about-dialog" orient="vertical" title="&libx.aboutbox.title;" onload="setVersion();">
+	<script type="application/x-javascript">
+<![CDATA[
+function setVersion() {
+	// version is passed in aboutVersion()
+	document.getElementById("libx-version").setAttribute("value", "Version " + window.arguments[0]);
+	document.getElementById("libx-edition").setAttribute("value", window.arguments[1]);
+}
+]]>
+	</script>
+	<vbox id="libx-about-details">
+		<hbox>
+			<vbox>
+				<image src="&libx.aboutbox.image;" />
+				<spacer flex="1" />
+			</vbox>
+			<vbox>
+				<label value="&libx.aboutbox.label;" class="name" />
+				<spacer flex="1" />
+				<label id="libx-edition" />
+				<label id="libx-version" />
+			</vbox>
+			<spacer flex="1" />
+		</hbox>
+		<spacer height="10px" />
+		<label value="Authors" class="header" />
+		<label value="Annette Bailey" />
+		<label value="Godmar Back" />
+		<label value="Home Page" class="header" />
+		<label onclick="window.open('&libx.aboutbox.homepage;')" class="url">&libx.aboutbox.homepage;</label>
+	</vbox>
+	<separator class="groove" style="margin-top: 0" />
+</dialog> 
+
+<!-- 
+vim: ts=4 
+-->

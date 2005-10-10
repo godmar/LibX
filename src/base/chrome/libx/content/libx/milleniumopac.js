@@ -1,0 +1,83 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is LibX Firefox Extension.
+ *
+ * The Initial Developer of the Original Code is Annette Bailey (libx.org@gmail.com)
+ * Portions created by the Initial Developer are Copyright (C) 2005
+ * the Initial Developer and Virginia Tech. All Rights Reserved.
+ *
+ * Contributor(s): Godmar Back (godmar@gmail.com)
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+function MilleniumOPAC(catURL, catRegExp, catSid, sortBy, searchScope) {//this is a constructor
+	this.libraryCatalogURL = catURL;
+	this.catalogSid = catSid;
+	this.catalogSort = sortBy;
+	this.searchScope = searchScope;
+	this.libraryCatalogURLRegExp = catRegExp;
+}
+
+MilleniumOPAC.prototype = {
+	xisbnOPACID: "innovative",
+	supportsSearchType: function (stype) {
+	    if (stype == 'at') {
+	        alert(libxGetProperty("articletitle.alert"));
+			return false;
+	    }
+	    return true;
+	},
+	makeSearch: function(stype, sterm) {
+		if (stype == 'Y')
+            // work-around for apparent bug in Millenium
+            // this seems to be the only form for which results are properly linked
+            return this.libraryCatalogURL + "/search/" + stype + "?SEARCH=" + sterm + "&startLimit=&searchscope=" 
+                + this.searchScope + "&SORT=" + this.catalogSort + "&endLimit=&sid=" + this.catalogSid;
+        else {
+            // when author searches fail, it suggests to switch last and first names.
+            // this works only with this form
+            return this.libraryCatalogURL + "/search/?searchtype=" + stype + "&searcharg=" + sterm 
+                + "&startLimit=&searchscope=" + this.searchScope + "&SORT=" + this.catalogSort 
+                + "&endLimit=&sid=" + this.catalogSid;
+        }
+	},
+	makeTitleSearch: function(title) {
+		return this.makeSearch("t", title);
+	},
+	makeISBNSearch: function(isbn) {
+		return this.makeSearch("i", isbn);
+	},
+	makeAuthorSearch: function(author) {
+		return this.makeSearch("a", author);
+	},
+	makeCallnoSearch: function(callno) {
+		return this.makeSearch("c", callno);
+	},
+	makeKeywordSearch: function(keyword) {
+		return this.makeSearch("Y", keyword);
+	},
+	makeAdvancedSearch: function(fields) {
+		var url = this.libraryCatalogURL + "/search/X?SEARCH=";
+		url += fields[0].searchType + ":(" + fields[0].searchTerms + ")";
+		for (var i = 1; i < fields.length; i++) {
+			url += "+and+" + fields[i].searchType + ":(" + fields[i].searchTerms + ")"; 
+		}
+		url += "&SORT=" + this.catalogSort;
+		url += "&SID=" + this.catalogSid;
+		url = url.replace(/Y:\(/g, "(");	// keyword == "Any Field"
+		return url;
+	}
+}
+
+// vim: ts=4

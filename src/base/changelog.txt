@@ -1,0 +1,41 @@
+LibX - A Firefox Extension for direct library access
+
+created by Annette Bailey & Godmar Back
+http://www.libx.org
+
+You are using the $libxedition$
+
+version 1.0
+
+ *show error message when user tries to use article title in Addison search
+ *sort Addison search results by relevance
+ *embed marker in Addison url
+ *corrected floor map link for periodicals
+ *added Magic Button
+ *improved author name heuristic
+ *added cue to print.google.com
+ *added cue to scholar.google.com - requires Harvard cookie
+ *parameterized all strings via DTD or property file
+ *moved Millenium-specific functionality to milleniumopac.js
+ *made EZProxy support optional; support direct reload via proxy 
+ *added cue to search.yahoo.com
+ *added cue to barnesandnoble.com
+ *moved OpenURL-specific functionality in openurl.js and made it optional
+ *added support for EAN-13 ISBN - they are currently converted to 10-digits
+
+version 0.9	21 July 2005
+ *initial version, originally VT Library Bar
+
+To Do List
+---------
+
+Short Term:
+ *add preference for opening new window or new tab
+
+Mid Term:
+ *if openurl is genre=book; point user at Addison on openurl resolver page
+ *if article finder didn't find journal title; 
+  add "do you mean" functionality to open url resolver page
+ *create testpage with links
+ *support catalog types that require POST
+ *support catalog types that use sessions (e.g., Sirsi)

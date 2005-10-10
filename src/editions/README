@@ -1,0 +1,35 @@
+To create a new edition, you must create a new directory in here first.
+
+If you create a directory called 'vt', then run "createextension.pl vt" and
+you'll get libx-vt.xpi
+
+In that directory 'vt', the following files control customization:
+
+config 
+------
+    sets a list of variables key=value, one per line. 
+    All files in the base subdirectory will be copied into the xpi 
+    All occurrences of $key$ will be replaced with value.  
+
+
+files
+------
+    consists of a list of files that need to be copied into the xpi file.
+    Each entry is of the form file destination-directory-relative-to-top
+    Those files will NOT be subject to config substitution from config files.
+
+
+After running "createextension.pl", the files can be made "life" by copying
+them to the libx.org editions directory (if hosted at libx.org)
+
+-------------------------------------------------------------------------------------
+
+The libx.org/editions directory contains the editions hosted at libx.org.
+Each edition is in a subdirectory, for instance libx.org/editions/vt/
+hosts the VT edition.  
+
+Each hosted edition must contain the .xpi file, the update.rdf files, and, optionally, 
+a libx.html file.
+
+The libx.html can alternatively be made part of the library's home site.
+

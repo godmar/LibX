@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is LibX Firefox Extension.
+   -
+   - The Initial Developer of the Original Code is Annette Bailey (libx.org@gmail.com).
+   - Portions created by the Initial Developer are Copyright (C) 2005
+   - the Initial Developer and Virginia Tech. All Rights Reserved.
+   -
+   - Contributor(s): Godmar Back (godmar@gmail.com)
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<r:RDF xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	 xmlns="http://www.mozilla.org/2004/em-rdf#"> 
+<r:Description about="urn:mozilla:extension:d75de36c-af0d-4dc2-b63a-0d482d4b9815"> 
+<updates> 
+   <r:Seq> 
+     <r:li> 
+       <r:Description> 
+         <version>1.0</version> 
+         <targetApplication> 
+           <r:Description> 
+             <id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</id> 
+             <minVersion>1.0</minVersion> 
+             <maxVersion>1.0</maxVersion> 
+             <updateLink>$xpilocation$</updateLink> 
+           </r:Description> 
+         </targetApplication> 
+       </r:Description> 
+     </r:li> 
+   </r:Seq> 
+ </updates> 
+ <version>1.0</version> 
+ <updateLink>$xpilocation$</updateLink> 
+</r:Description> 
+</r:RDF>

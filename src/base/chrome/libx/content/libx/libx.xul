@@ -1,0 +1,154 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://browser/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://libx/skin/libx.css" type="text/css"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is LibX Firefox Extension.
+   -
+   - The Initial Developer of the Original Code is Annette Bailey (libx.org@gmail.com).
+   - Portions created by the Initial Developer are Copyright (C) 2005
+   - the Initial Developer and Virginia Tech. All Rights Reserved.
+   -
+   - Contributor(s): Godmar Back (godmar@gmail.com)
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<!--
+LibX Firefox Extension
+
+Author: Annette Bailey <annette.bailey@gmail.com>
+-->
+<!DOCTYPE overlay SYSTEM "chrome://libx/locale/definitions.dtd">
+
+<overlay orient="vertical" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
+        <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
+    </stringbundleset>
+    
+	<script type="application/x-javascript" src="chrome://communicator/content/utilityOverlay.js" />
+	<script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
+	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
+	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/droppable.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/popuputils.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/isbnutils.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/doiutils.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/doforurl.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/xpathutils.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/milleniumopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/horizonopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
+	<script type="application/x-javascript">
+	<![CDATA[
+	  // must postpone initialization until entire overlay is loaded into chrome
+      window.addEventListener("load", libxInit, false);
+    ]]>
+    </script>
+	<toolbox id="navigator-toolbox"> <!-- must be called navigator-toolbox to overlay onto existing toolbox -->
+		<toolbar id="xlib-toolbar" toolbarname="&libx.toolbarname;" class="chromeclass-toolbar">
+			<vbox>
+				<hbox>
+					<toolbarbutton label="&libx.toolbarbutton;" type="menu" image="&libx.image;" tooltiptext="&libx.tooltiptext;">
+						<menupopup>
+							<menuitem label="&libraryhomepage.menuitem.label;" oncommand="openSearchWindow('&libraryhomepage.menuitem.url;')" />
+							<menuitem label="&libraryopac.menuitem.label;" oncommand="openSearchWindow('&libraryopac.menuitem.url;')" />
+							<menuitem label="About" oncommand="aboutVersion()" />
+						</menupopup>
+					</toolbarbutton>
+				</hbox>
+			</vbox>
+			<vbox id="search-field-vbox" flex="1">
+				<!-- do not add more children to vbox, the addSearchField function relies on being able to clone vbox.lastChild -->
+				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
+					<!-- child number 0 aka firstChild -->
+					<toolbarbutton label="Keyword" type="menu" tooltiptext="Select Search Field Type" width="80" crop="end">
+						<menupopup>
+							<menuitem value="Y" label="Keyword" oncommand="setFieldType(this);" />
+							<menuitem value="t" label="Title" oncommand="setFieldType(this);" />
+							<menuitem value="at" label="Article Title" oncommand="setFieldType(this);" />
+							<menuitem value="a" label="Author" oncommand="setFieldType(this);" />
+							<menuitem value="i" label="ISBN/ISSN" oncommand="setFieldType(this);" />
+							<menuitem value="c" label="Call Number" oncommand="setFieldType(this);" />
+						</menupopup>
+					</toolbarbutton>
+					<!-- child number 1 -->
+					<toolbaritem flex="1">
+						<textbox editable="true" tooltiptext="Press Enter to Search, Press Ctrl-Enter to Add Another Search Field!"
+							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { doSearch(event); } else { addSearchField(); document.commandDispatcher.advanceFocus(); }"
+							flex="1" minwidth="100" width="160" />
+					</toolbaritem>
+					<!-- child number 2 -->
+					<toolbarbutton tooltiptext="Create New Search Field" class="down-button" disabled="false" oncommand="addSearchField();" />
+					<!-- child number 3 -->
+					<toolbarbutton tooltiptext="Close Search Field" class="close-button" disabled="true" oncommand="removeSearchField(this.parentNode);" />
+				</hbox>
+				<!-- do not add anything here -->
+			</vbox>
+			<vbox>
+				<hbox>
+					<toolbarbutton label="&libx.searchcataloglabel;" type="menu-button" tooltiptext="Submit Search!"
+						id="search-button" oncommand="doSearch();">
+						<menupopup>
+							<menuitem label="&libx.searchcataloglabel;" oncommand="setSearchButton(this,event);"
+								value="searchcat" />
+							<menuitem id="libx-openurl-search-menuitem" label="&libx.searchopenurllabel;" oncommand="setSearchButton(this,event);"
+								value="searchaf" />
+							<menuitem hidden="true" label="Search WorldCat" oncommand="setSearchButton(this,event);" value="searchwc" />
+						</menupopup>
+					</toolbarbutton>
+					<toolbarbutton label=" Clear All " tooltiptext="Clear All Search Fields" oncommand="clearAllFields();" />
+					<toolbarbutton label="&libx.magicbutton.label;" 
+					    tooltiptext="Drag and Drop Terms onto this button!" id="libx-magic-button"
+						image="&libx.magicbutton.image;" oncommand="doMagicSearch();" />
+				</hbox>
+			</vbox>
+		</toolbar>
+	</toolbox>
+	<menupopup id="contentAreaContextMenu">
+		<menuseparator />
+		<!-- create a nested menu like so -->
+		<menu image="&libx.image;" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as...">
+			<menupopup id="search-menu">
+				<menuitem value="Y" label="Keyword" oncommand="addSearchFieldAs(this);" />
+				<menuitem value="t" label="Title" oncommand="addSearchFieldAs(this);" />
+				<menuitem value="at" label="Article Title" oncommand="addSearchFieldAs(this);" />
+				<menuitem value="a" label="Author" oncommand="addSearchFieldAs(this);" />
+				<menuitem value="i" label="ISBN/ISSN" oncommand="addSearchFieldAs(this);" />
+			</menupopup>
+		</menu>
+		<!-- create a direct menu entry like so -->
+		<menuitem id="libx-keyword-search" label="&libx.rightclickcatalogkeyword;" oncommand="doSearchBy('Y');" />
+		<menuitem id="libx-title-search" label="&libx.rightclickcatalogtitle;" oncommand="doSearchBy('t');" />
+		<menuitem id="libx-author-search" label="&libx.rightclickcatalogauthor;" oncommand="doSearchBy('a');" />
+		<menuitem id="libx-magic-search" hidden="true" label="&libx.rightclickmagicsearch;" oncommand="doMagicSearchBySelection();" />
+		<menuitem id="libx-isbn-search" hidden="true" oncommand="doSearchBy('i');" />
+		<menuitem id="libx-xisbn-search" hidden="true" oncommand="doXisbnSearch();" />
+		<menuitem id="libx-openurl-issn-search" hidden="true" oncommand="doOpenurlSearchByISSN();" />
+		<menuitem id="libx-doi-search" hidden="true" oncommand="doDoiSearchBy();" />
+		<menuitem id="libx-proxify" oncommand="doProxify();" />
+	</menupopup>
+	<menupopup id="menu_ToolsPopup">
+		<menuitem label="&libx.toolbarname;" oncommand="aboutVersion();" />
+	</menupopup>
+</overlay>
+
+<!-- 
+vim: ts=4 
+-->
+
