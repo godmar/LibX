@@ -140,7 +140,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<menuitem id="libx-isbn-search" hidden="true" oncommand="doSearchBy('i');" />
 		<menuitem id="libx-xisbn-search" hidden="true" oncommand="doXisbnSearch();" />
 		<menuitem id="libx-openurl-issn-search" hidden="true" oncommand="doOpenurlSearchByISSN();" />
-		<menuitem id="libx-doi-search" hidden="true" oncommand="doDoiSearchBy();" />
+		<menuitem id="libx-doi-search" hidden="true" oncommand="doDoiSearch();" />
+		<menuitem id="libx-pmid-search" hidden="true" oncommand="doPmidSearch();" />
 		<menuitem id="libx-proxify" oncommand="doProxify();" />
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">

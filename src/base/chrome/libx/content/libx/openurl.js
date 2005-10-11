@@ -103,6 +103,9 @@ OpenURL.prototype = {
     makeOpenURLForDOI: function(doi) {
         return this.completeOpenURL("&id=doi:" + doi);
     },
+    makeOpenURLForPMID: function(pmid) {
+        return this.completeOpenURL("&id=pmid:" + pmid);
+    },
     completeOpenURL: function(path) {
         return this.openUrlResolver + "?sid=" + this.openUrlSid + path;
     }

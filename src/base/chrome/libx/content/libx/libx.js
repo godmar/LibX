@@ -105,12 +105,13 @@ function libxContextPopupShowing() {
 	var xisbnsearch = document.getElementById("libx-xisbn-search");
 	var openurlissnsearch = document.getElementById("libx-openurl-issn-search");
 	var doisearch = document.getElementById("libx-doi-search");
+	var pmidsearch = document.getElementById("libx-pmid-search");
 	var libxproxify = document.getElementById("libx-proxify");
 	var scholarsearch = document.getElementById("libx-magic-search");
 	//conservatively assume no button is shown
 	keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = true;
 	isbnsearch.hidden = xisbnsearch.hidden = true;
-	openurlissnsearch.hidden = doisearch.hidden = true;
+	openurlissnsearch.hidden = doisearch.hidden = pmidsearch.hidden = true;
 	scholarsearch.hidden = true;
 	
 	if (popuphelper.isOverLink()) {// activate proxify link whenever user right-clicked over hyperlink
@@ -121,6 +122,7 @@ function libxContextPopupShowing() {
 		
 	pureISN = null;//forget pureISN
 	pureDOI = null;//forget pureDOI
+	purePMID = null;//forget purePMID
 	if (!popuphelper.isTextSelected()) {//no selection
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
 		if (popuphelper.isOverLink()) {
@@ -139,7 +141,7 @@ function libxContextPopupShowing() {
 		isbnsearch.label = libxGetProperty("isbnsearch.label", [pureISN]);
 		xisbnsearch.label = libxGetProperty("xisbnsearch.label", [pureISN]);
 		isbnsearch.hidden = false;
-		if (libraryCatalog.xisbnOPACID) {   // only true of xISBN is supported for this catalog
+		if (libraryCatalog.xisbnOPACID) {   // only true if xISBN is supported for this catalog
 		    xisbnsearch.hidden = false;
 		}
 	} else
@@ -155,11 +157,25 @@ function libxContextPopupShowing() {
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
 		scholarsearch.hidden = false;
     }
+
 	pureDOI = isDOI(s);
 	if (pureDOI != null && openUrlResolver) {
 		doisearch.label = libxGetProperty("openurldoisearch.label", [pureDOI]);
 		doisearch.hidden = false;
 	}
+
+	purePMID = isPMID(s);
+	if (purePMID != null && openUrlResolver) {
+		pmidsearch.label = libxGetProperty("openurlpmidsearch.label", [purePMID]);
+		pmidsearch.hidden = false;
+	}
+}
+
+function isPMID(s) {
+	var m = s.match(/PMID[^\d]*(\d+)/i);
+    if (m == null)
+        return null;
+    return m[1];
 }
 
 // run a search against Scholar from the current selection
@@ -317,9 +333,14 @@ function doOpenurlSearchByISSN() {
 // this function is called if the user right-clicks and a DOI was previously
 // detected either in the selection or in a href-link
 // It will pass that DOI to Article Finder to get an appropriate copy
-function doDoiSearchBy() {
+function doDoiSearch() {
 	var openUrlByDoi = openUrlResolver.makeOpenURLForDOI(pureDOI);
 	openSearchWindow(openUrlByDoi);
+}
+
+function doPmidSearch() {
+	var openUrlByPmid = openUrlResolver.makeOpenURLForPMID(purePMID);
+	openSearchWindow(openUrlByPmid);
 }
 
 // this function is called when the user hits the "Proxify" menuitem
