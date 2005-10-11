@@ -16,11 +16,12 @@ files
 ------
     consists of a list of files that need to be copied into the xpi file.
     Each entry is of the form file destination-directory-relative-to-top
-    Those files will NOT be subject to config substitution from config files.
+    Those files will ALSO be subject to config substitution from config files.
 
 
-After running "createextension.pl", the files can be made "life" by copying
+After running "createextension.pl", the files can be made "live" by copying
 them to the libx.org editions directory (if hosted at libx.org)
+See makelive.sh for what's being copied.
 
 -------------------------------------------------------------------------------------
 
@@ -31,5 +32,6 @@ hosts the VT edition.
 Each hosted edition must contain the .xpi file, the update.rdf files, and, optionally, 
 a libx.html file.
 
-The libx.html can alternatively be made part of the library's home site.
+The libx.html can alternatively be made part of the library's home site so the
+offering will appear to come directly from the offering library.
 
