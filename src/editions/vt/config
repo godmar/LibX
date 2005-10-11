@@ -1,5 +1,7 @@
 libxedition=Virgina Tech Edition
 emname=LibX Virginia Tech
+catalogname=Addison
+openurlname=VT Article Linker
 emiconURL=chrome://libx/skin/virginiatech.ico
 emdescription=Toolbar for Virginia Tech library users
 emhomepageURL=http://www.libx.org/editions/vt/libx.html

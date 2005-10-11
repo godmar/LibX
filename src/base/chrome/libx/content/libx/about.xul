@@ -49,7 +49,10 @@ function setVersion() {
 				<label value="&libx.aboutbox.label;" class="name" />
 				<spacer flex="1" />
 				<label id="libx-edition" />
-				<label id="libx-version" />
+                <hbox>
+                    <label id="libx-version" />
+                    <label value="$builddate$" />
+                </hbox>
 			</vbox>
 			<spacer flex="1" />
 		</hbox>

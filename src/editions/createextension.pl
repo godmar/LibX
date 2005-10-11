@@ -9,6 +9,10 @@ if (!defined($edition) || ! -d $edition) {
 my $copytargetdir = "/Library/WebServer/libx.org/editions";
 
 my %conf = ();
+
+$conf{'builddate'} = `date +%Y%m%d`;
+chomp($conf{'builddate'});
+
 open (H, "<$edition/config") || die ("Can't read $edition/config");
 while (<H>) {
     next if (/^#/);
@@ -19,6 +23,23 @@ while (<H>) {
 }
 close(H);
 
+sub copyandreplace {
+    my ($src, $dst) = @_;
+
+    # copy files, replacing variables
+    #print "processing $src to $dst\n";
+    local (*FS);
+    open (FS, "<$src") || die;
+    my $srctext = do { local ($/); <FS> };
+    close (FS);
+    foreach $key (keys(%conf)) {
+        $srctext =~ s/\$$key\$/$conf{$key}/g;
+    }
+    open (FD, ">$dst") || die "Can't open $dst for writing";
+    printf FD "%s", $srctext;
+    close (FD);
+}
+
 my $d = "tmp";
 system("/bin/rm -rf $d");
 
@@ -26,22 +47,11 @@ my @files = split(/\s+/, `find ../base`);
 foreach $src (@files) {
     my $dst = $src;
     $dst =~ s/..\/base/tmp/;
-    #print "processing $src to $dst\n";
     if (-d $src) {
         # recreate directory
         system("mkdir $dst");
     } else {
-        # copy files, replacing variables
-        local (*FS);
-        open (FS, "<$src") || die;
-        my $srctext = do { local ($/); <FS> };
-        close (FS);
-        foreach $key (keys(%conf)) {
-            $srctext =~ s/\$$key\$/$conf{$key}/g;
-        }
-        open (FD, ">$dst") || die;
-        printf FD "%s", $srctext;
-        close (FD);
+        &copyandreplace($src, $dst);
     }
 }
 
@@ -56,7 +66,8 @@ while (<H>) {
 close(H);
 
 foreach $file (keys(%files)) {
-    system("cp $edition/$file $d/$files{$file}");
+    #system("cp $edition/$file $d/$files{$file}");      don't just copy, replace
+    &copyandreplace("$edition/$file", "$d/$files{$file}/$file");
 }
 
 my $xpifile = $conf{'xpilocation'};
@@ -68,6 +79,7 @@ my $livescript = "$edition/makelive.sh";
 open (O, ">$livescript") || die ("Could not write to $livescript");
 print O "#!/bin/sh\n";
 print O "T=$copytargetdir/$edition\n";
+print O "test -d \$T || (echo \"This works only on a machine where \$T exists\"; exit)\n";
 print O "cp $xpifile \$T\n";
 print O "cp update.rdf \$T\n";
 print O "test -r libx.html && cp libx.html \$T\n";

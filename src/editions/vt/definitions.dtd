@@ -3,25 +3,25 @@
 <!ENTITY libx.aboutbox.label "LibX">
 <!ENTITY libx.aboutbox.image "chrome://libx/skin/shield50.gif">
 <!ENTITY libx.aboutbox.homepage "http://www.libx.org">
-<!ENTITY libx.aboutbox.title "LibX - Virginia Tech Edition">
+<!ENTITY libx.aboutbox.title "LibX - $libxedition$">
 
 <!ENTITY libx.toolbarname "LibX VT">
 <!ENTITY libx.toolbarbutton "LibX VT ">
-<!ENTITY libx.image "chrome://libx/skin/virginiatech.ico">
+<!ENTITY libx.image "$emiconURL$">
 
-<!ENTITY libx.tooltiptext "LibX - Virginia Tech Edition">
+<!ENTITY libx.tooltiptext "LibX - $libxedition$">
 <!ENTITY libraryhomepage.menuitem.label "VT University Libraries">
 <!ENTITY libraryhomepage.menuitem.url "http://www.lib.vt.edu/">
-<!ENTITY libraryopac.menuitem.label "Addison Catalog">
+<!ENTITY libraryopac.menuitem.label "$catalogname$ Catalog">
 <!ENTITY libraryopac.menuitem.url "http://addison.vt.edu/">
 
-<!ENTITY libx.searchcataloglabel "Search Addison">
-<!ENTITY libx.rightclickcatalogkeyword "Search Addison by Keyword Now!">
-<!ENTITY libx.rightclickcatalogtitle "Search Addison by Title Now!">
-<!ENTITY libx.rightclickcatalogauthor "Search Addison by Author Now!">
+<!ENTITY libx.searchcataloglabel "Search $catalogname$">
+<!ENTITY libx.rightclickcatalogkeyword "Search $catalogname$ by Keyword Now!">
+<!ENTITY libx.rightclickcatalogtitle "Search $catalogname$ by Title Now!">
+<!ENTITY libx.rightclickcatalogauthor "Search $catalogname$ by Author Now!">
 
 <!ENTITY libx.magicbutton.label " Scholar ">
 <!ENTITY libx.magicbutton.image "chrome://libx/skin/scholar.gif">
 <!ENTITY libx.rightclickmagicsearch "Search via Scholar">
 
-<!ENTITY libx.searchopenurllabel "Search Article Linker">
+<!ENTITY libx.searchopenurllabel "Search $openurlname$">
