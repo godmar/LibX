@@ -7,6 +7,7 @@ You are using the $libxedition$
 
 version 1.0
 
+ *add support for pubmed ids in context menu if "PMID..." is selected
  *show error message when user tries to use article title in Addison search
  *sort Addison search results by relevance
  *embed marker in Addison url

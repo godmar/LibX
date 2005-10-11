@@ -1,9 +1,44 @@
 To create a new edition, you must create a new directory in here first.
 
-If you create a directory called 'vt', then run "createextension.pl vt" and
-you'll get libx-vt.xpi
+Let's say you want to create an edition for Academic University, acu
 
-In that directory 'vt', the following files control customization:
+You create a directory:
+
+# mkdir acu
+# cd acu
+
+Then, copy into this directory the following files:
+
+# cp ../vt/definitions.properties .
+# cp ../vt/definitions.dtd .
+# cp ../vt/config .
+# cp ../vt/files .
+# cp ../vt/libx.html .
+
+Then, get a small logo (http://yourlibrary.edu/favicon.ico works really well)
+that shows well at 16x16 and a large logo and copy those into the acu directory.
+
+# wget ...
+# wget ...
+
+Next, edit files and replace the last two lines:
+Replace shield50.gif with the filename of your large logo.
+Replace virginiatech.ico with the filename of your small logo.
+
+Adapt all entries in acu/config as needed.
+(If you don't have openurl support or ezproxy support, set the variables to empty, 
+as in proxytype=        )
+
+Finally, run
+
+# cd ..
+# ./createextension.pl acu
+
+acu/libx-acu.xpi will have your extension for installation.
+
+
+-------------------
+The following files control customization:
 
 config 
 ------
@@ -22,6 +57,7 @@ files
 After running "createextension.pl", the files can be made "live" by copying
 them to the libx.org editions directory (if hosted at libx.org)
 See makelive.sh for what's being copied.
+Adjust createextension.pl if you want to host your edition yourself.
 
 -------------------------------------------------------------------------------------
 

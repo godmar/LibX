@@ -1,19 +1,21 @@
-<!-- everything that's branding specific goes in here -->
+<!-- 
+Branding specific things should be defined in config and variables should be used in here.
+-->
 
 <!ENTITY libx.aboutbox.label "LibX">
-<!ENTITY libx.aboutbox.image "chrome://libx/skin/shield50.gif">
+<!ENTITY libx.aboutbox.image "$logoURL$">
 <!ENTITY libx.aboutbox.homepage "http://www.libx.org">
 <!ENTITY libx.aboutbox.title "LibX - $libxedition$">
 
-<!ENTITY libx.toolbarname "LibX VT">
-<!ENTITY libx.toolbarbutton "LibX VT ">
+<!ENTITY libx.toolbarname "$emnameshort$">
+<!ENTITY libx.toolbarbutton "$emnameshort$ ">
 <!ENTITY libx.image "$emiconURL$">
 
 <!ENTITY libx.tooltiptext "LibX - $libxedition$">
-<!ENTITY libraryhomepage.menuitem.label "VT University Libraries">
-<!ENTITY libraryhomepage.menuitem.url "http://www.lib.vt.edu/">
+<!ENTITY libraryhomepage.menuitem.label "$libraryname$">
+<!ENTITY libraryhomepage.menuitem.url "$libraryhomepage$">
 <!ENTITY libraryopac.menuitem.label "$catalogname$ Catalog">
-<!ENTITY libraryopac.menuitem.url "http://addison.vt.edu/">
+<!ENTITY libraryopac.menuitem.url "$catalogurl$">
 
 <!ENTITY libx.searchcataloglabel "Search $catalogname$">
 <!ENTITY libx.rightclickcatalogkeyword "Search $catalogname$ by Keyword Now!">

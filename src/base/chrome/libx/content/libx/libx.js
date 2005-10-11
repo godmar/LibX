@@ -72,7 +72,7 @@ function libxInit() {
         searchType = document.getElementById("search-button").firstChild.firstChild.value;
 	
 	var ourltype = libxGetProperty("openurltype");
-	if (ourltype == "articlefinder") {
+	if (ourltype == "sersol") {
 	    openUrlResolver = new ArticleFinder(libxGetProperty("openurlresolver.url"), libxGetProperty("openurl.sid"));
 	} else
     if (ourltype == "generic" || ourltype == "webbridge") {
@@ -153,21 +153,26 @@ function libxContextPopupShowing() {
 		    openurlissnsearch.hidden = false;
 		}
 	}
-	if (pureISN == null) {
+
+    if (openUrlResolver) {
+        purePMID = isPMID(s);
+    }
+	if (purePMID != null) {
+		pmidsearch.label = libxGetProperty("openurlpmidsearch.label", [purePMID]);
+		pmidsearch.hidden = false;
+	}
+
+    // don't show keyword, title, author if IS*N or PMID was recognized
+	if (pureISN == null && purePMID == null) {
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
 		scholarsearch.hidden = false;
     }
 
+    // DOI displays in addition to keyword, title, author
 	pureDOI = isDOI(s);
 	if (pureDOI != null && openUrlResolver) {
 		doisearch.label = libxGetProperty("openurldoisearch.label", [pureDOI]);
 		doisearch.hidden = false;
-	}
-
-	purePMID = isPMID(s);
-	if (purePMID != null && openUrlResolver) {
-		pmidsearch.label = libxGetProperty("openurlpmidsearch.label", [purePMID]);
-		pmidsearch.hidden = false;
 	}
 }
 

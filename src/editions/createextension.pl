@@ -15,7 +15,7 @@ chomp($conf{'builddate'});
 
 open (H, "<$edition/config") || die ("Can't read $edition/config");
 while (<H>) {
-    next if (/^#/);
+    next if (/^#/ || /^\s*$/);
     chomp;
     my ($key, $value) = split(/=/, $_);
     $conf{$key} = $value;
