@@ -17,7 +17,7 @@ open (H, "<$edition/config") || die ("Can't read $edition/config");
 while (<H>) {
     next if (/^#/ || /^\s*$/);
     chomp;
-    my ($key, $value) = split(/=/, $_);
+    my ($key, $value) = split(/=/, $_, 2);
     $conf{$key} = $value;
     #print "...$key...=+++" . $conf{$key} . "\n";
 }

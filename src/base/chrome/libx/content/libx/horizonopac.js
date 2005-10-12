@@ -22,9 +22,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Horizon OPAC
-function HorizonOPAC(catURL, sortBy) {
+function HorizonOPAC(catURL) {
 	this.libraryCatalogURL = catURL;
-	this.catalogSort = sortBy;  // currently ignored
 	this.libraryCatalogURLRegExp = "";
 }
 
@@ -71,7 +70,6 @@ HorizonOPAC.prototype = {
 		for (var i = 0; i < fields.length; i++) {
 			url += "&oper=and&index=" + this.convert(fields[i].searchType) + "&term=" + fields[i].searchTerms; 
 		}
-		//url += "&SORT=" + this.catalogSort;
 		return url;
 	}
 }

@@ -63,7 +63,10 @@ function libxInit() {
 		libraryCatalog = new MilleniumOPAC(libraryCatalogUrl, catregexp, catsid, "R", scope);//sort by relevance, use 'D' for date
 	} else
 	if (cattype == "horizon") {
-	    libraryCatalog = new HorizonOPAC(libraryCatalogUrl, /* sort not supported currently */"");
+	    libraryCatalog = new HorizonOPAC(libraryCatalogUrl);
+	} else
+	if (cattype == "voyager") {
+	    libraryCatalog = new VoyagerOPAC(libraryCatalogUrl);
 	} else {
 		libxLog("Catalog type " + cattype + " not supported.");
 	}
@@ -329,7 +332,9 @@ function doSearchBy(stype) {
 // XXX investigate processing these results better - otherwise the user has to click through
 // dozens or more results
 function doXisbnSearch() {
-	var xisbn = "http://labs.oclc.org/xisbn/liblook?baseURL=" + libraryCatalog.libraryCatalogURL + "&opacID=" + libraryCatalog.xisbnOPACID + "&isbn=" + pureISN;
+	var xisbn = "http://labs.oclc.org/xisbn/liblook?baseURL=" 
+        + libraryCatalog.libraryCatalogURL.replace(/https/, "http")     // xISBN barks at https URLs
+        + "&opacID=" + libraryCatalog.xisbnOPACID + "&isbn=" + pureISN;
 	openSearchWindow(xisbn); 
 }
 
