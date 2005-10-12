@@ -1,0 +1,5 @@
+# format of this file is "file directory"
+definitions.dtd chrome/libx/locale/en-US/libx
+definitions.properties chrome/libx/locale/en-US/libx
+georgiatech.ico chrome/libx/skin/libx
+hdr_r1_c1.gif chrome/libx/skin/libx

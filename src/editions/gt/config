@@ -1,0 +1,39 @@
+#
+# Everything that's branding specific should be defined here in this file
+#
+#
+#
+libxedition=Georgia Tech Edition
+emname=LibX Georgia Tech
+emnameshort=LibX GT
+libraryname=Georgia Tech University Libraries
+libraryhomepage=http://www.library.gatech.edu
+
+catalogtype=voyager
+catalogname=GIL
+catalogurl=https://gil.gatech.edu
+catalogregexp=gil\.gatech\.edu
+catalogsid=libxgatech
+# one is entire catalog at VT
+#catalogscope=1
+
+openurltype=generic
+openurlresolverurl=http://orion.galib.uga.edu/sfx_git1
+openurlsid=libx:georgiatech
+openurlname=Find it! @ GT
+
+proxytype=ezproxy
+proxyurl=http://www.library.gatech.edu:2048/login?url=%S
+proxyname=EZProxy
+
+xlibrewritescholarpage=true
+xlibsupportcoins=true
+
+logoURL=chrome://libx/skin/hdr_r1_c1.gif
+emiconURL=chrome://libx/skin/georgiatech.ico
+emdescription=Toolbar for Georgia Tech library users
+emhomepageURL=http://www.libx.org/editions/gt/libx.html
+emupdateURL=http://www.libx.org/editions/gt/update.rdf
+
+xpilocation=http://www.libx.org/editions/gt/libx-gt.xpi
+
