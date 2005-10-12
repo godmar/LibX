@@ -176,11 +176,17 @@ function libxContextPopupShowing() {
 	}
 }
 
+// does this selection contain a pubmed id?
 function isPMID(s) {
 	var m = s.match(/PMID[^\d]*(\d+)/i);
-    if (m == null)
-        return null;
-    return m[1];
+    if (m != null) {
+        return m[1];
+    }
+    m = s.match(/PubMed\s*ID[^\d]*(\d+)/i);
+    if (m != null) {
+        return m[1];
+    }
+    return null;
 }
 
 // run a search against Scholar from the current selection

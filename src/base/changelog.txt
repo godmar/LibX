@@ -7,6 +7,7 @@ You are using the $libxedition$
 
 version 1.0
 
+ *add support for CoinS (http://ocoins.info/); force use of OpenURL v0.1 for now
  *add support for pubmed ids in context menu if "PMID..." is selected
  *show error message when user tries to use article title in Addison search
  *sort Addison search results by relevance
@@ -40,3 +41,6 @@ Mid Term:
  *create testpage with links
  *support catalog types that require POST
  *support catalog types that use sessions (e.g., Sirsi)
+
+ *if only a title is given in the openurl resolver, should we use sersol's journal finder instead?
+ *if sersol result page doesn't show article link even though a DOI is given, add one.

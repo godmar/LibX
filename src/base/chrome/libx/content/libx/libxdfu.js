@@ -214,6 +214,44 @@ if (openUrlResolver && libxGetProperty("xlib.rewritescholarpage") == "true") {
  });
 }
 
+if (openUrlResolver && libxGetProperty("xlib.supportcoins") == "true") {
+ new DoForURL(/.+/, function (doc) {
+    var coins = xpathFindNodes(doc, "//span[(@class='Z3988' or @class='z3988') " +
+            "and contains(@title, 'rft_val_fmt=info:ofi/fmt:kev:mtx:journal') or contains(@title, 'rft_val_fmt=info:ofi/fmt:kev:mtx:book')]");
+    for (var i = 0; i < coins.length; i++) {
+        var span = coins[i];
+        var query = span.getAttribute('title');
+
+        // following code taken with permission from Openlys COINS plugin
+        // http://www.openly.com/openurlref/
+
+        // since we only support OpenURL 0.1 at this time, we always unconditionally convert
+
+        //remove "rft." from beginning of attribute keys
+        query = query.replace(/rft\./g,"");
+
+        if (query.indexOf("genre=") == -1) {
+            if (query.indexOf("rft_val_fmt=info:ofi/fmt:kev:mtx:journal") > -1) {
+                query += "&genre=article";
+            } else {
+                query += "&genre=book";
+            }
+        }      
+
+        //change some attribute names
+        query = query.replace(/jtitle=/,"title=");
+        query = query.replace(/btitle=/,"title=");
+        query = query.replace(/rft_id=info:pmid\//,"id=pmid:");
+        query = query.replace(/rft_id=info:doi\//,"id=doi:");
+        query = query.replace(/rft_id=info:bibcode\//,"id=bibcode:");
+        // end of code
+        query = '&' + query;
+
+        span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(query)));
+    }
+ });
+}
+
 } //end of initializeDoForUrls
 
 // vim: ts=4

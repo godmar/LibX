@@ -27,6 +27,7 @@ proxyurl=http://ezproxy.lib.vt.edu:8080/login?url=%S
 proxyname=EZProxy
 
 xlibrewritescholarpage=true
+xlibsupportcoins=true
 
 logoURL=chrome://libx/skin/shield50.gif
 emiconURL=chrome://libx/skin/virginiatech.ico
