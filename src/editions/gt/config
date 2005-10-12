@@ -26,8 +26,8 @@ proxytype=ezproxy
 proxyurl=http://www.library.gatech.edu:2048/login?url=%S
 proxyname=EZProxy
 
-xlibrewritescholarpage=true
-xlibsupportcoins=true
+libxrewritescholarpage=true
+libxsupportcoins=true
 
 logoURL=chrome://libx/skin/hdr_r1_c1.gif
 emiconURL=chrome://libx/skin/georgiatech.ico

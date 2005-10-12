@@ -198,7 +198,7 @@ new DoForURL(/print.\google\.com\/print/, function (doc) {
 });
 
 // rewrite OpenURLs on Google Scholar's page to show cue
-if (openUrlResolver && libxGetProperty("xlib.rewritescholarpage") == "true") {
+if (openUrlResolver && libxGetProperty("libx.rewritescholarpage") == "true") {
  new DoForURL(/scholar\.google\.com\/scholar/, function (doc) {
     var atags = xpathFindSnapshot(doc, "//a[@href]");
     for (var i = 0; i < atags.length; i++) {
@@ -214,13 +214,17 @@ if (openUrlResolver && libxGetProperty("xlib.rewritescholarpage") == "true") {
  });
 }
 
-if (openUrlResolver && libxGetProperty("xlib.supportcoins") == "true") {
+if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
  new DoForURL(/.+/, function (doc) {
-    var coins = xpathFindNodes(doc, "//span[(@class='Z3988' or @class='z3988') " +
-            "and contains(@title, 'rft_val_fmt=info:ofi/fmt:kev:mtx:journal') or contains(@title, 'rft_val_fmt=info:ofi/fmt:kev:mtx:book')]");
+    var coins = xpathFindNodes(doc, "//span[@class='Z3988']");
     for (var i = 0; i < coins.length; i++) {
         var span = coins[i];
-        var query = span.getAttribute('title');
+        var query = decodeURIComponent(span.getAttribute('title'));
+        var rft_book = "rft_val_fmt=info:ofi/fmt:kev:mtx:book";
+        var rft_journal = "rft_val_fmt=info:ofi/fmt:kev:mtx:journal";
+
+        if (query.indexOf(rft_book) == -1 && query.indexOf(rft_journal) == -1) 
+            continue;
 
         // following code taken with permission from Openlys COINS plugin
         // http://www.openly.com/openurlref/
@@ -231,7 +235,7 @@ if (openUrlResolver && libxGetProperty("xlib.supportcoins") == "true") {
         query = query.replace(/rft\./g,"");
 
         if (query.indexOf("genre=") == -1) {
-            if (query.indexOf("rft_val_fmt=info:ofi/fmt:kev:mtx:journal") > -1) {
+            if (query.indexOf(rft_journal) > -1) {
                 query += "&genre=article";
             } else {
                 query += "&genre=book";
