@@ -256,6 +256,32 @@ if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
  });
 }
 
+//
+// Serials Solutions currently (as of 10/20/05) does not implement OpenURLs with genre=book
+// and an isbn (despite the fact that doing so is dead simple)
+// We help the user by including a direct link to an ISBN-based search.
+//
+if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
+    new DoForURL(/serialssolutions\.com\/(.*genre=book.*)/, function (doc, match) {
+        var im = match[1].match(/isbn=([0-9xX]{10}|[0-9xX]{13})/i);
+        var isbn;
+        if (im && (isbn = isISBN(im[1]))) {
+            var h4 = xpathFindSingle(doc, "//h4[contains(text(), 'No direct links were found')]");
+            if (!h4) {
+                return;
+            }
+            var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [isbn]), libraryCatalog.makeISBNSearch(isbn));
+            var it = doc.createElement("i");
+            it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxGetProperty("isbnsearch.label", [isbn])));
+
+            var par = doc.createElement("p");
+            par.appendChild(hint);
+            par.appendChild(it);
+            h4.parentNode.insertBefore(par, h4);
+        }
+    });
+}
+
 } //end of initializeDoForUrls
 
 // vim: ts=4
