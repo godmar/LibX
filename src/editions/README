@@ -9,17 +9,17 @@ You create a directory:
 
 Then, copy into this directory the following files:
 
-# cp ../vt/definitions.properties .
-# cp ../vt/definitions.dtd .
 # cp ../vt/config .
 # cp ../vt/files .
-# cp ../vt/libx.html .
+# cp ../wlu/libx.html .
 
 Then, get a small logo (http://yourlibrary.edu/favicon.ico works really well)
-that shows well at 16x16 and a large logo and copy those into the acu directory.
+that shows well at 16x16 and get a large logo and copy those into the acu directory. 
+See footnote 1.
+.gif, .jpg, .png, .ico all seem to work.
 
-# wget ...
-# wget ...
+# wget http://yourlibrary.edu/yourimage/smalllogo.gif
+# wget http://yourlibrary.edu/yourimage/largelogo.jpg
 
 Next, edit files and replace the last two lines:
 Replace shield50.gif with the filename of your large logo.
@@ -54,8 +54,9 @@ files
     Those files will ALSO be subject to config substitution from config files.
 
 
+ONLY if hosted at libx.org:
 After running "createextension.pl", the files can be made "live" by copying
-them to the libx.org editions directory (if hosted at libx.org)
+them to the libx.org editions directory (ONLY if hosted at libx.org)
 See makelive.sh for what's being copied.
 Adjust createextension.pl if you want to host your edition yourself.
 
@@ -70,4 +71,20 @@ a libx.html file.
 
 The libx.html can alternatively be made part of the library's home site so the
 offering will appear to come directly from the offering library.
+
+-----------
+Footnote 1:
+
+Ideally is a so-called multiresolution icon that contains a 16x16 and a 48x48 image.
+Note that the 48x48 does not replace the large logo for LibX.
+The 48x48-stretched version is displayed when the user clicks "Tools -> Extensions".
+
+Multiresolution icon files are a single .ico file that is a container for the different resolution.
+A free program to create those can be downloaded from http://sourceforge.net/projects/geniconxp/
+Notice that the installation is somewhat screwy, but it works:
+You have to first install 'ImageMagick-6.1.6-Q16-windows-dll.exe', during installation
+check option 'Install ImageMagickobject control'
+Then install GenIconXP and ignore the registration error.
+ImageMagick can be downloaded here:
+http://www.imagemagick.org/download/binaries/ImageMagick-6.2.5-2-Q16-windows-dll.exe
 
