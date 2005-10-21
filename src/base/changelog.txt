@@ -5,6 +5,10 @@ http://www.libx.org
 
 You are using the $libxedition$
 
+since version 1.0
+
+ *added option libxsersolisbnfix - provides ISBN-based link to Serials Solutions pages.
+
 version 1.0
 
  *add support for CoinS (http://ocoins.info/); force use of OpenURL v0.1 for now

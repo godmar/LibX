@@ -17,6 +17,7 @@ open (H, "<$edition/config") || die ("Can't read $edition/config");
 while (<H>) {
     next if (/^#/ || /^\s*$/);
     chomp;
+    chop if (/\r$/);
     my ($key, $value) = split(/=/, $_, 2);
     $conf{$key} = $value;
     #print "...$key...=+++" . $conf{$key} . "\n";
@@ -29,7 +30,7 @@ sub copyandreplace {
     # copy files, replacing variables
     #print "processing $src to $dst\n";
     local (*FS);
-    open (FS, "<$src") || die;
+    open (FS, "<$src") || die "Could not open $src for reading";
     my $srctext = do { local ($/); <FS> };
     close (FS);
     foreach $key (keys(%conf)) {
@@ -58,7 +59,8 @@ foreach $src (@files) {
 my %files = ();
 open (H, "<$edition/files") || die ("Can't read $edition/files");
 while (<H>) {
-    next if (/^#/);
+    next if (/^#/ || /^\s*$/);
+    chop if (/\r$/);
     my ($fname, $destdir) = split(/\s+/, $_);
     $files{$fname} = $destdir;
     #print "...$fname...=+++" . $files{$fname} . "\n";

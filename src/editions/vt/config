@@ -1,16 +1,47 @@
 #
-# Everything that's branding specific should be defined here in this file
+# This file contains the setting for the Virginia Tech Edition.
 #
+# To create your own edition, you must copy this file and change the 
+# entries as documented.
 #
+
+# This name of the edition will be shown in the title bar of the 
+# "About-Box" box and in a tooltip
 #
 libxedition=Virgina Tech Edition
+
+# This is shown in the list of extension if the user clicks on "Tools->Extensions"
 emname=LibX Virginia Tech
+
+# This is shown in the toolbar as label on the button on  the very left
 emnameshort=LibX VT
+
+# libraryname and libraryhomepage are name & URL for the first button
+# in the drop-down menu button labeled $emnameshort$
 libraryname=VT University Libraries
 libraryhomepage=http://www.lib.vt.edu/
 
+#
+# Byline for adapter.
+#
+# Leave empty if you don't wish a byline
+# otherwise, fill in, for example, your name and contact information. 
+#
+# adaptedby=John Smith john.smith@email.com
+# This information will be displayed in the About Box dialog.
+#
+adaptedby=
+
+#
+# The catalogtype.
+# It must be one of millenium, horizon, or voyager.
+#
 catalogtype=millenium
+
+# Name of the catalog - used in many places.ZZ
 catalogname=Addison
+# The base URL of the catalog
+# No slash at the end.
 catalogurl=http://addison.vt.edu
 catalogregexp=addison\.vt\.edu
 catalogsid=libxvt
@@ -28,6 +59,7 @@ proxyname=EZProxy
 
 libxrewritescholarpage=true
 libxsupportcoins=true
+libxsersolisbnfix=true
 
 logoURL=chrome://libx/skin/shield50.gif
 emiconURL=chrome://libx/skin/virginiatech.ico

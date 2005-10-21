@@ -36,6 +36,9 @@ function setVersion() {
 	// version is passed in aboutVersion()
 	document.getElementById("libx-version").setAttribute("value", "Version " + window.arguments[0]);
 	document.getElementById("libx-edition").setAttribute("value", window.arguments[1]);
+    if (document.getElementById("adaptedby").getAttribute("value") == "") {
+        document.getElementById("adaptedbybox").setAttribute("hidden", true);
+    }
 }
 ]]>
 	</script>
@@ -60,6 +63,10 @@ function setVersion() {
 		<label value="Authors" class="header" />
 		<label value="Annette Bailey" />
 		<label value="Godmar Back" />
+        <vbox id="adaptedbybox">
+            <label class="header" value="Adapted by" />
+            <label id="adaptedby" value="&libx.aboutbox.adaptedby;" />
+        </vbox>
 		<label value="Home Page" class="header" />
 		<label onclick="window.open('&libx.aboutbox.homepage;')" class="url">&libx.aboutbox.homepage;</label>
 	</vbox>
