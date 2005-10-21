@@ -62,8 +62,8 @@ VoyagerOPAC.prototype = {
 	makeSearch: function(stype, sterm) {
         if (stype == 'Y') {
             // + does "find all" as in Google; we assume the user wants this 
-            sterm = sterm.replace(/^(\S)/, "%2B$1");
-            sterm = sterm.replace(/\s+(\S)/, " %2B$1");
+            sterm = sterm.replace(/^(\S)/, "+$1");
+            sterm = sterm.replace(/\s+(\S)/, " +$1");
         }
         // order of fields seems to matter here (!??!)
         return this.libraryCatalogURL + "/cgi-bin/Pwebrecon.cgi?Search_Arg=" + sterm + "&HIST=1&SL=None&Search_Code="+ this.convert(stype) + "&CNT=25&DB=local";
