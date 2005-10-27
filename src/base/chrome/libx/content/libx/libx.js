@@ -372,10 +372,49 @@ function doEasyProxify() {
     }
 }
 
+/* From the III documentation:
+
+  http://<port>-<target server>.<Innovative server>/<rest of URL>
+  <port> The port number of the resource. If the port number is 80, substitute 0 (zero) for the port number.
+  <target server> The address for the target resource.
+  <Innovative server> The address of your Innovative server.
+  <rest of URL> The rest of the URL for the target resource.
+
+      http://search.epnet.com:5670/a/acp/name/db/bgmi/search
+      http://5670-search.epnet.com.my.lib.edu/a/acp/name/db/bgmi/search
+*/
+function convertToWAM(url) {
+    var proxybase = libxGetProperty("proxy.url");
+    var m = url.match(/http:\/\/([^\/:]+)(:(\d+))?\/(.*)$/);
+    if (m) {
+        m[0];
+        var host = m[1];
+        var port = m[3];
+        if (port === undefined || port == 80) port = 0;
+        var path = m[4];
+        var newurl = "http://" + port + "-" + host + "." + proxybase + "/" + path;
+        return newurl;
+    }
+    return url;
+}
+
+function doWAMProxify() {
+	var newurl;
+	if (popuphelper.isOverLink()) {
+		newurl = convertToWAM(popuphelper.getNode().href);
+		openSearchWindow(newurl);
+    } else {
+		_content.location.href = convertToWAM(_content.location.toString());
+    }
+}
+
 function doProxify() {
 	var proxytype = libxGetProperty("proxytype");
 	if (proxytype == "ezproxy") {
 		doEasyProxify();
+    } else
+	if (proxytype == "wam") {
+        doWAMProxify();
 	} else {
 		libxLog("Unsupported Proxy Type " + proxytype);
 	}

@@ -117,14 +117,16 @@ openurlname=VT Article Linker
 
 #
 # Off-campus proxying.
-# Currently only support ezproxy.
+# Currently support "ezproxy" and "wam".
 # Leave empty if not used.
 #
 proxytype=ezproxy
 
 #
-# How to rewrite URLs for proxying.  The "%S" is replaced with the URL that 
-# should be proxied.
+# How to rewrite URLs for proxying.  
+# For ezproxy, the "%S" is replaced with the URL that should be proxied.
+# For wam, provide the hostname for which DNS catch-all is enabled
+#        (typically identical to catalogurl without http, as in addison.vt.edu)
 #
 proxyurl=http://ezproxy.lib.vt.edu:8080/login?url=%S
 
