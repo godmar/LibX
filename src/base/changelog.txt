@@ -7,7 +7,11 @@ You are using the $libxedition$
 
 since version 1.0
 
+ *add preference for opening results: new tab, same tab, new window, new tab & switch
+ *don't remove certain characters from search terms
+ *fixed display of floor maps
  *added option libxsersolisbnfix - provides ISBN-based link to Serials Solutions pages.
+  - also adds direct DOI links where appropriate
 
 version 1.0
 
@@ -36,15 +40,13 @@ To Do List
 ---------
 
 Short Term:
- *add preference for opening new window or new tab
 
 Mid Term:
- *if openurl is genre=book; point user at Addison on openurl resolver page
  *if article finder didn't find journal title; 
   add "do you mean" functionality to open url resolver page
+ *if only a title is given in the openurl resolver, should we use sersol's journal finder instead?
  *create testpage with links
  *support catalog types that require POST
  *support catalog types that use sessions (e.g., Sirsi)
 
- *if only a title is given in the openurl resolver, should we use sersol's journal finder instead?
  *if sersol result page doesn't show article link even though a DOI is given, add one.
