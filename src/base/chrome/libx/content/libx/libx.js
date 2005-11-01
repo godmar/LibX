@@ -96,6 +96,29 @@ function libxInit() {
 	var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
     new TextDropTarget(magicSearch).attachToElement(document.getElementById("libx-magic-button"));
+    initializePreference("libx.displaypref");
+}
+
+/*
+ * initialize/record a change in preference
+ * We assume 
+ * - that properties are choices offered in a menupopup wrapping menuitems
+ * - that the name of the property is also the id of the surrounding menupopup
+ * - that the name of the value is also the id of the menuitem child reflecting the choice
+ */
+function recordPreference(property, value)
+{
+    var parent = document.getElementById(property);
+    for (var i = 0; i < parent.childNodes.length; i++) {
+        parent.childNodes.item(i).setAttribute('checked', parent.childNodes.item(i).getAttribute('id') == value);
+    }
+    nsPreferences.setUnicharPref(property, value);
+}
+
+function initializePreference(property)
+{
+    var menuchild = nsPreferences.getLocalizedUnicharPref(property, "libx.newtabswitch");
+    document.getElementById(menuchild).setAttribute("checked", true);
 }
 
 //this function is called right before the right click context menu is shown
@@ -204,17 +227,35 @@ function libxLog(msg) {
     consoleService.logStringMessage("Library Bar: " + msg);
 }
 
-// open a url in a new tab
-// all other functions use this function instead of calling addTab() directly
-// we can change this here if the user prefers to open links in the current tab
-// or in a new window
+// open search results, according to user preferences
 function openSearchWindow(url) {
-    if (typeof url == "string") {
+    var what = nsPreferences.getLocalizedUnicharPref("libx.displaypref", "libx.newtabswitch");
+    switch (what) {
+    case "libx.newwindow":
+	    window.open(encodeURI(url));
+        break;
+    case "libx.sametab":
+		_content.location.href = url;
+        break;
+    case "libx.newtab":
+    default:
 	    getBrowser().addTab(encodeURI(url));
-	} else
-    if (url.constructor.name == "Array") {  // for catalog that require POST - UNTESTED code
-  	    getBrowser().addTab(encodeURI(url[0]), null, null, /*aPostData*/url[1]);
+        break;
+    case "libx.newtabswitch":
+	    var tab = getBrowser().addTab(encodeURI(url));
+        getBrowser().selectedTab = tab;
+        break;
     }
+
+/* fix this later should it be necessary - so far, we were able to get at every catalog via GET
+   this code is intended should POST be necessary in the future.
+*/
+//    if (typeof url == "string") {
+//	    getBrowser().addTab(encodeURI(url));
+//	} else
+//   if (url.constructor.name == "Array") {  // for catalog that require POST - UNTESTED code
+//	    getBrowser().addTab(encodeURI(url[0]), null, null, /*aPostData*/url[1]);
+//    }
 }
 
 // given an array of {searchType: xxx, searchTerms: xxx } items
@@ -308,9 +349,10 @@ function doSearchBy(stype) {
 	var sterm = popuphelper.getSelection();
 	var hasComma = sterm.match(/,/);
 	
-	// replace removes everything that's not letter, digit, _, -, or whitespace
+	// clean up search term by removing unwanted characters
+    // should leave &, and single apostrophe in - what about others?
 	// and replaces multiple whitespaces with a single one
-	sterm = sterm.replace(/[^A-Za-z0-9_\-\s]/g, " ").replace(/\s+/g, " ");
+	sterm = sterm.replace(/[^A-Za-z0-9_&:\'\-\s]/g, " ").replace(/\s+/g, " ");
 	// split author into names, turns "arthur conan doyle" into ["arthur", "conan", "doyle"]
 	var names = sterm.split(/\s+/);
 	// switch author's first and last name unless there's a comma or the last name is an initial

@@ -69,6 +69,15 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 						<menupopup>
 							<menuitem label="&libraryhomepage.menuitem.label;" oncommand="openSearchWindow('&libraryhomepage.menuitem.url;')" />
 							<menuitem label="&libraryopac.menuitem.label;" oncommand="openSearchWindow('&libraryopac.menuitem.url;')" />
+                            <menuseparator />
+                            <menu label="Display Preferences...">
+                                <menupopup id="libx.displaypref">
+                                    <menuitem type="checkbox" id="libx.newtab" label="Display results in new tab" oncommand="recordPreference('libx.displaypref', this.id);" />
+                                    <menuitem type="checkbox" id="libx.newtabswitch" label="Display results in new tab and switch to it" oncommand="recordPreference('libx.displaypref', this.id);" />
+                                    <menuitem type="checkbox" id="libx.newwindow" label="Display results in new window" oncommand="recordPreference('libx.displaypref', this.id);" />
+                                    <menuitem type="checkbox" id="libx.sametab" label="Display results in same tab" oncommand="recordPreference('libx.displaypref', this.id);" />
+                                </menupopup>
+                            </menu>
 							<menuitem label="About" oncommand="aboutVersion()" />
 						</menupopup>
 					</toolbarbutton>
