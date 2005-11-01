@@ -137,6 +137,7 @@ new DoForURL(libraryCatalog.libraryCatalogURLRegExp, function (doc) {
         }
         
         var lasttd = xpathFindSingle(doc, "td[3]", availrows[i]);
+        lasttd.appendChild(doc.createTextNode(" "));
         lasttd.appendChild(vtlogo);
     }
 });
@@ -279,6 +280,22 @@ if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
             par.appendChild(it);
             h4.parentNode.insertBefore(par, h4);
         }
+    });
+
+    // fix it up if SerSol thinks it does not have enough information even though a DOI is in the OpenURL
+    new DoForURL(/serialssolutions\.com\/.*id=doi:([^&]+)(&|$)/, function (doc, match) {
+        var doi = match[1];
+        var h3 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
+        if (!h3) {
+            return;
+        }
+        var hint =  makeLink(doc, "Try dx.doi.org/" + doi,  "http://dx.doi.org/" + doi);
+        var it = doc.createElement("i");
+        it.appendChild(doc.createTextNode(" LibX Enhancement: Try CrossRef for DOI " + doi));
+        var par = doc.createElement("p");
+        par.appendChild(hint);
+        par.appendChild(it);
+        h3.parentNode.insertBefore(par, h3);
     });
 }
 
