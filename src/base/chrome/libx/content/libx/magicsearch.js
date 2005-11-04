@@ -70,19 +70,19 @@ function magicSearch(data, inpub) {
     }
     baseurl += '&q=';
 
-    var url = baseurl + encodeURIComponent(data);
+    var url = baseurl + data;
     
     // if there is no OpenURL support, then there is no point in trying to read Google Scholar pages
     // simply open the scholar page for the user to see.
     if (!openUrlResolver) {
-        getBrowser().addTab(url);
+        openSearchWindow(url);
         return;
     }
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
         magic_log("Attempt #" + _attempt + ": " + url);
 
         var req = new XMLHttpRequest();
-        req.open('GET', url, false);    // synchronous request
+        req.open('GET', encodeURI(url), false);    // synchronous request
         // it will send along whatever cookie is already set by the user, so there's no need to set a cookie here
         req.send(null);
         var r = req.responseText;
@@ -92,7 +92,7 @@ function magicSearch(data, inpub) {
         var nf = r.match(/No pages were found containing <b>\"([^\"]*)\"<\/b>/);
         if (nf) {
             data = data.replace(nf[1], " ");    // drop the term
-            url = baseurl + encodeURIComponent(data);   // rebuild search url
+            url = baseurl + data;   // rebuild search url
             continue;   // try again
         }
 
@@ -100,6 +100,7 @@ function magicSearch(data, inpub) {
         var div = r.match(/<div>\s*(<p class=g>[\s\S]*?)<\/div>/);
         if (div) {
             var hits = div[1].split(/<p class=g>/);
+            var found = false;
             for (var h = 0; h < hits.length; h++) {
                 if (hits[h] == "")
                     continue;
@@ -148,7 +149,8 @@ function magicSearch(data, inpub) {
                 if (tplusauthsim > threshold1 || ((titlesim + ausim) > threshold2)) {
                     var vtu = openUrlResolver.completeOpenURL(decodeURIComponent(openurl[2]));
                     magic_log('OpenURL: ' + vtu);
-                    getBrowser().addTab(vtu);
+                    openSearchWindow(vtu);
+                    found = true;
                     break;
                 }
             }
@@ -156,7 +158,12 @@ function magicSearch(data, inpub) {
             if (h == hits.length) {
                 magic_log("I received " + hits.length + " hits, but no matches were found - maybe no affiliation cookie is set");
             }
-            getBrowser().addTab(url);   // whether or not we got a hit, show google scholar page also
+            // show google scholar page also
+            if (found) {
+                getBrowser().addTab(encodeURI(url));       // in second tab if we got a hit
+            } else {
+                openSearchWindow(url);          // as primary window if not
+            }
             return;
         }
 
@@ -169,7 +176,7 @@ function magicSearch(data, inpub) {
         }
 
         // we don't know what else to do, just take the user to the google scholar page
-        getBrowser().addTab(url);
+        openSearchWindow(url);
         return;
     }
 }
