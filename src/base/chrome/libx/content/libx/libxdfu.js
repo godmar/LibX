@@ -219,40 +219,44 @@ if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
  new DoForURL(/.+/, function (doc) {
     var coins = xpathFindNodes(doc, "//span[@class='Z3988']");
     for (var i = 0; i < coins.length; i++) {
-        var span = coins[i];
-        var query = decodeURIComponent(span.getAttribute('title'));
-        var rft_book = "rft_val_fmt=info:ofi/fmt:kev:mtx:book";
-        var rft_journal = "rft_val_fmt=info:ofi/fmt:kev:mtx:journal";
+        try { // the span attribute may be malformed, if so, recover and continue with next
+            var span = coins[i];
+            var query = decodeURIComponent(span.getAttribute('title'));
+            var rft_book = "rft_val_fmt=info:ofi/fmt:kev:mtx:book";
+            var rft_journal = "rft_val_fmt=info:ofi/fmt:kev:mtx:journal";
 
-        if (query.indexOf(rft_book) == -1 && query.indexOf(rft_journal) == -1) 
-            continue;
+            if (query.indexOf(rft_book) == -1 && query.indexOf(rft_journal) == -1) 
+                continue;
 
-        // following code taken with permission from Openlys COINS plugin
-        // http://www.openly.com/openurlref/
+            // following code taken with permission from Openlys COINS plugin
+            // http://www.openly.com/openurlref/
 
-        // since we only support OpenURL 0.1 at this time, we always unconditionally convert
+            // since we only support OpenURL 0.1 at this time, we always unconditionally convert
 
-        //remove "rft." from beginning of attribute keys
-        query = query.replace(/rft\./g,"");
+            //remove "rft." from beginning of attribute keys
+            query = query.replace(/rft\./g,"");
 
-        if (query.indexOf("genre=") == -1) {
-            if (query.indexOf(rft_journal) > -1) {
-                query += "&genre=article";
-            } else {
-                query += "&genre=book";
-            }
-        }      
+            if (query.indexOf("genre=") == -1) {
+                if (query.indexOf(rft_journal) > -1) {
+                    query += "&genre=article";
+                } else {
+                    query += "&genre=book";
+                }
+            }      
 
-        //change some attribute names
-        query = query.replace(/jtitle=/,"title=");
-        query = query.replace(/btitle=/,"title=");
-        query = query.replace(/rft_id=info:pmid\//,"id=pmid:");
-        query = query.replace(/rft_id=info:doi\//,"id=doi:");
-        query = query.replace(/rft_id=info:bibcode\//,"id=bibcode:");
-        // end of code
-        query = '&' + query;
+            //change some attribute names
+            query = query.replace(/jtitle=/,"title=");
+            query = query.replace(/btitle=/,"title=");
+            query = query.replace(/rft_id=info:pmid\//,"id=pmid:");
+            query = query.replace(/rft_id=info:doi\//,"id=doi:");
+            query = query.replace(/rft_id=info:bibcode\//,"id=bibcode:");
+            // end of code
+            query = '&' + query;
 
-        span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(query)));
+            span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(query)));
+        } catch (e) {
+            dfu_log ("Exception during coins processing: " +e);
+        }
     }
  });
 }
