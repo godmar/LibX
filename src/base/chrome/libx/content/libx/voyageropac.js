@@ -34,6 +34,7 @@ VoyagerOPAC.prototype = {
 	    switch (stype) {
 	        case 'a':   return "NAME_";
 	        case 't':   return "TALL";
+            case 'is':
 	        case 'i':   return "ISBN";
 	        case 'c':   return "CALL_";
 	        case 'Y':   return "FT*";
@@ -45,6 +46,7 @@ VoyagerOPAC.prototype = {
 	    switch (stype) {
 	        case 'a':   return "Author (NKEY)";
 	        case 't':   return "Title (TKEY)";
+            case 'is':
 	        case 'i':   return "ISSN/ISBN (ISSN)";
 	        case 'Y':   return "Keyword Anywhere (GKEY)";
 	        case 'c':   return "?not supported?";

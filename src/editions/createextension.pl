@@ -13,16 +13,22 @@ my %conf = ();
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 
+my $addprop = "";
 open (H, "<$edition/config") || die ("Can't read $edition/config");
 while (<H>) {
     next if (/^#/ || /^\s*$/);
     chomp;
     chop if (/\r$/);
-    my ($key, $value) = split(/=/, $_, 2);
-    $conf{$key} = $value;
+    if (/^\$(.*)$/) {
+        $addprop = $addprop . "\n" . $1;
+    } else {
+        my ($key, $value) = split(/=/, $_, 2);
+        $conf{$key} = $value;
+    }
     #print "...$key...=+++" . $conf{$key} . "\n";
 }
 close(H);
+$conf{'additionalproperties'} = $addprop;
 
 sub copyandreplace {
     my ($src, $dst) = @_;

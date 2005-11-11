@@ -260,7 +260,7 @@ function openSearchWindow(url) {
 
 // given an array of {searchType: xxx, searchTerms: xxx } items
 // formulate a query against the currently selected library catalog
-function doAddisonSearch(fields) {
+function doCatalogSearch(fields) {
 	for (var i = 0; i < fields.length; i++) {
 		if (!libraryCatalog.supportsSearchType(fields[i].searchType)) {
 		 	return;
@@ -290,7 +290,7 @@ function doOpenUrlSearch(fields) {
 function doSearch() {
 	var fields = extractSearchFields();
 	if (searchType == "searchcat") {// user requested search in library catalog
-		doAddisonSearch(fields);
+		doCatalogSearch(fields);
 		return;
 	}
 	
@@ -352,7 +352,7 @@ function doSearchBy(stype) {
 	// clean up search term by removing unwanted characters
     // should leave &, and single apostrophe in - what about others?
 	// and replaces multiple whitespaces with a single one
-	sterm = sterm.replace(/[^A-Za-z0-9_&:\'\-\s]/g, " ").replace(/\s+/g, " ");
+	sterm = sterm.replace(/[^A-Za-z0-9_&:\222\'\-\s]/g, " ").replace(/\s+/g, " ");
 	// split author into names, turns "arthur conan doyle" into ["arthur", "conan", "doyle"]
 	var names = sterm.split(/\s+/);
 	// switch author's first and last name unless there's a comma or the last name is an initial
@@ -360,14 +360,20 @@ function doSearchBy(stype) {
 		sterm = names[names.length-1] + " " + names.slice(0,names.length-1).join(" ");
 		// creates "doyle arthur conan"
 	}
+    // if this is an ISSN, change searchtype to 'is'
+    // Millenium & Voyager treat ISSNs the same, but the separate type is necessary for Horizon
+    // which uses a different index for ISSNs
 	if (stype == 'i') {
 	    sterm = pureISN;
+        if (isISSN(pureISN)) {
+            stype = 'is';
+        }
 	}
 		
 	// create a makeshift array of a single element - we do this solely 
-	// to be able to reuse the "doAddisonSearch" function which expects an array
+	// to be able to reuse the "doCatalogSearch" function which expects an array
 	// of objects with a searchType/searchTerms property each.
-	doAddisonSearch([{searchType: stype, searchTerms: sterm}]);	
+	doCatalogSearch([{searchType: stype, searchTerms: sterm}]);	
 }
 
 // use OCLC's xisbn's search
@@ -470,7 +476,11 @@ function extractSearchFields() {
 		var f = searchFieldVbox.childNodes.item(i);
 		if (f.firstChild.value == null) f.firstChild.value = "Y";
 		//alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
-		fields.push({searchType: f.firstChild.value, searchTerms: f.firstChild.nextSibling.firstChild.value});
+		var field = {searchType: f.firstChild.value, searchTerms: f.firstChild.nextSibling.firstChild.value};
+        if (field.searchType == 'i' && isISSN(field.searchTerms)) {
+            field.searchType == 'is';
+        }
+		fields.push(field);
 	}
 	return fields;
 }

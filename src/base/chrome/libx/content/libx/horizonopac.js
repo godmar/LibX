@@ -25,6 +25,10 @@
 function HorizonOPAC(catURL) {
 	this.libraryCatalogURL = catURL;
 	this.libraryCatalogURLRegExp = "";
+    // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
+    // others have an index ISBNEX that does exact matching on both ISSN & ISBN
+    this.useisbnbr = libxGetProperty("useisbnbr") == "true";
+    this.useissnbr = libxGetProperty("useissnbr") == "true";
 }
 
 HorizonOPAC.prototype = {
@@ -32,7 +36,8 @@ HorizonOPAC.prototype = {
 	    switch (stype) {
 	        case 'a':   return ".AW";
 	        case 't':   return ".TW";
-	        case 'i':   return "ISBNEX";
+	        case 'i':   return this.useisbnbr ? "ISBNBR" : "ISBNEX";
+	        case 'is':  return this.useissnbr ? "ISSNBR" : "ISBNEX";
 	        case 'c':   return "CALLLC";
 	        case 'Y':   return ".GW";
 	        default:
@@ -47,7 +52,7 @@ HorizonOPAC.prototype = {
 	    return true;
 	},
 	makeSearch: function(stype, sterm) {
-	    return this.libraryCatalogURL + "?index=" + this.convert(stype) + "&term=" + sterm;
+	    return this.libraryCatalogURL + "/ipac20/ipac.jsp?index=" + this.convert(stype) + "&term=" + sterm;
 	},
 	makeTitleSearch: function(title) {
 		return this.makeSearch("t", title);
@@ -65,9 +70,9 @@ HorizonOPAC.prototype = {
 		return this.makeSearch("Y", keyword);
 	},
 	makeAdvancedSearch: function(fields) {
-	    var url = this.libraryCatalogURL + "?";
+	    var url = this.libraryCatalogURL + "/ipac20/ipac.jsp?";
 		url += "index=" + this.convert(fields[0].searchType) + "&term=" + fields[0].searchTerms;
-		for (var i = 0; i < fields.length; i++) {
+		for (var i = 1; i < fields.length; i++) {
 			url += "&oper=and&index=" + this.convert(fields[i].searchType) + "&term=" + fields[i].searchTerms; 
 		}
 		return url;

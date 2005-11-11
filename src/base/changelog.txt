@@ -7,6 +7,8 @@ You are using the $libxedition$
 
 since version 1.0
 
+ *added direct properties via $
+ *various fixes for horizon catalogs 
  *add preference for opening results: new tab, same tab, new window, new tab & switch
  *don't remove certain characters from search terms
  *fixed display of floor maps

@@ -38,7 +38,13 @@ MilleniumOPAC.prototype = {
 	    }
 	    return true;
 	},
+    handleISSN: function (stype) {
+        if (stype == 'is')  // both issn and isbn are 'i'
+            return 'i';
+        return stype;
+    },
 	makeSearch: function(stype, sterm) {
+        stype = this.handleISSN(stype);
 		if (stype == 'Y')
             // work-around for apparent bug in Millenium
             // this seems to be the only form for which results are properly linked
@@ -69,9 +75,9 @@ MilleniumOPAC.prototype = {
 	},
 	makeAdvancedSearch: function(fields) {
 		var url = this.libraryCatalogURL + "/search/X?SEARCH=";
-		url += fields[0].searchType + ":(" + fields[0].searchTerms + ")";
+		url += this.handleISSN(fields[0].searchType) + ":(" + fields[0].searchTerms + ")";
 		for (var i = 1; i < fields.length; i++) {
-			url += "+and+" + fields[i].searchType + ":(" + fields[i].searchTerms + ")"; 
+			url += "+and+" + this.handleISSN(fields[i].searchType) + ":(" + fields[i].searchTerms + ")"; 
 		}
 		url += "&SORT=" + this.catalogSort;
 		url += "&SID=" + this.catalogSid;
