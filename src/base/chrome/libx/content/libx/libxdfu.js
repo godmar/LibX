@@ -192,7 +192,7 @@ new DoForURL(/google\.com\/search.*q=/, function (doc) {
 
 // link to catalog from google print via ISBN
 new DoForURL(/print.\google\.com\/print/, function (doc) {
-    var n = xpathFindSingle(doc, "//tr/td/font/text()[contains(.,'ISBN')]");
+    var n = xpathFindSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
     var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [m[1]]), libraryCatalog.makeISBNSearch(m[1]));
     n.parentNode.insertBefore(newlink, n.nextSibling);
