@@ -221,39 +221,46 @@ if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
     for (var i = 0; i < coins.length; i++) {
         try { // the span attribute may be malformed, if so, recover and continue with next
             var span = coins[i];
-            var query = decodeURIComponent(span.getAttribute('title'));
+            var query = span.getAttribute('title');
+            query = query.replace(/&amp;/g, "&").replace(/\+/g, "%20").split(/&/);
+
             var rft_book = "rft_val_fmt=info:ofi/fmt:kev:mtx:book";
             var rft_journal = "rft_val_fmt=info:ofi/fmt:kev:mtx:journal";
-
-            if (query.indexOf(rft_book) == -1 && query.indexOf(rft_journal) == -1) 
-                continue;
-
-            // following code taken with permission from Openlys COINS plugin
-            // http://www.openly.com/openurlref/
+            var isBookOrArticle = false;
 
             // since we only support OpenURL 0.1 at this time, we always unconditionally convert
-
-            //remove "rft." from beginning of attribute keys
-            query = query.replace(/rft\./g,"");
-
-            if (query.indexOf("genre=") == -1) {
-                if (query.indexOf(rft_journal) > -1) {
-                    query += "&genre=article";
-                } else {
-                    query += "&genre=book";
+            for (var j = 0; j < query.length; j++) {
+                var qj = decodeURIComponent(query[j]);
+                if (qj == rft_book) {
+                    query[j] = "genre=book";
+                    isBookOrArticle = true;
+                    continue;
                 }
-            }      
+                if (qj == rft_journal) {
+                    query[j] = "genre=article";
+                    isBookOrArticle = true;
+                    continue;
+                }
 
-            //change some attribute names
-            query = query.replace(/jtitle=/,"title=");
-            query = query.replace(/btitle=/,"title=");
-            query = query.replace(/rft_id=info:pmid\//,"id=pmid:");
-            query = query.replace(/rft_id=info:doi\//,"id=doi:");
-            query = query.replace(/rft_id=info:bibcode\//,"id=bibcode:");
-            // end of code
-            query = '&' + query;
+                //remove "rft." from beginning of attribute keys
+                qj = qj.replace(/rft\./g,"");
 
-            span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(query)));
+                //change some attribute names
+                qj = qj.replace(/jtitle=/,"title=");
+                qj = qj.replace(/btitle=/,"title=");
+                qj = qj.replace(/rft_id=info:pmid\//,"id=pmid:");
+                qj = qj.replace(/rft_id=info:doi\//,"id=doi:");
+                qj = qj.replace(/rft_id=info:bibcode\//,"id=bibcode:");
+
+                var kv = qj.split(/=/);
+                var val = kv.splice(1).join("=");
+                query[j] = kv[0] + '=' + encodeURIComponent(val);
+            }
+            query = "&" + query.join("&");
+
+            if (isBookOrArticle) {
+                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(query)));
+            }
         } catch (e) {
             dfu_log ("Exception during coins processing: " +e);
         }
