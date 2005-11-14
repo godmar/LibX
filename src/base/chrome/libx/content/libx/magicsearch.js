@@ -111,8 +111,8 @@ function magicSearch(data, inpub) {
                 // captures entire OpenURL as openurl[1]
                 // captures openURL suffix as openurl[2]
                 var openurl = hits[h].match(/\"\/url\S*q=(\S*%3Fsid%3Dgoogle([^\"]*))\"/);
-                if (!openurl)
-                    continue;
+                // we don't skip to the next entry here, because we're now checking if maybe there's a 
+                // direct link to the paper --- XXX make this a configurable decision
 
                 // strip <html> tags and return cosine similarity with search terms 
                 var getcosine = function(comp) {
@@ -127,8 +127,14 @@ function magicSearch(data, inpub) {
                 if (title == null && hits[h].match(/\[CITATION\]/)) {
                     title = hits[h].replace(/&hellip;/, " ").match(/\[CITATION\]([\s\S]*?)<br>/);
                 }
+                var titleurl = null;
                 var titlesim = 0;
                 if (title != null) {
+                    // see if GS provides a URL which we will present to the user if an OpenURL is absent
+                    // <a href="/url?sa=U&q=http://www.smartlabcentre.com/phdstudentsite/sher/DoruffDossier04.pdf">
+                    titleurl = title[1].match(/<a href=\"\/url.*q=([\s\S]*)\">/i);
+                    if (titleurl) titleurl = titleurl[1];       // capture match if any
+
                     titleplusauthor += title[1];
                     titlesim = getcosine(title[1]);
                     magic_log("CosineSimilarity w/ titleline=" + titlesim + " \"" + title[1].replace(/<.*?>/g, "") + "\"");
@@ -147,8 +153,17 @@ function magicSearch(data, inpub) {
                 }
 
                 if (tplusauthsim > threshold1 || ((titlesim + ausim) > threshold2)) {
-                    var vtu = openUrlResolver.completeOpenURL(decodeURIComponent(openurl[2]));
-                    magic_log('OpenURL: ' + vtu);
+                    if (!(openurl || titleurl)) {
+                        continue;       // match, but no link
+                    }
+                    // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholar's URL
+                    var vtu = titleurl;
+                    if (openurl) {
+                        vtu = openUrlResolver.completeOpenURL(decodeURIComponent(openurl[2]));
+                        magic_log('OpenURL: ' + vtu);
+                    } else {
+                        magic_log('DirectURL: ' + vtu);
+                    }
                     openSearchWindow(vtu);
                     found = true;
                     break;
