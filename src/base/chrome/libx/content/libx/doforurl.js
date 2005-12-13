@@ -66,9 +66,6 @@ DoForURL.prototype = {
 
 function newpage(ev) {
         if (!ev) return;
-        var url = _content.location;    // ? needed
-        if (url == 'about:blank')       // ? needed
-                return;                 // ? needed
 
         var win = ev.explicitOriginalTarget.defaultView;
         var doc = win.document;

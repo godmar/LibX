@@ -78,10 +78,11 @@ foreach $file (keys(%files)) {
     &copyandreplace("$edition/$file", "$d/$files{$file}/$file");
 }
 
+my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 my $xpifile = $conf{'xpilocation'};
 $xpifile =~ s/.*\/([^\/]*)/$1/;
 system("cp tmp/update.rdf $edition");
-system("cd tmp; rm ../$edition/$xpifile; find . -name CVS -type dir | xargs /bin/rm -fr ; zip -r ../$edition/$xpifile ./chrome install.rdf changelog.txt");
+system("cd tmp; rm ../$edition/$xpifile; find . -name CVS -type dir | xargs /bin/rm -fr ; zip -r ../$edition/$xpifile ./chrome " . $addtoplevelfiles);
 
 my $livescript = "$edition/makelive.sh";
 open (O, ">$livescript") || die ("Could not write to $livescript");

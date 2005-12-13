@@ -5,8 +5,10 @@ http://www.libx.org
 
 You are using the $libxedition$
 
-since version 1.0
+version 1.0.1
 
+ *support FF1.5
+ *open scholar hit directly even if no OpenURL found
  *added direct properties via $
  *various fixes for horizon catalogs 
  *add preference for opening results: new tab, same tab, new window, new tab & switch

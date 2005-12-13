@@ -157,7 +157,7 @@ function magicSearch(data, inpub) {
                         continue;       // match, but no link
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholar's URL
-                    var vtu = titleurl;
+                    var vtu = decodeURIComponent(titleurl); // openSearchWindow wants to URI-encode it 
                     if (openurl) {
                         vtu = openUrlResolver.completeOpenURL(decodeURIComponent(openurl[2]));
                         magic_log('OpenURL: ' + vtu);
