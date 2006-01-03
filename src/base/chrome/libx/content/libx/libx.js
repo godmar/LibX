@@ -478,7 +478,7 @@ function extractSearchFields() {
 		//alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
 		var field = {searchType: f.firstChild.value, searchTerms: f.firstChild.nextSibling.firstChild.value};
         if (field.searchType == 'i' && isISSN(field.searchTerms)) {
-            field.searchType == 'is';
+            field.searchType = 'is';
         }
 		fields.push(field);
 	}
