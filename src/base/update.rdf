@@ -25,7 +25,7 @@
 
 <r:RDF xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
 	 xmlns="http://www.mozilla.org/2004/em-rdf#"> 
-<r:Description about="urn:mozilla:extension:d75de36c-af0d-4dc2-b63a-0d482d4b9815"> 
+<r:Description about="urn:mozilla:extension:{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"> 
 <updates> 
    <r:Seq> 
      <r:li> 
