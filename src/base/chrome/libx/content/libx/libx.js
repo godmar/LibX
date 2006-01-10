@@ -65,6 +65,9 @@ function libxInit() {
 	if (cattype == "horizon") {
 	    libraryCatalog = new HorizonOPAC(libraryCatalogUrl);
 	} else
+	if (cattype == "aleph") {
+	    libraryCatalog = new AlephOPAC(libraryCatalogUrl);
+	} else
 	if (cattype == "voyager") {
 	    libraryCatalog = new VoyagerOPAC(libraryCatalogUrl);
 	} else {

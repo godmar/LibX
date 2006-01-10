@@ -52,6 +52,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/milleniumopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/horizonopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/voyageropac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/alephopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
