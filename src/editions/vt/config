@@ -34,7 +34,7 @@ adaptedby=
 
 #
 # The catalogtype.
-# It must be one of millenium, horizon, or voyager.
+# It must be one of millenium, horizon, aleph, or voyager.
 #
 catalogtype=millenium
 
