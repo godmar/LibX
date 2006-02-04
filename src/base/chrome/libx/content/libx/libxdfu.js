@@ -310,6 +310,22 @@ if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
     });
 }
 
+// globalbooksinprint.com
+new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
+    var labels = xpathFindNodes(doc, "//tr/td//a[contains(@href, '/merge_shared/Details')]");
+    for (var i = 0; i < labels.length; i++) {
+        var anode = labels[i];
+        var isbn13 = xpathFindSingle(doc, "../../../..//b[contains(text(),'ISBN 13:')]", anode);
+        if (isbn13 == null)
+            continue;
+        var isbn = isISBN(isbn13.nextSibling.textContent);
+        if (isbn == null)
+            continue;
+        var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [isbn]), libraryCatalog.makeISBNSearch(isbn));
+        anode.parentNode.insertBefore(hint, anode.nextSibling);
+    }
+});
+
 } //end of initializeDoForUrls
 
 // vim: ts=4
