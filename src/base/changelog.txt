@@ -5,6 +5,12 @@ http://www.libx.org
 
 You are using the $libxedition$
 
+Under development
+ *support cues on globalbooksinprint.com
+
+version 1.0.2
+ *support FF1.5.0.1
+
 version 1.0.1
 
  *support FF1.5

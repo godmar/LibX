@@ -45,12 +45,21 @@ MilleniumOPAC.prototype = {
     },
 	makeSearch: function(stype, sterm) {
         stype = this.handleISSN(stype);
-		if (stype == 'Y')
+
+        // substitute special code for keyword searches if defined
+        // some III catalogs use X for keyword searches, apparently.
+        if (stype == 'Y') {
+            var kwy = libxGetProperty("millenium.keywordcode");
+            if (kwy != null)
+                stype = kwy;
+        }
+
+		if (stype == 'Y') {
             // work-around for apparent bug in Millenium
             // this seems to be the only form for which results are properly linked
             return this.libraryCatalogURL + "/search/" + stype + "?SEARCH=" + sterm + "&startLimit=&searchscope=" 
                 + this.searchScope + "&SORT=" + this.catalogSort + "&endLimit=&sid=" + this.catalogSid;
-        else {
+        } else {
             // when author searches fail, it suggests to switch last and first names.
             // this works only with this form
             return this.libraryCatalogURL + "/search/?searchtype=" + stype + "&searcharg=" + sterm 

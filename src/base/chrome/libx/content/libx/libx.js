@@ -26,7 +26,7 @@
  *
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
-const libx_version = "1.0.1";
+const libx_version = "1.0.2";
 
 var libxProps;          // a string bundle in the XUL file from which we read properties
 var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an example

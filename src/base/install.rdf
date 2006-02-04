@@ -29,7 +29,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"
                    em:name="$emname$"
-                   em:version="1.0.1"
+                   em:version="1.0.2"
                    em:creator="Annette Bailey"
                    em:description="$emdescription$"
                    em:homepageURL="$emhomepageURL$"
@@ -43,7 +43,7 @@
   <RDF:Description RDF:about="rdf:#$P7Gtk2"
                    em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                    em:minVersion="1.0"
-                   em:maxVersion="1.5" />
+                   em:maxVersion="1.5.0.*" />
   <RDF:Description RDF:about="urn:mozilla:extension:file:libx"
                    em:package="content/libx/"
                    em:locale="locale/en-US/libx/"
