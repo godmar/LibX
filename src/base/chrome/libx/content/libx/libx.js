@@ -60,7 +60,10 @@ function libxInit() {
 		var catregexp = new RegExp(libxGetProperty("catalog.urlregexp"));
 		var catsid = libxGetProperty("catalog.sid");
 		var scope = libxGetProperty("catalog.searchscope");
-		libraryCatalog = new MilleniumOPAC(libraryCatalogUrl, catregexp, catsid, "R", scope);//sort by relevance, use 'D' for date
+        var sortby = libxGetProperty("millenium.sort");
+        if (sortby == null)
+            sortby = "R";   //sort by relevance, use 'D' for date
+		libraryCatalog = new MilleniumOPAC(libraryCatalogUrl, catregexp, catsid, sortby, scope);//sort by relevance, use 'D' for date
 	} else
 	if (cattype == "horizon") {
 	    libraryCatalog = new HorizonOPAC(libraryCatalogUrl);
