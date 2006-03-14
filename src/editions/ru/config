@@ -16,8 +16,7 @@ emname=LibX Radford University
 # This is shown in the toolbar as label on the button on  the very left
 emnameshort=LibX RU
 
-# libraryname and libraryhomepage are name & URL for the first button
-# in the drop-down menu button labeled $emnameshort$
+# Entries in menu on top-left
 $link1.label=McConnell Library Radford University
 $link1.url=http://lib.radford.edu/
 $link2.label=McConnell Library Catalog
