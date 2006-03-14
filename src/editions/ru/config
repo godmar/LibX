@@ -18,8 +18,10 @@ emnameshort=LibX RU
 
 # libraryname and libraryhomepage are name & URL for the first button
 # in the drop-down menu button labeled $emnameshort$
-libraryname=McConnell Library Radford University
-libraryhomepage=http://lib.radford.edu/
+$link1.label=McConnell Library Radford University
+$link1.url=http://lib.radford.edu/
+$link2.label=McConnell Library Catalog
+$link2.url=http://rulib.radford.edu/
 
 #
 # Byline for adapter.

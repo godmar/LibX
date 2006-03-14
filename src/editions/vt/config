@@ -16,10 +16,18 @@ emname=LibX Virginia Tech
 # This is shown in the toolbar as label on the button on  the very left
 emnameshort=LibX VT
 
-# libraryname and libraryhomepage are name & URL for the first button
-# in the drop-down menu button labeled $emnameshort$
-libraryname=VT University Libraries
-libraryhomepage=http://www.lib.vt.edu/
+# These links are shown in the dropdown menu on the top left
+$link1.label=VT University Libraries
+$link1.url=http://www.lib.vt.edu/
+$link2.label=Addison Catalog
+$link2.url=http://addison.vt.edu/
+$link3.label=LibX VT Homepage
+$link3.url=http://libx.org/editions/vt/libx.html
+# you can add more here
+#
+# Legacy note: these replace the old libraryname & libraryhomepage entries
+#
+
 
 #
 # Byline for adapter.
@@ -76,7 +84,7 @@ catalogscope=1
 # OpenURL resolver
 #
 # OpenURL resolver type
-# Possible values: sersol, webbridge, generic
+# Possible values: sersol, webbridge, generic, sfx
 #
 # Note: fundamentally, OpenURL resolver do the same thing:
 # they try to find/link to a resource given the meta tags in the URL

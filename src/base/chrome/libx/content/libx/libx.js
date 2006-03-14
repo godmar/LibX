@@ -54,6 +54,26 @@ function libxInit() {
 	// this function is called after the entire overlay has been built
 	// we must wait until here before calling document.getElementById
 	libxProps = document.getElementById("libx-string-bundle");
+
+    // initialize menu at top left of toolbar
+    // these are now additional properties:
+    // link1.label=...
+    // link1.url=...
+    // and so on.
+    var libxmenu = document.getElementById("libxmenu");
+    var libxmenusep = document.getElementById("libxmenu.separator");
+    var label = null;
+    for (var link = 1;
+            (label = libxGetProperty("link" + link + ".label")) != null;
+            link++) 
+    {
+        var url = libxGetProperty("link" + link + ".url");
+        var mitem = document.createElement("menuitem");
+        mitem.setAttribute("label", label);
+        mitem.setAttribute("oncommand", "openSearchWindow('" + url + "');");
+        libxmenu.insertBefore(mitem, libxmenusep);
+    }
+
 	var cattype = libxGetProperty("catalogtype");
 	var libraryCatalogUrl = libxGetProperty("catalog.url");
 	if (cattype == "millenium") {

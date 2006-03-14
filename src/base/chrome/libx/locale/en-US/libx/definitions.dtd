@@ -9,14 +9,10 @@ Branding specific things should be defined in config and variables should be use
 <!ENTITY libx.aboutbox.adaptedby "$adaptedby$">
 
 <!ENTITY libx.toolbarname "$emnameshort$">
-<!ENTITY libx.toolbarbutton "$emnameshort$ ">
+<!ENTITY libx.toolbarbutton " $emnameshort$ ">
 <!ENTITY libx.image "$emiconURL$">
 
 <!ENTITY libx.tooltiptext "LibX - $libxedition$">
-<!ENTITY libraryhomepage.menuitem.label "$libraryname$">
-<!ENTITY libraryhomepage.menuitem.url "$libraryhomepage$">
-<!ENTITY libraryopac.menuitem.label "$catalogname$ Catalog">
-<!ENTITY libraryopac.menuitem.url "$catalogurl$">
 
 <!ENTITY libx.searchcataloglabel "Search $catalogname$">
 <!ENTITY libx.rightclickcatalogkeyword "Search $catalogname$ by Keyword Now!">

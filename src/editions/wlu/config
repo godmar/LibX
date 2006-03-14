@@ -6,8 +6,12 @@
 libxedition=Washington and Lee Law Edition
 emname=LibX Washington and Lee Law
 emnameshort=LibX WLU
-libraryname=Washington and Lee Law Library
-libraryhomepage=http://law.wlu.edu/library/
+
+$link1.label=Washington and Lee Law Library
+$link1.url=http://law.wlu.edu/library/
+$link2.label=Annie Catalog
+$link2.url=http://annie.wlu.edu
+
 adaptedby=John Doyle
 
 catalogtype=millenium

@@ -7,6 +7,8 @@ You are using the $libxedition$
 
 Under development
 
+ *eliminated libraryhomepage & libraryname property, replaced 
+  with $link<n>.label/url properties
  *added special SFX OpenURL type that allows searching by journal title
  *same for SerSol - support searches by title through OpenURL resolver as well
  *support cues on globalbooksinprint.com

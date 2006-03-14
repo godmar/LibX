@@ -67,10 +67,12 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			<vbox>
 				<hbox>
 					<toolbarbutton label="&libx.toolbarbutton;" type="menu" image="&libx.image;" tooltiptext="&libx.tooltiptext;">
-						<menupopup>
+						<menupopup id="libxmenu">
+   <!-- used to be
 							<menuitem label="&libraryhomepage.menuitem.label;" oncommand="openSearchWindow('&libraryhomepage.menuitem.url;')" />
 							<menuitem label="&libraryopac.menuitem.label;" oncommand="openSearchWindow('&libraryopac.menuitem.url;')" />
-                            <menuseparator />
+    -->
+                            <menuseparator id="libxmenu.separator"/>
                             <menu label="Display Preferences...">
                                 <menupopup id="libx.displaypref">
                                     <menuitem type="checkbox" id="libx.newtabswitch" label="Display results in new tab and switch to it" oncommand="recordPreference('libx.displaypref', this.id);" />
