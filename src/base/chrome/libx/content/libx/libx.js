@@ -84,11 +84,18 @@ function libxInit() {
 	if (ourltype == "sersol") {
 	    openUrlResolver = new ArticleFinder(libxGetProperty("openurlresolver.url"), libxGetProperty("openurl.sid"));
 	} else
+	if (ourltype == "sfx") {
+	    openUrlResolver = new SFX(libxGetProperty("openurlresolver.url"), libxGetProperty("openurl.sid"));
+	} else
     if (ourltype == "generic" || ourltype == "webbridge") {
 	    openUrlResolver = new OpenURL(libxGetProperty("openurlresolver.url"), libxGetProperty("openurl.sid"));
 	} else {
 	    document.getElementById("libx-openurl-search-menuitem").hidden = true;
 	}
+
+    if (libxGetProperty("openurl.dontshowintoolbar") == "true") {
+        document.getElementById("libx-openurl-search-menuitem").hidden = true;
+    }
 	
 	var proxytype = libxGetProperty("proxytype");
 	if (proxytype == null || proxytype == "") {
@@ -285,7 +292,7 @@ function doCatalogSearch(fields) {
 
 // formulate a query against an openurl resolver for an article
 function doOpenUrlSearch(fields) {
-	var url = openUrlResolver.makeOpenURLForArticle(fields);
+	var url = openUrlResolver.makeOpenURLSearch(fields);
 	if (url) {
 	    openSearchWindow(url);
 	}

@@ -6,7 +6,11 @@ http://www.libx.org
 You are using the $libxedition$
 
 Under development
+
+ *added special SFX OpenURL type that allows searching by journal title
+ *same for SerSol - support searches by title through OpenURL resolver as well
  *support cues on globalbooksinprint.com
+ *added millenium.sort addproperty
 
 version 1.0.2
  *support FF1.5.0.1

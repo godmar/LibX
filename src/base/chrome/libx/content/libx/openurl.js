@@ -45,8 +45,8 @@ function OpenURL(url, sid) {
 
 // Functions that could be shared
 OpenURL.prototype = {
-    makeOpenURLForArticle: function(fields) {
-	    var url = this.openUrlResolver + "?sid=" + this.openUrlSid + "&genre=article";
+    makeOpenURLFromFields: function(fields) {
+	    var url = this.openUrlResolver + "?sid=" + this.openUrlSid;
 	    this.haveTitleOrIssn = false;
 	    for (var i = 0; i < fields.length; i++) {
 		    switch (fields[i].searchType) {
@@ -97,6 +97,10 @@ OpenURL.prototype = {
 	    url += "&__char_set=utf8";
         return url;
     },
+    /* by default, we're adding "genre=article", but subclasses can change that. */
+    makeOpenURLSearch: function(fields) {
+        return this.makeOpenURLFromFields(fields) + "&genre=article";
+    },
     makeOpenURLForISSN: function(issn) {
         return this.completeOpenURL("&genre=article&issn=" + issn);
     },
@@ -124,14 +128,55 @@ function ArticleFinder(url, sid) {
 // ArticleFinder.prototype.
 ArticleFinder.prototype = new OpenURL();
 
-ArticleFinder.prototype.makeOpenURLForArticle = function (fields) {
-    var url = OpenURL.prototype.makeOpenURLForArticle.call(this, fields);   // super.makeOpenURLForArticle()
+ArticleFinder.prototype.makeOpenURLSearch = function (fields) {
+    // if the user specifies only the journal title, use sersol's search function
+    if (fields.length == 1 && fields[0].searchType == 't') {
+        // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
+        return this.openUrlResolver + '?V=1.0&S=T_W_A&C=' + fields[0].searchTerms;
+    }
+
+    // super.makeOpenURLFromFields()
+    var url = OpenURL.prototype.makeOpenURLSearch.call(this, fields);   
 	if (this.haveTitleOrIssn != true) {
 		alert(libxGetProperty("aftitleissn.alert"));
 		return null;
 	}
+
+	return url;
+}
+
+// ---------------------------------------------------------------------------------
+// SFX is a subclass of OpenURL
+// 
+function SFX(url, sid) {
+    this.openUrlResolver = url;
+    this.openUrlSid = sid;
+}
+
+// make SFX a "subclass" of OpenURL
+SFX.prototype = new OpenURL();
+
+SFX.prototype.makeOpenURLSearch = function (fields) {
+    // super.makeOpenURLFromFields()
+    var url = OpenURL.prototype.makeOpenURLFromFields.call(this, fields);   
+
+    /* SFX appears to look at the genre when deciding how to interpret 
+     * the other fields; also, it seems it supports searching for a
+     * journal title using "contains"
+     */
+    var genre = "journal";
+    for (var i = 0; i < fields.length; i++) {
+        switch (fields[i].searchType) {
+        case 't':
+            url += "&sfx.title_search=contains";
+            break;
+        case 'a':
+            genre = "article";
+            break;
+        }
+    }
+    url += "&genre=" + genre;
 	return url;
 }
 
 // vim: ts=4
-
