@@ -14,13 +14,13 @@ $link2.url=http://annie.wlu.edu
 
 adaptedby=John Doyle
 
-catalogtype=millenium
-catalogname=Annie
-catalogurl=http://annie.wlu.edu
-catalogregexp=annie\.wlu\.edu
-catalogsid=libxwlu
+$catalog.type=millenium
+$catalog.name=Annie
+$catalog.url=http://annie.wlu.edu
+$catalog.urlregexp=annie\.wlu\.edu
+$catalog.sid=libxwlu
 # this is III's searchscope
-catalogscope=1
+$catalog.searchscope=1
 
 openurltype=generic
 openurlresolverurl=http://law.wlu.edu/library/resolver.asp

@@ -17,12 +17,14 @@ emname=LibX Rochester Institute of Technology
 emnameshort=LibX RIT
 
 # These links are shown in the dropdown menu on the top left
-$link1.label=RIT Libraries Homepage
+$link1.label=RIT Libraries Website
 $link1.url=http://library.rit.edu/
-$link2.label=RIT Libraries Catalog
+$link2.label=RIT Library Catalog
 $link2.url=http://albert.rit.edu/
-$link3.label=Libx RIT Homepage
-$link3.url=http://libx.org/editions/rit/libx.html
+$link3.label=Connect NY Catalog
+$link3.url=http://www.connectny.info/
+$link4.label=Libx RIT Support Page
+$link4.url=http://libx.org/editions/rit/libx.html
 # you can add more here
 
 #
@@ -34,51 +36,37 @@ $link3.url=http://libx.org/editions/rit/libx.html
 # adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
 #
-adaptedby=RIT Libraries http://library.rit.edu
+adaptedby=RIT Libraries http://library.rit.edu/
 
 #
 # The catalogtype.
 # It must be one of millenium, horizon, aleph, or voyager.
 #
-catalogtype=millenium
-
 # Name of the catalog - used in many places.
-catalogname=RIT Library Catalog
+$catalog.name=RIT Library Catalog
 
+# Primary catalog, or catalog 0
+$catalog.type=millenium
 
 # The base URL of the catalog
-# No slash at the end.
-# Do not include any path here.
-# If you look at pg2 of http://www.oclc.org/worldcat/open/deeplinking/openworldcat_deeplinking.pdf
-# you need to put the library_opac_baseURL here
-#
-catalogurl=http://albert.rit.edu
-
-#
-# A regular expression that would match page displayed by the OPAC
-# This is currently only used in the VT edition to insert links to
-# floor maps, otherwise it is ignored.
-#
-catalogregexp=
-
-#
-# We send along an element "sid=libxvt" with our query - if your OPAC software allows,
-# you could identify queries originating from LibX in this way.
-# Millenium, it appears, does not so this option currently has no effect here.
-#
-catalogsid=libxvt
-
+$catalog.url=http://albert.rit.edu
+# $catalog.urlregexp=
+$catalog.sid=libxvt
 #
 # [Millenium only]
-# Some catalogs allow searches over multiple scopes, such as "All Libraries", "Law Library Only", 
-# "Vet Library" only etc.
-# These are search scopes.
-#
 # At RIT, scope 3 means all
-catalogscope=3
+$catalog.searchscope=3
 
 # RIT uses 'A' flag for sorting.
 $millenium.sort=A
+
+# Secondary catalog
+$catalog1.catalog.type=millenium
+$catalog1.catalog.name=Connect NY Catalog
+$catalog1.catalog.url=http://connectny.info
+$catalog1.catalog.sid=libxvt
+$catalog1.catalog.searchscope=1
+#Could use $catalog1.millenium.sort=
 
 #
 # OpenURL resolver
