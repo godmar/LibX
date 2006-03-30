@@ -22,13 +22,13 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Horizon OPAC
-function HorizonOPAC(catURL) {
-	this.libraryCatalogURL = catURL;
+function HorizonOPAC(catprefix) {
+    this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
 	this.libraryCatalogURLRegExp = "";
     // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
     // others have an index ISBNEX that does exact matching on both ISSN & ISBN
-    this.useisbnbr = libxGetProperty("useisbnbr") == "true";
-    this.useissnbr = libxGetProperty("useissnbr") == "true";
+    this.useisbnbr = libxGetProperty(catprefix + "horizon.useisbnbr") == "true";
+    this.useissnbr = libxGetProperty(catprefix + "horizon.useissnbr") == "true";
 }
 
 HorizonOPAC.prototype = {

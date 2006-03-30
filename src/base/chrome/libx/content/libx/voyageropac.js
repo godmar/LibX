@@ -22,8 +22,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Voyager OPAC
-function VoyagerOPAC(catURL) {
-	this.libraryCatalogURL = catURL;
+function VoyagerOPAC(catprefix) {
+    this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
 	this.libraryCatalogURLRegExp = "";
 }
 

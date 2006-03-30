@@ -14,11 +14,6 @@ Branding specific things should be defined in config and variables should be use
 
 <!ENTITY libx.tooltiptext "LibX - $libxedition$">
 
-<!ENTITY libx.searchcataloglabel "Search $catalogname$">
-<!ENTITY libx.rightclickcatalogkeyword "Search $catalogname$ by Keyword Now!">
-<!ENTITY libx.rightclickcatalogtitle "Search $catalogname$ by Title Now!">
-<!ENTITY libx.rightclickcatalogauthor "Search $catalogname$ by Author Now!">
-
 <!ENTITY libx.magicbutton.label " Scholar ">
 <!ENTITY libx.magicbutton.image "chrome://libx/skin/scholar.gif">
 <!ENTITY libx.rightclickmagicsearch "Search via Scholar">

@@ -64,7 +64,7 @@ function doAmazon(doc, match) {
     }
     // make link and insert after title
     var div = origTitle.parentNode;
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [isbn]), libraryCatalog.makeISBNSearch(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
     div.insertBefore(link, origTitle.nextSibling);
 }
 
@@ -78,7 +78,7 @@ new DoForURL(/\.barnesandnoble\.com.*&(?:ean|isbn)=(\d{7,12}[\d|X])/, function (
         return;
     }
     // make link and insert after title
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [isbn]), libraryCatalog.makeISBNSearch(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
     origTitle.appendChild(link);
 });
 
@@ -93,7 +93,7 @@ function doAgricola(doc) {
     // starting relative to this <TR>, find the first <TD> child with an <A> grandchild and select the <A> - that's the hyperlinked call number
     var cn_a = xpathFindSingle(doc, "./td/a", cn_tr);
     var cn = cn_a.textContent;// call number
-    var link = makeLink(doc, libxGetProperty("callnolookup.label", [cn]), libraryCatalog.makeCallnoSearch(cn));
+    var link = makeLink(doc, libxGetProperty("callnolookup.label", [libraryCatalog.catalogname, cn]), libraryCatalog.makeCallnoSearch(cn));
     // insert cue after <A> element within the containing <TD> element
     cn_a.parentNode.insertBefore(link, cn_a.nextSibling);
 }
@@ -164,7 +164,7 @@ function doNyTimes(doc) {
             continue;   
         if (s != null && s.textContent.match(/^\s*(edited\s*)?by/i)) {
             var title = n[i].firstChild.textContent.replace(/\s+/g, " ");
-            n[i].appendChild(makeLink(doc, libxGetProperty("catsearch.label", [title]), libraryCatalog.makeTitleSearch(title)));
+            n[i].appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.catalogname, title]), libraryCatalog.makeTitleSearch(title)));
         }       
     }
 }
@@ -177,7 +177,7 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
     var n = xpathFindSingle(doc, "//h1[text()='Search Results']");
     var searchterms = _content.document.getElementById("yschsp").value;
     n.appendChild(doc.createTextNode(" "));
-    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.catalogname, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });
 
 // --------------------------------------------------------------------------------------------------
@@ -187,14 +187,14 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
 new DoForURL(/google\.com\/search.*q=/, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td[font[@size='+1' and b[text()='Web']]]");
     var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
-    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.catalogname, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });
 
 // link to catalog from google print via ISBN
 new DoForURL(/books.\google\.com\/books/, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
-    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [m[1]]), libraryCatalog.makeISBNSearch(m[1]));
+    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, m[1]]), libraryCatalog.makeISBNSearch(m[1]));
     n.parentNode.insertBefore(newlink, n.nextSibling);
 });
 
@@ -282,9 +282,9 @@ if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
             if (!h4) {
                 return;
             }
-            var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [isbn]), libraryCatalog.makeISBNSearch(isbn));
+            var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
             var it = doc.createElement("i");
-            it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxGetProperty("isbnsearch.label", [isbn])));
+            it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn])));
 
             var par = doc.createElement("p");
             par.appendChild(hint);
@@ -321,7 +321,7 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
         var isbn = isISBN(isbn13.nextSibling.textContent);
         if (isbn == null)
             continue;
-        var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [isbn]), libraryCatalog.makeISBNSearch(isbn));
+        var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
         anode.parentNode.insertBefore(hint, anode.nextSibling);
     }
 });

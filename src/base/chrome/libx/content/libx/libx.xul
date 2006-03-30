@@ -115,14 +115,13 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			</vbox>
 			<vbox>
 				<hbox>
-					<toolbarbutton label="&libx.searchcataloglabel;" type="menu-button" tooltiptext="Submit Search!"
+					<toolbarbutton type="menu-button" tooltiptext="Submit Search!"
 						id="search-button" oncommand="doSearch();">
-						<menupopup>
-							<menuitem label="&libx.searchcataloglabel;" oncommand="setSearchButton(this,event);"
-								value="searchcat" />
-							<menuitem id="libx-openurl-search-menuitem" label="&libx.searchopenurllabel;" oncommand="setSearchButton(this,event);"
-								value="searchaf" />
-							<menuitem hidden="true" label="Search WorldCat" oncommand="setSearchButton(this,event);" value="searchwc" />
+						<menupopup id="libxcatalogs">
+							<menuitem oncommand="setSearchButton(this,event);" value="catalog0" />
+							<menuitem id="libx-openurl-search-menuitem" label="&libx.searchopenurllabel;" 
+                                    oncommand="setSearchButton(this,event);"
+                                    value="openurl" />
 						</menupopup>
 					</toolbarbutton>
 					<toolbarbutton label=" Clear All " tooltiptext="Clear All Search Fields" oncommand="clearAllFields();" />
@@ -146,9 +145,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			</menupopup>
 		</menu>
 		<!-- create a direct menu entry like so -->
-		<menuitem id="libx-keyword-search" label="&libx.rightclickcatalogkeyword;" oncommand="doSearchBy('Y');" />
-		<menuitem id="libx-title-search" label="&libx.rightclickcatalogtitle;" oncommand="doSearchBy('t');" />
-		<menuitem id="libx-author-search" label="&libx.rightclickcatalogauthor;" oncommand="doSearchBy('a');" />
+		<menuitem id="libx-keyword-search" oncommand="doSearchBy('Y');" />
+		<menuitem id="libx-title-search" oncommand="doSearchBy('t');" />
+		<menuitem id="libx-author-search" oncommand="doSearchBy('a');" />
 		<menuitem id="libx-magic-search" hidden="true" label="&libx.rightclickmagicsearch;" oncommand="doMagicSearchBySelection();" />
 		<menuitem id="libx-isbn-search" hidden="true" oncommand="doSearchBy('i');" />
 		<menuitem id="libx-xisbn-search" hidden="true" oncommand="doXisbnSearch();" />

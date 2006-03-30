@@ -29,7 +29,9 @@
 const libx_version = "1.0.2";
 
 var libxProps;          // a string bundle in the XUL file from which we read properties
+var searchCatalogs;     // Array of search catalogs for drop-down search menu
 var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an example
+                        // searchCatalogs[0] is libraryCatalog
 var openUrlResolver;    // OpenURL resolver or null if no OpenURL support, see openurl.js
 
 var searchType;         // currently selected search type
@@ -49,8 +51,65 @@ function libxGetProperty(prop, args) {
 	}
 }
 
+function libxInitializeCatalog(cattype, catprefix)
+{
+	if (cattype == "millenium") {
+		return new MilleniumOPAC(catprefix);
+	} else
+	if (cattype == "horizon") {
+	    return new HorizonOPAC(catprefix);
+	} else
+	if (cattype == "aleph") {
+	    return new AlephOPAC(catprefix);
+	} else
+	if (cattype == "voyager") {
+	    return new VoyagerOPAC(catprefix);
+	} else {
+		libxLog("Catalog type " + cattype + " not supported.");
+	}
+    return null;
+}
+
+// initialize the catalogs we'll use, including the 
+// default library catalog
+function libxInitializeCatalogs() 
+{
+    searchCatalogs = new Array();
+    var cattype = libxGetProperty("catalog.type");
+    libraryCatalog = libxInitializeCatalog(cattype, "");
+    libraryCatalog[libxGetProperty("catalog.sid")] = true;
+    searchCatalogs.push(libraryCatalog);
+
+    // we insert additional catalogs before the openurl button for now
+    var catdropdown = document.getElementById("libxcatalogs");
+    var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
+
+    for (var addcat = 1; 
+         (cattype = libxGetProperty("catalog" + addcat + ".catalog.type")) != null; 
+         addcat++)
+    {
+        var cat = libxInitializeCatalog(cattype, "catalog" + addcat + ".");
+        searchCatalogs.push(cat);
+        libxLog("registered catalog" + addcat + " of type " + cattype);
+
+        var newbutton = document.createElement("menuitem");
+        newbutton.setAttribute("oncommand", "setSearchButton(this,event);");
+        newbutton.setAttribute("value", "catalog" + addcat);
+        newbutton.setAttribute("label", "Search " + libxGetProperty("catalog" + addcat + ".catalog.name"));
+        catdropdown.insertBefore(newbutton, openurlsbutton);
+    }
+
+    // record initially selected search type (this is menuitem's "catalog0" value)
+    searchType = catdropdown.firstChild.value;  
+    // copy initial label to toolbarbutton parent from menuitem first child
+    libraryCatalog.catalogname = libxGetProperty("catalog.name");
+    catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.catalogname);
+    catdropdown.parentNode.label = catdropdown.firstChild.label;
+}
+
 // Initialization - this code is executed when extension is loaded
-function libxInit() {
+function libxInit() 
+{
 	// this function is called after the entire overlay has been built
 	// we must wait until here before calling document.getElementById
 	libxProps = document.getElementById("libx-string-bundle");
@@ -74,31 +133,7 @@ function libxInit() {
         libxmenu.insertBefore(mitem, libxmenusep);
     }
 
-	var cattype = libxGetProperty("catalogtype");
-	var libraryCatalogUrl = libxGetProperty("catalog.url");
-	if (cattype == "millenium") {
-		var catregexp = new RegExp(libxGetProperty("catalog.urlregexp"));
-		var catsid = libxGetProperty("catalog.sid");
-		var scope = libxGetProperty("catalog.searchscope");
-        var sortby = libxGetProperty("millenium.sort");
-        if (sortby == null)
-            sortby = "R";   //sort by relevance, use 'D' for date
-		libraryCatalog = new MilleniumOPAC(libraryCatalogUrl, catregexp, catsid, sortby, scope);//sort by relevance, use 'D' for date
-	} else
-	if (cattype == "horizon") {
-	    libraryCatalog = new HorizonOPAC(libraryCatalogUrl);
-	} else
-	if (cattype == "aleph") {
-	    libraryCatalog = new AlephOPAC(libraryCatalogUrl);
-	} else
-	if (cattype == "voyager") {
-	    libraryCatalog = new VoyagerOPAC(libraryCatalogUrl);
-	} else {
-		libxLog("Catalog type " + cattype + " not supported.");
-	}
-	libraryCatalog[libxGetProperty("catalog.sid")] = true;
-        // menuitem's "searchcat" value
-        searchType = document.getElementById("search-button").firstChild.firstChild.value;
+    libxInitializeCatalogs();
 	
 	var ourltype = libxGetProperty("openurltype");
 	if (ourltype == "sersol") {
@@ -184,6 +219,10 @@ function libxContextPopupShowing() {
 	purePMID = null;//forget purePMID
 	if (!popuphelper.isTextSelected()) {//no selection
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
+        keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.catalogname]);
+        titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.catalogname]);
+        authorsearch.label = libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.catalogname]);
+
 		if (popuphelper.isOverLink()) {
 			pureDOI = isDOI(decodeURI(popuphelper.getNode().href));//does href of hyperlink over which user right-clicked contain a doi?
 			if (pureDOI != null && openUrlResolver) {
@@ -197,7 +236,7 @@ function libxContextPopupShowing() {
 	//check selection for ISBN or ISSN or DOI and activate appropriate menuitems
 	var s = popuphelper.getSelection();
 	if (pureISN = isISBN(s)) {
-		isbnsearch.label = libxGetProperty("isbnsearch.label", [pureISN]);
+		isbnsearch.label = libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, pureISN]);
 		xisbnsearch.label = libxGetProperty("xisbnsearch.label", [pureISN]);
 		isbnsearch.hidden = false;
 		if (libraryCatalog.xisbnOPACID) {   // only true if xISBN is supported for this catalog
@@ -205,7 +244,7 @@ function libxContextPopupShowing() {
 		}
 	} else
 	if (pureISN = isISSN(s)) {
-		isbnsearch.label = libxGetProperty("issnsearch.label", [pureISN]);
+		isbnsearch.label = libxGetProperty("issnsearch.label", [libraryCatalog.catalogname, pureISN]);
 		isbnsearch.hidden = false;
 		if (openUrlResolver) {
 		    openurlissnsearch.label = libxGetProperty("openurlissnsearch.label", [pureISN]);
@@ -221,10 +260,13 @@ function libxContextPopupShowing() {
 		pmidsearch.hidden = false;
 	}
 
-    // don't show keyword, title, author if IS*N or PMID was recognized
+    // show keyword, title, author only if none of IS*N or PMID was recognized
 	if (pureISN == null && purePMID == null) {
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
 		scholarsearch.hidden = false;
+        keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.catalogname]);
+        titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.catalogname]);
+        authorsearch.label = libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.catalogname]);
     }
 
     // DOI displays in addition to keyword, title, author
@@ -293,18 +335,18 @@ function openSearchWindow(url) {
 
 // given an array of {searchType: xxx, searchTerms: xxx } items
 // formulate a query against the currently selected library catalog
-function doCatalogSearch(fields) {
+function doCatalogSearch(catalog, fields) {
 	for (var i = 0; i < fields.length; i++) {
-		if (!libraryCatalog.supportsSearchType(fields[i].searchType)) {
+		if (!catalog.supportsSearchType(fields[i].searchType)) {
 		 	return;
 		}
 	}	
 	if (fields.length == 1) {//single search field
-		var url = libraryCatalog.makeSearch(fields[0].searchType, fields[0].searchTerms);
+		var url = catalog.makeSearch(fields[0].searchType, fields[0].searchTerms);
 		openSearchWindow(url);
 		return;
 	} else {// user requested multiple search fields, do advanced search
-		var url = libraryCatalog.makeAdvancedSearch(fields);
+		var url = catalog.makeAdvancedSearch(fields);
 		openSearchWindow(url);
 		return;
 	}
@@ -322,17 +364,19 @@ function doOpenUrlSearch(fields) {
 //it performs a search in the catalog which the user previously selected
 function doSearch() {
 	var fields = extractSearchFields();
-	if (searchType == "searchcat") {// user requested search in library catalog
-		doCatalogSearch(fields);
+    var cat = searchType.match(/^catalog(\d+)$/);
+    if (cat != null) { // user requested search in one of the library catalogs
+		doCatalogSearch(searchCatalogs[cat[1]], fields);
 		return;
-	}
+    }
 	
-	if (searchType == "searchaf") {// user requested search in article finder
+    var cat = searchType.match(/^openurl$/);
+    if (cat != null) { // user requested search in openurl catalog
 		doOpenUrlSearch(fields);
 		return;
 	}
 	
-	alert("This search type has not been implemented");
+	alert("Internal error, invalid catalog entry: " + searchType);
 }
 
 // create a google scholar search from entered search fields
@@ -406,7 +450,7 @@ function doSearchBy(stype) {
 	// create a makeshift array of a single element - we do this solely 
 	// to be able to reuse the "doCatalogSearch" function which expects an array
 	// of objects with a searchType/searchTerms property each.
-	doCatalogSearch([{searchType: stype, searchTerms: sterm}]);	
+	doCatalogSearch(libraryCatalog, [{searchType: stype, searchTerms: sterm}]);	
 }
 
 // use OCLC's xisbn's search

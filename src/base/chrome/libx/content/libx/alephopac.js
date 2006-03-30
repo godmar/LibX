@@ -22,20 +22,20 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-function AlephOPAC(catURL) {
+function AlephOPAC(catprefix) {
 	//this is a constructor
-	this.libraryCatalogURL = catURL;
-	this.libraryCatalogSid = libxGetProperty('catalog.sid');
-	this.libraryCatalogAlephLocalBase = libxGetProperty('aleph.localbase');
-	this.libraryCatalogAlephTitle = libxGetProperty('aleph.title');
-	this.libraryCatalogAlephAuthor = libxGetProperty('aleph.author');
-	this.libraryCatalogAlephISBN = libxGetProperty('aleph.isbn');
-	this.libraryCatalogAlephISSN = libxGetProperty('aleph.issn');
-	this.libraryCatalogAlephCallNo = libxGetProperty('aleph.callno');
-	this.libraryCatalogAlephKeyword = libxGetProperty('aleph.keyword');
-	this.libraryCatalogAlephFindFunc = libxGetProperty('aleph.findfunc');
-	this.libraryCatalogAlephAdvFindFunc = libxGetProperty('aleph.advfindfunc');
-	this.libraryCatalogAlephScanFunc = libxGetProperty('aleph.scanfunc');
+    this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
+	this.libraryCatalogSid = libxGetProperty(catprefix + 'catalog.sid');
+	this.libraryCatalogAlephLocalBase = libxGetProperty(catprefix + 'aleph.localbase');
+	this.libraryCatalogAlephTitle = libxGetProperty(catprefix + 'aleph.title');
+	this.libraryCatalogAlephAuthor = libxGetProperty(catprefix + 'aleph.author');
+	this.libraryCatalogAlephISBN = libxGetProperty(catprefix + 'aleph.isbn');
+	this.libraryCatalogAlephISSN = libxGetProperty(catprefix + 'aleph.issn');
+	this.libraryCatalogAlephCallNo = libxGetProperty(catprefix + 'aleph.callno');
+	this.libraryCatalogAlephKeyword = libxGetProperty(catprefix + 'aleph.keyword');
+	this.libraryCatalogAlephFindFunc = libxGetProperty(catprefix + 'aleph.findfunc');
+	this.libraryCatalogAlephAdvFindFunc = libxGetProperty(catprefix + 'aleph.advfindfunc');
+	this.libraryCatalogAlephScanFunc = libxGetProperty(catprefix + 'aleph.scanfunc');
 }
 
 AlephOPAC.prototype = {

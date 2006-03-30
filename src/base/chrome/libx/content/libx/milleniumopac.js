@@ -21,12 +21,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-function MilleniumOPAC(catURL, catRegExp, catSid, sortBy, searchScope) {//this is a constructor
-	this.libraryCatalogURL = catURL;
-	this.catalogSid = catSid;
-	this.catalogSort = sortBy;
-	this.searchScope = searchScope;
-	this.libraryCatalogURLRegExp = catRegExp;
+function MilleniumOPAC(catprefix) {//this is a constructor
+	this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
+    this.libraryCatalogURLRegExp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
+    this.catalogSid = libxGetProperty(catprefix + "catalog.sid");
+    this.searchScope = libxGetProperty(catprefix + "catalog.searchscope");
+    this.keywordSearchType = libxGetProperty(catprefix + "millenium.keywordcode");
+
+    var sortby = libxGetProperty(catprefix + "millenium.sort");
+    if (sortby == null)
+        sortby = "R";   //sort by relevance, use 'D' for date
+	this.catalogSort = sortby;
 }
 
 MilleniumOPAC.prototype = {
@@ -48,10 +53,8 @@ MilleniumOPAC.prototype = {
 
         // substitute special code for keyword searches if defined
         // some III catalogs use X for keyword searches, apparently.
-        if (stype == 'Y') {
-            var kwy = libxGetProperty("millenium.keywordcode");
-            if (kwy != null)
-                stype = kwy;
+        if (stype == 'Y' && this.keywordSearchType != null) {
+            stype = this.keywordSearchType;
         }
 
 		if (stype == 'Y') {

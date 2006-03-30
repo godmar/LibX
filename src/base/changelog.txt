@@ -7,6 +7,10 @@ You are using the $libxedition$
 
 Under development
 
+ *eliminated many $catalog$ properties.
+  all catalog properties are read from additional properties now
+  context menu entries and toolbar entries are dynamically set
+ *added support for more than one catalog 
  *eliminated libraryhomepage & libraryname property, replaced 
   with $link<n>.label/url properties
  *added special SFX OpenURL type that allows searching by journal title
