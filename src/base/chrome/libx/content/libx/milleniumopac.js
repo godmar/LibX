@@ -61,13 +61,15 @@ MilleniumOPAC.prototype = {
             // work-around for apparent bug in Millenium
             // this seems to be the only form for which results are properly linked
             return this.libraryCatalogURL + "/search/" + stype + "?SEARCH=" + sterm + "&startLimit=&searchscope=" 
-                + this.searchScope + "&SORT=" + this.catalogSort + "&endLimit=&sid=" + this.catalogSid;
+                + this.searchScope + "&SORT=" + this.catalogSort + "&endLimit="
+                + ((this.catalogSid != null) ? "&sid=" + this.catalogSid : "");
         } else {
             // when author searches fail, it suggests to switch last and first names.
             // this works only with this form
             return this.libraryCatalogURL + "/search/?searchtype=" + stype + "&searcharg=" + sterm 
                 + "&startLimit=&searchscope=" + this.searchScope + "&SORT=" + this.catalogSort 
-                + "&endLimit=&sid=" + this.catalogSid;
+                + "&endLimit=" 
+                + ((this.catalogSid != null) ? "&sid=" + this.catalogSid : "");
         }
 	},
 	makeTitleSearch: function(title) {
@@ -92,7 +94,8 @@ MilleniumOPAC.prototype = {
 			url += "+and+" + this.handleISSN(fields[i].searchType) + ":(" + fields[i].searchTerms + ")"; 
 		}
 		url += "&SORT=" + this.catalogSort;
-		url += "&SID=" + this.catalogSid;
+        if (this.catalogSid)
+            url += "&SID=" + this.catalogSid;
 		url = url.replace(/Y:\(/g, "(");	// keyword == "Any Field"
 		return url;
 	}
