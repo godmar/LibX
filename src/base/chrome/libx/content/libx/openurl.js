@@ -99,7 +99,10 @@ OpenURL.prototype = {
     },
     /* by default, we're adding "genre=article", but subclasses can change that. */
     makeOpenURLSearch: function(fields) {
-        return this.makeOpenURLFromFields(fields) + "&genre=article";
+        var path = this.makeOpenURLFromFields(fields);
+        if (path != null)
+            path += "&genre=article";
+        return path;
     },
     makeOpenURLForISSN: function(issn) {
         return this.completeOpenURL("&genre=article&issn=" + issn);
