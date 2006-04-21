@@ -7,6 +7,15 @@ You are using the $libxedition$
 
 Under development
 
+ *fixed new layout on GS, including proper handling when "Refworks" is
+  activated
+ *fixed double-uri encoding bug in magic search
+ *if GS doesn't give results, try search as exact ("quoted") search.
+ *added cue to booklistonline.com
+ *added whitespace to books.google.com cue
+ *added option dumb.scholar.button=true for users that want the Scholar
+  heuristic deactivated if the user presses the Google Scholar button
+ *fixed NYTimes Book Review cue to conform to new design
  *eliminated many $catalog$ properties.
   all catalog properties are read from additional properties now
   context menu entries and toolbar entries are dynamically set

@@ -59,10 +59,11 @@ function magicNormalize(t) {
     return t.toLowerCase();
 }
 
-function magicSearch(data, inpub) {
+function magicSearch(data, inpub, buttonpressed) {
     var maxattempts = 5;
 
     magic_log("Searching for: \"" + data + "\"" + (inpub ? " inpub: " + inpub : "no publication given"));
+    var originaldata = data;
     data = magicNormalize(data);
     var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
     if (inpub) {
@@ -74,10 +75,13 @@ function magicSearch(data, inpub) {
     
     // if there is no OpenURL support, then there is no point in trying to read Google Scholar pages
     // simply open the scholar page for the user to see.
-    if (!openUrlResolver) {
+    // the same is done if "dumb.scholar.button" is activated
+    if (!openUrlResolver || (buttonpressed != null && libxGetProperty("dumb.scholar.button"))) {
         openSearchWindow(url);
         return;
     }
+    var triedexact = false; // have we already tried the exact search (with a preceding ")
+
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
         magic_log("Attempt #" + _attempt + ": " + url);
 
@@ -97,9 +101,11 @@ function magicSearch(data, inpub) {
         }
 
         // else we got results.  See if what we were looking for is here
-        var div = r.match(/<div>\s*(<p class=g>[\s\S]*?)<\/div>/);
+        // Scholar now has "All articles | Recent articles choice" which sometimes shows up
+        // account for it when finding the block of replies
+        var div = r.match(/(<div>|recent articles.*?\/table>)\s*(<p class=g>[\s\S]*?)<\/div>/i);
         if (div) {
-            var hits = div[1].split(/<p class=g>/);
+            var hits = div[2].split(/<p class=g>/);
             var found = false;
             for (var h = 0; h < hits.length; h++) {
                 if (hits[h] == "")
@@ -110,7 +116,12 @@ function magicSearch(data, inpub) {
                 // <a href="/url?sa=U&q=http://sfx.hul.harvard.edu:82/sfx_local%3Fsid%3Dgoogle%26aulast
                 // captures entire OpenURL as openurl[1]
                 // captures openURL suffix as openurl[2]
-                var openurl = hits[h].match(/\"\/url\S*q=(\S*%3Fsid%3Dgoogle([^\"]*))\"/);
+                var oregexp = /\"\/url\S*q=(\S*%3Fsid%3Dgoogle([^\"]*))\"/;
+                var openurl = hits[h].match(oregexp);
+                // if we captured refworks link here, try again.
+                if (openurl != null && openurl[0].match(/refworks/)) {
+                    openurl = hits[h].replace(openurl[0], "").match(oregexp);
+                }
                 // we don't skip to the next entry here, because we're now checking if maybe there's a 
                 // direct link to the paper --- XXX make this a configurable decision
 
@@ -157,15 +168,20 @@ function magicSearch(data, inpub) {
                         continue;       // match, but no link
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholar's URL
-                    var vtu = decodeURIComponent(titleurl); // openSearchWindow wants to URI-encode it 
+                    var vtu = titleurl; // by default we open the URL Google provides
+                    var display = !libxGetProperty("suppress.scholar.display");
                     if (openurl) {
                         vtu = openUrlResolver.completeOpenURL(decodeURIComponent(openurl[2]));
+                        display = true;
                         magic_log('OpenURL: ' + vtu);
                     } else {
                         magic_log('DirectURL: ' + vtu);
                     }
-                    openSearchWindow(vtu);
-                    found = true;
+                    if (display) {
+                        vtu = decodeURIComponent(vtu); // openSearchWindow wants to URI-encode it 
+                        openSearchWindow(vtu);
+                        found = true;
+                    }
                     break;
                 }
             }
@@ -173,6 +189,22 @@ function magicSearch(data, inpub) {
             if (h == hits.length) {
                 magic_log("I received " + hits.length + " hits, but no matches were found - maybe no affiliation cookie is set");
             }
+
+            // in some cases, Scholar finds it only when searched as an exact match
+            if (!found && !triedexact) {
+                triedexact = true;
+                data = '"' + data;
+                url = baseurl + data;   // rebuild search url
+                continue;   // try again
+            }
+
+            // on a hit, we've already opened the OpenURL window
+            if (!found)
+                handleMiss(url, originaldata);
+
+            if (libxGetProperty("suppress.scholar.display")) 
+                return;
+
             // show google scholar page also
             if (found) {
                 getBrowser().addTab(encodeURI(url));       // in second tab if we got a hit
@@ -191,8 +223,21 @@ function magicSearch(data, inpub) {
         }
 
         // we don't know what else to do, just take the user to the google scholar page
-        openSearchWindow(url);
+        handleMiss(url, originaldata);
+
+        if (!libxGetProperty("suppress.scholar.display")) 
+            openSearchWindow(url);
         return;
+    }
+}
+
+function handleMiss(url, data)
+{
+    // if so configured, libx can lead user to this URL on miss
+    var onmissshow = libxGetProperty("scholarmiss.url", [encodeURIComponent(data)]);
+
+    if (onmissshow) {
+        openSearchWindow(onmissshow);
     }
 }
 

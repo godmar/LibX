@@ -299,7 +299,7 @@ function doMagicSearchBySelection() {
 // output a message to the JS console
 function libxLog(msg) {
     var consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("Library Bar: " + msg);
+    consoleService.logStringMessage("libx: " + msg);
 }
 
 // open search results, according to user preferences
@@ -413,7 +413,7 @@ function doMagicSearch() {
 	if (a != "") {
 		q += " author: " + a;
 	}
-	magicSearch(q, t);
+	magicSearch(q, t, true);
 }
 
 // This function is called for the "Search Addison Now!" right-click

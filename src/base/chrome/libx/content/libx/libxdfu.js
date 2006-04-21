@@ -149,23 +149,26 @@ var nytimesAction = new DoForURL(/nytimes\.com.*books/, doNyTimes);
 
 function doNyTimes(doc) {
     var n = new Array();
-    var n0 = xpathFindNodes(doc, "//div[@id='sectionPromo']//strong");
+    var n0 = xpathFindNodes(doc, "//div[@id='sectionPromo']//h4");  // new design
     if (n0) {
         n = n.concat(n0);
-    }
-    var n1 = xpathFindNodes(doc, "//nyt_pf_inline/strong");
-    if (n1) {
-        n = n.concat(n1);
     }
     
     for (var i = 0; i < n.length; i++) {
         // we only assume it's a book title if its following text() sibling starts with "by" or "edited by"
-        for (var s = n[i].nextSibling; s != null && (s.nodeName != '#text' || s.textContent.match(/^\s+$/)); s = s.nextSibling)   // find next #text sibling
+
+        // find next #text sibling
+        for (var s = n[i].nextSibling; s != null && (s.textContent.match(/^\s*(edited\s*)?by/i) == null); s = s.nextSibling)   
             continue;   
-        if (s != null && s.textContent.match(/^\s*(edited\s*)?by/i)) {
+
+        if (s != null) {
             var title = n[i].firstChild.textContent.replace(/\s+/g, " ");
-            n[i].appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.catalogname, title]), libraryCatalog.makeTitleSearch(title)));
-        }       
+            n[i].parentNode.insertBefore(
+                makeLink(doc, 
+                         libxGetProperty("catsearch.label", [libraryCatalog.catalogname, title]), 
+                         libraryCatalog.makeTitleSearch(title)), 
+                s);
+        }      
     }
 }
 
@@ -195,24 +198,33 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
     var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, m[1]]), libraryCatalog.makeISBNSearch(m[1]));
-    n.parentNode.insertBefore(newlink, n.nextSibling);
+    var ns = n.nextSibling;
+    n.parentNode.insertBefore(newlink, ns);
+    // a white space to make it pretty for Melissa
+    n.parentNode.insertBefore(doc.createTextNode(" "), ns); 
 });
 
 // rewrite OpenURLs on Google Scholar's page to show cue
 if (openUrlResolver && libxGetProperty("libx.rewritescholarpage") == "true") {
- new DoForURL(/scholar\.google\.com\/scholar/, function (doc) {
+ function rewriteScholarPage(doc) {
     var atags = xpathFindSnapshot(doc, "//a[@href]");
     for (var i = 0; i < atags.length; i++) {
         var link = atags[i];
         var p = decodeURIComponent(link.href);
         var m = p.match(/scholar\.google\.com\/url\?sa=U&q=.*\?sid=google(.*)$/);
-        if (m) {
+        // do not rewrite Refworks link
+        if (m && (m[0].match(/\.refworks\.com/) == null)) {
             var newlink = makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(m[1]));
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.removeChild(link);
         }
     }
- });
+ }
+ if (libxGetProperty("libx.rewritescholarwhenproxied")) {
+     new DoForURL(/scholar\.google\.com.*\/scholar/, rewriteScholarPage);
+ } else {
+     new DoForURL(/scholar\.google\.com\/scholar/, rewriteScholarPage);
+ }
 }
 
 if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
@@ -293,8 +305,8 @@ if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
         }
     });
 
-    // fix it up if SerSol thinks it does not have enough information even though a DOI is in the OpenURL
-    new DoForURL(/serialssolutions\.com\/.*id=doi:([^&]+)(&|$)/, function (doc, match) {
+// fix it up if SerSol thinks it does not have enough information even though a DOI is in the OpenURL
+new DoForURL(/serialssolutions\.com\/.*id=doi:([^&]+)(&|$)/, function (doc, match) {
         var doi = match[1];
         var h3 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
         if (!h3) {
@@ -323,6 +335,47 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
             continue;
         var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
         anode.parentNode.insertBefore(hint, anode.nextSibling);
+    }
+});
+
+// fix up the WAM page that says "The address you are trying to access is invalid."
+if (libxGetProperty("proxytype") == "wam") {
+    // this matches on a WAM DNS'ed URL
+    var rexp = new RegExp("\\d+\\-(.*)\\." + libxGetProperty("proxy.url").replace(/\./g, "\\."));
+    new DoForURL(rexp, function(doc, m) {
+        var err = xpathFindSingle(doc, "//*[contains(text(),'The address you are trying to access is invalid')]");
+        if (err) {
+            var blink = doc.createElement("a");
+            blink.setAttribute('href', "javascript:history.back()");
+            var p = doc.createElement("p");
+            p.appendChild(doc.createTextNode(
+                    "LibX cannot reload " + m[1] + " through WAM. " +
+                    "Contact your library administrator for details, " +
+                    "who may be able to add this URL to the WAM configuration." +
+                    "Click to return to the previous page"));
+            blink.appendChild(p);
+            err.appendChild(blink);
+            // TODO: add the option to set a mailto: link here.
+        }
+    });
+}
+
+// on the booklistonline page, replace the link to worldcatlibraries 
+// with a local link.  Suggested by Melissa Belvadi
+new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
+    var n = xpathFindNodes(doc, "//a[contains(@href,'worldcatlibraries')]");
+    for (var i = 0; i < n.length; i++) {
+        var isbn = isISBN(n[i].textContent);
+        if (isbn) {
+            var newlink = makeLink(doc,
+                libxGetProperty("isbnsearch.label",
+                    [libraryCatalog.catalogname, isbn]),
+                libraryCatalog.makeISBNSearch(isbn));
+            n[i].parentNode.insertBefore(newlink, n[i]);
+            n[i].parentNode.insertBefore(doc.createTextNode(" "), n[i]);
+            // uncomment this to remove the worldcatlibraries link
+            // n[i].parentNode.removeChild(n[i]);
+        }
     }
 });
 
