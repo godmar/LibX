@@ -12,6 +12,8 @@ Branding specific things should be defined in config and variables should be use
 <!ENTITY libx.toolbarbutton " $emnameshort$ ">
 <!ENTITY libx.image "$emiconURL$">
 
+<!ENTITY libx.call.number "Call Number">
+
 <!ENTITY libx.tooltiptext "LibX - $libxedition$">
 
 <!ENTITY libx.magicbutton.label " Scholar ">
