@@ -308,9 +308,12 @@ if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
 // fix it up if SerSol thinks it does not have enough information even though a DOI is in the OpenURL
 new DoForURL(/serialssolutions\.com\/.*id=doi:([^&]+)(&|$)/, function (doc, match) {
         var doi = match[1];
+        // the first expression is probably obsolete now
         var h3 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
         if (!h3) {
-            return;
+            h3 = xpathFindSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
+            if (!h3)
+                return;
         }
         var hint =  makeLink(doc, "Try dx.doi.org/" + doi,  "http://dx.doi.org/" + doi);
         var it = doc.createElement("i");
@@ -351,7 +354,7 @@ if (libxGetProperty("proxytype") == "wam") {
             p.appendChild(doc.createTextNode(
                     "LibX cannot reload " + m[1] + " through WAM. " +
                     "Contact your library administrator for details, " +
-                    "who may be able to add this URL to the WAM configuration." +
+                    "who may be able to add this URL to the WAM configuration. " +
                     "Click to return to the previous page"));
             blink.appendChild(p);
             err.appendChild(blink);
