@@ -171,7 +171,16 @@ function magicSearch(data, inpub, buttonpressed) {
                     var vtu = titleurl; // by default we open the URL Google provides
                     var display = !libxGetProperty("suppress.scholar.display");
                     if (openurl) {
-                        vtu = openUrlResolver.completeOpenURL(decodeURIComponent(openurl[2]));
+                        var openurlpath = decodeURIComponent(openurl[2]);
+
+                        // sending the original data in a (non-standard) OpenURL field
+                        // allows an OpenURL resolver to offer an option to correct for
+                        // wrong positives.  Used for Maryville.
+                        if (libxGetProperty("send.origdata.withopenurl")) {
+                            openurlpath += "&origdata=" + data;
+                        }
+
+                        vtu = openUrlResolver.completeOpenURL(openurlpath);
                         display = true;
                         magic_log('OpenURL: ' + vtu);
                     } else {
@@ -234,7 +243,7 @@ function magicSearch(data, inpub, buttonpressed) {
 function handleMiss(url, data)
 {
     // if so configured, libx can lead user to this URL on miss
-    var onmissshow = libxGetProperty("scholarmiss.url", [encodeURIComponent(data)]);
+    var onmissshow = libxGetProperty("scholarmiss.url", [data]);
 
     if (onmissshow) {
         openSearchWindow(onmissshow);
