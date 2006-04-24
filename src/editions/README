@@ -11,7 +11,6 @@ Then, copy into this directory the following files:
 
 # cp ../vt/config .
 # cp ../vt/files .
-# cp ../wlu/libx.html .
 
 Then, get a small logo (http://yourlibrary.edu/favicon.ico works really well)
 that shows well at 16x16 and get a large logo and copy those into the acu directory. 

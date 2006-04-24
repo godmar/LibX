@@ -4,11 +4,18 @@
 # To create your own edition, you must copy this file and change the 
 # entries as documented.
 #
+# Entries that do not start with a $sign are required, but can be left 
+# empty if desired, as in "value="
+# Entries that start with a $sign are optional, and do not need to be here.
+#
+# Currently, many of the entries duplicate information - this will be fixed
+# in the future.
+#
 
 # This name of the edition will be shown in the title bar of the 
 # "About-Box" box and in a tooltip
 #
-libxedition=Virgina Tech Edition
+libxedition=Virginia Tech Edition
 
 # This is shown in the list of extension if the user clicks on "Tools->Extensions"
 emname=LibX Virginia Tech
@@ -50,9 +57,25 @@ adaptedby=
 #
 # The catalogtype.
 # It must be one of millenium, horizon, aleph, or voyager.
+# For millenium, you must give a $catalog.searchscope, see below.
+#
+# For aleph, you will need to specify the following properties also:
+#
+#       $aleph.localbase=duk01
+#       $aleph.title=TIT
+#       $aleph.author=WAU
+#       $aleph.isbn=ISBN
+#       $aleph.issn=ISSN
+#       $aleph.callno=CNA
+#       $aleph.keyword=WRD
+#       $aleph.findfunc=find-b
+#       $aleph.advfindfunc=find-a
+#       $aleph.scanfunc=scan
+#
+# horizon and voyager usually operate with the default settings.
 #
 $catalog.type=millenium
-# used to be catalogtype=millenium
+# legacy note: used to be catalogtype=millenium
 
 # Name of the catalog - used in many places.
 $catalog.name=Addison
@@ -73,11 +96,12 @@ $catalog.url=http://addison.vt.edu
 #
 $catalog.urlregexp=addison\.vt\.edu
 # legacy: used to be catalogregexp=
+# will be phased out
 
 #
 # We send along an element "sid=libxvt" with our query - if your OPAC software allows,
 # you could identify queries originating from LibX in this way.
-# Millenium, it appears, does not so this option currently has no effect here.
+# Millenium, it appears, does not do this so this option currently has no effect here.
 #
 $catalog.sid=libxvt
 # legacy: used to be catalogsid=
@@ -89,10 +113,14 @@ $catalog.sid=libxvt
 # These are search scopes.
 #
 # At VT, scope 1 means all
+# If unknown, use "1".
 $catalog.searchscope=1
 
 # Use this to sort the millenium results differently
 # $millenium.sort=A
+
+# Many installations prefer the "X" code for a keyword search in Millenium
+# $millenium.keywordcode=X
 
 # A secondary catalog can be defined like so:
 # 
@@ -102,6 +130,9 @@ $catalog.searchscope=1
 #    $catalog1.catalog.sid=libxvt
 #    $catalog1.catalog.searchscope=1
 #    $catalog1.millenium.sort=
+#
+# and so on ($catalog2., $catalog3., ...)
+# The search is not a meta-search, it's additional options in the drop-down box.
 
 #
 # OpenURL resolver
@@ -162,6 +193,7 @@ proxytype=ezproxy
 proxyurl=http://ezproxy.lib.vt.edu:8080/login?url=%S
 
 # Name displayed to the user in right-click context menu
+# This should be something the user recognizes as a library service
 proxyname=EZProxy
 
 #
@@ -187,21 +219,29 @@ libxsersolisbnfix=true
 # Internal URL of large logo.
 # Change only the "shield50.gif" part to be the filename of your logo
 # lower/upper case is significant
+# An external URL works here
 logoURL=chrome://libx/skin/shield50.gif
 
 # Internal URL of small logo
+# Please make this an internal (chrome://) based URL and bundle the image 
 emiconURL=chrome://libx/skin/virginiatech.ico
 
 # Description displayed in "Tools->Extensions"
 emdescription=Toolbar for Virginia Tech library users
 
+#
 # Page to which users are directed if they click "Tools->Extensions->Libx->Homepage"
-# This URL assume the edition would be hosted on libx
+# These URLs assume the edition would be hosted on libx
 # Adjust if you wish to host yourself.
-# I'm happy to put a redirect in this directory if desired.
-# (For instance, the URL for VT is a redirect to a VT Library Page.) 
+#
+# If hosted on libx.org, the edition homepage should be
+# http://libx.org/editions/*EDITION*/libx.html
+# where *EDITION* corresponds to the edition's id, such as vt
+# We put a redirect for libx.html either to an external page
+# See libx.org/editions.php for examples, or to a generic page
 #
 # In the next three entries, replace vt with your domain (4x).
+# These three entries will eventually be phased out for libx-hosted editions
 #
 emhomepageURL=http://www.libx.org/editions/vt/libx.html
 
