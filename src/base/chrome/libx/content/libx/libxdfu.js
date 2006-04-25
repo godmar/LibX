@@ -48,6 +48,16 @@ function makeLink(doc, title, url) {
 //
 function initializeDoForURLs() {
 
+// return a URL to link to
+// either via xISBN, or direct to the catalog (the default)
+function linkByISBN(isbn) {
+    if (libxGetProperty("cues.use.xisbn") == "true") {
+        return makeXISBNRequest(isbn);
+    } else {
+        return libraryCatalog.makeISBNSearch(isbn);
+    }
+}
+
 // Link Amazon pages to the catalog via ISBN
 // Idea from Jon Udell's Amazon GreaseMonkey script 
 
@@ -64,7 +74,7 @@ function doAmazon(doc, match) {
     }
     // make link and insert after title
     var div = origTitle.parentNode;
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), linkByISBN(isbn));
     div.insertBefore(link, origTitle.nextSibling);
 }
 
@@ -78,7 +88,7 @@ new DoForURL(/\.barnesandnoble\.com.*&(?:ean|isbn)=(\d{7,12}[\d|X])/, function (
         return;
     }
     // make link and insert after title
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), linkByISBN(isbn));
     origTitle.appendChild(link);
 });
 
@@ -197,7 +207,7 @@ new DoForURL(/google\.com\/search.*q=/, function (doc) {
 new DoForURL(/books.\google\.com\/books/, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
-    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, m[1]]), libraryCatalog.makeISBNSearch(m[1]));
+    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, m[1]]), linkByISBN(m[1]));
     var ns = n.nextSibling;
     n.parentNode.insertBefore(newlink, ns);
     // a white space to make it pretty for Melissa
@@ -373,7 +383,7 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
             var newlink = makeLink(doc,
                 libxGetProperty("isbnsearch.label",
                     [libraryCatalog.catalogname, isbn]),
-                libraryCatalog.makeISBNSearch(isbn));
+                linkByISBN(isbn));
             n[i].parentNode.insertBefore(newlink, n[i]);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), n[i]);
             // uncomment this to remove the worldcatlibraries link

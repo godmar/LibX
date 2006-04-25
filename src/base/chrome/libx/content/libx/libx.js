@@ -453,14 +453,23 @@ function doSearchBy(stype) {
 	doCatalogSearch(libraryCatalog, [{searchType: stype, searchTerms: sterm}]);	
 }
 
+// create a url that requests an item by ISBN from the xISBN service,
+// if the current catalog supports it
+function makeXISBNRequest(isbn) {
+    if (libraryCatalog.xisbnOPACID) {
+        return "http://labs.oclc.org/xisbn/liblook?baseURL=" 
+            + libraryCatalog.libraryCatalogURL.replace(/https/, "http")     // xISBN barks at https URLs
+            + "&opacID=" + libraryCatalog.xisbnOPACID + "&isbn=" + isbn;
+    } else {
+        return libraryCatalog.makeISBNSearch(isbn);
+    }
+}
+
 // use OCLC's xisbn's search
 // XXX investigate processing these results better - otherwise the user has to click through
 // dozens or more results
 function doXisbnSearch() {
-	var xisbn = "http://labs.oclc.org/xisbn/liblook?baseURL=" 
-        + libraryCatalog.libraryCatalogURL.replace(/https/, "http")     // xISBN barks at https URLs
-        + "&opacID=" + libraryCatalog.xisbnOPACID + "&isbn=" + pureISN;
-	openSearchWindow(xisbn); 
+	openSearchWindow(makeXISBNRequest(pureISN)); 
 }
 
 // this function is called if the user right-clicks and an ISSN was previously
