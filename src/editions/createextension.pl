@@ -118,7 +118,7 @@ test -r \$T/.htaccess && cat \$T/.htaccess
 cat << ENDHTACCESS
 ----- end of .htaccess file -----
 
-Do not forget to add this edition to $copytargetdir/editions/editions.list
+Do not forget to add this edition to $copytargetdir/editions.list
 if it is to be shown on the libx.org main page
 ENDHTACCESS
 MAKELIVE_SCRIPT
