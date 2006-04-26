@@ -61,7 +61,12 @@ adaptedby=
 #
 # For aleph, you will need to specify the following properties also:
 #
-#       $aleph.localbase=duk01
+#       $aleph.localbase=duk01  
+#               this property must refer to your "localbase"
+#               the example here refers to Duke University's. You must change it.
+#
+#       The remaining properties seem pretty standard.
+#
 #       $aleph.title=TIT
 #       $aleph.author=WAU
 #       $aleph.isbn=ISBN
@@ -81,10 +86,12 @@ $catalog.type=millenium
 $catalog.name=Addison
 
 # The base URL of the catalog
-# No slash at the end.
+# >>> No slash at the end. <<<
 # Do not include any path here.
 # If you look at pg2 of http://www.oclc.org/worldcat/open/deeplinking/openworldcat_deeplinking.pdf
 # you need to put the library_opac_baseURL here
+#
+# For aleph, do not include a trailing /F here.
 #
 $catalog.url=http://addison.vt.edu
 # legacy: used to be catalogurl
@@ -134,18 +141,25 @@ $catalog.searchscope=1
 # and so on ($catalog2., $catalog3., ...)
 # The search is not a meta-search, it's additional options in the drop-down box.
 
+# Should we place ISBN-based links to point to OCLC's xISBN service?
+# Set this if you want that, omit if not
+$cues.use.xisbn=true
+
+##################################################################################
 #
 # OpenURL resolver
 #
 # OpenURL resolver type
 # Possible values: sersol, webbridge, generic, sfx
 #
-# Note: fundamentally, OpenURL resolver do the same thing:
+# Note: fundamentally, OpenURL resolvers do the same thing:
 # they try to find/link to a resource given the meta tags in the URL
 # However, some have quirks: for instance, sersol currently barks if you don't
 # specify at least an issn or title meta tag.  Being able to account for such
 # minor differences is the only reason to support multiple types here.
 # generic and webbridge do the same thing.
+#
+# sersol and sfx support searches by journal title if set up so.
 #
 # Leave empty if you do not wish OpenURL support
 #
@@ -154,9 +168,15 @@ openurltype=sersol
 # Base URL of your OpenURL resolver
 # include an ending slash here if necessary
 # Examples:
-# SFX: openurlresolverurl=http://orion.galib.uga.edu/sfx_git1
-# SerSol: openurlresolverurl=http://zr2yp8gq5s.search.serialssolutions.com/
+#
+# No ending slash:
+# SFX: openurlresolverurl=http://orion.galib.uga.edu/sfx_git1   
 # WebBridge: openurlresolverurl=http://www.library.lafayette.edu:4550/resserv
+#
+# Needs an ending slash:
+# SerSol: openurlresolverurl=http://zr2yp8gq5s.search.serialssolutions.com/
+# Sirsi: openurlresolverurl=http://bucknell-resolver.sirsi.net/
+#
 
 openurlresolverurl=http://su8bj7jh4j.search.serialssolutions.com/
 
@@ -200,7 +220,7 @@ proxyname=EZProxy
 # Should we hijack and rewrite OpenURLs displayed on the Google Scholar page?
 # If your library is registered with Scholar, this will simply turn your links into cues 
 # If your library is not registered with Scholar, *and* you set preferences in Scholar
-# to display results for a library (e.g. Harvard) that is registered, those links
+# to display results for a library (e.g. Stanford) that IS registered, those links
 # will be turned into cues that are redirected to your own OpenURL resolver.
 #
 libxrewritescholarpage=true
