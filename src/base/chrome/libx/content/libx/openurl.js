@@ -162,6 +162,8 @@ SFX.prototype = new OpenURL();
 SFX.prototype.makeOpenURLSearch = function (fields) {
     // super.makeOpenURLFromFields()
     var url = OpenURL.prototype.makeOpenURLFromFields.call(this, fields);   
+    if (url == null)
+        return null;
 
     /* SFX appears to look at the genre when deciding how to interpret 
      * the other fields; also, it seems it supports searching for a
