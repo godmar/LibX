@@ -53,6 +53,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/horizonopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/voyageropac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/alephopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/sirsiopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
@@ -124,10 +125,11 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                                     value="openurl" />
 						</menupopup>
 					</toolbarbutton>
-					<toolbarbutton label=" Clear All " tooltiptext="Clear All Search Fields" oncommand="clearAllFields();" />
 					<toolbarbutton label="&libx.magicbutton.label;" 
 					    tooltiptext="Drag and Drop Terms onto this button!" id="libx-magic-button"
 						image="&libx.magicbutton.image;" oncommand="doMagicSearch();" />
+					<toolbarbutton label=" Clear All " tooltiptext="Clear All Search Fields" 
+                                    oncommand="clearAllFields();" />
 				</hbox>
 			</vbox>
 		</toolbar>
