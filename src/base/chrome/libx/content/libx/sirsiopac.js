@@ -55,7 +55,7 @@ SirsiOPAC.prototype = {
 	    switch (stype) {
 	        case 'a':   return "AU^AUTHOR^AUTHORS^Author Processing^author";
 	        case 't':   return "TI^TITLE^TITLES^Title Processing^title";
-            case 'is':  return 
+            case 'is': 
 	        case 'i':   return "GENERAL^SUBJECT^GENERAL^^keywords anywhere";    // ???
 	        case 'Y':   return "GENERAL^SUBJECT^GENERAL^^keywords anywhere";
 	        case 'c':   return "GENERAL^SUBJECT^GENERAL^^keywords anywhere";    // ???
