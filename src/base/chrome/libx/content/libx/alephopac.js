@@ -36,6 +36,15 @@ function AlephOPAC(catprefix) {
 	this.libraryCatalogAlephFindFunc = libxGetProperty(catprefix + 'aleph.findfunc');
 	this.libraryCatalogAlephAdvFindFunc = libxGetProperty(catprefix + 'aleph.advfindfunc');
 	this.libraryCatalogAlephScanFunc = libxGetProperty(catprefix + 'aleph.scanfunc');
+
+    // unless specified otherwise, we use the scan index for title 't' & call number 'c'
+    var s = libxGetProperty(catprefix + 'aleph.scan.index.list');
+    if (s)
+        this.scanIndexList = ";" + s + ";";
+    else
+        this.scanIndexList = ";t;c;";
+    // unless specified otherwise, we use the find index for the rest, that is
+    // author 'a', keyword 'Y', isbn 'i' and issn 'is'
 }
 
 AlephOPAC.prototype = {
@@ -62,27 +71,22 @@ AlephOPAC.prototype = {
 		//split between heading indexes and straight keyword indexes
 		//aleph handles then both the same way but displays them in different
 		//ways.  
-    	switch(stype) {
-			case 't':
-			case 'c':
-				return this.libraryCatalogURL + "/F?func=" 
-					+ this.libraryCatalogAlephScanFunc
-					+ "&sourceid=" + this.libraryCatalogSid
-					+ "&local_base=" + this.libraryCatalogAlephLocalBase 
-					+ "&scan_code=" + this.searchCodeLookup(stype)
-					+ "&scan_start=" + query;
-			case 'a':
-			case 'Y':
-			case 'i':
-			case 'is':
-			default: 
-				return this.libraryCatalogURL + "/F?func="
-					+ this.libraryCatalogAlephFindFunc 
-					+ "&sourceid=" + this.libraryCatalogSid
-					+ "&local_base=" + this.libraryCatalogAlephLocalBase
-					+ "&find_code=" + this.searchCodeLookup(stype)
-					+ "&request=" + query;
-    	}
+        if (this.scanIndexList.match(";" + stype + ";")) {
+            return this.libraryCatalogURL + "/F?func=" 
+                + this.libraryCatalogAlephScanFunc
+                + "&sourceid=" + this.libraryCatalogSid
+                + "&local_base=" + this.libraryCatalogAlephLocalBase 
+                + "&scan_code=" + this.searchCodeLookup(stype)
+                + "&scan_start=" + query;
+        }
+
+        // default
+        return this.libraryCatalogURL + "/F?func="
+            + this.libraryCatalogAlephFindFunc 
+            + "&sourceid=" + this.libraryCatalogSid
+            + "&local_base=" + this.libraryCatalogAlephLocalBase
+            + "&find_code=" + this.searchCodeLookup(stype)
+            + "&request=" + query;
     },
 	makeTitleSearch: function(title) {
 		return this.makeSearch("t", title);
