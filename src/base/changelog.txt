@@ -7,7 +7,15 @@ You are using the $libxedition$
 
 Under development
 
- *fixed new layout on GS, including proper handling when "Refworks" is
+ *added aleph.scan.index.list so Aleph users can pick when to
+  use scan vs find
+ *moved Clear All button to the outside.
+ *fixed bug where we would search for ISSN instead of ISBN for
+  catalogs that make a distinction.
+ *support OCLC's OAI repository for xISBN bookmarks
+ *initial draft of Sirsi/Webcat support
+ *added $cues.use.xisbn option to redirect ISBN-based cues to xISBN
+ *fixed for new layout on GS, including proper handling when "Refworks" is
   activated
  *fixed double-uri encoding bug in magic search
  *if GS doesn't give results, try search as exact ("quoted") search.
