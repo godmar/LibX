@@ -51,23 +51,62 @@ function libxGetProperty(prop, args) {
 	}
 }
 
+// Create an object that contains some methods we want our catalogs to use.
+var libxCatalogPrototype = {
+    // Create a url that requests an item by ISBN from the xISBN service,
+    // if the current catalog supports it
+    makeXISBNRequest: function(isbn) {
+        if (this.useOAIxISBN) {
+            // jeff young from OCLC says to use that
+            // http://alcme.oclc.org/bookmarks/servlet/OAIHandler/extension?verb=FRBRRedirect&identifier=oai:bookmarks.oclc.org:library.mit.edu&isbn=0300088094
+            // if listed in here: http://alcme.oclc.org/bookmarks/
+            return "http://alcme.oclc.org/bookmarks/servlet/OAIHandler/extension"
+                + "?verb=FRBRRedirect&identifier=" + this.useOAIxISBN
+                + "&isbn=" + isbn;
+        } else
+        if (this.xisbnOPACID) {
+            return "http://labs.oclc.org/xisbn/liblook?baseURL=" 
+                + this.libraryCatalogURL.replace(/https/, "http")     // xISBN barks at https URLs
+                + "&opacID=" + this.xisbnOPACID + "&isbn=" + isbn;
+        } else {
+            return this.makeISBNSearch(isbn);
+        }
+    }
+}
+
 function libxInitializeCatalog(cattype, catprefix)
 {
+    var cat = null;
 	if (cattype == "millenium") {
-		return new MilleniumOPAC(catprefix);
+		cat = new MilleniumOPAC(catprefix);
 	} else
 	if (cattype == "horizon") {
-	    return new HorizonOPAC(catprefix);
+	    cat = new HorizonOPAC(catprefix);
 	} else
 	if (cattype == "aleph") {
-	    return new AlephOPAC(catprefix);
+	    cat = new AlephOPAC(catprefix);
 	} else
 	if (cattype == "voyager") {
-	    return new VoyagerOPAC(catprefix);
+	    cat = new VoyagerOPAC(catprefix);
+	} else
+	if (cattype == "sirsi") {
+	    cat = new SirsiOPAC(catprefix);
 	} else {
 		libxLog("Catalog type " + cattype + " not supported.");
+        return null;
 	}
-    return null;
+
+    // override xisbn opac id if it's not the default
+    var xisbn = libxGetProperty(catprefix + "catalog.xisbn.opacid");
+    if (xisbn) {
+        cat.xisbnOPACID = xisbn;
+    }
+    cat.prefix = catprefix;
+    cat.makeXISBNRequest = libxCatalogPrototype.makeXISBNRequest;
+    var oai = libxGetProperty(catprefix + "catalog.xisbn.oai");
+    if (oai != "")
+        cat.useOAIxISBN = oai;
+    return cat;
 }
 
 // initialize the catalogs we'll use, including the 
@@ -95,7 +134,7 @@ function libxInitializeCatalogs()
         var newbutton = document.createElement("menuitem");
         newbutton.setAttribute("oncommand", "setSearchButton(this,event);");
         newbutton.setAttribute("value", "catalog" + addcat);
-        newbutton.setAttribute("label", "Search " + libxGetProperty("catalog" + addcat + ".catalog.name"));
+        newbutton.setAttribute("label", "Search " + libxGetProperty("catalog" + addcat + ".catalog.name") + " ");
         catdropdown.insertBefore(newbutton, openurlsbutton);
     }
 
@@ -103,7 +142,7 @@ function libxInitializeCatalogs()
     searchType = catdropdown.firstChild.value;  
     // copy initial label to toolbarbutton parent from menuitem first child
     libraryCatalog.catalogname = libxGetProperty("catalog.name");
-    catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.catalogname);
+    catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.catalogname + " ");
     catdropdown.parentNode.label = catdropdown.firstChild.label;
 }
 
@@ -437,12 +476,11 @@ function doSearchBy(stype) {
 		sterm = names[names.length-1] + " " + names.slice(0,names.length-1).join(" ");
 		// creates "doyle arthur conan"
 	}
-    // if this is an ISSN, change searchtype to 'is'
-    // Millenium & Voyager treat ISSNs the same, but the separate type is necessary for Horizon
-    // which uses a different index for ISSNs
+
+    // if this is an ISSN, but not a ISBN, change searchtype to 'is'
 	if (stype == 'i') {
 	    sterm = pureISN;
-        if (isISSN(pureISN)) {
+        if (!isISBN(pureISN) && isISSN(pureISN)) {
             stype = 'is';
         }
 	}
@@ -453,23 +491,11 @@ function doSearchBy(stype) {
 	doCatalogSearch(libraryCatalog, [{searchType: stype, searchTerms: sterm}]);	
 }
 
-// create a url that requests an item by ISBN from the xISBN service,
-// if the current catalog supports it
-function makeXISBNRequest(isbn) {
-    if (libraryCatalog.xisbnOPACID) {
-        return "http://labs.oclc.org/xisbn/liblook?baseURL=" 
-            + libraryCatalog.libraryCatalogURL.replace(/https/, "http")     // xISBN barks at https URLs
-            + "&opacID=" + libraryCatalog.xisbnOPACID + "&isbn=" + isbn;
-    } else {
-        return libraryCatalog.makeISBNSearch(isbn);
-    }
-}
-
 // use OCLC's xisbn's search
 // XXX investigate processing these results better - otherwise the user has to click through
 // dozens or more results
 function doXisbnSearch() {
-	openSearchWindow(makeXISBNRequest(pureISN)); 
+	openSearchWindow(libraryCatalog.makeXISBNRequest(pureISN)); 
 }
 
 // this function is called if the user right-clicks and an ISSN was previously
@@ -563,7 +589,7 @@ function extractSearchFields() {
 		if (f.firstChild.value == null) f.firstChild.value = "Y";
 		//alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
 		var field = {searchType: f.firstChild.value, searchTerms: f.firstChild.nextSibling.firstChild.value};
-        if (field.searchType == 'i' && isISSN(field.searchTerms)) {
+        if (field.searchType == 'i' && isISSN(field.searchTerms) && !isISBN(field.searchTerms)) {
             field.searchType = 'is';
         }
 		fields.push(field);

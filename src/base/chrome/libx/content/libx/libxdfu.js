@@ -52,7 +52,7 @@ function initializeDoForURLs() {
 // either via xISBN, or direct to the catalog (the default)
 function linkByISBN(isbn) {
     if (libxGetProperty("cues.use.xisbn") == "true") {
-        return makeXISBNRequest(isbn);
+        return libraryCatalog.makeXISBNRequest(isbn);
     } else {
         return libraryCatalog.makeISBNSearch(isbn);
     }
@@ -80,7 +80,7 @@ function doAmazon(doc, match) {
 
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
-new DoForURL(/\.barnesandnoble\.com.*&(?:ean|isbn)=(\d{7,12}[\d|X])/, function (doc, match) {
+new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (doc, match) {
     var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
     
     var origTitle = xpathFindSingle(doc, "//tr[td[@class='itemTitleProduct']]");
@@ -163,16 +163,21 @@ function doNyTimes(doc) {
     if (n0) {
         n = n.concat(n0);
     }
+    // there appear to be archived pages that still use this as of apr/06
+    var n1 = xpathFindNodes(doc, "//nyt_pf_inline/strong");
+    if (n1) {
+        n = n.concat(n1);
+    }
     
     for (var i = 0; i < n.length; i++) {
-        // we only assume it's a book title if its following text() sibling starts with "by" or "edited by"
-
+        // we only assume it's a book title if its following text() sibling 
+        // starts with "by" or "edited by" 
         // find next #text sibling
         for (var s = n[i].nextSibling; s != null && (s.textContent.match(/^\s*(edited\s*)?by/i) == null); s = s.nextSibling)   
             continue;   
 
         if (s != null) {
-            var title = n[i].firstChild.textContent.replace(/\s+/g, " ");
+            var title = n[i].firstChild.textContent.replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "");
             n[i].parentNode.insertBefore(
                 makeLink(doc, 
                          libxGetProperty("catsearch.label", [libraryCatalog.catalogname, title]), 
@@ -216,25 +221,26 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
 
 // rewrite OpenURLs on Google Scholar's page to show cue
 if (openUrlResolver && libxGetProperty("libx.rewritescholarpage") == "true") {
- function rewriteScholarPage(doc) {
+ function rewriteScholarPage(doc, proxy) {
     var atags = xpathFindSnapshot(doc, "//a[@href]");
     for (var i = 0; i < atags.length; i++) {
         var link = atags[i];
         var p = decodeURIComponent(link.href);
         var m = p.match(/scholar\.google\.com\/url\?sa=U&q=.*\?sid=google(.*)$/);
+
+        if (!m)         // highjack WAM-proxied form as well
+            m = p.match(/\-scholar\.google\.com.*\/url\?sa=U&q=.*\?sid=google(.*)$/);
+
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
-            var newlink = makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(m[1]));
+            var ourl = openUrlResolver.completeOpenURL(m[1]);
+            var newlink = makeLink(doc, libxGetProperty("openurllookup.label"), ourl);
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.removeChild(link);
         }
     }
  }
- if (libxGetProperty("libx.rewritescholarwhenproxied")) {
-     new DoForURL(/scholar\.google\.com.*\/scholar/, rewriteScholarPage);
- } else {
-     new DoForURL(/scholar\.google\.com\/scholar/, rewriteScholarPage);
- }
+ new DoForURL(/scholar\.google\.com(.*)\/scholar\?/, rewriteScholarPage);
 }
 
 if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
