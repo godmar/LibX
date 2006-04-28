@@ -60,6 +60,7 @@ OpenURL.prototype = {
 			    url += "&atitle=" + fields[i].searchTerms.replace(/[^A-Za-z0-9_\s]/g, " ").replace(/\s+/, " ");
 			    break;
 		    case 'i':
+		    case 'is':
 			    if (pureISN = isISSN(fields[i].searchTerms)) {
 				    url += "&issn=" + pureISN;
 			    } else {
@@ -105,7 +106,7 @@ OpenURL.prototype = {
         return path;
     },
     makeOpenURLForISSN: function(issn) {
-        return this.completeOpenURL("&genre=article&issn=" + issn);
+        return this.completeOpenURL("&genre=journal&issn=" + issn);
     },
     makeOpenURLForDOI: function(doi) {
         return this.completeOpenURL("&id=doi:" + doi);
