@@ -1,13 +1,18 @@
 # You must add an edition to this file "id" followed by a comma
 # if it is to appear in the list of editions in testing
-bowdoin,0
+mit,0
+bowdoin,1
+ivytech,0
+bucknell,0
+lsu,0
 brown,0
 bul,0
 duke,0
 exu,1
-gsu,0
+gsu,1
 lafayette,0
 msc,1
+mnsu,0
 mu,0
 ou,0
 phsl,0

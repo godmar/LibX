@@ -57,6 +57,8 @@ $catalog.sid=libxvt
 # At RIT, scope 3 means all
 $catalog.searchscope=3
 
+$cues.use.xisbn=true
+
 # RIT uses 'A' flag for sorting.
 $millenium.sort=A
 

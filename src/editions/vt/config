@@ -65,7 +65,7 @@ adaptedby=
 #               this property must refer to your "localbase"
 #               the example here refers to Duke University's. You must change it.
 #
-#       The remaining properties seem pretty standard.
+#       The remaining properties depend on the names of local indices:
 #
 #       $aleph.title=TIT
 #       $aleph.author=WAU
@@ -76,6 +76,14 @@ adaptedby=
 #       $aleph.findfunc=find-b
 #       $aleph.advfindfunc=find-a
 #       $aleph.scanfunc=scan
+#
+#       aleph knows about "scan" (heading indexes) and "find" (straight keyword) indices. 
+#       By default, title & call number use scan, all others use find.
+#       Use a ; separated list to change that.  The codes are
+#       'i' - ISBN, 'is' - ISSN, 'a' - author, 't' - title, 'Y' - keyword, 'c' - call number
+#       In this example, title, call number, and author would be searched using scan.
+#       $aleph.scan.index.list=t;c;a
+
 #
 # horizon and voyager usually operate with the default settings.
 #
@@ -144,6 +152,12 @@ $catalog.searchscope=1
 # Should we place ISBN-based links to point to OCLC's xISBN service?
 # Set this if you want that, omit if not
 $cues.use.xisbn=true
+
+# To make xISBN more robust, you should have OCLC assign an xISBN bookmark OAI for you.
+# Go to http://alcme.oclc.org/bookmarks/ and either look for your identifier
+# if you already have one, or sign up for one.  Specify the entire identifier.
+# Example:
+# $catalog.xisbn.oai=oai:bookmarks.oclc.org:library.mit.edu
 
 ##################################################################################
 #
