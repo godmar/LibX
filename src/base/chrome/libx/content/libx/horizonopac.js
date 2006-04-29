@@ -27,8 +27,8 @@ function HorizonOPAC(catprefix) {
 	this.libraryCatalogURLRegExp = "";
     // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
     // others have an index ISBNEX that does exact matching on both ISSN & ISBN
-    this.useisbnbr = libxGetProperty(catprefix + "horizon.useisbnbr") == "true";
-    this.useissnbr = libxGetProperty(catprefix + "horizon.useissnbr") == "true";
+    this.libraryCatalogISBN = libxGetProperty(catprefix + "horizon.isbn");
+    this.libraryCatalogISSN = libxGetProperty(catprefix + "horizon.issn");
 }
 
 HorizonOPAC.prototype = {
@@ -36,8 +36,8 @@ HorizonOPAC.prototype = {
 	    switch (stype) {
 	        case 'a':   return ".AW";
 	        case 't':   return ".TW";
-	        case 'i':   return this.useisbnbr ? "ISBNBR" : "ISBNEX";
-	        case 'is':  return this.useissnbr ? "ISSNBR" : "ISBNEX";
+	        case 'i':   return this.libraryCatalogISBN;
+	        case 'is':  return this.libraryCatalogISSN;
 	        case 'c':   return "CALLLC";
 	        case 'Y':   return ".GW";
 	        default:
