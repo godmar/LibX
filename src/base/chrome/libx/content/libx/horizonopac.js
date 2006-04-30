@@ -32,6 +32,7 @@ function HorizonOPAC(catprefix) {
 }
 
 HorizonOPAC.prototype = {
+    xisbnOPACID: "ipac",
 	convert: function (stype) {
 	    switch (stype) {
 	        case 'a':   return ".AW";
