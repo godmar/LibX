@@ -1,0 +1,126 @@
+<!-- DTD for LibX Edition config files -->
+<!-- $Id: libxconfig.dtd,v 1.1 2006/04/30 02:46:04 godmar Exp $ -->
+
+<!ELEMENT edition (name,links,catalogs,xisbn,openurl,proxy,options)>
+<!ATTLIST edition id CDATA #REQUIRED>
+<!ELEMENT name EMPTY>
+<!ATTLIST name 
+        short           CDATA #REQUIRED
+        institution     CDATA #REQUIRED
+        adaptedby       CDATA #IMPLIED
+>
+<!ELEMENT links (url*) >
+<!ELEMENT url EMPTY>
+<!ATTLIST url 
+        href            CDATA #REQUIRED
+        label           CDATA #REQUIRED
+>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon)* >
+<!ELEMENT millenium EMPTY>
+<!ATTLIST millenium 
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        sid             CDATA #IMPLIED
+        urlregexp       CDATA #IMPLIED
+        searchscope     CDATA #REQUIRED
+        sort            CDATA #IMPLIED
+        keywordcode     CDATA #IMPLIED
+        searchform      CDATA #IMPLIED
+>
+<!ELEMENT aleph EMPTY>
+<!ATTLIST aleph 
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        sid             CDATA #IMPLIED
+        urlregexp       CDATA #IMPLIED
+        localbase       CDATA #REQUIRED
+        title           CDATA #REQUIRED
+        author          CDATA #REQUIRED
+        isbn            CDATA #REQUIRED
+        issn            CDATA #REQUIRED
+        callno          CDATA #REQUIRED
+        keyword         CDATA #REQUIRED
+        findfunc        CDATA #REQUIRED
+        advfindfunc     CDATA #REQUIRED
+        scanfunc        CDATA #REQUIRED
+        scanindexlist   CDATA #IMPLIED
+>
+<!ELEMENT sirsi EMPTY>
+<!ATTLIST sirsi 
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        sid             CDATA #IMPLIED
+        urlregexp       CDATA #IMPLIED
+>
+<!ELEMENT voyager EMPTY>
+<!ATTLIST voyager 
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        sid             CDATA #IMPLIED
+        urlregexp       CDATA #IMPLIED
+>
+<!ELEMENT horizon EMPTY>
+<!ATTLIST horizon 
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        sid             CDATA #IMPLIED
+        urlregexp       CDATA #IMPLIED
+        issn            CDATA #IMPLIED
+        isbn            CDATA #IMPLIED
+>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<!ELEMENT xisbn EMPTY>
+<!ATTLIST xisbn 
+        cues (true|false) 'false'
+        opacid          CDATA #IMPLIED
+        oai             CDATA #IMPLIED
+>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!ELEMENT openurl (resolver)* >
+
+<!ELEMENT resolver EMPTY>
+<!ATTLIST resolver
+        type           (sersol|sfx|webbridge|generic) #REQUIRED
+        url            CDATA #REQUIRED
+        name           CDATA #REQUIRED
+        sid            CDATA #REQUIRED
+        dontshowintoolbar (true|false) 'false'
+>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!ELEMENT proxy (ezproxy|wam)* >
+<!ELEMENT ezproxy EMPTY>
+<!ATTLIST ezproxy
+        url            CDATA #REQUIRED
+        name           CDATA #REQUIRED
+>
+<!ELEMENT wam EMPTY>
+<!ATTLIST wam
+        url            CDATA #REQUIRED
+        name           CDATA #REQUIRED
+>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<!ELEMENT options (option)*>
+<!ELEMENT option EMPTY>
+<!ATTLIST option
+        key            
+            (sersolisbnfix 
+            |icon|logo
+            |rewritescholar
+            |supportcoins
+            |dumb.scholar.button
+            |scholarmiss.url
+            |send.origdata.withopenurl
+            |suppress.scholar.display
+            )
+        #REQUIRED
+        value          CDATA #REQUIRED
+>
