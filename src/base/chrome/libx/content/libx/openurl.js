@@ -33,7 +33,9 @@
  * OpenURL.prototype contains properties that we expect to be common to all OpenURL
  * resolvers.  It is possible to create a usable OpenURL object.
  *
- * ArticleFinder
+ * ArticleFinder and SFX are subclasses that inherit from OpenURL and provide
+ * functionality specific to the Serials Solutions's Article Linker product
+ * and the SFX product.  (Sorry for the naming confusion.)
  */
 
 function OpenURL(url, sid) {
