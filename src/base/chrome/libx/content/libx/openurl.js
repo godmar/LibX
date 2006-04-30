@@ -35,7 +35,7 @@
  *
  * ArticleLinker and SFX are subclasses that inherit from OpenURL and provide
  * functionality specific to the Serials Solutions's Article Linker product
- * and the SFX product.  (Sorry for the naming confusion.)
+ * and the SFX product.
  */
 
 function OpenURL() { }
