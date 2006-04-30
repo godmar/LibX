@@ -33,22 +33,17 @@
  * OpenURL.prototype contains properties that we expect to be common to all OpenURL
  * resolvers.  It is possible to create a usable OpenURL object.
  *
- * ArticleFinder and SFX are subclasses that inherit from OpenURL and provide
+ * ArticleLinker and SFX are subclasses that inherit from OpenURL and provide
  * functionality specific to the Serials Solutions's Article Linker product
  * and the SFX product.  (Sorry for the naming confusion.)
  */
 
-function OpenURL(url, sid) {
-    this.openUrlResolver = url;
-    // a service id which we pass to the openurl resolver
-    // this will help us know how often searches are initiated from libx
-    this.openUrlSid = sid;
-}
+function OpenURL() { }
 
-// Functions that could be shared
+// Functions shared by all openurl resolvers
 OpenURL.prototype = {
     makeOpenURLFromFields: function(fields) {
-	    var url = this.openUrlResolver + "?sid=" + this.openUrlSid;
+	    var url = this.url + "?sid=" + this.sid;
 	    this.haveTitleOrIssn = false;
 	    for (var i = 0; i < fields.length; i++) {
 		    switch (fields[i].searchType) {
@@ -118,28 +113,25 @@ OpenURL.prototype = {
         return this.completeOpenURL("&id=pmid:" + pmid);
     },
     completeOpenURL: function(path) {
-        return this.openUrlResolver + "?sid=" + this.openUrlSid + path;
+        return this.url + "?sid=" + this.sid + path;
     }
 }
 
 // ---------------------------------------------------------------------------------
 // Article Finder is a subclass of OpenURL
 // 
-function ArticleFinder(url, sid) {
-    this.openUrlResolver = url;
-    this.openUrlSid = sid;
-}
+function ArticleLinker() { }
 
-// make ArticleFinder a "subclass" of OpenURL
+// make ArticleLinker a "subclass" of OpenURL
 // everything that's in OpenURL.prototype shall now be accessible via
-// ArticleFinder.prototype.
-ArticleFinder.prototype = new OpenURL();
+// ArticleLinker.prototype.
+ArticleLinker.prototype = new OpenURL();
 
-ArticleFinder.prototype.makeOpenURLSearch = function (fields) {
+ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
     // if the user specifies only the journal title, use sersol's search function
     if (fields.length == 1 && fields[0].searchType == 't') {
         // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
-        return this.openUrlResolver + '?V=1.0&S=T_W_A&C=' + fields[0].searchTerms;
+        return this.url + '?V=1.0&S=T_W_A&C=' + fields[0].searchTerms;
     }
 
     // super.makeOpenURLFromFields()
@@ -155,10 +147,7 @@ ArticleFinder.prototype.makeOpenURLSearch = function (fields) {
 // ---------------------------------------------------------------------------------
 // SFX is a subclass of OpenURL
 // 
-function SFX(url, sid) {
-    this.openUrlResolver = url;
-    this.openUrlSid = sid;
-}
+function SFX() { }
 
 // make SFX a "subclass" of OpenURL
 SFX.prototype = new OpenURL();

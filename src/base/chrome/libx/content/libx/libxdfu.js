@@ -220,7 +220,7 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
 });
 
 // rewrite OpenURLs on Google Scholar's page to show cue
-if (openUrlResolver && libxGetProperty("libx.rewritescholarpage") == "true") {
+if (openUrlResolver && libxOptions.rewritescholarpage == "true") {
  function rewriteScholarPage(doc, proxy) {
     var atags = xpathFindSnapshot(doc, "//a[@href]");
     for (var i = 0; i < atags.length; i++) {
@@ -234,7 +234,7 @@ if (openUrlResolver && libxGetProperty("libx.rewritescholarpage") == "true") {
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
             var ourl = openUrlResolver.completeOpenURL(m[1]);
-            var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [libxGetProperty("openurl.name")]), ourl);
+            var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), ourl);
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.removeChild(link);
         }
@@ -243,7 +243,7 @@ if (openUrlResolver && libxGetProperty("libx.rewritescholarpage") == "true") {
  new DoForURL(/scholar\.google\.com(.*)\/scholar\?/, rewriteScholarPage);
 }
 
-if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
+if (openUrlResolver && libxOptions.supportcoins == "true") {
  new DoForURL(/.+/, function (doc) {
     var coins = xpathFindNodes(doc, "//span[@class='Z3988']");
     for (var i = 0; i < coins.length; i++) {
@@ -287,7 +287,7 @@ if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
             query = "&" + query.join("&");
 
             if (isBookOrArticle) {
-                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [libxGetProperty("openurl.name")]), openUrlResolver.completeOpenURL(query)));
+                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), openUrlResolver.completeOpenURL(query)));
             }
         } catch (e) {
             dfu_log ("Exception during coins processing: " +e);
@@ -301,7 +301,7 @@ if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
 // and an isbn (despite the fact that doing so is dead simple)
 // We help the user by including a direct link to an ISBN-based search.
 //
-if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
+if (openUrlResolver && libxOptions.sersolisbnfix == "true") {
     new DoForURL(/serialssolutions\.com\/(.*genre=book.*)/, function (doc, match) {
         var im = match[1].match(/isbn=([0-9xX]{10}|[0-9xX]{13})/i);
         var isbn;

@@ -34,6 +34,7 @@ var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an 
                         // searchCatalogs[0] is libraryCatalog
 var openUrlResolver;    // OpenURL resolver or null if no OpenURL support, see openurl.js
 var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
+var libxOptions;        // an options objects
 
 var searchType;         // currently selected search type
 var searchFieldVbox;    // global variable to hold a reference to vbox with search fields.
@@ -123,10 +124,6 @@ function libxInitializeCatalogs()
     // we insert additional catalogs before the openurl button for now
     var catdropdown = document.getElementById("libxcatalogs");
     var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
-    var olabel = libxGetProperty("openurl.searchlabel");
-    if (!olabel)
-        olabel = "Search " + libxGetProperty("openurl.name");
-    openurlsbutton.setAttribute("label", olabel);
 
     for (var addcat = 1; 
          (cattype = libxGetProperty("catalog" + addcat + ".catalog.type")) != null; 
@@ -149,6 +146,57 @@ function libxInitializeCatalogs()
     libraryCatalog.catalogname = libxGetProperty("catalog.name");
     catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.catalogname + " ");
     catdropdown.parentNode.label = catdropdown.firstChild.label;
+}
+
+// Initialize OpenURL support if so configured
+function libxInitializeOpenURL() 
+{
+	var ourltype = libxGetProperty("openurl.type");
+    var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
+    switch (ourltype) {
+    case "sersol":
+	    openUrlResolver = new ArticleLinker();
+        break;
+    case "sfx":
+	    openUrlResolver = new SFX();
+        break;
+    case "generic":
+    case "webbridge":
+	    openUrlResolver = new OpenURL();
+        break;
+    default:
+        libxLog("Unsupported OpenURL type: " + ourltype);
+        /* FALLTHROUGH */
+    case "":
+    case null:
+        openUrlResolver = null;
+        openurlsbutton.hidden = true;
+        return;
+    }
+
+    if (openUrlResolver) {
+        openUrlResolver.url = libxGetProperty("openurl.url");
+        openUrlResolver.sid = libxGetProperty("openurl.sid");
+        openUrlResolver.name = libxGetProperty("openurl.name");
+    }
+
+    if (libxGetProperty("openurl.dontshowintoolbar") == "true") {
+        openurlsbutton.hidden = true;
+    }
+
+    var searchlabel = libxGetProperty("openurl.searchlabel");
+    if (searchlabel == null)
+        searchlabel = "Search " + openUrlResolver.name;
+    openurlsbutton.setAttribute("label", searchlabel);
+}
+
+// Initialize options
+function libxInitializeOptions()
+{
+    libxOptions = new Object();
+    libxOptions.sersolisbnfix = libxGetProperty("libx.sersolisbnfix");
+    libxOptions.supportcoins = libxGetProperty("libx.supportcoins");
+    libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage");
 }
 
 // Initialization - this code is executed when extension is loaded
@@ -177,25 +225,9 @@ function libxInit()
         libxmenu.insertBefore(mitem, libxmenusep);
     }
 
+    libxInitializeOptions();
+    libxInitializeOpenURL();    
     libxInitializeCatalogs();
-	
-	var ourltype = libxGetProperty("openurl.type");
-	if (ourltype == "sersol") {
-	    openUrlResolver = new ArticleFinder(libxGetProperty("openurl.url"), libxGetProperty("openurl.sid"));
-	} else
-	if (ourltype == "sfx") {
-	    openUrlResolver = new SFX(libxGetProperty("openurl.url"), libxGetProperty("openurl.sid"));
-	} else
-    if (ourltype == "generic" || ourltype == "webbridge") {
-	    openUrlResolver = new OpenURL(libxGetProperty("openurl.url"), libxGetProperty("openurl.sid"));
-	} else {
-	    document.getElementById("libx-openurl-search-menuitem").hidden = true;
-	}
-
-    if (libxGetProperty("openurl.dontshowintoolbar") == "true") {
-        document.getElementById("libx-openurl-search-menuitem").hidden = true;
-    }
-	
 	libxProxyInit();
 	initializeDoForURLs();
 	
@@ -256,7 +288,7 @@ function libxContextPopupShowing() {
         }
     }
             
-    var openurlName = libxGetProperty("openurl.name");  // may be null
+    var openurlName = openUrlResolver ? openUrlResolver.name : null;
 	pureISN = null;//forget pureISN
 	pureDOI = null;//forget pureDOI
 	purePMID = null;//forget purePMID
