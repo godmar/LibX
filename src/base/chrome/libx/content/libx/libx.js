@@ -33,6 +33,7 @@ var searchCatalogs;     // Array of search catalogs for drop-down search menu
 var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an example
                         // searchCatalogs[0] is libraryCatalog
 var openUrlResolver;    // OpenURL resolver or null if no OpenURL support, see openurl.js
+var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
 
 var searchType;         // currently selected search type
 var searchFieldVbox;    // global variable to hold a reference to vbox with search fields.
@@ -195,12 +196,7 @@ function libxInit()
         document.getElementById("libx-openurl-search-menuitem").hidden = true;
     }
 	
-	var proxytype = libxGetProperty("proxy.type");
-	if (proxytype == null || proxytype == "") {
-		var libxproxify = document.getElementById("libx-proxify");
-		libxproxify.hidden = true;
-	}
-	
+	libxProxyInit();
 	initializeDoForURLs();
 	
 	searchFieldVbox = document.getElementById("search-field-vbox");
@@ -251,13 +247,15 @@ function libxContextPopupShowing() {
 	openurlissnsearch.hidden = doisearch.hidden = pmidsearch.hidden = true;
 	scholarsearch.hidden = true;
 	
-    var proxyname = libxGetProperty("proxy.name");
-	if (popuphelper.isOverLink()) {// activate proxify link whenever user right-clicked over hyperlink
-		libxproxify.label = libxGetProperty("proxy.follow.label", [proxyname]);
-	} else {
-		libxproxify.label = libxGetProperty("proxy.reload.label", [proxyname]);
-	}
-		
+    if (libxProxy) {
+        // activate proxify link whenever user right-clicked over hyperlink
+        if (popuphelper.isOverLink()) {
+            libxproxify.label = libxGetProperty("proxy.follow.label", [libxProxy.name]);
+        } else {
+            libxproxify.label = libxGetProperty("proxy.reload.label", [libxProxy.name]);
+        }
+    }
+            
     var openurlName = libxGetProperty("openurl.name");  // may be null
 	pureISN = null;//forget pureISN
 	pureDOI = null;//forget pureDOI
@@ -525,67 +523,50 @@ function doPmidSearch() {
 	openSearchWindow(openUrlByPmid);
 }
 
-// this function is called when the user hits the "Proxify" menuitem
-// it rewrites the target URL of a link to go through EZProxy,
+// this function is called when the user hits reload this page/follow a link
+// through the proxy.
+// it rewrites the target URL of a link to go through the defined proxy,
 // helping off-campus users to find a resource
-function doEasyProxify() {
-	var newurl;
+function libxProxify() {
+    // function should not be called if no proxy is defined
+    if (libxProxy == null) {
+        alert("no proxy defined");
+        return;
+    }
+
 	if (popuphelper.isOverLink()) {
-		newurl = libxGetProperty("proxy.url", [popuphelper.getNode().href]);
-		openSearchWindow(newurl);
+		var href = popuphelper.getNode().href;
+		openSearchWindow(libxProxy.rewriteURL(href));
     } else {
-		_content.location.href = libxGetProperty("proxy.url", [_content.location]);
+		_content.location.href = libxProxy.rewriteURL(_content.location.toString());
     }
 }
 
-/* From the III documentation:
-
-  http://<port>-<target server>.<Innovative server>/<rest of URL>
-  <port> The port number of the resource. If the port number is 80, substitute 0 (zero) for the port number.
-  <target server> The address for the target resource.
-  <Innovative server> The address of your Innovative server.
-  <rest of URL> The rest of the URL for the target resource.
-
-      http://search.epnet.com:5670/a/acp/name/db/bgmi/search
-      http://5670-search.epnet.com.my.lib.edu/a/acp/name/db/bgmi/search
-*/
-function convertToWAM(url) {
-    var proxybase = libxGetProperty("proxy.url");
-    var m = url.match(/http:\/\/([^\/:]+)(:(\d+))?\/(.*)$/);
-    if (m) {
-        m[0];
-        var host = m[1];
-        var port = m[3];
-        if (port === undefined || port == 80) port = 0;
-        var path = m[4];
-        var newurl = "http://" + port + "-" + host + "." + proxybase + "/" + path;
-        return newurl;
-    }
-    return url;
-}
-
-function doWAMProxify() {
-	var newurl;
-	if (popuphelper.isOverLink()) {
-		newurl = convertToWAM(popuphelper.getNode().href);
-		openSearchWindow(newurl);
-    } else {
-		_content.location.href = convertToWAM(_content.location.toString());
-    }
-}
-
-function doProxify() {
+/*
+ * Initialize proxy support.
+ */
+function libxProxyInit() {
 	var proxytype = libxGetProperty("proxy.type");
     switch (proxytype) {
     case "ezproxy":
-		doEasyProxify();
+		libxProxy = new libxEZProxy();
         break;
     case "wam":
-        doWAMProxify();
+		libxProxy = new libxWAMProxy();
         break;
+    case null:
+    case "":
+        // hide proxy entry in context menu if no proxy is defined
+		var libxproxify = document.getElementById("libx-proxify");
+		libxproxify.hidden = true;
+        return;
     default:
 		libxLog("Unsupported proxy.type=" + proxytype);
+        return;
 	}
+    libxProxy.name = libxGetProperty("proxy.name");
+    libxProxy.url = libxGetProperty("proxy.url");
+    libxProxy.type = proxytype;
 }
 
 // for all catalogs transfer search field contents into 'fields' array
