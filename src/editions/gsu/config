@@ -26,7 +26,7 @@ $catalog.sid=libxgsu
 $openurl.type=sfx
 $openurl.url=http://orion.galib.uga.edu/sfx_gsu1
 $openurl.sid=libx:gsu
-openurlname=Find It at GSU
+$openurl.name=Find It at GSU
 
 $proxy.type=ezproxy
 $proxy.url=http://ezproxy.gsu.edu:2048/login?url=%S

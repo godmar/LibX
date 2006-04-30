@@ -234,7 +234,7 @@ if (openUrlResolver && libxGetProperty("libx.rewritescholarpage") == "true") {
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
             var ourl = openUrlResolver.completeOpenURL(m[1]);
-            var newlink = makeLink(doc, libxGetProperty("openurllookup.label"), ourl);
+            var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [libxGetProperty("openurl.name")]), ourl);
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.removeChild(link);
         }
@@ -287,7 +287,7 @@ if (openUrlResolver && libxGetProperty("libx.supportcoins") == "true") {
             query = "&" + query.join("&");
 
             if (isBookOrArticle) {
-                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label"), openUrlResolver.completeOpenURL(query)));
+                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [libxGetProperty("openurl.name")]), openUrlResolver.completeOpenURL(query)));
             }
         } catch (e) {
             dfu_log ("Exception during coins processing: " +e);

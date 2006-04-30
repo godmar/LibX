@@ -28,7 +28,7 @@ $aleph.scanfunc=scan
 $openurl.type=sfx
 $openurl.url=http://sfx.lib.duke.edu:9003/sfx_local
 $openurl.sid=libx:duke
-openurlname=Get it @ Duke
+$openurl.name=Get it @ Duke
 
 $proxy.type=
 $proxy.url=

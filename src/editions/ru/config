@@ -114,7 +114,7 @@ $openurl.sid=libx:radforduniversity
 #
 # Name of your OpenURL resolver
 #
-openurlname=RU Article Linker
+$openurl.name=RU Article Linker
 
 #
 # Off-campus proxying.

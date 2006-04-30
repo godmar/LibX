@@ -128,7 +128,7 @@ $openurl.sid=libx:morsfx
 #
 # Name of your OpenURL resolver
 #
-openurlname=MSC FindIt
+$openurl.name=MSC FindIt
 
 $openurl.dontshowintoolbar=true
 

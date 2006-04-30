@@ -142,7 +142,7 @@ $openurl.sid=libx:exu
 #
 # Name of your OpenURL resolver
 #
-openurlname=Exeter full-text subscriptions
+$openurl.name=Exeter full-text subscriptions
 
 #
 # Off-campus proxying.

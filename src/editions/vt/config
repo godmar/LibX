@@ -213,7 +213,7 @@ $openurl.sid=libx:virginiatech
 # Name of your OpenURL resolver
 #
 
-openurlname=VT Article Linker
+$openurl.name=VT Article Linker
 
 #
 # Off-campus proxying.

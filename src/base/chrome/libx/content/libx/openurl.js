@@ -91,7 +91,8 @@ OpenURL.prototype = {
 			    }
 			    break;
 		    case 'Y':
-			    alert(libxGetProperty("openurlarticlekeyword.alert"));
+			    alert(libxGetProperty("openurlarticlekeyword.alert", 
+                                    [libxGetProperty("openurl.name")]));
 			    return null;
 			}//switch
 	    }//for
@@ -142,7 +143,7 @@ ArticleFinder.prototype.makeOpenURLSearch = function (fields) {
     // super.makeOpenURLFromFields()
     var url = OpenURL.prototype.makeOpenURLSearch.call(this, fields);   
 	if (this.haveTitleOrIssn != true) {
-		alert(libxGetProperty("aftitleissn.alert"));
+		alert(libxGetProperty("aftitleissn.alert", [libxGetProperty("openurl.name")]));
 		return null;
 	}
 

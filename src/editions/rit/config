@@ -111,7 +111,7 @@ $openurl.sid=libx:rit
 #
 # Name of your OpenURL resolver
 #
-openurlname=RIT Libraries More!
+$openurl.name=RIT Libraries More!
 
 #RIT does not wish to display the search option for OpenURL in their toolbar
 $openurl.dontshowintoolbar=true

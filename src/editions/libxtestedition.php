@@ -65,8 +65,8 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
     } ?>
 
 <li> The following catalogs are configured:
-    <hr width="80%">
-    <table width="70%" border="0">
+    <hr width="90%">
+    <table width="90%" border="0">
     <tr>
         <th>Catalog</th>
         <th>Name/Link</th>
@@ -96,7 +96,7 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
     }
 ?>
     </table>
-    <hr width="80%">
+    <hr width="90%">
 <? 
     if ($CONFIG['$openurl.type'] != "") {
         echo '<li> OpenURL resolver type is <tt style="{ color: green }">' . $CONFIG['$openurl.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$openurl.url'] . '</tt>';
@@ -195,6 +195,8 @@ You should be seeings cues on these pages:
 <li><a target="_new" href="http://www.nytimes.com/2006/04/27/books/27masl.html">NY Times Book Review (2) (nytimes.com requires a login)</a>,
 <li><a target="_new" href="http://www.google.com/search?hl=en&q=freakonomics">Google.com</a>,
 <li><a target="_new" href="http://search.yahoo.com/search?ei=UTF-8&fr=sfp&p=freakonomics">Yahoo.com.</a>
+<li><a target="_new" href="http://www.worldcatlibraries.org/wcpa/isbn/006073132X">WorldCat via COinS</a>
+<li> <span  class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info:ofi/fmt:kev:mtx:journal&amp;rft.title=D-LIB&amp;rft.aulast=Van+de+Sompel&amp;rft.atitle=Generalizing+the+OpenURL+Framework+beyond+References+to+Scholarly+Works+The+Bison-Fut%C3%A9+Model&amp;rft.volume=7&amp;rft.issue=7/8&amp;rft.date=2001-07&amp;rft_id=http://www.dlib.org/dlib/july01/vandesompel/07vandesompel.html">You should be seeing a COinS icon here: </span> 
 </ul>
 <p>
 <span class="part">Part 3: Context-Menu</span>
@@ -227,10 +229,10 @@ LibX should run a proper author search against your catalog.
 <p>
 <? if ($CONFIG['$openurl.type'] != "") { ?>
 Test DOI ID support.  Select this DOI <span class="selectthis">10.1145/268998.266642</span>, then
-right-click and select "Search <? echo $CONFIG['openurlname'] ?> for DOI 10.1145/268998.266642".
+right-click and select "Search <? echo $CONFIG['$openurl.name'] ?> for DOI 10.1145/268998.266642".
 <p>
 Test PubMed ID support. Select this string <span class="selectthis">PMID: 3966281</span>, then
-right-click and select "Search <? echo $CONFIG['openurlname'] ?> for Pubmed ID 3966281".
+right-click and select "Search <? echo $CONFIG['$openurl.name'] ?> for Pubmed ID 3966281".
 (You must include the "PMID:" part.)
 <? } /* openurl configured */?>
 <p>
@@ -268,7 +270,7 @@ press the Scholar button.
 Also test searches by author and title, they should work with Scholar as well.
 <p>
 <? if ($CONFIG['$openurl.type'] != "" && @$CONFIG['$openurl.dontshowintoolbar'] != "true") { ?>
-Since you display a "Search <? echo $CONFIG['openurlname'] ?>" option for your edition's OpenURL resolver,
+Since you display a "Search <? echo $CONFIG['$openurl.name'] ?>" option for your edition's OpenURL resolver,
 you should also test that searches by title work.  Select Title in the left dropdown, 
 then select your OpenURL resolver on the right, and search for journal title.  
 You should be thrown into your E-Journal Search dialog.

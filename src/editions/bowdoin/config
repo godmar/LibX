@@ -90,7 +90,7 @@ $catalog2.catalog.searchscope=1
 $openurl.type=webbridge
 $openurl.url=http://phebe.bowdoin.edu:4550/resserv
 $openurl.sid=libx:phebe
-openurlname=Find it @Bowdoin
+$openurl.name=Find it @Bowdoin
 
 $openurl.dontshowintoolbar=true
 

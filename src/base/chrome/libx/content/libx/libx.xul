@@ -120,7 +120,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 						id="search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
 							<menuitem oncommand="setSearchButton(this,event);" value="catalog0" />
-							<menuitem id="libx-openurl-search-menuitem" label="&libx.searchopenurllabel;" 
+							<menuitem id="libx-openurl-search-menuitem"
                                     oncommand="setSearchButton(this,event);"
                                     value="openurl" />
 						</menupopup>

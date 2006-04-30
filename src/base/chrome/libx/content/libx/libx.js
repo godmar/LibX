@@ -122,6 +122,10 @@ function libxInitializeCatalogs()
     // we insert additional catalogs before the openurl button for now
     var catdropdown = document.getElementById("libxcatalogs");
     var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
+    var olabel = libxGetProperty("openurl.searchlabel");
+    if (!olabel)
+        olabel = "Search " + libxGetProperty("openurl.name");
+    openurlsbutton.setAttribute("label", olabel);
 
     for (var addcat = 1; 
          (cattype = libxGetProperty("catalog" + addcat + ".catalog.type")) != null; 
@@ -254,6 +258,7 @@ function libxContextPopupShowing() {
 		libxproxify.label = libxGetProperty("proxy.reload.label", [proxyname]);
 	}
 		
+    var openurlName = libxGetProperty("openurl.name");  // may be null
 	pureISN = null;//forget pureISN
 	pureDOI = null;//forget pureDOI
 	purePMID = null;//forget purePMID
@@ -266,7 +271,7 @@ function libxContextPopupShowing() {
 		if (popuphelper.isOverLink()) {
 			pureDOI = isDOI(decodeURI(popuphelper.getNode().href));//does href of hyperlink over which user right-clicked contain a doi?
 			if (pureDOI != null && openUrlResolver) {
-				doisearch.label = libxGetProperty("openurldoisearch.label", [pureDOI]);
+				doisearch.label = libxGetProperty("openurldoisearch.label", [openurlName, pureDOI]);
 				doisearch.hidden = false;
 			}
 		}
@@ -287,7 +292,7 @@ function libxContextPopupShowing() {
 		isbnsearch.label = libxGetProperty("issnsearch.label", [libraryCatalog.catalogname, pureISN]);
 		isbnsearch.hidden = false;
 		if (openUrlResolver) {
-		    openurlissnsearch.label = libxGetProperty("openurlissnsearch.label", [pureISN]);
+		    openurlissnsearch.label = libxGetProperty("openurlissnsearch.label", [openurlName, pureISN]);
 		    openurlissnsearch.hidden = false;
 		}
 	}
@@ -296,7 +301,7 @@ function libxContextPopupShowing() {
         purePMID = isPMID(s);
     }
 	if (purePMID != null) {
-		pmidsearch.label = libxGetProperty("openurlpmidsearch.label", [purePMID]);
+		pmidsearch.label = libxGetProperty("openurlpmidsearch.label", [openurlName, purePMID]);
 		pmidsearch.hidden = false;
 	}
 
@@ -312,7 +317,7 @@ function libxContextPopupShowing() {
     // DOI displays in addition to keyword, title, author
 	pureDOI = isDOI(s);
 	if (pureDOI != null && openUrlResolver) {
-		doisearch.label = libxGetProperty("openurldoisearch.label", [pureDOI]);
+		doisearch.label = libxGetProperty("openurldoisearch.label", [openurlName, pureDOI]);
 		doisearch.hidden = false;
 	}
 }
