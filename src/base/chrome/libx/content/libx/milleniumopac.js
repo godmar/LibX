@@ -27,6 +27,9 @@ function MilleniumOPAC(catprefix) {//this is a constructor
     this.catalogSid = libxGetProperty(catprefix + "catalog.sid");
     this.searchScope = libxGetProperty(catprefix + "catalog.searchscope");
     this.keywordSearchType = libxGetProperty(catprefix + "millenium.keywordcode");
+    this.advancedSearchType = libxGetProperty(catprefix + "millenium.advancedcode");
+    if (this.advancedSearchType == null)
+        this.advancedSearchType = 'X';
 
     var sortby = libxGetProperty(catprefix + "millenium.sort");
     if (sortby == null)
@@ -102,7 +105,8 @@ MilleniumOPAC.prototype = {
 		return this.makeSearch("Y", keyword);
 	},
 	makeAdvancedSearch: function(fields) {
-		var url = this.libraryCatalogURL + "/search/X?SEARCH=";
+		var url = this.libraryCatalogURL + "/search/" 
+                + this.advancedSearchType + "?SEARCH=";
 		url += this.handleISSN(fields[0].searchType) + ":(" + fields[0].searchTerms + ")";
 		for (var i = 1; i < fields.length; i++) {
 			url += "+and+" + this.handleISSN(fields[i].searchType) 
