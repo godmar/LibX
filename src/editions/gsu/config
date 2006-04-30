@@ -1,0 +1,44 @@
+#
+# This file contains the setting for the Georgia State Edition.
+#
+
+libxedition=Georgia State Edition
+emname=LibX Georgia State
+emnameshort=LibX GSU
+
+adaptedby=William Walsh libwdw@langate.gsu.edu
+
+# These links are shown in the dropdown menu on the top left
+$link1.label=Georgia State University Libraries
+$link1.url=http://www.library.gsu.edu/
+$link2.label=GIL
+$link2.url=https://gil.gsu.edu/
+$link3.label=LibX GSU
+$link3.url=http://libx.org/editions/gsu/libx.html
+# you can add more here
+
+$catalog.type=voyager
+$catalog.name=GIL
+$catalog.url=https://gil.gsu.edu
+$catalog.sid=libxgsu
+
+
+$openurl.type=sfx
+$openurl.url=http://orion.galib.uga.edu/sfx_gsu1
+$openurl.sid=libx:gsu
+openurlname=Find It at GSU
+
+$proxy.type=ezproxy
+$proxy.url=http://ezproxy.gsu.edu:2048/login?url=%S
+$proxy.name=EZProxy
+
+$libx.rewritescholarpage=true
+$libx.supportcoins=true
+
+logoURL=chrome://libx/skin/gsulogo.gif
+emiconURL=chrome://libx/skin/gsu.ico
+emdescription=Toolbar for GSU Library users
+emhomepageURL=http://www.libx.org/editions/gsu/libx.html
+emupdateURL=http://www.libx.org/editions/gsu/update.rdf
+
+xpilocation=http://www.libx.org/editions/gsu/libx-gsu.xpi

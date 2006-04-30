@@ -1,5 +1,5 @@
 #
-# This file contains the setting for the Rochester Institute of Technology Edition.
+# This file contains the setting for the Virginia Tech Edition.
 #
 # To create your own edition, you must copy this file and change the 
 # entries as documented.
@@ -8,24 +8,24 @@
 # This name of the edition will be shown in the title bar of the 
 # "About-Box" box and in a tooltip
 #
-libxedition=RIT Edition
+libxedition=University of Exeter Edition
 
 # This is shown in the list of extension if the user clicks on "Tools->Extensions"
-emname=LibX Rochester Institute of Technology
+emname=LibX University of Exeter
 
 # This is shown in the toolbar as label on the button on  the very left
-emnameshort=LibX RIT
+emnameshort=LibX EXU
 
 # These links are shown in the dropdown menu on the top left
-$link1.label=RIT Libraries Website
-$link1.url=http://library.rit.edu/
-$link2.label=RIT Library Catalog
-$link2.url=http://albert.rit.edu/
-$link3.label=Connect NY Catalog
-$link3.url=http://www.connectny.info/
-$link4.label=Libx RIT Support Page
-$link4.url=http://libx.org/editions/rit/libx.html
+$link1.label=University of Exeter Library
+$link1.url=http://lib.ex.ac.uk/
+$link2.label=LibX EXU Homepage
+$link2.url=http://libx.org/editions/exu/libx.html
 # you can add more here
+#
+# Legacy note: these replace the old libraryname & libraryhomepage entries
+#
+
 
 #
 # Byline for adapter.
@@ -36,45 +36,76 @@ $link4.url=http://libx.org/editions/rit/libx.html
 # adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
 #
-adaptedby=RIT Libraries http://library.rit.edu/
+adaptedby=
+
+#
+# LibX now supports multiple catalogs.
+# The first one is called the primary catalog.
+# The others are called secondary catalogs
+
+# Begin of definitions for primary catalog
 
 #
 # The catalogtype.
 # It must be one of millenium, horizon, aleph, or voyager.
 #
-# Name of the catalog - used in many places.
-$catalog.name=RIT Library Catalog
-
-# Primary catalog, or catalog 0
 $catalog.type=millenium
+# used to be catalogtype=millenium
+
+# Name of the catalog - used in many places.
+$catalog.name=UoE Library Catalogue
 
 # The base URL of the catalog
-$catalog.url=http://albert.rit.edu
-# $catalog.urlregexp=
-$catalog.sid=libxvt
+# No slash at the end.
+# Do not include any path here.
+# If you look at pg2 of http://www.oclc.org/worldcat/open/deeplinking/openworldcat_deeplinking.pdf
+# you need to put the library_opac_baseURL here
+#
+$catalog.url=http://lib.ex.ac.uk
+# legacy: used to be catalogurl
+
+#
+# A regular expression that would match page displayed by the OPAC
+# This is currently only used in the VT edition to insert links to
+# floor maps, otherwise it is ignored.
+#
+# legacy: used to be catalogregexp=
+
+#
+# We send along an element "sid=libxvt" with our query - if your OPAC software allows,
+# you could identify queries originating from LibX in this way.
+# Millenium, it appears, does not so this option currently has no effect here.
+#
+$catalog.sid=libxexu
+# legacy: used to be catalogsid=
+
 #
 # [Millenium only]
-# At RIT, scope 3 means all
-$catalog.searchscope=3
+# Some catalogs allow searches over multiple scopes, such as "All Libraries", "Law Library Only", 
+# "Vet Library" only etc.
+# These are search scopes.
+#
+# At VT, scope 1 means all
+$catalog.searchscope=6
 
-$cues.use.xisbn=true
+# Use this to sort the millenium results differently
+# $millenium.sort=A
 
-# RIT uses 'A' flag for sorting.
-$millenium.sort=A
+# A secondary catalog can be defined like so:
+# 
+$catalog1.catalog.type=voyager
+$catalog1.catalog.name=Falmouth Catalogue
+$catalog1.catalog.url=http://voyager.falmouth.ac.uk
 
-# Secondary catalog
-$catalog1.catalog.type=millenium
-$catalog1.catalog.name=Connect NY Catalog
-$catalog1.catalog.url=http://connectny.info
-$catalog1.catalog.sid=libxvt
-$catalog1.catalog.searchscope=1
-#Could use $catalog1.millenium.sort=
+#    $catalog1.catalog.sid=libxvt
+#    $catalog1.catalog.searchscope=1
+#    $catalog1.millenium.sort=
 
 #
 # OpenURL resolver
 #
 # OpenURL resolver type
-# Possible values: sersol, webbridge, generic
+# Possible values: sersol, webbridge, generic, sfx
 #
 # Note: fundamentally, OpenURL resolver do the same thing:
 # they try to find/link to a resource given the meta tags in the URL
@@ -85,16 +116,16 @@ $catalog1.catalog.searchscope=1
 #
 # Leave empty if you do not wish OpenURL support
 #
-$openurl.type=sfx
+$openurl.type=webbridge
 
 # Base URL of your OpenURL resolver
 # include an ending slash here if necessary
 # Examples:
 # SFX: $openurl.url=http://orion.galib.uga.edu/sfx_git1
 # SerSol: $openurl.url=http://zr2yp8gq5s.search.serialssolutions.com/
-# WebBridge: $openurl.url=http://www.library.lafayette.edu:4550/resserv
+# WebBridge: $openurl.url=http://lib.ex.ac.uk:4550/resserv
 
-$openurl.url=http://athena.rit.edu:9003/rit
+$openurl.url=http://lib.ex.ac.uk:4550/resserv
 
 #
 # The 'sid' used by libx.
@@ -106,22 +137,19 @@ $openurl.url=http://athena.rit.edu:9003/rit
 # they allow.  For those, either add libx as a vendor or pick a sid here that the resolver
 # understands.
 #
-$openurl.sid=libx:rit
+$openurl.sid=libx:exu
 
 #
 # Name of your OpenURL resolver
 #
-openurlname=RIT Libraries More!
-
-#RIT does not wish to display the search option for OpenURL in their toolbar
-$openurl.dontshowintoolbar=true
+openurlname=Exeter full-text subscriptions
 
 #
 # Off-campus proxying.
 # Currently support "ezproxy" and "wam".
 # Leave empty if not used.
 #
-$proxy.type=ezproxy
+$proxy.type=wam
 
 #
 # How to rewrite URLs for proxying.  
@@ -129,10 +157,10 @@ $proxy.type=ezproxy
 # For wam, provide the hostname for which DNS catch-all is enabled
 #        (typically identical to catalogurl without http, as in addison.vt.edu)
 #
-$proxy.url=http://ezproxy.rit.edu/login?url=%S
+$proxy.url=lib.ex.ac.uk
 
 # Name displayed to the user in right-click context menu
-$proxy.name=RIT Libraries Proxy Server
+$proxy.name=UoE Proxy
 
 #
 # Should we hijack and rewrite OpenURLs displayed on the Google Scholar page?
@@ -152,18 +180,18 @@ $libx.supportcoins=true
 # If true, a cue is added to a SerSol results page that shows genre=book&isbn=
 # See libx.org -> "Upcoming Features"
 #
-$libx.sersolisbnfix=true
+$libx.sersolisbnfix=false
 
 # Internal URL of large logo.
 # Change only the "shield50.gif" part to be the filename of your logo
 # lower/upper case is significant
-logoURL=chrome://libx/skin/RIT_paw_large.png
+logoURL=chrome://libx/skin/exeterlarge.png
 
 # Internal URL of small logo
-emiconURL=chrome://libx/skin/RIT_paw_small.png
+emiconURL=chrome://libx/skin/exetersmall.png
 
 # Description displayed in "Tools->Extensions"
-emdescription=Toolbar for RIT Library users
+emdescription=Toolbar for University of Exeter library users
 
 # Page to which users are directed if they click "Tools->Extensions->Libx->Homepage"
 # This URL assume the edition would be hosted on libx
@@ -173,11 +201,12 @@ emdescription=Toolbar for RIT Library users
 #
 # In the next three entries, replace vt with your domain (4x).
 #
-emhomepageURL=http://www.libx.org/editions/rit/libx.html
+emhomepageURL=http://www.libx.org/editions/exu/libx.html
 
 # URL which Firefox polls periodically for updates.
 # If you want to host the edition yourself, adjust.
-emupdateURL=http://www.libx.org/editions/rit/update.rdf
+emupdateURL=http://www.libx.org/editions/exu/update.rdf
 
 # Location of the .xpi file
-xpilocation=http://www.libx.org/editions/rit/libx-rit.xpi
+xpilocation=http://www.libx.org/editions/exu/libx-exu.xpi
+

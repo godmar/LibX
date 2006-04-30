@@ -2,9 +2,6 @@ libxedition=Duke Edition
 emname=Duke Libraries Toolbar
 emnameshort=Duke Libraries
 
-libraryname=Duke University Libraries
-libraryhomepage=http://library.duke.edu/
-
 $link1.label=Duke University Libraries
 $link1.url=http://library.duke.edu/
 $link2.label=Duke Libraries Catalog
@@ -28,18 +25,18 @@ $aleph.findfunc=find-b
 $aleph.advfindfunc=find-a
 $aleph.scanfunc=scan
 
-openurltype=sfx
-openurlresolverurl=http://sfx.lib.duke.edu:9003/sfx_local
-openurlsid=libx:duke
+$openurl.type=sfx
+$openurl.url=http://sfx.lib.duke.edu:9003/sfx_local
+$openurl.sid=libx:duke
 openurlname=Get it @ Duke
 
-proxytype=
-proxyurl=
-proxyname=
+$proxy.type=
+$proxy.url=
+$proxy.name=
 
-libxrewritescholarpage=false
-libxsupportcoins=true
-libxsersolisbnfix=true
+$libx.rewritescholarpage=false
+$libx.supportcoins=true
+$libx.sersolisbnfix=true
 
 logoURL=chrome://libx/skin/dukeabout.jpg
 emiconURL=chrome://libx/skin/dukelibraries.png

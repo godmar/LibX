@@ -1,0 +1,149 @@
+#
+# This file contains the setting for the Bowdoin College Library Edition.
+#
+
+# This name of the edition will be shown in the title bar of the 
+# "About-Box" box and in a tooltip
+#
+libxedition=Bowdoin College Library Edition
+
+# This is shown in the list of extension if the user clicks on "Tools->Extensions"
+emname=LibX Bowdoin College Library
+
+# This is shown in the toolbar as label on the button on  the very left
+emnameshort=LibX Bowdoin
+
+# These links are shown in the dropdown menu on the top left
+$link1.label=Bowdoin College Library
+$link1.url=http://library.bowdoin.edu
+$link2.label=LibX Bowdoin Library 
+# This URL is redirected to http://library.bowdoin.edu/tech/tools/libx.shtml
+# This way, we can change the URL without deploying a new edition
+$link2.url=http://libx.org/editions/bowdoin/libx.html
+# you can add more here
+#
+# Legacy note: these replace the old libraryname & libraryhomepage entries
+#
+
+
+#
+# Byline for adapter.
+#
+# Leave empty if you don't wish a byline
+# otherwise, fill in, for example, your name and contact information. 
+#
+# adaptedby=John Smith john.smith@email.com
+# This information will be displayed in the About Box dialog.
+#
+adaptedby=
+
+#
+# LibX now supports multiple catalogs.
+# The first one is called the primary catalog.
+# The others are called secondary catalogs
+
+# Begin of definitions for primary catalog
+
+#
+# The catalogtype.
+# It must be one of millenium, horizon, aleph, or voyager.
+#
+$catalog.type=millenium
+$catalog.name=Bowdoin College Library
+$catalog.url=http://phebe.bowdoin.edu
+$cues.use.xisbn=true
+
+# A regular expression that would match page displayed by the OPAC
+# This is currently only used in the VT edition to insert links to
+# floor maps, otherwise it is ignored.
+#
+$catalog.urlregexp=phebe\.bowdoin\.edu
+$catalog.sid=libxphebe
+$catalog.searchscope=1
+$millenium.keywordcode=X
+
+# Use this to sort the millenium results differently
+# $millenium.sort=A
+
+# A secondary catalog can be defined like so:
+#    $catalog1.catalog.type=millenium
+#    $catalog1.catalog.name=Connect NY
+#    $catalog1.catalog.url=http://connectny.info
+#    $catalog1.catalog.sid=libxvt
+#    $catalog1.catalog.searchscope=1
+#    $catalog1.millenium.sort=# 
+
+$catalog1.catalog.type=millenium
+$catalog1.catalog.name=Maine Info Net
+$catalog1.catalog.url=http://130.111.64.9
+$catalog1.catalog.sid=libxinfonet
+$catalog1.catalog.searchscope=1
+
+$catalog2.catalog.type=millenium
+$catalog2.catalog.name=NExpress
+$catalog2.catalog.url=http://nexp.iii.com
+$catalog2.catalog.sid=libxnexpress
+$catalog2.catalog.searchscope=1
+
+
+# OpenURL resolver
+$openurl.type=webbridge
+$openurl.url=http://phebe.bowdoin.edu:4550/resserv
+$openurl.sid=libx:phebe
+openurlname=Find it @Bowdoin
+
+$openurl.dontshowintoolbar=true
+
+$proxy.type=ezproxy
+$proxy.url=http://academic.bowdoin.edu:9000/login?url=%S
+# change that to something less generic?
+$proxy.name=Bowdoin Proxy
+
+#
+# Should we hijack and rewrite OpenURLs displayed on the Google Scholar page?
+# If your library is registered with Scholar, this will simply turn your links into cues 
+# If your library is not registered with Scholar, *and* you set preferences in Scholar
+# to display results for a library (e.g. Harvard) that is registered, those links
+# will be turned into cues that are redirected to your own OpenURL resolver.
+#
+$libx.rewritescholarpage=true
+
+#
+# Support COINS http://ocoins.info/
+#
+$libx.supportcoins=true
+
+#
+# If true, a cue is added to a SerSol results page that shows genre=book&isbn=
+# See libx.org -> "Upcoming Features"
+#
+$libx.sersolisbnfix=true
+
+# Internal URL of large logo.
+# Change only the "shield50.gif" part to be the filename of your logo
+# lower/upper case is significant
+logoURL=chrome://libx/skin/bcllarge.gif
+
+# Internal URL of small logo
+emiconURL=chrome://libx/skin/bclsmall.gif
+
+# Description displayed in "Tools->Extensions"
+emdescription=Toolbar for Bowdoin College Library users
+
+# Page to which users are directed if they click "Tools->Extensions->Libx->Homepage"
+# This URL assume the edition would be hosted on libx
+# Adjust if you wish to host yourself.
+# I'm happy to put a redirect in this directory if desired.
+# (For instance, the URL for VT is a redirect to a VT Library Page.) 
+#
+# In the next three entries, replace vt with your domain (4x).
+#
+emhomepageURL=http://www.libx.org/editions/bowdoin/libx.html
+
+# URL which Firefox polls periodically for updates.
+# If you want to host the edition yourself, adjust.
+emupdateURL=http://www.libx.org/editions/bowdoin/update.rdf
+
+# Location of the .xpi file
+xpilocation=http://www.libx.org/editions/bowdoin/libx-bowdoin.xpi
+

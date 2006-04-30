@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.1 2006/04/30 02:46:04 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.2 2006/04/30 04:13:33 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,xisbn,openurl,proxy,options)>
 <!ATTLIST edition id CDATA #REQUIRED>
@@ -28,6 +28,7 @@
         searchscope     CDATA #REQUIRED
         sort            CDATA #IMPLIED
         keywordcode     CDATA #IMPLIED
+        advancedcode    CDATA #IMPLIED
         searchform      CDATA #IMPLIED
 >
 <!ELEMENT aleph EMPTY>

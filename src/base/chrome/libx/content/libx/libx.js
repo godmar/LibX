@@ -174,15 +174,15 @@ function libxInit()
 
     libxInitializeCatalogs();
 	
-	var ourltype = libxGetProperty("openurltype");
+	var ourltype = libxGetProperty("openurl.type");
 	if (ourltype == "sersol") {
-	    openUrlResolver = new ArticleFinder(libxGetProperty("openurlresolver.url"), libxGetProperty("openurl.sid"));
+	    openUrlResolver = new ArticleFinder(libxGetProperty("openurl.url"), libxGetProperty("openurl.sid"));
 	} else
 	if (ourltype == "sfx") {
-	    openUrlResolver = new SFX(libxGetProperty("openurlresolver.url"), libxGetProperty("openurl.sid"));
+	    openUrlResolver = new SFX(libxGetProperty("openurl.url"), libxGetProperty("openurl.sid"));
 	} else
     if (ourltype == "generic" || ourltype == "webbridge") {
-	    openUrlResolver = new OpenURL(libxGetProperty("openurlresolver.url"), libxGetProperty("openurl.sid"));
+	    openUrlResolver = new OpenURL(libxGetProperty("openurl.url"), libxGetProperty("openurl.sid"));
 	} else {
 	    document.getElementById("libx-openurl-search-menuitem").hidden = true;
 	}
@@ -191,7 +191,7 @@ function libxInit()
         document.getElementById("libx-openurl-search-menuitem").hidden = true;
     }
 	
-	var proxytype = libxGetProperty("proxytype");
+	var proxytype = libxGetProperty("proxy.type");
 	if (proxytype == null || proxytype == "") {
 		var libxproxify = document.getElementById("libx-proxify");
 		libxproxify.hidden = true;
@@ -247,10 +247,11 @@ function libxContextPopupShowing() {
 	openurlissnsearch.hidden = doisearch.hidden = pmidsearch.hidden = true;
 	scholarsearch.hidden = true;
 	
+    var proxyname = libxGetProperty("proxy.name");
 	if (popuphelper.isOverLink()) {// activate proxify link whenever user right-clicked over hyperlink
-		libxproxify.label = libxGetProperty("proxify.label");
+		libxproxify.label = libxGetProperty("proxy.follow.label", [proxyname]);
 	} else {
-		libxproxify.label = libxGetProperty("proxyreload.label");
+		libxproxify.label = libxGetProperty("proxy.reload.label", [proxyname]);
 	}
 		
 	pureISN = null;//forget pureISN
@@ -569,14 +570,16 @@ function doWAMProxify() {
 }
 
 function doProxify() {
-	var proxytype = libxGetProperty("proxytype");
-	if (proxytype == "ezproxy") {
+	var proxytype = libxGetProperty("proxy.type");
+    switch (proxytype) {
+    case "ezproxy":
 		doEasyProxify();
-    } else
-	if (proxytype == "wam") {
+        break;
+    case "wam":
         doWAMProxify();
-	} else {
-		libxLog("Unsupported Proxy Type " + proxytype);
+        break;
+    default:
+		libxLog("Unsupported proxy.type=" + proxytype);
 	}
 }
 

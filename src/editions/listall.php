@@ -57,10 +57,10 @@
                    href="' . @$path_prefix .  'libxtestedition.php?edition=' . $ec[name] . '">' 
             . ereg_replace("Edition$", "", $ec['libxedition'])
             . '</a></td>'
-            . '<td><a href="' . @$path_prefix . $ec[name] . '/config">config</a></td>'
+            . '<td><a href="' . @$path_prefix . 'showconfigfile.php?edition=' . $ec[name] . '">config</a></td>'
             . "<td>" . $ec['$catalog.type'] . "</td>"
-            . "<td>" . $ec['openurltype'] . "</td>"
-            . "<td>" . $ec['proxytype'] . "</td>"
+            . "<td>" . $ec['$openurl.type'] . "</td>"
+            . "<td>" . $ec['$proxy.type'] . "</td>"
             . '</b>';
         echo "</tr>\n";
     }

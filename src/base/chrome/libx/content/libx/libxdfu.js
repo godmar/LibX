@@ -307,9 +307,10 @@ if (openUrlResolver && libxGetProperty("libx.sersolisbnfix") == "true") {
         var isbn;
         if (im && (isbn = isISBN(im[1]))) {
             var h4 = xpathFindSingle(doc, "//h4[contains(text(), 'No direct links were found')]");
-            if (!h4) {
+            if (h4 == null)
+                h4 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
+            if (h4 == null)
                 return;
-            }
             var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
             var it = doc.createElement("i");
             it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn])));
@@ -358,7 +359,7 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
 });
 
 // fix up the WAM page that says "The address you are trying to access is invalid."
-if (libxGetProperty("proxytype") == "wam") {
+if (libxGetProperty("proxy.type") == "wam") {
     // this matches on a WAM DNS'ed URL
     var rexp = new RegExp("\\d+\\-(.*)\\." + libxGetProperty("proxy.url").replace(/\./g, "\\."));
     new DoForURL(rexp, function(doc, m) {

@@ -1,22 +1,10 @@
-<html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="http://libx.org/css/vtdoopal.css" />
-<style>
-.part {
-    font-weight: bold;
-}
-.selectthis {
-    color: green;
-}
-</style>
-    </head>
-<body>
 <?
 $version = "Test Edition";
 $edition = $_GET['edition'];
 if (!preg_match("/^[a-zA-Z0-9]+$/", $edition)) die ("Wrong argument.");
 
 $edition_config = $edition . '/config';
+$edition_config_xml = $edition . '/config.xml';
 $edition_xpi = $edition . '/libx-' . $edition . '.xpi';
 
 if (!file_exists($edition_config)) {
@@ -35,7 +23,24 @@ while (!feof($f)) {
 
 $edition_name = $CONFIG['libxedition'];
 $catalog_type = $CONFIG['$catalog.type'];
+$icon = $edition . '/' . basename($CONFIG['emiconURL']);
 ?>
+
+<html>
+    <head>
+      <link rel="stylesheet" type="text/css" href="http://libx.org/css/vtdoopal.css" />
+      <link rel="icon" href="<? echo $icon ?>" type="image/x-icon" />
+      <link rel="shortcut icon" href="<? echo $icon ?>" type="image/x-icon" />
+<style>
+.part {
+    font-weight: bold;
+}
+.selectthis {
+    color: green;
+}
+</style>
+    </head>
+<body>
 
 <h2 class="title">LibX <? echo $edition_name ?> - Test Edition</h2>
 
@@ -55,20 +60,54 @@ $catalog_type = $CONFIG['$catalog.type'];
 <li> <a href="<? echo $edition_config?>">config file</a> used to build this snapshot.
 <li> An easier-to-read version of 
         the <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file without comments.</a>
-<li> Primary catalog type is <tt style="{ color: green }"><? echo $catalog_type ?></tt> at
-    <tt style="{ color: green }"><? echo $CONFIG['$catalog.url'] ?></tt>
+    <? if (file_exists($edition_config_xml)) {
+        echo '<a href="' . $edition_config_xml . '">(as XML)</a>';
+    } ?>
+
+<li> The following catalogs are configured:
+    <hr width="80%">
+    <table width="70%" border="0">
+    <tr>
+        <th>Catalog</th>
+        <th>Name/Link</th>
+        <th>Type</th>
+        <th>URL</th>
+    </tr>
+<?
+    $c = 0;
+    $prefix = "";
+    while (@$CONFIG['$' . $prefix . 'catalog.url'] != "") {
+        echo '<tr><td>';
+        if ($c == 0) { echo 'Primary'; }
+        else { echo 'Catalog #'. $c; }
+        echo '</td><td>';
+        echo '<a href="' . $CONFIG['$' . $prefix . 'catalog.url'] . '">' 
+                . $CONFIG['$' . $prefix . 'catalog.name']. '</a>';
+        echo '</td><td align="center"><tt style="{ color: green }">';
+        echo $CONFIG['$' . $prefix . 'catalog.type'] . '</tt>';
+        echo '</td><td>';
+        echo '<tt style="{ color: green }">';
+        echo $CONFIG['$' . $prefix . 'catalog.url'] ;
+        echo '</tt>';
+        echo '</td>';
+        echo '</tr>';
+        $c++;
+        $prefix = 'catalog' . $c . '.';
+    }
+?>
+    </table>
+    <hr width="80%">
 <? 
-    if ($CONFIG['openurltype'] != "") {
-        echo '<li> OpenURL resolver type is <tt style="{ color: green }">' . $CONFIG['openurltype'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['openurlresolverurl'] . '</tt>';
+    if ($CONFIG['$openurl.type'] != "") {
+        echo '<li> OpenURL resolver type is <tt style="{ color: green }">' . $CONFIG['$openurl.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$openurl.url'] . '</tt>';
     } else {
         echo '<li> No OpenURL resolver is defined for this edition.';
     }
-    if ($CONFIG['proxytype'] != "") {
-        echo '<li> Remote Access type is <tt style="{ color: green }">' . $CONFIG['proxytype'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['proxyurl'] . '</tt>';
+    if ($CONFIG['$proxy.type'] != "") {
+        echo '<li> Remote Access type is <tt style="{ color: green }">' . $CONFIG['$proxy.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$proxy.url'] . '</tt>';
     } else {
         echo '<li> No remote proxy is defined for this edition.';
     }
-    $icon = $edition . '/' . basename($CONFIG['emiconURL']);
     echo '<li> Small logo is <img src="' . $icon . '" />, which should look identical to ';
     echo '<img width="16" height="16" src="' . $icon . '" />';
     $logo = $CONFIG['logoURL'];
@@ -186,7 +225,7 @@ Select the following names in their entirety, then right-click and select
 </ul> 
 LibX should run a proper author search against your catalog.
 <p>
-<? if ($CONFIG['openurltype'] != "") { ?>
+<? if ($CONFIG['$openurl.type'] != "") { ?>
 Test DOI ID support.  Select this DOI <span class="selectthis">10.1145/268998.266642</span>, then
 right-click and select "Search <? echo $CONFIG['openurlname'] ?> for DOI 10.1145/268998.266642".
 <p>
@@ -197,7 +236,7 @@ right-click and select "Search <? echo $CONFIG['openurlname'] ?> for Pubmed ID 3
 <p>
 <span class="part">Part 4: Scholar Support</span>
 <p>
-To test Scholar support, make sure, that you are either using an IP address that is recognized
+To test Scholar support, make sure that you are either using an IP address that is recognized
 by Scholar or that you have <a href="http://scholar.google.com/scholar_preferences?hl=en&lr=&output=search">set your preferences</a> to include a library that displays OpenURLs - your library, if you're registered with Scholar, or if not, pick any library that is (Find It @ Stanford is a good pick.)
 <p>
 <b>After</b> you have done this, select the following five entries, one at a time.
@@ -228,7 +267,7 @@ search bar (or select the text and drag-n-drop it in there), make sure "Keyword"
 press the Scholar button.  
 Also test searches by author and title, they should work with Scholar as well.
 <p>
-<? if ($CONFIG['openurltype'] != "" && @$CONFIG['$openurl.dontshowintoolbar'] != "true") { ?>
+<? if ($CONFIG['$openurl.type'] != "" && @$CONFIG['$openurl.dontshowintoolbar'] != "true") { ?>
 Since you display a "Search <? echo $CONFIG['openurlname'] ?>" option for your edition's OpenURL resolver,
 you should also test that searches by title work.  Select Title in the left dropdown, 
 then select your OpenURL resolver on the right, and search for journal title.  
@@ -237,7 +276,7 @@ This option is known to work well only for
 SFX &amp; Serials Solutions, and sirsi.net OpenURL resolvers.
 <? } ?>
 <p>
-<? if ($CONFIG['proxytype'] != "") { ?>
+<? if ($CONFIG['$proxy.type'] != "") { ?>
 <p>
 <span class="part">Option: Proxy Support</span>
 <p>

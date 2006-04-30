@@ -1,0 +1,5 @@
+# format of this file is "file directory"
+exetersmall.png chrome/libx/skin/libx
+exeterlarge.png chrome/libx/skin/libx
+# use this instead of the default definitions.dtd
+definitions.dtd chrome/libx/locale/en-US/libx

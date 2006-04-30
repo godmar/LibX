@@ -22,17 +22,17 @@ $catalog.sid=libxwlu
 # this is III's searchscope
 $catalog.searchscope=1
 
-openurltype=generic
-openurlresolverurl=http://law.wlu.edu/library/resolver.asp
-openurlsid=libx:wlu
+$openurl.type=generic
+$openurl.url=http://law.wlu.edu/library/resolver.asp
+$openurl.sid=libx:wlu
 openurlname=WL Book/Journal Finder
 
-proxytype=ezproxy
-proxyurl=https://ezproxy.wlu.edu:2443?url=%S
-proxyname=EZProxy
+$proxy.type=ezproxy
+$proxy.url=https://ezproxy.wlu.edu:2443?url=%S
+$proxy.name=EZProxy
 
-libxrewritescholarpage=true
-libxsupportcoins=true
+$libx.rewritescholarpage=true
+$libx.supportcoins=true
 
 logoURL=chrome://libx/skin/WLlogo48.gif
 emiconURL=chrome://libx/skin/WLlogo16.gif

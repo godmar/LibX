@@ -1,0 +1,23 @@
+<!-- 
+Branding specific things should be defined in config and variables should be used in here.
+-->
+
+<!ENTITY libx.aboutbox.label "LibX">
+<!ENTITY libx.aboutbox.image "$logoURL$">
+<!ENTITY libx.aboutbox.homepage "http://www.libx.org">
+<!ENTITY libx.aboutbox.title "LibX - $libxedition$">
+<!ENTITY libx.aboutbox.adaptedby "$adaptedby$">
+
+<!ENTITY libx.toolbarname "$emnameshort$">
+<!ENTITY libx.toolbarbutton " $emnameshort$ ">
+<!ENTITY libx.image "$emiconURL$">
+
+<!ENTITY libx.call.number "Classmark">
+
+<!ENTITY libx.tooltiptext "LibX - $libxedition$">
+
+<!ENTITY libx.magicbutton.label " Scholar ">
+<!ENTITY libx.magicbutton.image "chrome://libx/skin/scholar.gif">
+<!ENTITY libx.rightclickmagicsearch "Search via Scholar">
+
+<!ENTITY libx.searchopenurllabel "Search $openurlname$">

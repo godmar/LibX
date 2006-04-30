@@ -83,14 +83,16 @@ adaptedby=
 #       'i' - ISBN, 'is' - ISSN, 'a' - author, 't' - title, 'Y' - keyword, 'c' - call number
 #       In this example, title, call number, and author would be searched using scan.
 #       $aleph.scan.index.list=t;c;a
-
+#
 #
 # horizon and voyager usually operate with the default settings.
 #
+
 $catalog.type=millenium
-# legacy note: used to be catalogtype=millenium
+
 
 # Name of the catalog - used in many places.
+
 $catalog.name=Addison
 
 # The base URL of the catalog
@@ -101,8 +103,8 @@ $catalog.name=Addison
 #
 # For aleph, do not include a trailing /F here.
 #
+
 $catalog.url=http://addison.vt.edu
-# legacy: used to be catalogurl
 
 #
 # A regular expression that would match page displayed by the OPAC
@@ -110,7 +112,6 @@ $catalog.url=http://addison.vt.edu
 # floor maps, otherwise it is ignored.
 #
 $catalog.urlregexp=addison\.vt\.edu
-# legacy: used to be catalogregexp=
 # will be phased out
 
 #
@@ -119,7 +120,6 @@ $catalog.urlregexp=addison\.vt\.edu
 # Millenium, it appears, does not do this so this option currently has no effect here.
 #
 $catalog.sid=libxvt
-# legacy: used to be catalogsid=
 
 #
 # [Millenium only]
@@ -127,8 +127,9 @@ $catalog.sid=libxvt
 # "Vet Library" only etc.
 # These are search scopes.
 #
-# At VT, scope 1 means all
+# At VT, scope 1 means all.
 # If unknown, use "1".
+
 $catalog.searchscope=1
 
 # Use this to sort the millenium results differently
@@ -177,22 +178,23 @@ $cues.use.xisbn=true
 #
 # Leave empty if you do not wish OpenURL support
 #
-openurltype=sersol
+
+$openurl.type=sersol
 
 # Base URL of your OpenURL resolver
 # include an ending slash here if necessary
 # Examples:
 #
 # No ending slash:
-# SFX: openurlresolverurl=http://orion.galib.uga.edu/sfx_git1   
-# WebBridge: openurlresolverurl=http://www.library.lafayette.edu:4550/resserv
+# SFX: $openurl.url=http://orion.galib.uga.edu/sfx_git1   
+# WebBridge: $openurl.url=http://www.library.lafayette.edu:4550/resserv
 #
 # Needs an ending slash:
-# SerSol: openurlresolverurl=http://zr2yp8gq5s.search.serialssolutions.com/
-# Sirsi: openurlresolverurl=http://bucknell-resolver.sirsi.net/
+# SerSol: $openurl.url=http://zr2yp8gq5s.search.serialssolutions.com/
+# Sirsi: $openurl.url=http://bucknell-resolver.sirsi.net/
 #
 
-openurlresolverurl=http://su8bj7jh4j.search.serialssolutions.com/
+$openurl.url=http://su8bj7jh4j.search.serialssolutions.com/
 
 #
 # The 'sid' used by libx.
@@ -204,11 +206,13 @@ openurlresolverurl=http://su8bj7jh4j.search.serialssolutions.com/
 # they allow.  For those, either add libx as a vendor or pick a sid here that the resolver
 # understands.
 #
-openurlsid=libx:virginiatech
+
+$openurl.sid=libx:virginiatech
 
 #
 # Name of your OpenURL resolver
 #
+
 openurlname=VT Article Linker
 
 #
@@ -216,7 +220,8 @@ openurlname=VT Article Linker
 # Currently support "ezproxy" and "wam".
 # Leave empty if not used.
 #
-proxytype=ezproxy
+
+$proxy.type=ezproxy
 
 #
 # How to rewrite URLs for proxying.  
@@ -224,11 +229,13 @@ proxytype=ezproxy
 # For wam, provide the hostname for which DNS catch-all is enabled
 #        (typically identical to catalogurl without http, as in addison.vt.edu)
 #
-proxyurl=http://ezproxy.lib.vt.edu:8080/login?url=%S
+
+$proxy.url=http://ezproxy.lib.vt.edu:8080/login?url=%S
 
 # Name displayed to the user in right-click context menu
 # This should be something the user recognizes as a library service
-proxyname=EZProxy
+
+$proxy.name=EZProxy
 
 #
 # Should we hijack and rewrite OpenURLs displayed on the Google Scholar page?
@@ -237,31 +244,37 @@ proxyname=EZProxy
 # to display results for a library (e.g. Stanford) that IS registered, those links
 # will be turned into cues that are redirected to your own OpenURL resolver.
 #
-libxrewritescholarpage=true
+
+$libx.rewritescholarpage=true
 
 #
 # Support COINS http://ocoins.info/
 #
-libxsupportcoins=true
+
+$libx.supportcoins=true
 
 #
 # If true, a cue is added to a SerSol results page that shows genre=book&isbn=
 # See libx.org -> "Upcoming Features"
 #
-libxsersolisbnfix=true
+
+$libx.sersolisbnfix=true
 
 # Internal URL of large logo.
 # Change only the "shield50.gif" part to be the filename of your logo
 # lower/upper case is significant
 # An external URL works here
+
 logoURL=chrome://libx/skin/shield50.gif
 
 # Internal URL of small logo
 # Please make this an internal (chrome://) based URL and bundle the image 
+#
 emiconURL=chrome://libx/skin/virginiatech.ico
 
 # Description displayed in "Tools->Extensions"
-emdescription=Toolbar for Virginia Tech library users
+# This will be removed in future versions
+emdescription=Toolbar for Virginia Tech Library users
 
 #
 # Page to which users are directed if they click "Tools->Extensions->Libx->Homepage"
