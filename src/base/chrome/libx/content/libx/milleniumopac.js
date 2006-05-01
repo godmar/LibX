@@ -22,19 +22,16 @@
  * ***** END LICENSE BLOCK ***** */
 
 function MilleniumOPAC(catprefix) {//this is a constructor
-	this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
-    this.libraryCatalogURLRegExp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
-    this.catalogSid = libxGetProperty(catprefix + "catalog.sid");
-    this.searchScope = libxGetProperty(catprefix + "catalog.searchscope");
-    this.keywordSearchType = libxGetProperty(catprefix + "millenium.keywordcode");
-    this.advancedSearchType = libxGetProperty(catprefix + "millenium.advancedcode");
-    if (this.advancedSearchType == null)
-        this.advancedSearchType = 'X';
+    this.searchscope = libxGetProperty(catprefix + "catalog.searchscope");
+    this.keywordcode = libxGetProperty(catprefix + "millenium.keywordcode");
+    this.advancedcode = libxGetProperty(catprefix + "millenium.advancedcode");
+    if (this.advancedcode == null)
+        this.advancedcode = 'X';
 
     var sortby = libxGetProperty(catprefix + "millenium.sort");
     if (sortby == null)
         sortby = "R";   //sort by relevance, use 'D' for date
-	this.catalogSort = sortby;
+	this.sort = sortby;
 
     this.searchform = libxGetProperty(catprefix + "millenium.searchform");
     if (this.searchform == null)
@@ -60,8 +57,8 @@ MilleniumOPAC.prototype = {
 
         // substitute special code for keyword searches if defined
         // some III catalogs prefer to use X for keyword searches, apparently.
-        if (stype == 'Y' && this.keywordSearchType != null) {
-            stype = this.keywordSearchType;
+        if (stype == 'Y' && this.keywordcode != null) {
+            stype = this.keywordcode;
         }
 
         // it's not quite clear which format Millenium prefers.
@@ -70,7 +67,7 @@ MilleniumOPAC.prototype = {
         // or     (3) /search/?searchtype=<TYPE>&searcharg= ...
         // We have seen III use the first, second, and third form
     
-        var query = this.libraryCatalogURL + "/search/";
+        var query = this.url + "/search/";
 
         switch (this.searchform) {
         case 1:
@@ -84,9 +81,9 @@ MilleniumOPAC.prototype = {
             break;
         }
 
-        query += "&startLimit=&searchscope=" + this.searchScope 
-                + "&SORT=" + this.catalogSort + "&endLimit="
-                + ((this.catalogSid != null) ? "&sid=" + this.catalogSid : "");
+        query += "&startLimit=&searchscope=" + this.searchscope 
+                + "&SORT=" + this.sort + "&endLimit="
+                + ((this.sid != null) ? "&sid=" + this.sid : "");
         return query;
 	},
 	makeTitleSearch: function(title) {
@@ -105,16 +102,16 @@ MilleniumOPAC.prototype = {
 		return this.makeSearch("Y", keyword);
 	},
 	makeAdvancedSearch: function(fields) {
-		var url = this.libraryCatalogURL + "/search/" 
-                + this.advancedSearchType + "?SEARCH=";
+		var url = this.url + "/search/" 
+                + this.advancedcode + "?SEARCH=";
 		url += this.handleISSN(fields[0].searchType) + ":(" + fields[0].searchTerms + ")";
 		for (var i = 1; i < fields.length; i++) {
 			url += "+and+" + this.handleISSN(fields[i].searchType) 
                             + ":(" + fields[i].searchTerms + ")"; 
 		}
-		url += "&SORT=" + this.catalogSort;
-        if (this.catalogSid)
-            url += "&sid=" + this.catalogSid;
+		url += "&SORT=" + this.sort;
+        if (this.sid)
+            url += "&sid=" + this.sid;
 		url = url.replace(/Y:\(/g, "(");	// keyword == "Any Field"
 		return url;
 	}

@@ -23,9 +23,8 @@
 
 // Support for Sirsi OPAC
 function SirsiOPAC(catprefix) {
-    this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
-	this.libraryCatalogURLRegExp = "";
-    this.sirsiPath = "/uhtbin/cgisirsi/x/0/0/5/?";
+    this.url = libxGetProperty(catprefix + "catalog.url");
+    this.path = "/uhtbin/cgisirsi/x/0/0/5/?";
 }
 
 SirsiOPAC.prototype = {
@@ -72,7 +71,7 @@ SirsiOPAC.prototype = {
 	    return true;
 	},
 	makeSearch: function(stype, sterm) {
-        return this.libraryCatalogURL + this.sirsiPath + "searchdata1=" + sterm + this.convert(stype);
+        return this.url + this.path + "searchdata1=" + sterm + this.convert(stype);
 	},
 	makeTitleSearch: function(title) {
 		return this.makeSearch("t", title);
@@ -90,7 +89,7 @@ SirsiOPAC.prototype = {
 		return this.makeSearch("Y", keyword);
 	},
 	makeAdvancedSearch: function(fields) {
-        var url = this.libraryCatalogURL + this.sirsiPath;
+        var url = this.url + this.path;
 		for (var i = 0; i < fields.length; i++) {
 			url += "srchfield" + (i+1) + "=" + this.convert2(fields[i].searchType) 
                 + "&searchdata" + (i+1) + "=" + fields[i].searchTerms;

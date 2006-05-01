@@ -74,7 +74,7 @@ function doAmazon(doc, match) {
     }
     // make link and insert after title
     var div = origTitle.parentNode;
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), linkByISBN(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), linkByISBN(isbn));
     div.insertBefore(link, origTitle.nextSibling);
 }
 
@@ -88,7 +88,7 @@ new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (d
         return;
     }
     // make link and insert after title
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), linkByISBN(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), linkByISBN(isbn));
     origTitle.appendChild(link);
 });
 
@@ -103,7 +103,7 @@ function doAgricola(doc) {
     // starting relative to this <TR>, find the first <TD> child with an <A> grandchild and select the <A> - that's the hyperlinked call number
     var cn_a = xpathFindSingle(doc, "./td/a", cn_tr);
     var cn = cn_a.textContent;// call number
-    var link = makeLink(doc, libxGetProperty("callnolookup.label", [libraryCatalog.catalogname, cn]), libraryCatalog.makeCallnoSearch(cn));
+    var link = makeLink(doc, libxGetProperty("callnolookup.label", [libraryCatalog.name, cn]), libraryCatalog.makeCallnoSearch(cn));
     // insert cue after <A> element within the containing <TD> element
     cn_a.parentNode.insertBefore(link, cn_a.nextSibling);
 }
@@ -111,8 +111,8 @@ function doAgricola(doc) {
 // --------------------------------------------------------------------------------------------------
 // On catalog result pages, add cue that points at floor where book is located
 
-if (libraryCatalog.libxvt)   // only for VT edition
-new DoForURL(libraryCatalog.libraryCatalogURLRegExp, function (doc) {
+if (libraryCatalog.sid == "libxvt")   // only for VT edition
+new DoForURL(libraryCatalog.urlregexp, function (doc) {
     // find all <tr> where the first <td> child says "Newman Library"
     // and the third <td> child says "AVAILABLE"
     var availrows = xpathFindNodes(doc, '//tr[     td[3] / text()[contains(.,"AVAILABLE")] '
@@ -180,7 +180,7 @@ function doNyTimes(doc) {
             var title = n[i].firstChild.textContent.replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "");
             n[i].parentNode.insertBefore(
                 makeLink(doc, 
-                         libxGetProperty("catsearch.label", [libraryCatalog.catalogname, title]), 
+                         libxGetProperty("catsearch.label", [libraryCatalog.name, title]), 
                          libraryCatalog.makeTitleSearch(title)), 
                 s);
         }      
@@ -195,7 +195,7 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
     var n = xpathFindSingle(doc, "//h1[text()='Search Results']");
     var searchterms = _content.document.getElementById("yschsp").value;
     n.appendChild(doc.createTextNode(" "));
-    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.catalogname, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });
 
 // --------------------------------------------------------------------------------------------------
@@ -205,14 +205,14 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
 new DoForURL(/google\.com\/search.*q=/, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td[font[@size='+1' and b[text()='Web']]]");
     var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
-    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.catalogname, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });
 
 // link to catalog from google print via ISBN
 new DoForURL(/books.\google\.com\/books/, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
-    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, m[1]]), linkByISBN(m[1]));
+    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), linkByISBN(m[1]));
     var ns = n.nextSibling;
     n.parentNode.insertBefore(newlink, ns);
     // a white space to make it pretty for Melissa
@@ -311,9 +311,9 @@ if (openUrlResolver && libxOptions.sersolisbnfix == "true") {
                 h4 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
             if (h4 == null)
                 return;
-            var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
+            var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn));
             var it = doc.createElement("i");
-            it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn])));
+            it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn])));
 
             var par = doc.createElement("p");
             par.appendChild(hint);
@@ -353,7 +353,7 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
         var isbn = isISBN(isbn13.nextSibling.textContent);
         if (isbn == null)
             continue;
-        var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, isbn]), libraryCatalog.makeISBNSearch(isbn));
+        var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn));
         anode.parentNode.insertBefore(hint, anode.nextSibling);
     }
 });
@@ -389,7 +389,7 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
         if (isbn) {
             var newlink = makeLink(doc,
                 libxGetProperty("isbnsearch.label",
-                    [libraryCatalog.catalogname, isbn]),
+                    [libraryCatalog.name, isbn]),
                 linkByISBN(isbn));
             n[i].parentNode.insertBefore(newlink, n[i]);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), n[i]);

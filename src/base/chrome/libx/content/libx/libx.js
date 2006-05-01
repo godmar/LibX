@@ -59,16 +59,16 @@ var libxCatalogPrototype = {
     // if the current catalog supports it
     makeXISBNRequest: function(isbn) {
         if (this.useOAIxISBN) {
-            // jeff young from OCLC says to use that
-            // http://alcme.oclc.org/bookmarks/servlet/OAIHandler/extension?verb=FRBRRedirect&identifier=oai:bookmarks.oclc.org:library.mit.edu&isbn=0300088094
-            // if listed in here: http://alcme.oclc.org/bookmarks/
+            // jeff young from OCLC says to use this URL for libraries registered
+            // with their service, see http://alcme.oclc.org/bookmarks/
             return "http://alcme.oclc.org/bookmarks/servlet/OAIHandler/extension"
                 + "?verb=FRBRRedirect&identifier=" + this.useOAIxISBN
                 + "&isbn=" + isbn;
         } else
         if (this.xisbnOPACID) {
+            // xISBN barks at https URLs
             return "http://labs.oclc.org/xisbn/liblook?baseURL=" 
-                + this.libraryCatalogURL.replace(/https/, "http")     // xISBN barks at https URLs
+                + this.url.replace(/https/, "http")     
                 + "&opacID=" + this.xisbnOPACID + "&isbn=" + isbn;
         } else {
             return this.makeISBNSearch(isbn);
@@ -76,27 +76,39 @@ var libxCatalogPrototype = {
     }
 }
 
+/*
+ * Construct a new catalog, return reference to it, based on settings
+ * prefixed by catprefix (which is "" for primary catalog, "catalog1.", etc.)
+ */
 function libxInitializeCatalog(cattype, catprefix)
 {
     var cat = null;
-	if (cattype == "millenium") {
+    switch (cattype) {
+	case "millenium":
 		cat = new MilleniumOPAC(catprefix);
-	} else
-	if (cattype == "horizon") {
+        break;
+	case "horizon":
 	    cat = new HorizonOPAC(catprefix);
-	} else
-	if (cattype == "aleph") {
+        break;
+	case "aleph":
 	    cat = new AlephOPAC(catprefix);
-	} else
-	if (cattype == "voyager") {
+        break;
+	case "voyager":
 	    cat = new VoyagerOPAC(catprefix);
-	} else
-	if (cattype == "sirsi") {
+        break;
+	case "sirsi":
 	    cat = new SirsiOPAC(catprefix);
-	} else {
+        break;
+    default:
 		libxLog("Catalog type " + cattype + " not supported.");
+    case null:
+    case "":
         return null;
-	}
+    }
+    cat.url = libxGetProperty(catprefix + "catalog.url");
+    cat.sid = libxGetProperty(catprefix + "catalog.sid");
+    cat.name = libxGetProperty(catprefix + "catalog.name"); 
+    cat.urlregexp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
 
     // override xisbn opac id if it's not the default
     var xisbn = libxGetProperty(catprefix + "catalog.xisbn.opacid");
@@ -118,7 +130,6 @@ function libxInitializeCatalogs()
     searchCatalogs = new Array();
     var cattype = libxGetProperty("catalog.type");
     libraryCatalog = libxInitializeCatalog(cattype, "");
-    libraryCatalog[libxGetProperty("catalog.sid")] = true;
     searchCatalogs.push(libraryCatalog);
 
     // we insert additional catalogs before the openurl button for now
@@ -143,14 +154,22 @@ function libxInitializeCatalogs()
     // record initially selected search type (this is menuitem's "catalog0" value)
     searchType = catdropdown.firstChild.value;  
     // copy initial label to toolbarbutton parent from menuitem first child
-    libraryCatalog.catalogname = libxGetProperty("catalog.name");
-    catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.catalogname + " ");
+    catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.name + " ");
     catdropdown.parentNode.label = catdropdown.firstChild.label;
 }
 
 // Initialize OpenURL support if so configured
 function libxInitializeOpenURL() 
 {
+/*
+    var configurl = new XMLHttpRequest();
+    configurl.open('GET', "chrome://libx/content/config.xml", false);
+    configurl.send(null);
+    var config = configurl.responseXML;
+    var openurls = xpathFindNodes(config, "/edition/openurl/resolver");
+    libxLog("# of openurl configured: " + openurls.length);
+    var ourltype = openurls[0].getAttribute('type');
+*/
 	var ourltype = libxGetProperty("openurl.type");
     var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
     switch (ourltype) {
@@ -174,11 +193,9 @@ function libxInitializeOpenURL()
         return;
     }
 
-    if (openUrlResolver) {
-        openUrlResolver.url = libxGetProperty("openurl.url");
-        openUrlResolver.sid = libxGetProperty("openurl.sid");
-        openUrlResolver.name = libxGetProperty("openurl.name");
-    }
+    openUrlResolver.url = libxGetProperty("openurl.url");
+    openUrlResolver.sid = libxGetProperty("openurl.sid");
+    openUrlResolver.name = libxGetProperty("openurl.name");
 
     if (libxGetProperty("openurl.dontshowintoolbar") == "true") {
         openurlsbutton.hidden = true;
@@ -235,7 +252,7 @@ function libxInit()
 	var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
     new TextDropTarget(magicSearch).attachToElement(document.getElementById("libx-magic-button"));
-    initializePreference("libx.displaypref");
+    libxInitializePreferences("libx.displaypref");
 }
 
 /*
@@ -254,7 +271,7 @@ function recordPreference(property, value)
     nsPreferences.setUnicharPref(property, value);
 }
 
-function initializePreference(property)
+function libxInitializePreferences(property)
 {
     var menuchild = nsPreferences.getLocalizedUnicharPref(property, "libx.newtabswitch");
     document.getElementById(menuchild).setAttribute("checked", true);
@@ -294,9 +311,9 @@ function libxContextPopupShowing() {
 	purePMID = null;//forget purePMID
 	if (!popuphelper.isTextSelected()) {//no selection
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
-        keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.catalogname]);
-        titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.catalogname]);
-        authorsearch.label = libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.catalogname]);
+        keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.name]);
+        titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.name]);
+        authorsearch.label = libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.name]);
 
 		if (popuphelper.isOverLink()) {
 			pureDOI = isDOI(decodeURI(popuphelper.getNode().href));//does href of hyperlink over which user right-clicked contain a doi?
@@ -311,7 +328,7 @@ function libxContextPopupShowing() {
 	//check selection for ISBN or ISSN or DOI and activate appropriate menuitems
 	var s = popuphelper.getSelection();
 	if (pureISN = isISBN(s)) {
-		isbnsearch.label = libxGetProperty("isbnsearch.label", [libraryCatalog.catalogname, pureISN]);
+		isbnsearch.label = libxGetProperty("isbnsearch.label", [libraryCatalog.name, pureISN]);
 		xisbnsearch.label = libxGetProperty("xisbnsearch.label", [pureISN]);
 		isbnsearch.hidden = false;
 		if (libraryCatalog.xisbnOPACID) {   // only true if xISBN is supported for this catalog
@@ -319,7 +336,7 @@ function libxContextPopupShowing() {
 		}
 	} else
 	if (pureISN = isISSN(s)) {
-		isbnsearch.label = libxGetProperty("issnsearch.label", [libraryCatalog.catalogname, pureISN]);
+		isbnsearch.label = libxGetProperty("issnsearch.label", [libraryCatalog.name, pureISN]);
 		isbnsearch.hidden = false;
 		if (openUrlResolver) {
 		    openurlissnsearch.label = libxGetProperty("openurlissnsearch.label", [openurlName, pureISN]);
@@ -339,9 +356,9 @@ function libxContextPopupShowing() {
 	if (pureISN == null && purePMID == null) {
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
 		scholarsearch.hidden = false;
-        keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.catalogname]);
-        titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.catalogname]);
-        authorsearch.label = libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.catalogname]);
+        keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.name]);
+        titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.name]);
+        authorsearch.label = libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.name]);
     }
 
     // DOI displays in addition to keyword, title, author
@@ -454,7 +471,10 @@ function doSearch() {
 	alert("Internal error, invalid catalog entry: " + searchType);
 }
 
-// create a google scholar search from entered search fields
+/*
+ * Formulate a google scholar search from entered search fields
+ * when user presses the Scholar button.
+ */
 function doMagicSearch() {
 	var fields = extractSearchFields();
 	var a = "";     // authors
@@ -555,12 +575,12 @@ function doPmidSearch() {
 	openSearchWindow(openUrlByPmid);
 }
 
-// this function is called when the user hits reload this page/follow a link
-// through the proxy.
-// it rewrites the target URL of a link to go through the defined proxy,
-// helping off-campus users to find a resource
+/*
+ * This function is called when the user hits reload this page/follow a link
+ * through the proxy.  
+ */
 function libxProxify() {
-    // function should not be called if no proxy is defined
+    // this function should not be called if no proxy is defined
     if (libxProxy == null) {
         alert("no proxy defined");
         return;
@@ -586,14 +606,14 @@ function libxProxyInit() {
     case "wam":
 		libxProxy = new libxWAMProxy();
         break;
+    default:
+		libxLog("Unsupported proxy.type=" + proxytype);
+        /* FALLTHROUGH */
     case null:
     case "":
         // hide proxy entry in context menu if no proxy is defined
 		var libxproxify = document.getElementById("libx-proxify");
 		libxproxify.hidden = true;
-        return;
-    default:
-		libxLog("Unsupported proxy.type=" + proxytype);
         return;
 	}
     libxProxy.name = libxGetProperty("proxy.name");

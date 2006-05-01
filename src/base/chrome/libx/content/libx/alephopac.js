@@ -24,8 +24,6 @@
 
 function AlephOPAC(catprefix) {
 	//this is a constructor
-    this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
-	this.libraryCatalogSid = libxGetProperty(catprefix + 'catalog.sid');
 	this.libraryCatalogAlephLocalBase = libxGetProperty(catprefix + 'aleph.localbase');
 	this.libraryCatalogAlephTitle = libxGetProperty(catprefix + 'aleph.title');
 	this.libraryCatalogAlephAuthor = libxGetProperty(catprefix + 'aleph.author');
@@ -72,18 +70,18 @@ AlephOPAC.prototype = {
 		//aleph handles then both the same way but displays them in different
 		//ways.  
         if (this.scanIndexList.match(";" + stype + ";")) {
-            return this.libraryCatalogURL + "/F?func=" 
+            return this.url + "/F?func=" 
                 + this.libraryCatalogAlephScanFunc
-                + "&sourceid=" + this.libraryCatalogSid
+                + "&sourceid=" + this.sid
                 + "&local_base=" + this.libraryCatalogAlephLocalBase 
                 + "&scan_code=" + this.searchCodeLookup(stype)
                 + "&scan_start=" + query;
         }
 
         // default
-        return this.libraryCatalogURL + "/F?func="
+        return this.url + "/F?func="
             + this.libraryCatalogAlephFindFunc 
-            + "&sourceid=" + this.libraryCatalogSid
+            + "&sourceid=" + this.sid
             + "&local_base=" + this.libraryCatalogAlephLocalBase
             + "&find_code=" + this.searchCodeLookup(stype)
             + "&request=" + query;
@@ -108,9 +106,9 @@ AlephOPAC.prototype = {
 	},
 	makeAdvancedSearch: function(fields) {
 		//assumption that we're only doing AND sets.  
-		var url = this.libraryCatalogURL + "/F?func="
+		var url = this.url + "/F?func="
 				+ this.libraryCatalogAlephAdvFindFunc
-				+ "&sourceid=" + this.libraryCatalogSid
+				+ "&sourceid=" + this.sid
 				+ "&local_base=" + this.libraryCatalogAlephLocalBase;
 		url += "&find_code=" + this.searchCodeLookup(fields[0].searchType) 
 			+ "&request=" + fields[0].searchTerms;

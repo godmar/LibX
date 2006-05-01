@@ -22,10 +22,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Voyager OPAC
-function VoyagerOPAC(catprefix) {
-    this.libraryCatalogURL = libxGetProperty(catprefix + "catalog.url");
-	this.libraryCatalogURLRegExp = "";
-}
+function VoyagerOPAC(catprefix) { }
 
 // taken in part from http://www.mines.edu/library/catalyst/canned.html
 VoyagerOPAC.prototype = {
@@ -68,7 +65,9 @@ VoyagerOPAC.prototype = {
             sterm = sterm.replace(/\s+(\S)/, " +$1");
         }
         // order of fields seems to matter here (!??!)
-        return this.libraryCatalogURL + "/cgi-bin/Pwebrecon.cgi?Search_Arg=" + sterm + "&HIST=1&SL=None&Search_Code="+ this.convert(stype) + "&CNT=25&DB=local";
+        return this.url + "/cgi-bin/Pwebrecon.cgi?Search_Arg=" 
+                    + sterm + "&HIST=1&SL=None&Search_Code="
+                    + this.convert(stype) + "&CNT=25&DB=local";
 	},
 	makeTitleSearch: function(title) {
 		return this.makeSearch("t", title);
@@ -90,9 +89,11 @@ VoyagerOPAC.prototype = {
         // SAB1=KKKKKK&BOOL1=all+of+these&FLD1=Keyword+Anywhere+%28GKEY%29&GRP1=AND+with+next+set&
         // SAB2=TTTTTT&BOOL2=all+of+these&FLD2=ISSN%2FISBN+%28ISSN%29&GRP2=AND+with+next+set&
         // SAB3=AAAAAA&BOOL3=all+of+these&FLD3=Author+%28NKEY%29&
-	    var url = this.libraryCatalogURL + "/cgi-bin/Pwebrecon.cgi?HIST=1&CNT=25&DB=local&SL=None";
+	    var url = this.url + "/cgi-bin/Pwebrecon.cgi?HIST=1&CNT=25&DB=local&SL=None";
 		for (var i = 0; i < fields.length; i++) {
-			url += "&SAB" + (i+1) + "=" + fields[i].searchTerms + "&BOOL1=all+of+these&FLD" + (i+1) + "=" + this.convert2(fields[i].searchType);
+			url += "&SAB" + (i+1) + "=" + fields[i].searchTerms 
+                + "&BOOL1=all+of+these&FLD" + (i+1) + "=" 
+                + this.convert2(fields[i].searchType);
             if (i < fields.length - 1) {
                 url += "&GRP" + (i+1) + "=AND+with+next+set";
             }
