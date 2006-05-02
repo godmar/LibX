@@ -115,6 +115,14 @@ OpenURL.prototype = {
     },
     completeOpenURL: function(path) {
         return this.url + "?sid=" + this.sid + path;
+    },
+    // implement searchable catalog functionality
+    options: "jt",  // if used as a search catalog, show only Journal Title by default
+    search: function (fields) {
+        var url = this.makeOpenURLSearch(fields);
+        if (url) {
+            openSearchWindow(url);
+        }
     }
 }
 
@@ -128,11 +136,20 @@ function ArticleLinker() { }
 // ArticleLinker.prototype.
 ArticleLinker.prototype = new OpenURL();
 
+// if used as a search catalog, show only Journal Title + ISBN/ISSN
+ArticleLinker.prototype.options = "jt;i";
+
 ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
-    // if the user specifies only the journal title, use sersol's search function
-    if (fields.length == 1 && fields[0].searchType == 'jt') {
-        // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
-        return this.url + '?V=1.0&S=T_W_A&C=' + fields[0].searchTerms;
+    // if the user specifies only the journal title/issn, use sersol's search function
+    if (fields.length == 1) {
+        var stype = fields[0].searchType;
+        if (stype == 'jt') {
+            // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
+            return this.url + '?V=1.0&S=T_W_A&C=' + fields[0].searchTerms;
+        }
+        if (stype == 'is') {
+            return this.url + '?V=1.0&S=I_M&C=' + fields[0].searchTerms;
+        }
     }
 
     // super.makeOpenURLFromFields()
@@ -167,7 +184,7 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
     for (var i = 0; i < fields.length; i++) {
         switch (fields[i].searchType) {
         case 'jt':
-            url += "&sfx.title_search=contains";
+            url += "&sfx.title_search=contains&sfx.ignore_date_threshold=1";
             break;
         case 'a':
             genre = "article";

@@ -147,6 +147,12 @@ function libxInitializeCatalog(cattype, catprefix)
 	case "sirsi":
 	    cat = new SirsiOPAC(catprefix);
         break;
+	case "sersol":
+	    cat = new ArticleLinker(catprefix);
+        break;
+	case "sfx":
+	    cat = new SFX(catprefix);
+        break;
     default:
 		libxLog("Catalog type " + cattype + " not supported.");
     case null:
@@ -156,7 +162,10 @@ function libxInitializeCatalog(cattype, catprefix)
     cat.url = libxGetProperty(catprefix + "catalog.url");
     cat.sid = libxGetProperty(catprefix + "catalog.sid");
     cat.name = libxGetProperty(catprefix + "catalog.name"); 
-    cat.options = libxGetProperty(catprefix + "catalog.options"); 
+    var copt = libxGetProperty(catprefix + "catalog.options"); 
+    if (cat.options == null)
+        cat.options = copt;
+
     if (cat.options == null)
         cat.options = "Y;t;a;d;i;c";
     cat.urlregexp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
@@ -249,6 +258,7 @@ function libxInitializeOpenURL()
     openUrlResolver.url = libxGetProperty("openurl.url");
     openUrlResolver.sid = libxGetProperty("openurl.sid");
     openUrlResolver.name = libxGetProperty("openurl.name");
+    openUrlResolver.version = libxGetProperty("openurl.version");
     openUrlResolver.options = libxGetProperty("openurl.options");
     if (!openUrlResolver.options)
         openUrlResolver.options = "jt";  // journal title is a good default
@@ -261,14 +271,6 @@ function libxInitializeOpenURL()
     if (searchlabel == null)
         searchlabel = "Search " + openUrlResolver.name;
     openurlsbutton.setAttribute("label", searchlabel);
-
-    // formulate a query against an openurl resolver for an item
-    openUrlResolver.search = function (fields) {
-        var url = this.makeOpenURLSearch(fields);
-        if (url) {
-            openSearchWindow(url);
-        }
-    }
 }
 
 // Initialize options
