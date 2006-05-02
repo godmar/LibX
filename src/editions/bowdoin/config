@@ -83,7 +83,7 @@ $catalog2.catalog.type=millenium
 $catalog2.catalog.name=NExpress
 $catalog2.catalog.url=http://nexp.iii.com
 $catalog2.catalog.sid=libxnexpress
-$catalog2.catalog.searchscope=1
+$catalog2.catalog.searchscope=3
 
 
 # OpenURL resolver
