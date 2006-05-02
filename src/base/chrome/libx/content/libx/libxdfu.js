@@ -256,29 +256,33 @@ if (openUrlResolver && libxOptions.supportcoins == "true") {
             var rft_journal = "rft_val_fmt=info:ofi/fmt:kev:mtx:journal";
             var isBookOrArticle = false;
 
-            // since we only support OpenURL 0.1 at this time, we always unconditionally convert
             for (var j = 0; j < query.length; j++) {
                 var qj = decodeURIComponent(query[j]);
                 if (qj == rft_book) {
-                    query[j] = "genre=book";
                     isBookOrArticle = true;
+                    if (openUrlResolver.version != "1.0")
+                        query[j] = "genre=book";
                     continue;
                 }
                 if (qj == rft_journal) {
-                    query[j] = "genre=article";
                     isBookOrArticle = true;
+                    if (openUrlResolver.version != "1.0")
+                        query[j] = "genre=article";
                     continue;
                 }
 
-                //remove "rft." from beginning of attribute keys
-                qj = qj.replace(/rft\./g,"");
+                if (openUrlResolver.version != "1.0") {
+                    //convert to 0.1 unless 1.0 is given
+                    //remove "rft." from beginning of attribute keys
+                    qj = qj.replace(/rft\./g,"");
 
-                //change some attribute names
-                qj = qj.replace(/jtitle=/,"title=");
-                qj = qj.replace(/btitle=/,"title=");
-                qj = qj.replace(/rft_id=info:pmid\//,"id=pmid:");
-                qj = qj.replace(/rft_id=info:doi\//,"id=doi:");
-                qj = qj.replace(/rft_id=info:bibcode\//,"id=bibcode:");
+                    //change some attribute names
+                    qj = qj.replace(/jtitle=/,"title=");
+                    qj = qj.replace(/btitle=/,"title=");
+                    qj = qj.replace(/rft_id=info:pmid\//,"id=pmid:");
+                    qj = qj.replace(/rft_id=info:doi\//,"id=doi:");
+                    qj = qj.replace(/rft_id=info:bibcode\//,"id=bibcode:");
+                }
 
                 var kv = qj.split(/=/);
                 var val = kv.splice(1).join("=");
