@@ -321,6 +321,8 @@ if (openUrlResolver && libxOptions.sersolisbnfix == "true") {
             if (h4 == null)
                 h4 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
             if (h4 == null)
+                h4 = xpathFindSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
+            if (h4 == null)
                 return;
             var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn));
             var it = doc.createElement("i");
