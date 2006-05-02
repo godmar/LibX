@@ -258,6 +258,13 @@ if (openUrlResolver && libxOptions.supportcoins == "true") {
 
             for (var j = 0; j < query.length; j++) {
                 var qj = decodeURIComponent(query[j]);
+
+                // some 0.1 resolver (SerSol) don't like the 'url_ver=' option
+                if (openUrlResolver.version != "1.0" && qj.match(/^url_ver=/)) {
+                    query[j] = "";
+                    continue;
+                }
+
                 if (qj == rft_book) {
                     isBookOrArticle = true;
                     if (openUrlResolver.version != "1.0")
