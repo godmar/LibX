@@ -25,10 +25,13 @@
 function VoyagerOPAC(catprefix) { }
 
 // taken in part from http://www.mines.edu/library/catalyst/canned.html
-VoyagerOPAC.prototype = {
+VoyagerOPAC.prototype = new libxCatalog();
+
+libxAddToPrototype(VoyagerOPAC.prototype, {
     xisbnOPACID: "voyager",
 	convert: function (stype) {
 	    switch (stype) {
+	        case 'd':   return "SUBJ_";
 	        case 'a':   return "NAME_";
 	        case 't':   return "TALL";
             case 'is':
@@ -41,6 +44,7 @@ VoyagerOPAC.prototype = {
 	},
 	convert2: function (stype) {
 	    switch (stype) {
+	        case 'd':   return "Subject (SKEY)";
 	        case 'a':   return "Author (NKEY)";
 	        case 't':   return "Title (TKEY)";
             case 'is':
@@ -69,21 +73,6 @@ VoyagerOPAC.prototype = {
                     + sterm + "&HIST=1&SL=None&Search_Code="
                     + this.convert(stype) + "&CNT=25&DB=local";
 	},
-	makeTitleSearch: function(title) {
-		return this.makeSearch("t", title);
-	},
-	makeISBNSearch: function(isbn) {
-		return this.makeSearch("i", isbn);
-	},
-	makeAuthorSearch: function(author) {
-		return this.makeSearch("a", author);
-	},
-	makeCallnoSearch: function(callno) {
-		return this.makeSearch("c", callno);
-	},
-	makeKeywordSearch: function(keyword) {
-		return this.makeSearch("Y", keyword);
-	},
 	makeAdvancedSearch: function(fields) {
         // https://gil.gatech.edu/cgi-bin/Pwebrecon.cgi?
         // SAB1=KKKKKK&BOOL1=all+of+these&FLD1=Keyword+Anywhere+%28GKEY%29&GRP1=AND+with+next+set&
@@ -100,6 +89,6 @@ VoyagerOPAC.prototype = {
 		}
 		return url;
 	}
-}
+});
 
 // vim: ts=4

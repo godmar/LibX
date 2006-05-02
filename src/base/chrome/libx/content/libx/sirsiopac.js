@@ -23,11 +23,12 @@
 
 // Support for Sirsi OPAC
 function SirsiOPAC(catprefix) {
-    this.url = libxGetProperty(catprefix + "catalog.url");
     this.path = "/uhtbin/cgisirsi/x/0/0/5/?";
 }
 
-SirsiOPAC.prototype = {
+SirsiOPAC.prototype = new libxCatalog();
+
+libxAddToPrototype(SirsiOPAC.prototype, {
     xisbnOPACID: "sirsi6",
 /*
       <option value="GENERAL^SUBJECT^GENERAL^^keywords anywhere">keyword anywhere</option>
@@ -40,6 +41,7 @@ SirsiOPAC.prototype = {
 
 	convert: function (stype) {
 	    switch (stype) {
+	        case 'd':   return "&srchfield1=" + this.convert2(stype);
 	        case 'a':   return "&srchfield1=" + this.convert2(stype);
 	        case 't':   return "&srchfield1=" + this.convert2(stype);
             case 'is':
@@ -52,6 +54,7 @@ SirsiOPAC.prototype = {
 	},
 	convert2: function (stype) {
 	    switch (stype) {
+            case 'd':   return "SU^SUBJECT^SUBJECTS^^subject";
 	        case 'a':   return "AU^AUTHOR^AUTHORS^Author Processing^author";
 	        case 't':   return "TI^TITLE^TITLES^Title Processing^title";
             case 'is': 
@@ -73,21 +76,6 @@ SirsiOPAC.prototype = {
 	makeSearch: function(stype, sterm) {
         return this.url + this.path + "searchdata1=" + sterm + this.convert(stype);
 	},
-	makeTitleSearch: function(title) {
-		return this.makeSearch("t", title);
-	},
-	makeISBNSearch: function(isbn) {
-		return this.makeSearch("i", isbn);
-	},
-	makeAuthorSearch: function(author) {
-		return this.makeSearch("a", author);
-	},
-	makeCallnoSearch: function(callno) {
-		return this.makeSearch("c", callno);
-	},
-	makeKeywordSearch: function(keyword) {
-		return this.makeSearch("Y", keyword);
-	},
 	makeAdvancedSearch: function(fields) {
         var url = this.url + this.path;
 		for (var i = 0; i < fields.length; i++) {
@@ -99,6 +87,6 @@ SirsiOPAC.prototype = {
 		}
 		return url;
 	}
-}
+});
 
 // vim: ts=4

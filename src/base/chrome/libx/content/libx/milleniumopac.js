@@ -38,7 +38,9 @@ function MilleniumOPAC(catprefix) {//this is a constructor
         this.searchform = 1;
 }
 
-MilleniumOPAC.prototype = {
+MilleniumOPAC.prototype = new libxCatalog();
+
+libxAddToPrototype(MilleniumOPAC.prototype, {
 	xisbnOPACID: "innovative",
 	supportsSearchType: function (stype) {
 	    if (stype == 'at') {
@@ -47,13 +49,15 @@ MilleniumOPAC.prototype = {
 	    }
 	    return true;
 	},
-    handleISSN: function (stype) {
+    normalizeSearchType: function (stype) {
         if (stype == 'is')  // both issn and isbn are 'i'
             return 'i';
+        if (stype == 'jt')  // both title and journal title are 't'
+            return 't';
         return stype;
     },
 	makeSearch: function(stype, sterm) {
-        stype = this.handleISSN(stype);
+        stype = this.normalizeSearchType(stype);
 
         // substitute special code for keyword searches if defined
         // some III catalogs prefer to use X for keyword searches, apparently.
@@ -86,27 +90,12 @@ MilleniumOPAC.prototype = {
                 + ((this.sid != null) ? "&sid=" + this.sid : "");
         return query;
 	},
-	makeTitleSearch: function(title) {
-		return this.makeSearch("t", title);
-	},
-	makeISBNSearch: function(isbn) {
-		return this.makeSearch("i", isbn);
-	},
-	makeAuthorSearch: function(author) {
-		return this.makeSearch("a", author);
-	},
-	makeCallnoSearch: function(callno) {
-		return this.makeSearch("c", callno);
-	},
-	makeKeywordSearch: function(keyword) {
-		return this.makeSearch("Y", keyword);
-	},
 	makeAdvancedSearch: function(fields) {
 		var url = this.url + "/search/" 
                 + this.advancedcode + "?SEARCH=";
-		url += this.handleISSN(fields[0].searchType) + ":(" + fields[0].searchTerms + ")";
+		url += this.normalizeSearchType(fields[0].searchType) + ":(" + fields[0].searchTerms + ")";
 		for (var i = 1; i < fields.length; i++) {
-			url += "+and+" + this.handleISSN(fields[i].searchType) 
+			url += "+and+" + this.normalizeSearchType(fields[i].searchType) 
                             + ":(" + fields[i].searchTerms + ")"; 
 		}
 		url += "&SORT=" + this.sort;
@@ -115,6 +104,6 @@ MilleniumOPAC.prototype = {
 		url = url.replace(/Y:\(/g, "(");	// keyword == "Any Field"
 		return url;
 	}
-}
+});
 
 // vim: ts=4

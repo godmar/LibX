@@ -47,6 +47,7 @@ OpenURL.prototype = {
 	    this.haveTitleOrIssn = false;
 	    for (var i = 0; i < fields.length; i++) {
 		    switch (fields[i].searchType) {
+		    case 'jt':
 		    case 't':
 			    // replace removes everything that's not letter, digit, _, or whitespace
 			    // and replaces multiple whitespaces with a single one
@@ -129,7 +130,7 @@ ArticleLinker.prototype = new OpenURL();
 
 ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
     // if the user specifies only the journal title, use sersol's search function
-    if (fields.length == 1 && fields[0].searchType == 't') {
+    if (fields.length == 1 && fields[0].searchType == 'jt') {
         // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
         return this.url + '?V=1.0&S=T_W_A&C=' + fields[0].searchTerms;
     }
@@ -165,7 +166,7 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
     var genre = "journal";
     for (var i = 0; i < fields.length; i++) {
         switch (fields[i].searchType) {
-        case 't':
+        case 'jt':
             url += "&sfx.title_search=contains";
             break;
         case 'a':

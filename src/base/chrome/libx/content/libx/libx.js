@@ -36,8 +36,9 @@ var openUrlResolver;    // OpenURL resolver or null if no OpenURL support, see o
 var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
 var libxOptions;        // an options objects
 
-var searchType;         // currently selected search type
-var searchFieldVbox;    // global variable to hold a reference to vbox with search fields.
+var libxSelectedCatalog;// currently selected search type
+var libxSearchFieldVbox;    // global variable to hold a reference to vbox with search fields.
+var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
 var popuphelper = new ContextPopupHelper();
 
 // get a property, returning null if property does not exist
@@ -53,8 +54,31 @@ function libxGetProperty(prop, args) {
 	}
 }
 
-// Create an object that contains some methods we want our catalogs to use.
-var libxCatalogPrototype = {
+// Base class for all catalogs
+function libxCatalog() { }
+
+libxCatalog.prototype = {
+    makeSubjectSearch: function(subject) {
+        return this.makeSearch("d", subject);
+    },
+    makeTitleSearch: function(title) {
+        return this.makeSearch("t", title);
+    },
+    makeISBNSearch: function(isbn) {
+        return this.makeSearch("i", isbn);
+    },
+    makeISSNSearch: function(isbn) {
+        return this.makeSearch("is", isbn);
+    },
+    makeAuthorSearch: function(author) {
+        return this.makeSearch("a", author);
+    },
+    makeCallnoSearch: function(callno) {
+        return this.makeSearch("c", callno);
+    },
+    makeKeywordSearch: function(keyword) {
+        return this.makeSearch("Y", keyword);
+    },
     // Create a url that requests an item by ISBN from the xISBN service,
     // if the current catalog supports it
     makeXISBNRequest: function(isbn) {
@@ -73,6 +97,30 @@ var libxCatalogPrototype = {
         } else {
             return this.makeISBNSearch(isbn);
         }
+    },
+
+    // given an array of {searchType: xxx, searchTerms: xxx } items
+    // formulate a query against this catalog
+    search: function (fields) {
+        for (var i = 0; i < fields.length; i++) {
+            if (!this.supportsSearchType(fields[i].searchType)) {
+                return;
+            }
+        }	
+        if (fields.length == 1) {//single search field
+            var url = this.makeSearch(fields[0].searchType, fields[0].searchTerms);
+            openSearchWindow(url);
+        } else {// user requested multiple search fields, do advanced search
+            var url = this.makeAdvancedSearch(fields);
+            openSearchWindow(url);
+        }
+    }
+}
+
+function libxAddToPrototype(prototype, addedmethods) 
+{
+    for (var m in addedmethods) {
+        prototype[m] = addedmethods[m];
     }
 }
 
@@ -108,6 +156,9 @@ function libxInitializeCatalog(cattype, catprefix)
     cat.url = libxGetProperty(catprefix + "catalog.url");
     cat.sid = libxGetProperty(catprefix + "catalog.sid");
     cat.name = libxGetProperty(catprefix + "catalog.name"); 
+    cat.options = libxGetProperty(catprefix + "catalog.options"); 
+    if (cat.options == null)
+        cat.options = "Y;t;a;d;i;c";
     cat.urlregexp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
 
     // override xisbn opac id if it's not the default
@@ -116,7 +167,6 @@ function libxInitializeCatalog(cattype, catprefix)
         cat.xisbnOPACID = xisbn;
     }
     cat.prefix = catprefix;
-    cat.makeXISBNRequest = libxCatalogPrototype.makeXISBNRequest;
     var oai = libxGetProperty(catprefix + "catalog.xisbn.oai");
     if (oai != "")
         cat.useOAIxISBN = oai;
@@ -145,14 +195,17 @@ function libxInitializeCatalogs()
         libxLog("registered catalog" + addcat + " of type " + cattype);
 
         var newbutton = document.createElement("menuitem");
-        newbutton.setAttribute("oncommand", "setSearchButton(this,event);");
-        newbutton.setAttribute("value", "catalog" + addcat);
+        newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
+        newbutton.setAttribute("value", addcat);
         newbutton.setAttribute("label", "Search " + libxGetProperty("catalog" + addcat + ".catalog.name") + " ");
         catdropdown.insertBefore(newbutton, openurlsbutton);
     }
 
-    // record initially selected search type (this is menuitem's "catalog0" value)
-    searchType = catdropdown.firstChild.value;  
+    // record initially selected catalog and activate its search options
+    catdropdown.firstChild.value = 0;  
+    libxSelectedCatalog = searchCatalogs[0];
+    libxActivateCatalogOptions(libxSelectedCatalog);
+
     // copy initial label to toolbarbutton parent from menuitem first child
     catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.name + " ");
     catdropdown.parentNode.label = catdropdown.firstChild.label;
@@ -196,6 +249,9 @@ function libxInitializeOpenURL()
     openUrlResolver.url = libxGetProperty("openurl.url");
     openUrlResolver.sid = libxGetProperty("openurl.sid");
     openUrlResolver.name = libxGetProperty("openurl.name");
+    openUrlResolver.options = libxGetProperty("openurl.options");
+    if (!openUrlResolver.options)
+        openUrlResolver.options = "jt";  // journal title is a good default
 
     if (libxGetProperty("openurl.dontshowintoolbar") == "true") {
         openurlsbutton.hidden = true;
@@ -205,6 +261,14 @@ function libxInitializeOpenURL()
     if (searchlabel == null)
         searchlabel = "Search " + openUrlResolver.name;
     openurlsbutton.setAttribute("label", searchlabel);
+
+    // formulate a query against an openurl resolver for an item
+    openUrlResolver.search = function (fields) {
+        var url = this.makeOpenURLSearch(fields);
+        if (url) {
+            openSearchWindow(url);
+        }
+    }
 }
 
 // Initialize options
@@ -242,13 +306,19 @@ function libxInit()
         libxmenu.insertBefore(mitem, libxmenusep);
     }
 
+	libxSearchFieldVbox = document.getElementById("search-field-vbox");
+	var ddOptions = document.getElementById("libx-dropdown-menupopup");
+    for (var i = 0; i < ddOptions.childNodes.length; i++) {
+        var d = ddOptions.childNodes.item(i);
+        libxDropdownOptions[d.value] = d;
+    }
+
     libxInitializeOptions();
     libxInitializeOpenURL();    
     libxInitializeCatalogs();
 	libxProxyInit();
 	initializeDoForURLs();
 	
-	searchFieldVbox = document.getElementById("search-field-vbox");
 	var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
     new TextDropTarget(magicSearch).attachToElement(document.getElementById("libx-magic-button"));
@@ -425,50 +495,14 @@ function openSearchWindow(url) {
 //    }
 }
 
-// given an array of {searchType: xxx, searchTerms: xxx } items
-// formulate a query against the currently selected library catalog
-function doCatalogSearch(catalog, fields) {
-	for (var i = 0; i < fields.length; i++) {
-		if (!catalog.supportsSearchType(fields[i].searchType)) {
-		 	return;
-		}
-	}	
-	if (fields.length == 1) {//single search field
-		var url = catalog.makeSearch(fields[0].searchType, fields[0].searchTerms);
-		openSearchWindow(url);
-		return;
-	} else {// user requested multiple search fields, do advanced search
-		var url = catalog.makeAdvancedSearch(fields);
-		openSearchWindow(url);
-		return;
-	}
-}
-
-// formulate a query against an openurl resolver for an article
-function doOpenUrlSearch(fields) {
-	var url = openUrlResolver.makeOpenURLSearch(fields);
-	if (url) {
-	    openSearchWindow(url);
-	}
-}
 
 //this function is called if the user presses the search button, 
 //it performs a search in the catalog which the user previously selected
 function doSearch() {
 	var fields = extractSearchFields();
-    var cat = searchType.match(/^catalog(\d+)$/);
-    if (cat != null) { // user requested search in one of the library catalogs
-		doCatalogSearch(searchCatalogs[cat[1]], fields);
-		return;
-    }
-	
-    var cat = searchType.match(/^openurl$/);
-    if (cat != null) { // user requested search in openurl catalog
-		doOpenUrlSearch(fields);
-		return;
-	}
-	
-	alert("Internal error, invalid catalog entry: " + searchType);
+    if (!libxSelectedCatalog.search)
+        alert("Internal error, invalid catalog object: " + libxSelectedCatalog);
+    libxSelectedCatalog.search(fields);
 }
 
 /*
@@ -494,6 +528,7 @@ function doMagicSearch() {
 			k += fields[i].searchTerms + " ";
 			break;
 		case 't':
+		case 'jt':
 			t += fields[i].searchTerms + " ";
 			break;
 		}
@@ -544,7 +579,7 @@ function doSearchBy(stype) {
 	// create a makeshift array of a single element - we do this solely 
 	// to be able to reuse the "doCatalogSearch" function which expects an array
 	// of objects with a searchType/searchTerms property each.
-	doCatalogSearch(libraryCatalog, [{searchType: stype, searchTerms: sterm}]);	
+	libraryCatalog.search([{searchType: stype, searchTerms: sterm}]);	
 }
 
 // use OCLC's xisbn's search
@@ -625,8 +660,8 @@ function libxProxyInit() {
 // and return this array
 function extractSearchFields() {
 	var fields = new Array();
-	for (var i = 0; i < searchFieldVbox.childNodes.length; i++) {// iterate over all search fields
-		var f = searchFieldVbox.childNodes.item(i);
+	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields
+		var f = libxSearchFieldVbox.childNodes.item(i);
 		if (f.firstChild.value == null) f.firstChild.value = "Y";
 		//alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
 		var field = {searchType: f.firstChild.value, searchTerms: f.firstChild.nextSibling.firstChild.value};
@@ -646,11 +681,58 @@ function setFieldType(menuitem) {
 }
 
 // switch the current search type (addison, openurl, etc.)
-function setSearchButton(mitem, event) {
+function libxSelectCatalog(mitem, event) {
+	event.stopPropagation();
+
+/*
+<vbox id="search-field-vbox" flex="1">
+    <hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
+    <!-- child number 0 aka firstChild -->
+    <toolbarbutton label="Keyword" ...
+    <menupopup id="libx-dropdown-menupopup">
+        <menuitem value="Y" label="Keyword" oncommand="setFieldType(this)
+*/
 	var sb = document.getElementById("search-button");
 	sb.label = mitem.label;
-	searchType = mitem.value;
-	event.stopPropagation();
+    if (mitem.value == "openurl")
+        libxSelectedCatalog = openUrlResolver;
+    else
+        libxSelectedCatalog = searchCatalogs[mitem.value];
+
+    libxActivateCatalogOptions(libxSelectedCatalog);
+}
+
+/*
+ * adjust drop-down menus based on catalog.options
+ */
+function libxActivateCatalogOptions(catalog) {
+    var opt = catalog.options.split(/;/);
+    // for each open search field
+	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {
+		var f = libxSearchFieldVbox.childNodes.item(i);
+        var tbb = f.firstChild;
+        var oldvalue = tbb.value;   // try to retain old selection
+        var newvalue = null;
+        var mpp = tbb.firstChild;
+        // clear out the old ones
+        while (mpp.childNodes.length > 0)
+            mpp.removeChild(mpp.firstChild);
+        // clone in the new ones
+        for (var j = 0; j < opt.length; j++) {
+            var ddo = libxDropdownOptions[opt[j]];
+            var mitem = ddo.cloneNode(true);
+            // cloneNode doesn't clone the attributes !?
+            mitem.value = ddo.value;
+            mitem.label = ddo.label;
+            if (oldvalue == mitem.value)
+                newvalue = mitem;
+            mpp.appendChild(mitem);
+        }
+        if (newvalue != null)
+            setFieldType(newvalue);         // recreate prior selection
+        else
+            setFieldType(mpp.firstChild);   // pick first entry the default
+    }
 }
 
 // add and remove search fields.
@@ -659,15 +741,15 @@ function setSearchButton(mitem, event) {
 // the red "close-field" button, child #3, is enabled for all children except the first
 // these function all depend intimately on the XUL used for the vbox/hbox search field stuff
 function addSearchField() {
-	var lastSearchField = searchFieldVbox.lastChild;// get bottom search field
+	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
 	var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
 	lastSearchField.childNodes.item(2).disabled=true;// disable blue "add-field" button in what will be the next-to-last searchfield
-	if (searchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
+	if (libxSearchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
 		lastSearchField.childNodes.item(3).disabled=false; // OPTIONAL: show close button in first search field
 		newSearchField.childNodes.item(3).disabled=false; // if so, the second field must have the close button enabled
 	}
 	newSearchField.firstChild.nextSibling.firstChild.value = "";
-	searchFieldVbox.appendChild(newSearchField);
+	libxSearchFieldVbox.appendChild(newSearchField);
 	// return reference to new textbox so caller can move focus there
 	return newSearchField.firstChild.nextSibling.firstChild;
 }
@@ -675,21 +757,21 @@ function addSearchField() {
 // remove a specific search field
 // user must pass reference to hbox of search field to be removed
 function removeSearchField(fieldHbox) {
-	searchFieldVbox.removeChild(fieldHbox);
-	var lastSearchField = searchFieldVbox.lastChild;// get bottom search field
+	libxSearchFieldVbox.removeChild(fieldHbox);
+	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
 	lastSearchField.childNodes.item(2).disabled=false;// enable blue "add-field" button
-	if (searchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
+	if (libxSearchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
 	    lastSearchField.childNodes.item(3).disabled=true;
 	}
 }
 
 function clearAllFields() {
 	// while there are more than one search field left, remove the last one
-	while (searchFieldVbox.childNodes.length > 1) {
-		removeSearchField(searchFieldVbox.lastChild);
+	while (libxSearchFieldVbox.childNodes.length > 1) {
+		removeSearchField(libxSearchFieldVbox.lastChild);
 	}
 	// finally, clear the content of the only remaining one
-	searchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
+	libxSearchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
 }
 
 // copy selection into search field - this is called from the nested right-click menu
@@ -701,8 +783,8 @@ function addSearchFieldAs(mitem) {
 	var sterm = popuphelper.getSelection();
 	
 	//XXX investigate if we should pretreat sterm
-	for (var i = 0; i < searchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
-		var tbb = searchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
+	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
+		var tbb = libxSearchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
 		if (tbb.nextSibling.firstChild.value == "") {//is this field empty - use it if so
 			tbb.value = mitem.value;
 			tbb.label = mitem.label;

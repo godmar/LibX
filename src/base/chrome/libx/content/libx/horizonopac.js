@@ -30,10 +30,13 @@ function HorizonOPAC(catprefix) {
     this.issn = libxGetProperty(catprefix + "horizon.issn");
 }
 
-HorizonOPAC.prototype = {
+HorizonOPAC.prototype = new libxCatalog();
+
+libxAddToPrototype(HorizonOPAC.prototype, {
     xisbnOPACID: "ipac",
 	convert: function (stype) {
 	    switch (stype) {
+	        case 'd':   return ".SW";
 	        case 'a':   return ".AW";
 	        case 't':   return ".TW";
 	        case 'i':   return this.isbn;
@@ -54,21 +57,6 @@ HorizonOPAC.prototype = {
 	makeSearch: function(stype, sterm) {
 	    return this.url + "/ipac20/ipac.jsp?index=" + this.convert(stype) + "&term=" + sterm;
 	},
-	makeTitleSearch: function(title) {
-		return this.makeSearch("t", title);
-	},
-	makeISBNSearch: function(isbn) {
-		return this.makeSearch("i", isbn);
-	},
-	makeAuthorSearch: function(author) {
-		return this.makeSearch("a", author);
-	},
-	makeCallnoSearch: function(callno) {
-		return this.makeSearch("c", callno);
-	},
-	makeKeywordSearch: function(keyword) {
-		return this.makeSearch("Y", keyword);
-	},
 	makeAdvancedSearch: function(fields) {
 	    var url = this.url + "/ipac20/ipac.jsp?";
 		url += "index=" + this.convert(fields[0].searchType) + "&term=" + fields[0].searchTerms;
@@ -77,6 +65,6 @@ HorizonOPAC.prototype = {
 		}
 		return url;
 	}
-}
+});
 
 // vim: ts=4

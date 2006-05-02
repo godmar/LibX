@@ -49,14 +49,14 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/doiutils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/doforurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/xpathutils.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/milleniumopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/horizonopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/voyageropac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/alephopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/sirsiopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
 	<script type="application/x-javascript">
 	<![CDATA[
@@ -93,11 +93,13 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
 					<!-- child number 0 aka firstChild -->
 					<toolbarbutton label="Keyword" type="menu" tooltiptext="Select Search Field Type" width="80" crop="end">
-						<menupopup>
+						<menupopup id="libx-dropdown-menupopup">
 							<menuitem value="Y" label="Keyword" oncommand="setFieldType(this);" />
 							<menuitem value="t" label="Title" oncommand="setFieldType(this);" />
+							<menuitem value="jt" label="Journal Title" oncommand="setFieldType(this);" />
 							<menuitem value="at" label="Article Title" oncommand="setFieldType(this);" />
 							<menuitem value="a" label="Author" oncommand="setFieldType(this);" />
+							<menuitem value="d" label="Subject" oncommand="setFieldType(this);" />
 							<menuitem value="i" label="ISBN/ISSN" oncommand="setFieldType(this);" />
 							<menuitem value="c" label="&libx.call.number;" oncommand="setFieldType(this);" />
 						</menupopup>
@@ -120,9 +122,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 					<toolbarbutton type="menu-button" tooltiptext="Submit Search!"
 						id="search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
-							<menuitem oncommand="setSearchButton(this,event);" value="catalog0" />
+							<menuitem oncommand="libxSelectCatalog(this,event);" />
 							<menuitem id="libx-openurl-search-menuitem"
-                                    oncommand="setSearchButton(this,event);"
+                                    oncommand="libxSelectCatalog(this,event);"
                                     value="openurl" />
 						</menupopup>
 					</toolbarbutton>
@@ -142,7 +144,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			<menupopup id="search-menu">
 				<menuitem value="Y" label="Keyword" oncommand="addSearchFieldAs(this);" />
 				<menuitem value="t" label="Title" oncommand="addSearchFieldAs(this);" />
-				<menuitem value="at" label="Article Title" oncommand="addSearchFieldAs(this);" />
+				<!--
+                <menuitem value="at" label="Article Title" oncommand="addSearchFieldAs(this);" />
+                -->
 				<menuitem value="a" label="Author" oncommand="addSearchFieldAs(this);" />
 				<menuitem value="i" label="ISBN/ISSN" oncommand="addSearchFieldAs(this);" />
 			</menupopup>

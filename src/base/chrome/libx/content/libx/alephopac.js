@@ -26,6 +26,7 @@ function AlephOPAC(catprefix) {
 	//this is a constructor
 	this.libraryCatalogAlephLocalBase = libxGetProperty(catprefix + 'aleph.localbase');
 	this.libraryCatalogAlephTitle = libxGetProperty(catprefix + 'aleph.title');
+	this.libraryCatalogAlephSubject = libxGetProperty(catprefix + 'aleph.subject');
 	this.libraryCatalogAlephAuthor = libxGetProperty(catprefix + 'aleph.author');
 	this.libraryCatalogAlephISBN = libxGetProperty(catprefix + 'aleph.isbn');
 	this.libraryCatalogAlephISSN = libxGetProperty(catprefix + 'aleph.issn');
@@ -42,10 +43,12 @@ function AlephOPAC(catprefix) {
     else
         this.scanIndexList = ";t;c;";
     // unless specified otherwise, we use the find index for the rest, that is
-    // author 'a', keyword 'Y', isbn 'i' and issn 'is'
+    // author 'a', keyword 'Y', isbn 'i' and issn 'is', and subject 'd'
 }
 
-AlephOPAC.prototype = {
+AlephOPAC.prototype = new libxCatalog();
+
+libxAddToPrototype(AlephOPAC.prototype, {
 	xisbnOPACID: "aleph",
 	supportsSearchType: function (stype) {
 	    if (stype == 'at') {
@@ -56,6 +59,7 @@ AlephOPAC.prototype = {
 	},
 	searchCodeLookup: function(stype) {
 		switch(stype) {
+			case 'd':	return this.libraryCatalogAlephSubject;
 			case 't':	return this.libraryCatalogAlephTitle;
 			case 'c':	return this.libraryCatalogAlephCallNo;
 			case 'a':	return this.libraryCatalogAlephAuthor;
@@ -86,24 +90,6 @@ AlephOPAC.prototype = {
             + "&find_code=" + this.searchCodeLookup(stype)
             + "&request=" + query;
     },
-	makeTitleSearch: function(title) {
-		return this.makeSearch("t", title);
-	},
-	makeISBNSearch: function(isbn) {
-		return this.makeSearch("i", isbn);
-	},
-	makeISSNSearch: function(issn) {
-		return this.makeSearch("is", issn);
-	},
-	makeAuthorSearch: function(author) {
-		return this.makeSearch("a", author);
-	},
-	makeCallnoSearch: function(callno) {
-		return this.makeSearch("c", callno);
-	},
-	makeKeywordSearch: function(keyword) {
-		return this.makeSearch("Y", keyword);
-	},
 	makeAdvancedSearch: function(fields) {
 		//assumption that we're only doing AND sets.  
 		var url = this.url + "/F?func="
@@ -119,6 +105,6 @@ AlephOPAC.prototype = {
 		}
 		return url;
 	}
-}
+});
 
 // vim: ts=4
