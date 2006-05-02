@@ -56,6 +56,7 @@ $catalog.type=aleph
 
 # Name of the catalog - used in many places.
 $catalog.name=MSC
+$catalog.sid=libxmsc
 
 # The base URL of the catalog
 # No slash at the end.
