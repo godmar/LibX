@@ -259,9 +259,9 @@ function libxInitializeOpenURL()
     openUrlResolver.sid = libxGetProperty("openurl.sid");
     openUrlResolver.name = libxGetProperty("openurl.name");
     openUrlResolver.version = libxGetProperty("openurl.version");
-    openUrlResolver.options = libxGetProperty("openurl.options");
-    if (!openUrlResolver.options)
-        openUrlResolver.options = "jt";  // journal title is a good default
+    var copt = libxGetProperty("openurl.options");
+    if (copt != null)
+        openUrlResolver.options = copt;
 
     if (libxGetProperty("openurl.dontshowintoolbar") == "true") {
         openurlsbutton.hidden = true;
