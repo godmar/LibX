@@ -125,6 +125,31 @@ function libxAddToPrototype(prototype, addedmethods)
 }
 
 /*
+ * Support generic "bookmarklet" style searches
+ * The id's %t, %jt etc. in the URL are being replaced with the entered terms
+ */
+function libxBookmarklet(catprefix) { }
+
+libxBookmarklet.prototype = new libxCatalog();
+
+libxAddToPrototype(libxBookmarklet.prototype, {
+    supportsSearchType: function (stype) {
+        // alternatively, could check options
+        return this.url.match("%" + stype);
+    },
+    makeSearch: function (stype, sterm) {
+        return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
+    },
+    makeAdvancedSearch: function (fields) {
+        var url = this.url;
+        for (var i = 0; i < fields.length; i++) {
+           url = url.replace("%" + fields[i].searchType, fields[i].searchTerms);
+        }
+        return url;
+    }
+});
+
+/*
  * Construct a new catalog, return reference to it, based on settings
  * prefixed by catprefix (which is "" for primary catalog, "catalog1.", etc.)
  */
@@ -132,6 +157,9 @@ function libxInitializeCatalog(cattype, catprefix)
 {
     var cat = null;
     switch (cattype) {
+	case "bookmarklet":
+        cat = new libxBookmarklet(catprefix);
+        break;
 	case "millenium":
 		cat = new MilleniumOPAC(catprefix);
         break;
