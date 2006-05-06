@@ -11,6 +11,8 @@ $link1.label=Washington and Lee Law Library
 $link1.url=http://law.wlu.edu/library/
 $link2.label=Annie Catalog
 $link2.url=http://annie.wlu.edu
+$link3.label=LibX WLU Homepage
+$link3.url=http://libx.org/editions/wlu/libx.html
 
 adaptedby=John Doyle
 
@@ -23,9 +25,10 @@ $catalog.sid=libxwlu
 $catalog.searchscope=1
 
 $openurl.type=generic
-$openurl.url=http://law.wlu.edu/library/resolver.asp
+$openurl.url=http://lawlib.wlu.edu/resolver.aspx
 $openurl.sid=libx:wlu
 $openurl.name=WL Book/Journal Finder
+$openurl.options=jt;i;at;a
 
 $proxy.type=ezproxy
 $proxy.url=https://ezproxy.wlu.edu:2443?url=%S
