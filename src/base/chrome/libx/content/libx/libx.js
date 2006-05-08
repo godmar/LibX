@@ -207,6 +207,8 @@ function libxInitializeCatalog(cattype, catprefix)
     var oai = libxGetProperty(catprefix + "catalog.xisbn.oai");
     if (oai != "")
         cat.useOAIxISBN = oai;
+
+    libxLog("registered " + cat.name + " (type=" + cattype + ")");
     return cat;
 }
 
@@ -229,7 +231,6 @@ function libxInitializeCatalogs()
     {
         var cat = libxInitializeCatalog(cattype, "catalog" + addcat + ".");
         searchCatalogs.push(cat);
-        libxLog("registered catalog" + addcat + " of type " + cattype);
 
         var newbutton = document.createElement("menuitem");
         newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
@@ -308,6 +309,7 @@ function libxInitializeOptions()
     libxOptions.sersolisbnfix = libxGetProperty("libx.sersolisbnfix");
     libxOptions.supportcoins = libxGetProperty("libx.supportcoins");
     libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage");
+    libxOptions.autolink = libxGetProperty("libx.autolink");
 }
 
 // Initialization - this code is executed when extension is loaded
@@ -347,7 +349,8 @@ function libxInit()
     libxInitializeOpenURL();    
     libxInitializeCatalogs();
 	libxProxyInit();
-	initializeDoForURLs();
+    libxInitializeAutolink();
+	libxInitializeDFU();
 	
 	var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
@@ -491,7 +494,7 @@ function doMagicSearchBySelection() {
 // output a message to the JS console
 function libxLog(msg) {
     var consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("libx: " + msg);
+    consoleService.logStringMessage("LibX: " + msg);
 }
 
 // open search results, according to user preferences
@@ -830,6 +833,77 @@ function addSearchFieldAs(mitem) {
 
 function aboutVersion() {
    window.openDialog("chrome://libx/content/about.xul", "About...", "centerscreen,chrome,modal,resizable", libx_version, libxGetProperty("edition"));
+}
+
+function libxRunAutoLink(document, rightaway) 
+{
+    // order matters, if a regexp match supercedes another, the subsequent
+    // matches's href function is not called, even if no superceding one
+    // returned null - fix this?
+    var filters = [
+    {   // Pubmed IDs, form PMID... 
+        regexp: /PMID[^\d]*(\d+)/ig,
+        href: function(match) { 
+            if (!openUrlResolver) return null;
+            var pmid = match[1];
+            this.name = libxGetProperty("openurlpmidsearch.label", [openUrlResolver.name, pmid]);
+            return openUrlResolver.makeOpenURLForPMID(pmid);
+        }
+    },
+    {   // DOIs
+        regexp: /(10\.\S+\/[^\s,;\"\']+)/ig,
+        href: function(match) { 
+            if (!openUrlResolver) return null;
+            var doi = isDOI(match[1]); 
+            if (doi == null) return null;
+            this.name = libxGetProperty("openurldoisearch.label", [openUrlResolver.name, doi]);
+            return openUrlResolver.makeOpenURLForDOI(doi);
+        }
+    },
+    {   // ISBNs
+        regexp: /\#?((97[89])?((-)?\d(-)?){9}[\dx])/ig,
+        href: function(match) { 
+            var isbn = isISBN(match[1]); 
+            if (isbn == null) return null;
+            this.name = libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
+            return libraryCatalog.makeISBNSearch(isbn);
+        }
+    },
+    {   // ISSNs
+        regexp: /\#?((\d(-)?){7}[\dx])/ig,
+        href: function(match) { 
+            var issn = isISSN(match[1]); 
+            if (issn == null) return null;
+            this.name = libxGetProperty("issnsearch.label", [libraryCatalog.name, issn]);
+            return libraryCatalog.makeSearch('is', issn);
+        }
+    },
+    ];
+    libxAutoLink(_content.window, document, filters, rightaway);
+}
+
+function libxSelectAutolink(value)
+{
+    value = (value == "true") ? true : false;   // convert string to bool
+    nsPreferences.setBoolPref("libx.autolink", value);
+    libxOptions.autolink_active = value;
+    if (value)
+        libxRunAutoLink(_content.document, true);
+}
+
+function libxInitializeAutolink()
+{
+    if (!libxOptions.autolink)
+        return;
+
+    var hbox = document.getElementById("libx-about");
+    var m = document.createElement("menuitem");
+    m.setAttribute('type', 'checkbox');
+    m.setAttribute('label', 'Autolink Pages');
+    libxOptions.autolink_active = nsPreferences.getBoolPref("libx.autolink", true);
+    m.setAttribute('checked', libxOptions.autolink_active);
+    m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
+    hbox.parentNode.insertBefore(m, hbox);
 }
 
 // vim: ts=4

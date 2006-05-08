@@ -46,7 +46,7 @@ function makeLink(doc, title, url) {
 // we wrap all constructor calls for the "DoForURL" objects in this function
 // the reason is that we must delay these calls until all of the extensions's XUL is loaded
 //
-function initializeDoForURLs() {
+function libxInitializeDFU() {
 
 // return a URL to link to
 // either via xISBN, or direct to the catalog (the default)
@@ -410,6 +410,12 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
             // n[i].parentNode.removeChild(n[i]);
         }
     }
+});
+
+// invoke autolink on all pages, if active
+new DoForURL(/.*/, function (doc) {
+    if (libxOptions.autolink_active)
+        libxRunAutoLink(doc, false); // false -> not right away
 });
 
 } //end of initializeDoForUrls

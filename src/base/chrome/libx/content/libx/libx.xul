@@ -58,6 +58,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/sirsiopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
 	<script type="application/x-javascript">
 	<![CDATA[
 	  // must postpone initialization until entire overlay is loaded into chrome
@@ -70,10 +71,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<hbox>
 					<toolbarbutton label="&libx.toolbarbutton;" type="menu" image="&libx.image;" tooltiptext="&libx.tooltiptext;">
 						<menupopup id="libxmenu">
-   <!-- used to be
-							<menuitem label="&libraryhomepage.menuitem.label;" oncommand="openSearchWindow('&libraryhomepage.menuitem.url;')" />
-							<menuitem label="&libraryopac.menuitem.label;" oncommand="openSearchWindow('&libraryopac.menuitem.url;')" />
-    -->
                             <menuseparator id="libxmenu.separator"/>
                             <menu label="Display Preferences...">
                                 <menupopup id="libx.displaypref">
@@ -83,7 +80,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                                     <menuitem type="checkbox" id="libx.sametab" label="Display results in same tab" oncommand="recordPreference('libx.displaypref', this.id);" />
                                 </menupopup>
                             </menu>
-							<menuitem label="About" oncommand="aboutVersion()" />
+							<menuitem id="libx-about" label="About" oncommand="aboutVersion()" />
 						</menupopup>
 					</toolbarbutton>
 				</hbox>
@@ -118,7 +115,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<!-- do not add anything here -->
 			</vbox>
 			<vbox>
-				<hbox>
+				<hbox id="libx-right-toolbarbutton-hbox">
 					<toolbarbutton type="menu-button" tooltiptext="Submit Search!"
 						id="search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
