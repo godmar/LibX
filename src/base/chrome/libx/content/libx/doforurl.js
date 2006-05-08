@@ -55,12 +55,12 @@ var dfu_actions = new Array();
 
 function DoForURL(/* a regex */urlpattern, /* function */what)
 {
-    var aidx = dfu_actions.push({pattern: urlpattern, action: what});
+    this.aidx = dfu_actions.push({pattern: urlpattern, action: what});
 }
 
 DoForURL.prototype = {
     remove: function() {
-        dfu_actions.splice(aidx, 1);
+        dfu_actions.splice(this.aidx, 1);
     }
 }
 
