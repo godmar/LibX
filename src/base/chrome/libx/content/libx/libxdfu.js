@@ -92,6 +92,19 @@ new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (d
     origTitle.appendChild(link);
 });
 
+// -----------------------------------------------------------------------------
+// Link ecampus.com pages to catalog via ISBN
+new DoForURL(/\.ecampus\.com.*(\d{9}[\d|X])/i, function (doc, match) {
+    var origISBN = xpathFindSingle(doc, "//a[@class='nolink']");
+    if (!origISBN)
+        return;
+    var isbn = isISBN(origISBN.textContent);
+    if (!isbn)
+        return;
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), linkByISBN(isbn));
+    origISBN.appendChild(link);
+});
+
 // --------------------------------------------------------------------------------------------------
 // On agricola record pages, add link next to call number
 
