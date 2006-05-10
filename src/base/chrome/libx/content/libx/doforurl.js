@@ -53,9 +53,12 @@ function dfu_log(msg) {
 
 var dfu_actions = new Array();
 
-function DoForURL(/* a regex */urlpattern, /* function */what)
+function DoForURL(/* a regex */urlpattern, /* function */what, /* array<regex> */exclude)
 {
-    this.aidx = dfu_actions.push({pattern: urlpattern, action: what});
+    this.pattern = urlpattern;
+    this.action = what;
+    this.exclude = exclude;
+    this.aidx = dfu_actions.push(this);
 }
 
 DoForURL.prototype = {
@@ -72,11 +75,19 @@ function newpage(ev) {
         if (ev.originalTarget.location == 'about:blank')
                 return;
 
+    outer:
         for (var i = 0; i < dfu_actions.length; i++) {
+            var dfu = dfu_actions[i];
             var m;
-            if (m = ev.originalTarget.location.href.match(dfu_actions[i].pattern)) {
+            if (m = ev.originalTarget.location.href.match(dfu.pattern)) {
+                var exclude = dfu.exclude;
+                if (exclude) {
+                    for (var j = 0; j < exclude.length; j++)
+                        if (ev.originalTarget.location.href.match(exclude[j]))
+                            continue outer;
+                }
                 try {
-                    dfu_actions[i].action(doc, m);
+                    dfu.action(doc, m);
                 } catch (e) { 
                     dfu_log(e);
                 }
