@@ -426,10 +426,15 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
 });
 
 // invoke autolink on all pages, if active
-new DoForURL(/.*/, function (doc) {
+var autolink = new DoForURL(/.*/, function (doc) {
     if (libxOptions.autolink_active)
         libxRunAutoLink(doc, false); // false -> not right away
 });
+
+// exclude OpenURL resolver page if using sersol
+if (openUrlResolver && openUrlResolver.type == "sersol") {
+    autolink.exclude = [openUrlResolver.url.replace("http://", "")];
+}
 
 } //end of initializeDoForUrls
 
