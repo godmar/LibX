@@ -284,10 +284,12 @@ function libxInitializeOpenURL()
         return;
     }
 
+    openUrlResolver.type = ourltype;
     openUrlResolver.url = libxGetProperty("openurl.url");
     openUrlResolver.sid = libxGetProperty("openurl.sid");
     openUrlResolver.name = libxGetProperty("openurl.name");
     openUrlResolver.version = libxGetProperty("openurl.version");
+    openUrlResolver.autolinkissn = libxGetProperty("openurl.autolinkissn");
     var copt = libxGetProperty("openurl.options");
     if (copt != null)
         openUrlResolver.options = copt;
@@ -310,6 +312,10 @@ function libxInitializeOptions()
     libxOptions.supportcoins = libxGetProperty("libx.supportcoins");
     libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage");
     libxOptions.autolink = libxGetProperty("libx.autolink");
+    libxOptions.autolinkstyle = libxGetProperty("libx.autolinkstyle");
+    if (!libxOptions.autolinkstyle)
+        libxOptions.autolinkstyle = "1px dotted";
+        
 }
 
 // Initialization - this code is executed when extension is loaded
@@ -835,12 +841,13 @@ function aboutVersion() {
    window.openDialog("chrome://libx/content/about.xul", "About...", "centerscreen,chrome,modal,resizable", libx_version, libxGetProperty("edition"));
 }
 
-function libxRunAutoLink(document, rightaway) 
-{
-    // order matters, if a regexp match supercedes another, the subsequent
-    // matches's href function is not called, even if no superceding one
-    // returned null - fix this?
-    var filters = [
+/* Definition of autolink filters.
+ *
+ * Order matters, if a regexp match supercedes another, the subsequent
+ * matches's href function is not called, even if no superceding one
+ * returned null - fix this?
+ */
+var libxAutoLinkFilters = [
     {   // Pubmed IDs, form PMID... 
         regexp: /PMID[^\d]*(\d+)/ig,
         href: function(match) { 
@@ -874,12 +881,20 @@ function libxRunAutoLink(document, rightaway)
         href: function(match) { 
             var issn = isISSN(match[1]); 
             if (issn == null) return null;
-            this.name = libxGetProperty("issnsearch.label", [libraryCatalog.name, issn]);
-            return libraryCatalog.makeSearch('is', issn);
+            if (openUrlResolver && openUrlResolver.autolinkissn) {
+                this.name = libxGetProperty("openurlissnsearch.label", [openUrlResolver.name, issn])
+                return openUrlResolver.makeOpenURLForISSN(issn);
+            } else {
+                this.name = libxGetProperty("issnsearch.label", [libraryCatalog.name, issn]);
+                return libraryCatalog.makeSearch('is', issn);
+            }
         }
     },
-    ];
-    libxAutoLink(_content.window, document, filters, rightaway);
+];
+
+function libxRunAutoLink(document, rightaway) 
+{
+    libxAutoLink(_content.window, document, libxAutoLinkFilters, rightaway);
 }
 
 function libxSelectAutolink(value)

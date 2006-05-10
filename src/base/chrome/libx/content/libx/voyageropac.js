@@ -22,7 +22,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Voyager OPAC
-function VoyagerOPAC(catprefix) { }
+function VoyagerOPAC(catprefix) { 
+    this.advancedsearchforissn = libxGetProperty(catprefix + "voyager.advancedsearchforissn");
+}
 
 // taken in part from http://www.mines.edu/library/catalyst/canned.html
 VoyagerOPAC.prototype = new libxCatalog();
@@ -68,6 +70,9 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
             sterm = sterm.replace(/^(\S)/, "+$1");
             sterm = sterm.replace(/\s+(\S)/, " +$1");
         }
+        if (this.advancedsearchforissn && stype == 'is') {
+            return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
+        } 
         // order of fields seems to matter here (!??!)
         return this.url + "/cgi-bin/Pwebrecon.cgi?Search_Arg=" 
                     + sterm + "&HIST=1&SL=None&Search_Code="
