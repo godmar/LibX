@@ -582,7 +582,7 @@ function doMagicSearch() {
 	if (a != "") {
 		q += " author: " + a;
 	}
-	magicSearch(q, t, true);
+	magicSearch(q, t, true);    // true means suppress heuristics
 }
 
 // This function is called for the "Search Addison Now!" right-click

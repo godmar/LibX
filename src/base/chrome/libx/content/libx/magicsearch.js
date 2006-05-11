@@ -59,7 +59,7 @@ function magicNormalize(t) {
     return t.toLowerCase();
 }
 
-function magicSearch(data, inpub, buttonpressed) {
+function magicSearch(data, inpub, suppressheuristics) {
     var maxattempts = 5;
 
     magic_log("Searching for: \"" + data + "\"" + (inpub ? " inpub: " + inpub : "no publication given"));
@@ -75,8 +75,8 @@ function magicSearch(data, inpub, buttonpressed) {
     
     // if there is no OpenURL support, then there is no point in trying to read Google Scholar pages
     // simply open the scholar page for the user to see.
-    // the same is done if "dumb.scholar.button" is activated
-    if (!openUrlResolver || (buttonpressed != null && libxGetProperty("dumb.scholar.button"))) {
+    // the same is done if suppressheuristics is set.
+    if (!openUrlResolver || suppressheuristics) {
         openSearchWindow(url);
         return;
     }
