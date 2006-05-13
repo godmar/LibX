@@ -37,8 +37,16 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
 }
 .selectthis {
     color: green;
+    border: thin solid #000000;
+}
+.searchoptions {
+    color: green;
+    font-family: Courier;
 }
 </style>
+    <title>
+        LibX <? echo $edition_name ?> - Test Edition
+    </title>
     </head>
 <body>
 
@@ -72,6 +80,7 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
         <th>Name/Link</th>
         <th>Type</th>
         <th>URL</th>
+        <th><a href="#options">Options</a></th>
     </tr>
 <?
     $c = 0;
@@ -84,13 +93,27 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
         echo '<a href="' . $CONFIG['$' . $prefix . 'catalog.url'] . '">' 
                 . $CONFIG['$' . $prefix . 'catalog.name']. '</a>';
         echo '</td><td align="center"><tt style="{ color: green }">';
-        echo $CONFIG['$' . $prefix . 'catalog.type'] . '</tt>';
+        $cattype = $CONFIG['$' . $prefix . 'catalog.type'];
+        echo $cattype . '</tt>';
         echo '</td><td>';
         echo '<tt style="{ color: green }">';
-        echo $CONFIG['$' . $prefix . 'catalog.url'] ;
+        $u = $CONFIG['$' . $prefix . 'catalog.url'];
+        if (strlen($u) > 40) { $u = substr($u, 0, 40) . " ..."; }
+        echo $u;
         echo '</tt>';
-        echo '</td>';
-        echo '</tr>';
+        echo '</td><td class="searchoptions">';
+        $copt = @$CONFIG['$' . $prefix . 'catalog.options'];
+        if ($copt != "") {
+            echo $copt;
+        } else {
+            if ($cattype == "sersol")
+                echo 'jt;i';
+            else if ($cattype == "sfx")
+                echo 'jt';
+            else
+                echo 'Y;t;a;d;i;c';
+        }
+        echo '</td></tr>';
         $c++;
         $prefix = 'catalog' . $c . '.';
     }
@@ -98,12 +121,12 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
     </table>
     <hr width="90%">
 <? 
-    if ($CONFIG['$openurl.type'] != "") {
+    if (@$CONFIG['$openurl.type'] != "") {
         echo '<li> OpenURL resolver type is <tt style="{ color: green }">' . $CONFIG['$openurl.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$openurl.url'] . '</tt>';
     } else {
         echo '<li> No OpenURL resolver is defined for this edition.';
     }
-    if ($CONFIG['$proxy.type'] != "") {
+    if (@$CONFIG['$proxy.type'] != "") {
         echo '<li> Remote Access type is <tt style="{ color: green }">' . $CONFIG['$proxy.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$proxy.url'] . '</tt>';
     } else {
         echo '<li> No remote proxy is defined for this edition.';
@@ -144,8 +167,11 @@ your <a href="/editions/<? echo $edition ?>/libx.html">edition's homepage</a>, n
 If we upgrade an edition, we will build a new test edition here first and ask you 
 to test it. To test this edition, either use a <a target="_top" 
 href="http://www.mozilla.org/support/firefox/profile#new">blank profile</a>, 
-or uninstall your current edition first, then reinstall this edition.
-<b>Don't forget to restart Firefox between uninstallation and reinstallation.</b>
+or install this edition over your current edition.  (We believe that in 1.5.0.3,
+it is no longer necessary to uninstall the current version first.)
+<b>Don't forget to restart Firefox afterwards.</b>
+To install over your current edition, simply drag and drop the link to the
+.xpi file into the address bar.
 <p>
 <hr>
 <div>
@@ -197,22 +223,61 @@ You should be seeings cues on these pages:
 <li><a target="_new" href="http://search.yahoo.com/search?ei=UTF-8&fr=sfp&p=freakonomics">Yahoo.com.</a>
 <li><a target="_new" href="http://www.worldcatlibraries.org/wcpa/isbn/006073132X">WorldCat via COinS</a>
 <li> <span  class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info:ofi/fmt:kev:mtx:journal&amp;rft.title=D-LIB&amp;rft.aulast=Van+de+Sompel&amp;rft.atitle=Generalizing+the+OpenURL+Framework+beyond+References+to+Scholarly+Works+The+Bison-Fut%C3%A9+Model&amp;rft.volume=7&amp;rft.issue=7/8&amp;rft.date=2001-07&amp;rft_id=http://www.dlib.org/dlib/july01/vandesompel/07vandesompel.html">You should be seeing a COinS icon here: </span> 
+<li>(if built after May 8:) <a target="_new" href="http://www.ecampus.com/book/0201549794">ecampus.com (1)</a>,
+<a target="_new" href="http://www.ecampus.com/bk_detail.asp?isbn=0201702452">ecampus.com (2)</a>
 </ul>
 <p>
 <span class="part">Part 3: Context-Menu</span>
 <p>
-To test your ISBN support, select this ISBN: <span class="selectthis">006073132X</span> by 
+<!--
+In this section of the test, you have to select and right-click on information 
+that is <span class="selectthis">displayed like this</span>.
+-->
+<?  if (@$CONFIG['$libx.autolink'] == "true") { ?>
+<p>
+<b>Autolink:</b> The autolink feature is enabled for this edition. 
+Certain identifiers, such as ISBNs, ISSNs, etc. shown on a page, 
+should turn into links. 
+ISBNs &amp; ISSNs link to your catalog,
+Examples: 006073132X, 0-06-073132-X, 9780060731328, 978-0-06-073132-8, 0098-7484.
+<? if (@$CONFIG['$openurl.type'] != "") { ?>
+<p>
+DOIs and Pubmed IDs should link to your OpenURL resolver.
+Examples: PMID: 16646082, 10.1103/PhysRevD.66.063511 
+<? } ?>
+<p>
+You can also test this feature on: 
+<a href="http://www.nature.com/nature/climate/index.html" target="_new">nature.com</a>.
+Please report problems with this feature to libx.org@gmail.com.
+<p>
+Some pages have taken measures against this, for instance, you may have noticed
+that there was an autolink on the Amazon.com page, but not on the Barnes&amp;Noble
+page.  We have disabled autolinks for the ISBNs etc. that follow on this page 
+so that you can test the context menu functionality next.
+<p>
+Although the new autolink functionality partially obsoletes the 
+select &amp; right-click functionality of the context menu, please
+test it nonetheless (because it does not work if the site took 
+countermeasures, and because the user might have intentionally disabled
+it, but still wishes to use the right-click selection functionality.)
+<?  } ?>
+<p>
+<a class="suppressautolink"><!-- suppress autolink feature -->
+To test your ISBN support, select this ISBN: 
+<span class="selectthis">006073132X</span> by 
 double-clicking on it. Right-click and select 
 "Search <? echo $CONFIG['$catalog.name'] ?> for ISBN 006073132X".  
+Here's another one: <span class="selectthis">055380202X</span>
 <p>
 Test xISBN support, if activated, by right-clicking <span class="selectthis">006073132X</span>
 and selecting "Search xISBN for ISBNs related to 006073132X".
 <p>
 Test that 13-digits EANs work: select <span class="selectthis">9780743226714</span> by 
-double-clicking on it, it should be converted into a 10-digit ISBN, then proceed as above.
+double-clicking on it, then proceed as above. It should be converted into a 10-digit ISBN.
 <p>
 To test your ISSN support, select this ISSN: <span class="selectthis">0164-0925</span>.
 Right-click and select  "Search <? echo $CONFIG['$catalog.name'] ?> for ISSN 0164-0925".
+</a> <!-- end of autolink suppressing a -->
 <p>
 Test author name heuristics.  
 Select the following names in their entirety, then right-click and select
@@ -227,14 +292,22 @@ Select the following names in their entirety, then right-click and select
 </ul> 
 LibX should run a proper author search against your catalog.
 <p>
-<? if ($CONFIG['$openurl.type'] != "") { ?>
-Test DOI ID support.  Select this DOI <span class="selectthis">10.1145/268998.266642</span>, then
+<? if (@$CONFIG['$openurl.type'] != "") { ?>
+<a class="suppressautolink"><!-- suppress autolink feature -->
+Test DOI ID support.  
+Select this DOI <span class="selectthis">10.1145/268998.266642</span>, then
 right-click and select "Search <? echo $CONFIG['$openurl.name'] ?> for DOI 10.1145/268998.266642".
+Here's another one to try: <span class="selectthis">10.1038/nature01097</span>
 <p>
 Test PubMed ID support. Select this string <span class="selectthis">PMID: 3966281</span>, then
 right-click and select "Search <? echo $CONFIG['$openurl.name'] ?> for Pubmed ID 3966281".
 (You must include the "PMID:" part.)
+</a><!-- end suppress autolink feature -->
 <? } /* openurl configured */?>
+
+<?  if (@$CONFIG['$libx.autolink'] == "true") { ?>
+<? } /* if autolink */ ?>
+
 <p>
 <span class="part">Part 4: Scholar Support</span>
 <p>
@@ -269,31 +342,45 @@ search bar (or select the text and drag-n-drop it in there), make sure "Keyword"
 press the Scholar button.  
 Also test searches by author and title, they should work with Scholar as well.
 <p>
-<? if ($CONFIG['$openurl.type'] != "" && @$CONFIG['$openurl.dontshowintoolbar'] != "true") { ?>
-Since you display a "Search <? echo $CONFIG['$openurl.name'] ?>" option for your edition's OpenURL resolver,
-you should also test that searches by title work.  Select Title in the left dropdown, 
-then select your OpenURL resolver on the right, and search for journal title.  
+<? if (@$CONFIG['$openurl.type'] != "" && @$CONFIG['$openurl.dontshowintoolbar'] != "true") { ?>
+Since you display a "Search <? echo $CONFIG['$openurl.name'] ?>" option for your 
+edition's OpenURL resolver, you should also test that searches by title work.  
+Select "Search <? echo $CONFIG['$openurl.name'] ?>" on the right,
+then select Journal Title in the left dropdown, and search for a journal title.  
 You should be thrown into your E-Journal Search dialog.
-This option is known to work well only for 
-SFX &amp; Serials Solutions, and sirsi.net OpenURL resolvers.
+This option is known to work relatively well only for 
+SFX &amp; Serials Solutions, and sirsi.net OpenURL resolvers.  It can be turned off.
 <? } ?>
 <p>
 <? if ($CONFIG['$proxy.type'] != "") { ?>
 <p>
 <span class="part">Option: Proxy Support</span>
 <p>
-To test your proxy support, <a href="http://www.science-direct.com">right-click 
-on this link to www.science-direct.com</a> and then select 
-"Follow this Link via <? echo @$CONFIG['proxyname'] ?>".  Assuming your library proxies 
+To test your proxy support, <a href="http://www.sciencedirect.com">right-click 
+on this link to www.sciencedirect.com</a> and then select 
+"Follow this Link via <? echo @$CONFIG['$proxy.name'] ?>".  Assuming your library proxies 
 science-direct.com, you should be able to log on through your proxy (testing this may require
 that you are off-campus.) 
 <p>
-To test reloading via proxy, <a target="_new" href="http://www.science-direct.com">go to science-direct.com in a new window</a> and once there, right-click and select "Reload this Page via <? echo @$CONFIG['proxyname'] ?>".  
+To test reloading via proxy, <a target="_new" href="http://www.sciencedirect.com">go to sciencedirect.com in a new window</a> and once there, right-click and select "Reload this Page via <? echo @$CONFIG['$proxy.name'] ?>".  
 It should reload the page through the proxy.
 <p>
 <? } /* proxy configured */?>
 
 </div>
+<a name="options"></a><span class="part">Options</span>
+<p>
+The following drop-down options are supported
+<table border="0">
+<tr><td class="searchoptions">Y</td><td>Keyword</td></tr>
+<tr><td class="searchoptions">t</td><td>Title</td></tr>
+<tr><td class="searchoptions">a</td><td>Author</td></tr>
+<tr><td class="searchoptions">d</td><td>Subject</td></tr>
+<tr><td class="searchoptions">i</td><td>ISBN/ISSN</td></tr>
+<tr><td class="searchoptions">c</td><td>Call Number</td></tr>
+<tr><td class="searchoptions">jt</td><td>Journal Title (SFX, SerSol, and Millenium only)</td></tr>
+<tr><td class="searchoptions">at</td><td>Article Title (OpenURL only)</td></tr>
+</table>
 <hr>
 <p>
 <b>Copyright:</b><p>
