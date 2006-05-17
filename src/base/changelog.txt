@@ -7,6 +7,16 @@ You are using the $libxedition$
 
 Under development
 
+ *refinements to autolink functionality
+ *added openurl.image option to choose a different cue for OpenURLs
+  - on Scholar and for COinS currently
+ *added libx.disablescholar option if Scholar integration should disappear 
+  entirely for libraries that don't want Google included
+ *made Scholar button always a direct search without activating heuristics
+ *added cue on ecampus.com
+ *added Jesse Ruderman's autolink script, along with user preference
+ *added support for 'bookmarklet' cataloge type
+ *added configurable menus
  *added aleph.scan.index.list so Aleph users can pick when to
   use scan vs find
  *moved Clear All button to the outside.
@@ -21,8 +31,6 @@ Under development
  *if GS doesn't give results, try search as exact ("quoted") search.
  *added cue to booklistonline.com
  *added whitespace to books.google.com cue
- *added option dumb.scholar.button=true for users that want the Scholar
-  heuristic deactivated if the user presses the Google Scholar button
  *fixed NYTimes Book Review cue to conform to new design
  *eliminated many $catalog$ properties.
   all catalog properties are read from additional properties now

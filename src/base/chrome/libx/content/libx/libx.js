@@ -201,7 +201,7 @@ function libxInitializeCatalog(cattype, catprefix)
     // override xisbn opac id if it's not the default
     var xisbn = libxGetProperty(catprefix + "catalog.xisbn.opacid");
     if (xisbn) {
-        cat.xisbnOPACID = xisbn;
+        cat.xisbnOPACID = xisbn != "none" ? xisbn : null;
     }
     cat.prefix = catprefix;
     var oai = libxGetProperty(catprefix + "catalog.xisbn.oai");
@@ -289,6 +289,7 @@ function libxInitializeOpenURL()
     openUrlResolver.sid = libxGetProperty("openurl.sid");
     openUrlResolver.name = libxGetProperty("openurl.name");
     openUrlResolver.version = libxGetProperty("openurl.version");
+    openUrlResolver.image = libxGetProperty("openurl.image");
     openUrlResolver.autolinkissn = libxGetProperty("openurl.autolinkissn");
     var copt = libxGetProperty("openurl.options");
     if (copt != null)
@@ -311,11 +312,11 @@ function libxInitializeOptions()
     libxOptions.sersolisbnfix = libxGetProperty("libx.sersolisbnfix");
     libxOptions.supportcoins = libxGetProperty("libx.supportcoins");
     libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage");
+    libxOptions.disablescholar = libxGetProperty("libx.disablescholar");
     libxOptions.autolink = libxGetProperty("libx.autolink");
     libxOptions.autolinkstyle = libxGetProperty("libx.autolinkstyle");
     if (!libxOptions.autolinkstyle)
         libxOptions.autolinkstyle = "1px dotted";
-        
 }
 
 // Initialization - this code is executed when extension is loaded
@@ -360,7 +361,13 @@ function libxInit()
 	
 	var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
-    new TextDropTarget(magicSearch).attachToElement(document.getElementById("libx-magic-button"));
+
+    var scholarbutton = document.getElementById("libx-magic-button");
+    if (libxOptions.disablescholar) {
+        scholarbutton.hidden = true;
+    } else {
+        new TextDropTarget(magicSearch).attachToElement(scholarbutton);
+    }
     libxInitializePreferences("libx.displaypref");
 }
 
@@ -464,7 +471,8 @@ function libxContextPopupShowing() {
     // show keyword, title, author only if none of IS*N or PMID was recognized
 	if (pureISN == null && purePMID == null) {
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
-		scholarsearch.hidden = false;
+		if (!libxOptions.disablescholar) 
+            scholarsearch.hidden = false;
         keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.name]);
         titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.name]);
         authorsearch.label = libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.name]);
@@ -867,8 +875,14 @@ var libxAutoLinkFilters = [
             return openUrlResolver.makeOpenURLForDOI(doi);
         }
     },
+    {   // suppress possible ISBN match for US phone numbers
+        regexp: /\d{3}-\d{3}-?\d{4}/ig,
+        href: function(match) { 
+            return null;
+        }
+    },
     {   // ISBNs
-        regexp: /\#?((97[89])?((-)?\d(-)?){9}[\dx])/ig,
+        regexp: /((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig,
         href: function(match) { 
             var isbn = isISBN(match[1]); 
             if (isbn == null) return null;
@@ -876,8 +890,8 @@ var libxAutoLinkFilters = [
             return libraryCatalog.makeISBNSearch(isbn);
         }
     },
-    {   // ISSNs
-        regexp: /\#?((\d(-)?){7}[\dx])/ig,
+    {   // ISSNs - we try to only accept 0000-0000
+        regexp: /(\d{4}-\d{3}[\dx])(?!\d)/ig,
         href: function(match) { 
             var issn = isISSN(match[1]); 
             if (issn == null) return null;

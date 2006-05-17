@@ -31,12 +31,16 @@
 // helper function that creates the cue logo to be inserted
 // make the equivalent of this html:
 // <a title="[title]" href="[url]"><img src="chrome://libx/skin/virginiatech.ico" border="0"/></a>
-function makeLink(doc, title, url) {
+function makeLink(doc, title, url, openurl) {
     var link = doc.createElement('a');
     link.setAttribute('title', title);
     link.setAttribute('href', url);
     var image = doc.createElement('img');
-    image.setAttribute('src', libxGetProperty("cue.iconurl"));
+    if (openurl && openUrlResolver && openUrlResolver.image) {
+        image.setAttribute('src', openUrlResolver.image);
+    } else {
+        image.setAttribute('src', libxGetProperty("cue.iconurl"));
+    }
     image.setAttribute('border', '0');
     link.appendChild(image);
     return link;
@@ -247,7 +251,7 @@ if (openUrlResolver && libxOptions.rewritescholarpage == "true") {
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
             var ourl = openUrlResolver.completeOpenURL(m[1]);
-            var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), ourl);
+            var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), ourl, true);
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.removeChild(link);
         }
@@ -311,7 +315,7 @@ if (openUrlResolver && libxOptions.supportcoins == "true") {
             query = "&" + query.join("&");
 
             if (isBookOrArticle) {
-                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), openUrlResolver.completeOpenURL(query)));
+                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), openUrlResolver.completeOpenURL(query), true));
             }
         } catch (e) {
             dfu_log ("Exception during coins processing: " +e);
