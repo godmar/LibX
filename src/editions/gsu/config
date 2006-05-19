@@ -22,6 +22,10 @@ $catalog.name=GIL
 $catalog.url=https://gil.gsu.edu
 $catalog.sid=libxgsu
 
+$catalog1.catalog.type=voyager
+$catalog1.catalog.name=GIL Universal Catalog
+$catalog1.catalog.url=https://giluc.usg.edu
+$catalog1.catalog.sid=libxgsu
 
 $openurl.type=sfx
 $openurl.url=http://orion.galib.uga.edu/sfx_gsu1
@@ -34,6 +38,7 @@ $proxy.name=EZProxy
 
 $libx.rewritescholarpage=true
 $libx.supportcoins=true
+$libx.autolink=true
 
 logoURL=chrome://libx/skin/gsulogo.gif
 emiconURL=chrome://libx/skin/gsu.ico

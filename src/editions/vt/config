@@ -2,14 +2,17 @@
 # This file contains the setting for the Virginia Tech Edition.
 #
 # To create your own edition, you must copy this file and change the 
-# entries as documented.
+# entries as documented.  The comments are not required. The comments in this
+# file change frequently, so you may be better off writing your config file
+# without comments, or only with comments for your own use.
 #
 # Entries that do not start with a $sign are required, but can be left 
 # empty if desired, as in "value="
 # Entries that start with a $sign are optional, and do not need to be here.
 #
 # Currently, many of the entries duplicate information - this will be fixed
-# in the future.
+# in the future as we switch to an XML-based config file format that allows
+# automatic validation.
 #
 
 # This name of the edition will be shown in the title bar of the 
@@ -31,9 +34,6 @@ $link2.url=http://addison.vt.edu/
 $link3.label=LibX VT Homepage
 $link3.url=http://libx.org/editions/vt/libx.html
 # you can add more here
-#
-# Legacy note: these replace the old libraryname & libraryhomepage entries
-#
 
 
 #
@@ -44,6 +44,7 @@ $link3.url=http://libx.org/editions/vt/libx.html
 #
 # adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
+# Use HTML entities for < >, e.g., &lt; and &gt;
 #
 adaptedby=
 
@@ -56,11 +57,17 @@ adaptedby=
 
 #
 # The catalogtype.
-# It must be one of millenium, horizon, aleph, or voyager.
+#
+# It must be one of millenium, horizon, aleph, voyager, or sirsi.
+# Or, it can be sfx, sersol, and bookmarklet.
+# sersol does a search in Serials Solution's Journal Linker
+# sfx does a search in SFX's Journal search interface driven by OpenURL.
+# bookmarklet allows generic searches.  An example is below.
+#
 # For millenium, you must give a $catalog.searchscope, see below.
 #
 # For aleph, you will need to specify the following properties also:
-#
+# Please make sure you uncomment them and move them to the left
 #       $aleph.localbase=duk01  
 #               this property must refer to your "localbase"
 #               the example here refers to Duke University's. You must change it.
@@ -71,6 +78,7 @@ adaptedby=
 #       $aleph.author=WAU
 #       $aleph.isbn=ISBN
 #       $aleph.issn=ISSN
+#       $aleph.subject=WSU
 #       $aleph.callno=CNA
 #       $aleph.keyword=WRD
 #       $aleph.findfunc=find-b
@@ -81,6 +89,7 @@ adaptedby=
 #       By default, title & call number use scan, all others use find.
 #       Use a ; separated list to change that.  The codes are
 #       'i' - ISBN, 'is' - ISSN, 'a' - author, 't' - title, 'Y' - keyword, 'c' - call number
+#       'd' - Subject
 #       In this example, title, call number, and author would be searched using scan.
 #       $aleph.scan.index.list=t;c;a
 #
@@ -111,14 +120,21 @@ $catalog.url=http://addison.vt.edu
 # This is currently only used in the VT edition to insert links to
 # floor maps, otherwise it is ignored.
 #
+
 $catalog.urlregexp=addison\.vt\.edu
-# will be phased out
+
+# might be phased out
 
 #
 # We send along an element "sid=libxvt" with our query - if your OPAC software allows,
 # you could identify queries originating from LibX in this way.
 # Millenium, it appears, does not do this so this option currently has no effect here.
+# (in fact, some installation don't like that flag at all - omit in this case.)
 #
+# Aleph, on the other hand, allows a "sourceid=" option.  We require this for Aleph.
+# Pick "libx****" or something for which Aleph allows you to keep separate statistics.
+#
+
 $catalog.sid=libxvt
 
 #
@@ -127,8 +143,7 @@ $catalog.sid=libxvt
 # "Vet Library" only etc.
 # These are search scopes.
 #
-# At VT, scope 1 means all.
-# If unknown, use "1".
+# At VT, scope 1 means all.  If unknown, use "1".
 
 $catalog.searchscope=1
 
@@ -137,6 +152,30 @@ $catalog.searchscope=1
 
 # Many installations prefer the "X" code for a keyword search in Millenium
 # $millenium.keywordcode=X
+
+# Some installations prefer the "W" code for an advanced search in Millenium
+# $millenium.advancedcode=W
+
+# For each catalog, you can now give a list of search options that appear
+# in the left drop-down when that catalog is selected.
+# This is a semicolon-separated list of values.  The first one is the default.
+# The values are:
+# 'i' - ISBN/ISSN
+# 'd' - Subject
+# 't' - Title
+# 'Y' - Keyword
+# 'a' - Author
+# 'c' - Call Number
+# 'at' - Article Title (marginally useful at this point, puts atitle= in OpenURLs)
+# 'jt' - Journal Title (usually only useful for OpenURL journal search extensions (SFX, Sersol)
+#
+# Default for a regular catalog is:
+# $catalog.options=Y;t;a;d;i;c
+#                 (Keyword, Title, Author, Subject, ISBN/ISSN, Call Number)
+#
+# Millenium supports Journal Title searches, so we turn it on.
+
+$catalog.options=Y;t;jt;a;d;i;c
 
 # A secondary catalog can be defined like so:
 # 
@@ -150,13 +189,49 @@ $catalog.searchscope=1
 # and so on ($catalog2., $catalog3., ...)
 # The search is not a meta-search, it's additional options in the drop-down box.
 
-# Should we place ISBN-based links to point to OCLC's xISBN service?
-# Set this if you want that, omit if not
+# The second entry is a generic bookmarklet
+#
+# Bookmarklets can be defined like so
+# bookmarklets need the 'type', 'name', 'url', and 'options' fields
+#
+# For example, Virginia Tech has a search form where the user can search
+# for databases.  
+#
+
+$catalog1.catalog.type=bookmarklet
+
+# That's the label that will appear in the drop-down list.
+
+$catalog1.catalog.name=for VT Databases
+
+# offer only "Title" in the drop-down list for this Databases bookmarklet
+
+$catalog1.catalog.options=t
+
+# That's the URL that's invoked when the user searches.  %t is replaced with the Title
+# the user entered.
+
+$catalog1.catalog.url=http://www.lib.vt.edu/dsp/index.php?searchval=%t&action=SearchDatabase
+
+# Search VT Electronic Theses and Dissertations
+$catalog2.catalog.type=bookmarklet
+$catalog2.catalog.name=VT ETD
+$catalog2.catalog.url=http://scholar.lib.vt.edu:8765/query.html?qt=%Y&col=theses&charset=iso-8859-1
+$catalog2.catalog.options=Y
+
+##########################################################################
+#
+
+# Should we place ISBN-based links such that they point to OCLC's xISBN service?
+# This will help if the user looks at a page that has an ISBN of a different edition
+# Set this to true if you want that, omit if not
+
 $cues.use.xisbn=true
 
 # To make xISBN more robust, you should have OCLC assign an xISBN bookmark OAI for you.
 # Go to http://alcme.oclc.org/bookmarks/ and either look for your identifier
-# if you already have one, or sign up for one.  Specify the entire identifier.
+# if you already have one, or sign up for one.  Jeff Young will give you one in a day.
+# Specify the entire identifier here.
 # Example:
 # $catalog.xisbn.oai=oai:bookmarks.oclc.org:library.mit.edu
 
@@ -216,6 +291,18 @@ $openurl.sid=libx:virginiatech
 $openurl.name=VT Article Linker
 
 #
+# This OpenURL resolver supports OpenURL version 1.0 
+# default is 0.1
+# $openurl.version=1.0
+#
+
+# Default drop-down options for the OpenURL resolver is
+# $openurl.options=jt
+# See above for description of options
+# The OpenURL resolver is not displayed if $openurl.dontshowintoolbar=true is set.
+
+#######
+#
 # Off-campus proxying.
 # Currently support "ezproxy" and "wam".
 # Leave empty if not used.
@@ -260,6 +347,16 @@ $libx.supportcoins=true
 
 $libx.sersolisbnfix=true
 
+#
+# (Experimental) autolink facility.  
+# Includes an adapted version of Jesse Ruderman's autolink script: 
+# http://www.squarefree.com/2005/05/22/autolink/
+# Autolinks ISBN, ISSN, DOI, Pubmed IDs.
+# The user can turn this option off via a checkmark in the menu.
+#
+
+$libx.autolink=true
+
 # Internal URL of large logo.
 # Change only the "shield50.gif" part to be the filename of your logo
 # lower/upper case is significant
@@ -273,7 +370,7 @@ logoURL=chrome://libx/skin/shield50.gif
 emiconURL=chrome://libx/skin/virginiatech.ico
 
 # Description displayed in "Tools->Extensions"
-# This will be removed in future versions
+# This will be removed in future versions and replaced with an auto-generated text
 emdescription=Toolbar for Virginia Tech Library users
 
 #

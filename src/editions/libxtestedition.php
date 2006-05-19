@@ -68,7 +68,7 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
 <li> <a href="<? echo $edition_config?>">config file</a> used to build this snapshot.
 <li> An easier-to-read version of 
         the <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file without comments.</a>
-    <? if (file_exists($edition_config_xml)) {
+    <? if (false && file_exists($edition_config_xml)) {
         echo '<a href="' . $edition_config_xml . '">(as XML)</a>';
     } ?>
 
@@ -123,6 +123,13 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
 <? 
     if (@$CONFIG['$openurl.type'] != "") {
         echo '<li> OpenURL resolver type is <tt style="{ color: green }">' . $CONFIG['$openurl.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$openurl.url'] . '</tt>';
+        echo '<li> Inserted OpenURL links are displayed using this image: <img src="';
+        if (@$CONFIG['$openurl.image']) {
+            echo $edition . '/' . basename($CONFIG['$openurl.image']);
+        } else {
+            echo $icon;
+        }
+        echo '" />';
     } else {
         echo '<li> No OpenURL resolver is defined for this edition.';
     }
@@ -246,9 +253,15 @@ DOIs and Pubmed IDs should link to your OpenURL resolver.
 Examples: PMID: 16646082, 10.1103/PhysRevD.66.063511 
 <? } ?>
 <p>
+To avoid too many false positives (numbers that look like ISBNs/ISSNs, and have
+the correct checksum, but really aren't standard numbers), we conservatively
+suppress some forms.
+The following forms should <i>not</i> have turned into 
+autolinks: 00987484 , 100987484 , 10098-7484 ,
+006-073-132X , 006-073-1328 , 006-0731328, 006-073-132X, 006-073-1328.
+<p>
 You can also test this feature on: 
 <a href="http://www.nature.com/nature/climate/index.html" target="_new">nature.com</a>.
-Please report problems with this feature to libx.org@gmail.com.
 <p>
 Some pages have taken measures against this, for instance, you may have noticed
 that there was an autolink on the Amazon.com page, but not on the Barnes&amp;Noble
@@ -260,6 +273,8 @@ select &amp; right-click functionality of the context menu, please
 test it nonetheless (because it does not work if the site took 
 countermeasures, and because the user might have intentionally disabled
 it, but still wishes to use the right-click selection functionality.)
+<p>
+Please report problems with this feature to libx.org@gmail.com.
 <?  } ?>
 <p>
 <a class="suppressautolink"><!-- suppress autolink feature -->
@@ -352,7 +367,7 @@ This option is known to work relatively well only for
 SFX &amp; Serials Solutions, and sirsi.net OpenURL resolvers.  It can be turned off.
 <? } ?>
 <p>
-<? if ($CONFIG['$proxy.type'] != "") { ?>
+<? if (@$CONFIG['$proxy.type'] != "") { ?>
 <p>
 <span class="part">Option: Proxy Support</span>
 <p>

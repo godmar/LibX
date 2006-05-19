@@ -59,8 +59,8 @@
             . '</a></td>'
             . '<td><a href="' . @$path_prefix . 'showconfigfile.php?edition=' . $ec[name] . '">config</a></td>'
             . "<td>" . $ec['$catalog.type'] . "</td>"
-            . "<td>" . $ec['$openurl.type'] . "</td>"
-            . "<td>" . $ec['$proxy.type'] . "</td>"
+            . "<td>" . @$ec['$openurl.type'] . "</td>"
+            . "<td>" . @$ec['$proxy.type'] . "</td>"
             . '</b>';
         echo "</tr>\n";
     }
