@@ -36,7 +36,7 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
 	        case 'd':   return "SUBJ_";
 	        case 'a':   return "NAME_";
 	        case 't':   return "TALL";
-            case 'is':
+            case 'is':  return "ISSN";
 	        case 'i':   return "ISBN";
 	        case 'c':   return "CALL_";
 	        case 'Y':   return "FT*";
