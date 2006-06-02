@@ -76,7 +76,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
         if (this.scanIndexList.match(";" + stype + ";")) {
             return this.url + "/F?func=" 
                 + this.libraryCatalogAlephScanFunc
-                + "&sourceid=" + this.sid
+                + (this.sid != null ? ("&sourceid=" + this.sid) : "")
                 + "&local_base=" + this.libraryCatalogAlephLocalBase 
                 + "&scan_code=" + this.searchCodeLookup(stype)
                 + "&scan_start=" + query;
@@ -85,7 +85,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
         // default
         return this.url + "/F?func="
             + this.libraryCatalogAlephFindFunc 
-            + "&sourceid=" + this.sid
+            + (this.sid != null ? ("&sourceid=" + this.sid) : "")
             + "&local_base=" + this.libraryCatalogAlephLocalBase
             + "&find_code=" + this.searchCodeLookup(stype)
             + "&request=" + query;
