@@ -97,8 +97,10 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 							<menuitem value="at" label="Article Title" oncommand="setFieldType(this);" />
 							<menuitem value="a" label="Author" oncommand="setFieldType(this);" />
 							<menuitem value="d" label="Subject" oncommand="setFieldType(this);" />
+							<menuitem value="m" label="Genre" oncommand="setFieldType(this);" />
 							<menuitem value="i" label="ISBN/ISSN" oncommand="setFieldType(this);" />
 							<menuitem value="c" label="&libx.call.number;" oncommand="setFieldType(this);" />
+							<menuitem value="j" label="Dewey" oncommand="setFieldType(this);" />
 						</menupopup>
 					</toolbarbutton>
 					<!-- child number 1 -->
