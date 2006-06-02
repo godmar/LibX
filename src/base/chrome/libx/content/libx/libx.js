@@ -208,7 +208,7 @@ function libxInitializeCatalog(cattype, catprefix)
     if (oai != "")
         cat.useOAIxISBN = oai;
 
-    libxLog("registered " + cat.name + " (type=" + cattype + ")");
+    libxLog("registered " + cat.name + " (type=" + cattype + ", options=" + cat.options + ")");
     return cat;
 }
 
@@ -346,10 +346,33 @@ function libxInit()
     }
 
 	libxSearchFieldVbox = document.getElementById("search-field-vbox");
+
+    /* Initialize search options by storing XUL-defined menuitems into
+     * array for later cloning. */
 	var ddOptions = document.getElementById("libx-dropdown-menupopup");
     for (var i = 0; i < ddOptions.childNodes.length; i++) {
         var d = ddOptions.childNodes.item(i);
         libxDropdownOptions[d.value] = d;
+    }
+
+    /* If an edition wants to use searchoptions that are not 
+     * already defined (Y, t, etc.), additional options can be 
+     * defined using
+     * libx.searchoption1.value=s
+     * libx.searchoption1.label=QuickSearch
+     * etc.
+     */ 
+    for (var opt = 1;
+        (label = libxGetProperty("libx.searchoption" + opt + ".label")) != null;
+        opt++) 
+    {
+        var mitem = document.createElement("menuitem");
+        libxAddToPrototype(mitem, { 
+            value: libxGetProperty("libx.searchoption" + opt + ".value"),
+            label: label,
+            oncommand: 'setFieldType(this);'
+        });
+        libxDropdownOptions[mitem.value] = mitem;
     }
 
     libxInitializeOptions();
