@@ -109,10 +109,10 @@ libxCatalog.prototype = {
         }	
         if (fields.length == 1) {//single search field
             var url = this.makeSearch(fields[0].searchType, fields[0].searchTerms);
-            openSearchWindow(url);
+            openSearchWindow(url, this.doNotURIEncode);
         } else {// user requested multiple search fields, do advanced search
             var url = this.makeAdvancedSearch(fields);
-            openSearchWindow(url);
+            openSearchWindow(url, this.doNotURIEncode);
         }
     }
 }
@@ -133,6 +133,7 @@ function libxBookmarklet(catprefix) { }
 libxBookmarklet.prototype = new libxCatalog();
 
 libxAddToPrototype(libxBookmarklet.prototype, {
+    doNotURIEncode: true,
     supportsSearchType: function (stype) {
         // alternatively, could check options
         return this.url.match("%" + stype);
@@ -143,7 +144,7 @@ libxAddToPrototype(libxBookmarklet.prototype, {
     makeAdvancedSearch: function (fields) {
         var url = this.url;
         for (var i = 0; i < fields.length; i++) {
-           url = url.replace("%" + fields[i].searchType, fields[i].searchTerms);
+           url = url.replace("%" + fields[i].searchType, encodeURIComponent(fields[i].searchTerms));
         }
         return url;
     }
@@ -180,6 +181,9 @@ function libxInitializeCatalog(cattype, catprefix)
         break;
 	case "sfx":
 	    cat = new SFX(catprefix);
+        break;
+	case "centralsearch":
+	    cat = new CentralSearch(catprefix);
         break;
     default:
 		libxLog("Catalog type " + cattype + " not supported.");
@@ -229,14 +233,18 @@ function libxInitializeCatalogs()
          (cattype = libxGetProperty("catalog" + addcat + ".catalog.type")) != null; 
          addcat++)
     {
-        var cat = libxInitializeCatalog(cattype, "catalog" + addcat + ".");
-        searchCatalogs.push(cat);
+        try {
+            var cat = libxInitializeCatalog(cattype, "catalog" + addcat + ".");
+            searchCatalogs.push(cat);
 
-        var newbutton = document.createElement("menuitem");
-        newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
-        newbutton.setAttribute("value", addcat);
-        newbutton.setAttribute("label", "Search " + libxGetProperty("catalog" + addcat + ".catalog.name") + " ");
-        catdropdown.insertBefore(newbutton, openurlsbutton);
+            var newbutton = document.createElement("menuitem");
+            newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
+            newbutton.setAttribute("value", addcat);
+            newbutton.setAttribute("label", "Search " + libxGetProperty("catalog" + addcat + ".catalog.name") + " ");
+            catdropdown.insertBefore(newbutton, openurlsbutton);
+        } catch (e) {
+            libxLog("libxInitializeCatalog failed: " + e);
+        }
     }
 
     // record initially selected catalog and activate its search options
@@ -535,21 +543,26 @@ function libxLog(msg) {
 }
 
 // open search results, according to user preferences
-function openSearchWindow(url) {
+function openSearchWindow(url, donoturiencode) {
     var what = nsPreferences.getLocalizedUnicharPref("libx.displaypref", "libx.newtabswitch");
+    if (donoturiencode == null) {
+        var url2 = encodeURI(url);
+    } else {
+        var url2 = url;
+    }
     switch (what) {
     case "libx.newwindow":
-	    window.open(encodeURI(url));
+	    window.open(url2);
         break;
     case "libx.sametab":
 		_content.location.href = url;
         break;
     case "libx.newtab":
     default:
-	    getBrowser().addTab(encodeURI(url));
+	    getBrowser().addTab(url2);
         break;
     case "libx.newtabswitch":
-	    var tab = getBrowser().addTab(encodeURI(url));
+	    var tab = getBrowser().addTab(url2);
         getBrowser().selectedTab = tab;
         break;
     }

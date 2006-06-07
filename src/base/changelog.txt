@@ -7,6 +7,7 @@ You are using the $libxedition$
 
 Under development
 
+ *added support for SerSol's centralsearch
  *refinements to autolink functionality
  *added openurl.image option to choose a different cue for OpenURLs
   - on Scholar and for COinS currently

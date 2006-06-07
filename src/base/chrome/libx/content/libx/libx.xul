@@ -56,6 +56,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/voyageropac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/alephopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/sirsiopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/centralsearch.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
