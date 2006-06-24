@@ -57,6 +57,10 @@ libxAddToPrototype(AlephOPAC.prototype, {
 	    }
 	    return true;
 	},
+    // escape spaces using + rather than %20
+    escape: function(sterm) {
+        return sterm.replace(/\s/g, "+");
+    },
 	searchCodeLookup: function(stype) {
 		switch(stype) {
 			case 'd':	return this.libraryCatalogAlephSubject;
@@ -79,7 +83,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
                 + (this.sid != null ? ("&sourceid=" + this.sid) : "")
                 + "&local_base=" + this.libraryCatalogAlephLocalBase 
                 + "&scan_code=" + this.searchCodeLookup(stype)
-                + "&scan_start=" + query;
+                + "&scan_start=" + this.escape(query);
         }
 
         // default
@@ -88,7 +92,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
             + (this.sid != null ? ("&sourceid=" + this.sid) : "")
             + "&local_base=" + this.libraryCatalogAlephLocalBase
             + "&find_code=" + this.searchCodeLookup(stype)
-            + "&request=" + query;
+            + "&request=" + this.escape(query);
     },
 	makeAdvancedSearch: function(fields) {
 		//assumption that we're only doing AND sets.  
@@ -97,11 +101,11 @@ libxAddToPrototype(AlephOPAC.prototype, {
 				+ "&sourceid=" + this.sid
 				+ "&local_base=" + this.libraryCatalogAlephLocalBase;
 		url += "&find_code=" + this.searchCodeLookup(fields[0].searchType) 
-			+ "&request=" + fields[0].searchTerms;
+			+ "&request=" + this.escape(fields[0].searchTerms);
 		for (var i = 1; i < fields.length; i++) {
 			url += "&request_op=AND&find_code=" 
 				+ this.searchCodeLookup(fields[i].searchType) 
-				+ "&request=" + fields[i].searchTerms; 
+				+ "&request=" + this.escape(fields[i].searchTerms); 
 		}
 		return url;
 	}
