@@ -43,7 +43,7 @@ function isISBN(s) {
         return ean;
     }
     // else try old-style ISBN
-    return mod11Checksum(s, /\d{9}[\dX]/, /^ISBN/i);
+    return mod11Checksum(s, /\d{9}[\dX]/i, /^ISBN/i);
 }
 
 /* isISSN
@@ -52,7 +52,7 @@ function isISBN(s) {
  * else returns the found ISSN as 0000-0000
  */
 function isISSN(s) {
-    var issn = mod11Checksum(s, /\d{7}[\dX]/, /^ISSN/i);
+    var issn = mod11Checksum(s, /\d{7}[\dX]/i, /^ISSN/i);
     if (issn) {
         return issn.substring(0, 4) + "-" + issn.substring(4, 8);
     }
