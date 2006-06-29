@@ -26,33 +26,16 @@
  *
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
-const libx_version = "1.0.2";
-
-var libxProps;          // a string bundle in the XUL file from which we read properties
 var searchCatalogs;     // Array of search catalogs for drop-down search menu
 var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an example
                         // searchCatalogs[0] is libraryCatalog
 var openUrlResolver;    // OpenURL resolver or null if no OpenURL support, see openurl.js
 var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
-var libxOptions;        // an options objects
 
 var libxSelectedCatalog;// currently selected search type
 var libxSearchFieldVbox;    // global variable to hold a reference to vbox with search fields.
 var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
 var popuphelper = new ContextPopupHelper();
-
-// get a property, returning null if property does not exist
-function libxGetProperty(prop, args) {
-	try {
-		if (args) {
-		    return libxProps.getFormattedString(prop, args);
-		} else {
-		    return libxProps.getString(prop);
-		}
-	} catch (e) {
-	    return null;
-	}
-}
 
 // Base class for all catalogs
 function libxCatalog() { }
@@ -313,26 +296,10 @@ function libxInitializeOpenURL()
     openurlsbutton.setAttribute("label", searchlabel);
 }
 
-// Initialize options
-function libxInitializeOptions()
-{
-    libxOptions = new Object();
-    libxOptions.sersolisbnfix = libxGetProperty("libx.sersolisbnfix");
-    libxOptions.supportcoins = libxGetProperty("libx.supportcoins");
-    libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage");
-    libxOptions.disablescholar = libxGetProperty("libx.disablescholar");
-    libxOptions.autolink = libxGetProperty("libx.autolink");
-    libxOptions.autolinkstyle = libxGetProperty("libx.autolinkstyle");
-    if (!libxOptions.autolinkstyle)
-        libxOptions.autolinkstyle = "1px dotted";
-}
-
-// Initialization - this code is executed when extension is loaded
+// Initialization - this code is executed whenever a new window is opened
 function libxInit() 
 {
-	// this function is called after the entire overlay has been built
-	// we must wait until here before calling document.getElementById
-	libxProps = document.getElementById("libx-string-bundle");
+    libxInitializeProperties();
 
     // initialize menu at top left of toolbar
     // these are now additional properties:
@@ -383,7 +350,6 @@ function libxInit()
         libxDropdownOptions[mitem.value] = mitem;
     }
 
-    libxInitializeOptions();
     libxInitializeOpenURL();    
     libxInitializeCatalogs();
 	libxProxyInit();
@@ -882,7 +848,7 @@ function addSearchFieldAs(mitem) {
 }
 
 function aboutVersion() {
-   window.openDialog("chrome://libx/content/about.xul", "About...", "centerscreen,chrome,modal,resizable", libx_version, libxGetProperty("edition"));
+   window.openDialog("chrome://libx/content/about.xul", "About...", "centerscreen,chrome,modal,resizable");
 }
 
 /* Definition of autolink filters.

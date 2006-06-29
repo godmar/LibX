@@ -29,14 +29,25 @@
 <!DOCTYPE dialog SYSTEM "chrome://libx/locale/definitions.dtd">
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" buttons="accept"
-	id="libx-about-dialog" orient="vertical" title="&libx.aboutbox.title;" onload="setVersion();">
+	id="libx-about-dialog" orient="vertical" onload="setVersion();">
+    <stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
+        <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
+    </stringbundleset>
+    <script type="application/x-javascript" src="chrome://libx/content/config.js" />
+
 	<script type="application/x-javascript">
 <![CDATA[
 function setVersion() {
-	// version is passed in aboutVersion()
-	document.getElementById("libx-version").setAttribute("value", "Version " + window.arguments[0]);
-	document.getElementById("libx-edition").setAttribute("value", window.arguments[1]);
-    if (document.getElementById("adaptedby").getAttribute("value") == "") {
+    libxInitializeProperties();
+	// does not work properly:
+	// document.getElementById("libx-aboutbox-image").setAttribute("src", libxGetProperty("logoURL"));
+	document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + libxGetProperty("edition"));
+	document.getElementById("libx-version").setAttribute("value", "Version " + libx_version);
+	document.getElementById("libx-edition").setAttribute("value", libxGetProperty("edition"));
+    var adaptedby = libxGetProperty("adaptedby");
+    if (adaptedby) {
+        document.getElementById("adaptedby").setAttribute("value", adaptedby);
+    } else {
         document.getElementById("adaptedbybox").setAttribute("hidden", true);
     }
 }
@@ -45,7 +56,10 @@ function setVersion() {
 	<vbox id="libx-about-details">
 		<hbox>
 			<vbox>
-				<image src="&libx.aboutbox.image;" />
+				<!-- cannot make this dynamic since About Box will not
+				     resize to proper size if image.src is not embedded here
+				-->
+				<image id="libx-aboutbox-image" src="$logoURL$" />
 				<spacer flex="1" />
 			</vbox>
 			<vbox>
@@ -65,7 +79,7 @@ function setVersion() {
 		<label value="Godmar Back" />
         <vbox id="adaptedbybox">
             <label class="header" value="Adapted by" />
-            <label id="adaptedby" value="&libx.aboutbox.adaptedby;" />
+            <label id="adaptedby" value="" />
         </vbox>
 		<label value="Home Page" class="header" />
 		<label onclick="window.open('&libx.aboutbox.homepage;')" class="url">&libx.aboutbox.homepage;</label>

@@ -3,10 +3,7 @@ Branding specific things should be defined in config and variables should be use
 -->
 
 <!ENTITY libx.aboutbox.label "LibX">
-<!ENTITY libx.aboutbox.image "$logoURL$">
 <!ENTITY libx.aboutbox.homepage "http://www.libx.org">
-<!ENTITY libx.aboutbox.title "LibX - $libxedition$">
-<!ENTITY libx.aboutbox.adaptedby "$adaptedby$">
 
 <!ENTITY libx.toolbarname "$emnameshort$">
 <!ENTITY libx.toolbarbutton " $emnameshort$ ">
