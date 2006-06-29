@@ -6,7 +6,7 @@ if (!defined($edition) || ! -d $edition) {
     die "Usage: $0 edition\n";
 }
 
-my $copytargetdir = "/Library/WebServer/libx.org/editions";
+my $copytargetdir = "/home/www/libx.org/editions";
 
 my %conf = ();
 
@@ -82,7 +82,7 @@ my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 my $xpifile = $conf{'xpilocation'};
 $xpifile =~ s/.*\/([^\/]*)/$1/;         # basename
 system("cp tmp/update.rdf $edition");
-system("cd tmp; rm ../$edition/$xpifile; find . -name CVS -type dir | xargs /bin/rm -fr ; zip -r ../$edition/$xpifile ./chrome " . $addtoplevelfiles);
+system("cd tmp; rm ../$edition/$xpifile; find . -name CVS -type d | xargs /bin/rm -fr ; zip -r ../$edition/$xpifile ./chrome " . $addtoplevelfiles);
 
 my $livescript = "$edition/makelive.sh";
 open (O, ">$livescript") || die ("Could not write to $livescript");

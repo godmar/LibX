@@ -43,8 +43,9 @@ my $e = $doc->createElement('name');
 $e->setAttribute('short', $emnameshort);
 $e->setAttribute('institution', $institution);
 
-#adaptedby=
-$e->setAttribute('adaptedby', $config{'adaptedby'}) if ($config{'adaptedby'} ne "");
+#$adaptedby=
+my $adaptedby = $config{'$adaptedby'};
+$e->setAttribute('adaptedby', $adaptedby) if (defined($adaptedby) && $adaptedby ne "");
 $root->appendChild($e);
 
 #$link1.label=VT University Libraries
@@ -113,6 +114,11 @@ while (1) {
     &addproperty($e, $config{'$' . $catprefix . 'horizon.issn'}, 'issn');
 
     &addproperty($e, $config{'$' . $catprefix . 'voyager.advancedsearchforissn'}, 'advancedsearchforissn');
+    &addproperty($e, $config{'$' . $catprefix . 'centralsearch.searchBy'}, 'searchby');
+    &addproperty($e, $config{'$' . $catprefix . 'centralsearch.ssLibHash'}, 'sslibhash');
+    &addproperty($e, $config{'$' . $catprefix . 'centralsearch.catIDs'}, 'catids');
+    &addproperty($e, $config{'$' . $catprefix . 'centralsearch.catGroupIDs'}, 'catgroupids');
+    &addproperty($e, $config{'$' . $catprefix . 'centralsearch.dbIDList'}, 'dbidlist');
 
     $catalogs->appendChild($e);
     $catprefix = 'catalog' . $c++ . '.';
