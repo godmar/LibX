@@ -53,7 +53,7 @@ function libxInitializeOptions()
     libxOptions.supportcoins = libxGetProperty("libx.supportcoins");
     libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage");
     libxOptions.disablescholar = libxGetProperty("libx.disablescholar");
-    libxOptions.autolink = libxGetProperty("libx.autolink");
+    libxOptions.autolink = libxGetProperty("libx.autolink") == "true" ? true : false;
     libxOptions.autolinkstyle = libxGetProperty("libx.autolinkstyle");
     if (!libxOptions.autolinkstyle)
         libxOptions.autolinkstyle = "1px dotted";
