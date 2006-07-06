@@ -278,6 +278,7 @@ function libxInitializeOpenURL()
     openUrlResolver.type = ourltype;
     openUrlResolver.url = libxGetProperty("openurl.url");
     openUrlResolver.sid = libxGetProperty("openurl.sid");
+    openUrlResolver.xrefsid = libxGetProperty("openurl.xrefsid");
     openUrlResolver.name = libxGetProperty("openurl.name");
     openUrlResolver.version = libxGetProperty("openurl.version");
     openUrlResolver.image = libxGetProperty("openurl.image");
@@ -578,13 +579,13 @@ function doMagicSearch() {
 			break;
 		case 't':
 		case 'jt':
-			t += fields[i].searchTerms + " ";
+			t += fields[i].searchTerms;
 			break;
 		}
 	}
 	var q = "";
 	if (k == "" && at != "") {
-	    // we can't use allintitle: when keywords are given also
+	    // we cannot use allintitle: when keywords are given also
 		q = "allintitle: " + at;
 	} else {
 		q = k + " " + at;
@@ -889,7 +890,11 @@ var libxAutoLinkFilters = [
             var isbn = isISBN(match[1]); 
             if (isbn == null) return null;
             this.name = libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
-            return libraryCatalog.makeISBNSearch(isbn);
+            if (libxGetProperty("cues.use.xisbn") == "true") {
+                return libraryCatalog.makeXISBNRequest(isbn);
+            } else {
+                return libraryCatalog.makeISBNSearch(isbn);
+            }
         }
     },
     {   // ISSNs - we try to only accept 0000-0000
