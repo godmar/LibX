@@ -67,6 +67,7 @@ function linkByISBN(isbn) {
 
 // match amazon page and capture ISBN in match
 var amazonAction = new DoForURL(/\.amazon\.com.*\/(\d{7,9}[\d|X])\//, doAmazon);
+var amazonUkAction = new DoForURL(/\.amazon\.co\.uk.*\/(\d{7,9}[\d|X])\//, doAmazon);
     
 function doAmazon(doc, match) {
     var isbn = match[1];    // grab captured isbn in matched URL
