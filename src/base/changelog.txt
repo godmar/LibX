@@ -7,6 +7,8 @@ You are using the $libxedition$
 
 Under development
 
+ *support $openurl.xrefsid for sid to use when OpenURL contains DOI
+ *autolink via ISBN use
  *added support for SerSol's centralsearch
  *refinements to autolink functionality
  *added openurl.image option to choose a different cue for OpenURLs
@@ -16,7 +18,7 @@ Under development
  *made Scholar button always a direct search without activating heuristics
  *added cue on ecampus.com
  *added Jesse Ruderman's autolink script, along with user preference
- *added support for 'bookmarklet' cataloge type
+ *added support for 'bookmarklet' catalog type
  *added configurable menus
  *added aleph.scan.index.list so Aleph users can pick when to
   use scan vs find
