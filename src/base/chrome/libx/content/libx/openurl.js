@@ -43,13 +43,13 @@ function OpenURL() { }
 // Functions shared by all openurl resolvers
 OpenURL.prototype = {
     makeOpenURLFromFields: function(fields) {
-	    var url = this.url + "?sid=" + this.sid;
+	    var url = this.url + "?__char_set=utf8";
 	    this.haveTitleOrIssn = false;
 	    for (var i = 0; i < fields.length; i++) {
 		    switch (fields[i].searchType) {
 		    case 'jt':
 		    case 't':
-			    // replace removes everything that's not letter, digit, _, or whitespace
+			    // replace removes everything that is not letter, digit, _, or whitespace
 			    // and replaces multiple whitespaces with a single one
 			    url += "&title=" + fields[i].searchTerms.replace(/[^A-Za-z0-9_\s]/g, " ").replace(/\s+/, " ");
 			    this.haveTitleOrIssn = true;
@@ -75,17 +75,17 @@ OpenURL.prototype = {
 			    if (names.length == 1) {// if author is single word, use as aulast field
 				    url += "&aulast=" + names[0];
 			    } else {// if author name is multiple words, see in which order to use fields
-				    if (hasComma || names[names.length-1].match(/^[A-Z][A-Z]?$/i)) {// assume it's already last, first middle
+				    if (hasComma || names[names.length-1].match(/^[A-Z][A-Z]?$/i)) {// assume it is already last, first middle
 					    url += "&aulast=" + names[0];
 					    url += "&aufirst=" + names[1];
-					    // XXX don't discard middle names/initials 2 and up
+					    // XXX do not discard middle names/initials 2 and up
 				    } else {
 					    url += "&aulast=" + names[names.length-1];
 					    url += "&aufirst=" + names[0];
-					    // XXX don't discard middle names/initials 1 through names.length-2
+					    // XXX do not discard middle names/initials 1 through names.length-2
 				    }
 				    // XXX investigate if we need to properly set auinit, auinit1, and auinitm here
-				    // if author's first name is abbreviated
+				    // if authors first name is abbreviated
 			    }
 			    break;
 		    case 'Y':
@@ -94,10 +94,23 @@ OpenURL.prototype = {
 			    return null;
 			}//switch
 	    }//for
-	    url += "&__char_set=utf8";
+        return this.addSid(url);
+    },
+    addSid: function (url) {
+        /* append correct sid
+         * to support flaky systems such as WB, which support only one global
+         * identifier lookup per sid, we append a different sid
+         * if this OpenURL contains a DOI if so configured.
+         */
+        if (this.xrefsid != null && url.match(/id=doi:/i)) {
+            url += "&sid=" + this.xrefsid;
+        } else {
+            url += "&sid=" + this.sid;
+        }
         return url;
     },
-    /* by default, we're adding "genre=article", but subclasses can change that. */
+    /* by default, we are adding "genre=article", but 
+     * subclasses can change that. */
     makeOpenURLSearch: function(fields) {
         var path = this.makeOpenURLFromFields(fields);
         if (path != null)
@@ -114,7 +127,8 @@ OpenURL.prototype = {
         return this.completeOpenURL("&id=pmid:" + pmid);
     },
     completeOpenURL: function(path) {
-        return this.url + "?sid=" + this.sid + path;
+        var url = this.url + "?" + path;
+        return this.addSid(url);
     },
     // implement searchable catalog functionality
     options: "jt",  // if used as a search catalog, show only Journal Title by default
