@@ -7,6 +7,7 @@ You are using the $libxedition$
 
 Under development
 
+ *added $millenium.journaltitlecode for Yale Law
  *support $openurl.xrefsid for sid to use when OpenURL contains DOI
  *autolink via ISBN use
  *added support for SerSol's centralsearch

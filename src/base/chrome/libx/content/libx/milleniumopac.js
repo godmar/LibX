@@ -28,6 +28,10 @@ function MilleniumOPAC(catprefix) {//this is a constructor
     if (this.advancedcode == null)
         this.advancedcode = 'X';
 
+    this.jtcode = libxGetProperty(catprefix + "millenium.journaltitlecode");
+    if (this.jtcode == null)
+        this.jtcode = 't';
+
     var sortby = libxGetProperty(catprefix + "millenium.sort");
     if (sortby == null)
         sortby = "R";   //sort by relevance, use 'D' for date
@@ -53,7 +57,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
         if (stype == 'is')  // both issn and isbn are 'i'
             return 'i';
         if (stype == 'jt')  // both title and journal title are 't'
-            return 't';
+            return this.jtcode;
         return stype;
     },
 	makeSearch: function(stype, sterm) {
@@ -65,7 +69,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
             stype = this.keywordcode;
         }
 
-        // it's not quite clear which format Millenium prefers.
+        // it is not quite clear which format Millenium prefers.
         // Either (1) /search/<TYPE>/?....&startLimit= ...
         // or     (2) /search/<TYPE>/?SEARCH=....&startLimit= ...
         // or     (3) /search/?searchtype=<TYPE>&searcharg= ...
