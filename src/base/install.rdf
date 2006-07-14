@@ -29,7 +29,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"
                    em:name="$emname$"
-                   em:version="1.0.2"
+                   em:version="$libxversion$"
                    em:creator="Annette Bailey"
                    em:description="$emdescription$"
                    em:homepageURL="$emhomepageURL$"

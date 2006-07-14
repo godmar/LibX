@@ -67,7 +67,7 @@ function magicSearch(data, inpub, suppressheuristics) {
     data = magicNormalize(data);
     var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
     if (inpub) {
-        baseurl += '&as_publication=' + encodeURIComponent(inpub);
+        baseurl += '&as_publication=' + inpub;
     }
     baseurl += '&q=';
 
@@ -80,19 +80,19 @@ function magicSearch(data, inpub, suppressheuristics) {
         openSearchWindow(url);
         return;
     }
-    var triedexact = false; // have we already tried the exact search (with a preceding ")
+    var triedexact = false; // have we already tried the exact search (with a preceding '')
 
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
         magic_log("Attempt #" + _attempt + ": " + url);
 
         var req = new XMLHttpRequest();
         req.open('GET', encodeURI(url), false);    // synchronous request
-        // it will send along whatever cookie is already set by the user, so there's no need to set a cookie here
+        // it will send along whatever cookie is already set by the user, so there is no need to set a cookie here
         req.send(null);
         var r = req.responseText;
         
         // see if the query was bungled b/c of searchterms clutching together
-        // Let's see if scholar says that we should drop some search terms
+        // Let us see if scholar says that we should drop some search terms
         var nf = r.match(/No pages were found containing <b>\"([^\"]*)\"<\/b>/);
         if (nf) {
             data = data.replace(nf[1], " ");    // drop the term
@@ -113,7 +113,7 @@ function magicSearch(data, inpub, suppressheuristics) {
 
                 // see if we find OpenURL link to
                 // They look like this
-                // <a href="/url?sa=U&q=http://sfx.hul.harvard.edu:82/sfx_local%3Fsid%3Dgoogle%26aulast
+                // <a href=\"/url?sa=U&q=http://sfx.hul.harvard.edu:82/sfx_local%3Fsid%3Dgoogle%26aulast
                 // captures entire OpenURL as openurl[1]
                 // captures openURL suffix as openurl[2]
                 var oregexp = /\"\/url\S*q=(\S*%3Fsid%3Dgoogle([^\"]*))\"/;
@@ -122,7 +122,7 @@ function magicSearch(data, inpub, suppressheuristics) {
                 if (openurl != null && openurl[0].match(/refworks/)) {
                     openurl = hits[h].replace(openurl[0], "").match(oregexp);
                 }
-                // we don't skip to the next entry here, because we're now checking if maybe there's a 
+                // we dont skip to the next entry here, because we are now checking if maybe there is a 
                 // direct link to the paper --- XXX make this a configurable decision
 
                 // strip <html> tags and return cosine similarity with search terms 
@@ -167,7 +167,7 @@ function magicSearch(data, inpub, suppressheuristics) {
                     if (!(openurl || titleurl)) {
                         continue;       // match, but no link
                     }
-                    // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholar's URL
+                    // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholars URL
                     var vtu = titleurl; // by default we open the URL Google provides
                     var display = !libxGetProperty("suppress.scholar.display");
                     if (openurl) {
@@ -187,8 +187,7 @@ function magicSearch(data, inpub, suppressheuristics) {
                         magic_log('DirectURL: ' + vtu);
                     }
                     if (display) {
-                        vtu = decodeURIComponent(vtu); // openSearchWindow wants to URI-encode it 
-                        openSearchWindow(vtu);
+                        openSearchWindow(vtu, true);
                         found = true;
                     }
                     break;
@@ -207,7 +206,7 @@ function magicSearch(data, inpub, suppressheuristics) {
                 continue;   // try again
             }
 
-            // on a hit, we've already opened the OpenURL window
+            // on a hit, we have already opened the OpenURL window
             if (!found)
                 handleMiss(url, originaldata);
 
@@ -218,24 +217,24 @@ function magicSearch(data, inpub, suppressheuristics) {
             if (found) {
                 getBrowser().addTab(encodeURI(url));       // in second tab if we got a hit
             } else {
-                openSearchWindow(url);          // as primary window if not
+                openSearchWindow(baseurl + originaldata);  // as primary window if not
             }
             return;
         }
 
-        // scholar didn't find anything.  Let's see if they have a "Did you mean" on their page 
-        // scholar.google.com doesn't put double-quotes around the href attributes - wth?
+        // scholar did not find anything.  Let us see if they have a "Did you mean" on their page 
+        // scholar.google.com doesnt put double-quotes around the href attributes - wth?
         var dym = r.match(/Did you mean:\s+<\/font><a\s+href=(\/scholar\S*)\s/i);
         if (dym) {
             url = 'http://scholar.google.com' + dym[1]; // google embeds a URL for the alternative search
             continue;   // try again
         }
 
-        // we don't know what else to do, just take the user to the google scholar page
+        // we dont know what else to do, just take the user to the google scholar page
         handleMiss(url, originaldata);
 
         if (!libxGetProperty("suppress.scholar.display")) 
-            openSearchWindow(url);
+            openSearchWindow(baseurl + originaldata);
         return;
     }
 }

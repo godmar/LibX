@@ -10,6 +10,9 @@ my $copytargetdir = "/home/www/libx.org/editions";
 
 my %conf = ();
 
+# TBD: replace with major.minor.release taken from config file
+$conf{'libxversion'} = '1.0.2';
+
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 

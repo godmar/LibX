@@ -4,9 +4,16 @@ created by Annette Bailey & Godmar Back
 http://www.libx.org
 
 You are using the $libxedition$
+This changelog.txt file is part of LibX Version $libxversion$
 
 Under development
 
+ *made "Search ..." button drop target for keyword-based search
+  on default catalog
+ *revamped scholar button one more time - added Search Scholar
+  option to drop-down list, button is now simply drop target.
+ *fixes to magicsearch: solved another URI encoding problem
+  also: when GS heuristics fails, show user results of original search.
  *added $millenium.journaltitlecode for Yale Law
  *support $openurl.xrefsid for sid to use when OpenURL contains DOI
  *autolink via ISBN use

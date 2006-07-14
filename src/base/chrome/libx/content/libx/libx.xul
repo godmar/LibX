@@ -71,7 +71,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<toolbar id="xlib-toolbar" toolbarname="&libx.toolbarname;" class="chromeclass-toolbar">
 			<vbox>
 				<hbox>
-					<toolbarbutton label="&libx.toolbarbutton;" type="menu" image="&libx.image;" tooltiptext="&libx.tooltiptext;">
+					<toolbarbutton 
+                        style="margin-top: 1px; margin-bottom: -1px;"
+                        label="&libx.toolbarbutton;" type="menu" image="&libx.image;" tooltiptext="&libx.tooltiptext;">
 						<menupopup id="libxmenu">
                             <menuseparator id="libxmenu.separator"/>
                             <menu label="Display Preferences...">
@@ -120,7 +122,10 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			</vbox>
 			<vbox>
 				<hbox id="libx-right-toolbarbutton-hbox">
-					<toolbarbutton type="menu-button" tooltiptext="Submit Search!"
+					<toolbarbutton 
+                        style="margin-top: 1px; margin-bottom: -1px;"
+                        type="menu-button" 
+                        tooltiptext="Press to search or drag search terms onto this button!"
 						id="search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
 							<menuitem oncommand="libxSelectCatalog(this,event);" />
@@ -129,11 +134,31 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                                     value="openurl" />
 						</menupopup>
 					</toolbarbutton>
+
+					<toolbarbutton 
+                                style="margin-top: 1px; margin-bottom: 1px;"
+                                label=" Clear " tooltiptext="Clear All Search Fields" 
+                                oncommand="clearAllFields();" />
+
+                <!-- Scholar button is no longer clickable -->
+                <!-- was
 					<toolbarbutton label="&libx.magicbutton.label;" 
-					    tooltiptext="Drag and Drop Terms onto this button!" id="libx-magic-button"
+					    tooltiptext="Drag and Drop Terms onto this button!" 
+                        id="libx-magic-button"
 						image="&libx.magicbutton.image;" oncommand="doMagicSearch();" />
-					<toolbarbutton label=" Clear All " tooltiptext="Clear All Search Fields" 
-                                    oncommand="clearAllFields();" />
+                -->
+					<toolbaritem id="libx-magic-button"
+                                style="margin-top: 5px; margin-bottom: -1px;">
+                        <hbox>
+                            <image 
+                                style="margin-top: -1px; margin-bottom: 6px;"
+                                src="&libx.magicbutton.image;" />
+                            <label value="&libx.magicbutton.label;" 
+                                tooltiptext="Drag and Drop Terms onto this button!" 
+                                onclick="alert('To search Scholar, select search terms and drag your selection onto this button');"
+                                id="libx-magic-button" />
+                        </hbox>
+                    </toolbaritem>
 				</hbox>
 			</vbox>
 		</toolbar>

@@ -43,6 +43,7 @@ libxAddToPrototype(SirsiOPAC.prototype, {
 	    switch (stype) {
 	        case 'd':   return "&srchfield1=" + this.convert2(stype);
 	        case 'a':   return "&srchfield1=" + this.convert2(stype);
+            case 'jt':
 	        case 't':   return "&srchfield1=" + this.convert2(stype);
             case 'is':
 	        case 'i':   return ""; // maybe nothing will do better here? return "{022}";
@@ -57,6 +58,7 @@ libxAddToPrototype(SirsiOPAC.prototype, {
             case 'd':   return "SU^SUBJECT^SUBJECTS^^subject";
 	        case 'a':   return "AU^AUTHOR^AUTHORS^Author Processing^author";
 	        case 't':   return "TI^TITLE^TITLES^Title Processing^title";
+	        case 'jt':  return "PER^PERTITLE^TITLES^Title Processing^periodical title";
             case 'is': 
 	        case 'i':   return "GENERAL^SUBJECT^GENERAL^^keywords anywhere";    // ???
 	        case 'Y':   return "GENERAL^SUBJECT^GENERAL^^keywords anywhere";

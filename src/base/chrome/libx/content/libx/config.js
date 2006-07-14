@@ -27,7 +27,7 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
 
-const libx_version = "1.0.2";
+const libx_version = "$libxversion$";
 
 var libxProps;          // a string bundle in the XUL file from which we read properties
 var libxOptions;        // an object representing LibX options
@@ -49,10 +49,10 @@ function libxGetProperty(prop, args) {
 function libxInitializeOptions()
 {
     libxOptions = new Object();
-    libxOptions.sersolisbnfix = libxGetProperty("libx.sersolisbnfix");
-    libxOptions.supportcoins = libxGetProperty("libx.supportcoins");
-    libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage");
-    libxOptions.disablescholar = libxGetProperty("libx.disablescholar");
+    libxOptions.sersolisbnfix = libxGetProperty("libx.sersolisbnfix") == "true" ? true : false;
+    libxOptions.supportcoins = libxGetProperty("libx.supportcoins") == "true" ? true : false;
+    libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage") == "true" ? true : false;
+    libxOptions.disablescholar = libxGetProperty("libx.disablescholar") == "true" ? true : false;
     libxOptions.autolink = libxGetProperty("libx.autolink") == "true" ? true : false;
     libxOptions.autolinkstyle = libxGetProperty("libx.autolinkstyle");
     if (!libxOptions.autolinkstyle)

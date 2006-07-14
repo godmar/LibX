@@ -92,11 +92,17 @@ libxCatalog.prototype = {
         }	
         if (fields.length == 1) {//single search field
             var url = this.makeSearch(fields[0].searchType, fields[0].searchTerms);
-            openSearchWindow(url, this.doNotURIEncode);
         } else {// user requested multiple search fields, do advanced search
             var url = this.makeAdvancedSearch(fields);
-            openSearchWindow(url, this.doNotURIEncode);
         }
+        if (url != null)
+            openSearchWindow(url, this.doNotURIEncode);
+    },
+    /* the default implementation looks at the options property
+     * to decide which options are supported.
+     */
+    supportsSearchType: function (stype) {
+        return (";" + this.options + ";").match(";" + stype + ";");
     }
 }
 
@@ -118,7 +124,7 @@ libxBookmarklet.prototype = new libxCatalog();
 libxAddToPrototype(libxBookmarklet.prototype, {
     doNotURIEncode: true,
     supportsSearchType: function (stype) {
-        // alternatively, could check options
+        // alternatively, could check options as done in superclass
         return this.url.match("%" + stype);
     },
     makeSearch: function (stype, sterm) {
@@ -133,6 +139,61 @@ libxAddToPrototype(libxBookmarklet.prototype, {
     }
 });
 
+function libxScholarSearch(catprefix) { }
+
+libxScholarSearch.prototype = new libxCatalog();
+
+libxAddToPrototype(libxScholarSearch.prototype, {
+    options: "Y;at;jt;a",
+    makeSearch: function (stype, sterm) {
+        return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
+    },
+    makeAdvancedSearch: function (fields) {
+        this.libxScholarSearch(fields);
+        return null;    // libxScholarSearch() will have already opened the window
+    },
+
+    /*
+     * Formulate a google scholar search from entered search fields
+     * when user presses the Scholar button.
+     */
+    libxScholarSearch: function (fields) {
+        var a = "";     // authors
+        var k = "";     // keywords
+        var at = "";    // article title
+        var t = "";     // title (of journal)
+        for (var i = 0; i < fields.length; i++) {
+            switch (fields[i].searchType) {
+            case 'a':
+                a += fields[i].searchTerms + " ";
+                break;
+            case 'at':
+                at += fields[i].searchTerms + " ";
+                break;
+            case 'Y':
+            case 'i':
+                k += fields[i].searchTerms + " ";
+                break;
+            case 't':
+            case 'jt':
+                t += fields[i].searchTerms;
+                break;
+            }
+        }
+        var q = "";
+        if (k == "" && at != "") {
+            // we cannot use allintitle: when keywords are given also
+            q = "allintitle: " + at;
+        } else {
+            q = k + " " + at;
+        }
+        if (a != "") {
+            q += " author: " + a;
+        }
+        magicSearch(q, t, true);    // true means suppress heuristics
+    }
+});
+
 /*
  * Construct a new catalog, return reference to it, based on settings
  * prefixed by catprefix (which is "" for primary catalog, "catalog1.", etc.)
@@ -141,6 +202,9 @@ function libxInitializeCatalog(cattype, catprefix)
 {
     var cat = null;
     switch (cattype) {
+	case "scholar":
+        cat = new libxScholarSearch(catprefix);
+        break;
 	case "bookmarklet":
         cat = new libxBookmarklet(catprefix);
         break;
@@ -185,7 +249,7 @@ function libxInitializeCatalog(cattype, catprefix)
         cat.options = "Y;t;a;d;i;c";
     cat.urlregexp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
 
-    // override xisbn opac id if it's not the default
+    // override xisbn opac id if it is not the default
     var xisbn = libxGetProperty(catprefix + "catalog.xisbn.opacid");
     if (xisbn) {
         cat.xisbnOPACID = xisbn != "none" ? xisbn : null;
@@ -199,7 +263,7 @@ function libxInitializeCatalog(cattype, catprefix)
     return cat;
 }
 
-// initialize the catalogs we'll use, including the 
+// initialize the catalogs we will use, including the 
 // default library catalog
 function libxInitializeCatalogs() 
 {
@@ -212,22 +276,31 @@ function libxInitializeCatalogs()
     var catdropdown = document.getElementById("libxcatalogs");
     var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
 
-    for (var addcat = 1; 
-         (cattype = libxGetProperty("catalog" + addcat + ".catalog.type")) != null; 
-         addcat++)
+    function addCatalog(catprefix, catnumber)
     {
         try {
-            var cat = libxInitializeCatalog(cattype, "catalog" + addcat + ".");
+            var cat = libxInitializeCatalog(cattype, catprefix + ".");
             searchCatalogs.push(cat);
 
             var newbutton = document.createElement("menuitem");
             newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
-            newbutton.setAttribute("value", addcat);
-            newbutton.setAttribute("label", "Search " + libxGetProperty("catalog" + addcat + ".catalog.name") + " ");
+            newbutton.setAttribute("value", catnumber);
+            newbutton.setAttribute("label", "Search " + libxGetProperty(catprefix + ".catalog.name") + " ");
             catdropdown.insertBefore(newbutton, openurlsbutton);
         } catch (e) {
             libxLog("libxInitializeCatalog failed: " + e);
         }
+    }
+
+    for (var addcatno = 1; 
+         (cattype = libxGetProperty("catalog" + addcatno + ".catalog.type")) != null; 
+         addcatno++)
+    {
+        addCatalog("catalog" + addcatno, addcatno);
+    }
+    if ((cattype = libxGetProperty("scholar.catalog.type")) != "") {
+        if (!libxOptions.disablescholar)
+            addCatalog("scholar", addcatno++);
     }
 
     // record initially selected catalog and activate its search options
@@ -337,6 +410,11 @@ function libxInit()
      * libx.searchoption1.value=s
      * libx.searchoption1.label=QuickSearch
      * etc.
+     *
+     * It is also possible to override the labels of existing options,
+     * such as
+     * libx.searchoption1.value=jt
+     * libx.searchoption1.label=Periodical Title
      */ 
     for (var opt = 1;
         (label = libxGetProperty("libx.searchoption" + opt + ".label")) != null;
@@ -346,8 +424,8 @@ function libxInit()
         libxAddToPrototype(mitem, { 
             value: libxGetProperty("libx.searchoption" + opt + ".value"),
             label: label,
-            oncommand: 'setFieldType(this);'
         });
+        mitem.setAttribute('oncommand', 'setFieldType(this);');
         libxDropdownOptions[mitem.value] = mitem;
     }
 
@@ -366,6 +444,12 @@ function libxInit()
     } else {
         new TextDropTarget(magicSearch).attachToElement(scholarbutton);
     }
+
+    // add the selected search as a default target
+    var searchbutton = document.getElementById("search-button");
+    new TextDropTarget(function (data) {
+        libxSelectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
+    }).attachToElement(searchbutton);
     libxInitializePreferences("libx.displaypref");
 }
 
@@ -512,7 +596,7 @@ function libxLog(msg) {
 // open search results, according to user preferences
 function openSearchWindow(url, donoturiencode) {
     var what = nsPreferences.getLocalizedUnicharPref("libx.displaypref", "libx.newtabswitch");
-    if (donoturiencode == null) {
+    if (donoturiencode == null || donoturiencode == false) {
         var url2 = encodeURI(url);
     } else {
         var url2 = url;
@@ -553,47 +637,6 @@ function doSearch() {
     if (!libxSelectedCatalog.search)
         alert("Internal error, invalid catalog object: " + libxSelectedCatalog);
     libxSelectedCatalog.search(fields);
-}
-
-/*
- * Formulate a google scholar search from entered search fields
- * when user presses the Scholar button.
- */
-function doMagicSearch() {
-	var fields = extractSearchFields();
-	var a = "";     // authors
-	var k = "";     // keywords
-	var at = "";    // article title
-	var t = "";     // title (of journal)
-	for (var i = 0; i < fields.length; i++) {
-		switch (fields[i].searchType) {
-		case 'a':
-			a += fields[i].searchTerms + " ";
-			break;
-		case 'at':
-			at += fields[i].searchTerms + " ";
-			break;
-		case 'Y':
-		case 'i':
-			k += fields[i].searchTerms + " ";
-			break;
-		case 't':
-		case 'jt':
-			t += fields[i].searchTerms;
-			break;
-		}
-	}
-	var q = "";
-	if (k == "" && at != "") {
-	    // we cannot use allintitle: when keywords are given also
-		q = "allintitle: " + at;
-	} else {
-		q = k + " " + at;
-	}
-	if (a != "") {
-		q += " author: " + a;
-	}
-	magicSearch(q, t, true);    // true means suppress heuristics
 }
 
 // This function is called for the "Search Addison Now!" right-click
@@ -771,7 +814,7 @@ function libxActivateCatalogOptions(catalog) {
         for (var j = 0; j < opt.length; j++) {
             var ddo = libxDropdownOptions[opt[j]];
             var mitem = ddo.cloneNode(true);
-            // cloneNode doesn't clone the attributes !?
+            // cloneNode doesnt clone the attributes !?
             mitem.value = ddo.value;
             mitem.label = ddo.label;
             if (oldvalue == mitem.value)
