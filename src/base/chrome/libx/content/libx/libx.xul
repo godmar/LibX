@@ -68,12 +68,13 @@ Author: Annette Bailey <annette.bailey@gmail.com>
     ]]>
     </script>
 	<toolbox id="navigator-toolbox"> <!-- must be called navigator-toolbox to overlay onto existing toolbox -->
-		<toolbar id="xlib-toolbar" toolbarname="&libx.toolbarname;" class="chromeclass-toolbar">
+		<toolbar id="xlib-toolbar" toolbarname="$emnameshort$" class="chromeclass-toolbar">
 			<vbox>
 				<hbox>
 					<toolbarbutton 
                         style="margin-top: 1px; margin-bottom: -1px;"
-                        label="&libx.toolbarbutton;" type="menu" image="&libx.image;" tooltiptext="&libx.tooltiptext;">
+                        label=" $emnameshort$ " type="menu" 
+                        image="&libx.image;" id="libx-menu-toolbarbutton">
 						<menupopup id="libxmenu">
                             <menuseparator id="libxmenu.separator"/>
                             <menu label="Display Preferences...">
@@ -89,6 +90,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 					</toolbarbutton>
 				</hbox>
 			</vbox>
+
 			<vbox id="search-field-vbox" flex="1">
 				<!-- do not add more children to vbox, the addSearchField function relies on being able to clone vbox.lastChild -->
 				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
@@ -148,7 +150,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 						image="&libx.magicbutton.image;" oncommand="doMagicSearch();" />
                 -->
 					<toolbaritem id="libx-magic-button"
-                                style="margin-top: 5px; margin-bottom: -1px;">
+                                style="margin-left: 5px; margin-top: 5px; margin-bottom: -1px;">
                         <hbox>
                             <image 
                                 style="margin-top: -1px; margin-bottom: 6px;"
@@ -190,7 +192,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<menuitem id="libx-proxify" oncommand="libxProxify();" />
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
-		<menuitem label="&libx.toolbarname;" oncommand="aboutVersion();" />
+		<menuitem label="$emnameshort$" oncommand="aboutVersion();" />
 	</menupopup>
 </overlay>
 

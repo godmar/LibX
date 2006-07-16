@@ -5,13 +5,9 @@ Branding specific things should be defined in config and variables should be use
 <!ENTITY libx.aboutbox.label "LibX">
 <!ENTITY libx.aboutbox.homepage "http://www.libx.org">
 
-<!ENTITY libx.toolbarname "$emnameshort$">
-<!ENTITY libx.toolbarbutton " $emnameshort$ ">
 <!ENTITY libx.image "$emiconURL$">
 
 <!ENTITY libx.call.number "Call Number">
-
-<!ENTITY libx.tooltiptext "LibX - $libxedition$">
 
 <!ENTITY libx.magicbutton.label " Scholar ">
 <!ENTITY libx.magicbutton.image "chrome://libx/skin/scholar.gif">

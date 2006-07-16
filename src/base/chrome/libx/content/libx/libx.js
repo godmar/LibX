@@ -451,6 +451,9 @@ function libxInit()
         libxSelectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
     }).attachToElement(searchbutton);
     libxInitializePreferences("libx.displaypref");
+
+    document.getElementById("libx-menu-toolbarbutton")
+        .setAttribute("tooltiptext", "LibX - " + libxGetProperty('edition'));
 }
 
 /*
@@ -757,7 +760,13 @@ function extractSearchFields() {
 		var f = libxSearchFieldVbox.childNodes.item(i);
 		if (f.firstChild.value == null) f.firstChild.value = "Y";
 		//alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
-		var field = {searchType: f.firstChild.value, searchTerms: f.firstChild.nextSibling.firstChild.value};
+		var field = {
+            searchType: f.firstChild.value, 
+            searchTerms: f.firstChild.nextSibling.firstChild.value.replace(/^\s+|\s+$/g, '')
+        };
+        if (field.searchTerms == "")
+            continue;
+
         if (field.searchType == 'i' && isISSN(field.searchTerms) && !isISBN(field.searchTerms)) {
             field.searchType = 'is';
         }
