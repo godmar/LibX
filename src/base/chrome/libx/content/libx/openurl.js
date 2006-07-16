@@ -118,13 +118,13 @@ OpenURL.prototype = {
         return path;
     },
     makeOpenURLForISSN: function(issn) {
-        return this.completeOpenURL("&genre=journal&issn=" + issn);
+        return this.completeOpenURL("genre=journal&issn=" + issn);
     },
     makeOpenURLForDOI: function(doi) {
-        return this.completeOpenURL("&id=doi:" + doi);
+        return this.completeOpenURL("id=doi:" + doi);
     },
     makeOpenURLForPMID: function(pmid) {
-        return this.completeOpenURL("&id=pmid:" + pmid);
+        return this.completeOpenURL("id=pmid:" + pmid);
     },
     completeOpenURL: function(path) {
         var url = this.url + "?" + path;
