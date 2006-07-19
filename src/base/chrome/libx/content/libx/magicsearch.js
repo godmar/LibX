@@ -56,7 +56,8 @@ function magicSearch(data, inpub, suppressheuristics)
     function handleMiss(url, data)
     {
         // if so configured, libx can lead user to this URL on miss
-        var onmissshow = libxGetProperty("scholarmiss.url", [encodeURIComponent(data)]);
+        var onmissshow = libxConfig.options.scholarmissurl
+            .replace(/%S/i, encodeURIComponent(data));
 
         if (onmissshow) {
             openSearchWindow(onmissshow, true);
@@ -229,7 +230,7 @@ function magicSearch(data, inpub, suppressheuristics)
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholars URL
                     var vtu = titleurl; // by default we open the URL Google provides
-                    var display = !libxGetProperty("suppress.scholar.display");
+                    var display = !libxConfig.options.suppressscholardisplay;
                     if (openurl) {
                         var openurlpath = decodeURIComponent(openurl[2]).replace(/^&/, "");
 
@@ -241,7 +242,7 @@ function magicSearch(data, inpub, suppressheuristics)
                         // sending the original data in a (non-standard) OpenURL field
                         // allows an OpenURL resolver to offer an option to correct for
                         // wrong positives.  Used for Maryville.
-                        if (libxGetProperty("send.origdata.withopenurl")) {
+                        if (libxConfig.options.sendorigdatawithopenurl) { 
                             openurlpath += "&origdata=" + encodeURIComponent(data);
                         }
 
@@ -278,7 +279,7 @@ function magicSearch(data, inpub, suppressheuristics)
             if (!found)
                 handleMiss(url, originaldata);
 
-            if (libxGetProperty("suppress.scholar.display")) 
+            if (libxConfig.options.suppressscholardisplay)
                 return;
 
             // show google scholar page also
@@ -303,7 +304,7 @@ function magicSearch(data, inpub, suppressheuristics)
         // we dont know what else to do, just take the user to the google scholar page
         handleMiss(url, originaldata);
 
-        if (!libxGetProperty("suppress.scholar.display")) 
+        if (!libxConfig.options.suppressscholardisplay)
             openSearchWindow(baseurl + encodeURIComponent(originaldata), true);
         return;
     }

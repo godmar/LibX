@@ -78,6 +78,9 @@ function libxInitializeOptions()
         opts.supportcoins = libxConvertToBoolean(libxGetProperty("libx.supportcoins"));
         opts.rewritescholarpage = libxConvertToBoolean(libxGetProperty("libx.rewritescholarpage"));
         opts.disablescholar = libxConvertToBoolean(libxGetProperty("libx.disablescholar"));
+        opts.scholarmissurl = libxConvertToBoolean(libxGetProperty("scholarmiss.url"));
+        opts.sendorigdatawithopenurl = libxConvertToBoolean(libxGetProperty("send.origdata.withopenurl"));
+        opts.suppressscholardisplay = libxConvertToBoolean(libxGetProperty("suppress.scholar.display"));
         opts.autolink = libxConvertToBoolean(libxGetProperty("libx.autolink"));
         opts.autolinkstyle = libxGetProperty("libx.autolinkstyle");
         // CONFIGXML END
