@@ -1,14 +1,26 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.4 2006/05/19 16:51:10 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.5 2006/07/19 14:03:18 godmar Exp $ -->
 
-<!ELEMENT edition (name,links,catalogs,xisbn,openurl,proxy,options)>
-<!ATTLIST edition id CDATA #REQUIRED>
+<!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
+<!ATTLIST edition 
+        id              CDATA #REQUIRED
+        version         CDATA #REQUIRED
+>
+
+<!-- short - e.g., "LibX VT" -->
+<!-- long - e.g., "LibX Virginia Tech" -->
+<!-- edition - e.g., "Virginia Tech Edition" -->
+<!-- description - e.g., "Toolbar for Virginia Tech Library Users" -->
 <!ELEMENT name EMPTY>
 <!ATTLIST name 
-        short           CDATA #REQUIRED
-        institution     CDATA #REQUIRED
+        short           CDATA #REQUIRED 
+        long            CDATA #REQUIRED 
+        edition         CDATA #REQUIRED 
+        description     CDATA #REQUIRED 
         adaptedby       CDATA #IMPLIED
+        localhomepage   CDATA #IMPLIED
 >
+
 <!ELEMENT links (url*) >
 <!ELEMENT url EMPTY>
 <!ATTLIST url 
@@ -18,14 +30,26 @@
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|sersol|sfx|bookmarklet)* >
+<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet)* >
+<!ELEMENT centralsearch EMPTY>
+<!ATTLIST centralsearch
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        options         CDATA #REQUIRED
+        searchby        CDATA #REQUIRED
+        sslibhash       CDATA #REQUIRED
+        dbidlist        CDATA #IMPLIED
+        catids          CDATA #IMPLIED
+        catgroupids     CDATA #IMPLIED
+>
+ 
 <!ELEMENT bookmarklet EMPTY>
 <!ATTLIST bookmarklet 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
 >
-<!ELEMENT millenium EMPTY>
+<!ELEMENT millenium (xisbn)?>
 <!ATTLIST millenium 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
@@ -36,13 +60,14 @@
         sort            CDATA #IMPLIED
         keywordcode     CDATA #IMPLIED
         advancedcode    CDATA #IMPLIED
+        journaltitlecode CDATA #IMPLIED
         searchform      CDATA #IMPLIED
 >
-<!ELEMENT aleph EMPTY>
+<!ELEMENT aleph (xisbn)?>
 <!ATTLIST aleph 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
-        sid             CDATA #REQUIRED
+        sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
         options         CDATA #IMPLIED
         localbase       CDATA #REQUIRED
@@ -72,7 +97,7 @@
         sid             CDATA #IMPLIED
         options         CDATA #IMPLIED
 >
-<!ELEMENT sirsi EMPTY>
+<!ELEMENT sirsi (xisbn)?>
 <!ATTLIST sirsi 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
@@ -80,7 +105,7 @@
         urlregexp       CDATA #IMPLIED
         options         CDATA #IMPLIED
 >
-<!ELEMENT voyager EMPTY>
+<!ELEMENT voyager (xisbn)?>
 <!ATTLIST voyager 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
@@ -89,7 +114,7 @@
         options         CDATA #IMPLIED
         advancedsearchforissn CDATA #IMPLIED
 >
-<!ELEMENT horizon EMPTY>
+<!ELEMENT horizon (xisbn)?>
 <!ATTLIST horizon 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
@@ -118,6 +143,7 @@
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
         sid            CDATA #REQUIRED
+        xrefsid        CDATA #IMPLIED
         version        CDATA #IMPLIED   
         dontshowintoolbar (true|false) 'false'
         autolinkissn   (true|false) 'false'
@@ -149,12 +175,28 @@
             |icon|logo
             |rewritescholar
             |supportcoins
-            |scholarmiss.url
-            |send.origdata.withopenurl
+            |scholarmissurl
+            |sendorigdatawithopenurl
             |disablescholar
-            |suppress.scholar.display
+            |suppressscholardisplay
             |autolink
+            |autolinkstyle
             )
         #REQUIRED
         value          CDATA #REQUIRED
+>
+
+<!ELEMENT searchoptions (searchoption)*>
+<!ELEMENT searchoption EMPTY>
+<!ATTLIST searchoption
+        value          CDATA #REQUIRED
+        label          CDATA #REQUIRED
+>
+
+<!ELEMENT additionalfiles (file)*>
+<!ELEMENT file EMPTY>
+<!ATTLIST file
+        name          CDATA #REQUIRED
+        directory     CDATA #REQUIRED
+        substitutevars (true|false) 'false'
 >

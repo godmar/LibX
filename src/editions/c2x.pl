@@ -7,6 +7,7 @@ use strict;
 use XML::LibXML;
 
 my $dtd_url = "http://libx.org/xml/libxconfig.dtd";
+my $installdir = "/home/www/libx.org/editions";
 
 my $edition = $ARGV[0];
 my %config = ();
@@ -22,26 +23,34 @@ my $doc = XML::LibXML::Document->new();
 my $root = $doc->createElement('edition');
 $doc->setDocumentElement($root);
 $root->setAttribute('id', $edition);
+$root->setAttribute('version', "1.0.2");
+
+my $afiles = $doc->createElement('additionalfiles');
 
 my $dtd = $doc->createInternalSubset("edition", undef, $dtd_url);
 
-#libxedition=Virginia Tech Edition
-#emname=LibX Virginia Tech
-my $inst1 = $config{'libxedition'};
-$inst1 =~ s/ Edition$//;
-my $inst2 = $config{'emname'};
-$inst2 =~ s/^LibX //;
-if ($inst1 ne $inst2) {
-    print STDERR "warning: inconsistent libxedition/emname: " . $inst1 . "/" . $inst2 . "\n";
-}
-
 #emnameshort=LibX VT
 my $emnameshort = $config{'emnameshort'};
-my $institution = $inst2;
 
 my $e = $doc->createElement('name');
-$e->setAttribute('short', $emnameshort);
-$e->setAttribute('institution', $institution);
+$e->setAttribute('short', $config{'emnameshort'});
+$e->setAttribute('long', $config{'emname'});
+$e->setAttribute('edition', $config{'libxedition'});
+$e->setAttribute('description', $config{'emdescription'});
+
+# find redirect target in edition live page and add as "localhomepage"
+# attribute
+if (open (HTACC, "<" . $installdir . "/" . $edition . "/.htaccess")) {
+    while (<HTACC>) {
+        # Redirect /editions/vt/libx.html http://www.lib.vt.edu/services/libX/libX.php
+        if (/^Redirect\s+\/editions\/$edition\/libx.html\s+(.*)$/) {
+            $e->setAttribute('localhomepage', $1);
+            last;
+        }
+    }
+    close (HTACC);
+}
+#####
 
 #$adaptedby=
 my $adaptedby = $config{'$adaptedby'};
@@ -63,6 +72,24 @@ for (my $i = 1; ; $i++) {
 
 my $catalogs = $doc->createElement('catalogs');
 $root->appendChild($catalogs);
+
+sub addfile() {
+    my ($url, $regexp, $targetdir) = @_;
+    if (defined($url) && $url =~ /$regexp/) {
+        my $f = $doc->createElement('file');
+        $f->setAttribute('name', $1);
+        $f->setAttribute('directory', $targetdir);
+        $afiles->appendChild($f);
+    }
+}
+&addfile('config.xml', "(.*)", 'chrome/libx/content/libx');
+
+sub addimagefile() {
+    my ($url) = @_;
+    if (defined($url)) {
+        &addfile($url, "chrome:\/\/libx\/skin\/(.*)", 'chrome/libx/skin/libx');
+    }
+}
 
 sub addproperty() {
     my ($e, $ckey, $xmlkey) = @_;
@@ -93,6 +120,7 @@ while (1) {
     &addproperty($e, $config{'$' . $catprefix . 'catalog.sid'}, 'sid');
     &addproperty($e, $config{'$' . $catprefix . 'catalog.searchscope'}, 'searchscope');
     &addproperty($e, $config{'$' . $catprefix . 'millenium.keywordcode'}, 'keywordcode');
+    &addproperty($e, $config{'$' . $catprefix . 'millenium.journaltitlecode'}, 'journaltitlecode');
     &addproperty($e, $config{'$' . $catprefix . 'millenium.searchform'}, 'searchform');
     &addproperty($e, $config{'$' . $catprefix . 'millenium.sort'}, 'sort');
     &addproperty($e, $config{'$' . $catprefix . 'millenium.advancedcode'}, 'advancedcode');
@@ -120,23 +148,24 @@ while (1) {
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.catGroupIDs'}, 'catgroupids');
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.dbIDList'}, 'dbidlist');
 
+    #$cues.use.xisbn=true
+    my $xisbn = $doc->createElement('xisbn');
+    if (defined($config{'$' . $catprefix . 'cues.use.xisbn'})) {
+        &addproperty($xisbn, $config{'$' . $catprefix . 'cues.use.xisbn'}, 'cues');
+    }
+
+    #$catalog.xisbn.oai=oai:bookmarks.oclc.org:library.mit.edu
+    &addproperty($xisbn, $config{'$' . $catprefix . 'catalog.xisbn.oai'}, 'oai');
+
+    #$catalog.xisbn.opacid=aleph4
+    &addproperty($xisbn, $config{'$' . $catprefix . 'catalog.xisbn.opacid'}, 'opacid');
+
+    if ($xisbn->getAttributes() > 0) {
+        $e->appendChild($xisbn);
+    }
     $catalogs->appendChild($e);
     $catprefix = 'catalog' . $c++ . '.';
 }
-
-#$cues.use.xisbn=true
-my $xisbn = $doc->createElement('xisbn');
-if (defined($config{'$cues.use.xisbn'})) {
-    &addproperty($xisbn, $config{'$cues.use.xisbn'}, 'cues');
-}
-
-#$catalog.xisbn.oai=oai:bookmarks.oclc.org:library.mit.edu
-&addproperty($xisbn, $config{'$catalog.xisbn.oai'}, 'oai');
-
-#$catalog.xisbn.opacid=aleph4
-&addproperty($xisbn, $config{'$catalog.xisbn.opacid'}, 'opacid');
-
-$root->appendChild($xisbn);
 
 #openurltype=sersol
 my $oresolvers = $doc->createElement('openurl');
@@ -147,8 +176,10 @@ if ($otype) {
     &addproperty($openurl, $otype, 'type');
     &addproperty($openurl, $config{'$openurl.url'}, 'url');
     &addproperty($openurl, $config{'$openurl.sid'}, 'sid');
+    &addproperty($openurl, $config{'$openurl.xrefsid'}, 'xrefsid');
     &addproperty($openurl, $config{'$openurl.name'}, 'name');
     &addproperty($openurl, $config{'$openurl.image'}, 'image');
+    &addimagefile($openurl->getAttribute('image'));
     &addproperty($openurl, $config{'$openurl.version'}, 'version');
     &addproperty($openurl, $config{'$openurl.searchlabel'}, 'searchlabel');
     &addproperty($openurl, $config{'$openurl.dontshowintoolbar'}, 'dontshowintoolbar');
@@ -176,11 +207,11 @@ $root->appendChild($options);
 &addoption($options, $config{'$libx.supportcoins'}, 'supportcoins');
 &addoption($options, $config{'$libx.sersolisbnfix'}, 'sersolisbnfix');
 &addoption($options, $config{'$libx.autolink'}, 'autolink');
+&addoption($options, $config{'$libx.autolinkstyle'}, 'autolinkstyle');
 &addoption($options, $config{'$libx.disablescholar'}, 'disablescholar');
-&addoption($options, $config{'$dumb.scholar.button'}, 'dumb.scholar.button'); 
-&addoption($options, $config{'$suppress.scholar.display'}, 'suppress.scholar.display');
-&addoption($options, $config{'$scholarmiss.url'}, 'scholarmiss.url');
-&addoption($options, $config{'$send.origdata.withopenurl'}, 'send.origdata.withopenurl');
+&addoption($options, $config{'$suppress.scholar.display'}, 'suppressscholardisplay');
+&addoption($options, $config{'$scholarmiss.url'}, 'scholarmissurl');
+&addoption($options, $config{'$send.origdata.withopenurl'}, 'sendorigdatawithopenurl');
 
 my $soptions = $doc->createElement('searchoptions');
 for (my $i = 1; ; $i++) {
@@ -194,23 +225,21 @@ for (my $i = 1; ; $i++) {
 }
 $root->appendChild($soptions);
 
+$root->appendChild($afiles);
+
 #emiconURL=chrome://libx/skin/virginiatech.ico
 my $icon = $config{'emiconURL'};
 # do not basename
 # $icon =~ s/.*\/([^\/]*)$/$1/;
 &addoption($options, $icon, 'icon');
+&addimagefile($icon);
 
 #logoURL=chrome://libx/skin/shield50.gif
 my $logo = $config{'logoURL'};
 # do not basename
 # $logo =~ s/.*\/([^\/]*)$/$1/ if ($logo =~ /chrome:/);
 &addoption($options, $logo, 'logo');
-
-#emdescription=Toolbar for Virginia Tech library users
-my $emdescription = $config{'emdescription'};
-if ($emdescription !~ /Toolbar for $institution Library users/i) {
-    print STDERR "warning: inconsistent $emdescription\n" 
-}
+&addimagefile($logo);
 
 # check those for consistency
 #emhomepageURL=http://www.libx.org/editions/vt/libx.html
