@@ -42,7 +42,7 @@
 var threshold1 = nsPreferences.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
 var threshold2 = nsPreferences.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
 
-function magic_log(msg) {
+function libxMagicLog(msg) {
     if (!nsPreferences.getBoolPref("libx.magic.debug", false))
         return;
 
@@ -51,52 +51,110 @@ function magic_log(msg) {
     consoleService.logStringMessage("magic: " + msg);
 }
 
-function magicNormalize(t) {
-    t = t.replace(/^\s+/, "");    // remove leading whitespace
-    t = t.replace(/\s+$/, "");    // remove trailing whitespace
-    t = t.replace(/,+$/, "");     // remove trailing comma
-    t = t.replace(/\./g, " ");    // switch all periods to spaces
-    return t.toLowerCase();
-}
+function magicSearch(data, inpub, suppressheuristics) 
+{
+    function handleMiss(url, data)
+    {
+        // if so configured, libx can lead user to this URL on miss
+        var onmissshow = libxGetProperty("scholarmiss.url", [encodeURIComponent(data)]);
 
-function magicSearch(data, inpub, suppressheuristics) {
+        if (onmissshow) {
+            openSearchWindow(onmissshow, true);
+        }
+    }
+
+    function cosineSimilarity(str1, str2) 
+    {
+        var str1toks = str1.split(/\s+/);
+        var str2toks = str2.split(/\s+/);
+
+        function c(s) {
+            return s.replace(/[:\.,\)]*$/, "").replace(/^[\(]*/, "");
+        }
+        for (var i in str1toks) {
+            str1toks[i] = c(str1toks[i]);
+        }
+        for (var i in str2toks) {
+            str2toks[i] = c(str2toks[i]);
+        }
+        var str1terms = 0;
+        var str2terms = 0;
+
+        var uniq = new Object();
+        var uniqterms = 0;
+        for (var i in str1toks) {
+            if (uniq[str1toks[i]] == undefined) {
+                uniq[str1toks[i]] = true;
+                str1terms++;
+                uniqterms++;
+            }
+        }
+        var s2 = new Object();
+        for (var i in str2toks) {
+            if (uniq[str2toks[i]] == undefined) {
+                uniq[str2toks[i]] = true;
+                uniqterms++;
+            }
+            if (s2[str2toks[i]] == undefined) {
+                s2[str2toks[i]] = true;
+                str2terms++;
+            }
+        }
+        var commonterms = (str1terms + str2terms - uniqterms);
+        /*
+        var s = "";
+        for (var k in uniq) { s += " " + k; }
+        libxMagicLog(commonterms + " " + str1terms + " " + str2terms + " " + s);
+        */
+        return commonterms / Math.sqrt(str1terms * str2terms);
+    }
+    function magicNormalize(t) {
+        t = t.replace(/^\s+/, "");    // remove leading whitespace
+        t = t.replace(/\s+$/, "");    // remove trailing whitespace
+        t = t.replace(/,+$/, "");     // remove trailing comma
+        t = t.replace(/\./g, " ");    // switch all periods to spaces
+        return t.toLowerCase();
+    }
+
     var maxattempts = 5;
 
-    magic_log("Searching for: \"" + data + "\"" + (inpub ? " inpub: " + inpub : "no publication given"));
+    libxMagicLog("Searching for: \"" + data + "\"" + (inpub ? " inpub: " + inpub : " - no publication given"));
     var originaldata = data;
     data = magicNormalize(data);
     var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
     if (inpub) {
-        baseurl += '&as_publication=' + inpub;
+        baseurl += '&as_publication=' + encodeURIComponent(inpub);
     }
     baseurl += '&q=';
 
-    var url = baseurl + data;
+    var url = baseurl + encodeURIComponent(data);
     
     // if there is no OpenURL support, then there is no point in trying to read Google Scholar pages
     // simply open the scholar page for the user to see.
     // the same is done if suppressheuristics is set.
     if (!openUrlResolver || suppressheuristics) {
-        openSearchWindow(url);
+        openSearchWindow(url, true);
         return;
     }
     var triedexact = false; // have we already tried the exact search (with a preceding '')
 
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
-        magic_log("Attempt #" + _attempt + ": " + url);
+        libxMagicLog("Attempt #" + _attempt + ": " + url);
 
         var req = new XMLHttpRequest();
-        req.open('GET', encodeURI(url), false);    // synchronous request
-        // it will send along whatever cookie is already set by the user, so there is no need to set a cookie here
+        req.open('GET', url, false);    // synchronous request
+        // This request will send along whatever cookie is already set by the user, 
+        // so there is no need to set a cookie here - the cookie is used for Scholar
+        // preferences
         req.send(null);
         var r = req.responseText;
         
-        // see if the query was bungled b/c of searchterms clutching together
+        // see if the query was bungled b/c of searchterms clutched together
         // Let us see if scholar says that we should drop some search terms
         var nf = r.match(/No pages were found containing <b>\"([^\"]*)\"<\/b>/);
         if (nf) {
             data = data.replace(nf[1], " ");    // drop the term
-            url = baseurl + data;   // rebuild search url
+            url = baseurl + encodeURIComponent(data);   // rebuild search url
             continue;   // try again
         }
 
@@ -116,18 +174,20 @@ function magicSearch(data, inpub, suppressheuristics) {
                 // <a href=\"/url?sa=U&q=http://sfx.hul.harvard.edu:82/sfx_local%3Fsid%3Dgoogle%26aulast
                 // captures entire OpenURL as openurl[1]
                 // captures openURL suffix as openurl[2]
-                var oregexp = /\"\/url\S*q=(\S*%3Fsid%3Dgoogle([^\"]*))\"/;
+                var oregexp = /\"\/url\S*q=(\S*%3Fsid%3Dgoogle%26([^\"]*))\"/i;
                 var openurl = hits[h].match(oregexp);
                 // if we captured refworks link here, try again.
                 if (openurl != null && openurl[0].match(/refworks/)) {
                     openurl = hits[h].replace(openurl[0], "").match(oregexp);
                 }
+
                 // we dont skip to the next entry here, because we are now checking if maybe there is a 
                 // direct link to the paper --- XXX make this a configurable decision
 
                 // strip <html> tags and return cosine similarity with search terms 
                 var getcosine = function(comp) {
-                    var t = comp.replace(/<.*?>/g, "");
+                    var t = comp.replace(/<.*?>/g, "").replace(/&nbsp;/g, " ")
+                            .replace(/^\s*/, "").replace(/\s*$/, "");
                     t = magicNormalize(t);
                     return cosineSimilarity(t, data);
                 }
@@ -148,7 +208,7 @@ function magicSearch(data, inpub, suppressheuristics) {
 
                     titleplusauthor += title[1];
                     titlesim = getcosine(title[1]);
-                    magic_log("CosineSimilarity w/ titleline=" + titlesim + " \"" + title[1].replace(/<.*?>/g, "") + "\"");
+                    libxMagicLog("CosineSimilarity w/ titleline=" + titlesim + " \"" + title[1].replace(/<.*?>/g, "") + "\"");
                 }
 
                 var auline = hits[h].replace(/&hellip;/, " ").match(/<font color=green>([\s\S]*?)<\/font>/);
@@ -156,11 +216,11 @@ function magicSearch(data, inpub, suppressheuristics) {
                 if (auline != null) {
                     titleplusauthor += " " + auline[1];
                     ausim = getcosine(auline[1]);
-                    magic_log("CosineSimilarity w/ authorline=" + ausim + " " + auline[1].replace(/<.*?>/g, ""));
+                    libxMagicLog("CosineSimilarity w/ authorline=" + ausim + " " + auline[1].replace(/<.*?>/g, ""));
                 }
                 if (titleplusauthor != "") {
                     var tplusauthsim = getcosine(titleplusauthor);
-                    magic_log("CosineSimilarity w/ title+authorline=" + tplusauthsim);
+                    libxMagicLog("CosineSimilarity w/ title+authorline=" + tplusauthsim);
                 }
 
                 if (tplusauthsim > threshold1 || ((titlesim + ausim) > threshold2)) {
@@ -171,38 +231,46 @@ function magicSearch(data, inpub, suppressheuristics) {
                     var vtu = titleurl; // by default we open the URL Google provides
                     var display = !libxGetProperty("suppress.scholar.display");
                     if (openurl) {
-                        var openurlpath = decodeURIComponent(openurl[2]);
+                        var openurlpath = decodeURIComponent(openurl[2]).replace(/^&/, "");
+
+                        // for reasons unknown, Google sticks unicode characters into its URLs
+                        // it appears Firefox doesn't handle those well, so let's remove them.
+                        // that's a &rsquo; aka &#8217; aka \u2019 char, probably UTF-8 encoded (?!)
+                        openurlpath = openurlpath.replace(/%E2%80%99/ig, "'");
 
                         // sending the original data in a (non-standard) OpenURL field
                         // allows an OpenURL resolver to offer an option to correct for
                         // wrong positives.  Used for Maryville.
                         if (libxGetProperty("send.origdata.withopenurl")) {
-                            openurlpath += "&origdata=" + data;
+                            openurlpath += "&origdata=" + encodeURIComponent(data);
                         }
 
                         vtu = openUrlResolver.completeOpenURL(openurlpath);
                         display = true;
-                        magic_log('OpenURL: ' + vtu);
+                        libxMagicLog('OpenURL: ' + vtu);
                     } else {
-                        magic_log('DirectURL: ' + vtu);
+                        libxMagicLog('DirectURL: ' + vtu);
                     }
                     if (display) {
                         openSearchWindow(vtu, true);
                         found = true;
                     }
                     break;
+                } else {
+                    libxMagicLog("rejected because below threshold, thresholds are " 
+                        + threshold1 + " and " + threshold2);
                 }
             }
 
             if (h == hits.length) {
-                magic_log("I received " + hits.length + " hits, but no matches were found - maybe no affiliation cookie is set");
+                libxMagicLog("I received " + hits.length + " hits in Scholar, but no matches were found");
             }
 
             // in some cases, Scholar finds it only when searched as an exact match
             if (!found && !triedexact) {
                 triedexact = true;
-                data = '"' + data;
-                url = baseurl + data;   // rebuild search url
+                data = '"' + data + '"';
+                url = baseurl + encodeURIComponent(data);   // rebuild search url
                 continue;   // try again
             }
 
@@ -215,11 +283,13 @@ function magicSearch(data, inpub, suppressheuristics) {
 
             // show google scholar page also
             if (found) {
-                getBrowser().addTab(encodeURI(url));       // in second tab if we got a hit
+                getBrowser().addTab(url);       // in second tab if we got a hit
             } else {
-                openSearchWindow(baseurl + originaldata);  // as primary window if not
+                openSearchWindow(baseurl + encodeURIComponent(originaldata), true);  // as primary window if not
             }
             return;
+        } else {
+            libxMagicLog("couldn't find result <div> in this scholar result: " + r);
         }
 
         // scholar did not find anything.  Let us see if they have a "Did you mean" on their page 
@@ -234,55 +304,9 @@ function magicSearch(data, inpub, suppressheuristics) {
         handleMiss(url, originaldata);
 
         if (!libxGetProperty("suppress.scholar.display")) 
-            openSearchWindow(baseurl + originaldata);
+            openSearchWindow(baseurl + encodeURIComponent(originaldata), true);
         return;
     }
 }
 
-function handleMiss(url, data)
-{
-    // if so configured, libx can lead user to this URL on miss
-    var onmissshow = libxGetProperty("scholarmiss.url", [data]);
-
-    if (onmissshow) {
-        openSearchWindow(onmissshow);
-    }
-}
-
-function cosineSimilarity(str1, str2) {
-    var str1toks = str1.split(/\s+/);
-    var str2toks = str2.split(/\s+/);
-    var str1terms = 0;
-    var str2terms = 0;
-
-    var uniq = new Object();
-    var uniqterms = 0;
-    for (var i in str1toks) {
-        if (uniq[str1toks[i]] == undefined) {
-            uniq[str1toks[i]] = true;
-            str1terms++;
-            uniqterms++;
-        }
-    }
-    var s2 = new Object();
-    for (var i in str2toks) {
-        if (uniq[str2toks[i]] == undefined) {
-            uniq[str2toks[i]] = true;
-            uniqterms++;
-        }
-        if (s2[str2toks[i]] == undefined) {
-            s2[str2toks[i]] = true;
-            str2terms++;
-        }
-    }
-    var commonterms = (str1terms + str2terms - uniqterms);
-    /*
-    var s = "";
-    for (var k in uniq) { s += " " + k; }
-    magic_log(commonterms + " " + str1terms + " " + str2terms + " " + s);
-    */
-    return commonterms / Math.sqrt(str1terms * str2terms);
-}
-
 // vim: ts=4
-
