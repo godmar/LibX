@@ -157,7 +157,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                                 src="&libx.magicbutton.image;" />
                             <label value="&libx.magicbutton.label;" 
                                 tooltiptext="Drag and Drop Terms onto this button!" 
-                                onclick="alert('To search Scholar, select search terms and drag your selection onto this button');"
+                                onclick="alert('To search, select search terms and drag your selection onto this button');"
                                 id="libx-magic-button" />
                         </hbox>
                     </toolbaritem>
