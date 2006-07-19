@@ -30,7 +30,7 @@
 const libx_version = "$libxversion$";
 
 var libxProps;          // a string bundle in the XUL file from which we read properties
-var libxOptions;        // an object representing LibX options
+var libxConfig;         // a Document object representing config.xml, or null
 
 // get a property, returning null if property does not exist
 function libxGetProperty(prop, args) {
@@ -45,18 +45,45 @@ function libxGetProperty(prop, args) {
 	}
 }
 
+function libxConvertToBoolean(value) 
+{
+    if (value == "false")
+        return false;
+    if (value == "true")
+        return true;
+    return value;
+}
+
+function libxShowObject(s, obj)
+{
+    for (var k in obj)
+        s += k + "=" + obj[k] + " (" + typeof obj[k] + "), ";
+    alert(s);
+}
+
 // Initialize options
 function libxInitializeOptions()
 {
-    libxOptions = new Object();
-    libxOptions.sersolisbnfix = libxGetProperty("libx.sersolisbnfix") == "true" ? true : false;
-    libxOptions.supportcoins = libxGetProperty("libx.supportcoins") == "true" ? true : false;
-    libxOptions.rewritescholarpage = libxGetProperty("libx.rewritescholarpage") == "true" ? true : false;
-    libxOptions.disablescholar = libxGetProperty("libx.disablescholar") == "true" ? true : false;
-    libxOptions.autolink = libxGetProperty("libx.autolink") == "true" ? true : false;
-    libxOptions.autolinkstyle = libxGetProperty("libx.autolinkstyle");
-    if (!libxOptions.autolinkstyle)
-        libxOptions.autolinkstyle = "1px dotted";
+    var opts = new Object();
+    libxConfig.options = opts;
+    if (libxConfig.xml) {
+        var options = xpathFindNodes(libxConfig.xml, "/edition/options/option");
+        for (var i = 0; i < options.length; i++) {
+            opts[options[i].getAttribute('key')] = 
+                libxConvertToBoolean(options[i].getAttribute('value'));
+        }
+    } else {
+        // CONFIGXML BEGIN
+        opts.sersolisbnfix = libxConvertToBoolean(libxGetProperty("libx.sersolisbnfix"));
+        opts.supportcoins = libxConvertToBoolean(libxGetProperty("libx.supportcoins"));
+        opts.rewritescholarpage = libxConvertToBoolean(libxGetProperty("libx.rewritescholarpage"));
+        opts.disablescholar = libxConvertToBoolean(libxGetProperty("libx.disablescholar"));
+        opts.autolink = libxConvertToBoolean(libxGetProperty("libx.autolink"));
+        opts.autolinkstyle = libxGetProperty("libx.autolinkstyle");
+        // CONFIGXML END
+    }
+    if (!opts.autolinkstyle)
+        opts.autolinkstyle = "1px dotted";
 }
 
 // Initialization - this code is executed when extension is loaded
@@ -65,6 +92,29 @@ function libxInitializeProperties()
     // this function is called after the entire overlay has been built
     // we must wait until here before calling document.getElementById
     libxProps = document.getElementById("libx-string-bundle");
+    libxConfig = new Object();
+
+    try {
+        var configurl = new XMLHttpRequest();
+        configurl.open('GET', "chrome://libx/content/config.xml", false);
+        configurl.send(null);
+        libxConfig.xml = configurl.responseXML;
+        libxConfig.getNode = function (xpath) {
+            return xpathFindSingle(this.xml, xpath);
+        };
+        libxConfig.getAttr = function (xpath, attr) {
+            var n = this.getNode(xpath);
+            return n ? n.getAttribute(attr) : null;
+        };
+        libxConfig.copyAttributes = function(xnode, obj) {
+            for (var i = 0; i < xnode.attributes.length; i++) {
+                var attr = xnode.attributes[i];
+                obj[attr.nodeName] = attr.nodeValue;
+            }
+        };
+    } catch (er) {
+    }
+
     libxInitializeOptions();
 }
 

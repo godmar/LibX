@@ -33,6 +33,7 @@
     <stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
+    <script type="application/x-javascript" src="chrome://libx/content/xpathutils.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.js" />
 
 	<script type="application/x-javascript">
@@ -41,10 +42,16 @@ function setVersion() {
     libxInitializeProperties();
 	// does not work properly:
 	// document.getElementById("libx-aboutbox-image").setAttribute("src", libxGetProperty("logoURL"));
-	document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + libxGetProperty("edition"));
+
+    var edition = libxGetProperty("edition");
+    if (libxConfig.xml)
+        edition = libxConfig.getAttr("/edition/name", "edition");
+	document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);
 	document.getElementById("libx-version").setAttribute("value", "Version " + libx_version);
-	document.getElementById("libx-edition").setAttribute("value", libxGetProperty("edition"));
+	document.getElementById("libx-edition").setAttribute("value", edition);
     var adaptedby = libxGetProperty("adaptedby");
+    if (libxConfig.xml)
+        adaptedby = libxConfig.getAttr("/edition/name", "adaptedby");
     if (adaptedby) {
         document.getElementById("adaptedby").setAttribute("value", adaptedby);
     } else {

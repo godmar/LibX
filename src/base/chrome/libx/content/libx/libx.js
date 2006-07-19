@@ -299,7 +299,7 @@ function libxInitializeCatalogs()
         addCatalog("catalog" + addcatno, addcatno);
     }
     if ((cattype = libxGetProperty("scholar.catalog.type")) != "") {
-        if (!libxOptions.disablescholar)
+        if (!libxConfig.options.disablescholar)
             addCatalog("scholar", addcatno++);
     }
 
@@ -317,12 +317,7 @@ function libxInitializeCatalogs()
 function libxInitializeOpenURL() 
 {
 /*
-    var configurl = new XMLHttpRequest();
-    configurl.open('GET', "chrome://libx/content/config.xml", false);
-    configurl.send(null);
-    var config = configurl.responseXML;
-    var openurls = xpathFindNodes(config, "/edition/openurl/resolver");
-    libxLog("# of openurl configured: " + openurls.length);
+    var openurls = xpathFindNodes(libxConfig, "/edition/openurl/resolver");
     var ourltype = openurls[0].getAttribute('type');
 */
 	var ourltype = libxGetProperty("openurl.type");
@@ -439,7 +434,7 @@ function libxInit()
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
 
     var scholarbutton = document.getElementById("libx-magic-button");
-    if (libxOptions.disablescholar) {
+    if (libxConfig.options.disablescholar) {
         scholarbutton.hidden = true;
     } else {
         new TextDropTarget(magicSearch).attachToElement(scholarbutton);
@@ -556,7 +551,7 @@ function libxContextPopupShowing() {
     // show keyword, title, author only if none of IS*N or PMID was recognized
 	if (pureISN == null && purePMID == null) {
 		keywordsearch.hidden = titlesearch.hidden = authorsearch.hidden = false;
-		if (!libxOptions.disablescholar) 
+		if (!libxConfig.options.disablescholar) 
             scholarsearch.hidden = false;
         keywordsearch.label = libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.name]);
         titlesearch.label = libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.name]);
@@ -729,7 +724,12 @@ function libxProxify() {
  * Initialize proxy support.
  */
 function libxProxyInit() {
-	var proxytype = libxGetProperty("proxy.type");
+    if (libxConfig.xml) {
+        var pnode = libxConfig.getNode('/edition/proxy/*[1]');
+        var proxytype = pnode.nodeName;
+    } else {
+        var proxytype = libxGetProperty("proxy.type");
+    }
     switch (proxytype) {
     case "ezproxy":
 		libxProxy = new libxEZProxy();
@@ -747,9 +747,13 @@ function libxProxyInit() {
 		libxproxify.hidden = true;
         return;
 	}
-    libxProxy.name = libxGetProperty("proxy.name");
-    libxProxy.url = libxGetProperty("proxy.url");
     libxProxy.type = proxytype;
+    if (libxConfig.xml) {
+        libxConfig.copyAttributes(pnode, libxProxy);
+    } else {
+        libxProxy.name = libxGetProperty("proxy.name");
+        libxProxy.url = libxGetProperty("proxy.url");
+    }
 }
 
 // for all catalogs transfer search field contents into 'fields' array
@@ -807,7 +811,7 @@ function libxSelectCatalog(mitem, event) {
 /*
  * adjust drop-down menus based on catalog.options
  */
-function libxActivateCatalogOptions(catalog) {
+function libxActivateCatalogOptions(catalog, alwaysreset) {
     var opt = catalog.options.split(/;/);
     // for each open search field
 	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {
@@ -830,10 +834,10 @@ function libxActivateCatalogOptions(catalog) {
                 newvalue = mitem;
             mpp.appendChild(mitem);
         }
-        if (newvalue != null)
-            setFieldType(newvalue);         // recreate prior selection
-        else
+        if (newvalue == null || alwaysreset)
             setFieldType(mpp.firstChild);   // pick first entry the default
+        else
+            setFieldType(newvalue);         // recreate prior selection
     }
 }
 
@@ -867,13 +871,16 @@ function removeSearchField(fieldHbox) {
 	}
 }
 
-function clearAllFields() {
+function libxClearAllFields() {
 	// while there are more than one search field left, remove the last one
 	while (libxSearchFieldVbox.childNodes.length > 1) {
 		removeSearchField(libxSearchFieldVbox.lastChild);
 	}
 	// finally, clear the content of the only remaining one
 	libxSearchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
+
+    // set options back to default for currently selected catalog
+    libxActivateCatalogOptions(libxSelectedCatalog, true);
 }
 
 // copy selection into search field - this is called from the nested right-click menu
@@ -974,22 +981,22 @@ function libxSelectAutolink(value)
 {
     value = (value == "true") ? true : false;   // convert string to bool
     nsPreferences.setBoolPref("libx.autolink", value);
-    libxOptions.autolink_active = value;
+    libxConfig.options.autolink_active = value;
     if (value)
         libxRunAutoLink(_content.document, true);
 }
 
 function libxInitializeAutolink()
 {
-    if (!libxOptions.autolink)
+    if (!libxConfig.options.autolink)
         return;
 
     var hbox = document.getElementById("libx-about");
     var m = document.createElement("menuitem");
     m.setAttribute('type', 'checkbox');
     m.setAttribute('label', 'Autolink Pages');
-    libxOptions.autolink_active = nsPreferences.getBoolPref("libx.autolink", true);
-    m.setAttribute('checked', libxOptions.autolink_active);
+    libxConfig.options.autolink_active = nsPreferences.getBoolPref("libx.autolink", true);
+    m.setAttribute('checked', libxConfig.options.autolink_active);
     m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
     hbox.parentNode.insertBefore(m, hbox);
 }
