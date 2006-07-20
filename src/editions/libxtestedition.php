@@ -68,7 +68,7 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
 <li> <a href="<? echo $edition_config?>">config file</a> used to build this snapshot.
 <li> An easier-to-read version of 
         the <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file without comments.</a>
-    <? if (false && file_exists($edition_config_xml)) {
+    <? if (file_exists($edition_config_xml)) {
         echo '<a href="' . $edition_config_xml . '">(as XML)</a>';
     } ?>
 
@@ -85,7 +85,7 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
 <?
     $c = 0;
     $prefix = "";
-    while (@$CONFIG['$' . $prefix . 'catalog.url'] != "") {
+    while (@$CONFIG['$' . $prefix . 'catalog.type'] != "") {
         echo '<tr><td>';
         if ($c == 0) { echo 'Primary'; }
         else { echo 'Catalog #'. $c; }
@@ -121,15 +121,14 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
     </table>
     <hr width="90%">
 <? 
+    $openurl_image = $icon;
     if (@$CONFIG['$openurl.type'] != "") {
         echo '<li> OpenURL resolver type is <tt style="{ color: green }">' . $CONFIG['$openurl.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$openurl.url'] . '</tt>';
         echo '<li> Inserted OpenURL links are displayed using this image: <img src="';
         if (@$CONFIG['$openurl.image']) {
-            echo $edition . '/' . basename($CONFIG['$openurl.image']);
-        } else {
-            echo $icon;
-        }
-        echo '" />';
+            $openurl_image = $edition . '/' . basename($CONFIG['$openurl.image']);
+        } 
+        echo $openurl_image . '" />';
     } else {
         echo '<li> No OpenURL resolver is defined for this edition.';
     }
@@ -150,7 +149,8 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
         echo '<li> xISBN Setup: you are using the following <a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark identifier:</a> '
             . '<tt style="{ color: green }">' . $oai . '</tt>';
     } else {
-        echo '<li> xISBN Setup: you currently are not using an <a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark identifier.</a> Consider signing up.';
+        echo '<li> xISBN Setup: you currently are not using an <a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark identifier.</a> Consider signing up. ';
+        echo 'See also the <a href="/faq.html#QL12">FAQ</a>.';
     }
 ?>
 
@@ -223,6 +223,7 @@ You should be seeings cues on these pages:
 <li><a target="_new" href="http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=006073132X&itm=1">
         Barnes &amp; Noble</a>,
 <li><a target="_new" href="http://www.amazon.com/gp/product/006073132X">Amazon</a>,
+<li><a target="_new" href="http://www.amazon.co.uk/gp/product/1561840718">Amazon (UK)</a>,
 <li><a target="_new" href="http://www.booklistonline.com/default.aspx?page=show_product&pid=1611275">Booklistonline.com</a>,
 <li><a target="_new" href="http://www.nytimes.com/2005/05/15/books/review/15HOLTL.html">NY Times Book Review (1)</a>,
 <li><a target="_new" href="http://www.nytimes.com/2006/04/27/books/27masl.html">NY Times Book Review (2) (nytimes.com requires a login)</a>,
@@ -343,7 +344,7 @@ of the library you set in your Scholar preferences), you should be led either to
 site for these pages, or to your OpenURL resolver page.  The last entry should lead to a tech report site.  
 <p>
 An additional tab opens each time with the result of the Scholar search LibX runs.  
-Check that the links on the Scholar page have been replaced with your logo: <img src="<? echo $icon ?>" />
+Check that the links on the Scholar page have been replaced with your logo: <img src="<? echo $openurl_image ?>" />
 <br />
 If you don't see your OpenURL resolver page after selecting "Search via Scholar" for at least 
 one of the examples above, check that you are seeing your logo on the Scholar page.
@@ -351,11 +352,26 @@ one of the examples above, check that you are seeing your logo on the Scholar pa
 Check that the Scholar button works from inside a PDF (Windows only).
 Open <a href="http://www.cs.vt.edu/%7Egback/papers/jtres2005-cadus.pdf">this PDF file</a>, go to the references, and pick a title in the references, then drag and drop it onto the Scholar button.
 <p>
-Check that the Scholar button performs searches.  
+Some additional tests that are a little bit more challenging for LibX (select the entire box):
+<ol>
+<li><div class="selectthis">
+Hastings, R. J. &amp; Johnson, E. (2001). Stress in UK families<br />
+conducting intensive home-based behaviour intervention<br />
+for young children with autism. Journal of Autism and<br />
+Developmental Disorders, 31, 327-336.<br />
+</div>
+<li><span class="selectthis">Llewellyn, G. (1994). Parenting: a neglected human</span>
+</ol>
+<p>
+Here are some add
+Check that the "Search Scholar" option in the list of catalogs works.
 Enter <span class="selectthis">unskilled and unaware</span> into the 
-search bar (or select the text and drag-n-drop it in there), make sure "Keyword" is selected and then 
-press the Scholar button.  
-Also test searches by author and title, they should work with Scholar as well.
+search bar (or select the text and drag-n-drop it in there), make sure "Keyword" is selected 
+and then press the Scholar button.  
+Also test searches by author, article title, and journal title.
+they should work with Scholar as well -- they correspond to "author:", "allintitle:", and
+the journal title search corresponds to Scholar's "published as" option in the advanced
+search.
 <p>
 <? if (@$CONFIG['$openurl.type'] != "" && @$CONFIG['$openurl.dontshowintoolbar'] != "true") { ?>
 Since you display a "Search <? echo $CONFIG['$openurl.name'] ?>" option for your 
@@ -385,15 +401,17 @@ It should reload the page through the proxy.
 </div>
 <a name="options"></a><span class="part">Options</span>
 <p>
-The following drop-down options are supported
+The following drop-down options are supported.
 <table border="0">
-<tr><td class="searchoptions">Y</td><td>Keyword</td></tr>
+<tr><td class="searchoptions">Y</td><td>Keyword (do not use X here, even if you set $millenium.keyword=X to tell Millennium to use the X index for keyword searches.)</td></tr>
 <tr><td class="searchoptions">t</td><td>Title</td></tr>
 <tr><td class="searchoptions">a</td><td>Author</td></tr>
 <tr><td class="searchoptions">d</td><td>Subject</td></tr>
 <tr><td class="searchoptions">i</td><td>ISBN/ISSN</td></tr>
 <tr><td class="searchoptions">c</td><td>Call Number</td></tr>
-<tr><td class="searchoptions">jt</td><td>Journal Title (SFX, SerSol, and Millenium only)</td></tr>
+<tr><td class="searchoptions">j</td><td>Dewey Call Number (currently Millennium only)</td></tr>
+<tr><td class="searchoptions">m</td><td>Genre (currently Millennium only)</td></tr>
+<tr><td class="searchoptions">jt</td><td>Journal Title (SFX, SerSol, and Millennium only)</td></tr>
 <tr><td class="searchoptions">at</td><td>Article Title (OpenURL only)</td></tr>
 </table>
 <hr>
