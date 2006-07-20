@@ -91,6 +91,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				</hbox>
 			</vbox>
 
+            <toolbarseparator style="&toolbar.separator.style;" />
+
 			<vbox id="search-field-vbox" flex="1">
 				<!-- do not add more children to vbox, the addSearchField function relies on being able to clone vbox.lastChild -->
 				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
@@ -137,6 +139,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 						</menupopup>
 					</toolbarbutton>
 
+                    <toolbarseparator style="&toolbar.separator.style;" />
 					<toolbarbutton 
                                 style="margin-top: 1px; margin-bottom: 1px;"
                                 label=" Clear " tooltiptext="Clear All Search Fields" 
@@ -149,6 +152,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         id="libx-magic-button"
 						image="&libx.magicbutton.image;" oncommand="doMagicSearch();" />
                 -->
+                    <toolbarseparator style="&toolbar.separator.style;" />
 					<toolbaritem id="libx-magic-button"
                                 style="margin-left: 5px; margin-top: 5px; margin-bottom: -1px;">
                         <hbox>

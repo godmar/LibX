@@ -21,31 +21,25 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-function MilleniumOPAC(catprefix) {//this is a constructor
-    this.searchscope = libxGetProperty(catprefix + "catalog.searchscope");
-    this.keywordcode = libxGetProperty(catprefix + "millenium.keywordcode");
-    this.advancedcode = libxGetProperty(catprefix + "millenium.advancedcode");
-    if (this.advancedcode == null)
-        this.advancedcode = 'X';
-
-    this.jtcode = libxGetProperty(catprefix + "millenium.journaltitlecode");
-    if (this.jtcode == null)
-        this.jtcode = 't';
-
-    var sortby = libxGetProperty(catprefix + "millenium.sort");
-    if (sortby == null)
-        sortby = "R";   //sort by relevance, use 'D' for date
-	this.sort = sortby;
-
-    this.searchform = libxGetProperty(catprefix + "millenium.searchform");
-    if (this.searchform == null)
-        this.searchform = 1;
+function MilleniumOPAC(catprefix) {
+    this.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
+    this.setIf('keywordcode', libxGetProperty(catprefix + "millenium.keywordcode"));
+    this.setIf('advancedcode', libxGetProperty(catprefix + "millenium.advancedcode"));
+    this.setIf('journaltitlecode', libxGetProperty(catprefix + "millenium.journaltitlecode"));
+    this.setIf('sort', libxGetProperty(catprefix + "millenium.sort"));
+    this.setIf('searchform', libxGetProperty(catprefix + "millenium.searchform"));
 }
 
 MilleniumOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(MilleniumOPAC.prototype, {
 	xisbnOPACID: "innovative",
+    // default values for
+    sort: 'R',  //sort by relevance, use 'D' for date
+    searchform: 1,
+    advancedcode: 'X',
+    keywordcode: 'Y',
+    journaltitlecode: 't',
 	supportsSearchType: function (stype) {
 	    if (stype == 'at') {
 	        alert(libxGetProperty("articletitle.alert"));
@@ -57,7 +51,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
         if (stype == 'is')  // both issn and isbn are 'i'
             return 'i';
         if (stype == 'jt')  // both title and journal title are 't'
-            return this.jtcode;
+            return this.journaltitlecode;
         return stype;
     },
 	makeSearch: function(stype, sterm) {
@@ -65,7 +59,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
 
         // substitute special code for keyword searches if defined
         // some III catalogs prefer to use X for keyword searches, apparently.
-        if (stype == 'Y' && this.keywordcode != null) {
+        if (stype == 'Y') {
             stype = this.keywordcode;
         }
 

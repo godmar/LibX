@@ -55,11 +55,11 @@ function magicSearch(data, inpub, suppressheuristics)
 {
     function handleMiss(url, data)
     {
-        // if so configured, libx can lead user to this URL on miss
-        var onmissshow = libxConfig.options.scholarmissurl
-            .replace(/%S/i, encodeURIComponent(data));
+        if (libxConfig.options.scholarmissurl != null) {
+            // if so configured, libx can lead user to this URL on miss
+            var onmissshow = libxConfig.options.scholarmissurl
+                .replace(/%S/i, encodeURIComponent(data));
 
-        if (onmissshow) {
             openSearchWindow(onmissshow, true);
         }
     }

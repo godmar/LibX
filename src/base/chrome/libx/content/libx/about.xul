@@ -47,7 +47,8 @@ function setVersion() {
     if (libxConfig.xml)
         edition = libxConfig.getAttr("/edition/name", "edition");
 	document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);
-	document.getElementById("libx-version").setAttribute("value", "Version " + libx_version);
+	document.getElementById("libx-version").setAttribute("value", "Version " + libx_version 
+        + (libxConfig.xml ? " (XML)" : ""));
 	document.getElementById("libx-edition").setAttribute("value", edition);
     var adaptedby = libxGetProperty("adaptedby");
     if (libxConfig.xml)

@@ -8,6 +8,7 @@ This changelog.txt file is part of LibX Version $libxversion$
 
 Under development
 
+ *started adding code to read configuration from config.xml, optional for now
  *made "Search ..." button drop target for keyword-based search
   on default catalog
  *revamped scholar button one more time - added Search Scholar

@@ -78,7 +78,7 @@ function libxInitializeOptions()
         opts.supportcoins = libxConvertToBoolean(libxGetProperty("libx.supportcoins"));
         opts.rewritescholarpage = libxConvertToBoolean(libxGetProperty("libx.rewritescholarpage"));
         opts.disablescholar = libxConvertToBoolean(libxGetProperty("libx.disablescholar"));
-        opts.scholarmissurl = libxConvertToBoolean(libxGetProperty("scholarmiss.url"));
+        opts.scholarmissurl = libxGetProperty("scholarmiss.url");
         opts.sendorigdatawithopenurl = libxConvertToBoolean(libxGetProperty("send.origdata.withopenurl"));
         opts.suppressscholardisplay = libxConvertToBoolean(libxGetProperty("suppress.scholar.display"));
         opts.autolink = libxConvertToBoolean(libxGetProperty("libx.autolink"));
@@ -112,7 +112,7 @@ function libxInitializeProperties()
         libxConfig.copyAttributes = function(xnode, obj) {
             for (var i = 0; i < xnode.attributes.length; i++) {
                 var attr = xnode.attributes[i];
-                obj[attr.nodeName] = attr.nodeValue;
+                obj[attr.nodeName] = libxConvertToBoolean(attr.nodeValue);
             }
         };
     } catch (er) {

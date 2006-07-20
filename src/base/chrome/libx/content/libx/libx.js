@@ -41,6 +41,10 @@ var popuphelper = new ContextPopupHelper();
 function libxCatalog() { }
 
 libxCatalog.prototype = {
+    setIf: function (prop, what) {
+        if (what != null)
+            this[prop] = libxConvertToBoolean(what);
+    },
     makeSubjectSearch: function(subject) {
         return this.makeSearch("d", subject);
     },
@@ -85,6 +89,9 @@ libxCatalog.prototype = {
     // given an array of {searchType: xxx, searchTerms: xxx } items
     // formulate a query against this catalog
     search: function (fields) {
+        if (fields.length == 0) {//nothing entered
+            fields = [{searchType: 'Y', searchTerms: ""}];
+        }
         for (var i = 0; i < fields.length; i++) {
             if (!this.supportsSearchType(fields[i].searchType)) {
                 return;
@@ -95,8 +102,11 @@ libxCatalog.prototype = {
         } else {// user requested multiple search fields, do advanced search
             var url = this.makeAdvancedSearch(fields);
         }
-        if (url != null)
+        if (url != null) {
             openSearchWindow(url, this.doNotURIEncode);
+        } else {
+            libxLog("Could not construct search");
+        }
     },
     /* the default implementation looks at the options property
      * to decide which options are supported.
@@ -316,11 +326,12 @@ function libxInitializeCatalogs()
 // Initialize OpenURL support if so configured
 function libxInitializeOpenURL() 
 {
-/*
-    var openurls = xpathFindNodes(libxConfig, "/edition/openurl/resolver");
-    var ourltype = openurls[0].getAttribute('type');
-*/
-	var ourltype = libxGetProperty("openurl.type");
+    if (libxConfig.xml) {
+        var pnode = libxConfig.getNode('/edition/openurl/resolver[1]');
+        var ourltype = pnode.getAttribute("type");
+    } else {
+        var ourltype = libxGetProperty("openurl.type");
+    }
     var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
     switch (ourltype) {
     case "sersol":
@@ -343,26 +354,30 @@ function libxInitializeOpenURL()
         return;
     }
 
-    openUrlResolver.type = ourltype;
-    openUrlResolver.url = libxGetProperty("openurl.url");
-    openUrlResolver.sid = libxGetProperty("openurl.sid");
-    openUrlResolver.xrefsid = libxGetProperty("openurl.xrefsid");
-    openUrlResolver.name = libxGetProperty("openurl.name");
-    openUrlResolver.version = libxGetProperty("openurl.version");
-    openUrlResolver.image = libxGetProperty("openurl.image");
-    openUrlResolver.autolinkissn = libxGetProperty("openurl.autolinkissn");
-    var copt = libxGetProperty("openurl.options");
-    if (copt != null)
-        openUrlResolver.options = copt;
+    if (libxConfig.xml) {
+        libxConfig.copyAttributes(pnode, openUrlResolver);
+    } else {
+        openUrlResolver.type = ourltype;
+        openUrlResolver.url = libxGetProperty("openurl.url");
+        openUrlResolver.sid = libxGetProperty("openurl.sid");
+        openUrlResolver.xrefsid = libxGetProperty("openurl.xrefsid");
+        openUrlResolver.name = libxGetProperty("openurl.name");
+        openUrlResolver.version = libxGetProperty("openurl.version");
+        openUrlResolver.image = libxGetProperty("openurl.image");
+        openUrlResolver.autolinkissn = libxGetProperty("openurl.autolinkissn");
 
-    if (libxGetProperty("openurl.dontshowintoolbar") == "true") {
-        openurlsbutton.hidden = true;
+        var copt = libxGetProperty("openurl.options");
+        if (copt != null)
+            openUrlResolver.options = copt;
+        openUrlResolver.dontshowintoolbar = libxGetProperty("openurl.dontshowintoolbar") == "true" ? true : false;
+        openUrlResolver.searchlabel = libxGetProperty("openurl.searchlabel");
     }
 
-    var searchlabel = libxGetProperty("openurl.searchlabel");
-    if (searchlabel == null)
-        searchlabel = "Search " + openUrlResolver.name;
-    openurlsbutton.setAttribute("label", searchlabel);
+    openurlsbutton.hidden = openUrlResolver.dontshowintoolbar == true;
+
+    if (openUrlResolver.searchlabel == null)
+        openUrlResolver.searchlabel = "Search " + openUrlResolver.name;
+    openurlsbutton.setAttribute("label", openUrlResolver.searchlabel);
 }
 
 // Initialization - this code is executed whenever a new window is opened
@@ -817,6 +832,7 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
 	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {
 		var f = libxSearchFieldVbox.childNodes.item(i);
         var tbb = f.firstChild;
+        var uservalue = f.firstChild.nextSibling.firstChild.value;
         var oldvalue = tbb.value;   // try to retain old selection
         var newvalue = null;
         var mpp = tbb.firstChild;
@@ -834,7 +850,7 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
                 newvalue = mitem;
             mpp.appendChild(mitem);
         }
-        if (newvalue == null || alwaysreset)
+        if (newvalue == null || alwaysreset || uservalue == "")
             setFieldType(mpp.firstChild);   // pick first entry the default
         else
             setFieldType(newvalue);         // recreate prior selection
