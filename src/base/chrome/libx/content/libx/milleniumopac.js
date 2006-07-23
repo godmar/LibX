@@ -21,20 +21,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-function MilleniumOPAC(catprefix) {
-    this.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
-    this.setIf('keywordcode', libxGetProperty(catprefix + "millenium.keywordcode"));
-    this.setIf('advancedcode', libxGetProperty(catprefix + "millenium.advancedcode"));
-    this.setIf('journaltitlecode', libxGetProperty(catprefix + "millenium.journaltitlecode"));
-    this.setIf('sort', libxGetProperty(catprefix + "millenium.sort"));
-    this.setIf('searchform', libxGetProperty(catprefix + "millenium.searchform"));
-}
+function MilleniumOPAC() { }
 
 MilleniumOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(MilleniumOPAC.prototype, {
-	xisbnOPACID: "innovative",
-    // default values for
+	xisbn: { opacid: "innovative" },
+    // default values for millenium catalogs
     sort: 'R',  //sort by relevance, use 'D' for date
     searchform: 1,
     advancedcode: 'X',

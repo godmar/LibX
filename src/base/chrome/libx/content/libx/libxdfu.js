@@ -52,16 +52,6 @@ function makeLink(doc, title, url, openurl) {
 //
 function libxInitializeDFU() {
 
-// return a URL to link to
-// either via xISBN, or direct to the catalog (the default)
-function linkByISBN(isbn) {
-    if (libxGetProperty("cues.use.xisbn") == "true") {
-        return libraryCatalog.makeXISBNRequest(isbn);
-    } else {
-        return libraryCatalog.makeISBNSearch(isbn);
-    }
-}
-
 // Link Amazon pages to the catalog via ISBN
 // Idea from Jon Udell's Amazon GreaseMonkey script 
 
@@ -79,7 +69,7 @@ function doAmazon(doc, match) {
     }
     // make link and insert after title
     var div = origTitle.parentNode;
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), linkByISBN(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
     div.insertBefore(link, origTitle.nextSibling);
 }
 
@@ -93,7 +83,7 @@ new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (d
         return;
     }
     // make link and insert after title
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), linkByISBN(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
     origTitle.appendChild(link);
 });
 
@@ -106,7 +96,7 @@ new DoForURL(/\.ecampus\.com.*(\d{9}[\d|X])/i, function (doc, match) {
     var isbn = isISBN(origISBN.textContent);
     if (!isbn)
         return;
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), linkByISBN(isbn));
+    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
     origISBN.appendChild(link);
 });
 
@@ -230,7 +220,7 @@ new DoForURL(/google\.com\/search.*q=/, function (doc) {
 new DoForURL(/books.\google\.com\/books/, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
-    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), linkByISBN(m[1]));
+    var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), libraryCatalog.linkByISBN(m[1]));
     var ns = n.nextSibling;
     n.parentNode.insertBefore(newlink, ns);
     // a white space to make it pretty for Melissa
@@ -389,6 +379,25 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
     }
 });
 
+// powells.com
+// http://www.powells.com/biblio/1-0743226712-2
+function powellsComByISBN(doc, m) 
+{
+    var isbn = isISBN(m[1]);
+    if (isbn == null)
+        return;
+    var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN:')]");
+    if (isbnlabel) {
+        var link = makeLink(doc, 
+                libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
+                libraryCatalog.linkByISBN(isbn));
+        // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
+        isbnlabel.parentNode.insertBefore(link, isbnlabel.nextSibling.nextSibling.nextSibling.nextSibling);
+    }
+}
+new DoForURL(/\.powells\.com\/biblio\/\d\-((\d|x){10})\-\d/i, powellsComByISBN);
+new DoForURL(/\.powells\.com\/.*isbn=((\d|x){10})/i, powellsComByISBN);
+
 // fix up the WAM page that says "The address you are trying to access is invalid."
 if (libxProxy != null && libxProxy.type == "wam") {
     // this matches on a WAM DNS'ed URL
@@ -421,7 +430,7 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
             var newlink = makeLink(doc,
                 libxGetProperty("isbnsearch.label",
                     [libraryCatalog.name, isbn]),
-                linkByISBN(isbn));
+                libraryCatalog.linkByISBN(isbn));
             n[i].parentNode.insertBefore(newlink, n[i]);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), n[i]);
             // uncomment this to remove the worldcatlibraries link

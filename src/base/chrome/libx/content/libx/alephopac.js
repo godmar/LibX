@@ -22,34 +22,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-function AlephOPAC(catprefix) {
-	//this is a constructor
-	this.libraryCatalogAlephLocalBase = libxGetProperty(catprefix + 'aleph.localbase');
-	this.libraryCatalogAlephTitle = libxGetProperty(catprefix + 'aleph.title');
-	this.libraryCatalogAlephSubject = libxGetProperty(catprefix + 'aleph.subject');
-	this.libraryCatalogAlephAuthor = libxGetProperty(catprefix + 'aleph.author');
-	this.libraryCatalogAlephISBN = libxGetProperty(catprefix + 'aleph.isbn');
-	this.libraryCatalogAlephISSN = libxGetProperty(catprefix + 'aleph.issn');
-	this.libraryCatalogAlephCallNo = libxGetProperty(catprefix + 'aleph.callno');
-	this.libraryCatalogAlephKeyword = libxGetProperty(catprefix + 'aleph.keyword');
-	this.libraryCatalogAlephFindFunc = libxGetProperty(catprefix + 'aleph.findfunc');
-	this.libraryCatalogAlephAdvFindFunc = libxGetProperty(catprefix + 'aleph.advfindfunc');
-	this.libraryCatalogAlephScanFunc = libxGetProperty(catprefix + 'aleph.scanfunc');
-
-    // unless specified otherwise, we use the scan index for title 't' & call number 'c'
-    var s = libxGetProperty(catprefix + 'aleph.scan.index.list');
-    if (s)
-        this.scanIndexList = ";" + s + ";";
-    else
-        this.scanIndexList = ";t;c;";
-    // unless specified otherwise, we use the find index for the rest, that is
-    // author 'a', keyword 'Y', isbn 'i' and issn 'is', and subject 'd'
-}
+function AlephOPAC() { }
 
 AlephOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(AlephOPAC.prototype, {
-	xisbnOPACID: "aleph",
+	xisbn: { opacid: "aleph" },
+    // unless specified otherwise, we use the scan index for 
+    // title 't' & call number 'c'
+    // we use the find index for the rest, that is
+    // author 'a', keyword 'Y', isbn 'i' and issn 'is', and subject 'd'
+    scanindexlist: "t;c",
 	supportsSearchType: function (stype) {
 	    if (stype == 'at') {
 	        alert(libxGetProperty("articletitle.alert"));
@@ -63,43 +46,44 @@ libxAddToPrototype(AlephOPAC.prototype, {
     },
 	searchCodeLookup: function(stype) {
 		switch(stype) {
-			case 'd':	return this.libraryCatalogAlephSubject;
-			case 't':	return this.libraryCatalogAlephTitle;
-			case 'c':	return this.libraryCatalogAlephCallNo;
-			case 'a':	return this.libraryCatalogAlephAuthor;
-			case 'Y': 	return this.libraryCatalogAlephKeyword;
-			case 'is': 	return this.libraryCatalogAlephISSN;
-			case 'i':	return this.libraryCatalogAlephISBN;
-			default : return this.libraryCatalogAlephKeyword;
+			case 'd':	return this.subject;
+			case 't':	return this.title;
+			case 'c':	return this.callno;
+			case 'a':	return this.author;
+			case 'Y': 	return this.keyword;
+			case 'is': 	return this.issn;
+			case 'i':	return this.isbn;
+			default : return this.keyword;
 		}
 	},
 	makeSearch: function(stype, query) {
 		//split between heading indexes and straight keyword indexes
 		//aleph handles then both the same way but displays them in different
 		//ways.  
-        if (this.scanIndexList.match(";" + stype + ";")) {
+        var s = ";" + this.scanindexlist + ";";
+        if (s.match(";" + stype + ";")) {
             return this.url + "/F?func=" 
-                + this.libraryCatalogAlephScanFunc
+                + this.scanfunc
                 + (this.sid != null ? ("&sourceid=" + this.sid) : "")
-                + "&local_base=" + this.libraryCatalogAlephLocalBase 
+                + "&local_base=" + this.localbase 
                 + "&scan_code=" + this.searchCodeLookup(stype)
                 + "&scan_start=" + this.escape(query);
         }
 
         // default
         return this.url + "/F?func="
-            + this.libraryCatalogAlephFindFunc 
+            + this.findfunc 
             + (this.sid != null ? ("&sourceid=" + this.sid) : "")
-            + "&local_base=" + this.libraryCatalogAlephLocalBase
+            + "&local_base=" + this.localbase
             + "&find_code=" + this.searchCodeLookup(stype)
             + "&request=" + this.escape(query);
     },
 	makeAdvancedSearch: function(fields) {
 		//assumption that we're only doing AND sets.  
 		var url = this.url + "/F?func="
-				+ this.libraryCatalogAlephAdvFindFunc
+				+ this.advfindfunc
 				+ "&sourceid=" + this.sid
-				+ "&local_base=" + this.libraryCatalogAlephLocalBase;
+				+ "&local_base=" + this.localbase;
 		url += "&find_code=" + this.searchCodeLookup(fields[0].searchType) 
 			+ "&request=" + this.escape(fields[0].searchTerms);
 		for (var i = 1; i < fields.length; i++) {

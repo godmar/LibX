@@ -22,18 +22,12 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Horizon OPAC
-function HorizonOPAC(catprefix) {
-    this.url = libxGetProperty(catprefix + "catalog.url");
-    // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
-    // others have an index ISBNEX that does exact matching on both ISSN & ISBN
-    this.isbn = libxGetProperty(catprefix + "horizon.isbn");
-    this.issn = libxGetProperty(catprefix + "horizon.issn");
-}
+function HorizonOPAC() { }
 
 HorizonOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(HorizonOPAC.prototype, {
-    xisbnOPACID: "ipac",
+    xisbn: { opacid: "ipac" },
 	convert: function (stype) {
 	    switch (stype) {
 	        case 'd':   return ".SW";

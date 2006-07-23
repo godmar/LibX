@@ -22,14 +22,13 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Sirsi OPAC
-function SirsiOPAC(catprefix) {
-    this.path = "/uhtbin/cgisirsi/x/0/0/5/?";
-}
+function SirsiOPAC() { }
 
 SirsiOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(SirsiOPAC.prototype, {
-    xisbnOPACID: "sirsi6",
+    path: "/uhtbin/cgisirsi/x/0/0/5/?",
+    xisbn: { opacid: "sirsi6" },
 /*
       <option value="GENERAL^SUBJECT^GENERAL^^keywords anywhere">keyword anywhere</option>
       <option value="AU^AUTHOR^AUTHORS^Author Processing^author">author</option>

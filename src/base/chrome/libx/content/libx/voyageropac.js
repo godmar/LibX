@@ -22,20 +22,19 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Voyager OPAC
-function VoyagerOPAC(catprefix) { 
-    this.advancedsearchforissn = libxGetProperty(catprefix + "voyager.advancedsearchforissn");
-}
+function VoyagerOPAC() { }
 
 // taken in part from http://www.mines.edu/library/catalyst/canned.html
 VoyagerOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(VoyagerOPAC.prototype, {
-    xisbnOPACID: "voyager",
+    xisbn: { opacid: "voyager" },
 	convert: function (stype) {
 	    switch (stype) {
 	        case 'd':   return "SUBJ_";
 	        case 'a':   return "NAME_";
 	        case 't':   return "TALL";
+	        case 'jt':  return "JALL";
             case 'is':  return "ISSN";
 	        case 'i':   return "ISBN";
 	        case 'c':   return "CALL_";
@@ -48,6 +47,7 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
 	    switch (stype) {
 	        case 'd':   return "Subject (SKEY)";
 	        case 'a':   return "Author (NKEY)";
+            case 'jt':
 	        case 't':   return "Title (TKEY)";
             case 'is':
 	        case 'i':   return "ISSN/ISBN (ISSN)";

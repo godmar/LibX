@@ -41,6 +41,7 @@ var popuphelper = new ContextPopupHelper();
 function libxCatalog() { }
 
 libxCatalog.prototype = {
+    xisbn: { },
     setIf: function (prop, what) {
         if (what != null)
             this[prop] = libxConvertToBoolean(what);
@@ -69,18 +70,25 @@ libxCatalog.prototype = {
     // Create a url that requests an item by ISBN from the xISBN service,
     // if the current catalog supports it
     makeXISBNRequest: function(isbn) {
-        if (this.useOAIxISBN) {
+        if (this.xisbn.oai) {
             // jeff young from OCLC says to use this URL for libraries registered
             // with their service, see http://alcme.oclc.org/bookmarks/
             return "http://alcme.oclc.org/bookmarks/servlet/OAIHandler/extension"
-                + "?verb=FRBRRedirect&identifier=" + this.useOAIxISBN
+                + "?verb=FRBRRedirect&identifier=" + this.xisbn.oai
                 + "&isbn=" + isbn;
         } else
-        if (this.xisbnOPACID) {
+        if (this.xisbn.opacid) {
             // xISBN barks at https URLs
             return "http://labs.oclc.org/xisbn/liblook?baseURL=" 
                 + this.url.replace(/https/, "http")     
-                + "&opacID=" + this.xisbnOPACID + "&isbn=" + isbn;
+                + "&opacID=" + this.xisbn.opacid + "&isbn=" + isbn;
+        } else {
+            return this.makeISBNSearch(isbn);
+        }
+    },
+    linkByISBN: function (isbn) {
+        if (this.xisbn.cues) {
+            return this.makeXISBNRequest(isbn);
         } else {
             return this.makeISBNSearch(isbn);
         }
@@ -113,7 +121,8 @@ libxCatalog.prototype = {
      */
     supportsSearchType: function (stype) {
         return (";" + this.options + ";").match(";" + stype + ";");
-    }
+    },
+    options: "Y;t;a;d;i;c"
 }
 
 function libxAddToPrototype(prototype, addedmethods) 
@@ -215,59 +224,93 @@ function libxInitializeCatalog(cattype, catprefix)
 	case "scholar":
         cat = new libxScholarSearch(catprefix);
         break;
+
 	case "bookmarklet":
         cat = new libxBookmarklet(catprefix);
         break;
+
 	case "millenium":
-		cat = new MilleniumOPAC(catprefix);
+		cat = new MilleniumOPAC();
+        cat.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
+        cat.setIf('keywordcode', libxGetProperty(catprefix + "millenium.keywordcode"));
+        cat.setIf('advancedcode', libxGetProperty(catprefix + "millenium.advancedcode"));
+        cat.setIf('journaltitlecode', libxGetProperty(catprefix + "millenium.journaltitlecode"));
+        cat.setIf('sort', libxGetProperty(catprefix + "millenium.sort"));
+        cat.setIf('searchform', libxGetProperty(catprefix + "millenium.searchform"));
         break;
+
 	case "horizon":
-	    cat = new HorizonOPAC(catprefix);
+	    cat = new HorizonOPAC();
+        // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
+        // others have an index ISBNEX that does exact matching 
+        // on both ISSN & ISBN
+        cat.setIf('isbn', libxGetProperty(catprefix + "horizon.isbn"));
+        cat.setIf('issn', libxGetProperty(catprefix + "horizon.issn"));
         break;
+
 	case "aleph":
-	    cat = new AlephOPAC(catprefix);
+	    cat = new AlephOPAC();
+        cat.setIf('localbase', libxGetProperty(catprefix + 'aleph.localbase'));
+        cat.setIf('title', libxGetProperty(catprefix + 'aleph.title'));
+        cat.setIf('subject', libxGetProperty(catprefix + 'aleph.subject'));
+        cat.setIf('author', libxGetProperty(catprefix + 'aleph.author'));
+        cat.setIf('isbn', libxGetProperty(catprefix + 'aleph.isbn'));
+        cat.setIf('issn', libxGetProperty(catprefix + 'aleph.issn'));
+        cat.setIf('callno', libxGetProperty(catprefix + 'aleph.callno'));
+        cat.setIf('keyword', libxGetProperty(catprefix + 'aleph.keyword'));
+        cat.setIf('findfunc', libxGetProperty(catprefix + 'aleph.findfunc'));
+        cat.setIf('advfindfunc', libxGetProperty(catprefix + 'aleph.advfindfunc'));
+        cat.setIf('scanfunc', libxGetProperty(catprefix + 'aleph.scanfunc'));
+        cat.setIf('scanindexlist', libxGetProperty(catprefix + 'aleph.scan.index.list'));
         break;
+
 	case "voyager":
-	    cat = new VoyagerOPAC(catprefix);
+	    cat = new VoyagerOPAC();
+        cat.setIf('advancedsearchforissn', libxGetProperty(catprefix + "voyager.advancedsearchforissn"));
         break;
+
 	case "sirsi":
-	    cat = new SirsiOPAC(catprefix);
+	    cat = new SirsiOPAC();
         break;
+
 	case "sersol":
-	    cat = new ArticleLinker(catprefix);
+	    cat = new ArticleLinker();
         break;
+
 	case "sfx":
-	    cat = new SFX(catprefix);
+	    cat = new SFX();
         break;
+
 	case "centralsearch":
-	    cat = new CentralSearch(catprefix);
+	    cat = new CentralSearch();
+        cat.setIf('sslibhash', libxGetProperty(catprefix + "centralsearch.ssLibHash"));
+        cat.setIf('searchby', libxGetProperty(catprefix + "centralsearch.searchBy"));
+        cat.setIf('catids', libxGetProperty(catprefix + "centralsearch.catIDs"));
+        cat.setIf('catgroupids', libxGetProperty(catprefix + "centralsearch.catGroupIDs"));
+        cat.setIf('dbidlist', libxGetProperty(catprefix + "centralsearch.dbIDList"));
         break;
+
     default:
 		libxLog("Catalog type " + cattype + " not supported.");
     case null:
     case "":
         return null;
     }
-    cat.url = libxGetProperty(catprefix + "catalog.url");
-    cat.sid = libxGetProperty(catprefix + "catalog.sid");
-    cat.name = libxGetProperty(catprefix + "catalog.name"); 
-    var copt = libxGetProperty(catprefix + "catalog.options"); 
-    if (cat.options == null)
-        cat.options = copt;
-
-    if (cat.options == null)
-        cat.options = "Y;t;a;d;i;c";
+    cat.setIf('url', libxGetProperty(catprefix + "catalog.url"));
+    cat.setIf('sid', libxGetProperty(catprefix + "catalog.sid"));
+    cat.setIf('name', libxGetProperty(catprefix + "catalog.name")); 
+    cat.setIf('options', libxGetProperty(catprefix + "catalog.options"));
     cat.urlregexp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
-
-    // override xisbn opac id if it is not the default
-    var xisbn = libxGetProperty(catprefix + "catalog.xisbn.opacid");
-    if (xisbn) {
-        cat.xisbnOPACID = xisbn != "none" ? xisbn : null;
-    }
     cat.prefix = catprefix;
-    var oai = libxGetProperty(catprefix + "catalog.xisbn.oai");
-    if (oai != "")
-        cat.useOAIxISBN = oai;
+
+    if (cat.xisbn == undefined)
+       cat.xisbn = new Object();
+
+    cat.xisbn.setIf = cat.setIf;
+    cat.xisbn.setIf('cues', libxConvertToBoolean(libxGetProperty(catprefix + "cues.use.xisbn")));
+    // override xisbn opac id if it is not the default
+    cat.xisbn.setIf('opacid', libxGetProperty(catprefix + "catalog.xisbn.opacid"));
+    cat.xisbn.setIf('oai', libxGetProperty(catprefix + "catalog.xisbn.oai"));
 
     libxLog("registered " + cat.name + " (type=" + cattype + ", options=" + cat.options + ")");
     return cat;
@@ -542,7 +585,7 @@ function libxContextPopupShowing() {
 		isbnsearch.label = libxGetProperty("isbnsearch.label", [libraryCatalog.name, pureISN]);
 		xisbnsearch.label = libxGetProperty("xisbnsearch.label", [pureISN]);
 		isbnsearch.hidden = false;
-		if (libraryCatalog.xisbnOPACID) {   // only true if xISBN is supported for this catalog
+		if (libraryCatalog.xisbn.opacid) {   // only true if xISBN is supported for this catalog
 		    xisbnsearch.hidden = false;
 		}
 	} else
@@ -965,11 +1008,7 @@ var libxAutoLinkFilters = [
             var isbn = isISBN(match[1]); 
             if (isbn == null) return null;
             this.name = libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
-            if (libxGetProperty("cues.use.xisbn") == "true") {
-                return libraryCatalog.makeXISBNRequest(isbn);
-            } else {
-                return libraryCatalog.makeISBNSearch(isbn);
-            }
+            return libraryCatalog.linkByISBN(isbn);
         }
     },
     {   // ISSNs - we try to only accept 0000-0000

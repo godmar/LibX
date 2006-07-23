@@ -23,16 +23,7 @@
 
 
 // Support for Serial Solutions' Central Search
-function CentralSearch(catprefix) {
-    this.ssLibHash = libxGetProperty(catprefix + "centralsearch.ssLibHash");
-    this.searchBy = libxGetProperty(catprefix + "centralsearch.searchBy");
-    if (this.searchBy == "Category") {
-        this.catIDs = "catID=" + libxGetProperty(catprefix + "centralsearch.catIDs").replace(/;/g, "&catID=");
-        this.catGroupIDs = "catGroupID=" + libxGetProperty(catprefix + "centralsearch.catGroupIDs").replace(/;/g, "&catGroupID=");
-    } else {
-        this.dbIDList = "dbIDList=" + libxGetProperty(catprefix + "centralsearch.dbIDList");
-    }
-}
+function CentralSearch() { }
 
 CentralSearch.prototype = new libxCatalog();
 
@@ -75,14 +66,30 @@ libxAddToPrototype(CentralSearch.prototype, {
     http://demo.cs.serialssolutions.com/results?SS_LibHash=KA9YH9GR5U&dbIDList=all,PAD,EAS,PAT,AEA,EAL,AFU,CBR,CBS,WAS,WAR,AKX,IBG,WBA,RSY,WBR,IBR,EBR,ECL,AUJ,CCG,ECC,ECI,AYJ,ECE,ICD,ECS,BBI,ICQ,BCT,PCJ,AMR,CCT,BHS,CCU,PED,CSU,CCZ,CDE,BNH,ENW,IEA,IGG,WGS,BVM,IHW,EHC,EHN,CBE,PHN,CHS,RIE,IOF,ANW,MIN,CIM,CIP,CLX,CMP,ILT,CLO,CLR,ESE,EMH,UGV,EMI,CDG,ENS,CDN,ENC,ROX,DGT,CPC,IPC,RPD,PQF,PQC,PML,PSN,NN1,PNJ,PSK,EPS,PSJ,EBW,PQT,DIE,CDP,EFU,RWI,&searchType=basic&catGroupList=default&searchBy=Database&field=Title&term=india
 
     */
+	prolog: function(searchtype) {
+        return this.url + "/results?SS_LibHash=" + this.sslibhash 
+            + (this.dbidlist ? ("&dbIDList=" + this.dbidlist) : "")
+            + "&catGroupList=default" 
+            + "&searchBy=" + this.searchby
+            + "&searchType=" + searchtype
+            ;
+    },
+	epilog: function(searchtype) {
+        var e = "";
+        // transform simply semicolon-separated lists x;y;z into multiple
+        // &catID=x&catID=y&catID=z etc.; similarly for catGroupID
+        if (this.catids) {
+            e += "&catID=" + this.catids.replace(/;/g, "&catID=");
+        }
+        if (this.catgroupids) {
+            e += "&catGroupID=" + this.catgroupids.replace(/;/g, "&catGroupID=");
+        }
+        return e;
+    },
 	makeSearch: function(stype, sterm) {
-        return this.url + "/results?SS_LibHash=" + this.ssLibHash 
-            + (this.dbIDList ? ("&" + this.dbIDList) : "")
-            + "&searchType=basic&catGroupList=default" 
-            + "&searchBy=" + this.searchBy
+        return this.prolog("basic")
             + "&field=" + this.convert(stype) + "&term=" + sterm
-            + (this.catIDs ? ("&" + this.catIDs) : "");
-            + (this.catGroupIDs ? ("&" + this.catGroupIDs) : "")
+            + this.epilog()
             ;
 	},
     /*
@@ -90,12 +97,7 @@ libxAddToPrototype(CentralSearch.prototype, {
     http://demo.cs.serialssolutions.com/results?SS_LibHash=KA9YH9GR5U&dbIDList=&catGroupList=default&searchType=advanced&searchBy=Category&term0=india&field0=Title&boolop1=And&term1=bears&field1=Keyword&boolop2=And&term2=&field2=Title&boolop3=And&term3=&field3=Title&boolop4=And&term4=&field4=date&catGroupID=10810
     */
 	makeAdvancedSearch: function(fields) {
-        var url = this.url + "/results?SS_LibHash=" + this.ssLibHash 
-            + "&catGroupList=default"   // is this correct ???
-            + "&searchType=advanced"
-            + "&searchBy=" + this.searchBy
-            + (this.dbIDList ? ("&" + this.dbIDList) : "")
-            ;
+        var url = this.prolog("advanced");
 		for (var i = 0; i < fields.length; i++) {
             if (i > 0) {
                 url += "&boolop" + (i) + "=And";
@@ -103,8 +105,7 @@ libxAddToPrototype(CentralSearch.prototype, {
 			url += "&field" + (i) + "=" + this.convert(fields[i].searchType) 
                 + "&term" + (i) + "=" + fields[i].searchTerms;
 		}
-        url += this.catIDs ? ("&" + this.catIDs) : "";
-        url += this.catGroupIDs ? ("&" + this.catGroupIDs) : "";
+        url += this.epilog();
 		return url;
 	}
 });
