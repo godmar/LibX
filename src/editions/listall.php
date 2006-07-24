@@ -40,7 +40,14 @@
     function by_date($a, $b) { 
         return ($b[lastmod] < $a[lastmod]) ? -1 : 1;
     }
-    usort ($CONFIG, 'by_date');
+    function by_name($a, $b) { 
+        return ($b['libxedition'] < $a['libxedition']) ? 1 : -1;
+    }
+    if (@$_GET['sortby'] == 'name') {
+        usort ($CONFIG, 'by_name');
+    } else {
+        usort ($CONFIG, 'by_date');
+    }
 
     for ($i = 0; $i < count($CONFIG); $i++) {
         echo "<tr>";
