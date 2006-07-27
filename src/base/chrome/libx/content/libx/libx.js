@@ -80,7 +80,7 @@ libxCatalog.prototype = {
         if (this.xisbn.opacid) {
             // xISBN barks at https URLs
             return "http://labs.oclc.org/xisbn/liblook?baseURL=" 
-                + this.url.replace(/https/, "http")     
+                + this.url.replace(/https/, "http")
                 + "&opacID=" + this.xisbn.opacid + "&isbn=" + isbn;
         } else {
             return this.makeISBNSearch(isbn);
@@ -246,6 +246,7 @@ function libxInitializeCatalog(cattype, catprefix)
         // on both ISSN & ISBN
         cat.setIf('isbn', libxGetProperty(catprefix + "horizon.isbn"));
         cat.setIf('issn', libxGetProperty(catprefix + "horizon.issn"));
+        cat.setIf('callno', libxGetProperty(catprefix + "horizon.callno"));
         break;
 
 	case "aleph":
@@ -296,6 +297,7 @@ function libxInitializeCatalog(cattype, catprefix)
     case "":
         return null;
     }
+    cat.setIf = libxCatalog.prototype.setIf;
     cat.setIf('url', libxGetProperty(catprefix + "catalog.url"));
     cat.setIf('sid', libxGetProperty(catprefix + "catalog.sid"));
     cat.setIf('name', libxGetProperty(catprefix + "catalog.name")); 

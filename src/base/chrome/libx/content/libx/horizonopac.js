@@ -28,6 +28,7 @@ HorizonOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(HorizonOPAC.prototype, {
     xisbn: { opacid: "ipac" },
+    callno: "CALLLC",
 	convert: function (stype) {
 	    switch (stype) {
 	        case 'd':   return ".SW";
@@ -35,7 +36,7 @@ libxAddToPrototype(HorizonOPAC.prototype, {
 	        case 't':   return ".TW";
 	        case 'i':   return this.isbn;
 	        case 'is':  return this.issn;
-	        case 'c':   return "CALLLC";
+	        case 'c':   return this.callno;
 	        case 'Y':   return ".GW";
 	        default:
 	            return ".GW";
