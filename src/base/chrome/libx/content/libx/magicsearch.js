@@ -250,6 +250,7 @@ function magicSearch(data, inpub, suppressheuristics)
                         display = true;
                         libxMagicLog('OpenURL: ' + vtu);
                     } else {
+                        vtu = decodeURIComponent(vtu);
                         libxMagicLog('DirectURL: ' + vtu);
                     }
                     if (display) {
