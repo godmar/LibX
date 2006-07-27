@@ -28,6 +28,7 @@
     <th>Id</th>
     <th>Live</th>
     <th>Edition</th>
+    <th>Version</th>
     <th>Config File</th>
     <th>Primary Catalog</th>
     <th>OpenURL</th>
@@ -64,6 +65,7 @@
                    href="' . @$path_prefix .  'libxtestedition.php?edition=' . $ec[name] . '">' 
             . ereg_replace("Edition$", "", $ec['libxedition'])
             . '</a></td>'
+            . '<td>' . $ec['libxversion'] . '</td>'
             . '<td><a href="' . @$path_prefix . 'showconfigfile.php?edition=' . $ec[name] . '">config</a></td>'
             . "<td>" . $ec['$catalog.type'] . "</td>"
             . "<td>" . @$ec['$openurl.type'] . "</td>"
