@@ -58,6 +58,7 @@ function libxInitializeDFU() {
 // match amazon page and capture ISBN in match
 var amazonAction = new DoForURL(/\.amazon\.com.*\/(\d{7,9}[\d|X])\//, doAmazon);
 var amazonUkAction = new DoForURL(/\.amazon\.co\.uk.*\/(\d{7,9}[\d|X])\//, doAmazon);
+var amazonCaAction = new DoForURL(/\.amazon\.ca.*\/(\d{7,9}[\d|X])\//, doAmazon);
     
 function doAmazon(doc, match) {
     var isbn = match[1];    // grab captured isbn in matched URL
@@ -374,7 +375,9 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
         var isbn = isISBN(isbn13.nextSibling.textContent);
         if (isbn == null)
             continue;
-        var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn));
+        var hint = makeLink(doc, 
+                    libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
+                    libraryCatalog.linkByISBN(isbn));
         anode.parentNode.insertBefore(hint, anode.nextSibling);
     }
 });
@@ -395,8 +398,27 @@ function powellsComByISBN(doc, m)
         isbnlabel.parentNode.insertBefore(link, isbnlabel.nextSibling.nextSibling.nextSibling.nextSibling);
     }
 }
-new DoForURL(/\.powells\.com\/biblio\/\d\-((\d|x){10})\-\d/i, powellsComByISBN);
+new DoForURL(/\.powells\.com\/biblio\/\d*\-((\d|x){10})\-\d*/i, powellsComByISBN);
 new DoForURL(/\.powells\.com\/.*isbn=((\d|x){10})/i, powellsComByISBN);
+new DoForURL(/\.powells\.com\/.*:((\d|x){10}):/i, powellsComByISBN);
+
+// chapters.ca or chapters.indigo.ca
+// the URL appears to embed both a ISBN-13 and an ISBN - look for "ISBN:" instead
+new DoForURL(/chapters\..*\.ca\//, function (doc) {
+    var isbnlabel = xpathFindSingle(doc, "//div/text()[contains(.,'ISBN:')]");
+    if (isbnlabel) {
+        var isbn = isISBN(isbnlabel.nextSibling.textContent);
+        if (isbn) {
+            var link = makeLink(doc,
+                    libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
+                    libraryCatalog.linkByISBN(isbn));
+            // place this link prominently by the booktitle
+            var t = doc.getElementById("_ctl9_title");
+            t.parentNode.insertBefore(link, t.nextSibling);
+            t.parentNode.insertBefore(doc.createTextNode(" "), t.nextSibling);
+        } 
+    } 
+});
 
 // fix up the WAM page that says "The address you are trying to access is invalid."
 if (libxProxy != null && libxProxy.type == "wam") {
