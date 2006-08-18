@@ -56,9 +56,9 @@ function libxInitializeDFU() {
 // Idea from Jon Udell's Amazon GreaseMonkey script 
 
 // match amazon page and capture ISBN in match
-var amazonAction = new DoForURL(/\.amazon\.com.*\/(\d{7,9}[\d|X])\//, doAmazon);
-var amazonUkAction = new DoForURL(/\.amazon\.co\.uk.*\/(\d{7,9}[\d|X])\//, doAmazon);
-var amazonCaAction = new DoForURL(/\.amazon\.ca.*\/(\d{7,9}[\d|X])\//, doAmazon);
+var amazonAction = new DoForURL(/\.amazon\.com.*\/(\d{7,9}[\d|X])\/?/, doAmazon);
+var amazonUkAction = new DoForURL(/\.amazon\.co\.uk.*\/(\d{7,9}[\d|X])\/?/, doAmazon);
+var amazonCaAction = new DoForURL(/\.amazon\.ca.*\/(\d{7,9}[\d|X])\/?/, doAmazon);
     
 function doAmazon(doc, match) {
     var isbn = match[1];    // grab captured isbn in matched URL
@@ -79,7 +79,7 @@ function doAmazon(doc, match) {
 new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (doc, match) {
     var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
     
-    var origTitle = xpathFindSingle(doc, "//tr[td[@class='itemTitleProduct']]");
+    var origTitle = xpathFindSingle(doc, "//h1[@id='title']");
     if (!origTitle) {
         return;
     }
@@ -211,7 +211,7 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
 // Google results pages
 // link to catalog via keyword
 
-new DoForURL(/google\.com\/search.*q=/, function (doc) {
+new DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
     var n = xpathFindSingle(doc, "//tr/td[font[@size='+1' and b[text()='Web']]]");
     var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
     n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
