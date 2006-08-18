@@ -35,7 +35,7 @@
            <r:Description> 
              <id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</id> 
              <minVersion>1.0</minVersion> 
-             <maxVersion>1.5.0.*</maxVersion> 
+             <maxVersion>2.0.*</maxVersion> 
              <updateLink>$xpilocation$</updateLink> 
            </r:Description> 
          </targetApplication> 
