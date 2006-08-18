@@ -198,7 +198,11 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
     for (var i = 0; i < fields.length; i++) {
         switch (fields[i].searchType) {
         case 'jt':
-            url += "&sfx.title_search=contains&sfx.ignore_date_threshold=1";
+            url += "&sfx.title_search=contains";
+            /* FALL THROUGH */
+        case 'is':
+        case 'i':
+            url += "&sfx.ignore_date_threshold=1";
             break;
         case 'a':
             genre = "article";
@@ -207,6 +211,10 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
     }
     url += "&genre=" + genre;
 	return url;
+}
+
+SFX.prototype.makeOpenURLForISSN = function (issn) {
+    return this.makeOpenURLSearch([{ searchType: 'is', searchTerms: issn }]);
 }
 
 // vim: ts=4
