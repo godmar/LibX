@@ -8,6 +8,14 @@ This changelog.txt file is part of LibX Version $libxversion$
 
 Under development
 
+ *added sfx.ignore_date_threshold for SFX ISSN searches
+ *fixed cues on amazon, barnes&noble
+ *support international google sites
+ *added cue on powells.com
+
+version 1.1
+
+ *supports Firefox 2.0 - tested with 2.0b1
  *started adding code to read configuration from config.xml, optional for now
  *made "Search ..." button drop target for keyword-based search
   on default catalog
