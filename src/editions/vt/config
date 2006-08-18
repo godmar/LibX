@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1.1
+#--------------------------------------------------
+
 #
 # This file contains the setting for the Virginia Tech Edition.
 #
@@ -39,14 +43,13 @@ $link3.url=http://libx.org/editions/vt/libx.html
 #
 # Byline for adapter.
 #
-# Leave empty if you don't wish a byline
+# Leave empty or omit if you don't wish a byline
 # otherwise, fill in, for example, your name and contact information. 
 #
-# adaptedby=John Smith john.smith@email.com
+# $adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
-# Use HTML entities for < >, e.g., &lt; and &gt;
 #
-adaptedby=
+# $adaptedby=
 
 #
 # LibX now supports multiple catalogs.
@@ -202,22 +205,46 @@ $catalog1.catalog.type=bookmarklet
 
 # That's the label that will appear in the drop-down list.
 
-$catalog1.catalog.name=for VT Databases
+$catalog1.catalog.name=VT Database List
 
-# offer only "Title" in the drop-down list for this Databases bookmarklet
+#
+# This example shows how to define your own search labels.
+#
+# We want it to say "DB Title" in the drop-down list for this 
+# Databases bookmarklet
+#
+# With $libx.searchoption<N>.label/.value you can either define additional
+# search options, or you can redefine the labels for existing
+# search options (such as 't', 'jt', 'Y', etc.)
+#
+# Note that, in all cases, the redefinition is global across all
+# catalogs, so if you'd redefine "Journal Title" to "Periodical Title"
+# it would do so for all catalogs that provide 'jt' in their search options.  
+# (XXX: we should fix this maybe.)
+#
+$libx.searchoption1.label=DB Title
+$libx.searchoption1.value=dbname
+$catalog1.catalog.options=dbname
 
-$catalog1.catalog.options=t
+# That's the URL that's invoked when the user searches.  
+# %dbname is replaced with the database name the user entered.
 
-# That's the URL that's invoked when the user searches.  %t is replaced with the Title
-# the user entered.
-
-$catalog1.catalog.url=http://www.lib.vt.edu/dsp/index.php?searchval=%t&action=SearchDatabase
+$catalog1.catalog.url=http://www.lib.vt.edu/dsp/index.php?searchval=%dbname&action=SearchDatabase
 
 # Search VT Electronic Theses and Dissertations
 $catalog2.catalog.type=bookmarklet
 $catalog2.catalog.name=VT ETD
 $catalog2.catalog.url=http://scholar.lib.vt.edu:8765/query.html?qt=%Y&col=theses&charset=iso-8859-1
 $catalog2.catalog.options=Y
+
+# Search EJournals.  
+# This adds an option to search VT's "EJournals List", which uses
+# Serials Solutions A-Z List.
+#
+
+$catalog3.catalog.type=sersol
+$catalog3.catalog.name=VT EJournals
+$catalog3.catalog.url=http://su8bj7jh4j.search.serialssolutions.com
 
 ##########################################################################
 #
@@ -300,6 +327,12 @@ $openurl.name=VT Article Linker
 # $openurl.options=jt
 # See above for description of options
 # The OpenURL resolver is not displayed if $openurl.dontshowintoolbar=true is set.
+# 
+# At VT, we don't want the OpenURL resolver to show because we have
+# already added it as a catalog under its name.  If we didn't set it,
+# it would show "Search VT Article Linker"
+# 
+$openurl.dontshowintoolbar=true
 
 #######
 #

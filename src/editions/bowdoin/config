@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1.1
+#--------------------------------------------------
+
 #
 # This file contains the setting for the Bowdoin College Library Edition.
 #
@@ -35,7 +39,7 @@ $link2.url=http://libx.org/editions/bowdoin/libx.html
 # adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
 #
-adaptedby=
+$adaptedby=
 
 #
 # LibX now supports multiple catalogs.
@@ -74,7 +78,7 @@ $millenium.keywordcode=X
 #    $catalog1.millenium.sort=# 
 
 $catalog1.catalog.type=millenium
-$catalog1.catalog.name=Maine Info Net
+$catalog1.catalog.name=MaineCat
 $catalog1.catalog.url=http://130.111.64.9
 $catalog1.catalog.sid=libxinfonet
 $catalog1.catalog.searchscope=1

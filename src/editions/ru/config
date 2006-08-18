@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1
+#--------------------------------------------------
+
 #
 # This file contains the setting for the Virginia Tech Edition.
 #
@@ -31,7 +35,7 @@ $link2.url=http://rulib.radford.edu/
 # adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
 #
-adaptedby=Steve Helm shelm@radford.edu
+$adaptedby=Steve Helm shelm@radford.edu
 
 #
 # The catalogtype.
@@ -153,6 +157,9 @@ $libx.supportcoins=true
 # See libx.org -> "Upcoming Features"
 #
 $libx.sersolisbnfix=true
+
+
+$libx.autolink=true
 
 # Internal URL of large logo.
 # Change only the "shield50.gif" part to be the filename of your logo

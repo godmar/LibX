@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1
+#--------------------------------------------------
+
 #
 # This file contains the setting for the Rochester Institute of Technology Edition.
 #
@@ -36,7 +40,7 @@ $link4.url=http://libx.org/editions/rit/libx.html
 # adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
 #
-adaptedby=RIT Libraries http://library.rit.edu/
+$adaptedby=RIT Libraries http://library.rit.edu/
 
 #
 # The catalogtype.

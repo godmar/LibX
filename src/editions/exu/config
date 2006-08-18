@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1
+#--------------------------------------------------
+
 #
 # This file contains the setting for the Virginia Tech Edition.
 #
@@ -36,7 +40,7 @@ $link2.url=http://libx.org/editions/exu/libx.html
 # adaptedby=John Smith john.smith@email.com
 # This information will be displayed in the About Box dialog.
 #
-adaptedby=
+$adaptedby=
 
 #
 # LibX now supports multiple catalogs.
@@ -100,6 +104,9 @@ $catalog1.catalog.url=http://voyager.falmouth.ac.uk
 #    $catalog1.catalog.sid=libxvt
 #    $catalog1.catalog.searchscope=1
 #    $catalog1.millenium.sort=
+
+$libx.searchoption1.value=c
+$libx.searchoption1.label=Classmark
 
 #
 # OpenURL resolver

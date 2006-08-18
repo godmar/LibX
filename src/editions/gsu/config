@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1
+#--------------------------------------------------
+
 #
 # This file contains the setting for the Georgia State Edition.
 #
@@ -6,7 +10,7 @@ libxedition=Georgia State Edition
 emname=LibX Georgia State
 emnameshort=LibX GSU
 
-adaptedby=William Walsh libwdw@langate.gsu.edu
+$adaptedby=William Walsh libwdw@langate.gsu.edu
 
 # These links are shown in the dropdown menu on the top left
 $link1.label=Georgia State University Libraries

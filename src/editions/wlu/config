@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1
+#--------------------------------------------------
+
 #
 # Everything that's branding specific should be defined here in this file
 #
@@ -14,7 +18,7 @@ $link2.url=http://annie.wlu.edu
 $link3.label=LibX WLU Homepage
 $link3.url=http://libx.org/editions/wlu/libx.html
 
-adaptedby=John Doyle
+$adaptedby=John Doyle
 
 $catalog.type=millenium
 $catalog.name=Annie

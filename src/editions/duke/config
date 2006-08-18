@@ -1,3 +1,7 @@
+# This edition's version
+libxversion=1.1
+#--------------------------------------------------
+
 libxedition=Duke Edition
 emname=Duke Libraries Toolbar
 emnameshort=Duke Libraries
@@ -9,10 +13,11 @@ $link2.url=http://catalog.library.duke.edu
 $link3.label=LibX Duke Homepage
 $link3.url=http://libx.org/editions/duke/libx.html
 
-adaptedby=Sean Chen &lt;chen@law.duke.edu&gt;
+$adaptedby=Sean Chen <chen@law.duke.edu>
 $catalog.type=aleph
 $catalog.name=Duke Libraries
 $catalog.url=http://catalog.library.duke.edu
+$catalog.sid=libxduke
 
 $aleph.localbase=duk01
 $aleph.title=TIT
