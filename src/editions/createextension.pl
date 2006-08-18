@@ -10,9 +10,6 @@ my $copytargetdir = "/home/www/libx.org/editions";
 
 my %conf = ();
 
-# TBD: replace with major.minor.release taken from config file
-$conf{'libxversion'} = '1.0.2';
-
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 
@@ -32,6 +29,15 @@ while (<H>) {
 }
 close(H);
 $conf{'additionalproperties'} = $addprop;
+
+my $current = "1.1";
+my $major = "1.1";
+$conf{'libxversion'} = $current if (!defined($conf{'libxversion'}));
+if ($conf{'libxversion'} !~ /^$major(.\d+)?/) {
+    print "Wrong version, aborting edition build process.\nVersion is " . $conf{'libxversion'};
+    print " but should be $major.*\n";
+    exit;
+}
 
 sub copyandreplace {
     my ($src, $dst) = @_;
