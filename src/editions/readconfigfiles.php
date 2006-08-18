@@ -14,6 +14,11 @@
     for ($i = 0; $i < count($editions); $i++) {
         $filename = @$path_prefix . $editions[$i];
         $tmp = explode('/', $editions[$i]);
+        if (!file_exists($filename)) {
+            $CONFIG[$i]['libxname'] = "No such edition";
+            break;
+        }
+            
         $f = fopen($filename, 'r');
         $editions[$i] = $tmp[count($tmp)-2];    // change "vt/config" to "vt"
 
