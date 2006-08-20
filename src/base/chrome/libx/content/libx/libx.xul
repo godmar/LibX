@@ -97,7 +97,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<!-- do not add more children to vbox, the addSearchField function relies on being able to clone vbox.lastChild -->
 				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
 					<!-- child number 0 aka firstChild -->
-					<toolbarbutton label="Keyword" type="menu" tooltiptext="Select Search Field Type" width="80" crop="end">
+					<toolbarbutton label="-" type="menu" tooltiptext="Select Search Field Type" width="80" crop="end">
 						<menupopup id="libx-dropdown-menupopup">
 							<menuitem value="Y" label="Keyword" oncommand="setFieldType(this);" />
 							<menuitem value="t" label="Title" oncommand="setFieldType(this);" />

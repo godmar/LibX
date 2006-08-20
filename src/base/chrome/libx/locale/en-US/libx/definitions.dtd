@@ -11,5 +11,5 @@ Branding specific things should be defined in config and variables should be use
 
 <!ENTITY libx.magicbutton.label " Scholar ">
 <!ENTITY libx.magicbutton.image "chrome://libx/skin/scholar.gif">
-<!ENTITY libx.rightclickmagicsearch "Search via Scholar">
+<!ENTITY libx.rightclickmagicsearch "Search via Google Scholar">
 <!ENTITY toolbar.separator.style "display: none;">
