@@ -8,6 +8,7 @@ This changelog.txt file is part of LibX Version $libxversion$
 
 Under development
 
+ *if openurl.version=1.0, handle all COinS, not only genre=book/journal
  *added sfx.ignore_date_threshold for SFX ISSN searches
  *fixed cues on amazon, barnes&noble
  *support international google sites

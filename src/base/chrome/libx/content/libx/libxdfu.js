@@ -86,6 +86,7 @@ new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (d
     // make link and insert after title
     var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
     origTitle.appendChild(link);
+    origTitle.insertBefore(doc.createTextNode(" "), link);
 });
 
 // -----------------------------------------------------------------------------
@@ -254,6 +255,7 @@ if (openUrlResolver && libxConfig.options.rewritescholarpage) {
 
 if (openUrlResolver && libxConfig.options.supportcoins) {
  new DoForURL(/.+/, function (doc) {
+    var is1_0 = openUrlResolver.version == "1.0";
     var coins = xpathFindNodes(doc, "//span[@class='Z3988']");
     for (var i = 0; i < coins.length; i++) {
         try { // the span attribute may be malformed, if so, recover and continue with next
@@ -269,25 +271,37 @@ if (openUrlResolver && libxConfig.options.supportcoins) {
                 var qj = decodeURIComponent(query[j]);
 
                 // some 0.1 resolver (SerSol) don't like the 'url_ver=' option
-                if (openUrlResolver.version != "1.0" && qj.match(/^url_ver=/)) {
-                    query[j] = "";
+                if (!is1_0 && qj.match(/^url_ver=/)) {
+                    query.splice(j--, 1);
+                    continue;
+                }
+
+                // remove rfr_id= if present, we substitute our own sid/rfr_id
+                if (qj.match(/^rfr_id=/)) {
+                    query.splice(j--, 1);
+                    continue;
+                }
+
+                // this is part of the context object version, but is not included in final URL
+                if (qj.match(/^ctx_ver=/)) {
+                    query.splice(j--, 1);
                     continue;
                 }
 
                 if (qj == rft_book) {
                     isBookOrArticle = true;
-                    if (openUrlResolver.version != "1.0")
+                    if (!is1_0)
                         query[j] = "genre=book";
                     continue;
                 }
                 if (qj == rft_journal) {
                     isBookOrArticle = true;
-                    if (openUrlResolver.version != "1.0")
+                    if (!is1_0)
                         query[j] = "genre=article";
                     continue;
                 }
 
-                if (openUrlResolver.version != "1.0") {
+                if (!is1_0) {
                     //convert to 0.1 unless 1.0 is given
                     //remove "rft." from beginning of attribute keys
                     qj = qj.replace(/rft\./g,"");
@@ -304,9 +318,13 @@ if (openUrlResolver && libxConfig.options.supportcoins) {
                 var val = kv.splice(1).join("=");
                 query[j] = kv[0] + '=' + encodeURIComponent(val);
             }
-            query = "&" + query.join("&");
+            if (is1_0)
+                query.push("url_ver=Z39.88-2004");
 
-            if (isBookOrArticle) {
+            query = query.join("&");
+
+            // handle any coins if 1.0, otherwise do only if book or article
+            if (is1_0 || isBookOrArticle) {
                 span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), openUrlResolver.completeOpenURL(query), true));
             }
         } catch (e) {
