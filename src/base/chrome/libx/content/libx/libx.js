@@ -142,15 +142,49 @@ libxBookmarklet.prototype = new libxCatalog();
 
 libxAddToPrototype(libxBookmarklet.prototype, {
     doNotURIEncode: true,
-    supportsSearchType: function (stype) {
-        // alternatively, could check options as done in superclass
-        return this.url.match("%" + stype);
-    },
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },
     makeAdvancedSearch: function (fields) {
         var url = this.url;
+        /* Example of URL that uses %SWITCH statement and %termN:
+            $catalog1.catalog.url=http://www.lib.umich.edu/ejournals/ejsearch.php?searchBy=%SWITCH{%type1}{t:KT}{d:KS}{sot:TV}{soi:IV}&AVterm1=%term1&Cnect2=AND&AVterm2=%term2&Cnect3=AND&AVterm3=%term3&New=All&submit=Find
+        */
+        var swtch;
+        var swtchre = /%SWITCH{(%[a-z0-9]+)}{(([^}]+(}{)?)+)}/i;
+        while (swtch = url.match(swtchre)) {
+            var s = swtch[1];
+            var repl = "could not resolve SWITCH stmt";
+            var caseargs = swtch[2].split("}{");
+            var m = s.match(/^%type(\d+)/);
+            if (m) {
+                var switch_arg = fields[m[1] - 1].searchType;
+            } else {
+                m = s.match(/^%term(\d+)/);
+                if (m)
+                    var switch_arg = fields[m[1] - 1].searchTerms;
+                else
+                    repl = "invalid switch_arg, must be %termX or %typeX";
+            }
+            for (var i = 0; i < caseargs.length; i++) {
+                var re = new RegExp("^" + switch_arg + ":(\\S*)$");
+                var m = re.exec(caseargs[i]);
+                if (m) {
+                    repl = m[1];
+                    break;
+                }
+            }
+            url = url.replace(swtchre, repl);
+        }
+
+        // replace %termN with corresponding search terms
+        for (var i = 0; i < fields.length; i++) {
+           url = url.replace("%term" + (i+1), encodeURIComponent(fields[i].searchTerms), "g");
+        }
+        // clear out remaining %termN
+        url = url.replace(/%term\d+/g, "");
+
+        // replace %X as with terms
         for (var i = 0; i < fields.length; i++) {
            url = url.replace("%" + fields[i].searchType, encodeURIComponent(fields[i].searchTerms));
         }
@@ -910,6 +944,8 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
 function addSearchField() {
 	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
 	var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
+    // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
+    newSearchField.firstChild.value = lastSearchField.firstChild.value;
 	lastSearchField.childNodes.item(2).disabled=true;// disable blue "add-field" button in what will be the next-to-last searchfield
 	if (libxSearchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
 		lastSearchField.childNodes.item(3).disabled=false; // OPTIONAL: show close button in first search field
