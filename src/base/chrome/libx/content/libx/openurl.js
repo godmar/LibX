@@ -102,6 +102,9 @@ OpenURL.prototype = {
          * identifier lookup per sid, we append a different sid
          * if this OpenURL contains a DOI if so configured.
          */
+        if (this.pmidsid != null && url.match(/id=pmid:/i)) {
+            url += "&sid=" + this.pmidsid;
+        } else
         if (this.xrefsid != null && url.match(/id=doi:/i)) {
             url += "&sid=" + this.xrefsid;
         } else {

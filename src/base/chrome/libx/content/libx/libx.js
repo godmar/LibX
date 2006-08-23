@@ -440,6 +440,7 @@ function libxInitializeOpenURL()
         openUrlResolver.url = libxGetProperty("openurl.url");
         openUrlResolver.sid = libxGetProperty("openurl.sid");
         openUrlResolver.xrefsid = libxGetProperty("openurl.xrefsid");
+        openUrlResolver.pmidsid = libxGetProperty("openurl.pmidsid");
         openUrlResolver.name = libxGetProperty("openurl.name");
         openUrlResolver.version = libxGetProperty("openurl.version");
         openUrlResolver.image = libxGetProperty("openurl.image");
