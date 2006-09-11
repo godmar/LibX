@@ -47,6 +47,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
 	searchCodeLookup: function(stype) {
 		switch(stype) {
 			case 'd':	return this.subject;
+			case 'jt':	return this.journaltitle;
 			case 't':	return this.title;
 			case 'c':	return this.callno;
 			case 'a':	return this.author;
