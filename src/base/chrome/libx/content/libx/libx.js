@@ -104,7 +104,8 @@ libxCatalog.prototype = {
             if (!this.supportsSearchType(fields[i].searchType)) {
                 return;
             }
-        }	
+            libxAdjustISNSearchType(fields[i]);
+        }
         if (fields.length == 1) {//single search field
             var url = this.makeSearch(fields[0].searchType, fields[0].searchTerms);
         } else {// user requested multiple search fields, do advanced search
@@ -154,19 +155,22 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         var swtchre = /%SWITCH{(%[a-z0-9]+)}{(([^}]+(}{)?)+)}/i;
         while (swtch = url.match(swtchre)) {
             var s = swtch[1];
-            var repl = "could not resolve SWITCH stmt";
+            var repl = "";
             var caseargs = swtch[2].split("}{");
             var m = s.match(/^%type(\d+)/);
+            var switch_arg = null;
             if (m) {
-                var switch_arg = fields[m[1] - 1].searchType;
+                if (m[1] <= fields.length)
+                    switch_arg = fields[m[1] - 1].searchType;
             } else {
                 m = s.match(/^%term(\d+)/);
-                if (m)
-                    var switch_arg = fields[m[1] - 1].searchTerms;
-                else
-                    repl = "invalid switch_arg, must be %termX or %typeX";
+                if (m) {
+                    if (m[1] <= fields.length)
+                        switch_arg = fields[m[1] - 1].searchTerms;
+                } else
+                    libxLog("invalid switch_arg '" + s + "', must be %termX or %typeX");
             }
-            for (var i = 0; i < caseargs.length; i++) {
+            for (var i = 0; switch_arg != null && i < caseargs.length; i++) {
                 var re = new RegExp("^" + switch_arg + ":(\\S*)$");
                 var m = re.exec(caseargs[i]);
                 if (m) {
@@ -287,6 +291,7 @@ function libxInitializeCatalog(cattype, catprefix)
 	    cat = new AlephOPAC();
         cat.setIf('localbase', libxGetProperty(catprefix + 'aleph.localbase'));
         cat.setIf('title', libxGetProperty(catprefix + 'aleph.title'));
+        cat.setIf('journaltitle', libxGetProperty(catprefix + 'aleph.journaltitle'));
         cat.setIf('subject', libxGetProperty(catprefix + 'aleph.subject'));
         cat.setIf('author', libxGetProperty(catprefix + 'aleph.author'));
         cat.setIf('isbn', libxGetProperty(catprefix + 'aleph.isbn'));
@@ -754,18 +759,15 @@ function doSearchBy(stype) {
 		// creates "doyle arthur conan"
 	}
 
-    // if this is an ISSN, but not a ISBN, change searchtype to 'is'
 	if (stype == 'i') {
 	    sterm = pureISN;
-        if (!isISBN(pureISN) && isISSN(pureISN)) {
-            stype = 'is';
-        }
-	}
-		
+    }
+
 	// create a makeshift array of a single element - we do this solely 
 	// to be able to reuse the "doCatalogSearch" function which expects an array
 	// of objects with a searchType/searchTerms property each.
-	libraryCatalog.search([{searchType: stype, searchTerms: sterm}]);	
+	var field = {searchType: stype, searchTerms: sterm};	
+	libraryCatalog.search([field]);
 }
 
 // use OCLC's xisbn's search
@@ -851,6 +853,20 @@ function libxProxyInit() {
     }
 }
 
+/* If the searchType is 'i', examine if user entered an ISSN
+ * and if so, change searchType to 'is'.  This ensures that 'i' handles
+ * both ISBNs and ISSNs.
+ */
+function libxAdjustISNSearchType(f)
+{
+    // if this is an ISSN, but not a ISBN, change searchType to 'is'
+	if (f.searchType == 'i') {
+        if (!isISBN(f.searchTerms) && isISSN(f.searchTerms)) {
+            f.searchType = 'is';
+        }
+	}
+}
+
 // for all catalogs transfer search field contents into 'fields' array
 // and return this array
 function extractSearchFields() {
@@ -866,9 +882,6 @@ function extractSearchFields() {
         if (field.searchTerms == "")
             continue;
 
-        if (field.searchType == 'i' && isISSN(field.searchTerms) && !isISBN(field.searchTerms)) {
-            field.searchType = 'is';
-        }
 		fields.push(field);
 	}
 	return fields;
