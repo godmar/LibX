@@ -162,7 +162,7 @@ function magicSearch(data, inpub, suppressheuristics)
         // else we got results.  See if what we were looking for is here
         // Scholar now has "All articles | Recent articles choice" which sometimes shows up
         // account for it when finding the block of replies
-        var div = r.match(/(<div>|recent articles.*?\/table>)\s*(<p class=g>[\s\S]*?)<\/div>/i);
+        var div = r.match(/(<div>|\/table>)\s*(<p class=g>[\s\S]*?)<\/div>/i);
         if (div) {
             var hits = div[2].split(/<p class=g>/);
             var found = false;
