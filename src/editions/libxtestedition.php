@@ -1,7 +1,8 @@
 <?
+// invoked with ?edition=vt
 $version = "Test Edition";
-$edition = $_GET['edition'];
-if (!preg_match("/^[a-zA-Z0-9]+$/", $edition)) die ("Wrong argument.");
+$edition = @$_GET['edition'];
+if (!preg_match("/^[a-zA-Z0-9\.]+$/", $edition)) die ("Wrong argument.");
 
 $edition_config = $edition . '/config';
 $edition_config_xml = $edition . '/config.xml';
@@ -11,8 +12,8 @@ if (!file_exists($edition_config)) {
     die ("No such test edition - check the edition argument; given was edition=" . $edition);
 }
 
+// read config file and store config entries in $CONFIG array
 $f = fopen($edition_config, 'r');
-
 while (!feof($f)) {
     $line = fgets($f, 1024);
     if (preg_match('/^#/', $line) || preg_match('/^\s*$/', $line))
@@ -24,6 +25,7 @@ while (!feof($f)) {
 $edition_name = $CONFIG['libxedition'];
 $catalog_type = $CONFIG['$catalog.type'];
 $icon = $edition . '/' . basename($CONFIG['emiconURL']);
+$hasopenurl = @$CONFIG['$openurl.type'] != "";
 ?>
 
 <html>
@@ -32,12 +34,17 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
       <link rel="icon" href="<? echo $icon ?>" type="image/x-icon" />
       <link rel="shortcut icon" href="<? echo $icon ?>" type="image/x-icon" />
 <style>
+/* heading for Part1, Part2, etc. */
 .part {
     font-weight: bold;
 }
 .selectthis {
     color: green;
     border: thin solid #000000;
+}
+.url {
+    color: green;
+    font-family: Courier;
 }
 .searchoptions {
     color: green;
@@ -50,34 +57,62 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
     </head>
 <body>
 
-<h2 class="title">LibX <? echo $edition_name ?> - Test Edition</h2>
+<h2 class="title">LibX <? echo $edition_name ?> - Test Edition Page</h2>
 
-<p>
+<p>Quick Install:
 <a target="_top" href="<? echo $edition ?>/libx-<? echo $edition ?>.xpi">
         Click here to install LibX <? echo $edition_name . ' --- Test Edition '?>
 </a>
 <p>
+<p>This page contains links, status information, and testing instructions
+for the test edition of LibX - <? echo $edition_name; ?>.
+</p>
 
+<h4>Edition Status</h4>
 <ul>
-<li>Last rebuilt on <font color="green"><b>
-    <? echo date( "F d, Y. H:i:s a", filemtime($edition_xpi) ); ?>.
+<?  // output build version if given
+    if (isset($CONFIG['libxversion'])) {
+        echo '<li>Version of this build: <font color="red"><b>' 
+            . $CONFIG['libxversion'] 
+            . "</b></font>";
+    }
+?>
+
+<li>Last rebuilt on 
+    <font color="green"><b>
+        <? echo date( "F d, Y. H:i:s a", filemtime($edition_xpi) ); ?>.
     </b></font>
-<li>Last modification to config file was made <font color="green"><b>
-    <? echo date( "F d, Y. H:i:s a", filemtime($edition_config) ); ?>.
+
+<li>Last modification to config file was made 
+    <font color="green"><b>
+        <? echo date( "F d, Y. H:i:s a", filemtime($edition_config) ); ?>.
     </b></font>
-<li> <a href="<? echo $edition_config?>">config file</a> used to build this snapshot.
-<li> An easier-to-read version of 
-        the <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file without comments.</a>
+
+<li> Direct link to 
+    <a href="<? echo $edition_config?>">config file</a> used to build this snapshot.
+    When submitting revisions, base those submissions on this config file.
+
+<li> Direct link to the 
+        <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file with
+        comments were stripped.</a>
+
     <? if (file_exists($edition_config_xml)) {
         echo '<a href="' . $edition_config_xml . '">(as XML)</a>';
     } ?>
 
+<li>
+    A directory listing of <a href="<? echo $edition ?>/">Click here</a> all files 
+    used in building this edition.
+</ul>
+
+<h4>Catalog Settings</h4>
+<ul>
 <li> The following catalogs are configured:
     <hr width="90%">
     <table width="90%" border="0">
     <tr>
         <th>Catalog</th>
-        <th>Name/Link</th>
+        <th>Name shown in Toolbar</th>
         <th>Type</th>
         <th>URL</th>
         <th><a href="#options">Options</a></th>
@@ -87,8 +122,11 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
     $prefix = "";
     while (@$CONFIG['$' . $prefix . 'catalog.type'] != "") {
         echo '<tr><td>';
-        if ($c == 0) { echo 'Primary'; }
-        else { echo 'Catalog #'. $c; }
+        if ($c == 0) { 
+            echo 'Primary'; 
+        } else { 
+            echo 'Catalog #'. $c; 
+        }
         echo '</td><td>';
         echo '<a href="' . $CONFIG['$' . $prefix . 'catalog.url'] . '">' 
                 . $CONFIG['$' . $prefix . 'catalog.name']. '</a>';
@@ -109,7 +147,7 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
             if ($cattype == "sersol")
                 echo 'jt;i';
             else if ($cattype == "sfx")
-                echo 'jt';
+                echo 'jt;i';
             else
                 echo 'Y;t;a;d;i;c';
         }
@@ -120,82 +158,135 @@ $icon = $edition . '/' . basename($CONFIG['emiconURL']);
 ?>
     </table>
     <hr width="90%">
-<? 
-    $openurl_image = $icon;
-    if (@$CONFIG['$openurl.type'] != "") {
-        echo '<li> OpenURL resolver type is <tt style="{ color: green }">' . $CONFIG['$openurl.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$openurl.url'] . '</tt>';
-        echo '<li> Inserted OpenURL links are displayed using this image: <img src="';
-        if (@$CONFIG['$openurl.image']) {
-            $openurl_image = $edition . '/' . basename($CONFIG['$openurl.image']);
-        } 
-        echo $openurl_image . '" />';
+<li> xISBN setup for primary catalog: 
+<?
+    $oai = @$CONFIG['$catalog.xisbn.oai'];
+    if ($oai != "") {
+        echo 'you are using the following ' 
+            . '<a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark identifier:</a> '
+            . '<span class="url">' . $oai . '</span>';
     } else {
-        echo '<li> No OpenURL resolver is defined for this edition.';
+        echo 'you currently are not using an '
+            . '<a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark identifier.</a> '
+            . 'Consider signing up for one. ';
+        echo 'See the <a href="/faq.html#QL12">FAQ</a> for discussion.';
     }
+?>
+</ul>
+
+<h4>OpenURL settings</h4>
+<ul>
+<? if ($hasopenurl) { 
+        $openurl_image = $icon;
+?>
+        <li> OpenURL resolver type is 
+                <span class="url">
+                    <? echo $CONFIG['$openurl.type'] ?>
+                </span> at <span class="url">
+                    <? echo $CONFIG['$openurl.url'] ?> 
+                </span>
+
+        <li> Inserted OpenURL links are displayed using this image: 
+            <img src="<?
+                if (@$CONFIG['$openurl.image']) {
+                    $openurl_image = $edition . '/' . basename($CONFIG['$openurl.image']);
+                }
+                echo $openurl_image;
+               ?>"/>
+<? } else { ?>
+        <li>No OpenURL resolver is defined for this edition.
+<? } /* else hasopenurl */ ?>
+</ul>
+
+<h4>Proxy Settings</h4>
+<ul>
+<?
     if (@$CONFIG['$proxy.type'] != "") {
         echo '<li> Remote Access type is <tt style="{ color: green }">' . $CONFIG['$proxy.type'] . '</tt> at <tt style="{ color: green }">' . $CONFIG['$proxy.url'] . '</tt>';
     } else {
         echo '<li> No remote proxy is defined for this edition.';
     }
-    echo '<li> Small logo is <img src="' . $icon . '" />, which should look identical to ';
-    echo '<img width="16" height="16" src="' . $icon . '" />';
+?>
+</ul>
+<h4>Branding &amp; Logos</h4>
+<ul>
+<li> The small logo included in this edition is 
+    <? echo '<img src="' . $icon . '" />' ?> - this logo is displayed in the
+    toolbar, in the right-click menu, and in pages that display cues.
+    The logo should have a height of 16px, and ideally, a width of 16px.
+    The logo should look good when stretched to 16x16, as we do now:
+    <? echo '<img width="16" height="16" src="' . $icon . '" />'; ?>
+
+<li> Logos generally look better if their background is transparent, because
+    then the background of the page on which it is placed will shine through.
+    Here is the logo shown on a 
+        <span style="background-color: black; color: white;">black background</span>:
+    <? echo '<img style="background-color: black;" src="' . $icon . '" />'; ?>
+    and on <span style="background-color: gray">gray background</span>: 
+    <? echo        '<img style="background-color: gray;" src="' . $icon . '" />'; ?>
+    The areas where you see black or gray shine through, respectively, is where
+    your logo is transparent. If you don't see black or gray, your logo is not
+    transparent.  
+
+<li> Your large logo is 
+<?
     $logo = $CONFIG['logoURL'];
     if (preg_match('/chrome:\/\/libx\/skin/', $logo)) 
         $logo = $edition . '/' . basename($logo);
-    echo '<li> Large logo is <img src="' . $logo . '" />';
-
-    $oai = @$CONFIG['$catalog.xisbn.oai'];
-    if ($oai != "") {
-        echo '<li> xISBN Setup: you are using the following <a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark identifier:</a> '
-            . '<tt style="{ color: green }">' . $oai . '</tt>';
-    } else {
-        echo '<li> xISBN Setup: you currently are not using an <a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark identifier.</a> Consider signing up. ';
-        echo 'See also the <a href="/faq.html#QL12">FAQ</a>.';
-    }
+    echo '<img src="' . $logo . '" />';
 ?>
+    <br />
+    This logo is only displayed in your "About Box."
 
 </ul>
 
+<h3>Purpose of this page</h3>
 <p>
-<a href="<? echo $edition ?>/">Click here</a> for a listing of all files used in building this edition.
-Please do not link to this edition, it is here solely for testing.
+<i>Warning:</i>
+This page is solely for the use of the edition maintainer/tester, it
+is not intended for end users.  The same applies to the .xpi build
+linked from this page.  Please do not link to this build.
 <p>
-Editions linked from here may or may not work with your version of Firefox.
-They do not benefit from automatic updates, and the config file they use may not
-work with the current version of LibX.
+This build may or may not work with your version of Firefox.
+It will not benefit from automatic updates.
+Occasionally, we may rebuild your test edition as we develop and
+test LibX.  
 <p>
 If your edition is a "live" edition, the xpi file linked from this page
 is different from the one to which you should point your users.
 Your users should be pointed at the last vetted version located at
 <tt>http://libx.org/editions/<? echo $edition ?>/libx-<? echo $edition ?>.xpi</tt>.
-That xpi file should be linked from 
-your <a href="/editions/<? echo $edition ?>/libx.html">edition's homepage</a>, not this one.
+That xpi file should be linked from your 
+<a href="/editions/<? echo $edition ?>/libx.html">edition's homepage</a>, 
+<b>not</b> this one.  If you wish to make an edition live and are setting
+up a homepage to do so,  make sure to use the correct link.
 <p>
 If we upgrade an edition, we will build a new test edition here first and ask you 
 to test it. To test this edition, either use a <a target="_top" 
 href="http://www.mozilla.org/support/firefox/profile#new">blank profile</a>, 
-or install this edition over your current edition.  (We believe that in 1.5.0.3,
-it is no longer necessary to uninstall the current version first.)
-<b>Don't forget to restart Firefox afterwards.</b>
+or install this edition over your current edition.  (We believe that in 1.5.0.3 
+and higher, it is no longer necessary to uninstall the current version first.)
+In all versions, <b>don't forget to restart Firefox afterwards.</b>
 To install over your current edition, simply drag and drop the link to the
 .xpi file into the address bar.
 <p>
 <hr>
 <div>
-<b>Instructions for Testing:</b><p>
+<h3>Instructions for Testing:</h3>
 You should thoroughly test your edition.
 <p>
-<span class="part">Part 1: Toolbar</span>
+<h4>Part 1: Toolbar</h4>
 <p>
 Try out keyword searches, title searches, author searches, ISBN/ISSN, and call number
 searches from the toolbar for all catalogs you have configured and see if they work 
-to your satisfaction. 
+to your satisfaction.
 <p>
 Use the blue down button in the toolbar to create 
 multiple-term searches (author + title, author + keyword, etc.)
 <p>
 Check that the links you want displayed to your users in the top-left dropdown
 menu work.  You configured the following links (they open in a new window.)
+
 <ol>
 <?
 $ln = 1;
@@ -207,32 +298,50 @@ while (@$CONFIG['$link' . $ln . '.url'] != "") {
 }
 ?>
 </ol>
+
 If you have an "edition homepage" link--typically the last link--to 
-<tt><? echo $CONFIG['emhomepageURL'] ?></tt>, this link won't work until 
-the edition is live.  It will then point to where you offer your edition
+<span class="url"><? echo $CONFIG['emhomepageURL'] ?></span>, this link won't work 
+until the edition is live.  It will then point to where you offer your edition
 to your users.
 <p>
 
-<span class="part">Part 2: Cues</span>
+<h4>Part 2: Cues</h4>
 <p>
 Each of these links will open in a new window.  
 Make sure you click on each cue to see if it works.
 <br />
-You should be seeings cues on these pages: 
+You should be seeings cues on these pages.  (If there is a date in parentheses,
+this indicates that your edition must have been rebuilt after that date for
+the cue to work.)
 <ul>
 <li><a target="_new" href="http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=006073132X&itm=1">
-        Barnes &amp; Noble</a>,
-<li><a target="_new" href="http://www.amazon.com/gp/product/006073132X">Amazon</a>,
-<li><a target="_new" href="http://www.amazon.co.uk/gp/product/1561840718">Amazon (UK)</a>,
+        Barnes &amp; Noble</a> (8/18/06),
+<li><a target="_new" href="http://www.amazon.com/gp/product/006073132X">Amazon</a> (8/18/06),
+<li><a target="_new" href="http://www.amazon.co.uk/gp/product/1561840718">Amazon (UK)</a> (8/18/06),
+<li><a target="_new" href="http://www.amazon.ca/gp/product/1550411993">Amazon (CA)</a> (8/16/06),
 <li><a target="_new" href="http://www.booklistonline.com/default.aspx?page=show_product&pid=1611275">Booklistonline.com</a>,
 <li><a target="_new" href="http://www.nytimes.com/2005/05/15/books/review/15HOLTL.html">NY Times Book Review (1)</a>,
 <li><a target="_new" href="http://www.nytimes.com/2006/04/27/books/27masl.html">NY Times Book Review (2) (nytimes.com requires a login)</a>,
-<li><a target="_new" href="http://www.google.com/search?hl=en&q=freakonomics">Google.com</a>,
-<li><a target="_new" href="http://search.yahoo.com/search?ei=UTF-8&fr=sfp&p=freakonomics">Yahoo.com.</a>
-<li><a target="_new" href="http://www.worldcatlibraries.org/wcpa/isbn/006073132X">WorldCat via COinS</a>
+<li><a target="_new" href="http://www.google.com/search?hl=en&q=freakonomics">google.com</a>,
+<li><a target="_new" href="http://www.google.ca/search?hl=en&q=freakonomics">google.ca</a> (8/18/06) - other countries should work as well,
+<li><a target="_new" href="http://search.yahoo.com/search?ei=UTF-8&fr=sfp&p=freakonomics">Yahoo.com,</a>
+<? if (@$CONFIG['$libx.supportcoins'] == "true") { ?>
+<li><a target="_new" href="http://www.worldcatlibraries.org/wcpa/isbn/006073132X">WorldCat via COinS,</a>
 <li> <span  class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info:ofi/fmt:kev:mtx:journal&amp;rft.title=D-LIB&amp;rft.aulast=Van+de+Sompel&amp;rft.atitle=Generalizing+the+OpenURL+Framework+beyond+References+to+Scholarly+Works+The+Bison-Fut%C3%A9+Model&amp;rft.volume=7&amp;rft.issue=7/8&amp;rft.date=2001-07&amp;rft_id=http://www.dlib.org/dlib/july01/vandesompel/07vandesompel.html">You should be seeing a COinS icon here: </span> 
-<li>(if built after May 8:) <a target="_new" href="http://www.ecampus.com/book/0201549794">ecampus.com (1)</a>,
-<a target="_new" href="http://www.ecampus.com/bk_detail.asp?isbn=0201702452">ecampus.com (2)</a>
+    <? if (@$CONFIG['$openurl.version'] == "1.0") { ?>
+    <li> 
+    <span 
+       class="Z3988" 
+       title="ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Adissertation&rfr_id=info%3Asid%2Focoins.info%3Agenerator&rft.title=Isolation%2C+Resource+Management+and+Sharing+in+the+KaffeOS+Java+Runtime+System&rft.aulast=Back&rft.aufirst=Godmar&rft.date=2001&rft.cc=USA&rft.inst=University+of+Utah&rft.degree=PhD">
+      Since your OpenURL resolver supports OpenURL 1.0, there should be a second COinS icon with genre dissertation here: 
+    </span>
+    <? } ?>
+
+<? } ?>
+<li><a target="_new" href="http://www.ecampus.com/book/0201549794">ecampus.com (1)</a>,
+<a target="_new" href="http://www.ecampus.com/bk_detail.asp?isbn=0201702452">ecampus.com (2),</a>
+<li><a target="_new" href="http://www.powells.com/biblio/1-0743226712-2">powells.com,</a>
+<li><a target="_new" href="http://www.chapters.indigo.ca/books/item/books-978155041577/">chapters.ca</a> (7/25/2006)
 </ul>
 <p>
 <span class="part">Part 3: Context-Menu</span>
@@ -337,17 +446,25 @@ Select an <b>entire line</b> each time, right-click and pick "Search via Scholar
 <li><span class="selectthis">Convergence of trust region augmented Lagrangian methods using variable fidelity approximation data</span>
 <li><span class="selectthis">"The KaffeOS Java Runtime System." Godmar Back and Wilson C Hsieh. ACM Transactions on Programming Languages and Systems.</span>
 <li><span class="selectthis">Unskilled and unaware of it: how difficulties in recognizing one's own incompetence lead to inflated self-assessments</span>
+<li><span class="selectthis">Analog of Photon-Assisted Tunneling in a Bose-Einstein Condensate</span>
 <li><span class="selectthis">The cellular automata paradigm for the parallel solution of heat transfer problems</span>
 </ol>
-Depending on the strength of your OpenURL resolver and depending on your holdings (or the holdings
-of the library you set in your Scholar preferences), you should be led either to the publisher's
-site for these pages, or to your OpenURL resolver page.  The last entry should lead to a tech report site.  
+Depending on the strength of your OpenURL resolver and depending on your 
+holdings (or the holdings of the library you set in your Scholar preferences), 
+you should be led either to the publisher's site for these pages, or to your 
+OpenURL resolver page.  The last entry should lead to a tech report site.  
 <p>
 An additional tab opens each time with the result of the Scholar search LibX runs.  
-Check that the links on the Scholar page have been replaced with your logo: <img src="<? echo $openurl_image ?>" />
+Check that the links on the Scholar page have been replaced with your 
+logo: <img src="<? echo $openurl_image ?>" />
 <br />
 If you don't see your OpenURL resolver page after selecting "Search via Scholar" for at least 
-one of the examples above, check that you are seeing your logo on the Scholar page.
+one of the examples above, check first that you are seeing your logo on the Scholar page.
+Since we do not have control of the layout Google uses on the Scholar page, it
+may be possible that LibX finds a different layout than what it expected, preventing
+it from recognizing when an item was found.
+In this case, the user will have to manually select the icon on the Scholar page
+to get to the item, as if they had themselves searched Scholar.
 <p>
 Check that the Scholar button works from inside a PDF (Windows only).
 Open <a href="http://www.cs.vt.edu/%7Egback/papers/jtres2005-cadus.pdf">this PDF file</a>, go to the references, and pick a title in the references, then drag and drop it onto the Scholar button.
