@@ -1,9 +1,13 @@
 Various scraps and pieces of documentation. 
 
 1. Search options.
+2. Catalog options.
 
 ----
 1. Search options.
+
+Search options are the options displayed in the drop-down on the left side of
+the input field.
 
 The set of search options is not catalog-specific, but rather global.
 The subset of options, and their order, is however catalog specific.
@@ -42,3 +46,14 @@ The 'options' attribute may use any predefined or additional defined options
 in the list.
 
 ---- ---- ---- ----
+2. Catalog options.
+
+Catalog options are the options displayed in the drop-down on the right 
+side of the input fields.
+
+A LibX edition displays the following catalogs, in this order
+
+- defined catalogs in /edition/catalogs/*
+- unless disabled, the OpenURL resolver
+- unless disabled, Google Scholar
+
