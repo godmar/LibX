@@ -1,0 +1,44 @@
+Various scraps and pieces of documentation. 
+
+1. Search options.
+
+----
+1. Search options.
+
+The set of search options is not catalog-specific, but rather global.
+The subset of options, and their order, is however catalog specific.
+An option combines a 'value' and a 'label'.
+The label is displayed to the user.  The value is used internally.
+
+a) Globally defined search options.
+
+By default, the following options are defined 
+(see libx.xul: //menupopup[@id=libx-dropdown-menupopup])
+
+    value="Y" label="Keyword" 
+    value="t" label="Title" 
+    value="jt" label="Journal Title" 
+    value="at" label="Article Title" 
+    value="a" label="Author" 
+    value="d" label="Subject" 
+    value="m" label="Genre" 
+    value="i" label="ISBN/ISSN" 
+    value="c" label="&libx.call.number;" 
+    value="j" label="Dewey" 
+
+Using the optional //searchoptions/searchoption element, it is possible to 
+redefine the labels for existing options and to add new options.
+
+b) Options that should be displayed for each catalog.
+
+Each catalog lists the options that should be displayed using a 
+semicolon-separated string.  This string is provided in the "options" attribute 
+of a catalog (child of /edition/catalogs)
+If not provided, the default options depend on the catalog.
+For most catalogs, it's: "Y;t;a;d;i;c", which means 
+Keyword, Title, Author, Subject, ISBN/ISSN, Call Number, in that order.
+
+The 'options' attribute may use any predefined or additional defined options
+in the list.
+
+---- ---- ---- ----
