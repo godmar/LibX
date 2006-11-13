@@ -152,7 +152,7 @@ libxAddToPrototype(libxBookmarklet.prototype, {
             $catalog1.catalog.url=http://www.lib.umich.edu/ejournals/ejsearch.php?searchBy=%SWITCH{%type1}{t:KT}{d:KS}{sot:TV}{soi:IV}&AVterm1=%term1&Cnect2=AND&AVterm2=%term2&Cnect3=AND&AVterm3=%term3&New=All&submit=Find
         */
         var swtch;
-        var swtchre = /%SWITCH{(%[a-z0-9]+)}{(([^}]+(}{)?)+)}/i;
+        var swtchre = /%SWITCH\{(%[a-z0-9]+)\}\{(([^}]+(\}\{)?)+)}/i;
         while (swtch = url.match(swtchre)) {
             var s = swtch[1];
             var repl = "";
@@ -191,6 +191,13 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         // replace %X as with terms
         for (var i = 0; i < fields.length; i++) {
            url = url.replace("%" + fields[i].searchType, encodeURIComponent(fields[i].searchTerms));
+        }
+
+        // clear out other %values if defined
+        for (var option in libxDropdownOptions) {
+            // to allow %is, %i, and %issue require that label be followed by a non-letter
+            // XXX not very robust.
+            url = url.replace(new RegExp("%" + option + "(?![a-zA-Z0-9])"), "", "g");
         }
         return url;
     }
@@ -285,6 +292,10 @@ function libxInitializeCatalog(cattype, catprefix)
         cat.setIf('isbn', libxGetProperty(catprefix + "horizon.isbn"));
         cat.setIf('issn', libxGetProperty(catprefix + "horizon.issn"));
         cat.setIf('callno', libxGetProperty(catprefix + "horizon.callno"));
+        cat.setIf('keyword', libxGetProperty(catprefix + "horizon.keyword"));
+        cat.setIf('title', libxGetProperty(catprefix + "horizon.title"));
+        cat.setIf('subject', libxGetProperty(catprefix + "horizon.subject"));
+        cat.setIf('author', libxGetProperty(catprefix + "horizon.author"));
         break;
 
 	case "aleph":
@@ -967,8 +978,18 @@ function addSearchField() {
 	}
 	newSearchField.firstChild.nextSibling.firstChild.value = "";
 	libxSearchFieldVbox.appendChild(newSearchField);
-	// return reference to new textbox so caller can move focus there
-	return newSearchField.firstChild.nextSibling.firstChild;
+
+    // provide the next option from the list as a default
+    var lastSelection = lastSearchField.firstChild.value;
+    var ddMenu = newSearchField.firstChild.firstChild;
+    for (var i = 0; i < ddMenu.childNodes.length - 1; i++) {
+        if (ddMenu.childNodes.item(i).value == lastSelection) {
+            setFieldType(ddMenu.childNodes.item(i+1));
+            break;
+        }
+    }
+    // return reference to new textbox so caller can move focus there
+    return newSearchField.firstChild.nextSibling.firstChild;
 }
 
 // remove a specific search field

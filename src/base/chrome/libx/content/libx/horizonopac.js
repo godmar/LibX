@@ -28,21 +28,29 @@ HorizonOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(HorizonOPAC.prototype, {
     xisbn: { opacid: "ipac" },
+    path: "/ipac20/ipac.jsp",
+    /* default values for properties - 
+       isbn and issn do not have default values */
+    subject: ".SW",
+    author: ".AW",
+    keyword: ".GW",
+    title: ".TW",
     callno: "CALLLC",
 	convert: function (stype) {
 	    switch (stype) {
-	        case 'd':   return ".SW";
-	        case 'a':   return ".AW";
-	        case 't':   return ".TW";
+	        case 'd':   return this.subject;
+	        case 'a':   return this.author;
+	        case 't':   return this.title;
 	        case 'i':   return this.isbn;
 	        case 'is':  return this.issn;
 	        case 'c':   return this.callno;
-	        case 'Y':   return ".GW";
+	        case 'Y':   return this.keyword;
 	        default:
-	            return ".GW";
+	            return this.keyword;
 	    }
 	},
-	supportsSearchType: function (stype) {  // if horizon supports article title searches, adjust
+    // if/once horizon supports article title searches, adjust below
+	supportsSearchType: function (stype) {  
 	    if (stype == 'at') {
 	        alert(libxGetProperty("articletitle.alert"));
 			return false;
@@ -50,10 +58,11 @@ libxAddToPrototype(HorizonOPAC.prototype, {
 	    return true;
 	},
 	makeSearch: function(stype, sterm) {
-	    return this.url + "/ipac20/ipac.jsp?index=" + this.convert(stype) + "&term=" + sterm;
+	    return this.url + this.path + "?" 
+            + "index=" + this.convert(stype) + "&term=" + sterm;
 	},
 	makeAdvancedSearch: function(fields) {
-	    var url = this.url + "/ipac20/ipac.jsp?";
+	    var url = this.url + this.path + "?";
 		url += "index=" + this.convert(fields[0].searchType) + "&term=" + fields[0].searchTerms;
 		for (var i = 1; i < fields.length; i++) {
 			url += "&oper=and&index=" + this.convert(fields[i].searchType) + "&term=" + fields[i].searchTerms; 
