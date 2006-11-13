@@ -423,7 +423,7 @@ new DoForURL(/\.powells\.com\/.*:((\d|x){10}):/i, powellsComByISBN);
 // chapters.ca or chapters.indigo.ca
 // the URL appears to embed both a ISBN-13 and an ISBN - look for "ISBN:" instead
 new DoForURL(/chapters\..*\.ca\//, function (doc) {
-    var isbnlabel = xpathFindSingle(doc, "//div/text()[contains(.,'ISBN:')]");
+    var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN:')]");
     if (isbnlabel) {
         var isbn = isISBN(isbnlabel.nextSibling.textContent);
         if (isbn) {
@@ -431,7 +431,7 @@ new DoForURL(/chapters\..*\.ca\//, function (doc) {
                     libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
                     libraryCatalog.linkByISBN(isbn));
             // place this link prominently by the booktitle
-            var t = doc.getElementById("_ctl9_title");
+            var t = xpathFindSingle(doc, "//span[contains(@id,'_Title')]");
             t.parentNode.insertBefore(link, t.nextSibling);
             t.parentNode.insertBefore(doc.createTextNode(" "), t.nextSibling);
         } 
