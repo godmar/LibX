@@ -294,6 +294,7 @@ function libxInitializeCatalog(cattype, catprefix)
         cat.setIf('callno', libxGetProperty(catprefix + "horizon.callno"));
         cat.setIf('keyword', libxGetProperty(catprefix + "horizon.keyword"));
         cat.setIf('title', libxGetProperty(catprefix + "horizon.title"));
+        cat.setIf('journaltitle', libxGetProperty(catprefix + "horizon.journaltitle"));
         cat.setIf('subject', libxGetProperty(catprefix + "horizon.subject"));
         cat.setIf('author', libxGetProperty(catprefix + "horizon.author"));
         break;

@@ -35,12 +35,14 @@ libxAddToPrototype(HorizonOPAC.prototype, {
     author: ".AW",
     keyword: ".GW",
     title: ".TW",
+    journaltitle: ".JK",
     callno: "CALLLC",
 	convert: function (stype) {
 	    switch (stype) {
 	        case 'd':   return this.subject;
 	        case 'a':   return this.author;
 	        case 't':   return this.title;
+	        case 'jt':  return this.journaltitle;
 	        case 'i':   return this.isbn;
 	        case 'is':  return this.issn;
 	        case 'c':   return this.callno;
