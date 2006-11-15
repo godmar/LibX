@@ -23,7 +23,11 @@ my $doc = XML::LibXML::Document->new();
 my $root = $doc->createElement('edition');
 $doc->setDocumentElement($root);
 $root->setAttribute('id', $edition);
-$root->setAttribute('version', "1.0.2");
+if (defined($config{'libxversion'})) {
+    $root->setAttribute('version', $config{'libxversion'});
+} else {
+    $root->setAttribute('version', "1.1");
+}
 
 my $afiles = $doc->createElement('additionalfiles');
 
@@ -127,6 +131,7 @@ while (1) {
 
     &addproperty($e, $config{'$' . $catprefix . 'aleph.localbase'}, 'localbase');
     &addproperty($e, $config{'$' . $catprefix . 'aleph.title'}, 'title');
+    &addproperty($e, $config{'$' . $catprefix . 'aleph.journaltitle'}, 'journaltitle');
     &addproperty($e, $config{'$' . $catprefix . 'aleph.author'}, 'author');
     &addproperty($e, $config{'$' . $catprefix . 'aleph.keyword'}, 'keyword');
     &addproperty($e, $config{'$' . $catprefix . 'aleph.subject'}, 'subject');
@@ -140,6 +145,12 @@ while (1) {
 
     &addproperty($e, $config{'$' . $catprefix . 'horizon.isbn'}, 'isbn');
     &addproperty($e, $config{'$' . $catprefix . 'horizon.issn'}, 'issn');
+    &addproperty($e, $config{'$' . $catprefix . 'horizon.callno'}, 'callno');
+    &addproperty($e, $config{'$' . $catprefix . 'horizon.author'}, 'author');
+    &addproperty($e, $config{'$' . $catprefix . 'horizon.keyword'}, 'keyword');
+    &addproperty($e, $config{'$' . $catprefix . 'horizon.subject'}, 'subject');
+    &addproperty($e, $config{'$' . $catprefix . 'horizon.title'}, 'title');
+    &addproperty($e, $config{'$' . $catprefix . 'horizon.journaltitle'}, 'journaltitle');
 
     &addproperty($e, $config{'$' . $catprefix . 'voyager.advancedsearchforissn'}, 'advancedsearchforissn');
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.searchBy'}, 'searchby');
@@ -177,6 +188,7 @@ if ($otype) {
     &addproperty($openurl, $config{'$openurl.url'}, 'url');
     &addproperty($openurl, $config{'$openurl.sid'}, 'sid');
     &addproperty($openurl, $config{'$openurl.xrefsid'}, 'xrefsid');
+    &addproperty($openurl, $config{'$openurl.pmidsid'}, 'pmidsid');
     &addproperty($openurl, $config{'$openurl.name'}, 'name');
     &addproperty($openurl, $config{'$openurl.image'}, 'image');
     &addimagefile($openurl->getAttribute('image'));
