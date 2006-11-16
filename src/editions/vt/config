@@ -1,5 +1,5 @@
 # This edition's version
-libxversion=1.1.1
+libxversion=1.1.2
 #--------------------------------------------------
 
 #
@@ -140,16 +140,19 @@ $catalog.urlregexp=addison\.vt\.edu
 
 $catalog.sid=libxvt
 
-#
-# [Millenium only]
 # Some catalogs allow searches over multiple scopes, such as "All Libraries", "Law Library Only", 
 # "Vet Library" only etc.
 # These are search scopes.
 #
+# Only Millennium and Sirsi support scopes
 # At VT, scope 1 means all.  If unknown, use "1".
+# For Sirsi catalogs, you can specify a specific library or library group
+# 
 
 $catalog.searchscope=1
 
+#
+# [Millenium only]
 # Use this to sort the millenium results differently
 # $millenium.sort=A
 
@@ -158,6 +161,20 @@ $catalog.searchscope=1
 
 # Some installations prefer the "W" code for an advanced search in Millenium
 # $millenium.advancedcode=W
+
+#
+# [Sirsi only]
+#
+# Sirsi sort options include:
+# -PBYR (new to old)
+# PBYR (old to new)
+# relevance
+# AU (author)
+# SU (subject)
+# TI (title)
+#
+# Default is no sort field is provided
+# $sirsi.sort=-PBYR
 
 # For each catalog, you can now give a list of search options that appear
 # in the left drop-down when that catalog is selected.
@@ -319,8 +336,12 @@ $openurl.name=VT Article Linker
 
 #
 # This OpenURL resolver supports OpenURL version 1.0 
-# default is 0.1
-# $openurl.version=1.0
+# default is 0.1.
+#
+# This currently affects only how COinS processing is done.
+# Outside of COinS processing, we still use v0.1 syntax.
+# 
+$openurl.version=1.0
 #
 
 # Default drop-down options for the OpenURL resolver is
