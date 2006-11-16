@@ -8,6 +8,8 @@ This changelog.txt file is part of LibX Version $libxversion$
 
 Under development
 
+ *added support for $sirsi.sort and $sirsi.searchscope, contributed by
+  Dan Scott 
  *added support for $openurl.pmidsid to define a sid for OpenURL that have
   an id=pmid:* field.  See $openurl.xrefsid
  *changed "Scholar" to "Google Scholar" as requested by Google personnel.

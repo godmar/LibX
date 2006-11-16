@@ -28,6 +28,7 @@ SirsiOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(SirsiOPAC.prototype, {
     path: "/uhtbin/cgisirsi/x/0/0/5/?",
+    searchscope: 1,
     xisbn: { opacid: "sirsi6" },
 /*
       <option value="GENERAL^SUBJECT^GENERAL^^keywords anywhere">keyword anywhere</option>
@@ -74,8 +75,23 @@ libxAddToPrototype(SirsiOPAC.prototype, {
 	    }
 	    return true;
 	},
+    // You can limit the search to a specific library
+    scopeField: function (query) {
+        if (this.searchscope != 1) {
+            return "&library=" + this.searchscope;
+        }
+        return "";
+    },
+    // You can change the sort method
+    sortField: function (query) {
+        if (this.sort) {
+            return "&sort_by=" + this.sort;
+        }
+        return "";
+    },
 	makeSearch: function(stype, sterm) {
-        return this.url + this.path + "searchdata1=" + sterm + this.convert(stype);
+        return this.url + this.path + "searchdata1=" + sterm + this.convert(stype)
+            + this.scopeField() + this.sortField();
 	},
 	makeAdvancedSearch: function(fields) {
         var url = this.url + this.path;
@@ -86,7 +102,7 @@ libxAddToPrototype(SirsiOPAC.prototype, {
                 url += "&searchoper" + (i+1) + "=AND&";
             }
 		}
-		return url;
+		return url + this.scopeField() + this.sortField();
 	}
 });
 

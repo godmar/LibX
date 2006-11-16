@@ -323,6 +323,8 @@ function libxInitializeCatalog(cattype, catprefix)
 
 	case "sirsi":
 	    cat = new SirsiOPAC();
+        cat.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
+        cat.setIf('sort', libxGetProperty(catprefix + "sirsi.sort"));
         break;
 
 	case "sersol":
