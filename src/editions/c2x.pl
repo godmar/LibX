@@ -152,6 +152,8 @@ while (1) {
     &addproperty($e, $config{'$' . $catprefix . 'horizon.title'}, 'title');
     &addproperty($e, $config{'$' . $catprefix . 'horizon.journaltitle'}, 'journaltitle');
 
+    &addproperty($e, $config{'$' . $catprefix . 'sirsi.sort'}, 'sort');
+
     &addproperty($e, $config{'$' . $catprefix . 'voyager.advancedsearchforissn'}, 'advancedsearchforissn');
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.searchBy'}, 'searchby');
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.ssLibHash'}, 'sslibhash');
