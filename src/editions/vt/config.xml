@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE edition SYSTEM "http://libx.org/xml/libxconfig.dtd">
+<edition id="vt" version="1.1.2">
+  <name short="LibX VT" long="LibX Virginia Tech" edition="Virginia Tech Edition" description="Toolbar for Virginia Tech Library users" localhomepage="http://www.lib.vt.edu/services/libX/libX.php"/>
+  <links>
+    <url href="http://www.lib.vt.edu/" label="VT University Libraries"/>
+    <url href="http://addison.vt.edu/" label="Addison Catalog"/>
+    <url href="http://libx.org/editions/vt/libx.html" label="LibX VT Homepage"/>
+  </links>
+  <catalogs>
+    <millenium name="Addison" url="http://addison.vt.edu" options="Y;t;jt;a;d;i;c" urlregexp="addison\.vt\.edu" sid="libxvt" searchscope="1">
+      <xisbn cues="true"/>
+    </millenium>
+    <bookmarklet name="VT Database List" url="http://www.lib.vt.edu/dsp/index.php?searchval=%dbname&amp;action=SearchDatabase" options="dbname"/>
+    <bookmarklet name="VT ETD" url="http://scholar.lib.vt.edu:8765/query.html?qt=%Y&amp;col=theses&amp;charset=iso-8859-1" options="Y"/>
+    <sersol name="VT EJournals" url="http://su8bj7jh4j.search.serialssolutions.com"/>
+  </catalogs>
+  <openurl>
+    <resolver type="sersol" url="http://su8bj7jh4j.search.serialssolutions.com/" sid="libx:virginiatech" name="VT Article Linker" version="1.0" dontshowintoolbar="true"/>
+  </openurl>
+  <proxy>
+    <ezproxy url="http://ezproxy.lib.vt.edu:8080/login?url=%S" name="EZProxy"/>
+  </proxy>
+  <options>
+    <option key="rewritescholar" value="true"/>
+    <option key="supportcoins" value="true"/>
+    <option key="sersolisbnfix" value="true"/>
+    <option key="autolink" value="true"/>
+    <option key="icon" value="chrome://libx/skin/virginiatech.ico"/>
+    <option key="logo" value="chrome://libx/skin/shield50.gif"/>
+  </options>
+  <searchoptions>
+    <searchoption value="dbname" label="DB Title"/>
+  </searchoptions>
+  <additionalfiles>
+    <file name="config.xml" directory="chrome/libx/content/libx"/>
+    <file name="virginiatech.ico" directory="chrome/libx/skin/libx"/>
+    <file name="shield50.gif" directory="chrome/libx/skin/libx"/>
+  </additionalfiles>
+</edition>
