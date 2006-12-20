@@ -93,16 +93,16 @@ for the test edition of LibX - <? echo $edition_name; ?>.
     When submitting revisions, base those submissions on this config file.
 
 <li> Direct link to the 
-        <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file with
-        comments were stripped.</a>
+        <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file 
+        with the comments stripped out.</a>
 
     <? if (file_exists($edition_config_xml)) {
         echo '<a href="' . $edition_config_xml . '">(as XML)</a>';
     } ?>
 
 <li>
-    A directory listing of <a href="<? echo $edition ?>/">Click here</a> all files 
-    used in building this edition.
+    <a href="<? echo $edition ?>/">Click here</a> 
+    for a directory listing all files used in building this edition.
 </ul>
 
 <h4>Catalog Settings</h4>
@@ -341,7 +341,7 @@ the cue to work.)
 <li><a target="_new" href="http://www.ecampus.com/book/0201549794">ecampus.com (1)</a>,
 <a target="_new" href="http://www.ecampus.com/bk_detail.asp?isbn=0201702452">ecampus.com (2),</a>
 <li><a target="_new" href="http://www.powells.com/biblio/1-0743226712-2">powells.com,</a>
-<li><a target="_new" href="http://www.chapters.indigo.ca/books/item/books-978155041577/">chapters.ca</a> (7/25/2006)
+<li><a target="_new" href="http://www.chapters.indigo.ca/books/item/books-978155041577/">chapters.ca</a> (10/12/2006)
 </ul>
 <p>
 <span class="part">Part 3: Context-Menu</span>
@@ -480,11 +480,10 @@ Developmental Disorders, 31, 327-336.<br />
 <li><span class="selectthis">Llewellyn, G. (1994). Parenting: a neglected human</span>
 </ol>
 <p>
-Here are some add
-Check that the "Search Scholar" option in the list of catalogs works.
+Check that the "Search Google Scholar" option in the list of catalogs works.
 Enter <span class="selectthis">unskilled and unaware</span> into the 
 search bar (or select the text and drag-n-drop it in there), make sure "Keyword" is selected 
-and then press the Scholar button.  
+and then press the "Search Google Scholar" button from the drop-down menu.
 Also test searches by author, article title, and journal title.
 they should work with Scholar as well -- they correspond to "author:", "allintitle:", and
 the journal title search corresponds to Scholar's "published as" option in the advanced
