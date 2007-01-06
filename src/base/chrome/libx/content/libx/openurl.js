@@ -47,6 +47,12 @@ OpenURL.prototype = {
 	    this.haveTitleOrIssn = false;
 	    for (var i = 0; i < fields.length; i++) {
 		    switch (fields[i].searchType) {
+		    case 'doi':
+                url += "&id=doi:" + fields[i].searchTerms;
+                break;
+		    case 'pmid':
+                url += "&id=pmid:" + fields[i].searchTerms;
+                break;
 		    case 'jt':
 		    case 't':
 			    // replace removes everything that is not letter, digit, _, or whitespace

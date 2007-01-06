@@ -297,6 +297,7 @@ function libxInitializeCatalog(cattype, catprefix)
         cat.setIf('journaltitle', libxGetProperty(catprefix + "horizon.journaltitle"));
         cat.setIf('subject', libxGetProperty(catprefix + "horizon.subject"));
         cat.setIf('author', libxGetProperty(catprefix + "horizon.author"));
+        cat.setIf('profile', libxGetProperty(catprefix + "horizon.profile"));
         break;
 
 	case "aleph":
@@ -764,7 +765,9 @@ function doSearchBy(stype) {
 	// clean up search term by removing unwanted characters
     // should leave &, and single apostrophe in - what about others?
 	// and replaces multiple whitespaces with a single one
-	sterm = sterm.replace(/[^A-Za-z0-9_&:\222\'\-\s]/g, " ").replace(/\s+/g, " ");
+    // use :alnum: to avoid dropping diacritics and other Unicode alphanums
+    // as per Ted Olson
+    sterm = sterm.replace(/[^[:alnum:]_&:\222\'\-\s/g, " ").replace(/\s+/g, " ");
 	// split author into names, turns "arthur conan doyle" into ["arthur", "conan", "doyle"]
 	var names = sterm.split(/\s+/);
 	// switch author's first and last name unless there's a comma or the last name is an initial
