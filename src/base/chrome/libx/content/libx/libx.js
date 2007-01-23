@@ -500,7 +500,8 @@ function libxInit()
         var url = libxGetProperty("link" + link + ".url");
         var mitem = document.createElement("menuitem");
         mitem.setAttribute("label", label);
-        mitem.setAttribute("oncommand", "openSearchWindow('" + url + "');");
+        if (url != null)
+            mitem.setAttribute("oncommand", "openSearchWindow('" + url + "');");
         libxmenu.insertBefore(mitem, libxmenusep);
     }
 

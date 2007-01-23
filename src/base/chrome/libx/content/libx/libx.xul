@@ -110,7 +110,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 							<menuitem value="c" label="&libx.call.number;" oncommand="setFieldType(this);" />
 							<menuitem value="j" label="Dewey" oncommand="setFieldType(this);" />
 							<menuitem value="doi" label="DOI" oncommand="setFieldType(this);" />
-							<menuitem value="pmid" label="Pubmed ID" oncommand="setFieldType(this);" />
+							<menuitem value="pmid" label="PubMed ID" oncommand="setFieldType(this);" />
 						</menupopup>
 					</toolbarbutton>
 					<!-- child number 1 -->
