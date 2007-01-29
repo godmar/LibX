@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.6 2006/11/15 16:07:09 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.7 2007/01/29 19:43:16 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -24,8 +24,8 @@
 <!ELEMENT links (url*) >
 <!ELEMENT url EMPTY>
 <!ATTLIST url 
-        href            CDATA #REQUIRED
         label           CDATA #REQUIRED
+        href            CDATA #IMPLIED
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -104,6 +104,8 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
+        searchscope     CDATA #IMPLIED
+        sort            CDATA #IMPLIED
         options         CDATA #IMPLIED
 >
 <!ELEMENT voyager (xisbn)?>

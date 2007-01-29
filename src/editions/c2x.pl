@@ -66,11 +66,12 @@ $root->appendChild($e);
 my $links = $doc->createElement('links');
 $root->appendChild($links);
 for (my $i = 1; ; $i++) {
-    my $url = '$link' . $i . '.url';
-    last if (!defined($config{$url}));
+    my $label = '$link' . $i . '.label';
+    last if (!defined($config{$label}));
     $e = $doc->createElement('url');
-    $e->setAttribute('href', $config{$url});
-    $e->setAttribute('label', $config{'$link' . $i . '.label'});
+    $e->setAttribute('label', $config{$label});
+    my $url = '$link' . $i . '.url';
+    $e->setAttribute('href', $config{$url}) if defined($config{$url});
     $links->appendChild($e);
 }
 
