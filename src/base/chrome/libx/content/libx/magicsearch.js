@@ -175,7 +175,7 @@ function magicSearch(data, inpub, suppressheuristics)
                 // <a href=\"/url?sa=U&q=http://sfx.hul.harvard.edu:82/sfx_local%3Fsid%3Dgoogle%26aulast
                 // captures entire OpenURL as openurl[1]
                 // captures openURL suffix as openurl[2]
-                var oregexp = /\"\/url\S*q=(\S*%3Fsid%3Dgoogle%26([^\"]*))\"/i;
+                var oregexp = /href=\"(\S*?sid=google&amp;([^\"]*))\"/i;
                 var openurl = hits[h].match(oregexp);
                 // if we captured refworks link here, try again.
                 if (openurl != null && openurl[0].match(/refworks/)) {
@@ -204,7 +204,7 @@ function magicSearch(data, inpub, suppressheuristics)
                 if (title != null) {
                     // see if GS provides a URL which we will present to the user if an OpenURL is absent
                     // <a href="/url?sa=U&q=http://www.smartlabcentre.com/phdstudentsite/sher/DoruffDossier04.pdf">
-                    titleurl = title[1].match(/<a href=\"\/url.*q=([\s\S]*)\">/i);
+                    titleurl = title[1].match(/<a href=\"([^\"]*)\"/i);
                     if (titleurl) titleurl = titleurl[1];       // capture match if any
 
                     titleplusauthor += title[1];
@@ -212,7 +212,7 @@ function magicSearch(data, inpub, suppressheuristics)
                     libxMagicLog("CosineSimilarity w/ titleline=" + titlesim + " \"" + title[1].replace(/<.*?>/g, "") + "\"");
                 }
 
-                var auline = hits[h].replace(/&hellip;/, " ").match(/<font color=green>([\s\S]*?)<\/font>/);
+                var auline = hits[h].replace(/&hellip;/, " ").match(/<span class=\"a\">([\s\S]*?)<\/span>/);
                 var ausim = 0;
                 if (auline != null) {
                     titleplusauthor += " " + auline[1];
@@ -226,6 +226,7 @@ function magicSearch(data, inpub, suppressheuristics)
 
                 if (tplusauthsim > threshold1 || ((titlesim + ausim) > threshold2)) {
                     if (!(openurl || titleurl)) {
+                        libxMagicLog("Above threshold, but found neither title nor OpenURL; title[1] was=" + title[1]);
                         continue;       // match, but no link
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholars URL
@@ -238,6 +239,12 @@ function magicSearch(data, inpub, suppressheuristics)
                         // it appears Firefox doesn't handle those well, so let's remove them.
                         // that's a &rsquo; aka &#8217; aka \u2019 char, probably UTF-8 encoded (?!)
                         openurlpath = openurlpath.replace(/%E2%80%99/ig, "'");
+
+                        // as of Feb 2007, Scholar places the correct OpenURL in the
+                        // href element, which means & is encoded as &.
+                        openurlpath = openurlpath.replace(/&amp;/g, "&")
+                                                 .replace(/&lt;/g, "<")
+                                                 .replace(/&gt;/g, ">");
 
                         // sending the original data in a (non-standard) OpenURL field
                         // allows an OpenURL resolver to offer an option to correct for
