@@ -236,17 +236,17 @@ if (openUrlResolver && libxConfig.options.rewritescholarpage) {
     for (var i = 0; i < atags.length; i++) {
         var link = atags[i];
         var p = decodeURIComponent(link.href);
-        var m = p.match(/scholar\.google\.com\/url\?sa=U&q=.*\?sid=google(.*)$/);
+        var m = p.match(/.*\?sid=google(.*)$/);
 
-        if (!m)         // highjack WAM-proxied form as well
-            m = p.match(/\-scholar\.google\.com.*\/url\?sa=U&q=.*\?sid=google(.*)$/);
+        // should match scholar viewed through WAM-proxy as well
 
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
             var ourl = openUrlResolver.completeOpenURL(m[1]);
             var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), ourl, true);
             link.parentNode.insertBefore(newlink, link.nextSibling);
-            link.parentNode.removeChild(link);
+            link.parentNode.insertBefore(doc.createTextNode(" "), link.nextSibling); 
+            // link.parentNode.removeChild(link);
         }
     }
  }
