@@ -407,7 +407,7 @@ function powellsComByISBN(doc, m)
     var isbn = isISBN(m[1]);
     if (isbn == null)
         return;
-    var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN:')]");
+    var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN')]");
     if (isbnlabel) {
         var link = makeLink(doc, 
                 libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
