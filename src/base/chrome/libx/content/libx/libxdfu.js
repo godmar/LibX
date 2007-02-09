@@ -407,13 +407,19 @@ function powellsComByISBN(doc, m)
     var isbn = isISBN(m[1]);
     if (isbn == null)
         return;
-    var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN')]");
-    if (isbnlabel) {
+    //var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN')]");   <- old cue
+    // Searched for the stock_info id as it is the node immediately before the
+    // title node.
+    var titleLabel = xpathFindSingle(doc, "//div[@id='stock_info']");
+    // Step past the stock_info node, and the following text node, and you
+    // will be at the title node.
+    titleLabel = titleLabel.nextSibling.nextSibling;
+	if (titleLabel) {
         var link = makeLink(doc, 
                 libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
                 libraryCatalog.linkByISBN(isbn));
         // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
-        isbnlabel.parentNode.insertBefore(link, isbnlabel.nextSibling.nextSibling.nextSibling.nextSibling);
+		titleLabel.appendChild(link);
     }
 }
 new DoForURL(/\.powells\.com\/biblio\/\d*\-((\d|x){10})\-\d*/i, powellsComByISBN);
