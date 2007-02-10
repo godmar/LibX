@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!DOCTYPE edition SYSTEM "http://libx.org/xml/libxconfig.dtd">
-<edition id="vt" version="1.1.2">
+<edition id="vt" version="1.1.3">
   <name short="LibX VT" long="LibX Virginia Tech" edition="Virginia Tech Edition" description="Toolbar for Virginia Tech Library users" localhomepage="http://www.lib.vt.edu/services/libX/libX.php"/>
   <links>
-    <url href="http://www.lib.vt.edu/" label="VT University Libraries"/>
-    <url href="http://addison.vt.edu/" label="Addison Catalog"/>
-    <url href="http://libx.org/editions/vt/libx.html" label="LibX VT Homepage"/>
+    <url label="VT University Libraries" href="http://www.lib.vt.edu/"/>
+    <url label="Addison Catalog" href="http://addison.vt.edu/"/>
+    <url label="LibX VT Homepage" href="http://libx.org/editions/vt/libx.html"/>
   </links>
   <catalogs>
     <millenium name="Addison" url="http://addison.vt.edu" options="Y;t;jt;a;d;i;c" urlregexp="addison\.vt\.edu" sid="libxvt" searchscope="1">
