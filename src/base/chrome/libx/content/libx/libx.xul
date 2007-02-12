@@ -61,6 +61,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
 	<script type="application/x-javascript">
 	<![CDATA[
 	  // must postpone initialization until entire overlay is loaded into chrome
@@ -186,15 +188,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			</menupopup>
 		</menu>
 		<!-- create a direct menu entry like so -->
-		<menuitem id="libx-keyword-search" oncommand="doSearchBy('Y');" />
-		<menuitem id="libx-title-search" oncommand="doSearchBy('t');" />
-		<menuitem id="libx-author-search" oncommand="doSearchBy('a');" />
-		<menuitem id="libx-magic-search" hidden="true" label="&libx.rightclickmagicsearch;" oncommand="doMagicSearchBySelection();" />
-		<menuitem id="libx-isbn-search" hidden="true" oncommand="doSearchBy('i');" />
-		<menuitem id="libx-xisbn-search" hidden="true" oncommand="doXisbnSearch();" />
-		<menuitem id="libx-openurl-issn-search" hidden="true" oncommand="doOpenurlSearchByISSN();" />
-		<menuitem id="libx-doi-search" hidden="true" oncommand="doDoiSearch();" />
-		<menuitem id="libx-pmid-search" hidden="true" oncommand="doPmidSearch();" />
 		<menuitem id="libx-proxify" oncommand="libxProxify();" />
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
@@ -205,4 +198,3 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 <!-- 
 vim: ts=4 
 -->
-

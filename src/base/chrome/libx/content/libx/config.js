@@ -95,30 +95,39 @@ function libxInitializeProperties()
     // this function is called after the entire overlay has been built
     // we must wait until here before calling document.getElementById
     libxProps = document.getElementById("libx-string-bundle");
-    libxConfig = new Object();
+    libxConfig = libxGetConfigXML();
+
+    libxInitializeOptions();
+}
+
+function libxGetConfigXML()
+{
+
+    var xmlDoc = new Object();
 
     try {
         var configurl = new XMLHttpRequest();
         configurl.open('GET', "chrome://libx/content/config.xml", false);
         configurl.send(null);
-        libxConfig.xml = configurl.responseXML;
-        libxConfig.getNode = function (xpath) {
+        xmlDoc.xml = configurl.responseXML;
+        xmlDoc.getNode = function (xpath) {
             return xpathFindSingle(this.xml, xpath);
         };
-        libxConfig.getAttr = function (xpath, attr) {
+        xmlDoc.getAttr = function (xpath, attr) {
             var n = this.getNode(xpath);
             return n ? n.getAttribute(attr) : null;
         };
-        libxConfig.copyAttributes = function(xnode, obj) {
+        xmlDoc.copyAttributes = function(xnode, obj) {
             for (var i = 0; i < xnode.attributes.length; i++) {
                 var attr = xnode.attributes[i];
                 obj[attr.nodeName] = libxConvertToBoolean(attr.nodeValue);
             }
         };
-    } catch (er) {
-    }
-
-    libxInitializeOptions();
+    } catch (er) { }
+    
+    return xmlDoc;
+    
 }
+
 
 // vim: ts=4
