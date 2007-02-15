@@ -37,7 +37,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
-    
+    <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	
 	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
@@ -52,12 +52,12 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/config.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/milleniumopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/horizonopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/voyageropac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/alephopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/sirsiopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/centralsearch.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/milleniumopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/horizonopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/voyageropac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/alephopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/sirsiopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/centralsearch.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
@@ -187,8 +187,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<menuitem value="i" label="ISBN/ISSN" oncommand="addSearchFieldAs(this);" />
 			</menupopup>
 		</menu>
+		<menuitem hidden="true" id="libx-endholder"/>
 		<!-- create a direct menu entry like so -->
-		<menuitem id="libx-proxify" oncommand="libxProxify();" />
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
 		<menuitem label="$emnameshort$" oncommand="aboutVersion();" />
