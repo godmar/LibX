@@ -939,7 +939,7 @@ var libxAutoLinkFilters = [
                 var from = parseInt(split[1]);
                 var to = parseInt(split[2]);
                 if (from >= 1000 && from < 2050 && to < 2200 && from < to)
-                    return;
+                    return null;
             }
             if (openUrlResolver && openUrlResolver.autolinkissn) {
                 this.name = libxGetProperty("openurlissnsearch.label", [openUrlResolver.name, issn])
