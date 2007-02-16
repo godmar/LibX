@@ -404,7 +404,8 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
 // http://www.powells.com/biblio/1-0743226712-2
 function powellsComByISBN(doc, m) 
 {
-    var isbn = isISBN(m[1]);
+
+    var isbn = isISBN(m[2]);
     if (isbn == null)
         return;
     //var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN')]");   <- old cue
@@ -422,9 +423,9 @@ function powellsComByISBN(doc, m)
 		titleLabel.appendChild(link);
     }
 }
-new DoForURL(/\.powells\.com\/biblio\/\d*\-((\d|x){10})\-\d*/i, powellsComByISBN);
-new DoForURL(/\.powells\.com\/.*isbn=((\d|x){10})/i, powellsComByISBN);
-new DoForURL(/\.powells\.com\/.*:((\d|x){10}):/i, powellsComByISBN);
+new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-((\d|x){10})\-\d*/i, powellsComByISBN);
+new DoForURL(/(\/\/|\.)powells\.com\/.*isbn=((\d|x){10})/i, powellsComByISBN);
+new DoForURL(/(\/\/|\.)powells\.com\/.*:((\d|x){10}):/i, powellsComByISBN);
 
 // chapters.ca or chapters.indigo.ca
 // the URL appears to embed both a ISBN-13 and an ISBN - look for "ISBN:" instead
