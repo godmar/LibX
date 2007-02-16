@@ -933,6 +933,14 @@ var libxAutoLinkFilters = [
         href: function(match) { 
             var issn = isISSN(match[1]); 
             if (issn == null) return null;
+            var split = issn.match(/(\d{4})-(\d{4})/);
+            // suppress what are likely year ranges.
+            if (split != null) {
+                var from = parseInt(split[1]);
+                var to = parseInt(split[2]);
+                if (from >= 1000 && from < 2050 && to < 2200 && from < to)
+                    return;
+            }
             if (openUrlResolver && openUrlResolver.autolinkissn) {
                 this.name = libxGetProperty("openurlissnsearch.label", [openUrlResolver.name, issn])
                 return openUrlResolver.makeOpenURLForISSN(issn);
