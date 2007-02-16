@@ -85,6 +85,8 @@ function setVersion() {
 		<label value="Authors" class="header" />
 		<label value="Annette Bailey" />
 		<label value="Godmar Back" />
+		<label value="Michael Doyle" />
+		<spacer height="10px" />
         <vbox id="adaptedbybox">
             <label class="header" value="Adapted by" />
             <label id="adaptedby" value="" />
