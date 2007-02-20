@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.7 2007/01/29 19:43:16 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.8 2007/02/20 18:21:11 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -183,7 +183,7 @@
         key            
             (sersolisbnfix 
             |icon|logo
-            |rewritescholar
+            |rewritescholarpage
             |supportcoins
             |scholarmissurl
             |sendorigdatawithopenurl

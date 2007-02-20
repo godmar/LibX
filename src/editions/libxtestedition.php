@@ -6,6 +6,7 @@ if (!preg_match("/^[a-zA-Z0-9\.]+$/", $edition)) die ("Wrong argument.");
 
 $edition_config = $edition . '/config';
 $edition_config_xml = $edition . '/config.xml';
+$uses_xml = file_exists($edition . '/uses_xml_config');
 $edition_xpi = $edition . '/libx-' . $edition . '.xpi';
 
 if (!file_exists($edition_config)) {
@@ -92,13 +93,20 @@ for the test edition of LibX - <? echo $edition_name; ?>.
     <a href="<? echo $edition_config?>">config file</a> used to build this snapshot.
     When submitting revisions, base those submissions on this config file.
 
-<li> Direct link to the 
+<li> 
+
+    <? if ($uses_xml) {
+        echo '<font color="red">This edition uses the new 
+                XML file format internally.</font>
+            <a href="' . $edition_config_xml . '">(XML Config File)</a>
+        <br/>This code is new and being actively developed - we recommend
+            thorough retesting of all features/options.
+        ';
+    } else { ?>
+        Direct link to the 
         <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file 
         with the comments stripped out.</a>
-
-    <? if (file_exists($edition_config_xml)) {
-        echo '<a href="' . $edition_config_xml . '">(as XML)</a>';
-    } ?>
+   <? } ?>
 
 <li>
     <a href="<? echo $edition ?>/">Click here</a> 
@@ -290,7 +298,7 @@ menu work.  You configured the following links (they open in a new window.)
 <ol>
 <?
 $ln = 1;
-while (@$CONFIG['$link' . $ln . '.url'] != "") {
+while (@$CONFIG['$link' . $ln . '.label'] != "") {
     echo '<li><a target="_new" href="'
         . $CONFIG['$link' . $ln . '.url'] . '">'
         . $CONFIG['$link' . $ln . '.label'] . '</a>';
@@ -435,6 +443,12 @@ right-click and select "Search <? echo $CONFIG['$openurl.name'] ?> for Pubmed ID
 
 <p>
 <span class="part">Part 4: Scholar Support</span>
+<p>
+Google Scholar changed their page layout in early Feb 2007.
+<b>
+Your LibX edition must have been built (or rebuilt) after Feb 8, 2007
+for the Scholar heuristics to work properly.
+</b>
 <p>
 To test Scholar support, make sure that you are either using an IP address that is recognized
 by Scholar or that you have <a href="http://scholar.google.com/scholar_preferences?hl=en&lr=&output=search">set your preferences</a> to include a library that displays OpenURLs - your library, if you're registered with Scholar, or if not, pick any library that is (Find It @ Stanford is a good pick.)

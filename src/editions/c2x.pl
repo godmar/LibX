@@ -218,7 +218,7 @@ if ($ptype) {
 
 my $options = $doc->createElement('options');
 $root->appendChild($options);
-&addoption($options, $config{'$libx.rewritescholarpage'}, 'rewritescholar');
+&addoption($options, $config{'$libx.rewritescholarpage'}, 'rewritescholarpage');
 &addoption($options, $config{'$libx.supportcoins'}, 'supportcoins');
 &addoption($options, $config{'$libx.sersolisbnfix'}, 'sersolisbnfix');
 &addoption($options, $config{'$libx.autolink'}, 'autolink');

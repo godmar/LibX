@@ -129,14 +129,15 @@ foreach my $f (@afiles) {
 
 my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 my $xpifile = $conf{'xpilocation'};
-$xpifile =~ s/.*\/([^\/]*)/new-$1/;         # basename
+$xpifile =~ s/.*\/([^\/]*)/$1/;         # basename
 system("cd $tmpdir; " .
        "rm ../$edition/$xpifile; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
        "zip -r ../$edition/$xpifile ./chrome " . $addtoplevelfiles);
 
-print "created $xpifile. did not copy update.rdf and makelive.sh\n";
-exit;
+system("touch $edition/uses_xml_config");
+#print "created $xpifile. did not copy update.rdf and makelive.sh\n";
+#exit;
 ############################################################
 
 system("cp $tmpdir/update.rdf $edition");
