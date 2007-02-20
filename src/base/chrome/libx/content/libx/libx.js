@@ -678,7 +678,8 @@ function libxProxify() {
 function libxProxyInit() {
     if (libxConfig.xml) {
         var pnode = libxConfig.getNode('/edition/proxy/*[1]');
-        var proxytype = pnode.nodeName;
+        if ( pnode )
+        	var proxytype = pnode.nodeName;
     } else {
         var proxytype = libxGetProperty("proxy.type");
     }
@@ -695,12 +696,13 @@ function libxProxyInit() {
     case null:
     case "":
         // hide proxy entry in context menu if no proxy is defined
+		/* Shouldn't need this anymore...
 		var libxproxify = document.getElementById("libx-proxify");
-		libxproxify.hidden = true;
+		libxproxify.hidden = true;*/
         return;
 	}
     libxProxy.type = proxytype;
-    if (libxConfig.xml) {
+    if (libxConfig.xml && pnode ) {
         libxConfig.copyAttributes(pnode, libxProxy);
     } else {
         libxProxy.name = libxGetProperty("proxy.name");
