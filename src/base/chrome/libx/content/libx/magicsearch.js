@@ -39,17 +39,10 @@
  *      -> if sum of the two is greater than threshold2, rewrite openurl and display -> done
  * We will also open the original Google Scholar result in a separate tab in any case.
  */
-var threshold1 = nsPreferences.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
-var threshold2 = nsPreferences.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
+var threshold1 = getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
+var threshold2 = getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
 
-function libxMagicLog(msg) {
-    if (!nsPreferences.getBoolPref("libx.magic.debug", false))
-        return;
 
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-               .getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("magic: " + msg);
-}
 
 function magicSearch(data, inpub, suppressheuristics) 
 {
@@ -60,7 +53,7 @@ function magicSearch(data, inpub, suppressheuristics)
             var onmissshow = libxConfig.options.scholarmissurl
                 .replace(/%S/i, encodeURIComponent(data));
 
-            openSearchWindow(onmissshow, true);
+            libxEnv.openSearchWindow(onmissshow, true);
         }
     }
 
@@ -105,7 +98,7 @@ function magicSearch(data, inpub, suppressheuristics)
         /*
         var s = "";
         for (var k in uniq) { s += " " + k; }
-        libxMagicLog(commonterms + " " + str1terms + " " + str2terms + " " + s);
+        libxEnv.libxMagicLog(commonterms + " " + str1terms + " " + str2terms + " " + s);
         */
         return commonterms / Math.sqrt(str1terms * str2terms);
     }
@@ -119,7 +112,7 @@ function magicSearch(data, inpub, suppressheuristics)
 
     var maxattempts = 5;
 
-    libxMagicLog("Searching for: \"" + data + "\"" + (inpub ? " inpub: " + inpub : " - no publication given"));
+    libxEnv.libxMagicLog("Searching for: \"" + data + "\"" + (inpub ? " inpub: " + inpub : " - no publication given"));
     var originaldata = data;
     data = magicNormalize(data);
     var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
@@ -134,13 +127,13 @@ function magicSearch(data, inpub, suppressheuristics)
     // simply open the scholar page for the user to see.
     // the same is done if suppressheuristics is set.
     if (!openUrlResolver || suppressheuristics) {
-        openSearchWindow(url, true);
+        libxEnv.openSearchWindow(url, true);
         return;
     }
     var triedexact = false; // have we already tried the exact search (with a preceding '')
 
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
-        libxMagicLog("Attempt #" + _attempt + ": " + url);
+        libxEnv.libxMagicLog("Attempt #" + _attempt + ": " + url);
 
         var req = new XMLHttpRequest();
         req.open('GET', url, false);    // synchronous request
@@ -209,7 +202,7 @@ function magicSearch(data, inpub, suppressheuristics)
 
                     titleplusauthor += title[1];
                     titlesim = getcosine(title[1]);
-                    libxMagicLog("CosineSimilarity w/ titleline=" + titlesim + " \"" + title[1].replace(/<.*?>/g, "") + "\"");
+                    libxEnv.libxMagicLog("CosineSimilarity w/ titleline=" + titlesim + " \"" + title[1].replace(/<.*?>/g, "") + "\"");
                 }
 
                 var auline = hits[h].replace(/&hellip;/, " ").match(/<span class=\"a\">([\s\S]*?)<\/span>/);
@@ -217,16 +210,16 @@ function magicSearch(data, inpub, suppressheuristics)
                 if (auline != null) {
                     titleplusauthor += " " + auline[1];
                     ausim = getcosine(auline[1]);
-                    libxMagicLog("CosineSimilarity w/ authorline=" + ausim + " " + auline[1].replace(/<.*?>/g, ""));
+                    libxEnv.libxMagicLog("CosineSimilarity w/ authorline=" + ausim + " " + auline[1].replace(/<.*?>/g, ""));
                 }
                 if (titleplusauthor != "") {
                     var tplusauthsim = getcosine(titleplusauthor);
-                    libxMagicLog("CosineSimilarity w/ title+authorline=" + tplusauthsim);
+                    libxEnv.libxMagicLog("CosineSimilarity w/ title+authorline=" + tplusauthsim);
                 }
 
                 if (tplusauthsim > threshold1 || ((titlesim + ausim) > threshold2)) {
                     if (!(openurl || titleurl)) {
-                        libxMagicLog("Above threshold, but found neither title nor OpenURL; title[1] was=" + title[1]);
+                        libxEnv.libxMagicLog("Above threshold, but found neither title nor OpenURL; title[1] was=" + title[1]);
                         continue;       // match, but no link
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholars URL
@@ -255,24 +248,24 @@ function magicSearch(data, inpub, suppressheuristics)
 
                         vtu = openUrlResolver.completeOpenURL(openurlpath);
                         display = true;
-                        libxMagicLog('OpenURL: ' + vtu);
+                        libxEnv.libxMagicLog('OpenURL: ' + vtu);
                     } else {
                         vtu = decodeURIComponent(vtu);
-                        libxMagicLog('DirectURL: ' + vtu);
+                        libxEnv.libxMagicLog('DirectURL: ' + vtu);
                     }
                     if (display) {
-                        openSearchWindow(vtu, true);
+                        libxEnv.openSearchWindow(vtu, true);
                         found = true;
                     }
                     break;
                 } else {
-                    libxMagicLog("rejected because below threshold, thresholds are " 
+                    libxEnv.libxMagicLog("rejected because below threshold, thresholds are " 
                         + threshold1 + " and " + threshold2);
                 }
             }
 
             if (h == hits.length) {
-                libxMagicLog("I received " + hits.length + " hits in Scholar, but no matches were found");
+                libxEnv.libxMagicLog("I received " + hits.length + " hits in Scholar, but no matches were found");
             }
 
             // in some cases, Scholar finds it only when searched as an exact match
@@ -292,13 +285,13 @@ function magicSearch(data, inpub, suppressheuristics)
 
             // show google scholar page also
             if (found) {
-                getBrowser().addTab(url);       // in second tab if we got a hit
+                libxEnv.openSearchWindow(url, false, "libx.newtab" );       // in second tab if we got a hit
             } else {
-                openSearchWindow(baseurl + encodeURIComponent(originaldata), true);  // as primary window if not
+                libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata), true);  // as primary window if not
             }
             return;
         } else {
-            libxMagicLog("couldn't find result <div> in this scholar result: " + r);
+            libxEnv.libxMagicLog("couldn't find result <div> in this scholar result: " + r);
         }
 
         // scholar did not find anything.  Let us see if they have a "Did you mean" on their page 
@@ -313,7 +306,7 @@ function magicSearch(data, inpub, suppressheuristics)
         handleMiss(url, originaldata);
 
         if (!libxConfig.options.suppressscholardisplay)
-            openSearchWindow(baseurl + encodeURIComponent(originaldata), true);
+            libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata), true);
         return;
     }
 }

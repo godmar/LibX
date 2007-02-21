@@ -37,121 +37,12 @@ var libxSearchFieldVbox;    // global variable to hold a reference to vbox with 
 var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
 var popuphelper = new ContextPopupHelper();
 
-/*
- * Construct a new catalog, return reference to it, based on settings
- * prefixed by catprefix (which is "" for primary catalog, "catalog1.", etc.)
- * WILL BE PHASED OUT
+var libxEnv = new Object(); /* Global libx object */
+/* Currently implemented under libxEnv 
+ * 
+ * xmlDoc -- return value of getConfigXML();
+ *
  */
-function libxInitializeCatalogFromProperties(cattype, catprefix)
-{
-    var cat = null;
-    switch (cattype) {
-	case "scholar":
-        cat = new libxScholarSearch(catprefix);
-        break;
-
-	case "bookmarklet":
-        cat = new libxBookmarklet(catprefix);
-        break;
-
-	case "millenium":
-		cat = new MilleniumOPAC();
-        cat.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
-        cat.setIf('keywordcode', libxGetProperty(catprefix + "millenium.keywordcode"));
-        cat.setIf('advancedcode', libxGetProperty(catprefix + "millenium.advancedcode"));
-        cat.setIf('journaltitlecode', libxGetProperty(catprefix + "millenium.journaltitlecode"));
-        cat.setIf('sort', libxGetProperty(catprefix + "millenium.sort"));
-        cat.setIf('searchform', libxGetProperty(catprefix + "millenium.searchform"));
-        break;
-
-	case "horizon":
-	    cat = new HorizonOPAC();
-        // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
-        // others have an index ISBNEX that does exact matching 
-        // on both ISSN & ISBN
-        cat.setIf('isbn', libxGetProperty(catprefix + "horizon.isbn"));
-        cat.setIf('issn', libxGetProperty(catprefix + "horizon.issn"));
-        cat.setIf('callno', libxGetProperty(catprefix + "horizon.callno"));
-        cat.setIf('keyword', libxGetProperty(catprefix + "horizon.keyword"));
-        cat.setIf('title', libxGetProperty(catprefix + "horizon.title"));
-        cat.setIf('journaltitle', libxGetProperty(catprefix + "horizon.journaltitle"));
-        cat.setIf('subject', libxGetProperty(catprefix + "horizon.subject"));
-        cat.setIf('author', libxGetProperty(catprefix + "horizon.author"));
-        cat.setIf('profile', libxGetProperty(catprefix + "horizon.profile"));
-        break;
-
-	case "aleph":
-	    cat = new AlephOPAC();
-        cat.setIf('localbase', libxGetProperty(catprefix + 'aleph.localbase'));
-        cat.setIf('title', libxGetProperty(catprefix + 'aleph.title'));
-        cat.setIf('journaltitle', libxGetProperty(catprefix + 'aleph.journaltitle'));
-        cat.setIf('subject', libxGetProperty(catprefix + 'aleph.subject'));
-        cat.setIf('author', libxGetProperty(catprefix + 'aleph.author'));
-        cat.setIf('isbn', libxGetProperty(catprefix + 'aleph.isbn'));
-        cat.setIf('issn', libxGetProperty(catprefix + 'aleph.issn'));
-        cat.setIf('callno', libxGetProperty(catprefix + 'aleph.callno'));
-        cat.setIf('keyword', libxGetProperty(catprefix + 'aleph.keyword'));
-        cat.setIf('findfunc', libxGetProperty(catprefix + 'aleph.findfunc'));
-        cat.setIf('advfindfunc', libxGetProperty(catprefix + 'aleph.advfindfunc'));
-        cat.setIf('scanfunc', libxGetProperty(catprefix + 'aleph.scanfunc'));
-        cat.setIf('scanindexlist', libxGetProperty(catprefix + 'aleph.scan.index.list'));
-        break;
-
-	case "voyager":
-	    cat = new VoyagerOPAC();
-        cat.setIf('advancedsearchforissn', libxGetProperty(catprefix + "voyager.advancedsearchforissn"));
-        break;
-
-	case "sirsi":
-	    cat = new SirsiOPAC();
-        cat.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
-        cat.setIf('sort', libxGetProperty(catprefix + "sirsi.sort"));
-        break;
-
-	case "sersol":
-	    cat = new ArticleLinker();
-        break;
-
-	case "sfx":
-	    cat = new SFX();
-        break;
-
-	case "centralsearch":
-	    cat = new CentralSearch();
-        cat.setIf('sslibhash', libxGetProperty(catprefix + "centralsearch.ssLibHash"));
-        cat.setIf('searchby', libxGetProperty(catprefix + "centralsearch.searchBy"));
-        cat.setIf('catids', libxGetProperty(catprefix + "centralsearch.catIDs"));
-        cat.setIf('catgroupids', libxGetProperty(catprefix + "centralsearch.catGroupIDs"));
-        cat.setIf('dbidlist', libxGetProperty(catprefix + "centralsearch.dbIDList"));
-        break;
-
-    default:
-		libxLog("Catalog type " + cattype + " not supported.");
-    case null:
-    case "":
-        return null;
-    }
-    cat.setIf = libxCatalog.prototype.setIf;
-    cat.setIf('url', libxGetProperty(catprefix + "catalog.url"));
-    cat.setIf('sid', libxGetProperty(catprefix + "catalog.sid"));
-    cat.setIf('name', libxGetProperty(catprefix + "catalog.name")); 
-    cat.setIf('options', libxGetProperty(catprefix + "catalog.options"));
-    cat.urlregexp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
-    cat.prefix = catprefix;
-
-    if (cat.xisbn == undefined)
-       cat.xisbn = new Object();
-
-    cat.xisbn.setIf = cat.setIf;
-    cat.xisbn.setIf('cues', libxConvertToBoolean(libxGetProperty(catprefix + "cues.use.xisbn")));
-    // override xisbn opac id if it is not the default
-    cat.xisbn.setIf('opacid', libxGetProperty(catprefix + "catalog.xisbn.opacid"));
-    cat.xisbn.setIf('oai', libxGetProperty(catprefix + "catalog.xisbn.oai"));
-
-    libxLog("registered " + cat.name + " (type=" + cattype + ", options=" + cat.options + ")");
-    return cat;
-}
-
 
 /*
  * Initializes a catalog from an XML Node
@@ -161,7 +52,6 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
 function libxInitializeCatalog(doc, node)
 {
     var cat = null;
-    
     
     switch (node.nodeName) {
 	case "scholar":
@@ -208,7 +98,7 @@ function libxInitializeCatalog(doc, node)
          break;
 
     default:
-		libxLog("Catalog type " + cattype + " not supported.");
+		libxEnv.libxLog("Catalog type " + cattype + " not supported.");
     case null:
     case "":
         return null;
@@ -227,59 +117,10 @@ function libxInitializeCatalog(doc, node)
         	
     cat.urlregexp = new RegExp( cat.urlregexp );
 
-    libxLog("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
+    libxEnv.libxLog("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
     return cat;
 }
 
-// initialize the catalogs we will use, including the 
-// default library catalog
-function libxInitializeCatalogsFromProperties() 
-{
-    searchCatalogs = new Array();
-    var cattype = libxGetProperty("catalog.type");
-    libraryCatalog = libxInitializeCatalogFromProperties(cattype, "");
-    searchCatalogs.push(libraryCatalog);
-
-    // we insert additional catalogs before the openurl button for now
-    var catdropdown = document.getElementById("libxcatalogs");
-    var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
-
-    function addCatalog(catprefix, catnumber)
-    {
-        try {
-            var cat = libxInitializeCatalogFromProperties(cattype, catprefix + ".");
-            searchCatalogs.push(cat);
-
-            var newbutton = document.createElement("menuitem");
-            newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
-            newbutton.setAttribute("value", catnumber);
-            newbutton.setAttribute("label", "Search " + libxGetProperty(catprefix + ".catalog.name") + " ");
-            catdropdown.insertBefore(newbutton, openurlsbutton);
-        } catch (e) {
-            libxLog("libxInitializeCatalog failed: " + e);
-        }
-    }
-
-    for (var addcatno = 1; 
-         (cattype = libxGetProperty("catalog" + addcatno + ".catalog.type")) != null; 
-         addcatno++)
-    {
-        addCatalog("catalog" + addcatno, addcatno);
-    }
-    if ((cattype = libxGetProperty("scholar.catalog.type")) != "") {
-        if (!libxConfig.options.disablescholar)
-            addCatalog("scholar", addcatno++);
-    }
-
-    // record initially selected catalog and activate its search options
-    catdropdown.firstChild.value = 0;  
-    libxSelectedCatalog = searchCatalogs[0];
-    libxActivateCatalogOptions(libxSelectedCatalog);
-
-    // copy initial label to toolbarbutton parent from menuitem first child
-    catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.name + " ");
-    catdropdown.parentNode.label = catdropdown.firstChild.label;
-}
 
 /**
  * Initializes all of the libx catalogs.
@@ -288,42 +129,29 @@ function libxInitializeCatalogsFromProperties()
 function libxInitializeCatalogs() 
 {
 
-    searchCatalogs = new Array();
-    // Get all of the catalogs
-    var xmlDoc = libxGetConfigXML();
-    /**
-     * Call old-style init to be compatable w/ versions
+    searchCatalogs = new Array(); 
+    
+    
+    /* Call old-style init to be compatable w/ versions
      * That dont provide an XML
      */
-    if ( !xmlDoc.xml )
-    {
+    if ( !libxEnv.xmlDoc.xml ) {
 		libxInitializeCatalogsFromProperties();
 		return;
 	}
-
-    var xmlCatalogs = xpathFindNodes(xmlDoc.xml, "/edition/catalogs/*");
-
-    // we insert additional catalogs before the openurl button for now
-    var catdropdown = document.getElementById("libxcatalogs");
-    var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
-
-    function addCatalog( node, catnumber )
-    {
-        try {
-            var cat = libxInitializeCatalog( xmlDoc, node );
-            searchCatalogs.push(cat);
+	
+	function addCatalog( node, catnumber ) {
+	    try {
+	        var cat = libxInitializeCatalog( libxEnv.xmlDoc, node );
+	        searchCatalogs.push(cat);
 			
-			if ( catnumber > 0 ) {
-        	    var newbutton = document.createElement("menuitem");
-    	        newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
-	            newbutton.setAttribute("value", catnumber);
-	            newbutton.setAttribute("label", "Search " + cat.name + " " );
-            	catdropdown.insertBefore(newbutton, openurlsbutton);
-            }
-        } catch (e) {
-            libxLog("libxInitializeCatalog failed: " + e);
-        }
-    }
+	    } catch (e) {
+	        libxEnv.libxLog("libxInitializeCatalog failed: " + e);
+	    }
+	}
+
+	/* Build all catalogs into searchCatalogs */
+    var xmlCatalogs = xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
     var addcatno;
     for ( addcatno = 0; 
          (addcatno < xmlCatalogs.length ); 
@@ -332,36 +160,17 @@ function libxInitializeCatalogs()
         addCatalog(xmlCatalogs[addcatno], addcatno);
     }
     
-    function addCatalogByProperties(catprefix, catnumber)
-    {
-        try {
-            var cat = libxInitializeCatalogFromProperties(cattype, catprefix + ".");
-            searchCatalogs.push(cat);
-
-            var newbutton = document.createElement("menuitem");
-            newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
-            newbutton.setAttribute("value", catnumber);
-            newbutton.setAttribute("label", "Search " + libxGetProperty(catprefix + ".catalog.name") + " ");
-            catdropdown.insertBefore(newbutton, openurlsbutton);
-        } catch (e) {
-            libxLog("libxInitializeCatalog failed: " + e);
-        }
-    }
+    /* Initialize the scholar catalog */
     
     /* No XML Entry yet for Scholar Search... */
     if ((cattype = libxGetProperty("scholar.catalog.type")) != "")
         if (!libxConfig.options.disablescholar)
-        	addCatalogByProperties("scholar", addcatno++);
-
-
-    // record initially selected catalog and activate its search options
-    catdropdown.firstChild.value = 0;  
-    libxSelectedCatalog = searchCatalogs[0];
-    libxActivateCatalogOptions(libxSelectedCatalog);
-	libraryCatalog = searchCatalogs[0];
-    // copy initial label to toolbarbutton parent from menuitem first child
-    catdropdown.firstChild.setAttribute("label", "Search " + searchCatalogs[0].name + " ");
-    catdropdown.parentNode.label = catdropdown.firstChild.label;
+        	searchCatalogs.push ( 
+        		libxInitializeCatalogFromProperties (
+        			"scholar", "scholar." ) );
+        	
+        	
+	libxEnv.initCatalogGUI();
 	
 }
 
@@ -387,7 +196,7 @@ function libxInitializeOpenURL()
 	    openUrlResolver = new OpenURL();
         break;
     default:
-        libxLog("Unsupported OpenURL type: " + ourltype);
+        libxEnv.libxLog("Unsupported OpenURL type: " + ourltype);
         /* FALLTHROUGH */
     case "":
     case null:
@@ -426,7 +235,7 @@ function libxInitializeOpenURL()
 // Initialization - this code is executed whenever a new window is opened
 function libxInit() 
 {
-	var xmlDoc = libxGetConfigXML();
+	libxEnv.xmlDoc = libxGetConfigXML();
     
     libxInitializeProperties();
 
@@ -440,19 +249,19 @@ function libxInit()
     var label = null;
     
     /* Loading from XUL */
-    if ( xmlDoc.xml )
+    if ( libxEnv.xmlDoc.xml )
     {
 	    var libxlinks = 
-    		xpathFindNodes(xmlDoc.xml, "/edition/links/*");
+    		xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/links/*");
     
 	    for (var link = 0; link < libxlinks.length; link++ )
 	    {
 	        var mitem = document.createElement("menuitem");
-	        xmlDoc.copyAttributes ( libxlinks[link], mitem );
+	        libxEnv.xmlDoc.copyAttributes ( libxlinks[link], mitem );
 	        mitem.setAttribute ( "label", mitem.label );
 	        var url = mitem.href;
 	        if (url != null)
-	            mitem.setAttribute("oncommand", "openSearchWindow('" + url + "');");
+	            mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + url + "');");
 	        libxmenu.insertBefore(mitem, libxmenusep);
 	    }
     }
@@ -466,7 +275,7 @@ function libxInit()
 	        var mitem = document.createElement("menuitem");
 	        mitem.setAttribute("label", label);
 	        if (url != null)
-	            mitem.setAttribute("oncommand", "openSearchWindow('" + url + "');");
+	            mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + url + "');");
 	        libxmenu.insertBefore(mitem, libxmenusep);
 	    }
     }
@@ -535,27 +344,7 @@ function libxInit()
     initializeMenuObjects();
 }
 
-/*
- * initialize/record a change in preference
- * We assume 
- * - that properties are choices offered in a menupopup wrapping menuitems
- * - that the name of the property is also the id of the surrounding menupopup
- * - that the name of the value is also the id of the menuitem child reflecting the choice
- */
-function recordPreference(property, value)
-{
-    var parent = document.getElementById(property);
-    for (var i = 0; i < parent.childNodes.length; i++) {
-        parent.childNodes.item(i).setAttribute('checked', parent.childNodes.item(i).getAttribute('id') == value);
-    }
-    nsPreferences.setUnicharPref(property, value);
-}
 
-function libxInitializePreferences(property)
-{
-    var menuchild = nsPreferences.getLocalizedUnicharPref(property, "libx.newtabswitch");
-    document.getElementById(menuchild).setAttribute("checked", true);
-}
 
 //this function is called right before the right click context menu is shown
 //in this function we must adjust the hidden attributes of the context menu items we would like the user to see
@@ -566,36 +355,9 @@ function libxContextPopupShowing() {
 	ContextMenuShowing ( popuphelper );
 }
 
-// output a message to the JS console
-function libxLog(msg) {
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("LibX: " + msg);
-}
 
-// open search results, according to user preferences
-function openSearchWindow(url, donoturiencode) {
-    var what = nsPreferences.getLocalizedUnicharPref("libx.displaypref", "libx.newtabswitch");
-    if (donoturiencode == null || donoturiencode == false) {
-        var url2 = encodeURI(url);
-    } else {
-        var url2 = url;
-    }
-    switch (what) {
-    case "libx.newwindow":
-	    window.open(url2);
-        break;
-    case "libx.sametab":
-		_content.location.href = url;
-        break;
-    case "libx.newtab":
-    default:
-	    getBrowser().addTab(url2);
-        break;
-    case "libx.newtabswitch":
-	    var tab = getBrowser().addTab(url2);
-        getBrowser().selectedTab = tab;
-        break;
-    }
+
+
 
 /* fix this later should it be necessary - so far, we were able to get at every catalog via GET
    this code is intended should POST be necessary in the future.
@@ -606,7 +368,7 @@ function openSearchWindow(url, donoturiencode) {
 //   if (url.constructor.name == "Array") {  // for catalog that require POST - UNTESTED code
 //	    getBrowser().addTab(encodeURI(url[0]), null, null, /*aPostData*/url[1]);
 //    }
-}
+
 
 
 //this function is called if the user presses the search button, 
@@ -666,7 +428,7 @@ function libxProxify() {
 
 	if (popuphelper.isOverLink()) {
 		var href = popuphelper.getNode().href;
-		openSearchWindow(libxProxy.rewriteURL(href));
+		libxEnv.openSearchWindow(libxProxy.rewriteURL(href));
     } else {
 		_content.location.href = libxProxy.rewriteURL(_content.location.toString());
     }
@@ -691,7 +453,7 @@ function libxProxyInit() {
 		libxProxy = new libxWAMProxy();
         break;
     default:
-		libxLog("Unsupported proxy.type=" + proxytype);
+		libxEnv.libxLog("Unsupported proxy.type=" + proxytype);
         /* FALLTHROUGH */
     case null:
     case "":
@@ -962,7 +724,7 @@ function libxRunAutoLink(document, rightaway)
 function libxSelectAutolink(value)
 {
     value = (value == "true") ? true : false;   // convert string to bool
-    nsPreferences.setBoolPref("libx.autolink", value);
+    setBoolPref("libx.autolink", value);
     libxConfig.options.autolink_active = value;
     if (value)
         libxRunAutoLink(_content.document, true);
@@ -977,7 +739,7 @@ function libxInitializeAutolink()
     var m = document.createElement("menuitem");
     m.setAttribute('type', 'checkbox');
     m.setAttribute('label', 'Autolink Pages');
-    libxConfig.options.autolink_active = nsPreferences.getBoolPref("libx.autolink", true);
+    libxConfig.options.autolink_active = getBoolPref("libx.autolink", true);
     m.setAttribute('checked', libxConfig.options.autolink_active);
     m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
     hbox.parentNode.insertBefore(m, hbox);

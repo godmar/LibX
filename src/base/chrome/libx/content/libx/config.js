@@ -106,10 +106,8 @@ function libxGetConfigXML()
     var xmlDoc = new Object();
 
     try {
-        var configurl = new XMLHttpRequest();
-        configurl.open('GET', "chrome://libx/content/config.xml", false);
-        configurl.send(null);
-        xmlDoc.xml = configurl.responseXML;
+        
+        xmlDoc.xml = libxEnv.getXMLDocument();
         xmlDoc.getNode = function (xpath) {
             return xpathFindSingle(this.xml, xpath);
         };

@@ -102,9 +102,9 @@ libxCatalog.prototype = {
             var url = this.makeAdvancedSearch(fields);
         }
         if (url != null) {
-            openSearchWindow(url, this.doNotURIEncode);
+            libxEnv.openSearchWindow(url, this.doNotURIEncode);
         } else {
-            libxLog("Could not construct search");
+            libxEnv.libxLog("Could not construct search");
         }
     },
     /* the default implementation looks at the options property
@@ -158,7 +158,7 @@ libxAddToPrototype(libxBookmarklet.prototype, {
                     if (m[1] <= fields.length)
                         switch_arg = fields[m[1] - 1].searchTerms;
                 } else
-                    libxLog("invalid switch_arg '" + s + "', must be %termX or %typeX");
+                    libxEnv.libxLog("invalid switch_arg '" + s + "', must be %termX or %typeX");
             }
             for (var i = 0; switch_arg != null && i < caseargs.length; i++) {
                 var re = new RegExp("^" + switch_arg + ":(\\S*)$");

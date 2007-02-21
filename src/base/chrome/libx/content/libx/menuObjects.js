@@ -82,7 +82,7 @@ function initializeMenuObjects() {
 		if (libraryCatalog.xisbn.opacid) {   // only true if xISBN is supported for this catalog
 		    menuObjects[1].setAttribute ( "hidden", false );
 		    menuObjects[1].setAttribute ( "oncommand", 
-		    	"openSearchWindow(libraryCatalog.makeXISBNRequest(\"" + s + "\"))" );
+		    	"libxEnv.openSearchWindow(libraryCatalog.makeXISBNRequest(\"" + s + "\"))" );
 		}
 	}
 	
@@ -104,7 +104,7 @@ function initializeMenuObjects() {
 		    menuObjects[1].setAttribute ( "hidden", false );
 		    menuObjects[1].setAttribute ( "label", libxGetProperty("openurlissnsearch.label", [openUrlResolver.name, pureISN] ) );
 		    menuObjects[1].setAttribute ( "oncommand",
-			"openSearchWindow(openUrlResolver.makeOpenURLForISSN(\"" + s + "\"));" );
+			"libxEnv.openSearchWindow(openUrlResolver.makeOpenURLForISSN(\"" + s + "\"));" );
 		    
 		}		
 	}
@@ -121,7 +121,7 @@ function initializeMenuObjects() {
 			menuObjects[0].setAttribute ( "label", libxGetProperty("openurlpmidsearch.label", [openUrlResolver.name, s]) );
 			menuObjects[0].setAttribute ( "hidden", false );
 			menuObjects[0].setAttribute ( "oncommand", 
-			"openSearchWindow(openUrlResolver.makeOpenURLForPMID(\"" + s + "\"));");
+			"libxEnv.openSearchWindow(openUrlResolver.makeOpenURLForPMID(\"" + s + "\"));");
 		}
 	}
 	
@@ -195,7 +195,7 @@ function initializeMenuObjects() {
 			menuObjects[0].setAttribute ( "label", libxGetProperty("openurldoisearch.label", [openUrlResolver.name, s]) );
 			menuObjects[0].setAttribute ( "hidden", false );
 			menuObjects[0].setAttribute ( "oncommand", 
-			"openSearchWindow(openUrlResolver.makeOpenURLForDOI(\"" + s + "\"));");
+			"libxEnv.openSearchWindow(openUrlResolver.makeOpenURLForDOI(\"" + s + "\"));");
 		}
 	}	
 	

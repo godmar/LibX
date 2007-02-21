@@ -67,7 +67,7 @@ function xpathFindSnapshot(doc, xpathexpr, root) {
 }
 
 function xpathutil_log(msg) {
-    if (!nsPreferences.getBoolPref("libx.xpath.debug", false))
+    if (!getBoolPref("libx.xpath.debug", false))
         return;
 
     var consoleService = Components.classes["@mozilla.org/consoleservice;1"]

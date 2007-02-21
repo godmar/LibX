@@ -144,7 +144,7 @@ OpenURL.prototype = {
     search: function (fields) {
         var url = this.makeOpenURLSearch(fields);
         if (url) {
-            openSearchWindow(url);
+            libxEnv.openSearchWindow(url);
         }
     }
 }
