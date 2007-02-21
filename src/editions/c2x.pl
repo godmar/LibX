@@ -181,6 +181,18 @@ while (1) {
     $catprefix = 'catalog' . $c++ . '.';
 }
 
+#
+# if scholar is not disabled, add a catalog entry for it.
+#
+if ($config{'$libx.disablescholar'} ne 'true') {
+    my $e = $doc->createElement("scholar");
+    # Google told us to use this label and no other for trademark reasons
+    &addproperty($e, 'Google Scholar', 'name');
+    # add addproperty calls for other properties here as needed...
+
+    $catalogs->appendChild($e);
+}
+
 #openurltype=sersol
 my $oresolvers = $doc->createElement('openurl');
 $root->appendChild($oresolvers);
@@ -223,7 +235,8 @@ $root->appendChild($options);
 &addoption($options, $config{'$libx.sersolisbnfix'}, 'sersolisbnfix');
 &addoption($options, $config{'$libx.autolink'}, 'autolink');
 &addoption($options, $config{'$libx.autolinkstyle'}, 'autolinkstyle');
-&addoption($options, $config{'$libx.disablescholar'}, 'disablescholar');
+# we no longer keep this as an option - see above.
+# &addoption($options, $config{'$libx.disablescholar'}, 'disablescholar');
 &addoption($options, $config{'$suppress.scholar.display'}, 'suppressscholardisplay');
 &addoption($options, $config{'$scholarmiss.url'}, 'scholarmissurl');
 &addoption($options, $config{'$send.origdata.withopenurl'}, 'sendorigdatawithopenurl');
