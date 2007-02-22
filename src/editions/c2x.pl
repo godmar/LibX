@@ -184,7 +184,8 @@ while (1) {
 #
 # if scholar is not disabled, add a catalog entry for it.
 #
-if ($config{'$libx.disablescholar'} ne 'true') {
+my $disablescholar = $config{'$libx.disablescholar'};
+if (!defined($disablescholar) || $disablescholar ne 'true') {
     my $e = $doc->createElement("scholar");
     # Google told us to use this label and no other for trademark reasons
     &addproperty($e, 'Google Scholar', 'name');

@@ -162,8 +162,8 @@ function libxInitializeCatalogs()
     
     /* Initialize the scholar catalog */
     
-    /* No XML Entry yet for Scholar Search... */
-    if ((cattype = libxGetProperty("scholar.catalog.type")) != "")
+    /* Scholar Search is handled through entry in XML file unless disabled ... */
+    if (!libxEnv.xmlDoc.xml && (cattype = libxGetProperty("scholar.catalog.type")) != "")
         if (!libxConfig.options.disablescholar)
         	searchCatalogs.push ( 
         		libxInitializeCatalogFromProperties (

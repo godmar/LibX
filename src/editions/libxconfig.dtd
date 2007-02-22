@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.8 2007/02/20 18:21:11 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.9 2007/02/22 20:39:15 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -30,7 +30,11 @@
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet)* >
+<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar)* >
+<!ELEMENT scholar EMPTY>
+<!ATTLIST scholar
+        name            CDATA #REQUIRED
+>
 <!ELEMENT centralsearch EMPTY>
 <!ATTLIST centralsearch
         name            CDATA #REQUIRED
