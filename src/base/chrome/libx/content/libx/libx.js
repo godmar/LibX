@@ -347,7 +347,7 @@ function libxInit()
      * It's still incorrect on FF 1.5 on Macintosh.  FF 1.5 is unsupported
      * by Mozilla as of 04/07, so let's not bother fixing it.
      */
-    if (navigator.userAgent.match(/.*Macintosh.*Firefox/2/)) {
+    if (navigator.userAgent.match(/.*Macintosh.*Firefox\/2/)) {
         searchbutton.style.margin = "-4px 0px -2px 0px";
         document.getElementById("libx-scholar-box")
             .style.margin = "1px 0px 0px 0px";
