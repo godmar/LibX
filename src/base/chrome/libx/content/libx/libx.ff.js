@@ -282,4 +282,4 @@ function libxInitializeCatalogsFromProperties()
     catdropdown.parentNode.label = catdropdown.firstChild.label;
 }
 
-  
+// vim: ts=4
