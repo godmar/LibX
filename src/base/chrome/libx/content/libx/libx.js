@@ -332,11 +332,26 @@ function libxInit()
     }
 
     // add the selected search as a default target
-    var searchbutton = document.getElementById("search-button");
+    var searchbutton = document.getElementById("libx-search-button");
     new TextDropTarget(function (data) {
         libxSelectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
     }).attachToElement(searchbutton);
     libxInitializePreferences("libx.displaypref");
+
+    /* Adjust for bug in style rendering on Macintosh with FF 2.0.
+     * The type field to toolbarbutton can take the value "menu" or "menu-button".
+     * The two are very different: menu has a label child, menu-button does not.
+     * labels have padding.  
+     * For reasons unknown, on Macintosh, FF 2.0, they are rendered differently,
+     * so we adjust the pixels to get it aligned.  How ridiculous.
+     * It's still incorrect on FF 1.5 on Macintosh.  FF 1.5 is unsupported
+     * by Mozilla as of 04/07, so let's not bother fixing it.
+     */
+    if (navigator.userAgent.match(/.*Macintosh.*Firefox/2/)) {
+        searchbutton.style.margin = "-4px 0px -2px 0px";
+        document.getElementById("libx-scholar-box")
+            .style.margin = "1px 0px 0px 0px";
+    }
 
     document.getElementById("libx-menu-toolbarbutton")
         .setAttribute("tooltiptext", "LibX - " + libxGetProperty('edition'));
@@ -347,7 +362,8 @@ function libxInit()
 
 
 //this function is called right before the right click context menu is shown
-//in this function we must adjust the hidden attributes of the context menu items we would like the user to see
+//in this function we must adjust the hidden attributes of the context menu 
+//items we would like the user to see
 function libxContextPopupShowing() {
             
     pureISN = null;//forget pureISN
@@ -525,7 +541,7 @@ function libxSelectCatalog(mitem, event) {
     <menupopup id="libx-dropdown-menupopup">
         <menuitem value="Y" label="Keyword" oncommand="setFieldType(this)
 */
-	var sb = document.getElementById("search-button");
+	var sb = document.getElementById("libx-search-button");
 	sb.label = mitem.label;
     if (mitem.value == "openurl")
         libxSelectedCatalog = openUrlResolver;

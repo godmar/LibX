@@ -21,6 +21,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+/* Remove the 1px padding thats added by chrome://global/skin/toolbarbutton.css */
+.remove-icon-padding {
+  margin-top: -1px; margin-bottom: -1px;
+}
+
 .down-button {
   list-style-image: url("chrome://libx/skin/find.png");
   -moz-image-region: rect(0px 16px 16px 0px);
@@ -50,7 +55,19 @@
   -moz-image-region: rect(0px, 48px, 16px, 32px);
 }
 
-.close-button[disabled="true"] 
-{
+.close-button[disabled="true"] {
 	visibility:hidden;
+}
+
+/*
+ * The scholar box, on the other hand, is a toolbaritem, not a toolbarbutton.
+ * It has a different box alignment.  Adjust for this.
+ * In addition, adjust vertical alignment by adding additional margin.
+ * This does not work on Macintosh, see libx.js for how this is adjusted.
+ *
+ * See: chrome://global/skin/formatting.css
+ */
+#libx-scholar-box {
+        margin-top: 2px; margin-bottom: 1px;
+        -moz-box-align: center !important;
 }

@@ -76,7 +76,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			<vbox>
 				<hbox>
 					<toolbarbutton 
-                        style="margin-top: 1px; margin-bottom: -1px;"
                         label=" $emnameshort$ " type="menu" 
                         image="&libx.image;" id="libx-menu-toolbarbutton">
 						<menupopup id="libxmenu">
@@ -101,7 +100,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<!-- do not add more children to vbox, the addSearchField function relies on being able to clone vbox.lastChild -->
 				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
 					<!-- child number 0 aka firstChild -->
-					<toolbarbutton label="-" type="menu" tooltiptext="Select Search Field Type" width="80" crop="end">
+					<toolbarbutton style="margin-top: -1px;"
+                            label="-" type="menu" tooltiptext="Select Search Field Type" 
+                            width="80" crop="end">
 						<menupopup id="libx-dropdown-menupopup">
 							<menuitem value="Y" label="Keyword" oncommand="setFieldType(this);" />
 							<menuitem value="t" label="Title" oncommand="setFieldType(this);" />
@@ -124,19 +125,24 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 							flex="1" minwidth="100" width="160" />
 					</toolbaritem>
 					<!-- child number 2 -->
-					<toolbarbutton tooltiptext="Create New Search Field" class="down-button" disabled="false" oncommand="addSearchField();" />
+					<toolbarbutton tooltiptext="Create New Search Field" 
+                                    class="down-button remove-icon-padding" 
+                                    disabled="false" 
+                                    oncommand="addSearchField();" />
 					<!-- child number 3 -->
-					<toolbarbutton tooltiptext="Close Search Field" class="close-button" disabled="true" oncommand="removeSearchField(this.parentNode);" />
+					<toolbarbutton tooltiptext="Close Search Field" 
+                                    class="close-button remove-icon-padding" 
+                                    disabled="true" 
+                                    oncommand="removeSearchField(this.parentNode);" />
 				</hbox>
 				<!-- do not add anything here -->
 			</vbox>
 			<vbox>
 				<hbox id="libx-right-toolbarbutton-hbox">
 					<toolbarbutton 
-                        style="margin-top: 1px; margin-bottom: -1px;"
                         type="menu-button" 
                         tooltiptext="Press to search or drag search terms onto this button!"
-						id="search-button" oncommand="doSearch();">
+						id="libx-search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
 							<menuitem oncommand="libxSelectCatalog(this,event);" />
 							<menuitem id="libx-openurl-search-menuitem"
@@ -147,28 +153,23 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
                     <toolbarseparator style="&toolbar.separator.style;" />
 					<toolbarbutton 
-                                style="margin-top: 1px; margin-bottom: 1px;"
                                 label=" Clear " tooltiptext="Clear All Search Fields" 
                                 oncommand="libxClearAllFields();" />
 
-                <!-- Scholar button is no longer clickable -->
-                <!-- was
-					<toolbarbutton label="&libx.magicbutton.label;" 
-					    tooltiptext="Drag and Drop Terms onto this button!" 
-                        id="libx-magic-button"
-						image="&libx.magicbutton.image;" oncommand="doMagicSearch();" />
-                -->
+                <!-- Scholar button is (no longer) clickable - that is why we use
+                     a toolbaritem/hbox combo here instead of a toolbarbutton.
+                     Note that this causes different margins by default, something
+                     we then correct for in the style sheet.
+                 -->
                     <toolbarseparator style="&toolbar.separator.style;" />
-					<toolbaritem id="libx-magic-button"
-                                style="margin-left: 5px; margin-top: 5px; margin-bottom: -1px;">
-                        <hbox>
-                            <image 
-                                style="margin-top: -1px; margin-bottom: 6px;"
-                                src="&libx.magicbutton.image;" />
+					<toolbaritem id="libx-magic-button">
+                        <!-- See #libx-scholar-box style rule in libx.css -->
+                        <hbox id="libx-scholar-box">
+                            <image src="&libx.magicbutton.image;" />
                             <label value="&libx.magicbutton.label;" 
                                 tooltiptext="Drag and Drop Terms onto this button!" 
                                 onclick="alert('To search, select search terms and drag your selection onto this button');"
-                                id="libx-magic-button" />
+                                />
                         </hbox>
                     </toolbaritem>
 				</hbox>
