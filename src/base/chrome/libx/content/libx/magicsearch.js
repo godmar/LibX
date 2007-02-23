@@ -285,7 +285,7 @@ function magicSearch(data, inpub, suppressheuristics)
 
             // show google scholar page also
             if (found) {
-                libxEnv.openSearchWindow(url, false, "libx.newtab" );       // in second tab if we got a hit
+                libxEnv.openSearchWindow(url, true, "libx.newtab" );       // in second tab if we got a hit
             } else {
                 libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata), true);  // as primary window if not
             }
