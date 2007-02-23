@@ -169,7 +169,7 @@ function initializeMenuObjects() {
         setHidden("libx-author-search", menuObjects[2]);
         
         menuObjects[3].setAttribute ( "hidden", false );
-        var displayText = p.length > 10 ? p.substr ( 0, 10 ) + "..." : p;
+        var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
 		menuObjects[3].setAttribute ( "label", 
 			libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
         menuObjects[3].setAttribute ( "oncommand", "magicSearch ( \"" + p + "\" );" );
