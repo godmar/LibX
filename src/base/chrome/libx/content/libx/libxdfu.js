@@ -488,6 +488,13 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
 
 // invoke autolink on all pages, if active
 var autolink = new DoForURL(/.*/, function (doc) {
+    // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
+    // we skip autolink if the page contains any textarea element.
+    // (though the bug purportedly only affects large textarea elements.)
+    var n = xpathFindNodes(doc, "//textarea");
+    if (n.length > 0)
+        return;
+
     if (libxConfig.options.autolink_active)
         libxRunAutoLink(doc, false); // false -> not right away
 });
