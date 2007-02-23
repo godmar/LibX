@@ -172,7 +172,9 @@ function initializeMenuObjects() {
         var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
 		menuObjects[3].setAttribute ( "label", 
 			libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
-        menuObjects[3].setAttribute ( "oncommand", "magicSearch ( \"" + p + "\" );" );
+        /* Use a closure here to avoid having to quote 'p' */
+        menuObjects[3]._magicsearch = function () { magicSearch(p); }
+        menuObjects[3].setAttribute ( "oncommand", "this._magicsearch();" );
     }
     
     /*********************************** DOI options ( always checked ) *******************************************/
@@ -226,3 +228,6 @@ function initializeMenuObjects() {
         }
 	}
 }
+
+// vim: ts=4
+
