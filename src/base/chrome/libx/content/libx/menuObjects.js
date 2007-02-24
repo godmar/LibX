@@ -53,7 +53,13 @@
  *		- Currently all menu objects are inserted right before the EZ-Proxy object, which appears at the bottem
  *		  of the libx context menu. 		
  */
-function initializeMenuObjects() {
+function initializeMenuObjects() 
+{
+    // trim a string
+    function trim(s) 
+    {
+        return s.replace(/^\s*/, "").replace(/\s*$/, "");
+    }
 
 	function setHidden(objectId, menObject)
 	{
@@ -150,10 +156,10 @@ function initializeMenuObjects() {
 	ContextMenuObject ( libxMenuItems, "libx", def, DEFAULTAction );
 	
 	function def ( s ) {
-	var m;
+        var m;
 		if ( m = s.getSelection() )
 		  return m;
-		return "...";
+		return null;
 	}
 	
 	// don't show keyword, title, author if ISSN/ISBN or PMID was recognized
@@ -169,9 +175,9 @@ function initializeMenuObjects() {
         setHidden("libx-author-search", menuObjects[2]);
         
         menuObjects[3].setAttribute ( "hidden", false );
+        p = trim(p);
         var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
-		menuObjects[3].setAttribute ( "label", 
-			libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
+		menuObjects[3].setAttribute ( "label", libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
         /* Use a closure here to avoid having to quote 'p' */
         menuObjects[3]._magicsearch = function () { magicSearch(p); }
         menuObjects[3].setAttribute ( "oncommand", "this._magicsearch();" );
