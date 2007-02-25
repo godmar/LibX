@@ -190,6 +190,7 @@ if (!defined($disablescholar) || $disablescholar ne 'true') {
     # Google told us to use this label and no other for trademark reasons
     &addproperty($e, 'Google Scholar', 'name');
     # add addproperty calls for other properties here as needed...
+    &addproperty($e, 'http://scholar.google.com', 'url' );
 
     $catalogs->appendChild($e);
 }

@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.9 2007/02/22 20:39:15 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.10 2007/02/25 17:59:03 vtdoylem Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -34,6 +34,7 @@
 <!ELEMENT scholar EMPTY>
 <!ATTLIST scholar
         name            CDATA #REQUIRED
+        url             CDATA #REQUIRED	
 >
 <!ELEMENT centralsearch EMPTY>
 <!ATTLIST centralsearch
