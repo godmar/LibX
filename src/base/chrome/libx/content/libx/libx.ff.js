@@ -44,17 +44,17 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     }
     switch (what) {
     case "libx.newwindow":
-	    window.open(url2);
+        window.open(url2);
         break;
     case "libx.sametab":
-		_content.location.href = url;
+        _content.location.href = url;
         break;
     case "libx.newtab":
     default:
-	    getBrowser().addTab(url2);
+        getBrowser().addTab(url2);
         break;
     case "libx.newtabswitch":
-	    var tab = getBrowser().addTab(url2);
+        var tab = getBrowser().addTab(url2);
         getBrowser().selectedTab = tab;
         break;
     }
@@ -62,7 +62,7 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
   
   
 libxEnv.getXMLDocument = function ( ) {
-	var configurl = new XMLHttpRequest();
+    var configurl = new XMLHttpRequest();
     configurl.open('GET', "chrome://libx/content/config.xml", false);
     configurl.send(null);
     return configurl.responseXML;
@@ -89,14 +89,14 @@ libxEnv.libxLog = function (msg) {
   
 
 libxEnv.initCatalogGUI = function () {
-	// we insert additional catalogs before the openurl button for now
+    // we insert additional catalogs before the openurl button for now
     var catdropdown = document.getElementById("libxcatalogs");
     var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
-	
-	for ( var i = 1; i < searchCatalogs.length; i++ ) {
-		var cat = searchCatalogs[i];
-		var newbutton = document.createElement("menuitem");
-	    newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
+    
+    for ( var i = 1; i < searchCatalogs.length; i++ ) {
+        var cat = searchCatalogs[i];
+        var newbutton = document.createElement("menuitem");
+        newbutton.setAttribute("oncommand", "libxEnv.SelectCatalog(this,event);");
         newbutton.setAttribute("value", i );
         newbutton.setAttribute("label", "Search " + cat.name + " " );
         catdropdown.insertBefore(newbutton, openurlsbutton);
@@ -106,13 +106,34 @@ libxEnv.initCatalogGUI = function () {
     catdropdown.firstChild.value = 0;  
     libxSelectedCatalog = searchCatalogs[0];
     libxActivateCatalogOptions(libxSelectedCatalog);
-	libraryCatalog = searchCatalogs[0];
+    libraryCatalog = searchCatalogs[0];
     // copy initial label to toolbarbutton parent from menuitem first child
     catdropdown.firstChild.setAttribute("label", "Search " + searchCatalogs[0].name + " ");
     catdropdown.parentNode.label = catdropdown.firstChild.label;
 }
 
 
+// switch the current search type (addison, openurl, etc.)
+libxEnv.SelectCatalog = function(mitem, event) {
+    event.stopPropagation();
+
+/*
+<vbox id="search-field-vbox" flex="1">
+    <hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
+    <!-- child number 0 aka firstChild -->
+    <toolbarbutton label="Keyword" ...
+    <menupopup id="libx-dropdown-menupopup">
+        <menuitem value="Y" label="Keyword" oncommand="setFieldType(this)
+*/
+    var sb = document.getElementById("search-button");
+    sb.label = mitem.label;
+    if (mitem.value == "openurl")
+        libxSelectedCatalog = openUrlResolver;
+    else
+        libxSelectedCatalog = searchCatalogs[mitem.value];
+
+    libxActivateCatalogOptions(libxSelectedCatalog);
+}
 
 
 function addCatalogByProperties(cattype, catprefix, catnumber)
@@ -122,7 +143,7 @@ function addCatalogByProperties(cattype, catprefix, catnumber)
         searchCatalogs.push(cat);
 
         var newbutton = document.createElement("menuitem");
-        newbutton.setAttribute("oncommand", "libxSelectCatalog(this,event);");
+        newbutton.setAttribute("oncommand", "libxEnv.SelectCatalog(this,event);");
         newbutton.setAttribute("value", catnumber);
         newbutton.setAttribute("label", "Search " + libxGetProperty(catprefix + ".catalog.name") + " ");
         catdropdown.insertBefore(newbutton, openurlsbutton);
@@ -140,16 +161,16 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
 {
     var cat = null;
     switch (cattype) {
-	case "scholar":
+    case "scholar":
         cat = new libxScholarSearch(catprefix);
         break;
 
-	case "bookmarklet":
+    case "bookmarklet":
         cat = new libxBookmarklet(catprefix);
         break;
 
-	case "millenium":
-		cat = new MilleniumOPAC();
+    case "millenium":
+        cat = new MilleniumOPAC();
         cat.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
         cat.setIf('keywordcode', libxGetProperty(catprefix + "millenium.keywordcode"));
         cat.setIf('advancedcode', libxGetProperty(catprefix + "millenium.advancedcode"));
@@ -158,8 +179,8 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
         cat.setIf('searchform', libxGetProperty(catprefix + "millenium.searchform"));
         break;
 
-	case "horizon":
-	    cat = new HorizonOPAC();
+    case "horizon":
+        cat = new HorizonOPAC();
         // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
         // others have an index ISBNEX that does exact matching 
         // on both ISSN & ISBN
@@ -174,8 +195,8 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
         cat.setIf('profile', libxGetProperty(catprefix + "horizon.profile"));
         break;
 
-	case "aleph":
-	    cat = new AlephOPAC();
+    case "aleph":
+        cat = new AlephOPAC();
         cat.setIf('localbase', libxGetProperty(catprefix + 'aleph.localbase'));
         cat.setIf('title', libxGetProperty(catprefix + 'aleph.title'));
         cat.setIf('journaltitle', libxGetProperty(catprefix + 'aleph.journaltitle'));
@@ -191,27 +212,27 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
         cat.setIf('scanindexlist', libxGetProperty(catprefix + 'aleph.scan.index.list'));
         break;
 
-	case "voyager":
-	    cat = new VoyagerOPAC();
+    case "voyager":
+        cat = new VoyagerOPAC();
         cat.setIf('advancedsearchforissn', libxGetProperty(catprefix + "voyager.advancedsearchforissn"));
         break;
 
-	case "sirsi":
-	    cat = new SirsiOPAC();
+    case "sirsi":
+        cat = new SirsiOPAC();
         cat.setIf('searchscope', libxGetProperty(catprefix + "catalog.searchscope"));
         cat.setIf('sort', libxGetProperty(catprefix + "sirsi.sort"));
         break;
 
-	case "sersol":
-	    cat = new ArticleLinker();
+    case "sersol":
+        cat = new ArticleLinker();
         break;
 
-	case "sfx":
-	    cat = new SFX();
+    case "sfx":
+        cat = new SFX();
         break;
 
-	case "centralsearch":
-	    cat = new CentralSearch();
+    case "centralsearch":
+        cat = new CentralSearch();
         cat.setIf('sslibhash', libxGetProperty(catprefix + "centralsearch.ssLibHash"));
         cat.setIf('searchby', libxGetProperty(catprefix + "centralsearch.searchBy"));
         cat.setIf('catids', libxGetProperty(catprefix + "centralsearch.catIDs"));
@@ -220,7 +241,7 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
         break;
 
     default:
-		libxEnv.libxLog("Catalog type " + cattype + " not supported.");
+        libxEnv.libxLog("Catalog type " + cattype + " not supported.");
     case null:
     case "":
         return null;
@@ -280,6 +301,9 @@ function libxInitializeCatalogsFromProperties()
     // copy initial label to toolbarbutton parent from menuitem first child
     catdropdown.firstChild.setAttribute("label", "Search " + libraryCatalog.name + " ");
     catdropdown.parentNode.label = catdropdown.firstChild.label;
+}
+
+libxEnv.initializeGUI = function () {
 }
 
 // vim: ts=4

@@ -41,7 +41,11 @@ var libxEnv = new Object(); /* Global libx object */
 /* Currently implemented under libxEnv 
  * 
  * xmlDoc -- return value of getConfigXML();
- *
+ * libxMagicLog/libxLog -- write to some sort of log
+ * openSearchWindow -- respects config options on how to open a url
+ * SelectCatalog -- switch current search type [neb]
+ * initCatalogGUI -- set up catalog list [neb]
+ * initializeGUI -- all GUI initialization code (=XUL in ff) moved here [neb]
  */
 
 /*
@@ -315,11 +319,11 @@ function libxInit()
         libxDropdownOptions[mitem.value] = mitem;
     }
 
-    libxInitializeOpenURL();    
-    libxInitializeCatalogs();
-	libxProxyInit();
-    libxInitializeAutolink();
-	libxInitializeDFU();
+	 libxInitializeOpenURL();    
+	 libxInitializeCatalogs();
+	 libxProxyInit();
+	 libxInitializeAutolink();
+	 libxInitializeDFU();
 	
 	var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
