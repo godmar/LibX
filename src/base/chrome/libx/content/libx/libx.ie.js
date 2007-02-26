@@ -110,7 +110,7 @@ libxEnv.initCatalogGUI = function () {
 libxEnv.SelectCatalog = function(mitem, event) {
 	event.stopPropagation();
 
-	var sb = document.getElementById("search-button");
+	var sb = document.getElementById("libx-search-button");
 	sb.label = mitem.label;
     if (mitem.value == "openurl")
         libxSelectedCatalog = openUrlResolver;

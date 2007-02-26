@@ -125,7 +125,7 @@ libxEnv.SelectCatalog = function(mitem, event) {
     <menupopup id="libx-dropdown-menupopup">
         <menuitem value="Y" label="Keyword" oncommand="setFieldType(this)
 */
-    var sb = document.getElementById("search-button");
+    var sb = document.getElementById("libx-search-button");
     sb.label = mitem.label;
     if (mitem.value == "openurl")
         libxSelectedCatalog = openUrlResolver;
