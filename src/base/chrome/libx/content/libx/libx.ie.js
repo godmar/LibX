@@ -33,85 +33,85 @@
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
   
-/* 	openSearchWindow
+/*  openSearchWindow
  * Opens a new browser window for searching. Since standard JavaScript does
  * not contain the concept of 'tabs', this is emulated by opening new windows
  * and letting the browser figure out how to handle the situation.
- */  	
+ */     
 libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
-	var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
-	var url2;
-	if (donoturiencode == null || donoturiencode == false) {
-		url2 = encodeURI(url);
-	} else {
-		url2 = url;
-	}
-	switch (what) {
-	case "libx.sametab": //open in current window
-		document.open(url2, '_self');
-		break;
-	case "libx.newtabswitch": //open in new window, focus it
-		var newWindow = document.open(url2, '_blank');
-		newWindow.focus();
-		break;
-	case "libx.newwindow": //open in new window, don't explicitly focus it
-	case "libx.newtab":
-	default:
-		window.open(url2, '_blank');
-		break;
-	}
+    var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
+    var url2;
+    if (donoturiencode == null || donoturiencode == false) {
+        url2 = encodeURI(url);
+    } else {
+        url2 = url;
+    }
+    switch (what) {
+    case "libx.sametab": //open in current window
+        document.open(url2, '_self');
+        break;
+    case "libx.newtabswitch": //open in new window, focus it
+        var newWindow = document.open(url2, '_blank');
+        newWindow.focus();
+        break;
+    case "libx.newwindow": //open in new window, don't explicitly focus it
+    case "libx.newtab":
+    default:
+        window.open(url2, '_blank');
+        break;
+    }
 }
 
 //Returns an XML DOM document for the config file  
 libxEnv.getXMLDocument = function ( ) {
-	return libxInterface.getXMLConfig();	
+    return libxInterface.getXMLConfig();    
 }
   
 //Writes to the log, prepending the string 'Magic: '
 libxEnv.libxMagicLog = function (msg) {
-	if (!libxEnv.getBoolPref("libx.magic.debug", false))
-		return;
+    if (!libxEnv.getBoolPref("libx.magic.debug", false))
+        return;
 
-	libxInterface.writeLog('Magic: {0}', msg);
+    libxInterface.writeLog('Magic: {0}', msg);
 }
 
 //Writes to the log, prepending the string 'LibX: '
 libxEnv.libxLog = function (msg) {
-	libxInterface.writeLog('LibX: {0}', msg);
+    libxInterface.writeLog('LibX: {0}', msg);
 }
 
 libxEnv.initializeGUI = function () {
-	
+    
 }
   
 
 libxEnv.initCatalogGUI = function () {
-	
-	for ( var i = 0; i < searchCatalogs.length; ++i ) {
-		var cat = searchCatalogs[i];
-		
-		newbutton.setAttribute("value", i );
-		newbutton.setAttribute("label", "Search " + cat.name + " " );
-		catdropdown.insertBefore(newbutton, openurlsbutton);
-	}
-	
-	// record initially selected catalog and activate its search options
-	catdropdown.firstChild.value = 0;  
-	libxSelectedCatalog = searchCatalogs[0];
-	libxActivateCatalogOptions(libxSelectedCatalog);
-	libraryCatalog = searchCatalogs[0];
-	// copy initial label to toolbarbutton parent from menuitem first child
-	catdropdown.firstChild.setAttribute("label", "Search " + searchCatalogs[0].name + " ");
-	catdropdown.parentNode.label = catdropdown.firstChild.label;
+    
+    for ( var i = 0; i < searchCatalogs.length; ++i ) {
+        var cat = searchCatalogs[i];
+        
+        newbutton.setAttribute("value", i );
+        newbutton.setAttribute("label", "Search " + cat.name + " " );
+        catdropdown.insertBefore(newbutton, openurlsbutton);
+    }
+    
+    // record initially selected catalog and activate its search options
+    catdropdown.firstChild.value = 0;  
+    libxSelectedCatalog = searchCatalogs[0];
+    libxActivateCatalogOptions(libxSelectedCatalog);
+    libraryCatalog = searchCatalogs[0];
+    // copy initial label to toolbarbutton parent from menuitem first child
+    catdropdown.firstChild.setAttribute("label", "Search " + searchCatalogs[0].name + " ");
+    catdropdown.parentNode.label = catdropdown.firstChild.label;
 }
 
 
 // switch the current search type (addison, openurl, etc.)
 libxEnv.SelectCatalog = function(mitem, event) {
-	event.stopPropagation();
+    event.stopPropagation();
 
-	var sb = document.getElementById("libx-search-button");
-	sb.label = mitem.label;
+    var sb = document.getElementById("libx-search-button");
+    sb.label = mitem.label;
     if (mitem.value == "openurl")
         libxSelectedCatalog = openUrlResolver;
     else
