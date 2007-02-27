@@ -165,18 +165,20 @@ function initializeMenuObjects()
 	// don't show keyword, title, author if ISSN/ISBN or PMID was recognized
 	function DEFAULTAction ( p, menuObjects ) 
 	{
-		menuObjects[0].setAttribute ( "label", libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.name]) );
+		p = trim(p);
+        var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
+		
+		menuObjects[0].setAttribute ( "label", libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.name, displayText]) );
 		setHidden("libx-keyword-search", menuObjects[0]);
 
-        menuObjects[1].setAttribute ( "label", libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.name]) );
+        menuObjects[1].setAttribute ( "label", libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.name, displayText]) );
         setHidden("libx-title-search", menuObjects[1]);
 
-        menuObjects[2].setAttribute ( "label", libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.name]) );
+        menuObjects[2].setAttribute ( "label", libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.name, displayText]) );
         setHidden("libx-author-search", menuObjects[2]);
         
         menuObjects[3].setAttribute ( "hidden", false );
-        p = trim(p);
-        var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
+        
 		menuObjects[3].setAttribute ( "label", libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
         /* Use a closure here to avoid having to quote 'p' */
         menuObjects[3]._magicsearch = function () { magicSearch(p); }
