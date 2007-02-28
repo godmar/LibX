@@ -304,6 +304,7 @@ function libxInitializeCatalogsFromProperties()
 }
 
 libxEnv.initializeContextMenu = function () {
+    popuphelper = new ContextPopupHelper();
     var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
 }

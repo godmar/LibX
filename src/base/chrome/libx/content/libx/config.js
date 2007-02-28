@@ -27,7 +27,7 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
 
-const libx_version = "$libxversion$";
+var libx_version = "$libxversion$"; // this is constant, but 'const' is a Mozilla-specific keyword
 
 var libxProps;          // a string bundle in the XUL file from which we read properties
 var libxConfig;         // a Document object representing config.xml, or null
