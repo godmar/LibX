@@ -306,17 +306,33 @@ function libxInit()
      * libx.searchoption1.value=jt
      * libx.searchoption1.label=Periodical Title
      */ 
-    for (var opt = 1;
-        (label = libxGetProperty("libx.searchoption" + opt + ".label")) != null;
-        opt++) 
+    if ( libxEnv.xmlDoc.xml )
     {
-        var mitem = document.createElement("menuitem");
-        libxAddToPrototype(mitem, { 
-            value: libxGetProperty("libx.searchoption" + opt + ".value"),
-            label: label
-        });
-        mitem.setAttribute('oncommand', 'setFieldType(this);');
-        libxDropdownOptions[mitem.value] = mitem;
+	    var libxSearchOptions = 
+    	    xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/searchoptions/*");
+    	for (var option = 0; option < libxSearchOptions.length; option++ )
+	    {
+	        var mitem = document.createElement("menuitem");
+	        libxEnv.xmlDoc.copyAttributes ( libxSearchOptions[option], mitem );
+	        mitem.setAttribute('oncommand', 'setFieldType(this);');
+	        libxDropdownOptions[mitem.value] = mitem;
+	    }
+	}   
+	else
+	{
+    	
+	    for (var opt = 1;
+	        (label = libxGetProperty("libx.searchoption" + opt + ".label")) != null;
+	        opt++) 
+	    {
+	        var mitem = document.createElement("menuitem");
+	        libxAddToPrototype(mitem, { 
+	            value: libxGetProperty("libx.searchoption" + opt + ".value"),
+	            label: label
+	        });
+	        mitem.setAttribute('oncommand', 'setFieldType(this);');
+	        libxDropdownOptions[mitem.value] = mitem;
+	    }
     }
 
 	 libxInitializeOpenURL();    
