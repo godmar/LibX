@@ -64,7 +64,7 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
 
 //Returns an XML DOM document for the config file  
 libxEnv.getXMLDocument = function ( ) {
-    return libxInterface.getXMLConfig();    
+    return libxInterface.config;  
 }
   
 //Writes to the log, prepending the string 'Magic: '
@@ -80,44 +80,20 @@ libxEnv.libxLog = function (msg) {
     libxInterface.writeLog('LibX: {0}', msg);
 }
 
+/*
+ * GUI functions are not used in the IE version, as the GUI is not controlled
+ * by JavaScript.
+ */
 libxEnv.initializeGUI = function () {
-    
 }
-  
 
 libxEnv.initCatalogGUI = function () {
-    
-    for ( var i = 0; i < searchCatalogs.length; ++i ) {
-        var cat = searchCatalogs[i];
-        
-        newbutton.setAttribute("value", i );
-        newbutton.setAttribute("label", "Search " + cat.name + " " );
-        catdropdown.insertBefore(newbutton, openurlsbutton);
-    }
-    
-    // record initially selected catalog and activate its search options
-    catdropdown.firstChild.value = 0;  
-    libxSelectedCatalog = searchCatalogs[0];
-    libxActivateCatalogOptions(libxSelectedCatalog);
-    libraryCatalog = searchCatalogs[0];
-    // copy initial label to toolbarbutton parent from menuitem first child
-    catdropdown.firstChild.setAttribute("label", "Search " + searchCatalogs[0].name + " ");
-    catdropdown.parentNode.label = catdropdown.firstChild.label;
 }
 
+libxEnv.initializeContextMenu = function () {
+}
 
-// switch the current search type (addison, openurl, etc.)
 libxEnv.SelectCatalog = function(mitem, event) {
-    event.stopPropagation();
-
-    var sb = document.getElementById("libx-search-button");
-    sb.label = mitem.label;
-    if (mitem.value == "openurl")
-        libxSelectedCatalog = openUrlResolver;
-    else
-        libxSelectedCatalog = searchCatalogs[mitem.value];
-
-    libxActivateCatalogOptions(libxSelectedCatalog);
 }
 
 /*

@@ -303,7 +303,137 @@ function libxInitializeCatalogsFromProperties()
     catdropdown.parentNode.label = catdropdown.firstChild.label;
 }
 
+libxEnv.initializeContextMenu = function () {
+    var menu = document.getElementById("contentAreaContextMenu");
+    menu.addEventListener("popupshowing", libxContextPopupShowing, false);
+}
+
 libxEnv.initializeGUI = function () {
+    // initialize menu at top left of toolbar
+    // these are now additional properties:
+    // link1.label=...
+    // link1.url=...
+    // and so on.
+    var libxmenu = document.getElementById("libxmenu");
+    var libxmenusep = document.getElementById("libxmenu.separator");
+    var label = null;
+    
+    /* Loading from XML */
+    if ( libxEnv.xmlDoc.xml )
+    {
+        var libxlinks = 
+            xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/links/*");
+    
+        for (var link = 0; link < libxlinks.length; link++ )
+        {
+            var mitem = document.createElement("menuitem");
+            libxEnv.xmlDoc.copyAttributes ( libxlinks[link], mitem );
+            mitem.setAttribute ( "label", mitem.label );
+            var url = mitem.href;
+            if (url != null)
+                mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + url + "');");
+            libxmenu.insertBefore(mitem, libxmenusep);
+        }
+    }
+    else
+    {
+        for (var link = 1;
+                (label = libxGetProperty("link" + link + ".label")) != null;
+                link++) 
+        {
+            var url = libxGetProperty("link" + link + ".url");
+            var mitem = document.createElement("menuitem");
+            mitem.setAttribute("label", label);
+            if (url != null)
+                mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + url + "');");
+            libxmenu.insertBefore(mitem, libxmenusep);
+        }
+    }
+
+    libxSearchFieldVbox = document.getElementById("search-field-vbox");
+
+    /* Initialize search options by storing XUL-defined menuitems into
+     * array for later cloning. */
+    var ddOptions = document.getElementById("libx-dropdown-menupopup");
+    for (var i = 0; i < ddOptions.childNodes.length; i++) {
+        var d = ddOptions.childNodes.item(i);
+        libxDropdownOptions[d.value] = d;
+    }
+
+    /* If an edition wants to use searchoptions that are not 
+     * already defined (Y, t, etc.), additional options can be 
+     * defined using
+     * libx.searchoption1.value=s
+     * libx.searchoption1.label=QuickSearch
+     * etc.
+     *
+     * It is also possible to override the labels of existing options,
+     * such as
+     * libx.searchoption1.value=jt
+     * libx.searchoption1.label=Periodical Title
+     */ 
+    if ( libxEnv.xmlDoc.xml )
+    {
+        var libxSearchOptions = 
+            xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/searchoptions/*");
+        for (var option = 0; option < libxSearchOptions.length; option++ )
+        {
+            var mitem = document.createElement("menuitem");
+            libxEnv.xmlDoc.copyAttributes ( libxSearchOptions[option], mitem );
+            mitem.setAttribute('oncommand', 'setFieldType(this);');
+            libxDropdownOptions[mitem.value] = mitem;
+        }
+    }   
+    else
+    {
+        
+        for (var opt = 1;
+            (label = libxGetProperty("libx.searchoption" + opt + ".label")) != null;
+            opt++) 
+        {
+            var mitem = document.createElement("menuitem");
+            libxAddToPrototype(mitem, { 
+                value: libxGetProperty("libx.searchoption" + opt + ".value"),
+                label: label
+            });
+            mitem.setAttribute('oncommand', 'setFieldType(this);');
+            libxDropdownOptions[mitem.value] = mitem;
+        }
+    }
+    
+        var scholarbutton = document.getElementById("libx-magic-button");
+    if (libxConfig.options.disablescholar) {
+        scholarbutton.hidden = true;
+    } else {
+        new TextDropTarget(magicSearch).attachToElement(scholarbutton);
+    }
+
+    // add the selected search as a default target
+    var searchbutton = document.getElementById("libx-search-button");
+    new TextDropTarget(function (data) {
+        libxSelectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
+    }).attachToElement(searchbutton);
+    libxInitializePreferences("libx.displaypref");
+
+    /* Adjust for bug in style rendering on Macintosh with FF 2.0.
+     * The type field to toolbarbutton can take the value "menu" or "menu-button".
+     * The two are very different: menu has a label child, menu-button does not.
+     * labels have padding.  
+     * For reasons unknown, on Macintosh, FF 2.0, they are rendered differently,
+     * so we adjust the pixels to get it aligned.  How ridiculous.
+     * It's still incorrect on FF 1.5 on Macintosh.  FF 1.5 is unsupported
+     * by Mozilla as of 04/07, so let's not bother fixing it.
+     */
+    if (navigator.userAgent.match(/.*Macintosh.*Firefox\/2/)) {
+        searchbutton.style.margin = "-4px 0px -2px 0px";
+        document.getElementById("libx-scholar-box")
+            .style.margin = "1px 0px 0px 0px";
+    }
+
+    document.getElementById("libx-menu-toolbarbutton")
+        .setAttribute("tooltiptext", "LibX - " + libxGetProperty('edition'));
+        
+    initializeMenuObjects();
 }
 
 // vim: ts=4
