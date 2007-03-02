@@ -228,7 +228,8 @@ function nodeInserted(e)
 
 
 // Ignore all children of these elements.
-const skippedElements = { 
+// Note: This should be const, but the const keyword is a Mozilla-only extension
+var skippedElements = { 
   a:        true, // keeps us from screwing with existing links. keeps us from recursing to death :)
   noscript: true, // noscript has uninterpreted, unshown text children; dont waste time+sanity there.
   head:     true,
@@ -240,7 +241,7 @@ const skippedElements = {
   button:   true
 }
 
-const gmail = (window.location.host == "mail.google.com");
+var gmail = (window.location.host == "mail.google.com");
 
 function skipChildren(node)
 {

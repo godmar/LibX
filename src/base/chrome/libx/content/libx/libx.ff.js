@@ -139,6 +139,8 @@ libxEnv.SelectCatalog = function(mitem, event) {
 function addCatalogByProperties(cattype, catprefix, catnumber)
 {
     try {
+        var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
+        var catdropdown = document.getElementById("libxcatalogs");
         var cat = libxInitializeCatalogFromProperties(cattype, catprefix + ".");
         searchCatalogs.push(cat);
 
@@ -146,6 +148,10 @@ function addCatalogByProperties(cattype, catprefix, catnumber)
         newbutton.setAttribute("oncommand", "libxEnv.SelectCatalog(this,event);");
         newbutton.setAttribute("value", catnumber);
         newbutton.setAttribute("label", "Search " + libxGetProperty(catprefix + ".catalog.name") + " ");
+        //Hack to make things display correctly with Google Scholar
+        if(cattype == 'scholar') {
+            newbutton.setAttribute('label', 'Search Scholar ');
+        }
         catdropdown.insertBefore(newbutton, openurlsbutton);
     } catch (e) {
         libxEnv.libxLog("libxInitializeCatalog failed: " + e);
@@ -249,7 +255,11 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
     cat.setIf = libxCatalog.prototype.setIf;
     cat.setIf('url', libxGetProperty(catprefix + "catalog.url"));
     cat.setIf('sid', libxGetProperty(catprefix + "catalog.sid"));
-    cat.setIf('name', libxGetProperty(catprefix + "catalog.name")); 
+    //Hack to make Google Scholar display properly
+    if(cattype == 'scholar') {
+        cat.name = "Scholar";
+    }
+    cat.setIf('name', libxGetProperty(catprefix + "catalog.name"));
     cat.setIf('options', libxGetProperty(catprefix + "catalog.options"));
     cat.urlregexp = new RegExp(libxGetProperty(catprefix + "catalog.urlregexp"));
     cat.prefix = catprefix;
@@ -263,7 +273,7 @@ function libxInitializeCatalogFromProperties(cattype, catprefix)
     cat.xisbn.setIf('opacid', libxGetProperty(catprefix + "catalog.xisbn.opacid"));
     cat.xisbn.setIf('oai', libxGetProperty(catprefix + "catalog.xisbn.oai"));
 
-    libxEnv.libxLog("registered " + cat.name + " (type=" + cattype + ", options=" + cat.options + ")");
+    libxEnv.libxLog("config registered " + cat.name + " (type=" + cattype + ", options=" + cat.options + ")");
     return cat;
 }
 
@@ -435,6 +445,20 @@ libxEnv.initializeGUI = function () {
         .setAttribute("tooltiptext", "LibX - " + libxGetProperty('edition'));
         
     initializeMenuObjects();
+}
+
+libxEnv.toggleGUIHidden = function(elemName, hide) {
+    elem = document.getElementById(elemName);
+    if(elem != null) {
+        elem.hidden = hide;
+    }
+}
+
+libxEnv.setGUIAttribute = function(elemName, attrName, attrValue) {
+    elem = document.getElementById(elemName);
+    if(elem != null) {
+        elem.setAttribute(attrName, attrValue);
+    }
 }
 
 // vim: ts=4

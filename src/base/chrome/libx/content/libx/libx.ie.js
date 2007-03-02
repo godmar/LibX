@@ -96,6 +96,13 @@ libxEnv.initializeContextMenu = function () {
 libxEnv.SelectCatalog = function(mitem, event) {
 }
 
+libxEnv.toggleGUIHidden = function(elemName, hide) {
+}
+
+libxEnv.setGUIAttribute = function(elemName, attrName, attrVal) {
+}
+
+
 /*
  * All the 'properties' functions are not used in the IE edition, since the
  * IE toolbar is XML-only. Once (if) the Firefox version also becomes XML-

@@ -29,8 +29,8 @@
 
 var libx_version = "$libxversion$"; // this is constant, but 'const' is a Mozilla-specific keyword
 
-var libxProps;          // a string bundle in the XUL file from which we read properties
-var libxConfig;         // a Document object representing config.xml, or null
+var libxProps;                  // a string bundle in the XUL file from which we read properties
+var libxConfig = new Object();  // a Document object representing config.xml, or null
 
 // get a property, returning null if property does not exist
 function libxGetProperty(prop, args) {
@@ -66,8 +66,8 @@ function libxInitializeOptions()
 {
     var opts = new Object();
     libxConfig.options = opts;
-    if (libxConfig.xml) {
-        var options = xpathFindNodes(libxConfig.xml, "/edition/options/option");
+    if (libxEnv.xmlDoc.xml) {
+        var options = xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
         for (var i = 0; i < options.length; i++) {
             opts[options[i].getAttribute('key')] = 
                 libxConvertToBoolean(options[i].getAttribute('value'));
@@ -102,12 +102,11 @@ function libxInitializeProperties()
 
 function libxGetConfigXML()
 {
-
     var xmlDoc = new Object();
 
     try {
         
-        xmlDoc.xml = libxEnv.getXMLDocument();
+        xmlDoc.xml = libxEnv.getXMLDocument().xml;
         xmlDoc.getNode = function (xpath) {
             return xpathFindSingle(this.xml, xpath);
         };
@@ -123,8 +122,7 @@ function libxGetConfigXML()
         };
     } catch (er) { }
     
-    return xmlDoc;
-    
+    return xmlDoc;   
 }
 
 

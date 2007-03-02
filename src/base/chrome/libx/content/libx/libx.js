@@ -122,7 +122,7 @@ function libxInitializeCatalog(doc, node)
         	
     cat.urlregexp = new RegExp( cat.urlregexp );
 
-    libxEnv.libxLog("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
+    libxEnv.libxLog("xml registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
     return cat;
 }
 
@@ -182,23 +182,23 @@ function libxInitializeCatalogs()
 // Initialize OpenURL support if so configured
 function libxInitializeOpenURL() 
 {
+    var openURLElement = "libx-openurl-search-menuitem";
     if (libxConfig.xml) {
         var pnode = libxConfig.getNode('/edition/openurl/resolver[1]');
         var ourltype = pnode.getAttribute("type");
     } else {
         var ourltype = libxGetProperty("openurl.type");
     }
-    var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
     switch (ourltype) {
     case "sersol":
-	    openUrlResolver = new ArticleLinker();
+        openUrlResolver = new ArticleLinker();
         break;
     case "sfx":
-	    openUrlResolver = new SFX();
+        openUrlResolver = new SFX();
         break;
     case "generic":
     case "webbridge":
-	    openUrlResolver = new OpenURL();
+        openUrlResolver = new OpenURL();
         break;
     default:
         libxEnv.libxLog("Unsupported OpenURL type: " + ourltype);
@@ -206,7 +206,7 @@ function libxInitializeOpenURL()
     case "":
     case null:
         openUrlResolver = null;
-        openurlsbutton.hidden = true;
+        libxEnv.toggleGUIHidden(openURLElement, true);
         return;
     }
 
@@ -230,17 +230,17 @@ function libxInitializeOpenURL()
         openUrlResolver.searchlabel = libxGetProperty("openurl.searchlabel");
     }
 
-    openurlsbutton.hidden = openUrlResolver.dontshowintoolbar == true;
+    libxEnv.toggleGUIHidden(openURLElement, openUrlResolver.dontshowintoolbar == true);
 
     if (openUrlResolver.searchlabel == null)
         openUrlResolver.searchlabel = "Search " + openUrlResolver.name;
-    openurlsbutton.setAttribute("label", openUrlResolver.searchlabel);
+    libxEnv.setGUIAttribute(openURLElement, 'label', openUrlResolver.searchlabel);
 }
 
 // Initialization - this code is executed whenever a new window is opened
 function libxInit() 
 {
-    libxEnv.xmlDoc = libxGetConfigXML();
+    libxEnv.xmlDoc = libxEnv.getXMLDocument();
 
     libxInitializeProperties();
     libxEnv.initializeGUI();
