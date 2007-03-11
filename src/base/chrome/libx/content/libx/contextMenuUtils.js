@@ -47,7 +47,7 @@ var LibxLabels = new Array();
  *               this function is passed in the menuitems as well as the
  *               result from the matchf
  */
-function MenuObject ( menuitems, tmatch, comm ) {
+function LibxMenuObject ( menuitems, tmatch, comm ) {
 
   var contMenu = document.getElementById("contentAreaContextMenu");
   this.menuitems = new Array();
@@ -84,8 +84,8 @@ function MenuObject ( menuitems, tmatch, comm ) {
  *					s -- the match returned by tmatch function
  *                  menuItems -- an array of the actual menu items that were created from the data given by menuitems param
  */
-function ContextMenuObject ( menuitems, label, tmatch, comm ) {
-    var menuObject = new MenuObject ( menuitems, tmatch, comm );
+function LibxContextMenuObject ( menuitems, label, tmatch, comm ) {
+    var menuObject = new LibxMenuObject ( menuitems, tmatch, comm );
     
 	if ( !LibxMenuItems[label] ) // if the label hasnt been previously used, intialize it
 	{

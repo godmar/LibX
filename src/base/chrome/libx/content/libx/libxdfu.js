@@ -230,7 +230,7 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
 });
 
 // rewrite OpenURLs on Google Scholar's page to show cue
-if (openUrlResolver && libxConfig.options.rewritescholarpage) {
+if (openUrlResolver && libxEnv.options.rewritescholarpage) {
  function rewriteScholarPage(doc, proxy) {
     var atags = xpathFindSnapshot(doc, "//a[@href]");
     for (var i = 0; i < atags.length; i++) {
@@ -253,7 +253,7 @@ if (openUrlResolver && libxConfig.options.rewritescholarpage) {
  new DoForURL(/scholar\.google\.com(.*)\/scholar\?/, rewriteScholarPage);
 }
 
-if (openUrlResolver && libxConfig.options.supportcoins) {
+if (openUrlResolver && libxEnv.options.supportcoins) {
  new DoForURL(/.+/, function (doc) {
     var is1_0 = openUrlResolver.version == "1.0";
     var coins = xpathFindNodes(doc, "//span[@class='Z3988']");
@@ -339,7 +339,7 @@ if (openUrlResolver && libxConfig.options.supportcoins) {
 // and an isbn (despite the fact that doing so is dead simple)
 // We help the user by including a direct link to an ISBN-based search.
 //
-if (openUrlResolver && libxConfig.options.sersolisbnfix) {
+if (openUrlResolver && libxEnv.options.sersolisbnfix) {
     new DoForURL(/serialssolutions\.com\/(.*genre=book.*)/, function (doc, match) {
         var im = match[1].match(/isbn=([0-9xX]{10}|[0-9xX]{13})/i);
         var isbn;
@@ -495,7 +495,7 @@ var autolink = new DoForURL(/.*/, function (doc) {
     if (n.length > 0)
         return;
 
-    if (libxConfig.options.autolink_active)
+    if (libxEnv.options.autolink_active)
         libxRunAutoLink(doc, false); // false -> not right away
 });
 

@@ -30,7 +30,6 @@
 var libx_version = "$libxversion$"; // this is constant, but 'const' is a Mozilla-specific keyword
 
 var libxProps;                  // a string bundle in the XUL file from which we read properties
-var libxConfig = new Object();  // a Document object representing config.xml, or null
 
 // get a property, returning null if property does not exist
 function libxGetProperty(prop, args) {
@@ -65,7 +64,7 @@ function libxShowObject(s, obj)
 function libxInitializeOptions()
 {
     var opts = new Object();
-    libxConfig.options = opts;
+    libxEnv.options = opts;
     if (libxEnv.xmlDoc.xml) {
         var options = xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
         for (var i = 0; i < options.length; i++) {
@@ -95,7 +94,7 @@ function libxInitializeProperties()
     // this function is called after the entire overlay has been built
     // we must wait until here before calling document.getElementById
     libxProps = document.getElementById("libx-string-bundle");
-    libxConfig = libxGetConfigXML();
+    libxEnv.xmlDoc = libxGetConfigXML();
 
     libxInitializeOptions();
 }
@@ -106,7 +105,7 @@ function libxGetConfigXML()
 
     try {
         
-        xmlDoc.xml = libxEnv.getXMLDocument().xml;
+        xmlDoc.xml = libxEnv.getXMLDocument();
         xmlDoc.getNode = function (xpath) {
             return xpathFindSingle(this.xml, xpath);
         };

@@ -28,7 +28,8 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
  
- 
+if ( libxEnv == null )
+  var libxEnv = new Object(); 
  
  /*
   * Designed to hold Firefox-specific code for the Libx extension
@@ -299,7 +300,7 @@ function libxInitializeCatalogsFromProperties()
     }
     
     if ((cattype = libxGetProperty("scholar.catalog.type")) != "") {
-        if (!libxConfig.options.disablescholar)
+        if (!libxEnv.options.disablescholar)
             addCatalogByProperties("scholar", addcatno++);
     }
 
@@ -413,7 +414,7 @@ libxEnv.initializeGUI = function () {
     }
     
         var scholarbutton = document.getElementById("libx-magic-button");
-    if (libxConfig.options.disablescholar) {
+    if (libxEnv.options.disablescholar) {
         scholarbutton.hidden = true;
     } else {
         new TextDropTarget(magicSearch).attachToElement(scholarbutton);

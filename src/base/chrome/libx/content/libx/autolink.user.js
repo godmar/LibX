@@ -169,7 +169,7 @@ function styleLink(a, filter)
 {
   //a.style.borderBottom = "1px solid orange";
   a.style.borderBottom = getUnicharPref(
-                "libx.autolinkstyle", libxConfig.options.autolinkstyle);
+                "libx.autolinkstyle", libxEnv.options.autolinkstyle);
 }
 
 /***********************************

@@ -34,6 +34,7 @@
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
     <script type="application/x-javascript" src="chrome://libx/content/xpathutils.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.js" />
 
 	<script type="application/x-javascript">
@@ -44,15 +45,15 @@ function setVersion() {
 	// document.getElementById("libx-aboutbox-image").setAttribute("src", libxGetProperty("logoURL"));
 
     var edition = libxGetProperty("edition");
-    if (libxConfig.xml)
-        edition = libxConfig.getAttr("/edition/name", "edition");
+    if (libxEnv.xmlDoc.xml)
+        edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
 	document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);
 	document.getElementById("libx-version").setAttribute("value", "Version " + libx_version 
-        + (libxConfig.xml ? " (XML)" : ""));
+        + (libxEnv.xmlDoc.xml ? " (XML)" : ""));
 	document.getElementById("libx-edition").setAttribute("value", edition);
     var adaptedby = libxGetProperty("adaptedby");
-    if (libxConfig.xml)
-        adaptedby = libxConfig.getAttr("/edition/name", "adaptedby");
+    if (libxEnv.xmlDoc.xml)
+        adaptedby = libxEnv.xmlDoc.getAttr("/edition/name", "adaptedby");
     if (adaptedby) {
         document.getElementById("adaptedby").setAttribute("value", adaptedby);
     } else {

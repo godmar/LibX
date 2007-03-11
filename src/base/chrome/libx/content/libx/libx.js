@@ -169,7 +169,7 @@ function libxInitializeCatalogs()
     
     /* Scholar Search is handled through entry in XML file unless disabled ... 
     if (!libxEnv.xmlDoc.xml && (cattype = libxGetProperty("scholar.catalog.type")) != "")
-        if (!libxConfig.options.disablescholar)
+        if (!libxEnv.options.disablescholar)
         	searchCatalogs.push ( 
         		libxInitializeCatalogFromProperties (
         			"scholar", "scholar." ) );*/
@@ -183,8 +183,8 @@ function libxInitializeCatalogs()
 function libxInitializeOpenURL() 
 {
     var openURLElement = "libx-openurl-search-menuitem";
-    if (libxConfig.xml) {
-        var pnode = libxConfig.getNode('/edition/openurl/resolver[1]');
+    if (libxEnv.xmlDoc.xml) {
+        var pnode = libxEnv.xmlDoc.getNode('/edition/openurl/resolver[1]');
         var ourltype = pnode.getAttribute("type");
     } else {
         var ourltype = libxGetProperty("openurl.type");
@@ -210,8 +210,8 @@ function libxInitializeOpenURL()
         return;
     }
 
-    if (libxConfig.xml) {
-        libxConfig.copyAttributes(pnode, openUrlResolver);
+    if (libxEnv.xmlDoc.xml) {
+        libxEnv.xmlDoc.copyAttributes(pnode, openUrlResolver);
     } else {
         openUrlResolver.type = ourltype;
         openUrlResolver.url = libxGetProperty("openurl.url");
@@ -240,8 +240,6 @@ function libxInitializeOpenURL()
 // Initialization - this code is executed whenever a new window is opened
 function libxInit() 
 {
-    libxEnv.xmlDoc = libxEnv.getXMLDocument();
-
     libxInitializeProperties();
     libxEnv.initializeGUI();
     libxInitializeOpenURL();
@@ -347,8 +345,8 @@ function libxProxify() {
  * Initialize proxy support.
  */
 function libxProxyInit() {
-    if (libxConfig.xml) {
-        var pnode = libxConfig.getNode('/edition/proxy/*[1]');
+    if (libxEnv.xmlDoc.xml) {
+        var pnode = libxEnv.xmlDoc.getNode('/edition/proxy/*[1]');
         if ( pnode )
         	var proxytype = pnode.nodeName;
     } else {
@@ -373,8 +371,8 @@ function libxProxyInit() {
         return;
 	}
     libxProxy.type = proxytype;
-    if (libxConfig.xml && pnode ) {
-        libxConfig.copyAttributes(pnode, libxProxy);
+    if (libxEnv.xmlDoc.xml && pnode ) {
+        libxEnv.xmlDoc.copyAttributes(pnode, libxProxy);
     } else {
         libxProxy.name = libxGetProperty("proxy.name");
         libxProxy.url = libxGetProperty("proxy.url");
@@ -634,22 +632,22 @@ function libxSelectAutolink(value)
 {
     value = (value == "true") ? true : false;   // convert string to bool
     setBoolPref("libx.autolink", value);
-    libxConfig.options.autolink_active = value;
+    libxEnv.options.autolink_active = value;
     if (value)
         libxRunAutoLink(_content.document, true);
 }
 
 function libxInitializeAutolink()
 {
-    if (!libxConfig.options.autolink)
+    if (!libxEnv.options.autolink)
         return;
 
     var hbox = document.getElementById("libx-about");
     var m = document.createElement("menuitem");
     m.setAttribute('type', 'checkbox');
     m.setAttribute('label', 'Autolink Pages');
-    libxConfig.options.autolink_active = getBoolPref("libx.autolink", true);
-    m.setAttribute('checked', libxConfig.options.autolink_active);
+    libxEnv.options.autolink_active = getBoolPref("libx.autolink", true);
+    m.setAttribute('checked', libxEnv.options.autolink_active);
     m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
     hbox.parentNode.insertBefore(m, hbox);
 }

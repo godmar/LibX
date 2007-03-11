@@ -74,7 +74,7 @@ function initializeMenuObjects()
 	
 	/*********************** ISBN/XISBN options *****************************************/
 	
-	ContextMenuObject ( [ { id:"libx-isbn-search", hidden:"true", oncommand:"doSearchBy('i');" },
+	LibxContextMenuObject ( [ { id:"libx-isbn-search", hidden:"true", oncommand:"doSearchBy('i');" },
 				 { id:"libx-xisbn-search", hidden:"true" } ], 
 				 "libx",
 				 function(p) { if (p.isTextSelected()) return isISBN(p.getSelection()); else return null; },
@@ -97,7 +97,7 @@ function initializeMenuObjects()
 	var openurlissnsearch = [{ id:"libx-issn-search", hidden:"true", oncommand:"doSearchBy('i');" },
 	           {id:"libx-openurl-issn-search", hidden:"true" }];
 	
-	ContextMenuObject ( openurlissnsearch, "libx",
+	LibxContextMenuObject ( openurlissnsearch, "libx",
 			function(p) { if (p.isTextSelected()) return isISSN(p.getSelection()); else return null; },
 			 ISSNAction );
 	
@@ -118,7 +118,7 @@ function initializeMenuObjects()
 	/********************************* PMID Options **********************************************/
 	var pmidsearch = [{id:"libx-pmid-search", hidden:"true" }];
 	
-	ContextMenuObject ( pmidsearch, "libx",
+	LibxContextMenuObject ( pmidsearch, "libx",
 		function(p) { if (p.isTextSelected()) return isPMID(p.getSelection()); else return null; },
 		PMIDAction );
 	
@@ -153,7 +153,7 @@ function initializeMenuObjects()
 	 {id:"libx-author-search", label:"", oncommand:"doSearchBy('a');" },
 	 {id:"libx-magic-search", hidden:"true" }];
 	 	
-	ContextMenuObject ( libxMenuItems, "libx", def, DEFAULTAction );
+	LibxContextMenuObject ( libxMenuItems, "libx", def, DEFAULTAction );
 	
 	function def ( s ) {
         var m;
@@ -188,7 +188,7 @@ function initializeMenuObjects()
     /*********************************** DOI options ( always checked ) *******************************************/
 	//var doisearch = [{id:"libx-doi-search", hidden:"true", oncommand:"doDoiSearch();"}];
 	var doisearch = [{id:"libx-doi-search", hidden:"true"}];
-	ContextMenuObject ( doisearch, "DEFAULT", isDOIF, DOIAction );
+	LibxContextMenuObject ( doisearch, "DEFAULT", isDOIF, DOIAction );
 	
 	function isDOIF ( p ) {
 		if (p.isOverLink()) {
@@ -211,7 +211,7 @@ function initializeMenuObjects()
 	
 	var libxProxyObj = [{id:"libx-proxify", oncommand:"libxProxify();"}];
 	
-	ContextMenuObject ( libxProxyObj, "Libx-Proxy", 
+	LibxContextMenuObject ( libxProxyObj, "Libx-Proxy", 
 						libxProxifyFunc, libxProxifyAction );
 	
 	function libxProxifyFunc( p )
