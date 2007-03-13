@@ -56,9 +56,9 @@ function libxInitializeDFU() {
 // Idea from Jon Udell's Amazon GreaseMonkey script 
 
 // match amazon page and capture ISBN in match
-var amazonAction = new DoForURL(/\.amazon\.com.*\/(\d{7,9}[\d|X])\/?/, doAmazon);
-var amazonUkAction = new DoForURL(/\.amazon\.co\.uk.*\/(\d{7,9}[\d|X])\/?/, doAmazon);
-var amazonCaAction = new DoForURL(/\.amazon\.ca.*\/(\d{7,9}[\d|X])\/?/, doAmazon);
+var amazonAction = new DoForURL(/\.amazon\.com.*\/(\d{7,12}[\d|X])\/?/, doAmazon);
+var amazonUkAction = new DoForURL(/\.amazon\.co\.uk.*\/(\d{7,12}[\d|X])\/?/, doAmazon);
+var amazonCaAction = new DoForURL(/\.amazon\.ca.*\/(\d{7,12}[\d|X])\/?/, doAmazon);
     
 function doAmazon(doc, match) {
     var isbn = match[1];    // grab captured isbn in matched URL
@@ -76,7 +76,7 @@ function doAmazon(doc, match) {
 
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
-new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (doc, match) {
+new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/, function (doc, match) {
     var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
     
     var origTitle = xpathFindSingle(doc, "//h1[@id='title']");
@@ -91,7 +91,7 @@ new DoForURL(/\.barnesandnoble\.com.*(?:ean|isbn)=(\d{7,12}[\d|X])/, function (d
 
 // -----------------------------------------------------------------------------
 // Link ecampus.com pages to catalog via ISBN
-new DoForURL(/\.ecampus\.com.*(\d{9}[\d|X])/i, function (doc, match) {
+new DoForURL(/(\/\/|\.)ecampus\.com.*(\d{9}[\d|X])/i, function (doc, match) {
     var origISBN = xpathFindSingle(doc, "//a[@class='nolink']");
     if (!origISBN)
         return;
@@ -423,9 +423,12 @@ function powellsComByISBN(doc, m)
 		titleLabel.appendChild(link);
     }
 }
-new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-((\d|x){10})\-\d*/i, powellsComByISBN);
-new DoForURL(/(\/\/|\.)powells\.com\/.*isbn=((\d|x){10})/i, powellsComByISBN);
-new DoForURL(/(\/\/|\.)powells\.com\/.*:((\d|x){10}):/i, powellsComByISBN);
+new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-((\d|x){10}|(\d|x){13})\-\d*/i, powellsComByISBN);
+new DoForURL(/(\/\/|\.)powells\.com\/.*isbn=((\d|x){10}|(\d|x){13})/i, powellsComByISBN);
+new DoForURL(/(\/\/|\.)powells\.com\/.*:((\d|x){10}|(\d|x){13}):/i, powellsComByISBN);
+
+//new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-((\d|x){13})\-\d*/i, powellsComByISBN);
+
 
 // chapters.ca or chapters.indigo.ca
 // the URL appears to embed both a ISBN-13 and an ISBN - look for "ISBN:" instead
