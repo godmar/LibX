@@ -96,7 +96,7 @@ OpenURL.prototype = {
 			    break;
 		    case 'Y':
 			    alert(libxGetProperty("openurlarticlekeyword.alert", 
-                                    [libxGetProperty("openurl.name")]));
+                                    [this.name]));
 			    return null;
 			}//switch
 	    }//for
@@ -178,7 +178,7 @@ ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
     // super.makeOpenURLFromFields()
     var url = OpenURL.prototype.makeOpenURLSearch.call(this, fields);   
 	if (this.haveTitleOrIssn != true) {
-		alert(libxGetProperty("aftitleissn.alert", [libxGetProperty("openurl.name")]));
+		alert(libxGetProperty("aftitleissn.alert", [this.name]));
 		return null;
 	}
 

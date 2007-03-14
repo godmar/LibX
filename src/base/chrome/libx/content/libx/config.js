@@ -65,25 +65,13 @@ function libxInitializeOptions()
 {
     var opts = new Object();
     libxEnv.options = opts;
-    if (libxEnv.xmlDoc.xml) {
-        var options = xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
-        for (var i = 0; i < options.length; i++) {
-            opts[options[i].getAttribute('key')] = 
-                libxConvertToBoolean(options[i].getAttribute('value'));
-        }
-    } else {
-        // CONFIGXML BEGIN
-        opts.sersolisbnfix = libxConvertToBoolean(libxGetProperty("libx.sersolisbnfix"));
-        opts.supportcoins = libxConvertToBoolean(libxGetProperty("libx.supportcoins"));
-        opts.rewritescholarpage = libxConvertToBoolean(libxGetProperty("libx.rewritescholarpage"));
-        opts.disablescholar = libxConvertToBoolean(libxGetProperty("libx.disablescholar"));
-        opts.scholarmissurl = libxGetProperty("scholarmiss.url");
-        opts.sendorigdatawithopenurl = libxConvertToBoolean(libxGetProperty("send.origdata.withopenurl"));
-        opts.suppressscholardisplay = libxConvertToBoolean(libxGetProperty("suppress.scholar.display"));
-        opts.autolink = libxConvertToBoolean(libxGetProperty("libx.autolink"));
-        opts.autolinkstyle = libxGetProperty("libx.autolinkstyle");
-        // CONFIGXML END
+    var options = xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
+    
+    for (var i = 0; i < options.length; i++) {
+        opts[options[i].getAttribute('key')] = 
+            libxConvertToBoolean(options[i].getAttribute('value'));
     }
+
     if (!opts.autolinkstyle)
         opts.autolinkstyle = "1px dotted";
 }

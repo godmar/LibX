@@ -100,7 +100,7 @@ libxEnv.initializeContextMenu = function () {
 libxEnv.SelectCatalog = function(mitem, event) {
 }
 
-libxEnv.toggleGUIHidden = function(elemName, hide) {
+libxEnv.setVisible = function(elemName, hide) {
 }
 
 libxEnv.setGUIAttribute = function(elemName, attrName, attrVal) {

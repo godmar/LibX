@@ -48,6 +48,7 @@ var libxEnv = new Object(); /* Global libx object */
  * initializeGUI -- all GUI initialization code (=XUL in ff) moved here [neb]
  * initializeContextMenu -- right-click popup init code [neb]
  * addEventListener -- JavaScript event system [neb]
+ * options -- previously under libxConfig.options
  */
 
 /*
@@ -137,14 +138,6 @@ function libxInitializeCatalogs()
 
     searchCatalogs = new Array(); 
     
-    
-    /* Call old-style init to be compatable w/ versions
-     * That dont provide an XML
-     */
-    if ( !libxEnv.xmlDoc.xml ) {
-		libxInitializeCatalogsFromProperties();
-		return;
-	}
 	
 	function addCatalog( node, catnumber ) {
 	    try {
@@ -184,12 +177,10 @@ function libxInitializeCatalogs()
 function libxInitializeOpenURL() 
 {
     var openURLElement = "libx-openurl-search-menuitem";
-    if (libxEnv.xmlDoc.xml) {
-        var pnode = libxEnv.xmlDoc.getNode('/edition/openurl/resolver[1]');
-        var ourltype = pnode.getAttribute("type");
-    } else {
-        var ourltype = libxGetProperty("openurl.type");
-    }
+
+    var pnode = libxEnv.xmlDoc.getNode('/edition/openurl/resolver[1]');
+    var ourltype = pnode.getAttribute("type");
+   
     switch (ourltype) {
     case "sersol":
         openUrlResolver = new ArticleLinker();
@@ -207,31 +198,15 @@ function libxInitializeOpenURL()
     case "":
     case null:
         openUrlResolver = null;
-        libxEnv.toggleGUIHidden(openURLElement, true);
+        libxEnv.setVisible(openURLElement, true);
         return;
     }
 
-    if (libxEnv.xmlDoc.xml) {
-        libxEnv.xmlDoc.copyAttributes(pnode, openUrlResolver);
-    } else {
-        openUrlResolver.type = ourltype;
-        openUrlResolver.url = libxGetProperty("openurl.url");
-        openUrlResolver.sid = libxGetProperty("openurl.sid");
-        openUrlResolver.xrefsid = libxGetProperty("openurl.xrefsid");
-        openUrlResolver.pmidsid = libxGetProperty("openurl.pmidsid");
-        openUrlResolver.name = libxGetProperty("openurl.name");
-        openUrlResolver.version = libxGetProperty("openurl.version");
-        openUrlResolver.image = libxGetProperty("openurl.image");
-        openUrlResolver.autolinkissn = libxGetProperty("openurl.autolinkissn");
 
-        var copt = libxGetProperty("openurl.options");
-        if (copt != null)
-            openUrlResolver.options = copt;
-        openUrlResolver.dontshowintoolbar = libxGetProperty("openurl.dontshowintoolbar") == "true" ? true : false;
-        openUrlResolver.searchlabel = libxGetProperty("openurl.searchlabel");
-    }
+    libxEnv.xmlDoc.copyAttributes(pnode, openUrlResolver);
 
-    libxEnv.toggleGUIHidden(openURLElement, openUrlResolver.dontshowintoolbar == true);
+
+    libxEnv.setVisible(openURLElement, openUrlResolver.dontshowintoolbar == true);
 
     if (openUrlResolver.searchlabel == null)
         openUrlResolver.searchlabel = "Search " + openUrlResolver.name;
@@ -242,6 +217,16 @@ function libxInitializeOpenURL()
 function libxInit() 
 {
     libxInitializeProperties();
+    
+    
+    /*
+     * Config XML must be present to load options
+     */
+    if ( !libxEnv.xmlDoc.xml ) {
+		libxEnv.libxLog ( "ERROR: Config XML Not Found" );
+		return;
+	}
+	
     libxEnv.initializeGUI();
     libxInitializeOpenURL();
     libxInitializeCatalogs();
@@ -346,13 +331,11 @@ function libxProxify() {
  * Initialize proxy support.
  */
 function libxProxyInit() {
-    if (libxEnv.xmlDoc.xml) {
-        var pnode = libxEnv.xmlDoc.getNode('/edition/proxy/*[1]');
-        if ( pnode )
-        	var proxytype = pnode.nodeName;
-    } else {
-        var proxytype = libxGetProperty("proxy.type");
-    }
+
+    var pnode = libxEnv.xmlDoc.getNode('/edition/proxy/*[1]');
+    if ( pnode )
+        var proxytype = pnode.nodeName;
+
     switch (proxytype) {
     case "ezproxy":
 		libxProxy = new libxEZProxy();
@@ -372,12 +355,9 @@ function libxProxyInit() {
         return;
 	}
     libxProxy.type = proxytype;
-    if (libxEnv.xmlDoc.xml && pnode ) {
-        libxEnv.xmlDoc.copyAttributes(pnode, libxProxy);
-    } else {
-        libxProxy.name = libxGetProperty("proxy.name");
-        libxProxy.url = libxGetProperty("proxy.url");
-    }
+    
+    libxEnv.xmlDoc.copyAttributes(pnode, libxProxy);
+    
 }
 
 /* If the searchType is 'i', examine if user entered an ISSN
