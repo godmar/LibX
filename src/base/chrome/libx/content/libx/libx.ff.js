@@ -114,9 +114,16 @@ libxEnv.initCatalogGUI = function () {
 }
 
 
+//Just use the mozilla event listener function
+libxEnv.addEventHandler = function(obj, event, func) {
+    if(!obj) obj = window;
+    return obj.addEventListener(event, func, false);
+}
+
 // switch the current search type (addison, openurl, etc.)
 libxEnv.SelectCatalog = function(mitem, event) {
     event.stopPropagation();
+
 
 /*
 <vbox id="search-field-vbox" flex="1">

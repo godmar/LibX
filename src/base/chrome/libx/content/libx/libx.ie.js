@@ -80,6 +80,10 @@ libxEnv.libxLog = function (msg) {
     libxInterface.writeLog('LibX: {0}', msg);
 }
 
+libxEnv.addEventHandler = function(obj, event, func) {
+    return obj.attachEvent(event, func);
+}
+
 /*
  * GUI functions are not used in the IE version, as the GUI is not controlled
  * by JavaScript.

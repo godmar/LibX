@@ -46,7 +46,8 @@ var libxEnv = new Object(); /* Global libx object */
  * SelectCatalog -- switch current search type [neb]
  * initCatalogGUI -- set up catalog list [neb]
  * initializeGUI -- all GUI initialization code (=XUL in ff) moved here [neb]
- * initialiceContextMenu -- right-click popup init code [neb]
+ * initializeContextMenu -- right-click popup init code [neb]
+ * addEventListener -- JavaScript event system [neb]
  */
 
 /*

@@ -403,9 +403,15 @@ function genLink(filter, match)
   }
 }
 
+function libxInitAL()
+{
+   init(false);
+}
+
 if (rightaway)
     init(rightaway);
 else
-    window.addEventListener("load", function () { init(false); }, false);
+    libxEnv.addEventHandler(window, "load", libxInitAL);
+    //window.addEventListener('load', libxInitAL, false);
 
 }

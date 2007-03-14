@@ -95,7 +95,7 @@ function newpage(ev) {
         }
 }
 
-window.addEventListener("load", 
+libxEnv.addEventHandler(window, "load", 
     function () {
         var ac = document.getElementById("appcontent");
         if (ac) {
