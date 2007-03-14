@@ -213,9 +213,9 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
 // link to catalog via keyword
 
 new DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
-    var n = xpathFindSingle(doc, "//tr/td[font[@size='+1' and b[text()='Web']]]");
+    var n = xpathFindSingle(doc, "//tr/td/span[@id='sd']");
     var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
-    n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    n.parentNode.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });
 
 // link to catalog from google print via ISBN
