@@ -115,9 +115,10 @@ libxEnv.initCatalogGUI = function () {
 
 
 //Just use the mozilla event listener function
-libxEnv.addEventHandler = function(obj, event, func) {
+libxEnv.addEventHandler = function(obj, event, func, b) {
     if(!obj) obj = window;
-    return obj.addEventListener(event, func, false);
+    if(!b) b = false;
+    return obj.addEventListener(event, func, b);
 }
 
 // switch the current search type (addison, openurl, etc.)

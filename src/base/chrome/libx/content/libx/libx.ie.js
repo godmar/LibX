@@ -81,7 +81,7 @@ libxEnv.libxLog = function (msg) {
 }
 
 libxEnv.addEventHandler = function(obj, event, func) {
-    return obj.attachEvent(event, func);
+    return document.attachEvent(event, func);
 }
 
 /*
