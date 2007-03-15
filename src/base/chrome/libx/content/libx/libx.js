@@ -179,7 +179,7 @@ function libxInitializeOpenURL()
     var openURLElement = "libx-openurl-search-menuitem";
 
     var pnode = libxEnv.xmlDoc.getNode('/edition/openurl/resolver[1]');
-    var ourltype = pnode.getAttribute("type");
+    var ourltype = pnode ? pnode.getAttribute("type") : null;
    
     switch (ourltype) {
     case "sersol":
@@ -201,7 +201,6 @@ function libxInitializeOpenURL()
         libxEnv.setVisible(openURLElement, true);
         return;
     }
-
 
     libxEnv.xmlDoc.copyAttributes(pnode, openUrlResolver);
 
