@@ -49,6 +49,7 @@ var libxEnv = new Object(); /* Global libx object */
  * initializeContextMenu -- right-click popup init code [neb]
  * addEventListener -- JavaScript event system [neb]
  * options -- previously under libxConfig.options
+ * init -- initializes browser-specific stuff [neb]
  */
 
 /*
@@ -217,22 +218,23 @@ function libxInit()
 {
     libxInitializeProperties();
     
-    
     /*
      * Config XML must be present to load options
      */
     if ( !libxEnv.xmlDoc.xml ) {
-		libxEnv.libxLog ( "ERROR: Config XML Not Found" );
-		return;
-	}
-	
+        libxEnv.libxLog ( "ERROR: Config XML Not Found" );
+        return;
+    }
+
     libxEnv.initializeGUI();
     libxInitializeOpenURL();
     libxInitializeCatalogs();
     libxProxyInit();
-    libxInitializeAutolink();
-    libxInitializeDFU();
     libxEnv.initializeContextMenu();
+    
+    libxEnv.init();
+    
+    libxEnv.libxLog("Test");
 }
 
 

@@ -34,6 +34,11 @@ if ( libxEnv == null )
  /*
   * Designed to hold Firefox-specific code for the Libx extension
   */
+ 
+libxEnv.init = function() {
+    libxInitializeAutolink();
+    libxInitializeDFU();
+}
   
   // open search results, according to user preferences
 libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
@@ -260,7 +265,7 @@ libxEnv.initializeGUI = function () {
 libxEnv.setVisible = function(elemName, hide) {
     elem = document.getElementById(elemName);
     if(elem != null) {
-        elem.hidden = hide;
+        elem.hidden = !hide;
     }
 }
 

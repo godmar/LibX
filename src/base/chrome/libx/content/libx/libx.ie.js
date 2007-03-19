@@ -33,6 +33,10 @@
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
   
+libxEnv.init = function() {
+    
+}
+  
 /*  openSearchWindow
  * Opens a new browser window for searching. Since standard JavaScript does
  * not contain the concept of 'tabs', this is emulated by opening new windows
@@ -62,6 +66,23 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     }
 }
 
+//Sets the xpath stuff for ie
+libxEnv.xpath = new Object();
+
+
+libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
+    return null;
+}
+
+libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
+    return doc.selectNodes(xpathexpr);
+}
+
+libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
+    return null;
+}
+
+
 //Returns an XML DOM document for the config file  
 libxEnv.getXMLDocument = function ( ) {
     return libxInterface.config;  
@@ -89,7 +110,7 @@ libxEnv.libxLog = function (msg, prefix) {
     if(!prefix) {
         prefix = 'LibX';
     }
-    libxInterface.writeLog('{0}: {1}', prefix, msg);
+    libxInterface.writeLog(prefix + ': ' + msg);
 }
 
 libxEnv.addEventHandler = function(obj, event, func) {
