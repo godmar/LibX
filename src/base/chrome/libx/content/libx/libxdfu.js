@@ -64,7 +64,7 @@ function doAmazon(doc, match) {
     var isbn = match[1];    // grab captured isbn in matched URL
     
     // find first <b> tag with class="sans" - that's where Amazon puts the book title
-    var origTitle = xpathFindSingle(doc, "//b[@class='sans']");
+    var origTitle = libxEnv.xpath.findSingle(doc, "//b[@class='sans']");
     if (!origTitle) {
         return;
     }
@@ -79,7 +79,7 @@ function doAmazon(doc, match) {
 new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/, function (doc, match) {
     var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
     
-    var origTitle = xpathFindSingle(doc, "//h1[@id='title']");
+    var origTitle = libxEnv.xpath.findSingle(doc, "//h1[@id='title']");
     if (!origTitle) {
         return;
     }
@@ -92,7 +92,7 @@ new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/, function (d
 // -----------------------------------------------------------------------------
 // Link ecampus.com pages to catalog via ISBN
 new DoForURL(/(\/\/|\.)ecampus\.com.*(\d{9}[\d|X])/i, function (doc, match) {
-    var origISBN = xpathFindSingle(doc, "//a[@class='nolink']");
+    var origISBN = libxEnv.xpath.findSingle(doc, "//a[@class='nolink']");
     if (!origISBN)
         return;
     var isbn = isISBN(origISBN.textContent);
@@ -109,9 +109,9 @@ new DoForURL(/agricola\.nal\.usda\.gov/, doAgricola);
 
 function doAgricola(doc) {
     // find a <TR> that has a <TH> child whose textContent is equal to 'Call Number:'
-    var cn_tr = xpathFindSingle(doc, "//tr[th[text()='Call Number:']]");
+    var cn_tr = libxEnv.xpath.findSingle(doc, "//tr[th[text()='Call Number:']]");
     // starting relative to this <TR>, find the first <TD> child with an <A> grandchild and select the <A> - that's the hyperlinked call number
-    var cn_a = xpathFindSingle(doc, "./td/a", cn_tr);
+    var cn_a = libxEnv.xpath.findSingle(doc, "./td/a", cn_tr);
     var cn = cn_a.textContent;// call number
     var link = makeLink(doc, libxGetProperty("callnolookup.label", [libraryCatalog.name, cn]), libraryCatalog.makeCallnoSearch(cn));
     // insert cue after <A> element within the containing <TD> element
@@ -125,11 +125,11 @@ if (libraryCatalog.sid == "libxvt")   // only for VT edition
 new DoForURL(libraryCatalog.urlregexp, function (doc) {
     // find all <tr> where the first <td> child says "Newman Library"
     // and the third <td> child says "AVAILABLE"
-    var availrows = xpathFindNodes(doc, '//tr[     td[3] / text()[contains(.,"AVAILABLE")] '
+    var availrows = libxEnv.xpath.findNodes(doc, '//tr[     td[3] / text()[contains(.,"AVAILABLE")] '
                                       + '      and td[1] / text()[contains(.,"Newman Library")]]');
     for (var i = 0; i < availrows.length; i++) {
         // find the second <TD> child, relative to ith <TR>
-        var callno = xpathFindSingle(doc, "td[2]", availrows[i]).textContent;
+        var callno = libxEnv.xpath.findSingle(doc, "td[2]", availrows[i]).textContent;
         callno = callno.replace(/^\s*/, "");
         var floorno = 0;
 
@@ -145,7 +145,7 @@ new DoForURL(libraryCatalog.urlregexp, function (doc) {
         if (callno.match(/^[T-Zt-z]/)) {//if call number begins with T-Z, then link to 5th floor map
             floorno = 5;
         }
-        var hasISSN = xpathFindSingle(doc, "//td[@class='bibInfoLabel' and contains(text(),'ISSN')]");
+        var hasISSN = libxEnv.xpath.findSingle(doc, "//td[@class='bibInfoLabel' and contains(text(),'ISSN')]");
         if (doc.body.textContent.match(/Periodicals/i) || hasISSN) {
             floorno = 4;
         }
@@ -156,7 +156,7 @@ new DoForURL(libraryCatalog.urlregexp, function (doc) {
             vtlogo = makeLink(doc, "Unable to determine book location!", "http://www.lib.vt.edu/help/direct/tour/");
         }
         
-        var lasttd = xpathFindSingle(doc, "td[3]", availrows[i]);
+        var lasttd = libxEnv.xpath.findSingle(doc, "td[3]", availrows[i]);
         lasttd.appendChild(doc.createTextNode(" "));
         lasttd.appendChild(vtlogo);
     }
@@ -169,12 +169,12 @@ var nytimesAction = new DoForURL(/nytimes\.com.*books/, doNyTimes);
 
 function doNyTimes(doc) {
     var n = new Array();
-    var n0 = xpathFindNodes(doc, "//div[@id='sectionPromo']//h4");  // new design
+    var n0 = libxEnv.xpath.findNodes(doc, "//div[@id='sectionPromo']//h4");  // new design
     if (n0) {
         n = n.concat(n0);
     }
     // there appear to be archived pages that still use this as of apr/06
-    var n1 = xpathFindNodes(doc, "//nyt_pf_inline/strong");
+    var n1 = libxEnv.xpath.findNodes(doc, "//nyt_pf_inline/strong");
     if (n1) {
         n = n.concat(n1);
     }
@@ -202,7 +202,7 @@ function doNyTimes(doc) {
 // link to catalog via keyword
 
 new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
-    var n = xpathFindSingle(doc, "//h1[text()='Search Results']");
+    var n = libxEnv.xpath.findSingle(doc, "//h1[text()='Search Results']");
     var searchterms = _content.document.getElementById("yschsp").value;
     n.appendChild(doc.createTextNode(" "));
     n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
@@ -213,14 +213,14 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
 // link to catalog via keyword
 
 new DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
-    var n = xpathFindSingle(doc, "//tr/td/span[@id='sd']");
+    var n = libxEnv.xpath.findSingle(doc, "//tr/td/span[@id='sd']");
     var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
     n.parentNode.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });
 
 // link to catalog from google print via ISBN
 new DoForURL(/books.\google\.com\/books/, function (doc) {
-    var n = xpathFindSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
+    var n = libxEnv.xpath.findSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
     var newlink = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), libraryCatalog.linkByISBN(m[1]));
     var ns = n.nextSibling;
@@ -232,7 +232,7 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
 // rewrite OpenURLs on Google Scholar's page to show cue
 if (openUrlResolver && libxEnv.options.rewritescholarpage) {
  function rewriteScholarPage(doc, proxy) {
-    var atags = xpathFindSnapshot(doc, "//a[@href]");
+    var atags = libxEnv.xpath.findSnapshot(doc, "//a[@href]");
     for (var i = 0; i < atags.length; i++) {
         var link = atags[i];
         var p = decodeURIComponent(link.href);
@@ -256,7 +256,7 @@ if (openUrlResolver && libxEnv.options.rewritescholarpage) {
 if (openUrlResolver && libxEnv.options.supportcoins) {
  new DoForURL(/.+/, function (doc) {
     var is1_0 = openUrlResolver.version == "1.0";
-    var coins = xpathFindNodes(doc, "//span[@class='Z3988']");
+    var coins = libxEnv.xpath.findNodes(doc, "//span[@class='Z3988']");
     for (var i = 0; i < coins.length; i++) {
         try { // the span attribute may be malformed, if so, recover and continue with next
             var span = coins[i];
@@ -344,11 +344,11 @@ if (openUrlResolver && libxEnv.options.sersolisbnfix) {
         var im = match[1].match(/isbn=([0-9xX]{10}|[0-9xX]{13})/i);
         var isbn;
         if (im && (isbn = isISBN(im[1]))) {
-            var h4 = xpathFindSingle(doc, "//h4[contains(text(), 'No direct links were found')]");
+            var h4 = libxEnv.xpath.findSingle(doc, "//h4[contains(text(), 'No direct links were found')]");
             if (h4 == null)
-                h4 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
+                h4 = libxEnv.xpath.findSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
             if (h4 == null)
-                h4 = xpathFindSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
+                h4 = libxEnv.xpath.findSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
             if (h4 == null)
                 return;
             var hint = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn));
@@ -366,9 +366,9 @@ if (openUrlResolver && libxEnv.options.sersolisbnfix) {
 new DoForURL(/serialssolutions\.com\/.*id=doi:([^&]+)(&|$)/, function (doc, match) {
         var doi = match[1];
         // the first expression is probably obsolete now
-        var h3 = xpathFindSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
+        var h3 = libxEnv.xpath.findSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
         if (!h3) {
-            h3 = xpathFindSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
+            h3 = libxEnv.xpath.findSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
             if (!h3)
                 return;
         }
@@ -384,10 +384,10 @@ new DoForURL(/serialssolutions\.com\/.*id=doi:([^&]+)(&|$)/, function (doc, matc
 
 // globalbooksinprint.com
 new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
-    var labels = xpathFindNodes(doc, "//tr/td//a[contains(@href, '/merge_shared/Details')]");
+    var labels = libxEnv.xpath.findNodes(doc, "//tr/td//a[contains(@href, '/merge_shared/Details')]");
     for (var i = 0; i < labels.length; i++) {
         var anode = labels[i];
-        var isbn13 = xpathFindSingle(doc, "../../../..//b[contains(text(),'ISBN 13:')]", anode);
+        var isbn13 = libxEnv.xpath.findSingle(doc, "../../../..//b[contains(text(),'ISBN 13:')]", anode);
         if (isbn13 == null)
             continue;
         var isbn = isISBN(isbn13.nextSibling.textContent);
@@ -408,10 +408,10 @@ function powellsComByISBN(doc, m)
     var isbn = isISBN(m[2]);
     if (isbn == null)
         return;
-    //var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN')]");   <- old cue
+    //var isbnlabel = libxEnv.xpath.findSingle(doc, "//strong[contains(text(),'ISBN')]");   <- old cue
     // Searched for the stock_info id as it is the node immediately before the
     // title node.
-    var titleLabel = xpathFindSingle(doc, "//div[@id='stock_info']");
+    var titleLabel = libxEnv.xpath.findSingle(doc, "//div[@id='stock_info']");
     // Step past the stock_info node, and the following text node, and you
     // will be at the title node.
     titleLabel = titleLabel.nextSibling.nextSibling;
@@ -433,7 +433,7 @@ new DoForURL(/(\/\/|\.)powells\.com\/.*:((\d|x){10}|(\d|x){13}):/i, powellsComBy
 // chapters.ca or chapters.indigo.ca
 // the URL appears to embed both a ISBN-13 and an ISBN - look for "ISBN:" instead
 new DoForURL(/chapters\..*\.ca\//, function (doc) {
-    var isbnlabel = xpathFindSingle(doc, "//strong[contains(text(),'ISBN:')]");
+    var isbnlabel = libxEnv.xpath.findSingle(doc, "//strong[contains(text(),'ISBN:')]");
     if (isbnlabel) {
         var isbn = isISBN(isbnlabel.nextSibling.textContent);
         if (isbn) {
@@ -441,7 +441,7 @@ new DoForURL(/chapters\..*\.ca\//, function (doc) {
                     libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
                     libraryCatalog.linkByISBN(isbn));
             // place this link prominently by the booktitle
-            var t = xpathFindSingle(doc, "//span[contains(@id,'_Title')]");
+            var t = libxEnv.xpath.findSingle(doc, "//span[contains(@id,'_Title')]");
             t.parentNode.insertBefore(link, t.nextSibling);
             t.parentNode.insertBefore(doc.createTextNode(" "), t.nextSibling);
         } 
@@ -453,7 +453,7 @@ if (libxProxy != null && libxProxy.type == "wam") {
     // this matches on a WAM DNS'ed URL
     var rexp = new RegExp("\\d+\\-(.*)\\." + libxProxy.url.replace(/\./g, "\\."));
     new DoForURL(rexp, function(doc, m) {
-        var err = xpathFindSingle(doc, "//*[contains(text(),'The address you are trying to access is invalid')]");
+        var err = libxEnv.xpath.findSingle(doc, "//*[contains(text(),'The address you are trying to access is invalid')]");
         if (err) {
             var blink = doc.createElement("a");
             blink.setAttribute('href', "javascript:history.back()");
@@ -473,7 +473,7 @@ if (libxProxy != null && libxProxy.type == "wam") {
 // on the booklistonline page, replace the link to worldcatlibraries 
 // with a local link.  Suggested by Melissa Belvadi
 new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
-    var n = xpathFindNodes(doc, "//a[contains(@href,'worldcatlibraries')]");
+    var n = libxEnv.xpath.findNodes(doc, "//a[contains(@href,'worldcatlibraries')]");
     for (var i = 0; i < n.length; i++) {
         var isbn = isISBN(n[i].textContent);
         if (isbn) {
@@ -494,7 +494,7 @@ var autolink = new DoForURL(/.*/, function (doc) {
     // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
     // we skip autolink if the page contains any textarea element.
     // (though the bug purportedly only affects large textarea elements.)
-    var n = xpathFindNodes(doc, "//textarea");
+    var n = libxEnv.xpath.findNodes(doc, "//textarea");
     if (n.length > 0)
         return;
 

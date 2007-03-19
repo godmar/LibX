@@ -18,22 +18,25 @@
  * the Initial Developer and Virginia Tech. All Rights Reserved.
  *
  * Contributor(s): 
- *
+ * Nathan Baker (nathanb@vt.edu)
  * ***** END LICENSE BLOCK ***** */
 /*
  * Some utilities to help with xpath expressions
  */
 
+libxEnv.xpath = new Object();
+
+
 // var xpathResult = document.evaluate(xpathExpression, contextNode, namespaceResolver, resultType, result);
 // http://www.xulplanet.com/references/objref/XPathResult.html
 
-function xpathFindSingle(doc, xpathexpr, root) { 
+libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
     var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
     if (r) return r.singleNodeValue;
     return null;
 }
 
-function xpathFindNodes(doc, xpathexpr, root) {
+libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
     var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ANY_TYPE, null);
     if (r == null) return null;
 
@@ -51,11 +54,11 @@ function xpathFindNodes(doc, xpathexpr, root) {
             rr.push(n);
         return rr;
     default:
-        xpathutil_log("unknown resultType: " + r.resultType);
+        libxEnv.xpathLog("unknown resultType: " + r.resultType);
     }
 }
 
-function xpathFindSnapshot(doc, xpathexpr, root) {
+libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
     var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     if (r == null) return null;
 
@@ -64,15 +67,6 @@ function xpathFindSnapshot(doc, xpathexpr, root) {
         rr.push(r.snapshotItem(i));
     }
     return rr;
-}
-
-function xpathutil_log(msg) {
-    if (!getBoolPref("libx.xpath.debug", false))
-        return;
-
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-               .getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("xpathutil: " + msg);
 }
 
 // vim: ts=4

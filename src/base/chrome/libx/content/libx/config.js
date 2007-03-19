@@ -65,7 +65,7 @@ function libxInitializeOptions()
 {
     var opts = new Object();
     libxEnv.options = opts;
-    var options = xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
+    var options = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
     
     for (var i = 0; i < options.length; i++) {
         opts[options[i].getAttribute('key')] = 
@@ -95,7 +95,7 @@ function libxGetConfigXML()
         
         xmlDoc.xml = libxEnv.getXMLDocument();
         xmlDoc.getNode = function (xpath) {
-            return xpathFindSingle(this.xml, xpath);
+            return libxEnv.xpath.findSingle(this.xml, xpath);
         };
         xmlDoc.getAttr = function (xpath, attr) {
             var n = this.getNode(xpath);

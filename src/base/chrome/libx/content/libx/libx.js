@@ -118,7 +118,7 @@ function libxInitializeCatalog(doc, node)
 	if (cat.xisbn == undefined)
     	cat.xisbn = new Object();
         
-    var xisbnNode = xpathFindSingle ( doc.xml, "xisbn", node );
+    var xisbnNode = libxEnv.xpath.findSingle ( doc.xml, "xisbn", node );
     if ( xisbnNode )
      	doc.copyAttributes ( xisbnNode, cat.xisbn );
         	
@@ -150,7 +150,7 @@ function libxInitializeCatalogs()
 	}
 
 	/* Build all catalogs into searchCatalogs */
-    var xmlCatalogs = xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
+    var xmlCatalogs = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
     var addcatno;
     for ( addcatno = 0; 
          (addcatno < xmlCatalogs.length ); 

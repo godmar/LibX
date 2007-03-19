@@ -99,7 +99,7 @@ libxEnv.addEventHandler(window, "load",
     function () {
         var ac = document.getElementById("appcontent");
         if (ac) {
-            ac.addEventListener("DOMContentLoaded", newpage, true);
+            libxEnv.addEventHandler(ac, "DOMContentLoaded", newpage, true);
         }
     },
     false);

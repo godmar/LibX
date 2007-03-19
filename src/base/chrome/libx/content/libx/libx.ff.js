@@ -71,19 +71,28 @@ libxEnv.getXMLDocument = function ( ) {
   
   
 libxEnv.libxMagicLog = function (msg) {
-    if (!getBoolPref("libx.magic.debug", false))
+    if (!libxEnv.getBoolPref("libx.magic.debug", false))
         return;
 
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-               .getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("magic: " + msg);
+    libxEnv.libxLog(msg, 'Magic');
+}
+
+libxEnv.xpathLog = function (msg) {
+    if (!getBoolPref("libx.xpath.debug", false))
+        return;
+    
+    libxEnv.libxLog(msg, 'xpathutil');
 }
 
 
 // output a message to the JS console
-libxEnv.libxLog = function (msg) {
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("LibX: " + msg);
+libxEnv.libxLog = function (msg, prefix) {
+    if(!prefix) {
+        prefix = 'LibX';
+    }
+    var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
+        .getService(Components.interfaces.nsIConsoleService);
+    consoleService.logStringMessage(prefix + ": " + msg);
 }
 
 
@@ -164,7 +173,7 @@ libxEnv.initializeGUI = function () {
     
     
     var libxlinks = 
-        xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/links/*");
+        libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/links/*");
     
     for (var link = 0; link < libxlinks.length; link++ )
     {
@@ -202,7 +211,7 @@ libxEnv.initializeGUI = function () {
      */ 
 
     var libxSearchOptions = 
-        xpathFindNodes(libxEnv.xmlDoc.xml, "/edition/searchoptions/*");
+        libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/searchoptions/*");
     for (var option = 0; option < libxSearchOptions.length; option++ )
     {
         var mitem = document.createElement("menuitem");

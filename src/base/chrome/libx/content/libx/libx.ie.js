@@ -67,23 +67,36 @@ libxEnv.getXMLDocument = function ( ) {
     return libxInterface.config;  
 }
   
+//Logging functions///////////////////////////////////////////////////////////
+
+libxEnv.xpathLog = function (msg) {
+    if (!libxEnv.getBoolPref("libx.xpath.debug", false))
+        return;
+    
+    libxEnv.libxLog(msg, 'xpathutil');
+}
+  
 //Writes to the log, prepending the string 'Magic: '
 libxEnv.libxMagicLog = function (msg) {
     if (!libxEnv.getBoolPref("libx.magic.debug", false))
         return;
 
-    libxInterface.writeLog('Magic: {0}', msg);
+    libxEnv.libxLog(msg, 'Magic');
 }
 
 //Writes to the log, prepending the string 'LibX: '
-libxEnv.libxLog = function (msg) {
-    libxInterface.writeLog('LibX: {0}', msg);
+libxEnv.libxLog = function (msg, prefix) {
+    if(!prefix) {
+        prefix = 'LibX';
+    }
+    libxInterface.writeLog('{0}: {1}', prefix, msg);
 }
 
 libxEnv.addEventHandler = function(obj, event, func) {
     return document.attachEvent(event, func);
 }
 
+//GUI functions///////////////////////////////////////////////////////////////
 /*
  * GUI functions are not used in the IE version, as the GUI is not controlled
  * by JavaScript.
