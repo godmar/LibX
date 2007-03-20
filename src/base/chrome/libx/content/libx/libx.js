@@ -136,21 +136,18 @@ function libxInitializeCatalog(doc, node)
  */
 function libxInitializeCatalogs() 
 {
-
     searchCatalogs = new Array(); 
-    
-	
-	function addCatalog( node, catnumber ) {
-	    try {
-	        var cat = libxInitializeCatalog( libxEnv.xmlDoc, node );
-	        searchCatalogs.push(cat);
-			
-	    } catch (e) {
-	        libxEnv.libxLog("libxInitializeCatalog failed: " + e);
-	    }
-	}
 
-	/* Build all catalogs into searchCatalogs */
+    function addCatalog( node, catnumber ) {
+        try {
+            var cat = libxInitializeCatalog( libxEnv.xmlDoc, node );
+            searchCatalogs.push(cat);
+        } catch (e) {
+            libxEnv.libxLog("libxInitializeCatalog failed: " + e.message);
+        }
+    }
+
+    /* Build all catalogs into searchCatalogs */
     var xmlCatalogs = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
     var addcatno;
     for ( addcatno = 0; 
@@ -160,18 +157,9 @@ function libxInitializeCatalogs()
         addCatalog(xmlCatalogs[addcatno], addcatno);
     }
     
-    /* Initialize the scholar catalog */
-    
-    /* Scholar Search is handled through entry in XML file unless disabled ... 
-    if (!libxEnv.xmlDoc.xml && (cattype = libxGetProperty("scholar.catalog.type")) != "")
-        if (!libxEnv.options.disablescholar)
-        	searchCatalogs.push ( 
-        		libxInitializeCatalogFromProperties (
-        			"scholar", "scholar." ) );*/
-        	
-        	
-	libxEnv.initCatalogGUI();
-	
+    // Scholar Search is handled through entry in XML file unless disabled
+
+    libxEnv.initCatalogGUI();
 }
 
 // Initialize OpenURL support if so configured
@@ -233,8 +221,6 @@ function libxInit()
     libxEnv.initializeContextMenu();
     
     libxEnv.init();
-    
-    libxEnv.libxLog("Test");
 }
 
 
@@ -262,17 +248,6 @@ function libxContextPopupShowing() {
 //   if (url.constructor.name == "Array") {  // for catalog that require POST - UNTESTED code
 //	    getBrowser().addTab(encodeURI(url[0]), null, null, /*aPostData*/url[1]);
 //    }
-
-
-
-//this function is called if the user presses the search button, 
-//it performs a search in the catalog which the user previously selected
-function doSearch() {
-	var fields = extractSearchFields();
-    if (!libxSelectedCatalog.search)
-        alert("Internal error, invalid catalog object: " + libxSelectedCatalog);
-    libxSelectedCatalog.search(fields);
-}
 
 // This function is called for the "Search Addison Now!" right-click
 // menu entries.
@@ -456,182 +431,6 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
         else
             setFieldType(newvalue);         // recreate prior selection
     }
-}
-
-// add and remove search fields.
-// we do this by cloning or removing the last search field child
-// the blue "add-field" button, child #2, is disabled for all children except the last
-// the red "close-field" button, child #3, is enabled for all children except the first
-// these function all depend intimately on the XUL used for the vbox/hbox search field stuff
-function addSearchField() {
-	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
-	var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
-    // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
-    newSearchField.firstChild.value = lastSearchField.firstChild.value;
-	lastSearchField.childNodes.item(2).disabled=true;// disable blue "add-field" button in what will be the next-to-last searchfield
-	if (libxSearchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
-		lastSearchField.childNodes.item(3).disabled=false; // OPTIONAL: show close button in first search field
-		newSearchField.childNodes.item(3).disabled=false; // if so, the second field must have the close button enabled
-	}
-	newSearchField.firstChild.nextSibling.firstChild.value = "";
-	libxSearchFieldVbox.appendChild(newSearchField);
-
-    // provide the next option from the list as a default
-    var lastSelection = lastSearchField.firstChild.value;
-    var ddMenu = newSearchField.firstChild.firstChild;
-    for (var i = 0; i < ddMenu.childNodes.length - 1; i++) {
-        if (ddMenu.childNodes.item(i).value == lastSelection) {
-            setFieldType(ddMenu.childNodes.item(i+1));
-            break;
-        }
-    }
-    // return reference to new textbox so caller can move focus there
-    return newSearchField.firstChild.nextSibling.firstChild;
-}
-
-// remove a specific search field
-// user must pass reference to hbox of search field to be removed
-function removeSearchField(fieldHbox) {
-	libxSearchFieldVbox.removeChild(fieldHbox);
-	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
-	lastSearchField.childNodes.item(2).disabled=false;// enable blue "add-field" button
-	if (libxSearchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
-	    lastSearchField.childNodes.item(3).disabled=true;
-	}
-}
-
-function libxClearAllFields() {
-	// while there are more than one search field left, remove the last one
-	while (libxSearchFieldVbox.childNodes.length > 1) {
-		removeSearchField(libxSearchFieldVbox.lastChild);
-	}
-	// finally, clear the content of the only remaining one
-	libxSearchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
-
-    // set options back to default for currently selected catalog
-    libxActivateCatalogOptions(libxSelectedCatalog, true);
-}
-
-// copy selection into search field - this is called from the nested right-click menu
-function addSearchFieldAs(mitem) {
-	if (!popuphelper.isTextSelected()) {
-		alert(libxGetProperty("selectterm.alert"));
-		return;
-	}
-	var sterm = popuphelper.getSelection();
-	
-	//XXX investigate if we should pretreat sterm
-	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
-		var tbb = libxSearchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
-		if (tbb.nextSibling.firstChild.value == "") {//is this field empty - use it if so
-			tbb.value = mitem.value;
-			tbb.label = mitem.label;
-			tbb.nextSibling.firstChild.value = sterm;
-			return;
-		}
-	}
-	//have found no empty field, must add one
-	addSearchField();
-	//try again - this time around there should be an empty field
-	addSearchFieldAs(mitem);
-}
-
-function aboutVersion() {
-   window.openDialog("chrome://libx/content/about.xul", "About...", "centerscreen,chrome,modal,resizable");
-}
-
-/* Definition of autolink filters.
- *
- * Order matters, if a regexp match supercedes another, the subsequent
- * matches's href function is not called, even if no superceding one
- * returned null - fix this?
- */
-var libxAutoLinkFilters = [
-    {   // Pubmed IDs, form PMID... 
-        regexp: /PMID[^\d]*(\d+)/ig,
-        href: function(match) { 
-            if (!openUrlResolver) return null;
-            var pmid = match[1];
-            this.name = libxGetProperty("openurlpmidsearch.label", [openUrlResolver.name, pmid]);
-            return openUrlResolver.makeOpenURLForPMID(pmid);
-        }
-    },
-    {   // DOIs
-        regexp: /(10\.\S+\/[^\s,;\"\']+)/ig,
-        href: function(match) { 
-            if (!openUrlResolver) return null;
-            var doi = isDOI(match[1]); 
-            if (doi == null) return null;
-            this.name = libxGetProperty("openurldoisearch.label", [openUrlResolver.name, doi]);
-            return openUrlResolver.makeOpenURLForDOI(doi);
-        }
-    },
-    {   // suppress possible ISBN match for US phone numbers
-        regexp: /\d{3}-\d{3}-?\d{4}/ig,
-        href: function(match) { 
-            return null;
-        }
-    },
-    {   // ISBNs
-        regexp: /((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig,
-        href: function(match) { 
-            var isbn = isISBN(match[1]); 
-            if (isbn == null) return null;
-            this.name = libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
-            return libraryCatalog.linkByISBN(isbn);
-        }
-    },
-    {   // ISSNs - we try to only accept 0000-0000
-        regexp: /(\d{4}-\d{3}[\dx])(?!\d)/ig,
-        href: function(match) { 
-            var issn = isISSN(match[1]); 
-            if (issn == null) return null;
-            var split = issn.match(/(\d{4})-(\d{4})/);
-            // suppress what are likely year ranges.
-            if (split != null) {
-                var from = parseInt(split[1]);
-                var to = parseInt(split[2]);
-                if (from >= 1000 && from < 2050 && to < 2200 && from < to)
-                    return null;
-            }
-            if (openUrlResolver && openUrlResolver.autolinkissn) {
-                this.name = libxGetProperty("openurlissnsearch.label", [openUrlResolver.name, issn])
-                return openUrlResolver.makeOpenURLForISSN(issn);
-            } else {
-                this.name = libxGetProperty("issnsearch.label", [libraryCatalog.name, issn]);
-                return libraryCatalog.makeSearch('is', issn);
-            }
-        }
-    },
-];
-
-function libxRunAutoLink(document, rightaway) 
-{
-    libxAutoLink(_content.window, document, libxAutoLinkFilters, rightaway);
-}
-
-function libxSelectAutolink(value)
-{
-    value = (value == "true") ? true : false;   // convert string to bool
-    setBoolPref("libx.autolink", value);
-    libxEnv.options.autolink_active = value;
-    if (value)
-        libxRunAutoLink(_content.document, true);
-}
-
-function libxInitializeAutolink()
-{
-    if (!libxEnv.options.autolink)
-        return;
-
-    var hbox = document.getElementById("libx-about");
-    var m = document.createElement("menuitem");
-    m.setAttribute('type', 'checkbox');
-    m.setAttribute('label', 'Autolink Pages');
-    libxEnv.options.autolink_active = getBoolPref("libx.autolink", true);
-    m.setAttribute('checked', libxEnv.options.autolink_active);
-    m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
-    hbox.parentNode.insertBefore(m, hbox);
 }
 
 // vim: ts=4

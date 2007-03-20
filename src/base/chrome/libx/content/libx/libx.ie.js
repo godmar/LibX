@@ -57,11 +57,13 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     case "libx.newtabswitch": //open in new window, focus it
         var newWindow = document.open(url2, '_blank');
         newWindow.focus();
+        //libxInterface.openNewWindow(url, true);
         break;
     case "libx.newwindow": //open in new window, don't explicitly focus it
     case "libx.newtab":
     default:
         window.open(url2, '_blank');
+        //libxInterface.openNewWindow(url, false);
         break;
     }
 }
@@ -140,6 +142,42 @@ libxEnv.setVisible = function(elemName, hide) {
 libxEnv.setGUIAttribute = function(elemName, attrName, attrVal) {
 }
 
+function addSearchField() {
+}
+
+function removeSearchField(fieldHbox) {
+}
+
+function libxClearAllFields() {
+}
+
+function addSearchFieldAs(mitem) {
+}
+
+
+function aboutVersion() {
+}
+
+//Autolink functions//////////////////////////////////////////////////////////
+/*
+ * Autolink is not used by IE. Once the page rewriting framework is in place,
+ * the autolink functions will not be necessary anyway, so making them work
+ * in IE would be a waste of time.
+ */
+
+var libxAutoLinkFilters = [];
+
+function libxRunAutoLink(document, rightaway) 
+{
+}
+
+function libxSelectAutolink(value)
+{
+}
+
+function libxInitializeAutolink()
+{
+}
 
 /*
  * All the 'properties' functions are not used in the IE edition, since the
@@ -160,4 +198,4 @@ function libxInitializeCatalogsFromProperties()
 {
 }
 
-  
+
