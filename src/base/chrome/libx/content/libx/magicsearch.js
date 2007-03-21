@@ -42,9 +42,10 @@
 var threshold1 = libxEnv.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
 var threshold2 = libxEnv.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
 
-
-
-function magicSearch(data, inpub, suppressheuristics) 
+/*
+ * XXX rewrite this horrible junk piece of code as catalog object.
+ */
+function magicSearch(data, inpub, justmakeurl) 
 {
     function handleMiss(url, data)
     {
@@ -123,13 +124,20 @@ function magicSearch(data, inpub, suppressheuristics)
 
     var url = baseurl + encodeURIComponent(data);
     
-    // if there is no OpenURL support, then there is no point in trying to read Google Scholar pages
-    // simply open the scholar page for the user to see.
-    // the same is done if suppressheuristics is set.
-    if (!openUrlResolver || suppressheuristics) {
+    // if justmakeurl is set, return URL
+    if (justmakeurl)
+        return url;
+
+    // XXX: revisit this decision - right now, it would crash below if we assumed
+    // openUrlResolver != null, but we should // really open hits in any event.
+    // if there is no OpenURL support, then there is no point in trying 
+    // to read Google Scholar pages simply open the scholar page for the 
+    // user to see.
+    if (!openUrlResolver) { 
         libxEnv.openSearchWindow(url, true);
         return;
     }
+
     var triedexact = false; // have we already tried the exact search (with a preceding '')
 
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {

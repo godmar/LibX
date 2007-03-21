@@ -203,8 +203,7 @@ libxAddToPrototype(libxScholarSearch.prototype, {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },
     makeAdvancedSearch: function (fields) {
-        this.libxScholarSearch(fields);
-        return null;    // libxScholarSearch() will have already opened the window
+        return this.libxScholarSearch(fields);
     },
 
     /*
@@ -244,6 +243,6 @@ libxAddToPrototype(libxScholarSearch.prototype, {
         if (a != "") {
             q += " author: " + a;
         }
-        magicSearch(q, t, true);    // true means suppress heuristics
+        return magicSearch(q, t, true);    // true means suppress heuristics
     }
 });
