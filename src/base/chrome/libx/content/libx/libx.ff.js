@@ -42,7 +42,7 @@ libxEnv.init = function() {
   
   // open search results, according to user preferences
 libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
-    var what = pref ? pref : getUnicharPref("libx.displaypref", "libx.newtabswitch");
+    var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
     if (donoturiencode == null || donoturiencode == false) {
         var url2 = encodeURI(url);
     } else {
@@ -83,7 +83,7 @@ libxEnv.libxMagicLog = function (msg) {
 }
 
 libxEnv.xpathLog = function (msg) {
-    if (!getBoolPref("libx.xpath.debug", false))
+    if (!libxEnv.getBoolPref("libx.xpath.debug", false))
         return;
     
     libxEnv.libxLog(msg, 'xpathutil');
@@ -441,7 +441,7 @@ function libxRunAutoLink(document, rightaway)
 function libxSelectAutolink(value)
 {
     value = (value == "true") ? true : false;   // convert string to bool
-    setBoolPref("libx.autolink", value);
+    libxEnv.setBoolPref("libx.autolink", value);
     libxEnv.options.autolink_active = value;
     if (value)
         libxRunAutoLink(_content.document, true);
@@ -456,7 +456,7 @@ function libxInitializeAutolink()
     var m = document.createElement("menuitem");
     m.setAttribute('type', 'checkbox');
     m.setAttribute('label', 'Autolink Pages');
-    libxEnv.options.autolink_active = getBoolPref("libx.autolink", true);
+    libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
     m.setAttribute('checked', libxEnv.options.autolink_active);
     m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
     hbox.parentNode.insertBefore(m, hbox);

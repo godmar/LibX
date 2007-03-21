@@ -168,7 +168,7 @@ function alphanumerics(s)
 function styleLink(a, filter)
 {
   //a.style.borderBottom = "1px solid orange";
-  a.style.borderBottom = getUnicharPref(
+  a.style.borderBottom = libxEnv.getUnicharPref(
                 "libx.autolinkstyle", libxEnv.options.autolinkstyle);
 }
 

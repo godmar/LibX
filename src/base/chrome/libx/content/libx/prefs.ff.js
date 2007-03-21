@@ -22,32 +22,32 @@
  *
  * ***** END LICENSE BLOCK ***** */
  
-function getBoolPref ( prefName, defValue )
+libxEnv.getBoolPref = function ( prefName, defValue )
 {
 	return nsPreferences.getBoolPref ( prefName, defValue );
 }
 
-function getUnicharPref ( prefName, defValue )
+libxEnv.getUnicharPref = function ( prefName, defValue )
 {
 	return nsPreferences.getLocalizedUnicharPref ( prefName, defValue );
 }
 
-function getIntPref ( prefName, defValue )
+libxEnv.getIntPref = function ( prefName, defValue )
 {
 	return nsPreferences.getIntPref ( prefName, defValue );
 }
 
-function setBoolPref ( prefName, value )
+libxEnv.setBoolPref = function ( prefName, value )
 {
 	return nsPreferences.setBoolPref ( prefName, value );
 }
 
-function setUnicharPref ( prefName, value )
+libxEnv.setUnicharPref = function ( prefName, value )
 {
 	return nsPreferences.setUnicharPref ( prefName, value );
 }
 
-function setIntPref ( prefName, value )
+libxEnv.setIntPref = function ( prefName, value )
 {
 	return nsPreferences.setIntPref ( prefName, value );
 }
@@ -66,11 +66,11 @@ function recordPreference(property, value)
     for (var i = 0; i < parent.childNodes.length; i++) {
         parent.childNodes.item(i).setAttribute('checked', parent.childNodes.item(i).getAttribute('id') == value);
     }
-    setUnicharPref(property, value);
+    libxEnv.setUnicharPref(property, value);
 }
 
 function libxInitializePreferences(property)
 {
-    var menuchild = getUnicharPref(property, "libx.newtabswitch");
+    var menuchild = libxEnv.getUnicharPref(property, "libx.newtabswitch");
     document.getElementById(menuchild).setAttribute("checked", true);
 }

@@ -38,19 +38,19 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
     <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	
-   	<script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
 	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/droppable.ff.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/popuputils.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/isbnutils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/doiutils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
+   	<script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/isbnutils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/doforurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/config.js" />

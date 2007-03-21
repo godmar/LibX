@@ -26,7 +26,7 @@
  */
 
 // should we convert EAN to ISBN by extracting digits 4-12 and recomputing the checkdigit?
-var convertEANtoISBN = getBoolPref("libx.isbnutils.converteantoisbn", true);
+var convertEANtoISBN = libxEnv.getBoolPref("libx.isbnutils.converteantoisbn", true);
 
 /* isISBN
  * takes a text that may contain a ISBN, possibly include hyphens

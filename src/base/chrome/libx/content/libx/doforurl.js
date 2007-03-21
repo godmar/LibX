@@ -43,7 +43,7 @@
  */
 
 function dfu_log(msg) {
-    if (!getBoolPref("libx.doforurl.debug", false))
+    if (!libxEnv.getBoolPref("libx.doforurl.debug", false))
         return;
 
     var consoleService = Components.classes["@mozilla.org/consoleservice;1"]

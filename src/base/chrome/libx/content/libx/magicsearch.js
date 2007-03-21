@@ -39,8 +39,8 @@
  *      -> if sum of the two is greater than threshold2, rewrite openurl and display -> done
  * We will also open the original Google Scholar result in a separate tab in any case.
  */
-var threshold1 = getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
-var threshold2 = getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
+var threshold1 = libxEnv.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
+var threshold2 = libxEnv.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
 
 
 
