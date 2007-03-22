@@ -104,7 +104,7 @@ libxCatalog.prototype = {
         if (url != null) {
             libxEnv.openSearchWindow(url, this.doNotURIEncode);
         } else {
-            libxEnv.libxLog("Could not construct search");
+            libxEnv.writeLog("Could not construct search");
         }
     },
     /* the default implementation looks at the options property
@@ -158,7 +158,7 @@ libxAddToPrototype(libxBookmarklet.prototype, {
                     if (m[1] <= fields.length)
                         switch_arg = fields[m[1] - 1].searchTerms;
                 } else
-                    libxEnv.libxLog("invalid switch_arg '" + s + "', must be %termX or %typeX");
+                    libxEnv.writeLog("invalid switch_arg '" + s + "', must be %termX or %typeX");
             }
             for (var i = 0; switch_arg != null && i < caseargs.length; i++) {
                 var re = new RegExp("^" + switch_arg + ":(\\S*)$");

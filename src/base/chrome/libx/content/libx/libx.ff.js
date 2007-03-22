@@ -75,29 +75,20 @@ libxEnv.getXMLDocument = function ( ) {
 }
   
   
-libxEnv.libxMagicLog = function (msg) {
-    if (!libxEnv.getBoolPref("libx.magic.debug", false))
-        return;
-
-    libxEnv.libxLog(msg, 'Magic');
-}
-
-libxEnv.xpathLog = function (msg) {
-    if (!libxEnv.getBoolPref("libx.xpath.debug", false))
-        return;
-    
-    libxEnv.libxLog(msg, 'xpathutil');
-}
-
-
 // output a message to the JS console
-libxEnv.libxLog = function (msg, prefix) {
-    if(!prefix) {
-        prefix = 'LibX';
+libxEnv.writeLog = function (msg, type) {
+    if(!type) {
+        type = 'LibX';
+    }
+    else {
+        var prefString = 'libx.' + type.toLowerCase() + '.debug';
+        if(!libxEnv.getBoolPref(prefString, false)) {
+            return;
+        }
     }
     var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
         .getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage(prefix + ": " + msg);
+    consoleService.logStringMessage(type + ": " + msg);
 }
 
 //Just use the mozilla event listener function

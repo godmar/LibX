@@ -54,7 +54,7 @@ libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
             rr.push(n);
         return rr;
     default:
-        libxEnv.xpathLog("unknown resultType: " + r.resultType);
+        libxEnv.writeLog("unknown resultType: " + r.resultType, libxEnv.logTypes.xpath);
     }
 }
 

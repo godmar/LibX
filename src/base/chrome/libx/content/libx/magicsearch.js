@@ -99,7 +99,7 @@ function magicSearch(data, inpub, justmakeurl)
         /*
         var s = "";
         for (var k in uniq) { s += " " + k; }
-        libxEnv.libxMagicLog(commonterms + " " + str1terms + " " + str2terms + " " + s);
+        libxEnv.writeLog(commonterms + " " + str1terms + " " + str2terms + " " + s, libxEnv.logTypes.magic);
         */
         return commonterms / Math.sqrt(str1terms * str2terms);
     }
@@ -113,7 +113,9 @@ function magicSearch(data, inpub, justmakeurl)
 
     var maxattempts = 5;
 
-    libxEnv.libxMagicLog("Searching for: \"" + data + "\"" + (inpub ? " inpub: " + inpub : " - no publication given"));
+    libxEnv.writeLog("Searching for: \"" + data + "\"" +
+                     (inpub ? " inpub: " + inpub : " - no publication given"),
+                     libxEnv.logTypes.magic);
     var originaldata = data;
     data = magicNormalize(data);
     var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
@@ -141,7 +143,7 @@ function magicSearch(data, inpub, justmakeurl)
     var triedexact = false; // have we already tried the exact search (with a preceding '')
 
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
-        libxEnv.libxMagicLog("Attempt #" + _attempt + ": " + url);
+        libxEnv.writeLog("Attempt #" + _attempt + ": " + url, libxEnv.logTypes.magic);
 
         var req = new XMLHttpRequest();
         req.open('GET', url, false);    // synchronous request
@@ -210,7 +212,9 @@ function magicSearch(data, inpub, justmakeurl)
 
                     titleplusauthor += title[1];
                     titlesim = getcosine(title[1]);
-                    libxEnv.libxMagicLog("CosineSimilarity w/ titleline=" + titlesim + " \"" + title[1].replace(/<.*?>/g, "") + "\"");
+                    libxEnv.writeLog("CosineSimilarity w/ titleline=" + titlesim + " \""
+                                     + title[1].replace(/<.*?>/g, "") + "\"",
+                                     libxEnv.logTypes.magic);
                 }
 
                 var auline = hits[h].replace(/&hellip;/, " ").match(/<span class=\"a\">([\s\S]*?)<\/span>/);
@@ -218,16 +222,20 @@ function magicSearch(data, inpub, justmakeurl)
                 if (auline != null) {
                     titleplusauthor += " " + auline[1];
                     ausim = getcosine(auline[1]);
-                    libxEnv.libxMagicLog("CosineSimilarity w/ authorline=" + ausim + " " + auline[1].replace(/<.*?>/g, ""));
+                    libxEnv.writeLog("CosineSimilarity w/ authorline=" + ausim
+                                     + " " + auline[1].replace(/<.*?>/g, ""),
+                                     libxEnv.logTypes.magic);
                 }
                 if (titleplusauthor != "") {
                     var tplusauthsim = getcosine(titleplusauthor);
-                    libxEnv.libxMagicLog("CosineSimilarity w/ title+authorline=" + tplusauthsim);
+                    libxEnv.writeLog("CosineSimilarity w/ title+authorline="
+                                     + tplusauthsim, libxEnv.logTypes.magic);
                 }
 
                 if (tplusauthsim > threshold1 || ((titlesim + ausim) > threshold2)) {
                     if (!(openurl || titleurl)) {
-                        libxEnv.libxMagicLog("Above threshold, but found neither title nor OpenURL; title[1] was=" + title[1]);
+                        libxEnv.writeLog("Above threshold, but found neither title nor OpenURL; title[1] was="
+                                             + title[1], libxEnv.logTypes.magic);
                         continue;       // match, but no link
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholars URL
@@ -256,10 +264,10 @@ function magicSearch(data, inpub, justmakeurl)
 
                         vtu = openUrlResolver.completeOpenURL(openurlpath);
                         display = true;
-                        libxEnv.libxMagicLog('OpenURL: ' + vtu);
+                        libxEnv.writeLog('OpenURL: ' + vtu, libxEnv.logTypes.magic);
                     } else {
                         vtu = decodeURIComponent(vtu);
-                        libxEnv.libxMagicLog('DirectURL: ' + vtu);
+                        libxEnv.WriteLog('DirectURL: ' + vtu, libxEnv.logTypes.magic);
                     }
                     if (display) {
                         libxEnv.openSearchWindow(vtu, true);
@@ -267,13 +275,15 @@ function magicSearch(data, inpub, justmakeurl)
                     }
                     break;
                 } else {
-                    libxEnv.libxMagicLog("rejected because below threshold, thresholds are " 
-                        + threshold1 + " and " + threshold2);
+                    libxEnv.writeLog("rejected because below threshold, thresholds are " 
+                        + threshold1 + " and " + threshold2, libxEnv.logTypes.magic);
                 }
             }
 
             if (h == hits.length) {
-                libxEnv.libxMagicLog("I received " + hits.length + " hits in Scholar, but no matches were found");
+                libxEnv.writeLog("I received " + hits.length +
+                                 " hits in Scholar, but no matches were found",
+                                 libxEnv.logTypes.magic);
             }
 
             // in some cases, Scholar finds it only when searched as an exact match
@@ -299,7 +309,8 @@ function magicSearch(data, inpub, justmakeurl)
             }
             return;
         } else {
-            libxEnv.libxMagicLog("couldn't find result <div> in this scholar result: " + r);
+            libxEnv.writeLog("couldn't find result <div> in this scholar result: "
+                             + r, libxEnv.logTypes.magic);
         }
 
         // scholar did not find anything.  Let us see if they have a "Did you mean" on their page 

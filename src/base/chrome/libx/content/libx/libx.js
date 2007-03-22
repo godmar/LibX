@@ -41,7 +41,7 @@ var libxEnv = new Object(); /* Global libx object */
 /* Currently implemented under libxEnv 
  * 
  * xmlDoc -- return value of getConfigXML();
- * libxMagicLog/libxLog -- write to some sort of log
+ * writeLog -- write to whatever log the current platform uses
  * openSearchWindow -- respects config options on how to open a url
  * SelectCatalog -- switch current search type [neb]
  * initCatalogGUI -- set up catalog list [neb]
@@ -106,7 +106,7 @@ function libxInitializeCatalog(doc, node)
          break;
 
     default:
-		libxEnv.libxLog("Catalog type " + cattype + " not supported.");
+		libxEnv.writeLog("Catalog type " + cattype + " not supported.");
     case null:
     case "":
         return null;
@@ -125,7 +125,7 @@ function libxInitializeCatalog(doc, node)
         	
     cat.urlregexp = new RegExp( cat.urlregexp );
 
-    libxEnv.libxLog("xml registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
+    libxEnv.writeLog("xml registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
     return cat;
 }
 
@@ -143,7 +143,7 @@ function libxInitializeCatalogs()
             var cat = libxInitializeCatalog( libxEnv.xmlDoc, node );
             searchCatalogs.push(cat);
         } catch (e) {
-            libxEnv.libxLog("libxInitializeCatalog failed: " + e.message);
+            libxEnv.writeLog("libxInitializeCatalog failed: " + e.message);
         }
     }
 
@@ -182,7 +182,7 @@ function libxInitializeOpenURL()
         openUrlResolver = new OpenURL();
         break;
     default:
-        libxEnv.libxLog("Unsupported OpenURL type: " + ourltype);
+        libxEnv.writeLog("Unsupported OpenURL type: " + ourltype);
         /* FALLTHROUGH */
     case "":
     case null:
@@ -210,9 +210,15 @@ function libxInit()
      * Config XML must be present to load options
      */
     if ( !libxEnv.xmlDoc.xml ) {
-        libxEnv.libxLog ( "ERROR: Config XML Not Found" );
+        libxEnv.writeLog ( "ERROR: Config XML Not Found" );
         return;
     }
+
+    //Set up logging types
+    libxEnv.logTypes = {
+      magic: 'Magic',
+      xpath: 'XPath'
+    };
 
     libxEnv.initializeGUI();
     libxInitializeOpenURL();
@@ -320,7 +326,7 @@ function libxProxyInit() {
 		libxProxy = new libxWAMProxy();
         break;
     default:
-		libxEnv.libxLog("Unsupported proxy.type=" + proxytype);
+		libxEnv.writeLog("Unsupported proxy.type=" + proxytype);
         /* FALLTHROUGH */
     case null:
     case "":
