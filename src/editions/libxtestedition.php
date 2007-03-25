@@ -330,8 +330,8 @@ the cue to work.)
 <li><a target="_new" href="http://www.booklistonline.com/default.aspx?page=show_product&pid=1611275">Booklistonline.com</a>,
 <li><a target="_new" href="http://www.nytimes.com/2005/05/15/books/review/15HOLTL.html">NY Times Book Review (1)</a>,
 <li><a target="_new" href="http://www.nytimes.com/2006/04/27/books/27masl.html">NY Times Book Review (2) (nytimes.com requires a login)</a>,
-<li><a target="_new" href="http://www.google.com/search?hl=en&q=freakonomics">google.com</a>,
-<li><a target="_new" href="http://www.google.ca/search?hl=en&q=freakonomics">google.ca</a> (8/18/06) - other countries should work as well,
+<li><a target="_new" href="http://www.google.com/search?hl=en&q=freakonomics">google.com</a> (3/14/07),
+<li><a target="_new" href="http://www.google.ca/search?hl=en&q=freakonomics">google.ca</a> (3/14/07) - other countries should work as well,
 <li><a target="_new" href="http://search.yahoo.com/search?ei=UTF-8&fr=sfp&p=freakonomics">Yahoo.com,</a>
 <? if (@$CONFIG['$libx.supportcoins'] == "true") { ?>
 <li><a target="_new" href="http://www.worldcatlibraries.org/wcpa/isbn/006073132X">WorldCat via COinS,</a>
