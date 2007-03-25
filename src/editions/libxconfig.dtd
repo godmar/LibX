@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.11 2007/03/15 23:01:06 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.12 2007/03/25 02:08:39 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -30,12 +30,21 @@
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar)* >
+<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar|openurlresolver)* >
+
+<!ELEMENT openurlresolver EMPTY>
+<!ATTLIST openurlresolver
+        name            CDATA #REQUIRED
+        resolvernum     CDATA #REQUIRED	
+        options         CDATA #IMPLIED
+>
+
 <!ELEMENT scholar EMPTY>
 <!ATTLIST scholar
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED	
 >
+
 <!ELEMENT centralsearch EMPTY>
 <!ATTLIST centralsearch
         name            CDATA #REQUIRED
@@ -161,10 +170,7 @@
         xrefsid        CDATA #IMPLIED
         pmidsid        CDATA #IMPLIED
         version        CDATA #IMPLIED   
-        dontshowintoolbar (true|false) 'false'
         autolinkissn   (true|false) 'false'
-        searchlabel    CDATA #IMPLIED
-        options        CDATA #IMPLIED   
         image          CDATA #IMPLIED   
 >
 

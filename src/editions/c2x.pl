@@ -182,20 +182,6 @@ while (1) {
     $catprefix = 'catalog' . $c++ . '.';
 }
 
-#
-# if scholar is not disabled, add a catalog entry for it.
-#
-my $disablescholar = $config{'$libx.disablescholar'};
-if (!defined($disablescholar) || $disablescholar ne 'true') {
-    my $e = $doc->createElement("scholar");
-    # Google told us to use this label and no other for trademark reasons
-    &addproperty($e, 'Google Scholar', 'name');
-    # add addproperty calls for other properties here as needed...
-    &addproperty($e, 'http://scholar.google.com', 'url' );
-
-    $catalogs->appendChild($e);
-}
-
 #openurltype=sersol
 my $oresolvers = $doc->createElement('openurl');
 $root->appendChild($oresolvers);
@@ -211,11 +197,32 @@ if ($otype) {
     &addproperty($openurl, $config{'$openurl.image'}, 'image');
     &addimagefile($openurl->getAttribute('image'));
     &addproperty($openurl, $config{'$openurl.version'}, 'version');
-    &addproperty($openurl, $config{'$openurl.searchlabel'}, 'searchlabel');
-    &addproperty($openurl, $config{'$openurl.dontshowintoolbar'}, 'dontshowintoolbar');
-    &addproperty($openurl, $config{'$openurl.options'}, 'options');
+
+    my $dontshowintoolbar = $config{'$openurl.dontshowintoolbar'};
+    if (!defined($dontshowintoolbar) || $dontshowintoolbar eq 'false') {
+        my $e = $doc->createElement("openurlresolver");
+        &addproperty($e, $config{'$openurl.name'}, 'name');
+        &addproperty($e, $config{'$openurl.searchlabel'}, 'name');
+        &addproperty($e, $config{'$openurl.options'}, 'options');
+        &addproperty($e, '0', 'resolvernum' );
+        $catalogs->appendChild($e);
+    }
     &addproperty($openurl, $config{'$openurl.autolinkissn'}, 'autolinkissn');
     $oresolvers->appendChild($openurl);
+}
+
+#
+# if scholar is not disabled, add a catalog entry for it.
+#
+my $disablescholar = $config{'$libx.disablescholar'};
+if (!defined($disablescholar) || $disablescholar ne 'true') {
+    my $e = $doc->createElement("scholar");
+    # Google told us to use this label and no other for trademark reasons
+    &addproperty($e, 'Google Scholar', 'name');
+    # add addproperty calls for other properties here as needed...
+    &addproperty($e, 'http://scholar.google.com', 'url' );
+
+    $catalogs->appendChild($e);
 }
 
 my $proxies = $doc->createElement('proxy');
