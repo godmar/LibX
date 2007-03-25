@@ -35,6 +35,7 @@
     </stringbundleset>
     <script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.js" />
 
 	<script type="application/x-javascript">

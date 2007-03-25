@@ -113,10 +113,7 @@ libxEnv.SelectCatalog = function(mitem, event) {
 */
     var sb = document.getElementById("libx-search-button");
     sb.label = mitem.label;
-    if (mitem.value == "openurl")
-        libxSelectedCatalog = openUrlResolver;
-    else
-        libxSelectedCatalog = searchCatalogs[mitem.value];
+    libxSelectedCatalog = searchCatalogs[mitem.value];
 
     libxActivateCatalogOptions(libxSelectedCatalog);
 }
@@ -151,7 +148,7 @@ libxEnv.initCatalogGUI = function () {
         newbutton.setAttribute("oncommand", "libxEnv.SelectCatalog(this,event);");
         newbutton.setAttribute("value", i );
         newbutton.setAttribute("label", "Search " + cat.name + " " );
-        catdropdown.insertBefore(newbutton, openurlsbutton);
+        catdropdown.appendChild(newbutton);
     }
     
     // record initially selected catalog and activate its search options
@@ -369,20 +366,20 @@ var libxAutoLinkFilters = [
     {   // Pubmed IDs, form PMID... 
         regexp: /PMID[^\d]*(\d+)/ig,
         href: function(match) { 
-            if (!openUrlResolver) return null;
+            if (!libxEnv.openUrlResolver) return null;
             var pmid = match[1];
-            this.name = libxGetProperty("openurlpmidsearch.label", [openUrlResolver.name, pmid]);
-            return openUrlResolver.makeOpenURLForPMID(pmid);
+            this.name = libxGetProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid]);
+            return libxEnv.openUrlResolver.makeOpenURLForPMID(pmid);
         }
     },
     {   // DOIs
         regexp: /(10\.\S+\/[^\s,;\"\']+)/ig,
         href: function(match) { 
-            if (!openUrlResolver) return null;
+            if (!libxEnv.openUrlResolver) return null;
             var doi = isDOI(match[1]); 
             if (doi == null) return null;
-            this.name = libxGetProperty("openurldoisearch.label", [openUrlResolver.name, doi]);
-            return openUrlResolver.makeOpenURLForDOI(doi);
+            this.name = libxGetProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi]);
+            return libxEnv.openUrlResolver.makeOpenURLForDOI(doi);
         }
     },
     {   // suppress possible ISBN match for US phone numbers
@@ -413,9 +410,9 @@ var libxAutoLinkFilters = [
                 if (from >= 1000 && from < 2050 && to < 2200 && from < to)
                     return null;
             }
-            if (openUrlResolver && openUrlResolver.autolinkissn) {
-                this.name = libxGetProperty("openurlissnsearch.label", [openUrlResolver.name, issn])
-                return openUrlResolver.makeOpenURLForISSN(issn);
+            if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.autolinkissn) {
+                this.name = libxGetProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, issn])
+                return libxEnv.openUrlResolver.makeOpenURLForISSN(issn);
             } else {
                 this.name = libxGetProperty("issnsearch.label", [libraryCatalog.name, issn]);
                 return libraryCatalog.makeSearch('is', issn);

@@ -135,7 +135,7 @@ function magicSearch(data, inpub, justmakeurl)
     // if there is no OpenURL support, then there is no point in trying 
     // to read Google Scholar pages simply open the scholar page for the 
     // user to see.
-    if (!openUrlResolver) { 
+    if (!libxEnv.openUrlResolver) { 
         libxEnv.openSearchWindow(url, true);
         return;
     }
@@ -262,7 +262,7 @@ function magicSearch(data, inpub, justmakeurl)
                             openurlpath += "&origdata=" + encodeURIComponent(data);
                         }
 
-                        vtu = openUrlResolver.completeOpenURL(openurlpath);
+                        vtu = libxEnv.openUrlResolver.completeOpenURL(openurlpath);
                         display = true;
                         libxEnv.writeLog('OpenURL: ' + vtu, libxEnv.logTypes.magic);
                     } else {

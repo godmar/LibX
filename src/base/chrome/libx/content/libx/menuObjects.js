@@ -106,11 +106,11 @@ function initializeMenuObjects()
 		var isbnsearch = menuObjects[0];
 		isbnsearch.setAttribute ( "label", libxGetProperty("issnsearch.label", [libraryCatalog.name, pureISN]) );
 		isbnsearch.setAttribute ( "hidden", false );
-		if (openUrlResolver) {
+		if (libxEnv.openUrlResolver) {
 		    menuObjects[1].setAttribute ( "hidden", false );
-		    menuObjects[1].setAttribute ( "label", libxGetProperty("openurlissnsearch.label", [openUrlResolver.name, pureISN] ) );
+		    menuObjects[1].setAttribute ( "label", libxGetProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, pureISN] ) );
 		    menuObjects[1].setAttribute ( "oncommand",
-			"libxEnv.openSearchWindow(openUrlResolver.makeOpenURLForISSN(\"" + s + "\"));" );
+			"libxEnv.openSearchWindow(libxEnv.openUrlResolver.makeOpenURLForISSN(\"" + s + "\"));" );
 		    
 		}		
 	}
@@ -123,17 +123,17 @@ function initializeMenuObjects()
 		PMIDAction );
 	
 	function PMIDAction ( s, menuObjects ) {
-		if (openUrlResolver) {
-			menuObjects[0].setAttribute ( "label", libxGetProperty("openurlpmidsearch.label", [openUrlResolver.name, s]) );
+		if (libxEnv.openUrlResolver) {
+			menuObjects[0].setAttribute ( "label", libxGetProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, s]) );
 			menuObjects[0].setAttribute ( "hidden", false );
 			menuObjects[0].setAttribute ( "oncommand", 
-			"libxEnv.openSearchWindow(openUrlResolver.makeOpenURLForPMID(\"" + s + "\"));");
+			"libxEnv.openSearchWindow(libxEnv.openUrlResolver.makeOpenURLForPMID(\"" + s + "\"));");
 		}
 	}
 	
 	// does this selection contain a pubmed id?
 	function isPMID(s) {
-		if ( openUrlResolver ) {
+		if ( libxEnv.openUrlResolver ) {
 			var m = s.match(/PMID[^\d]*(\d+)/i);
 		    if (m != null) {
 		        return m[1];
@@ -201,11 +201,11 @@ function initializeMenuObjects()
 	
 	// DOI displays in addition to keyword, title, author
 	function DOIAction ( s, menuObjects ) {
-		if (s != null && openUrlResolver) {
-			menuObjects[0].setAttribute ( "label", libxGetProperty("openurldoisearch.label", [openUrlResolver.name, s]) );
+		if (s != null && libxEnv.openUrlResolver) {
+			menuObjects[0].setAttribute ( "label", libxGetProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, s]) );
 			menuObjects[0].setAttribute ( "hidden", false );
 			menuObjects[0].setAttribute ( "oncommand", 
-			"libxEnv.openSearchWindow(openUrlResolver.makeOpenURLForDOI(\"" + s + "\"));");
+			"libxEnv.openSearchWindow(libxEnv.openUrlResolver.makeOpenURLForDOI(\"" + s + "\"));");
 		}
 	}	
 	

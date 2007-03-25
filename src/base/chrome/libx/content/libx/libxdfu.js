@@ -36,8 +36,8 @@ function makeLink(doc, title, url, openurl) {
     link.setAttribute('title', title);
     link.setAttribute('href', url);
     var image = doc.createElement('img');
-    if (openurl && openUrlResolver && openUrlResolver.image) {
-        image.setAttribute('src', openUrlResolver.image);
+    if (openurl && libxEnv.openUrlResolver && libxEnv.openUrlResolver.image) {
+        image.setAttribute('src', libxEnv.openUrlResolver.image);
     } else {
         image.setAttribute('src', libxGetProperty("cue.iconurl"));
     }
@@ -230,7 +230,7 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
 });
 
 // rewrite OpenURLs on Google Scholar's page to show cue
-if (openUrlResolver && libxEnv.options.rewritescholarpage) {
+if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
  function rewriteScholarPage(doc, proxy) {
     var atags = libxEnv.xpath.findSnapshot(doc, "//a[@href]");
     for (var i = 0; i < atags.length; i++) {
@@ -242,8 +242,8 @@ if (openUrlResolver && libxEnv.options.rewritescholarpage) {
 
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
-            var ourl = openUrlResolver.completeOpenURL(m[1]);
-            var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), ourl, true);
+            var ourl = libxEnv.openUrlResolver.completeOpenURL(m[1]);
+            var newlink = makeLink(doc, libxGetProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), ourl, true);
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.insertBefore(doc.createTextNode(" "), link.nextSibling); 
             // link.parentNode.removeChild(link);
@@ -253,9 +253,9 @@ if (openUrlResolver && libxEnv.options.rewritescholarpage) {
  new DoForURL(/scholar\.google\.com(.*)\/scholar\?/, rewriteScholarPage);
 }
 
-if (openUrlResolver && libxEnv.options.supportcoins) {
+if (libxEnv.openUrlResolver && libxEnv.options.supportcoins) {
  new DoForURL(/.+/, function (doc) {
-    var is1_0 = openUrlResolver.version == "1.0";
+    var is1_0 = libxEnv.openUrlResolver.version == "1.0";
     var coins = libxEnv.xpath.findNodes(doc, "//span[@class='Z3988']");
     for (var i = 0; i < coins.length; i++) {
         try { // the span attribute may be malformed, if so, recover and continue with next
@@ -325,7 +325,7 @@ if (openUrlResolver && libxEnv.options.supportcoins) {
 
             // handle any coins if 1.0, otherwise do only if book or article
             if (is1_0 || isBookOrArticle) {
-                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [openUrlResolver.name]), openUrlResolver.completeOpenURL(query), true));
+                span.appendChild(makeLink(doc, libxGetProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), libxEnv.openUrlResolver.completeOpenURL(query), true));
             }
         } catch (e) {
             dfu_log ("Exception during coins processing: " +e);
@@ -339,7 +339,7 @@ if (openUrlResolver && libxEnv.options.supportcoins) {
 // and an isbn (despite the fact that doing so is dead simple)
 // We help the user by including a direct link to an ISBN-based search.
 //
-if (openUrlResolver && libxEnv.options.sersolisbnfix) {
+if (libxEnv.openUrlResolver && libxEnv.options.sersolisbnfix) {
     new DoForURL(/serialssolutions\.com\/(.*genre=book.*)/, function (doc, match) {
         var im = match[1].match(/isbn=([0-9xX]{10}|[0-9xX]{13})/i);
         var isbn;
@@ -503,8 +503,8 @@ var autolink = new DoForURL(/.*/, function (doc) {
 });
 
 // exclude OpenURL resolver page if using sersol
-if (openUrlResolver && openUrlResolver.type == "sersol") {
-    autolink.exclude = [openUrlResolver.url.replace("http://", "")];
+if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.type == "sersol") {
+    autolink.exclude = [libxEnv.openUrlResolver.url.replace("http://", "")];
 }
 
 } //end of initializeDoForUrls

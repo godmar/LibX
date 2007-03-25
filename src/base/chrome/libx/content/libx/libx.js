@@ -29,7 +29,7 @@
 var searchCatalogs;     // Array of search catalogs for drop-down search menu
 var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an example
                         // searchCatalogs[0] is libraryCatalog
-var openUrlResolver;    // OpenURL resolver or null if no OpenURL support, see openurl.js
+//var openUrlResolver;    // 
 var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
 
 var libxSelectedCatalog;// currently selected search type
@@ -50,6 +50,7 @@ var libxEnv = new Object(); /* Global libx object */
  * addEventListener -- JavaScript event system [neb]
  * options -- previously under libxConfig.options
  * init -- initializes browser-specific stuff [neb]
+ * openURLResolver -- OpenURL resolver or null if no OpenURL support, see openurl.js
  */
 
 /*
@@ -103,7 +104,11 @@ function libxInitializeCatalog(doc, node)
 
 	case "centralsearch":
 	    cat = new CentralSearch();
-         break;
+        break;
+
+    case "openurlresolver":
+        cat = new OpenURLCatalog();
+        break;
 
     default:
 		libxEnv.writeLog("Catalog type " + cattype + " not supported.");
@@ -128,7 +133,6 @@ function libxInitializeCatalog(doc, node)
     libxEnv.writeLog("xml registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
     return cat;
 }
-
 
 /**
  * Initializes all of the libx catalogs.
@@ -165,40 +169,37 @@ function libxInitializeCatalogs()
 // Initialize OpenURL support if so configured
 function libxInitializeOpenURL() 
 {
-    var openURLElement = "libx-openurl-search-menuitem";
-
-    var pnode = libxEnv.xmlDoc.getNode('/edition/openurl/resolver[1]');
-    var ourltype = pnode ? pnode.getAttribute("type") : null;
-   
-    switch (ourltype) {
-    case "sersol":
-        openUrlResolver = new ArticleLinker();
-        break;
-    case "sfx":
-        openUrlResolver = new SFX();
-        break;
-    case "generic":
-    case "webbridge":
-        openUrlResolver = new OpenURL();
-        break;
-    default:
-        libxEnv.writeLog("Unsupported OpenURL type: " + ourltype);
-        /* FALLTHROUGH */
-    case "":
-    case null:
-        openUrlResolver = null;
-        libxEnv.setVisible(openURLElement, true);
-        return;
-    }
-
-    libxEnv.xmlDoc.copyAttributes(pnode, openUrlResolver);
-
-
-    libxEnv.setVisible(openURLElement, openUrlResolver.dontshowintoolbar == true);
-
-    if (openUrlResolver.searchlabel == null)
-        openUrlResolver.searchlabel = "Search " + openUrlResolver.name;
-    libxEnv.setGUIAttribute(openURLElement, 'label', openUrlResolver.searchlabel);
+	var resolvers = libxEnv.xpath.findNodes ( libxEnv.xmlDoc.xml, "/edition/openurl/*" );
+    libxEnv.openUrlResolvers = new Object();
+    for ( var i = 0; i < resolvers.length; i++ ) {
+	    
+	    var pnode = resolvers[i];
+	    var ourltype = pnode ? pnode.getAttribute("type") : null;
+	   
+	    switch (ourltype) {
+	    case "sersol":
+	        libxEnv.openUrlResolvers[i] = new ArticleLinker();
+	        break;
+	    case "sfx":
+	        libxEnv.openUrlResolvers[i] = new SFX();
+	        break;
+	    case "generic":
+	    case "webbridge":
+	        libxEnv.openUrlResolvers[i] = new OpenURL();
+	        break;
+	    default:
+	        libxEnv.writeLog("Unsupported OpenURL type: " + ourltype);
+	        /* FALLTHROUGH */
+	    case "":
+	    case null:
+	        libxEnv.openUrlResolvers[i] = null;
+	        return;
+	    }
+	
+	    libxEnv.xmlDoc.copyAttributes(pnode, libxEnv.openUrlResolvers[i]);
+	}
+	libxEnv.openUrlResolver = libxEnv.openUrlResolvers[0];
+ 
 }
 
 // Initialization - this code is executed whenever a new window is opened
@@ -383,27 +384,6 @@ function setFieldType(menuitem) {
 	menuitem.parentNode.parentNode.value = menuitem.value;
 }
 
-// switch the current search type (addison, openurl, etc.)
-function libxSelectCatalog(mitem, event) {
-	event.stopPropagation();
-
-/*
-<vbox id="search-field-vbox" flex="1">
-    <hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
-    <!-- child number 0 aka firstChild -->
-    <toolbarbutton label="Keyword" ...
-    <menupopup id="libx-dropdown-menupopup">
-        <menuitem value="Y" label="Keyword" oncommand="setFieldType(this)
-*/
-	var sb = document.getElementById("libx-search-button");
-	sb.label = mitem.label;
-    if (mitem.value == "openurl")
-        libxSelectedCatalog = openUrlResolver;
-    else
-        libxSelectedCatalog = searchCatalogs[mitem.value];
-
-    libxActivateCatalogOptions(libxSelectedCatalog);
-}
 
 /*
  * adjust drop-down menus based on catalog.options

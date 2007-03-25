@@ -25,30 +25,6 @@ my $doc = $parser->parse_file($config);
 #######################################################
 my %conf = ();
 
-#####
-# While transitioning, add the $-prefixed entries from the */config file
-# as additional properties.
-#
-my $addprop = "";
-open (H, "<$edition/config") || die ("Can't read $edition/config");
-while (<H>) {
-    next if (/^#/ || /^\s*$/);
-    chomp;
-    chop if (/\r$/);
-    if (/^\$(.*)$/) {           # line starts with a $
-        $addprop = $addprop . "\n" . $1;
-    } else {
-        my ($key, $value) = split(/=/, $_, 2);
-        # do not introduce these, non-dollar prefixed properties, they must come from XML below
-        # $conf{$key} = $value;
-    }
-    #print "...$key...=+++" . $conf{$key} . "\n";
-}
-close(H);
-$conf{'additionalproperties'} = $addprop;
-#
-#####
-
 my $root = $doc->documentElement();
 my $editionid = $root->getAttribute('id');
 

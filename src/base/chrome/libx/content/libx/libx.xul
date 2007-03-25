@@ -65,6 +65,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/openURLCatalog.js" />
 	<script type="application/x-javascript">
 	<![CDATA[
 	  // must postpone initialization until entire overlay is loaded into chrome
@@ -144,10 +145,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         tooltiptext="Press to search or drag search terms onto this button!"
 						id="libx-search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
-							<menuitem oncommand="libxSelectCatalog(this,event);" />
-							<menuitem id="libx-openurl-search-menuitem"
-                                    oncommand="libxSelectCatalog(this,event);"
-                                    value="openurl" />
+							<menuitem oncommand="libxEnv.SelectCatalog(this,event);" />
 						</menupopup>
 					</toolbarbutton>
 
