@@ -166,42 +166,6 @@ function libxInitializeCatalogs()
     libxEnv.initCatalogGUI();
 }
 
-// Initialize OpenURL support if so configured
-function libxInitializeOpenURL() 
-{
-	var resolvers = libxEnv.xpath.findNodes ( libxEnv.xmlDoc.xml, "/edition/openurl/*" );
-    libxEnv.openUrlResolvers = new Object();
-    for ( var i = 0; i < resolvers.length; i++ ) {
-	    
-	    var pnode = resolvers[i];
-	    var ourltype = pnode ? pnode.getAttribute("type") : null;
-	   
-	    switch (ourltype) {
-	    case "sersol":
-	        libxEnv.openUrlResolvers[i] = new ArticleLinker();
-	        break;
-	    case "sfx":
-	        libxEnv.openUrlResolvers[i] = new SFX();
-	        break;
-	    case "generic":
-	    case "webbridge":
-	        libxEnv.openUrlResolvers[i] = new OpenURL();
-	        break;
-	    default:
-	        libxEnv.writeLog("Unsupported OpenURL type: " + ourltype);
-	        /* FALLTHROUGH */
-	    case "":
-	    case null:
-	        libxEnv.openUrlResolvers[i] = null;
-	        return;
-	    }
-	
-	    libxEnv.xmlDoc.copyAttributes(pnode, libxEnv.openUrlResolvers[i]);
-	}
-	libxEnv.openUrlResolver = libxEnv.openUrlResolvers[0];
- 
-}
-
 // Initialization - this code is executed whenever a new window is opened
 function libxInit() 
 {
