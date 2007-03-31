@@ -21,6 +21,27 @@ close (F);
 
 my $doc = XML::LibXML::Document->new();
 my $root = $doc->createElement('edition');
+
+#
+# The property, if defined, is in XML.
+#
+sub addproperty() {
+    my ($node, $ckey, $xmlkey) = @_;
+    $node->setAttribute($xmlkey, $ckey) if (defined($ckey));
+}
+
+sub addpropertyEntities() {
+    my ($node, $ckey, $xmlkey) = @_;
+    if (defined($ckey)) {
+        my $parser = XML::LibXML->new();
+        my $fakedoc = $parser->parse_string('<root ' . $xmlkey . '="' . $ckey . '" />');
+        my $fakeroot = $fakedoc->getDocumentElement;
+        my $fakeattr = $fakeroot->getAttributeNode($xmlkey);
+        $fakeroot->removeAttributeNode($fakeattr);
+        $node->setAttributeNode($fakeattr);
+    }
+}
+
 $doc->setDocumentElement($root);
 $root->setAttribute('id', $edition);
 if (defined($config{'libxversion'})) {
@@ -34,13 +55,12 @@ my $afiles = $doc->createElement('additionalfiles');
 my $dtd = $doc->createInternalSubset("edition", undef, $dtd_url);
 
 #emnameshort=LibX VT
-my $emnameshort = $config{'emnameshort'};
 
 my $e = $doc->createElement('name');
-$e->setAttribute('short', $config{'emnameshort'});
-$e->setAttribute('long', $config{'emname'});
-$e->setAttribute('edition', $config{'libxedition'});
-$e->setAttribute('description', $config{'emdescription'});
+&addpropertyEntities($e, $config{'emnameshort'}, 'short');
+&addpropertyEntities($e, $config{'emname'}, 'long');
+&addpropertyEntities($e, $config{'libxedition'}, 'edition');
+&addpropertyEntities($e, $config{'emdescription'}, 'description');
 
 # find redirect target in edition live page and add as "localhomepage"
 # attribute
@@ -58,7 +78,7 @@ if (open (HTACC, "<" . $installdir . "/" . $edition . "/.htaccess")) {
 
 #$adaptedby=
 my $adaptedby = $config{'$adaptedby'};
-$e->setAttribute('adaptedby', $adaptedby) if (defined($adaptedby) && $adaptedby ne "");
+&addpropertyEntities($e, $adaptedby, 'adaptedby') if (defined($adaptedby) && $adaptedby ne "");
 $root->appendChild($e);
 
 #$link1.label=VT University Libraries
@@ -69,9 +89,9 @@ for (my $i = 1; ; $i++) {
     my $label = '$link' . $i . '.label';
     last if (!defined($config{$label}));
     $e = $doc->createElement('url');
-    $e->setAttribute('label', $config{$label});
+    &addpropertyEntities($e, $config{$label}, 'label');
     my $url = '$link' . $i . '.url';
-    $e->setAttribute('href', $config{$url}) if defined($config{$url});
+    &addproperty($e, $config{$url}, 'href') if defined($config{$url});
     $links->appendChild($e);
 }
 
@@ -96,17 +116,12 @@ sub addimagefile() {
     }
 }
 
-sub addproperty() {
-    my ($e, $ckey, $xmlkey) = @_;
-    $e->setAttribute($xmlkey, $ckey) if (defined($ckey));
-}
-
 sub addoption() {
     my ($e, $ckey, $xmlkey) = @_;
     return if (!defined($ckey));
     my $t = $doc->createElement('option');
-    $t->setAttribute('key', $xmlkey);
-    $t->setAttribute('value', $ckey);
+    &addproperty($t, $xmlkey, 'key');
+    &addproperty($t, $ckey, 'value');
     $e->appendChild($t);
 }
 
@@ -118,7 +133,7 @@ while (1) {
     last if (!defined($ctype));
     my $e = $doc->createElement($ctype);
 
-    &addproperty($e, $config{'$' . $catprefix . 'catalog.name'}, 'name');
+    &addpropertyEntities($e, $config{'$' . $catprefix . 'catalog.name'}, 'name');
     &addproperty($e, $config{'$' . $catprefix . 'catalog.url'}, 'url');
     &addproperty($e, $config{'$' . $catprefix . 'catalog.options'}, 'options');
     &addproperty($e, $config{'$' . $catprefix . 'catalog.urlregexp'}, 'urlregexp');
@@ -193,7 +208,7 @@ if ($otype) {
     &addproperty($openurl, $config{'$openurl.sid'}, 'sid');
     &addproperty($openurl, $config{'$openurl.xrefsid'}, 'xrefsid');
     &addproperty($openurl, $config{'$openurl.pmidsid'}, 'pmidsid');
-    &addproperty($openurl, $config{'$openurl.name'}, 'name');
+    &addpropertyEntities($openurl, $config{'$openurl.name'}, 'name');
     &addproperty($openurl, $config{'$openurl.image'}, 'image');
     &addimagefile($openurl->getAttribute('image'));
     &addproperty($openurl, $config{'$openurl.version'}, 'version');
@@ -201,8 +216,8 @@ if ($otype) {
     my $dontshowintoolbar = $config{'$openurl.dontshowintoolbar'};
     if (!defined($dontshowintoolbar) || $dontshowintoolbar eq 'false') {
         my $e = $doc->createElement("openurlresolver");
-        &addproperty($e, $config{'$openurl.name'}, 'name');
-        &addproperty($e, $config{'$openurl.searchlabel'}, 'name');
+        &addpropertyEntities($e, $config{'$openurl.name'}, 'name');
+        &addpropertyEntities($e, $config{'$openurl.searchlabel'}, 'name');
         &addproperty($e, $config{'$openurl.options'}, 'options');
         &addproperty($e, '0', 'resolvernum' );
         $catalogs->appendChild($e);
@@ -258,7 +273,7 @@ for (my $i = 1; ; $i++) {
     last if (!defined($config{$oval}));
     $e = $doc->createElement('searchoption');
     &addproperty($e, $config{$oval}, 'value');
-    &addproperty($e, $config{$olab}, 'label');
+    &addpropertyEntities($e, $config{$olab}, 'label');
     $soptions->appendChild($e);
 }
 $root->appendChild($soptions);

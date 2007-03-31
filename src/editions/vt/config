@@ -1,5 +1,5 @@
 # This edition's version
-libxversion=1.1.3
+libxversion=1.1.4
 #--------------------------------------------------
 
 #
@@ -263,6 +263,12 @@ $catalog3.catalog.type=sersol
 $catalog3.catalog.name=VT EJournals
 $catalog3.catalog.url=http://su8bj7jh4j.search.serialssolutions.com
 
+# WorldCat
+$catalog4.catalog.name=WorldCat
+$catalog4.catalog.type=bookmarklet
+$catalog4.catalog.url=http://www.worldcat.org/search?q=%Y+ti%3A%t+au%3A%a+kw%3A%i&qt=advanced
+$catalog4.catalog.options=Y;t;a;i
+
 ##########################################################################
 #
 
@@ -354,6 +360,12 @@ $openurl.version=1.0
 # it would show "Search VT Article Linker"
 # 
 $openurl.dontshowintoolbar=true
+
+#
+# When autolinking ISSN, make the link point to the OpenURL resolver.
+# If not set or set to false, make the link point to the primary catalog instead.
+#
+$openurl.autolinkissn=true
 
 #######
 #

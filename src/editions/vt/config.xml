@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE edition SYSTEM "http://libx.org/xml/libxconfig.dtd">
-<edition id="vt" version="1.1.3">
+<edition id="vt" version="1.1.4">
   <name short="LibX VT" long="LibX Virginia Tech" edition="Virginia Tech Edition" description="Toolbar for Virginia Tech Library users" localhomepage="http://www.lib.vt.edu/services/libX/libX.php"/>
   <links>
     <url label="VT University Libraries" href="http://www.lib.vt.edu/"/>
@@ -14,15 +14,17 @@
     <bookmarklet name="VT Database List" url="http://www.lib.vt.edu/dsp/index.php?searchval=%dbname&amp;action=SearchDatabase" options="dbname"/>
     <bookmarklet name="VT ETD" url="http://scholar.lib.vt.edu:8765/query.html?qt=%Y&amp;col=theses&amp;charset=iso-8859-1" options="Y"/>
     <sersol name="VT EJournals" url="http://su8bj7jh4j.search.serialssolutions.com"/>
+    <bookmarklet name="WorldCat" url="http://www.worldcat.org/search?q=%Y+ti%3A%t+au%3A%a+kw%3A%i&amp;qt=advanced" options="Y;t;a;i"/>
+    <scholar name="Google Scholar" url="http://scholar.google.com"/>
   </catalogs>
   <openurl>
-    <resolver type="sersol" url="http://su8bj7jh4j.search.serialssolutions.com/" sid="libx:virginiatech" name="VT Article Linker" version="1.0" dontshowintoolbar="true"/>
+    <resolver type="sersol" url="http://su8bj7jh4j.search.serialssolutions.com/" sid="libx:virginiatech" name="VT Article Linker" version="1.0" autolinkissn="true"/>
   </openurl>
   <proxy>
     <ezproxy url="http://ezproxy.lib.vt.edu:8080/login?url=%S" name="EZProxy"/>
   </proxy>
   <options>
-    <option key="rewritescholar" value="true"/>
+    <option key="rewritescholarpage" value="true"/>
     <option key="supportcoins" value="true"/>
     <option key="sersolisbnfix" value="true"/>
     <option key="autolink" value="true"/>
