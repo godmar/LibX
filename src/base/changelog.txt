@@ -1,6 +1,11 @@
 LibX - A Firefox Extension for direct library access
 
-created by Annette Bailey & Godmar Back
+created by 
+Annette Bailey 
+Godmar Back
+Mike Doyle 
+Nathan Baker.
+
 http://www.libx.org
 
 You are using the $libxedition$
@@ -8,6 +13,7 @@ This changelog.txt file is part of LibX Version $libxversion$
 
 Under development
 
+ *enhanced functionality for EZProxy.
  *added support for $sirsi.sort and $sirsi.searchscope, contributed by
   Dan Scott 
  *added support for $openurl.pmidsid to define a sid for OpenURL that have
