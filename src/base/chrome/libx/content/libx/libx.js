@@ -136,7 +136,6 @@ function libxInitializeCatalog(doc, node)
 
 /**
  * Initializes all of the libx catalogs.
- * If no xml has been defined, it calls libxInitializeCatalogsFromProperties()
  */
 function libxInitializeCatalogs() 
 {

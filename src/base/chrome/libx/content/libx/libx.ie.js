@@ -86,7 +86,9 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
 
 
 //Returns an XML DOM document for the config file  
-libxEnv.getXMLDocument = function ( ) {
+libxEnv.getXMLDocument = function (url, callback) {
+    // FIXME: pass on url and observe callback
+        // see http://jibbering.com/2002/4/httprequest.html for documentation.
     return libxInterface.config;  
 }
   
@@ -169,24 +171,3 @@ function libxSelectAutolink(value)
 function libxInitializeAutolink()
 {
 }
-
-/*
- * All the 'properties' functions are not used in the IE edition, since the
- * IE toolbar is XML-only. Once (if) the Firefox version also becomes XML-
- * only, these functions can be deleted entirely.
- */
-function libxInitializeCatalogFromProperties(cattype, catprefix)
-{
-}
-
-//This function is not used in the IE edition, and is here for compatibility
-function addCatalogByProperties(cattype, catprefix, catnumber)
-{
-}
-
-//This function is not used in the IE edition, and is here for compatibility
-function libxInitializeCatalogsFromProperties() 
-{
-}
-
-

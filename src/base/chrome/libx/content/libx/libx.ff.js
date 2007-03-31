@@ -66,12 +66,33 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     }
 }
   
-  
-libxEnv.getXMLDocument = function ( ) {
-    var configurl = new XMLHttpRequest();
-    configurl.open('GET', "chrome://libx/content/config.xml", false);
-    configurl.send(null);
-    return configurl.responseXML;
+/* 
+ * Retrieve a XML document from a URL.
+ * 'callback' is optional. 
+ * If omitted, retrieval is synchronous.
+ * Returns document on success, and (probably) null on failure.
+ *
+ * If given, retrieval is asynchronous.
+ * Return value is undefined in this case.
+ *
+ * XXX support POST data.
+ */
+libxEnv.getXMLDocument = function ( url, callback ) {
+    var xmlhttp = new XMLHttpRequest();
+    if (callback === undefined) {
+        // synchronous
+        xmlhttp.open('GET', url, false);
+    } else {
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4) {
+                callback(xmlhttp);
+            }
+        };
+        // asynchronous
+        xmlhttp.open('GET', url, true);
+    }
+    xmlhttp.send(null);
+    return xmlhttp.responseXML;
 }
   
   

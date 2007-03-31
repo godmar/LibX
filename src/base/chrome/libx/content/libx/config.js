@@ -93,7 +93,7 @@ function libxGetConfigXML()
 
     try {
         
-        xmlDoc.xml = libxEnv.getXMLDocument();
+        xmlDoc.xml = libxEnv.getXMLDocument("chrome://libx/content/config.xml");
         xmlDoc.getNode = function (xpath) {
             return libxEnv.xpath.findSingle(this.xml, xpath);
         };

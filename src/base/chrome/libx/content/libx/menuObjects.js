@@ -209,12 +209,15 @@ function initializeMenuObjects()
 		}
 	}	
 	
-	var libxProxyObj = [{id:"libx-proxify", oncommand:"libxProxify();"}];
+	/********************************* Proxy Options **********************************************/
+	var libxProxyObj = [{id:"libx-proxify"}];
 	
 	LibxContextMenuObject ( libxProxyObj, "Libx-Proxy", 
-						libxProxifyFunc, libxProxifyAction );
+						isProxyActive, showProxyMenuItems );
 	
-	function libxProxifyFunc( p )
+    // match function: display always, if a proxy is defined.
+    // p is of type PopupHelper.
+	function isProxyActive( p )
 	{
 		if (libxProxy)
 			return p;
@@ -222,17 +225,63 @@ function initializeMenuObjects()
 	    	return null;
     }
     
-    function libxProxifyAction( p, menuObjects )
-    {
-
-    	// activate proxify link whenever user right-clicked over hyperlink
-    	menuObjects[0].setAttribute ( "hidden", false );
+    /*
+     * This function is called when the user hits reload this page/follow a link
+     * through the proxy.  
+     */
+    function doProxify(p, proxy) {
         if (p.isOverLink()) {
-            menuObjects[0].setAttribute ( "label",  
-            	libxGetProperty("proxy.follow.label", [libxProxy.name]));
+            var href = p.getNode().href;
+            libxEnv.openSearchWindow(proxy.rewriteURL(href));
         } else {
-            menuObjects[0].setAttribute ( "label",  
-            	libxGetProperty("proxy.reload.label", [libxProxy.name]));
+            _content.location.href = proxy.rewriteURL(_content.location.toString());
+        }
+    }
+
+    // action on match.
+    // activate proxify link whenever user right-clicked over hyperlink
+    function showProxyMenuItems( p, menuObjects )
+    {
+        function showLabel(which, menuitem, url, proxy) {
+            var p = url;
+            var m = url.match(/http[s]?:\/\/([^\/:]+)(:(\d+))?\/(.*)$/);
+            if (m) {
+                p = m[1];
+            }
+            p = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
+
+            menuitem.setAttribute ("label", libxGetProperty(which, [proxy.name, p]));
+        }
+
+        // currently, there's only 1 proxy; but there will be more.
+        var proxy = libxProxy;
+        for (var i = 0; i < menuObjects.length; i++) {
+            var m = menuObjects[i];
+            m.setAttribute ( "hidden", false );
+
+            var urltocheck;
+            if (p.isOverLink())
+                urltocheck = p.getNode().href;
+            else
+                urltocheck = _content.location.toString();
+
+            if (proxy.canCheck()) {
+                showLabel("proxy.checking.label", m, urltocheck, proxy);
+                proxy.checkURL(urltocheck, function (ok) {
+                    if (ok) {
+                        showLabel(p.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", 
+                                    m, urltocheck, proxy);
+                    } else {
+                        showLabel("proxy.denied.label", m, urltocheck, proxy);
+                    }
+                });
+            } else {
+                showLabel(p.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", m, urltocheck, proxy);
+            }
+            // XXX this may be incorrect for multiple proxies; I'm not sure if
+            // 'proxy' is captured in this closure or not.  Read up in JavaScript spec.
+            m.proxify = function () { doProxify(p, proxy); }
+            m.setAttribute ( "oncommand", "this.proxify();" );
         }
 	}
 }

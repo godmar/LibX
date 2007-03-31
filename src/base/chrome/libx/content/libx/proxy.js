@@ -25,6 +25,37 @@ function libxEZProxy() {
 }
 
 libxEZProxy.prototype = {
+    canCheck: function () { 
+        // XXX check user preference here as well.
+        return this.urlcheckpassword != null; 
+    },
+
+    checkURL: function (pageurl, okcallback) {
+        var m = this.url.match(/(http:\/\/[^\/]+)\/(.*)$/);
+        if (!m) {
+            libxEnv.writeLog("internal failure parsing proxy url: " + this.url + "...");
+            okcallback(false);
+            return;
+        }
+        var purl = m[1] + "/proxy_url?xml=";
+        purl += encodeURIComponent(
+            '<?xml version="1.0"?>' 
+            + '<proxy_url_request password="' + this.urlcheckpassword + '"><urls>'
+            + '<url>' + pageurl + '</url>'
+            + '</urls></proxy_url_request>'
+        );
+        libxEnv.getXMLDocument(purl, function (xmlhttp) {
+            if (xmlhttp.status == 200) {
+                var resp = libxEnv.xpath.findSingle(xmlhttp.responseXML, "/proxy_url_response/proxy_urls/url[1]");
+                if (resp != null && libxConvertToBoolean(resp.getAttribute("proxy"))) {
+                    okcallback(true);
+                    return;
+                }
+            }
+            okcallback(false);
+        });
+    },
+
     /* Rewriting URLs for EZProxy is eazy. */
     rewriteURL: function (url) {
         return this.url.replace(/%S/, url);
@@ -35,6 +66,9 @@ function libxWAMProxy() {
 }
 
 libxWAMProxy.prototype = {
+    /* WAM does not support checking whether the site would be proxied as of now. */
+    canCheck: function () { return false; },
+
     /* From the III documentation:
 
       http://<port>-<target server>.<Innovative server>/<rest of URL>
@@ -51,7 +85,6 @@ libxWAMProxy.prototype = {
         var proxybase = this.url;
         var m = url.match(/http:\/\/([^\/:]+)(:(\d+))?\/(.*)$/);
         if (m) {
-            m[0];
             var host = m[1];
             var port = m[3];
             if (port === undefined || port == 80) port = 0;
