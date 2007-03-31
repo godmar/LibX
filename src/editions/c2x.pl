@@ -250,6 +250,7 @@ if ($ptype) {
     &addproperty($proxy, $config{'$proxy.url'}, 'url');
     #proxyname=EZProxy
     &addproperty($proxy, $config{'$proxy.name'}, 'name');
+    &addproperty($proxy, $config{'$proxy.urlcheckpassword'}, 'urlcheckpassword');
     $proxies->appendChild($proxy);
 }
 

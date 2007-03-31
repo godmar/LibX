@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.12 2007/03/25 02:08:39 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.13 2007/03/31 22:10:13 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -180,6 +180,7 @@
 <!ATTLIST ezproxy
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
+        urlcheckpassword CDATA #IMPLIED
 >
 <!ELEMENT wam EMPTY>
 <!ATTLIST wam
