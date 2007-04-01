@@ -65,6 +65,7 @@ OpenURL.prototype = {
 			    break;
 		    case 'i':
 		    case 'is':
+                var pureISN;
 			    if (pureISN = isISSN(fields[i].searchTerms)) {
 				    url += "&issn=" + pureISN;
 			    } else {

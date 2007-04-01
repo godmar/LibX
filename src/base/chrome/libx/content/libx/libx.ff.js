@@ -40,6 +40,16 @@ libxEnv.init = function() {
     libxInitializeDFU();
 }
   
+/* fix this later should it be necessary - so far, we were able to get at every catalog via GET
+   this code is intended should POST be necessary in the future.
+*/
+//    if (typeof url == "string") {
+//      getBrowser().addTab(encodeURI(url));
+//  } else
+//   if (url.constructor.name == "Array") {  // for catalog that require POST - UNTESTED code
+//      getBrowser().addTab(encodeURI(url[0]), null, null, /*aPostData*/url[1]);
+//    }
+
   // open search results, according to user preferences
 libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
@@ -113,6 +123,9 @@ libxEnv.writeLog = function (msg, type) {
 }
 
 //Just use the mozilla event listener function
+/* NB: addEventListener always adds the listener; if the same listener is
+ * already registered, it will be registered twice.
+ */
 libxEnv.addEventHandler = function(obj, event, func, b) {
     if(!obj) obj = window;
     if(!b) b = false;
@@ -276,19 +289,23 @@ libxEnv.initializeGUI = function () {
         .setAttribute("tooltiptext", "LibX - " + 
             libxEnv.xmlDoc.getAttr("/edition/name", "edition" ) );
         
-    initializeMenuObjects();
+    libxInitializeMenuObjects();
+}
+
+libxEnv.setObjectVisible = function(obj, show) {
+    obj.hidden = !show;
 }
 
 libxEnv.setVisible = function(elemName, hide) {
     elem = document.getElementById(elemName);
-    if(elem != null) {
+    if (elem != null) {
         elem.hidden = !hide;
     }
 }
 
 libxEnv.setGUIAttribute = function(elemName, attrName, attrValue) {
     elem = document.getElementById(elemName);
-    if(elem != null) {
+    if (elem != null) {
         elem.setAttribute(attrName, attrValue);
     }
 }

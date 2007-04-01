@@ -57,6 +57,17 @@ function LibxMenuObject ( menuitems, tmatch, comm ) {
 		for ( var k in menuProps ) {
 			newMenuItem.setAttribute (k, menuProps[k]); // a['j'] == a.j 
 		}
+                /* 
+                 * Redirect the "command" event to a docommand property
+                 * which can be set by individual menu items
+                 */
+
+                /* Note: when porting this to IE, you cannot replace this call with
+                 * libxEnv.addEventHandler(menuObjects[0], "command", function () ... );
+                 * because this would add to, rather than replace, the menu item's command
+                 * handler.
+                 */
+                newMenuItem.setAttribute("oncommand", "this.docommand(event);");
 		this.menuitems.push ( newMenuItem );
 
 		contMenu.insertBefore ( newMenuItem, 

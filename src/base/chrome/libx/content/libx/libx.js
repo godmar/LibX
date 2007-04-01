@@ -199,59 +199,7 @@ function libxInit()
 //in this function we must adjust the hidden attributes of the context menu 
 //items we would like the user to see
 function libxContextPopupShowing() {
-            
-    pureISN = null;//forget pureISN
-
     ContextMenuShowing ( popuphelper );
-}
-
-
-
-
-
-/* fix this later should it be necessary - so far, we were able to get at every catalog via GET
-   this code is intended should POST be necessary in the future.
-*/
-//    if (typeof url == "string") {
-//	    getBrowser().addTab(encodeURI(url));
-//	} else
-//   if (url.constructor.name == "Array") {  // for catalog that require POST - UNTESTED code
-//	    getBrowser().addTab(encodeURI(url[0]), null, null, /*aPostData*/url[1]);
-//    }
-
-// This function is called for the "Search Addison Now!" right-click
-// menu entries.
-function doSearchBy(stype) {
-	if (!popuphelper.isTextSelected()) {
-		alert(libxGetProperty("selectterm.alert"));
-		return;
-	}
-	var sterm = popuphelper.getSelection();
-	var hasComma = sterm.match(/,/);
-	
-	// clean up search term by removing unwanted characters
-    // should leave &, and single apostrophe in - what about others?
-	// and replaces multiple whitespaces with a single one
-    // use :alnum: to avoid dropping diacritics and other Unicode alphanums
-    // as per Ted Olson
-    sterm = sterm.replace(/[^[:alnum:]_&:\222\'\-\s/g, " ").replace(/\s+/g, " ");
-	// split author into names, turns "arthur conan doyle" into ["arthur", "conan", "doyle"]
-	var names = sterm.split(/\s+/);
-	// switch author's first and last name unless there's a comma or the last name is an initial
-	if (stype == "a" && !hasComma && !names[names.length-1].match(/^[A-Z][A-Z]?$/i)) {
-		sterm = names[names.length-1] + " " + names.slice(0,names.length-1).join(" ");
-		// creates "doyle arthur conan"
-	}
-
-	if (stype == 'i') {
-	    sterm = pureISN;
-    }
-
-	// create a makeshift array of a single element - we do this solely 
-	// to be able to reuse the "doCatalogSearch" function which expects an array
-	// of objects with a searchType/searchTerms property each.
-	var field = {searchType: stype, searchTerms: sterm};	
-	libraryCatalog.search([field]);
 }
 
 /*
@@ -275,16 +223,11 @@ function libxProxyInit() {
         /* FALLTHROUGH */
     case null:
     case "":
-        // hide proxy entry in context menu if no proxy is defined
-		/* Shouldn't need this anymore...
-		var libxproxify = document.getElementById("libx-proxify");
-		libxproxify.hidden = true;*/
         return;
 	}
     libxProxy.type = proxytype;
     
     libxEnv.xmlDoc.copyAttributes(pnode, libxProxy);
-    
 }
 
 /* If the searchType is 'i', examine if user entered an ISSN
