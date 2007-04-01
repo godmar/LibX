@@ -85,9 +85,10 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
  * If given, retrieval is asynchronous.
  * Return value is undefined in this case.
  *
- * XXX support POST data.
+ * If postdata is given, a POST request is sent instead.
+ * Does not support synchronous POST.
  */
-libxEnv.getXMLDocument = function ( url, callback ) {
+libxEnv.getXMLDocument = function ( url, callback, postdata ) {
     var xmlhttp = new XMLHttpRequest();
     if (callback === undefined) {
         // synchronous
@@ -99,9 +100,9 @@ libxEnv.getXMLDocument = function ( url, callback ) {
             }
         };
         // asynchronous
-        xmlhttp.open('GET', url, true);
+        xmlhttp.open(postdata !== undefined ? 'POST' : 'GET', url, true);
     }
-    xmlhttp.send(null);
+    xmlhttp.send(postdata);
     return xmlhttp.responseXML;
 }
   
