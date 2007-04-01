@@ -255,25 +255,6 @@ function doSearchBy(stype) {
 }
 
 /*
- * This function is called when the user hits reload this page/follow a link
- * through the proxy.  
- */
-function libxProxify() {
-    // this function should not be called if no proxy is defined
-    if (libxProxy == null) {
-        alert("no proxy defined");
-        return;
-    }
-
-	if (popuphelper.isOverLink()) {
-		var href = popuphelper.getNode().href;
-		libxEnv.openSearchWindow(libxProxy.rewriteURL(href));
-    } else {
-		_content.location.href = libxProxy.rewriteURL(_content.location.toString());
-    }
-}
-
-/*
  * Initialize proxy support.
  */
 function libxProxyInit() {
