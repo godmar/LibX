@@ -37,23 +37,28 @@ libxEZProxy.prototype = {
             okcallback(false);
             return;
         }
-        var purl = m[1] + "/proxy_url?xml=";
-        purl += encodeURIComponent(
-            '<?xml version="1.0"?>' 
-            + '<proxy_url_request password="' + this.urlcheckpassword + '"><urls>'
-            + '<url>' + pageurl + '</url>'
-            + '</urls></proxy_url_request>'
-        );
+        /* Chris Zagar points out that ezproxy logs all requests, but no POST data,
+         * so posting the URL to be queried reduces log size and slightly increases
+         * privacy.
+         * Interface documented at http://blog.ryaneby.com/archives/ezproxy-url-webservice/
+         */
+        var purl = m[1] + "/proxy_url";
+        var postdata = "xml=" + encodeURIComponent('<?xml version="1.0"?>' 
+                + '<proxy_url_request password="' + this.urlcheckpassword + '"><urls>'
+                + '<url>' + pageurl + '</url>'
+                + '</urls></proxy_url_request>'
+            );
         libxEnv.getXMLDocument(purl, function (xmlhttp) {
             if (xmlhttp.status == 200) {
-                var resp = libxEnv.xpath.findSingle(xmlhttp.responseXML, "/proxy_url_response/proxy_urls/url[1]");
+                var resp = libxEnv.xpath.findSingle(xmlhttp.responseXML, 
+                                                    "/proxy_url_response/proxy_urls/url[1]");
                 if (resp != null && libxConvertToBoolean(resp.getAttribute("proxy"))) {
                     okcallback(true);
                     return;
                 }
             }
             okcallback(false);
-        });
+        }, postdata);
     },
 
     /* Rewriting URLs for EZProxy is eazy. */
