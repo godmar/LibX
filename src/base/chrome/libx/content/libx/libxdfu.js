@@ -31,6 +31,7 @@
 // helper function that creates the cue logo to be inserted
 // make the equivalent of this html:
 // <a title="[title]" href="[url]"><img src="chrome://libx/skin/virginiatech.ico" border="0"/></a>
+// XXX to be done - link cue.iconurl to catalog
 function makeLink(doc, title, url, openurl) {
     var link = doc.createElement('a');
     link.setAttribute('title', title);
@@ -55,23 +56,23 @@ function libxInitializeDFU() {
 // Link Amazon pages to the catalog via ISBN
 // Idea from Jon Udell's Amazon GreaseMonkey script 
 
-// match amazon page and capture ISBN in match
-var amazonAction = new DoForURL(/\.amazon\.com.*\/(\d{7,12}[\d|X])\/?/, doAmazon);
-var amazonUkAction = new DoForURL(/\.amazon\.co\.uk.*\/(\d{7,12}[\d|X])\/?/, doAmazon);
-var amazonCaAction = new DoForURL(/\.amazon\.ca.*\/(\d{7,12}[\d|X])\/?/, doAmazon);
+var amazonAction = new DoForURL(/amazon\.com\//, doAmazon);
+var amazonUkAction = new DoForURL(/amazon\.co\.uk\//, doAmazon);
+var amazonCaAction = new DoForURL(/amazon\.ca\//, doAmazon);
     
+// revised Apr 4, 2007
 function doAmazon(doc, match) {
-    var isbn = match[1];    // grab captured isbn in matched URL
-    
-    // find first <b> tag with class="sans" - that's where Amazon puts the book title
-    var origTitle = libxEnv.xpath.findSingle(doc, "//b[@class='sans']");
-    if (!origTitle) {
-        return;
-    }
+    // extract ISBN from text <b>ISBN-10:</b>
+    var isbnLabel = libxEnv.xpath.findSingle(doc, "//b[contains(text(), 'ISBN')]");
+    var isbn = isISBN(isbnLabel.nextSibling.textContent);
+    var booktitle = libxEnv.xpath.findSingle(doc, "//div[@class='buying']/b[@class='sans']");
+
     // make link and insert after title
-    var div = origTitle.parentNode;
-    var link = makeLink(doc, libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
-    div.insertBefore(link, origTitle.nextSibling);
+    var div = booktitle.parentNode;
+    var cue = makeLink(doc, 
+                        libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
+                        libraryCatalog.linkByISBN(isbn));
+    div.insertBefore(cue, booktitle.nextSibling);
 }
 
 // --------------------------------------------------------------------------------------------------
