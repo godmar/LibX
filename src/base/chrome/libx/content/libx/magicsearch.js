@@ -137,7 +137,7 @@ function magicSearch(data, inpub, justmakeurl)
     // user to see.
     if (!libxEnv.openUrlResolver) { 
         libxEnv.openSearchWindow(url, true);
-        return;
+        return null;
     }
 
     var triedexact = false; // have we already tried the exact search (with a preceding '')
@@ -299,7 +299,7 @@ function magicSearch(data, inpub, justmakeurl)
                 handleMiss(url, originaldata);
 
             if (libxEnv.options.suppressscholardisplay)
-                return;
+                return null;
 
             // show google scholar page also
             if (found) {
@@ -307,7 +307,7 @@ function magicSearch(data, inpub, justmakeurl)
             } else {
                 libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata), true);  // as primary window if not
             }
-            return;
+            return null;
         } else {
             libxEnv.writeLog("couldn't find result <div> in this scholar result: "
                              + r, libxEnv.logTypes.magic);
@@ -326,7 +326,7 @@ function magicSearch(data, inpub, justmakeurl)
 
         if (!libxEnv.options.suppressscholardisplay)
             libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata), true);
-        return;
+        return null;
     }
 }
 
