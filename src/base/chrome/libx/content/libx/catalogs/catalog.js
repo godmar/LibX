@@ -143,7 +143,7 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         */
         var swtch;
         var swtchre = /%SWITCH\{(%[a-z0-9]+)\}\{(([^}]+(\}\{)?)+)}/i;
-        while (swtch = url.match(swtchre)) {
+        while ((swtch = url.match(swtchre)) != null) {
             var s = swtch[1];
             var repl = "";
             var caseargs = swtch[2].split("}{");
@@ -198,6 +198,7 @@ function libxScholarSearch() { }
 libxScholarSearch.prototype = new libxCatalog();
 
 libxAddToPrototype(libxScholarSearch.prototype, {
+    doNotURIEncode: true,
     options: "Y;at;jt;a",
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
