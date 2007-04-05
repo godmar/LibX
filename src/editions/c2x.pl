@@ -108,6 +108,7 @@ sub addfile() {
     }
 }
 &addfile('config.xml', "(.*)", 'chrome/libx/content/libx');
+&addfile('defaultprefs.xml', "(.*)", 'chrome/libx/content/libx');
 
 sub addimagefile() {
     my ($url) = @_;
