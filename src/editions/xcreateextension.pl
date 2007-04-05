@@ -43,7 +43,76 @@ for my $o ($options_node->getChildrenByTagName('option')) {
     $conf{'logoURL'} = $o->getAttribute('value') if ($o->getAttribute('key') eq 'logo');
     $conf{'emiconURL'} = $o->getAttribute('value') if ($o->getAttribute('key') eq 'icon');
 }
+#######################################################
+# code to create default preferences file
+#
+# Should we use XML::Simple here? Order doesn't matter.
+#
+my $pref = XML::LibXML::Document->new();
 
+sub getCatalog {
+    my ($cat0, $type) = @_;
+    my $cat = $pref->createElement("catalog");
+    $cat->setAttribute('name', $cat0->getAttribute('name'));
+    $cat->setAttribute('type', $type);
+    return $cat;
+}
+
+sub getOpenURL {
+    my ($openurl0, $type) = @_;
+    my $o = $pref->createElement("openurl");
+    $o->setAttribute('name', $openurl0->getAttribute('name'));
+    return $o;
+}
+
+my $cat0 = ${$root->findnodes('//catalogs/*')}[0];
+my $openurl0 = ${$root->findnodes('//openurl/resolver[1]')}[0];
+
+my $prefroot = $pref->createElement('preferences');
+$pref->setDocumentElement($prefroot);
+my $prefcmenu = $pref->createElement('contextmenu');
+$prefroot->appendChild($prefcmenu);
+
+my $isbn = $pref->createElement('isbn');
+$isbn->appendChild(getCatalog($cat0, 'i'));
+if ($cat0->findnodes('xisbn')) {
+    $isbn->appendChild(getCatalog($cat0, 'xisbn'));
+}
+$prefcmenu->appendChild($isbn);
+
+my $issn = $pref->createElement('issn');
+$issn->appendChild(getCatalog($cat0, 'i'));
+$issn->appendChild(getOpenURL($openurl0));
+$prefcmenu->appendChild($issn);
+
+my $doi = $pref->createElement('doi');
+$doi->appendChild(getOpenURL($openurl0));
+$prefcmenu->appendChild($doi);
+
+my $pmid = $pref->createElement('pmid');
+$pmid->appendChild(getOpenURL($openurl0));
+$prefcmenu->appendChild($pmid);
+
+my $default = $pref->createElement('default');
+$default->appendChild(getCatalog($cat0, 'Y'));
+$default->appendChild(getCatalog($cat0, 't'));
+$default->appendChild(getCatalog($cat0, 'a'));
+$default->appendChild($pref->createElement('scholar'));
+$prefcmenu->appendChild($default);
+
+my $proxy = $pref->createElement('proxy');
+$proxy->appendChild($pref->createElement('proxy'));
+$prefcmenu->appendChild($proxy);
+
+open (DEFPREF, ">" . $edition . "/defaultprefs.xml") || die;
+print DEFPREF $pref->toString(1);
+close (DEFPREF);
+
+#
+#
+#######################################################
+
+$conf{'additionalproperties'} = "";
 $conf{'emhomepageURL'} = "http://www.libx.org/editions/" . $editionid . "/libx.html";
 $conf{'emupdateURL'} = "http://www.libx.org/editions/" . $editionid . "/update.rdf";
 $conf{'xpilocation'} = "http://www.libx.org/editions/" . $editionid . "/libx-" . $editionid . ".xpi";
