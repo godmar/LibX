@@ -50,11 +50,12 @@ libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
     case XPathResult.UNORDERED_NODE_ITERATOR_TYPE:
         var rr = new Array();
         var n;
-        while (n = r.iterateNext())
+        while ((n = r.iterateNext()) != null)
             rr.push(n);
         return rr;
     default:
         libxEnv.writeLog("unknown resultType: " + r.resultType, libxEnv.logTypes.xpath);
+        return null;
     }
 }
 
