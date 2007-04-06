@@ -35,28 +35,36 @@ var LibxMenuItems = new Array();
 // Holds all the unique labels
 var LibxLabels = new Array();
 
+var libxMenuPrefs;
 /*
  * MenuObject class
  * Stores all info required about the menu item
  * Has the following fields:
- * this.menuitems[] -- array of menuitems with properties
- *                     Common properties include id, label, hidden, and oncommand
+ * this.menuentries[] -- each menuentry contains
+ *          type  -- catalog or openurlresolver
+ *          name   -- which catalog or openurlresolver
+ *       menuitem -- DOM menuitem it pertains to
  * this.matchf -- matching function ( generally a regular expression, that
  *                will return a non null result when a match is found )
  * this.commf -- command function to be run when the match is found.
  *               this function is passed in the menuitems as well as the
  *               result from the matchf
  */
-function LibxMenuObject ( menuitems, tmatch, comm ) {
+function LibxMenuObject ( type, tmatch, comm ) {
+    
+    this.menuentries = new Array();
+    var contMenu = document.getElementById("contentAreaContextMenu");    
+    
+    var defined = eval ( "libxMenuPrefs.contextmenu." + type + ";" );
 
-  var contMenu = document.getElementById("contentAreaContextMenu");
-  this.menuitems = new Array();
-  for ( var i = 0; i < menuitems.length; i++ ) {
-		var newMenuItem = document.createElement ( "menuitem" );
-		var menuProps = menuitems[i];
-		for ( var k in menuProps ) {
-			newMenuItem.setAttribute (k, menuProps[k]); // a['j'] == a.j 
-		}
+    
+    if ( defined == "" || defined == null )
+        return;
+       
+       
+    for ( var i = 0; i < defined.children.length; i++ ) {
+        var item = defined.children[i];
+        var newMenuItem = document.createElement ( "menuitem" );
                 /* 
                  * Redirect the "command" event to a docommand property
                  * which can be set by individual menu items
@@ -68,43 +76,46 @@ function LibxMenuObject ( menuitems, tmatch, comm ) {
                  * handler.
                  */
                 newMenuItem.setAttribute("oncommand", "this.docommand(event);");
-		this.menuitems.push ( newMenuItem );
-
-		contMenu.insertBefore ( newMenuItem, 
-			document.getElementById ( "libx-endholder" ) );
-	}
-	
-	this.matchf = tmatch;
-	this.commf = comm;
+                
+        this.menuentries[i] = { source: item.nodeName, name: item.attr.name, type: item.attr.type, menuitem: newMenuItem };    
+           contMenu.insertBefore ( newMenuItem, 
+            document.getElementById ( "libx-endholder" ) );
+    }
+    
+    
+    this.matchf = tmatch;
+    this.commf = comm;
 }
-	
-	
+    
+    
 
 /* Creates a new Context Menu Object
- * menuitems -- array of menuitems to create ( ie [{id:"libx-pmid-search", hidden:"true", oncommand:"doPmidSearch();"}] )
+ * type      -- 'type' of the menuitem 
+ *              supported types include
+ *               - 'isbn', 'issn', 'doi', 'default', 'pmid'
  *
  * label     -- used to determine order of evaluation
- * 				anything with "DEFAULT" as label will always be evaluated
+ *                 anything with "DEFAULT" as label will always be evaluated
  *
  * tmatch    -- function that takes a popuphelper ( see popuphelperutils.js for documentation ) and returns
  *              null - if no match is found and menuObject(s) should not be displayed
  *              otherwise the comm function will be called..
  *
  * comm      -- function that is called if a non-null match is found
- *				is given two paramaters 
- *					s -- the match returned by tmatch function
+ *                is given two paramaters 
+ *                    s -- the match returned by tmatch function
  *                  menuItems -- an array of the actual menu items that were created from the data given by menuitems param
  */
-function LibxContextMenuObject ( menuitems, label, tmatch, comm ) {
-    var menuObject = new LibxMenuObject ( menuitems, tmatch, comm );
+function LibxContextMenuObject ( type, label, tmatch, comm ) {
+    var menuObject = new LibxMenuObject ( type, tmatch, comm );
     
-	if ( !LibxMenuItems[label] ) // if the label hasnt been previously used, intialize it
-	{
-		LibxLabels.push ( label );
-		LibxMenuItems[label] = new Array();
-	}
-	
-	LibxMenuItems[label].push ( menuObject );
+    if ( !LibxMenuItems[label] ) // if the label hasnt been previously used, intialize it
+    {
+        LibxLabels.push ( label );
+        LibxMenuItems[label] = new Array();
+    }
+    
+    LibxMenuItems[label].push ( menuObject );
 }
 
 
@@ -113,28 +124,40 @@ function LibxContextMenuObject ( menuitems, label, tmatch, comm ) {
 // p = popuphelper
 function ContextMenuShowing( p ) {
 
-	for ( var k = 0; k < LibxLabels.length; k++ ) {
-		var CMO = LibxMenuItems[LibxLabels[k]];			// get the group of menu items!
-		var keepGoing = true;				// quit if we need to
-		
-		for (var i = 0; i < CMO.length; i++) {
+    for ( var k = 0; k < LibxLabels.length; k++ ) {
+        // get the group of menu items!
+        var CMO = LibxMenuItems[LibxLabels[k]];
+        
+        // Used to stop evaluation once a match is found            
+        var keepGoing = true;                
+        
+        for (var i = 0; i < CMO.length; i++) {
             
-			var menuObj = CMO[i].menuitems; // hidden by default
-			for ( var j = 0; j < menuObj.length; j++ ) {
-				menuObj[j].hidden = true;
-			}
-			
-			if ( keepGoing ) { // only unhide if nothing else has been unhidden
-				var m = CMO[i].matchf( p );   // if it matches
-				
-	            if ( m ) {
-		            CMO[i].commf( m, menuObj );	            	// call the function
-		            
-	        		if ( k != 0 ) { // if the label isnt default, then stop!
-		        		keepGoing = false;
-	        		}
-	            }
-        	}
-	    }
-	}		
+            var menuObj = CMO[i].menuentries;
+            // Hide everything to begin with
+            for ( var j = 0; j < menuObj.length; j++ ) {
+                menuObj[j].menuitem.setAttribute ( "hidden", true );
+            }
+            
+            // only unhide if nothing else has been unhidden
+            // and if there were objects defined for this category
+            if ( keepGoing && menuObj.length > 0 ) { 
+                
+                // Pass in popuphelper to match function
+                var m = CMO[i].matchf( p );   
+                
+                // Match is considered true if matchf returns a non-null value
+                if ( m ) {
+                    
+                    // Call the command function that will unhide/set labels/etc
+                    CMO[i].commf( m, menuObj );                    
+                    
+                    // Stop once a match is found & label != DEFAULT
+                    if ( k != 0 ) { 
+                        keepGoing = false;
+                    }
+                }
+            }
+        }
+    }        
 }

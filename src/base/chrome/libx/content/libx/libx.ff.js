@@ -251,9 +251,11 @@ libxEnv.initializeGUI = function () {
     for (var option = 0; option < libxSearchOptions.length; option++ )
     {
         var mitem = document.createElement("menuitem");
-        libxEnv.xmlDoc.copyAttributes ( libxSearchOptions[option], mitem );
+        var opt = libxSearchOptions[option];
+        libxEnv.xmlDoc.copyAttributes ( opt, mitem );
         mitem.setAttribute('oncommand', 'setFieldType(this);');
         libxDropdownOptions[mitem.value] = mitem;
+        libxConfig.searchOptions[mitem.value] = mitem.label;
     }
     
     var scholarbutton = document.getElementById("libx-magic-button");

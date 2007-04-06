@@ -153,6 +153,7 @@ OpenURL.prototype = {
 // Initialize OpenURL support if so configured
 function libxInitializeOpenURL() 
 {
+    libxConfig.resolvers = new Array();
     var resolvers = libxEnv.xpath.findNodes ( libxEnv.xmlDoc.xml, "/edition/openurl/*" );
     libxEnv.openUrlResolvers = new Object();
     for ( var i = 0; i < resolvers.length; i++ ) {
@@ -179,8 +180,8 @@ function libxInitializeOpenURL()
             libxEnv.openUrlResolvers[i] = null;
             return;
         }
-    
         libxEnv.xmlDoc.copyAttributes(pnode, libxEnv.openUrlResolvers[i]);
+        libxConfig.resolvers[libxEnv.openUrlResolvers[i].name] = libxEnv.openUrlResolvers[i];
     }
     libxEnv.openUrlResolver = libxEnv.openUrlResolvers[0];
 }
@@ -213,10 +214,10 @@ ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
 
     // super.makeOpenURLFromFields()
     var url = OpenURL.prototype.makeOpenURLSearch.call(this, fields);   
-	if (this.haveTitleOrIssn != true) {
+	/*if (this.haveTitleOrIssn != true) {
 		alert(libxGetProperty("aftitleissn.alert", [this.name]));
 		return null;
-	}
+	}*/
 
 	return url;
 }

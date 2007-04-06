@@ -30,46 +30,49 @@
  * Anything declared with a label of "DEFAULT" will always be checked to be displayed
  * 
  * Anything declared with any other label with only be displayed if something that was declared
- * 		before it with the same label is not displayed 
- *			( ie, if ISBN is displayed, then ISSN, PMID, and Title/Author/Keyword 
- *			  searches are not checked, however the DOI check is always run )
- *		
+ *         before it with the same label is not displayed 
+ *            ( ie, if ISBN is displayed, then ISSN, PMID, and Title/Author/Keyword 
+ *              searches are not checked, however the DOI check is always run )
+ *        
  *
- *	Currently the following Context MenuObjects are declared:
+ *    Currently the following Context MenuObjects are declared:
  *
- *	DEFAULT:
- *		DOISearch -- Search for DOIs is always done
- *      
+ *    DEFAULT:
+ *        DOISearch -- Search for DOIs is always done
+ *        Proxy     -- Reload/follow link options      
  *
- *	Libx:
- *		1. ISBN/XISBN search
- *		2. ISSN search
- *		3. PMID search
- *		4. Title/Author/Keyword search
- *		
+ *    Libx:
+ *        1. ISBN/XISBN search
+ *        2. ISSN search
+ *        3. PMID search
+ *        4. Title/Author/Keyword/Scholar search
+ *        
  * ************************ Please Note ****************************
  *  The order that menu objects are created affects the order that they appear on the context menu
- *  as well as the order they are evaluated in at this time! So be careful as to where you declare new MenuObjects
- *		- Currently all menu objects are inserted right before the EZ-Proxy object, which appears at the bottem
- *		  of the libx context menu. 		
+ *  as well as the order they are evaluated in at this time.
+ *        - Currently all menu objects are inserted right before the libx-end holder object, 
+ *          which is defined in libx.xul      
  */
 function libxInitializeMenuObjects() 
 {
+
+    libxMenuPrefs = new LibxXMLPreferences ( "chrome://libx/content/defaultprefs.xml" );
+    
     // trim a string
     function trim(s) 
     {
         return s.replace(/^\s*/, "").replace(/\s*$/, "");
     }
-	
-	/********************** Initilizes the Default label ********************************/
-	LibxLabels.push ( "DEFAULT" );
-	LibxMenuItems["DEFAULT"] = new Array();
-	/*********************** Do Not Remove/Modify ***************************************/
+    
+    /********************** Initilizes the Default label ********************************/
+    LibxLabels.push ( "DEFAULT" );
+    LibxMenuItems["DEFAULT"] = new Array();
+    /*********************** Do Not Remove/Modify ***************************************/
 
     // apply a heuristic to transform an author search.
     function transformAuthorHeuristics(sterm) {
         var hasComma = sterm.match(/,/);
-	
+    
         // split author into names, turns "arthur conan doyle" into ["arthur", "conan", "doyle"]
         var names = sterm.split(/\s+/);
         // switch author's first and last name unless there's a comma or the last name is an initial
@@ -80,14 +83,45 @@ function libxInitializeMenuObjects()
         return sterm;
     }
 
-    function searchBy(stype, sterm) {
-        libraryCatalog.search([{searchType: stype, searchTerms: sterm}]);
+    
+    /*
+     * Converts a MenuObject into string
+     * used for debugging
+     */
+    function menuObjectToString( menuobj ) {
+        return "source: " + menuobj.source + " name: " + menuobj.name;
+    }
+    
+    /*
+     * Initializes <catalog> and <openurl> menuobjects
+     */
+    function initMenuObject ( obj, text ) {
+        
+        var mitem = obj.menuitem;
+        var name = obj.name;
+        mitem.fields = [{ searchType: obj.type, searchTerms: text }];
+        if ( obj.source == "catalog" ) {
+            mitem.searcher = libxConfig.catalogs[name];    
+        }   
+        else if ( obj.source == "openurl" ) {
+            mitem.searcher = libxConfig.resolvers[name];
+        }         
+        if ( mitem.searcher ) {
+            libxEnv.setObjectVisible(mitem, true);
+            mitem.setAttribute ( "label",
+                "Search " + name + " for " + libxConfig.searchOptions[obj.type] + " \"" + text + "\"" );
+            mitem.docommand = function () {
+                                  this.searcher.search ( this.fields ); 
+                              };
+        }
+        else {
+            libxEnv.writeLog ( "Error initializing menuitem: { " + menuObjectToString( obj ) + " }" );
+        }
     }
 
-	/*********************** ISBN/XISBN options *****************************************/
-	
-	LibxContextMenuObject ( [ { id:"libx-isbn-search", hidden:"true" }, 
-                              { id:"libx-xisbn-search", hidden:"true" } ], 
+    /*********************** ISBN/XISBN options *****************************************/
+                  
+    LibxContextMenuObject ( "isbn", 
                             "libx",
                             function(p) { 
                                 if (p.isTextSelected()) 
@@ -97,28 +131,39 @@ function libxInitializeMenuObjects()
                             },
                             ISBNAction );
 
-	function ISBNAction ( pureISN, menuObjects ) {
-		menuObjects[0].setAttribute ( "label", libxGetProperty("isbnsearch.label", [libraryCatalog.name, pureISN]) );
-		menuObjects[1].setAttribute ( "label", libxGetProperty("xisbnsearch.label", [pureISN]) );
-
-        libxEnv.setObjectVisible(menuObjects[0], true);
-        menuObjects[0].docommand = function () {
-            searchBy('i', pureISN);
-        };
-
-		if (libraryCatalog.xisbn.opacid) {   // only true if xISBN is supported for this catalog
-            libxEnv.setObjectVisible(menuObjects[1], true);
-            menuObjects[1].docommand = function () {
-		    	libxEnv.openSearchWindow(libraryCatalog.makeXISBNRequest(pureISN));
-            };
-		}
-	}
-	
-	/*********************************** ISSN options *******************************************/
-	var openurlissnsearch = [{ id:"libx-issn-search", hidden:"true" },
-                             { id:"libx-openurl-issn-search", hidden:"true" }];
-	
-	LibxContextMenuObject ( openurlissnsearch, "libx",
+    /*
+     * Function called if a ISBN is selected
+     * Supports catalog and openurl sources
+     * Searching is done via .search using 'i' as searchtype, unless
+     * searchtype is xisbn, where makeXISBNRequest is called
+     */
+    function ISBNAction ( pureISN, menuObjects ) {
+    
+        for ( var i = 0; i < menuObjects.length; i++ ) {
+            var mitem = menuObjects[i].menuitem;
+            
+            var name = menuObjects[i].name;
+            initMenuObject ( menuObjects[i], pureISN );
+            
+            // xisbn requires special case
+            // will overwrite values as needed from after initMenuObject is run
+            if ( menuObjects[i].type == "xisbn" ) {
+                mitem.searcher = libxConfig.catalogs[name];
+                mitem.setAttribute ( "label", 
+                    libxGetProperty("xisbnsearch.label", [pureISN]) );
+                mitem.docommand = function () {
+                        libxEnv.openSearchWindow( 
+                            this.searcher.makeXISBNRequest( pureISN  )); 
+                    };
+            }              
+                   
+        }    
+    }
+    
+    /*********************************** ISSN options *******************************************/
+    
+    LibxContextMenuObject ( "issn", 
+                            "libx",
                             function(p) { 
                                 if (p.isTextSelected()) 
                                     return isISSN(p.getSelection()); 
@@ -126,69 +171,56 @@ function libxInitializeMenuObjects()
                                     return null; 
                             },
                             ISSNAction );
-	
-	function ISSNAction ( pureISN, menuObjects ) {
-		var issnsearch = menuObjects[0];
-		issnsearch.setAttribute ( "label", libxGetProperty("issnsearch.label", [libraryCatalog.name, pureISN]) );
-		libxEnv.setObjectVisible(issnsearch, true);
-        issnsearch.docommand = function () {
-            searchBy('i', pureISN);
-        };
-		if (libxEnv.openUrlResolver) {
-		    menuObjects[1].setAttribute ( "hidden", false );
-		    menuObjects[1].setAttribute ( "label", libxGetProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, pureISN] ) );
-            menuObjects[1].docommand = function () {
-                libxEnv.openSearchWindow(libxEnv.openUrlResolver.makeOpenURLForISSN(pureISN));
-            };
-		}		
-	}
-	
-	/********************************* PMID Options **********************************************/
-	var pmidsearch = [{id:"libx-pmid-search", hidden:"true" }];
-	
-	LibxContextMenuObject ( pmidsearch, "libx",
-		function(p) { 
+    
+    /*
+     * Function called if an ISSN is selected
+     * Supports <catalog> and <openurl>
+     * Searches via .search using searchtype 'i'
+     */
+    function ISSNAction ( pureISN, menuObjects ) {
+    
+        for ( var i = 0; i < menuObjects.length; i++ ) {
+            initMenuObject ( menuObjects[i], pureISN );
+        }
+    }
+    
+    /********************************* PMID Options **********************************************/
+    
+    LibxContextMenuObject ( "pmid", "libx",
+        function(p) { 
             if (p.isTextSelected()) 
                 return isPMID(p.getSelection()); 
             else 
                 return null; 
         },
-		PMIDAction );
-	
-	function PMIDAction ( pmid, menuObjects ) {
-		if (libxEnv.openUrlResolver) {
-			menuObjects[0].setAttribute ( "label", libxGetProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid]) );
-			libxEnv.setObjectVisible (menuObjects[0], true);
-			menuObjects[0].docommand = function () {
-                libxEnv.openSearchWindow(libxEnv.openUrlResolver.makeOpenURLForPMID(pmid));
-            };
-		}
-	}
-	
-	// does this selection contain a pubmed id?
-	function isPMID(s) {
-		if ( libxEnv.openUrlResolver ) {
-			var m = s.match(/PMID[^\d]*(\d+)/i);
-		    if (m != null) {
-		        return m[1];
-		    }
-		    m = s.match(/PubMed\s*ID[^\d]*(\d+)/i);
-		    if (m != null) {
-		        return m[1];
-		    }
-		}
-	    return null;
-	}
-	
-	/*********************************** Author/Title/Keyword search *******************************************/
-	
-	var libxMenuItems = [{id:"libx-keyword-search", label:""},
-                         {id:"libx-title-search", label:""},
-                         {id:"libx-author-search", label:""},
-                         {id:"libx-magic-search", hidden:"true" }];
-	 	
-	LibxContextMenuObject ( libxMenuItems, "libx", isTextSelected, DEFAULTAction );
-	
+        PMIDAction );
+    
+    function PMIDAction ( pmid, menuObjects ) {
+        for ( var i = 0; i < menuObjects.length; i++ ) {
+            initMenuObject ( menuObjects[i], pmid );
+        }
+    }
+    
+    // does this selection contain a pubmed id?
+    function isPMID(s) {
+        if ( libxEnv.openUrlResolver ) {
+            var m = s.match(/PMID[^\d]*(\d+)/i);
+            if (m != null) {
+                return m[1];
+            }
+            m = s.match(/PubMed\s*ID[^\d]*(\d+)/i);
+            if (m != null) {
+                return m[1];
+            }
+        }
+        return null;
+    }
+    
+    /*********************************** Author/Title/Keyword search *******************************************/
+
+         
+    LibxContextMenuObject ( "default", "libx", isTextSelected, DEFAULTAction );
+    
     function isTextSelected ( p ) {
         var sterm = p.getSelection();
         if ( !sterm )
@@ -200,81 +232,71 @@ function libxInitializeMenuObjects()
         // use :alnum: to avoid dropping diacritics and other Unicode alphanums
         // as per Ted Olson
         return sterm.replace(/[^[:alnum:]_&:\222\'\-\s/g, " ").replace(/\s+/g, " ");
-	}
-	
-	// don't show keyword, title, author if ISSN/ISBN or PMID was recognized
-	function DEFAULTAction ( p, menuObjects ) 
-	{
-		p = trim(p);
+    }
+    
+    /*
+     * Default action that is called if no ISBN/ISSN/PMID was recognized
+     * Supports <catalog>, <openurl>, and <scholar> tags
+     * <scholar> will call magicsearch
+     */
+    function DEFAULTAction ( p, menuObjects ) 
+    {
+        p = trim(p);
         var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
-		
-		menuObjects[0].setAttribute ( "label", libxGetProperty("contextmenu.keywordsearch.label", [libraryCatalog.name, displayText]) );
-        libxEnv.setObjectVisible(menuObjects[0], true);
-        menuObjects[0].docommand = function () {
-            searchBy('Y', p);
-        };
 
-        menuObjects[1].setAttribute ( "label", libxGetProperty("contextmenu.titlesearch.label", [libraryCatalog.name, displayText]) );
-        libxEnv.setObjectVisible(menuObjects[1], true);
-        menuObjects[1].docommand = function () {
-            searchBy('t', p);
-        };
+        for ( var i = 0; i < menuObjects.length; i++ ) {
 
-        var ap = transformAuthorHeuristics(p);
-        var adisplayText = ap.length > 25 ? ap.substr ( 0, 25 ) + "..." : ap;
-        menuObjects[2].setAttribute ( "label", libxGetProperty("contextmenu.authorsearch.label", [libraryCatalog.name, adisplayText]) );
-        libxEnv.setObjectVisible(menuObjects[2], true);
-        menuObjects[2].docommand = function () {
-            searchBy('a', ap);
-        };
-        
-        libxEnv.setObjectVisible(menuObjects[3], true);
-		menuObjects[3].setAttribute ( "label", libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
-        menuObjects[3].docommand = function () {
-            magicSearch(p);
-        };
+            initMenuObject ( menuObjects[i], displayText );
+            
+            var mitem = menuObjects[i].menuitem;
+
+            if ( menuObjects[i].source ==  "scholar" ) {
+                    mitem.docommand = function () { magicSearch (p); };
+                    mitem.setAttribute ( "label", libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
+                    libxEnv.setObjectVisible(mitem, true);
+            }    
+        }    
     }
     
     /*********************************** DOI options ( always checked ) *******************************************/
-	var doisearch = [{id:"libx-doi-search", hidden:"true"}];
-	LibxContextMenuObject ( doisearch, "DEFAULT", isDOIF, DOIAction );
-	
-	function isDOIF ( p ) {
-		if (!libxEnv.openUrlResolver) {
+
+    LibxContextMenuObject ( "doi", "DEFAULT", isDOIF, DOIAction );
+    
+    function isDOIF ( p ) {
+        if (!libxEnv.openUrlResolver) {
             return null;
         }
-		if (p.isOverLink()) {
+        if (p.isOverLink()) {
             //does href of hyperlink over which user right-clicked contain a doi?
-			return isDOI(decodeURI(p.getNode().href));
-		} else 
+            return isDOI(decodeURI(p.getNode().href));
+        } else 
         if (p.isTextSelected()) {
-			return isDOI(p.getSelection());
-		}		
+            return isDOI(p.getSelection());
+        }        
         return null;
-	}
-	
-	// DOI displays in addition to keyword, title, author
-	function DOIAction ( doi, menuObjects ) {
-        menuObjects[0].setAttribute ( "label", libxGetProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi]) );
-        libxEnv.setObjectVisible(menuObjects[0], true);
-        menuObjects[0].docommand = function () {
-            libxEnv.openSearchWindow(libxEnv.openUrlResolver.makeOpenURLForDOI(doi));
-        };
-	}	
-	
-	/********************************* Proxy Options **********************************************/
-	var libxProxyObj = [{id:"libx-proxify"}];
-	
-	LibxContextMenuObject ( libxProxyObj, "Libx-Proxy", isProxyActive, showProxyMenuItems );
-	
+    }
+    
+    // DOI displays in addition to keyword, title, author
+    function DOIAction ( doi, menuObjects ) {
+    
+        for ( var i = 0; i < menuObjects.length; i++ ) {
+            initMenuObject ( menuObjects[i], doi );
+        }
+    }    
+    
+    /********************************* Proxy Options **********************************************/
+
+    
+    LibxContextMenuObject ( "proxy", "DEFAULT", isProxyActive, showProxyMenuItems );
+    
     // match function: display always, if a proxy is defined.
     // p is of type PopupHelper.
-	function isProxyActive( p )
-	{
-		if (libxProxy)
-			return p;
-	    else
-	    	return null;
+    function isProxyActive( p )
+    {
+        if (libxProxy)
+            return p;
+        else
+            return null;
     }
     
     /*
@@ -294,7 +316,7 @@ function libxInitializeMenuObjects()
     // activate proxify link whenever user right-clicked over hyperlink
     function showProxyMenuItems( p, menuObjects )
     {
-        function showLabel(which, menuitem, url, proxy) {
+          function showLabel(which, menuitem, url, proxy) {
             var p = url;
             var m = url.match(/http[s]?:\/\/([^\/:]+)(:(\d+))?\/(.*)$/);
             if (m) {
@@ -308,7 +330,7 @@ function libxInitializeMenuObjects()
         // currently, there's only 1 proxy; but there will be more.
         var proxy = libxProxy;
         for (var i = 0; i < menuObjects.length; i++) {
-            var m = menuObjects[i];
+            var m = menuObjects[i].menuitem;
             m.setAttribute ( "hidden", false );
 
             var urltocheck;
@@ -332,7 +354,7 @@ function libxInitializeMenuObjects()
             }
             m.docommand = function () { doProxify(p, proxy); };
         }
-	}
+    }
 }
 
 // vim: ts=4 sw=4

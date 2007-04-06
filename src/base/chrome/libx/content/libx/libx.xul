@@ -37,6 +37,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
+    <script type="application/x-javascript" src="chrome://libx/content/io.js" />
     <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	
 	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
@@ -63,6 +64,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/openURLCatalog.js" />

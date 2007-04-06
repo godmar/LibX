@@ -62,6 +62,7 @@ sub getOpenURL {
     my ($openurl0, $type) = @_;
     my $o = $pref->createElement("openurl");
     $o->setAttribute('name', $openurl0->getAttribute('name'));
+    $o->setAttribute('type', $type);
     return $o;
 }
 
@@ -82,15 +83,15 @@ $prefcmenu->appendChild($isbn);
 
 my $issn = $pref->createElement('issn');
 $issn->appendChild(getCatalog($cat0, 'i'));
-$issn->appendChild(getOpenURL($openurl0));
+$issn->appendChild(getOpenURL($openurl0, 'i'));
 $prefcmenu->appendChild($issn);
 
 my $doi = $pref->createElement('doi');
-$doi->appendChild(getOpenURL($openurl0));
+$doi->appendChild(getOpenURL($openurl0, 'doi'));
 $prefcmenu->appendChild($doi);
 
 my $pmid = $pref->createElement('pmid');
-$pmid->appendChild(getOpenURL($openurl0));
+$pmid->appendChild(getOpenURL($openurl0, 'pmid'));
 $prefcmenu->appendChild($pmid);
 
 my $default = $pref->createElement('default');

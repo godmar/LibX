@@ -29,6 +29,9 @@
 var searchCatalogs;     // Array of search catalogs for drop-down search menu
 var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an example
                         // searchCatalogs[0] is libraryCatalog
+                        
+var libxConfig = new Object();   // Global variable to hold configuration items
+
 //var openUrlResolver;    // 
 var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
 
@@ -52,6 +55,7 @@ var libxEnv = new Object(); /* Global libx object */
  * init -- initializes browser-specific stuff [neb]
  * openURLResolver -- OpenURL resolver or null if no OpenURL support, see openurl.js
  */
+
 
 /*
  * Initializes a catalog from an XML Node
@@ -140,11 +144,14 @@ function libxInitializeCatalog(doc, node)
 function libxInitializeCatalogs() 
 {
     searchCatalogs = new Array(); 
+    libxConfig.catalogs = new Array();
 
     function addCatalog( node, catnumber ) {
         try {
             var cat = libxInitializeCatalog( libxEnv.xmlDoc, node );
             searchCatalogs.push(cat);
+            libxConfig.catalogs[cat.name] = cat;
+            libxEnv.writeLog ( "cat.name is " + cat.name );
         } catch (e) {
             libxEnv.writeLog("libxInitializeCatalog failed: " + e.message);
         }
@@ -184,16 +191,32 @@ function libxInit()
       xpath: 'XPath'
     };
 
+    libxInitSearchOptions();
     libxEnv.initializeGUI();
     libxInitializeOpenURL();
     libxInitializeCatalogs();
     libxProxyInit();
     libxEnv.initializeContextMenu();
-    
+
     libxEnv.init();
 }
 
+function libxInitSearchOptions() {
 
+    libxConfig.searchOptions = new Array();
+    libxConfig.searchOptions["Y"]    = "Keyword";
+    libxConfig.searchOptions["t"]    = "Title";
+    libxConfig.searchOptions["jt"]   = "Journal Title";
+    libxConfig.searchOptions["at"]   = "Article Title"; 
+    libxConfig.searchOptions["a"]    = "Author"; 
+    libxConfig.searchOptions["d"]    = "Subject";
+    libxConfig.searchOptions["m"]    = "Genre"; 
+    libxConfig.searchOptions["i"]    = "ISBN/ISSN"; 
+    libxConfig.searchOptions["c"]    = "Call Number"; 
+    libxConfig.searchOptions["j"]    = "Dewey Call Number"; 
+    libxConfig.searchOptions["doi"]  = "DOI"; 
+    libxConfig.searchOptions["pmid"] = "PubMed ID"; 
+}
 
 //this function is called right before the right click context menu is shown
 //in this function we must adjust the hidden attributes of the context menu 

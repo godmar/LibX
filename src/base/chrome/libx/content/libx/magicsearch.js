@@ -267,7 +267,7 @@ function magicSearch(data, inpub, justmakeurl)
                         libxEnv.writeLog('OpenURL: ' + vtu, libxEnv.logTypes.magic);
                     } else {
                         vtu = decodeURIComponent(vtu);
-                        libxEnv.WriteLog('DirectURL: ' + vtu, libxEnv.logTypes.magic);
+                        libxEnv.writeLog('DirectURL: ' + vtu, libxEnv.logTypes.magic);
                     }
                     if (display) {
                         libxEnv.openSearchWindow(vtu, true);
