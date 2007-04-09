@@ -324,9 +324,9 @@ the cue to work.)
 <ul>
 <li><a target="_new" href="http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=006073132X&itm=1">
         Barnes &amp; Noble</a> (8/18/06),
-<li><a target="_new" href="http://www.amazon.com/gp/product/006073132X">Amazon</a> (8/18/06),
-<li><a target="_new" href="http://www.amazon.co.uk/gp/product/1561840718">Amazon (UK)</a> (8/18/06),
-<li><a target="_new" href="http://www.amazon.ca/gp/product/1550411993">Amazon (CA)</a> (8/16/06),
+<li><a target="_new" href="http://www.amazon.com/gp/product/006073132X">Amazon</a> (revised 4/4/07),
+<li><a target="_new" href="http://www.amazon.co.uk/gp/product/1561840718">Amazon (UK)</a> (revised 4/4/07),
+<li><a target="_new" href="http://www.amazon.ca/gp/product/1550411993">Amazon (CA)</a> (revised 4/4/07),
 <li><a target="_new" href="http://www.booklistonline.com/default.aspx?page=show_product&pid=1611275">Booklistonline.com</a>,
 <li><a target="_new" href="http://www.nytimes.com/2005/05/15/books/review/15HOLTL.html">NY Times Book Review (1)</a>,
 <li><a target="_new" href="http://www.nytimes.com/2006/04/27/books/27masl.html">NY Times Book Review (2) (nytimes.com requires a login)</a>,
