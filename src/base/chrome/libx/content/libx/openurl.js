@@ -65,12 +65,12 @@ OpenURL.prototype = {
 			    break;
 		    case 'i':
 		    case 'is':
-                var pureISN;
-			    if (pureISN = isISSN(fields[i].searchTerms)) {
+                var pureISN = isISSN(fields[i].searchTerms);
+			    if (pureISN != null) {
 				    url += "&issn=" + pureISN;
 			    } else {
 				    alert(libxGetProperty("openurlissn.alert", [fields[i].searchTerms]));
-				    return;
+				    return null;
 			    }
 			    this.haveTitleOrIssn = true;
 			    break;
