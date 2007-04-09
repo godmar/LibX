@@ -2,6 +2,20 @@
 
 my $edition = $ARGV[0];
 
+print <<EOF;
+
+We are no longer using createextension.pl.
+
+Instead, do this:
+
+./c2x.pl $edition > $edition/config.xml
+./xcreateextension.pl $edition
+
+Exiting...
+
+EOF
+exit;
+
 if (!defined($edition) || ! -d $edition) {
     die "Usage: $0 edition\n";
 }
