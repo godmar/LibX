@@ -168,6 +168,7 @@ while (1) {
     &addproperty($e, $config{'$' . $catprefix . 'horizon.subject'}, 'subject');
     &addproperty($e, $config{'$' . $catprefix . 'horizon.title'}, 'title');
     &addproperty($e, $config{'$' . $catprefix . 'horizon.journaltitle'}, 'journaltitle');
+    &addproperty($e, $config{'$' . $catprefix . 'horizon.profile'}, 'profile');
 
     &addproperty($e, $config{'$' . $catprefix . 'sirsi.sort'}, 'sort');
     &addproperty($e, $config{'$' . $catprefix . 'sirsi.path'}, 'path');

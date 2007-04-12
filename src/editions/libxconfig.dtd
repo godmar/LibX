@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.13 2007/03/31 22:10:13 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.14 2007/04/12 13:08:41 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -147,6 +147,7 @@
         journaltitle    CDATA #IMPLIED
         keyword         CDATA #IMPLIED
         subject         CDATA #IMPLIED
+        profile         CDATA #IMPLIED
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
