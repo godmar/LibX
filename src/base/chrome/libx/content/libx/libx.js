@@ -46,13 +46,13 @@ var libxEnv = new Object(); /* Global libx object */
  * xmlDoc -- return value of getConfigXML();
  * writeLog -- write to whatever log the current platform uses
  * openSearchWindow -- respects config options on how to open a url
- * SelectCatalog -- switch current search type [neb]
- * initCatalogGUI -- set up catalog list [neb]
- * initializeGUI -- all GUI initialization code (=XUL in ff) moved here [neb]
- * initializeContextMenu -- right-click popup init code [neb]
- * addEventListener -- JavaScript event system [neb]
+ * SelectCatalog -- switch current search type
+ * initCatalogGUI -- set up catalog list
+ * initializeGUI -- all GUI initialization code (=XUL in ff) moved here
+ * initializeContextMenu -- right-click popup init code
+ * addEventListener -- JavaScript event system
  * options -- previously under libxConfig.options
- * init -- initializes browser-specific stuff [neb]
+ * init -- initializes browser-specific stuff
  * openURLResolver -- OpenURL resolver or null if no OpenURL support, see openurl.js
  */
 
@@ -159,6 +159,7 @@ function libxInitializeCatalogs()
 
     /* Build all catalogs into searchCatalogs */
     var xmlCatalogs = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
+    libxEnv.writeLog("Found " + xmlCatalogs.length + " catalogs.");
     var addcatno;
     for ( addcatno = 0; 
          (addcatno < xmlCatalogs.length ); 

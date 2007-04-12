@@ -52,11 +52,13 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     }
     switch (what) {
     case "libx.sametab": //open in current window
-        document.open(url2, '_self');
+        window.open(url2, '_self');
         break;
     case "libx.newtabswitch": //open in new window, focus it
-        var newWindow = document.open(url2, '_blank');
-        newWindow.focus();
+        var newWindow = window.open(url2, '_blank');
+        if(newWindow) {
+            newWindow.focus();
+        }
         //libxInterface.openNewWindow(url, true);
         break;
     case "libx.newwindow": //open in new window, don't explicitly focus it

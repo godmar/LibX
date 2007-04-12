@@ -92,6 +92,7 @@ libxCatalog.prototype = {
         }
         for (var i = 0; i < fields.length; i++) {
             if (!this.supportsSearchType(fields[i].searchType)) {
+                libxEnv.writeLog(this.name + " does not support search type " + fields[i].searchType);
                 return;
             }
             libxAdjustISNSearchType(fields[i]);
