@@ -77,7 +77,7 @@ function doAmazon(doc, match) {
 
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
-new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/, function (doc, match) {
+new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (doc, match) {
     var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
     
     var origTitle = libxEnv.xpath.findSingle(doc, "//h1[@id='title']");
