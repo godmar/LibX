@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.14 2007/04/12 13:08:41 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.15 2007/04/30 18:50:56 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -164,7 +164,7 @@
 
 <!ELEMENT resolver EMPTY>
 <!ATTLIST resolver
-        type           (sersol|sfx|webbridge|generic) #REQUIRED
+        type           (sersol|sfx|webbridge|generic) 'generic'
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
         sid            CDATA #REQUIRED
