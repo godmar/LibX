@@ -219,7 +219,7 @@ function libxInitializeMenuObjects()
     /*********************************** Author/Title/Keyword search *******************************************/
 
          
-    LibxContextMenuObject ( "default", "libx", isTextSelected, DEFAULTAction );
+    LibxContextMenuObject ( "general", "libx", isTextSelected, DEFAULTAction );
     
     function isTextSelected ( p ) {
         var sterm = p.getSelection();

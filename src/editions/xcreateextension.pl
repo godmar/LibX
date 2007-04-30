@@ -94,7 +94,7 @@ my $pmid = $pref->createElement('pmid');
 $pmid->appendChild(getOpenURL($openurl0, 'pmid'));
 $prefcmenu->appendChild($pmid);
 
-my $default = $pref->createElement('default');
+my $default = $pref->createElement('general');
 $default->appendChild(getCatalog($cat0, 'Y'));
 $default->appendChild(getCatalog($cat0, 't'));
 $default->appendChild(getCatalog($cat0, 'a'));
