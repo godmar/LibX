@@ -154,6 +154,7 @@ OpenURL.prototype = {
 function libxInitializeOpenURL() 
 {
     libxConfig.resolvers = new Array();
+    libxConfig.numResolvers = 0;
     var resolvers = libxEnv.xpath.findNodes ( libxEnv.xmlDoc.xml, "/edition/openurl/*" );
     libxEnv.openUrlResolvers = new Object();
     for ( var i = 0; i < resolvers.length; i++ ) {
@@ -180,6 +181,7 @@ function libxInitializeOpenURL()
             libxEnv.openUrlResolvers[i] = null;
             return;
         }
+        libxConfig.numResolvers++;
         libxEnv.xmlDoc.copyAttributes(pnode, libxEnv.openUrlResolvers[i]);
         libxConfig.resolvers[libxEnv.openUrlResolvers[i].name] = libxEnv.openUrlResolvers[i];
     }

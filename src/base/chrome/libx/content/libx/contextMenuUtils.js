@@ -35,7 +35,16 @@ var LibxMenuItems = new Array();
 // Holds all the unique labels
 var LibxLabels = new Array();
 
+// Holds all nodes put in the context menu
+// Used for quick removal
+var LibxNodes = new Array();
+
+// Holds preferences for Context Menu
 var libxMenuPrefs;
+
+// Used to prevent loading menu multiple times
+var loaded = false;
+
 /*
  * MenuObject class
  * Stores all info required about the menu item
@@ -76,7 +85,7 @@ function LibxMenuObject ( type, tmatch, comm ) {
                  * handler.
                  */
                 newMenuItem.setAttribute("oncommand", "this.docommand(event);");
-                
+        LibxNodes.push ( newMenuItem );
         this.menuentries[i] = { source: item.nodeName, name: item.attr.name, type: item.attr.type, menuitem: newMenuItem };    
            contMenu.insertBefore ( newMenuItem, 
             document.getElementById ( "libx-endholder" ) );
@@ -118,12 +127,29 @@ function LibxContextMenuObject ( type, label, tmatch, comm ) {
     LibxMenuItems[label].push ( menuObject );
 }
 
+function libxContextMenuHidden (e) {
+    if (e.target.id != 'contentAreaContextMenu') 
+        return;
+        
+    var par = document.getElementById ( 'contentAreaContextMenu');
+    for ( var i = 0; i < LibxNodes.length; i++ ) {
+        var node = LibxNodes[i];
+        par.removeChild ( node );    
+    }
+    LibxNodes = new Array();
+    loaded = false;
+}
 
 
 // Function that is run if there is text selected and context menu is requested
 // p = popuphelper
 function ContextMenuShowing( p ) {
-
+    
+    if ( loaded )
+        return;
+    loaded = true;
+    libxInitializeMenuObjects();
+    
     for ( var k = 0; k < LibxLabels.length; k++ ) {
         // get the group of menu items!
         var CMO = LibxMenuItems[LibxLabels[k]];
@@ -152,7 +178,7 @@ function ContextMenuShowing( p ) {
                     // Call the command function that will unhide/set labels/etc
                     CMO[i].commf( m, menuObj );                    
                     
-                    // Stop once a match is found & label != DEFAULT
+                    // Stop once a match is found & label != allOn
                     if ( k != 0 ) { 
                         keepGoing = false;
                     }

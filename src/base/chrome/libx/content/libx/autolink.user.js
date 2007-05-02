@@ -405,7 +405,8 @@ function genLink(filter, match)
 
 function libxInitAL()
 {
-   init(false);
+    if ( libxEnv.getBoolPref ( 'libx.autolink', true ) )
+        init(false);
 }
 
 if (rightaway)

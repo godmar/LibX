@@ -24,6 +24,10 @@
  * Some utilities to help with xpath expressions
  */
 
+if ( libxEnv == null )
+    libxEnv = new Object();
+    
+    
 libxEnv.xpath = new Object();
 
 

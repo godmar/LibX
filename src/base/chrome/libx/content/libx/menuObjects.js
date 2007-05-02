@@ -55,8 +55,13 @@
  */
 function libxInitializeMenuObjects() 
 {
+    LibxMenuItems = new Array();
 
-    libxMenuPrefs = new LibxXMLPreferences ( "chrome://libx/content/defaultprefs.xml" );
+    LibxLabels = new Array();
+    
+    // Use user defined preferences if available
+    libxMenuPrefs = new LibxXMLPreferences ( 
+        libxEnv.getLocalXML ( userPrefs ) ? userPrefs : defaultPrefs );
     
     // trim a string
     function trim(s) 
@@ -65,8 +70,8 @@ function libxInitializeMenuObjects()
     }
     
     /********************** Initilizes the Default label ********************************/
-    LibxLabels.push ( "DEFAULT" );
-    LibxMenuItems["DEFAULT"] = new Array();
+    LibxLabels.push ( "allOn" );
+    LibxMenuItems["allOn"] = new Array();
     /*********************** Do Not Remove/Modify ***************************************/
 
     // apply a heuristic to transform an author search.
@@ -216,6 +221,32 @@ function libxInitializeMenuObjects()
         return null;
     }
     
+    /*********************************** DOI options ( always checked ) *******************************************/
+
+    LibxContextMenuObject ( "doi", "libx", isDOIF, DOIAction );
+    
+    function isDOIF ( p ) {
+        if (!libxEnv.openUrlResolver) {
+            return null;
+        }
+        if (p.isOverLink()) {
+            //does href of hyperlink over which user right-clicked contain a doi?
+            return isDOI(decodeURI(p.getNode().href));
+        } else 
+        if (p.isTextSelected()) {
+            return isDOI(p.getSelection());
+        }        
+        return null;
+    }
+    
+    // DOI displays in addition to keyword, title, author
+    function DOIAction ( doi, menuObjects ) {
+    
+        for ( var i = 0; i < menuObjects.length; i++ ) {
+            initMenuObject ( menuObjects[i], doi );
+        }
+    }     
+    
     /*********************************** Author/Title/Keyword search *******************************************/
 
          
@@ -233,6 +264,7 @@ function libxInitializeMenuObjects()
         // as per Ted Olson
         return sterm.replace(/[^[:alnum:]_&:\222\'\-\s/g, " ").replace(/\s+/g, " ");
     }
+    
     
     /*
      * Default action that is called if no ISBN/ISSN/PMID was recognized
@@ -257,37 +289,12 @@ function libxInitializeMenuObjects()
             }    
         }    
     }
-    
-    /*********************************** DOI options ( always checked ) *******************************************/
-
-    LibxContextMenuObject ( "doi", "DEFAULT", isDOIF, DOIAction );
-    
-    function isDOIF ( p ) {
-        if (!libxEnv.openUrlResolver) {
-            return null;
-        }
-        if (p.isOverLink()) {
-            //does href of hyperlink over which user right-clicked contain a doi?
-            return isDOI(decodeURI(p.getNode().href));
-        } else 
-        if (p.isTextSelected()) {
-            return isDOI(p.getSelection());
-        }        
-        return null;
-    }
-    
-    // DOI displays in addition to keyword, title, author
-    function DOIAction ( doi, menuObjects ) {
-    
-        for ( var i = 0; i < menuObjects.length; i++ ) {
-            initMenuObject ( menuObjects[i], doi );
-        }
-    }    
+       
     
     /********************************* Proxy Options **********************************************/
 
     
-    LibxContextMenuObject ( "proxy", "DEFAULT", isProxyActive, showProxyMenuItems );
+    LibxContextMenuObject ( "proxy", "allOn", isProxyActive, showProxyMenuItems );
     
     // match function: display always, if a proxy is defined.
     // p is of type PopupHelper.

@@ -23,30 +23,33 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#libx-about-details
+treechildren::-moz-tree-image(disabled)
 {
-    color: #000000;
-    padding: 10px;
+    /* css for checked cells */
+    list-style-image: url("chrome://libx/skin/empty-border.gif");
+    margin-right: 2px;
+    margin-left: 2px;
 }
 
-#libx-about-dialog
+treechildren::-moz-tree-image(enabled)
 {
-    padding: 0;
+    /* css for checked cells */
+    list-style-image: url("chrome://libx/skin/cbox-green-check.gif");
+    margin-right: 2px;
+    margin-left: 2px;
 }
 
-.name
+treechildren::-moz-tree-cell-text()
 {
-    color: #800000; 
-    font-weight: bold;
-    font-size: x-large;
+    margin-left: 2px;
 }
-.url
+
+tree, button
 {
-    color: #0000ff;
-    cursor: pointer;
-    text-decoration: underline;
+    margin: 5px;
 }
-.url:hover
+
+tab
 {
-    color: #ff0000;
+    padding: 4px;
 }

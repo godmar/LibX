@@ -35,8 +35,11 @@ LibxXMLPreferences.prototype = {
      * Loads an XML into this javascript object
      */
     init : function () {
-        var doc = libxEnv.getXMLDocument ( this.path );
-        this.loadXMLhelper ( doc.firstChild, this );
+        var doc = libxEnv.getLocalXML ( this.path );
+        if ( doc )
+            this.loadXMLhelper ( doc.firstChild, this );
+        else
+            libxEnv.writeLog ( "Preferences Error: " + this.path + " not found." );
     },
     
     loadXMLhelper: function ( parentNode, parentObj ) {

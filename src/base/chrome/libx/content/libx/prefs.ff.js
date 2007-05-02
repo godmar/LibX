@@ -69,8 +69,3 @@ function recordPreference(property, value)
     libxEnv.setUnicharPref(property, value);
 }
 
-function libxInitializePreferences(property)
-{
-    var menuchild = libxEnv.getUnicharPref(property, "libx.newtabswitch");
-    document.getElementById(menuchild).setAttribute("checked", true);
-}

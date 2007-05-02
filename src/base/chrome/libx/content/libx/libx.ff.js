@@ -30,13 +30,18 @@
  
 if ( libxEnv == null )
   var libxEnv = new Object(); 
- 
+  
+var defaultPrefs = "chrome://libx/content/defaultprefs.xml"
+
+var userPrefs = "userprefs.xml"; 
  /*
   * Designed to hold Firefox-specific code for the Libx extension
   */
  
 libxEnv.init = function() {
     libxInitializeAutolink();
+    var menu = document.getElementById ( 'libxmenu' )
+    menu.addEventListener ( 'popupshowing', libxToolbarMenuShowing, false );
     libxInitializeDFU();
 }
   
@@ -89,21 +94,26 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
  * Does not support synchronous POST.
  */
 libxEnv.getXMLDocument = function ( url, callback, postdata ) {
-    var xmlhttp = new XMLHttpRequest();
-    if (callback === undefined) {
-        // synchronous
-        xmlhttp.open('GET', url, false);
-    } else {
-        xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4) {
-                callback(xmlhttp);
-            }
-        };
-        // asynchronous
-        xmlhttp.open(postdata !== undefined ? 'POST' : 'GET', url, true);
+    try {
+        var xmlhttp = new XMLHttpRequest();
+        if (callback === undefined) {
+            // synchronous
+            xmlhttp.open('GET', url, false);
+        } else {
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4) {
+                    callback(xmlhttp);
+                }
+            };
+            // asynchronous
+            xmlhttp.open(postdata !== undefined ? 'POST' : 'GET', url, true);
+        }
+        xmlhttp.send(postdata);
+        return xmlhttp.responseXML;
+    } 
+    catch ( e ) { // File not found
+        return null;
     }
-    xmlhttp.send(postdata);
-    return xmlhttp.responseXML;
 }
   
   
@@ -158,6 +168,7 @@ libxEnv.initializeContextMenu = function () {
     popuphelper = new ContextPopupHelper();
     var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
+    menu.addEventListener("popuphidden", libxContextMenuHidden, false );
 }
 
 //GUI-related stuff////////////////////////////////////////////////////
@@ -271,7 +282,6 @@ libxEnv.initializeGUI = function () {
     new TextDropTarget(function (data) {
         libxSelectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
     }).attachToElement(searchbutton);
-    libxInitializePreferences("libx.displaypref");
 
     /* Adjust for bug in style rendering on Macintosh with FF 2.0.
      * The type field to toolbarbutton can take the value "menu" or "menu-button".
@@ -292,7 +302,9 @@ libxEnv.initializeGUI = function () {
         .setAttribute("tooltiptext", "LibX - " + 
             libxEnv.xmlDoc.getAttr("/edition/name", "edition" ) );
         
-    libxInitializeMenuObjects();
+    // Use user defined preferences if available
+    libxMenuPrefs = new LibxXMLPreferences ( 
+        libxEnv.getXMLDocument ( userPrefs ) ? userPrefs : defaultPrefs );
 }
 
 libxEnv.setObjectVisible = function(obj, show) {
@@ -391,8 +403,13 @@ function addSearchFieldAs(mitem) {
 	addSearchFieldAs(mitem);
 }
 
-function aboutVersion() {
-   window.openDialog("chrome://libx/content/about.xul", "About...", "centerscreen,chrome,modal,resizable");
+// Opens the LibX Preferences window
+// About window is now part of this window.
+function openPrefWindow() { 
+    window.openDialog ( "chrome://libx/content/libxprefs.xul", 
+        "LibX Preferences", " centerscreen, chrome, modal, resizable",
+        { config:libxConfig } 
+    );
 }
 
 //Autolink-related stuff//////////////////////////////////////////////////////
@@ -472,7 +489,7 @@ function libxSelectAutolink(value)
     value = (value == "true") ? true : false;   // convert string to bool
     libxEnv.setBoolPref("libx.autolink", value);
     libxEnv.options.autolink_active = value;
-    if (value)
+    if (value && _content != null )
         libxRunAutoLink(_content.document, true);
 }
 
@@ -485,11 +502,106 @@ function libxInitializeAutolink()
     var m = document.createElement("menuitem");
     m.setAttribute('type', 'checkbox');
     m.setAttribute('label', 'Autolink Pages');
+    m.setAttribute ( 'id', 'libx.autolink' );
     libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
     m.setAttribute('checked', libxEnv.options.autolink_active);
     m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
     hbox.parentNode.insertBefore(m, hbox);
 }
+
+function libxToolbarMenuShowing() {
+    var m = document.getElementById ( 'libx.autolink' );
+    libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
+    m.setAttribute('checked', libxEnv.options.autolink_active);
+}
+
+// Returns the full file path for given path
+// Chrome paths are left unchanged
+// Any other paths should be file names only
+// and will be put in %profile%/libx
+libxEnv.getFilePath = function ( path ) {
+    try {
+        if ( path.indexOf ( 'chrome' ) >= 0 ) {
+            return path;
+        }
+        else {
+           file = DirIO.get ( 'ProfD' );
+            file.append ( 'libx' );
+            
+            if ( !file.exists() ) {
+                file = DirIO.create(file);
+            }
+            
+            file.append ( path );
+            return FileIO.path ( file );
+        }
+    }
+    catch ( e ) {
+        return null;
+    }
+}
+
+
+// Assumes /libx directory off of profile if an absolute chrome path is
+// not specified
+libxEnv.writeToFile = function ( path, str ) {
+    var file = libxEnv.getFile ( path );
+    FileIO.write ( file, str );
+}
+
+// Returns file for given path
+libxEnv.getFile = function ( path ) {
+    var file;
+    if ( path.indexOf ( 'chrome' ) > 0 )
+        file = FileIO.openChrome( path );
+    else {
+        file = DirIO.get ( 'ProfD' );
+        file.append ( 'libx' );
+        
+        if ( !file.exists() ) {
+            file = DirIO.create(file);
+        }
+        
+        file.append ( path );
+    }
+    return file;
+}
+
+// Used to get the defaultprefs.xml and userprefs.xml files
+libxEnv.getLocalXML = function ( path ) {
+    return libxEnv.getXMLDocument ( libxEnv.getFilePath ( path ) );
+}
+
+// Used to remove userprefs.xml
+libxEnv.removeFile = function ( path ) {
+    var file = libxEnv.getFile ( path );
+    FileIO.unlink ( file );
+
+}
+
+
+/*
+    Copyright Robert Nyman, http://www.robertnyman.com
+    Free to use if this text is included
+*/
+function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttributeValue){
+    var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
+    var arrReturnElements = new Array();
+    var oAttributeValue = (typeof strAttributeValue != "undefined")? new RegExp("(^|\s)" + strAttributeValue + "(\s|$)") : null;
+    var oCurrent;
+    var oAttribute;
+    for(var i=0; i<arrElements.length; i++){
+        oCurrent = arrElements[i];
+        oAttribute = oCurrent.getAttribute && oCurrent.getAttribute(strAttributeName);
+        if(typeof oAttribute == "string" && oAttribute.length > 0){
+            if(typeof strAttributeValue == "undefined" || (oAttributeValue && oAttributeValue.test(oAttribute))){
+                arrReturnElements.push(oCurrent);
+            }
+        }
+    }
+    return arrReturnElements;
+}
+
 
 
 // vim: ts=4

@@ -83,15 +83,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         image="&libx.image;" id="libx-menu-toolbarbutton">
 						<menupopup id="libxmenu">
                             <menuseparator id="libxmenu.separator"/>
-                            <menu label="Display Preferences...">
-                                <menupopup id="libx.displaypref">
-                                    <menuitem type="checkbox" id="libx.newtabswitch" label="Display results in new tab and switch to it" oncommand="recordPreference('libx.displaypref', this.id);" />
-                                    <menuitem type="checkbox" id="libx.newtab" label="Display results in new tab" oncommand="recordPreference('libx.displaypref', this.id);" />
-                                    <menuitem type="checkbox" id="libx.newwindow" label="Display results in new window" oncommand="recordPreference('libx.displaypref', this.id);" />
-                                    <menuitem type="checkbox" id="libx.sametab" label="Display results in same tab" oncommand="recordPreference('libx.displaypref', this.id);" />
-                                </menupopup>
-                            </menu>
-							<menuitem id="libx-about" label="About" oncommand="aboutVersion()" />
+							<menuitem id="libx-about" label="About" oncommand="openPrefWindow()" />
 						</menupopup>
 					</toolbarbutton>
 				</hbox>
@@ -194,8 +186,16 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<!-- create a direct menu entry like so -->
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
-		<menuitem label="$emnameshort$" oncommand="aboutVersion();" />
+		<menuitem label="$emnameshort$" oncommand="openPrefWindow();" />
 	</menupopup>
+	<statusbar id="status-bar">
+        <statusbarpanel id="libx-status-bar" insertbefore="statusbar-updates"
+            src="&libx.image;" class="statusbarpanel-menu-iconic" hidden="false">
+            <menupopup id="libx-statusbar-popup">
+                <menuitem label="$emnameshort$" oncommand="openPrefWindow();" />
+            </menupopup>
+        </statusbarpanel>
+    </statusbar>
 </overlay>
 
 <!-- 

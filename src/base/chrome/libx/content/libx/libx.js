@@ -124,13 +124,15 @@ function libxInitializeCatalog(doc, node)
     cat.setIf = libxCatalog.prototype.setIf;
     
     doc.copyAttributes( node, cat ); 
-	    
-	if (cat.xisbn == undefined)
-    	cat.xisbn = new Object();
         
     var xisbnNode = libxEnv.xpath.findSingle ( doc.xml, "xisbn", node );
-    if ( xisbnNode )
-     	doc.copyAttributes ( xisbnNode, cat.xisbn );
+    if ( xisbnNode ) {
+        cat.xisbn = new Object();
+        doc.copyAttributes ( xisbnNode, cat.xisbn );
+    }
+    else {
+        cat.xisbn = null;
+    }
         	
     cat.urlregexp = new RegExp( cat.urlregexp );
 
@@ -145,13 +147,14 @@ function libxInitializeCatalogs()
 {
     searchCatalogs = new Array(); 
     libxConfig.catalogs = new Array();
+    libxConfig.numCatalogs = 0;
 
     function addCatalog( node, catnumber ) {
         try {
             var cat = libxInitializeCatalog( libxEnv.xmlDoc, node );
             searchCatalogs.push(cat);
             libxConfig.catalogs[cat.name] = cat;
-            libxEnv.writeLog ( "cat.name is " + cat.name );
+            libxConfig.numCatalogs++;
         } catch (e) {
             libxEnv.writeLog("libxInitializeCatalog failed: " + e.message);
         }
@@ -217,12 +220,18 @@ function libxInitSearchOptions() {
     libxConfig.searchOptions["j"]    = "Dewey Call Number"; 
     libxConfig.searchOptions["doi"]  = "DOI"; 
     libxConfig.searchOptions["pmid"] = "PubMed ID"; 
+    libxConfig.searchOptions["magicsearch"] = "Magic Search";
+    libxConfig.searchOptions["xisbn"] = "xISBN";
 }
 
 //this function is called right before the right click context menu is shown
 //in this function we must adjust the hidden attributes of the context menu 
 //items we would like the user to see
-function libxContextPopupShowing() {
+function libxContextPopupShowing(e) {
+    
+    if (e.target.id != 'contentAreaContextMenu') 
+        return;
+        
     ContextMenuShowing ( popuphelper );
 }
 

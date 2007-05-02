@@ -26,27 +26,28 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://libx/skin/about.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://libx/locale/definitions.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" buttons="accept"
-	id="libx-about-dialog" orient="vertical" onload="setVersion();">
+<!DOCTYPE overlay SYSTEM "chrome://libx/locale/definitions.dtd">
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" orient="vertical">
     <stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
     <script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.js" />
 
 	<script type="application/x-javascript">
 <![CDATA[
+window.addEventListener ( "load", function () { setVersion(); }, false );
+
 function setVersion() {
     libxInitializeProperties();
 	// does not work properly:
 	// document.getElementById("libx-aboutbox-image").setAttribute("src", libxGetProperty("logoURL"));
 
     var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
-	document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);
+	//document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);
 	document.getElementById("libx-version").setAttribute("value", "Version " + libx_version 
         + (libxEnv.xmlDoc.xml ? " (XML)" : ""));
 	document.getElementById("libx-edition").setAttribute("value", edition);
@@ -92,8 +93,7 @@ function setVersion() {
 		<label value="Home Page" class="header" />
 		<label onclick="window.open('&libx.aboutbox.homepage;')" class="url">&libx.aboutbox.homepage;</label>
 	</vbox>
-	<separator class="groove" style="margin-top: 0" />
-</dialog> 
+</overlay> 
 
 <!-- 
 vim: ts=4 
