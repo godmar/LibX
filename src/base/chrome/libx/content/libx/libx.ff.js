@@ -608,36 +608,41 @@ function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttribute
  */
 libxEnv.addMenuObject = function () {
     var contMenu = document.getElementById("contentAreaContextMenu");  
-    var newMenuItem = document.createElement ( "menuitem" );
-    contMenu.insertBefore ( newMenuItem, 
+    var m = document.createElement ( "menuitem" );
+    contMenu.insertBefore ( m, 
             document.getElementById ( "libx-endholder" ) );
-    return newMenuItem;
-}
 
-/*
- * Sets the label of an item
- */
-libxEnv.setLabel = function ( mitem, text ) {
-    mitem.setAttribute ( 'label', text );
-}
 
-/*
- * Sets the event function for the menuitem
- */
-libxEnv.setCommand = function ( mitem, command ) {
-    mitem.setAttribute ( 'oncommand', command );
-}
+    /*
+     * Sets the label of an item
+     */
+    m.setLabel = function ( text ) {
+        this.setAttribute ( 'label', text );
+    }
+    
+    /*
+     * Sets the event function for the menuitem
+     */
+    m.setCommand = function ( command ) {
+        this.setAttribute ( 'oncommand', command );
+    }
+    
+    /*
+     * Sets the image for a menu object
+     */
+    m.setImage = function () {
+        this.setAttribute ( 'image', 
+                    document.getElementById ( 'toolbarFieldsMenu' ).
+                    getAttribute ( 'image' ) );
+        this.setAttribute ( 'class', 'menuitem-iconic' );
+    }
+    
+    m.setVisible = function( visible ) {
+        this.setAttribute ( "hidden", !visible );
+    }
 
-/*
- * Sets the image for a menu object
- */
-libxEnv.setImage = function ( mitem ) {
-    mitem.setAttribute ( 'image', 
-                document.getElementById ( 'toolbarFieldsMenu' ).
-                getAttribute ( 'image' ) );
-    mitem.setAttribute ( 'class', 'menuitem-iconic' );
+    return m;
 }
-
 /*
  * Event handler called when context menu is hidden
  */

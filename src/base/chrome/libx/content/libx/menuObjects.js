@@ -107,7 +107,7 @@ function libxInitializeMenuObjects()
         var mitem = obj.menuitem;
         var name = obj.name;
         if ( !imgSet ) {
-            libxEnv.setImage ( mitem );
+            mitem.setImage();
             imgSet = true;
         }
         mitem.fields = [{ searchType: obj.type, searchTerms: text }];
@@ -118,8 +118,8 @@ function libxInitializeMenuObjects()
             mitem.searcher = libxConfig.resolvers[name];
         }         
         if ( mitem.searcher ) {
-            libxEnv.setObjectVisible(mitem, true);
-            libxEnv.setLabel ( mitem, 
+            mitem.setVisible ( true );
+            mitem.setLabel ( 
                 "Search " + name + " for " + libxConfig.searchOptions[obj.type] + " \"" + text + "\"" );
             mitem.docommand = function () {
                                   this.searcher.search ( this.fields ); 
@@ -160,7 +160,7 @@ function libxInitializeMenuObjects()
             // will overwrite values as needed from after initMenuObject is run
             if ( menuObjects[i].type == "xisbn" ) {
                 mitem.searcher = libxConfig.catalogs[name];
-                libxEnv.setLabel ( mitem,  
+                mitem.setLabel (   
                     libxGetProperty("xisbnsearch.label", [pureISN]) );
                 mitem.docommand = function () {
                         libxEnv.openSearchWindow( 
@@ -290,8 +290,8 @@ function libxInitializeMenuObjects()
 
             if ( menuObjects[i].source ==  "scholar" ) {
                     mitem.docommand = function () { magicSearch (p); };
-                    libxEnv.setLabel ( mitem, libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
-                    libxEnv.setObjectVisible(mitem, true);
+                    mitem.setLabel ( libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
+                    mitem.setVisible(true);
             }    
         }    
     }
@@ -337,7 +337,7 @@ function libxInitializeMenuObjects()
             }
             p = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
 
-            libxEnv.setLabel ( menuitem, libxGetProperty(which, [proxy.name, p]));
+            menuitem.setLabel ( libxGetProperty(which, [proxy.name, p]));
         }
 
         // currently, there's only 1 proxy; but there will be more.
@@ -345,7 +345,7 @@ function libxInitializeMenuObjects()
         for (var i = 0; i < menuObjects.length; i++) {
             var m = menuObjects[i].menuitem;
             initMenuObject ( menuObjects[i] );
-            libxEnv.setObjectVisible(m, true);
+            m.setVisible (true);
             
             var urltocheck;
             if (p.isOverLink())

@@ -84,7 +84,7 @@ function LibxMenuObject ( type, tmatch, comm ) {
                  * because this would add to, rather than replace, the menu item's command
                  * handler.
                  */
-                libxEnv.setCommand ( newMenuItem, "this.docommand(event);" );
+                newMenuItem.setCommand ( "this.docommand(event);" );
         LibxNodes.push ( newMenuItem );
         this.menuentries[i] = { source: item.nodeName, name: item.attr.name, type: item.attr.type, menuitem: newMenuItem };    
            
