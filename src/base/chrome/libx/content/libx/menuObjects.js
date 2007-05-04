@@ -59,6 +59,8 @@ function libxInitializeMenuObjects()
 
     LibxLabels = new Array();
     
+    var imgSet = false;
+    
     // Use user defined preferences if available
     libxMenuPrefs = new LibxXMLPreferences ( 
         libxEnv.getLocalXML ( userPrefs ) ? userPrefs : defaultPrefs );
@@ -104,6 +106,10 @@ function libxInitializeMenuObjects()
         
         var mitem = obj.menuitem;
         var name = obj.name;
+        if ( !imgSet ) {
+            libxEnv.setImage ( mitem );
+            imgSet = true;
+        }
         mitem.fields = [{ searchType: obj.type, searchTerms: text }];
         if ( obj.source == "catalog" ) {
             mitem.searcher = libxConfig.catalogs[name];    
@@ -113,13 +119,13 @@ function libxInitializeMenuObjects()
         }         
         if ( mitem.searcher ) {
             libxEnv.setObjectVisible(mitem, true);
-            mitem.setAttribute ( "label",
+            libxEnv.setLabel ( mitem, 
                 "Search " + name + " for " + libxConfig.searchOptions[obj.type] + " \"" + text + "\"" );
             mitem.docommand = function () {
                                   this.searcher.search ( this.fields ); 
                               };
         }
-        else {
+        else if ( obj.source == "catalog" || obj.source == 'openurl' ) {
             libxEnv.writeLog ( "Error initializing menuitem: { " + menuObjectToString( obj ) + " }" );
         }
     }
@@ -154,7 +160,7 @@ function libxInitializeMenuObjects()
             // will overwrite values as needed from after initMenuObject is run
             if ( menuObjects[i].type == "xisbn" ) {
                 mitem.searcher = libxConfig.catalogs[name];
-                mitem.setAttribute ( "label", 
+                libxEnv.setLabel ( mitem,  
                     libxGetProperty("xisbnsearch.label", [pureISN]) );
                 mitem.docommand = function () {
                         libxEnv.openSearchWindow( 
@@ -284,7 +290,7 @@ function libxInitializeMenuObjects()
 
             if ( menuObjects[i].source ==  "scholar" ) {
                     mitem.docommand = function () { magicSearch (p); };
-                    mitem.setAttribute ( "label", libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
+                    libxEnv.setLabel ( mitem, libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
                     libxEnv.setObjectVisible(mitem, true);
             }    
         }    
@@ -331,15 +337,16 @@ function libxInitializeMenuObjects()
             }
             p = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
 
-            menuitem.setAttribute ("label", libxGetProperty(which, [proxy.name, p]));
+            libxEnv.setLabel ( menuitem, libxGetProperty(which, [proxy.name, p]));
         }
 
         // currently, there's only 1 proxy; but there will be more.
         var proxy = libxProxy;
         for (var i = 0; i < menuObjects.length; i++) {
             var m = menuObjects[i].menuitem;
-            m.setAttribute ( "hidden", false );
-
+            initMenuObject ( menuObjects[i] );
+            libxEnv.setObjectVisible(m, true);
+            
             var urltocheck;
             if (p.isOverLink())
                 urltocheck = p.getNode().href;

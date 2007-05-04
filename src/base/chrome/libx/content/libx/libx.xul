@@ -171,16 +171,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<menupopup id="contentAreaContextMenu">
 		<menuseparator />
 		<!-- create a nested menu like so -->
-		<menu image="&libx.image;" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as...">
-			<menupopup id="search-menu">
-				<menuitem value="Y" label="Keyword" oncommand="addSearchFieldAs(this);" />
-				<menuitem value="t" label="Title" oncommand="addSearchFieldAs(this);" />
-				<!--
-                <menuitem value="at" label="Article Title" oncommand="addSearchFieldAs(this);" />
-                -->
-				<menuitem value="a" label="Author" oncommand="addSearchFieldAs(this);" />
-				<menuitem value="i" label="ISBN/ISSN" oncommand="addSearchFieldAs(this);" />
-			</menupopup>
+		<menu hidden="true" image="&libx.image;" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as...">
 		</menu>
 		<menuitem hidden="true" id="libx-endholder"/>
 		<!-- create a direct menu entry like so -->

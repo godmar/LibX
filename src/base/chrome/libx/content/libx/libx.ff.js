@@ -168,7 +168,7 @@ libxEnv.initializeContextMenu = function () {
     popuphelper = new ContextPopupHelper();
     var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", libxContextPopupShowing, false);
-    menu.addEventListener("popuphidden", libxContextMenuHidden, false );
+    menu.addEventListener("popuphidden", libxEnv.libxContextMenuHidden, false );
 }
 
 //GUI-related stuff////////////////////////////////////////////////////
@@ -601,6 +601,60 @@ function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttribute
     }
     return arrReturnElements;
 }
+
+/*
+ * Adds a object to the context menu
+ * and returns a reference to that object
+ */
+libxEnv.addMenuObject = function () {
+    var contMenu = document.getElementById("contentAreaContextMenu");  
+    var newMenuItem = document.createElement ( "menuitem" );
+    contMenu.insertBefore ( newMenuItem, 
+            document.getElementById ( "libx-endholder" ) );
+    return newMenuItem;
+}
+
+/*
+ * Sets the label of an item
+ */
+libxEnv.setLabel = function ( mitem, text ) {
+    mitem.setAttribute ( 'label', text );
+}
+
+/*
+ * Sets the event function for the menuitem
+ */
+libxEnv.setCommand = function ( mitem, command ) {
+    mitem.setAttribute ( 'oncommand', command );
+}
+
+/*
+ * Sets the image for a menu object
+ */
+libxEnv.setImage = function ( mitem ) {
+    mitem.setAttribute ( 'image', 
+                document.getElementById ( 'toolbarFieldsMenu' ).
+                getAttribute ( 'image' ) );
+    mitem.setAttribute ( 'class', 'menuitem-iconic' );
+}
+
+/*
+ * Event handler called when context menu is hidden
+ */
+libxEnv.libxContextMenuHidden = function (e) {
+    if (e.target.id != 'contentAreaContextMenu') 
+        return;
+        
+    var par = document.getElementById ( 'contentAreaContextMenu');
+    for ( var i = 0; i < LibxNodes.length; i++ ) {
+        var node = LibxNodes[i];
+        par.removeChild ( node );    
+    }
+    LibxNodes = new Array();
+    loaded = false;
+}
+
+
 
 
 

@@ -62,7 +62,7 @@ var loaded = false;
 function LibxMenuObject ( type, tmatch, comm ) {
     
     this.menuentries = new Array();
-    var contMenu = document.getElementById("contentAreaContextMenu");    
+  
     
     var defined = eval ( "libxMenuPrefs.contextmenu." + type + ";" );
 
@@ -73,7 +73,7 @@ function LibxMenuObject ( type, tmatch, comm ) {
        
     for ( var i = 0; i < defined.children.length; i++ ) {
         var item = defined.children[i];
-        var newMenuItem = document.createElement ( "menuitem" );
+        var newMenuItem = libxEnv.addMenuObject();
                 /* 
                  * Redirect the "command" event to a docommand property
                  * which can be set by individual menu items
@@ -84,11 +84,10 @@ function LibxMenuObject ( type, tmatch, comm ) {
                  * because this would add to, rather than replace, the menu item's command
                  * handler.
                  */
-                newMenuItem.setAttribute("oncommand", "this.docommand(event);");
+                libxEnv.setCommand ( newMenuItem, "this.docommand(event);" );
         LibxNodes.push ( newMenuItem );
         this.menuentries[i] = { source: item.nodeName, name: item.attr.name, type: item.attr.type, menuitem: newMenuItem };    
-           contMenu.insertBefore ( newMenuItem, 
-            document.getElementById ( "libx-endholder" ) );
+           
     }
     
     
@@ -127,19 +126,6 @@ function LibxContextMenuObject ( type, label, tmatch, comm ) {
     LibxMenuItems[label].push ( menuObject );
 }
 
-function libxContextMenuHidden (e) {
-    if (e.target.id != 'contentAreaContextMenu') 
-        return;
-        
-    var par = document.getElementById ( 'contentAreaContextMenu');
-    for ( var i = 0; i < LibxNodes.length; i++ ) {
-        var node = LibxNodes[i];
-        par.removeChild ( node );    
-    }
-    LibxNodes = new Array();
-    loaded = false;
-}
-
 
 // Function that is run if there is text selected and context menu is requested
 // p = popuphelper
@@ -150,7 +136,8 @@ function ContextMenuShowing( p ) {
     loaded = true;
     libxInitializeMenuObjects();
     
-    for ( var k = 0; k < LibxLabels.length; k++ ) {
+
+    for ( var k = LibxLabels.length - 1 ; k >= 0; k-- ) {
         // get the group of menu items!
         var CMO = LibxMenuItems[LibxLabels[k]];
         
@@ -162,7 +149,7 @@ function ContextMenuShowing( p ) {
             var menuObj = CMO[i].menuentries;
             // Hide everything to begin with
             for ( var j = 0; j < menuObj.length; j++ ) {
-                menuObj[j].menuitem.setAttribute ( "hidden", true );
+                libxEnv.setObjectVisible(menuObj[j].menuitem, false);
             }
             
             // only unhide if nothing else has been unhidden
