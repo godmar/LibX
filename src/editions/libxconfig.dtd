@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.15 2007/04/30 18:50:56 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.16 2007/05/05 14:28:00 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -36,13 +36,14 @@
 <!ATTLIST openurlresolver
         name            CDATA #REQUIRED
         resolvernum     CDATA #REQUIRED	
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
 >
 
 <!ELEMENT scholar EMPTY>
 <!ATTLIST scholar
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED	
+        options         CDATA #REQUIRED
 >
 
 <!ELEMENT centralsearch EMPTY>
@@ -69,7 +70,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
         searchscope     CDATA #REQUIRED
         sort            CDATA #IMPLIED
         keywordcode     CDATA #IMPLIED
@@ -83,7 +84,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
         localbase       CDATA #REQUIRED
         title           CDATA #REQUIRED
         author          CDATA #REQUIRED
@@ -103,14 +104,14 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
 >
 <!ELEMENT sersol EMPTY>
 <!ATTLIST sersol 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
 >
 <!ELEMENT sirsi (xisbn)?>
 <!ATTLIST sirsi 
@@ -120,7 +121,7 @@
         urlregexp       CDATA #IMPLIED
         searchscope     CDATA #IMPLIED
         sort            CDATA #IMPLIED
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
         path            CDATA #IMPLIED
 >
 <!ELEMENT voyager (xisbn)?>
@@ -129,7 +130,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
         advancedsearchforissn CDATA #IMPLIED
 >
 <!ELEMENT horizon (xisbn)?>
@@ -138,7 +139,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
-        options         CDATA #IMPLIED
+        options         CDATA #REQUIRED
         issn            CDATA #IMPLIED
         isbn            CDATA #IMPLIED
         callno          CDATA #IMPLIED

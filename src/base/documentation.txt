@@ -42,18 +42,32 @@ If not provided, the default options depend on the catalog.
 For most catalogs, it's: "Y;t;a;d;i;c", which means 
 Keyword, Title, Author, Subject, ISBN/ISSN, Call Number, in that order.
 
+Here is a list:
+
+"scholar":      "Y;at;jt;a"
+"bookmarklet":  no default, required
+"millenium":    default, "Y;t;a;d;i;c"
+"horizon":      default, "Y;t;a;d;i;c"
+"aleph":        default, "Y;t;a;d;i;c"
+"voyager":      default, "Y;t;a;d;i;c"
+"sirsi":        default, "Y;t;a;d;i;c"
+"sersol":       "jt;i"
+"sfx":          "jt;i"
+"centralsearch": no default, required
+"openurlresolver":      "jt;i"
+
 The 'options' attribute may use any predefined or additional defined options
 in the list.
 
 ---- ---- ---- ----
-2. Catalog options.
+2. Catalog choices.
 
-Catalog options are the options displayed in the drop-down on the right 
+Catalog choices are the choices displayed in the drop-down on the right 
 side of the input fields.
 
-A LibX edition displays the following catalogs, in this order
+A LibX edition displays the catalogs defined in its config.xml file,
+as defined in /edition/catalogs/*
 
-- defined catalogs in /edition/catalogs/*
-- unless disabled, the OpenURL resolver
-- unless disabled, Google Scholar
+Special catalog types include "openurlresolver", which means that an
+entry is added that allows searching the OpenURLResolver.
 

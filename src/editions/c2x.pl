@@ -136,6 +136,13 @@ while (1) {
 
     &addpropertyEntities($e, $config{'$' . $catprefix . 'catalog.name'}, 'name');
     &addproperty($e, $config{'$' . $catprefix . 'catalog.url'}, 'url');
+    # if not given, add correct default options.
+    if ($ctype eq "sfx" || $ctype eq "sersol") {
+        &addproperty($e, "jt;i", 'options');
+    } elsif ($ctype ne "bookmarklet" && $ctype ne "centralsearch") {
+        &addproperty($e, "Y;t;a;d;i;c", 'options');
+    }
+    # replace override default options if options are given.
     &addproperty($e, $config{'$' . $catprefix . 'catalog.options'}, 'options');
     &addproperty($e, $config{'$' . $catprefix . 'catalog.urlregexp'}, 'urlregexp');
     &addproperty($e, $config{'$' . $catprefix . 'catalog.sid'}, 'sid');
@@ -220,6 +227,7 @@ if ($otype) {
         my $e = $doc->createElement("openurlresolver");
         &addpropertyEntities($e, $config{'$openurl.name'}, 'name');
         &addpropertyEntities($e, $config{'$openurl.searchlabel'}, 'name');
+        &addproperty($e, 'jt;i', 'options');
         &addproperty($e, $config{'$openurl.options'}, 'options');
         &addproperty($e, '0', 'resolvernum' );
         $catalogs->appendChild($e);
@@ -238,6 +246,7 @@ if (!defined($disablescholar) || $disablescholar ne 'true') {
     &addproperty($e, 'Google Scholar', 'name');
     # add addproperty calls for other properties here as needed...
     &addproperty($e, 'http://scholar.google.com', 'url' );
+    &addproperty($e, 'Y;at;jt;a', 'options' );
 
     $catalogs->appendChild($e);
 }
