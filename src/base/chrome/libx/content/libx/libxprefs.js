@@ -342,7 +342,7 @@ function libxInitContextMenuTrees() {
         return opts;        
     },
     null,
-    { type:"Scholar", name:"Google Scholar", id:"default.scholar", options:["magicsearch"] }
+    { type:"Scholar", name:"Google Scholar", id:"general.scholar", options:["magicsearch"] }
     );
 
     // Initializes the DOI preference tree
