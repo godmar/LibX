@@ -68,6 +68,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/openURLCatalog.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/hover.js" />
+
 	<script type="application/x-javascript">
 	<![CDATA[
 	  // must postpone initialization until entire overlay is loaded into chrome
