@@ -96,8 +96,8 @@ for the test edition of LibX - <? echo $edition_name; ?>.
 <li> 
 
     <? if ($uses_xml) {
-        echo '<font color="red">This edition uses the new 
-                XML file format internally.</font>
+        echo 'This edition uses the new 
+                XML file format internally.
             <a href="' . $edition_config_xml . '">(XML Config File)</a>
         <br/>This code is new and being actively developed - we recommend
             thorough retesting of all features/options.
@@ -107,6 +107,20 @@ for the test edition of LibX - <? echo $edition_name; ?>.
         <a href="showconfigfile.php?edition=<? echo $edition; ?>">config file 
         with the comments stripped out.</a>
    <? } ?>
+
+    <?  $cinquodemayo = "2007-05-05 00:00:00";
+         if (filemtime($edition_xpi) > strtotime($cinquodemayo)) {
+    ?>
+<li>
+    <font color="red">
+    This edition includes the new preference and the new context menu system. </font>
+    You now have the ability to change which options you wish to see in the
+    right-click context menu. Also, you should notice your icon in the status
+    bar on the bottom right.  Click on it for preferences.
+        <p>
+    This code is brand-new, so report problems immediately to libx.org@gmail.com
+    (don't send them to libx@mozdev.org)
+    <?  } ?>
 
 <li>
     <a href="<? echo $edition ?>/">Click here</a> 

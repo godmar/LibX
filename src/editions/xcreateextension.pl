@@ -68,6 +68,7 @@ sub getOpenURL {
 
 my $cat0 = ${$root->findnodes('//catalogs/*')}[0];
 my $openurl0 = ${$root->findnodes('//openurl/resolver[1]')}[0];
+my $proxy0 = ${$root->findnodes('//proxy/*[1]')}[0];
 
 my $prefroot = $pref->createElement('preferences');
 $pref->setDocumentElement($prefroot);
@@ -94,16 +95,27 @@ my $pmid = $pref->createElement('pmid');
 $pmid->appendChild(getOpenURL($openurl0, 'pmid'));
 $prefcmenu->appendChild($pmid);
 
+# enable Keyword, Title, Author by default for general
 my $default = $pref->createElement('general');
 $default->appendChild(getCatalog($cat0, 'Y'));
 $default->appendChild(getCatalog($cat0, 't'));
 $default->appendChild(getCatalog($cat0, 'a'));
-$default->appendChild($pref->createElement('scholar'));
+
+# enable magic button by default
+my $scholarpref = $pref->createElement('scholar');
+$scholarpref->setAttribute('name', 'Google Scholar');
+$scholarpref->setAttribute('type', 'magicsearch');
+$default->appendChild($scholarpref);
 $prefcmenu->appendChild($default);
 
-my $proxy = $pref->createElement('proxy');
-$proxy->appendChild($pref->createElement('proxy'));
-$prefcmenu->appendChild($proxy);
+if ($proxy0) {
+    my $proxy = $pref->createElement('proxy');
+    my $proxypref = $pref->createElement('proxy');
+    $proxypref->setAttribute('name', $proxy0->getAttribute('name'));
+    $proxypref->setAttribute('type', 'enabled');
+    $proxy->appendChild($proxypref);
+    $prefcmenu->appendChild($proxy);
+}
 
 open (DEFPREF, ">" . $edition . "/defaultprefs.xml") || die;
 print DEFPREF $pref->toString(1);
