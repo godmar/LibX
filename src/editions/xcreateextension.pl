@@ -84,15 +84,15 @@ $prefcmenu->appendChild($isbn);
 
 my $issn = $pref->createElement('issn');
 $issn->appendChild(getCatalog($cat0, 'i'));
-$issn->appendChild(getOpenURL($openurl0, 'i'));
+$issn->appendChild(getOpenURL($openurl0, 'i')) if ($openurl0);
 $prefcmenu->appendChild($issn);
 
 my $doi = $pref->createElement('doi');
-$doi->appendChild(getOpenURL($openurl0, 'doi'));
+$doi->appendChild(getOpenURL($openurl0, 'doi')) if ($openurl0);
 $prefcmenu->appendChild($doi);
 
 my $pmid = $pref->createElement('pmid');
-$pmid->appendChild(getOpenURL($openurl0, 'pmid'));
+$pmid->appendChild(getOpenURL($openurl0, 'pmid')) if ($openurl0);
 $prefcmenu->appendChild($pmid);
 
 # enable Keyword, Title, Author by default for general
