@@ -283,10 +283,14 @@ function libxInitializeMenuObjects()
         var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
 
         for ( var i = 0; i < menuObjects.length; i++ ) {
-
-            initMenuObject ( menuObjects[i], displayText );
-            
             var mitem = menuObjects[i].menuitem;
+            
+            if ( menuObjects[i].type == 'a' ) { // Transform author
+                initMenuObject ( menuObjects[i], transformAuthorHeuristics(displayText) );
+            } 
+            else {
+                initMenuObject ( menuObjects[i], displayText );
+            }
 
             if ( menuObjects[i].source ==  "scholar" ) {
                     mitem.docommand = function () { magicSearch (p); };
@@ -339,11 +343,11 @@ function libxInitializeMenuObjects()
 
             menuitem.setLabel ( libxGetProperty(which, [proxy.name, p]));
         }
-
-        // currently, there's only 1 proxy; but there will be more.
-        var proxy = libxProxy;
+        
         for (var i = 0; i < menuObjects.length; i++) {
+            var name = menuObjects[i].name;
             var m = menuObjects[i].menuitem;
+            var proxy = libxConfig.proxy[name];
             initMenuObject ( menuObjects[i] );
             m.setVisible (true);
             
@@ -353,7 +357,7 @@ function libxInitializeMenuObjects()
             else
                 urltocheck = _content.location.toString();
 
-            if (proxy.canCheck()) {
+            if (proxy.canCheck() && libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
                 showLabel("proxy.checking.label", m, urltocheck, proxy);
                 proxy.checkURL(urltocheck, function (ok) {
                     if (ok) {

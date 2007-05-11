@@ -41,7 +41,23 @@ function initPrefWindow() {
     /****** Initialize the context menu preferences tab *****/
     libxInitContextMenuTrees();
     
-     
+    /***** Initialize the AJAX tab ****/
+    // Figure out whether Proxy checkbox should be grayed out or not
+    var ajaxenabled = false;
+
+    for ( var k in libxConfig.proxy ) {
+        if ( libxConfig.proxy[k].urlcheckpassword )
+            ajaxenabled = true;
+    }
+    
+    if ( ajaxenabled ) {
+        document.getElementById ( 'libx-proxy-ajax-checkbox')
+            .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', 'true' ) ? 'true' : 'false' );
+    } else {
+        document.getElementById ( 'libx-proxy-ajax-checkbox' )
+            .setAttribute ( 'disabled', 'true' );
+    }
+    
 }
 
 // Saves all of the preferences
@@ -99,7 +115,13 @@ function libxSavePreferences() {
     saveT ( 'general' );
     saveT ( 'pmid' );
     saveT ( 'proxy' );
+    
     libxUserMenuPrefs.save();
+    
+    /** Save AJAX Preferences tab options **/
+    libxEnv.setBoolPref ( 'libx.proxy.ajaxlabel', 
+        document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true' ? true : false );
+    
     
 }
 
@@ -225,7 +247,7 @@ function libxInitContextMenuTrees() {
      * Initializes the preferences tree with a Catalogs and OpenUrlResolvers label
      * other must specify { type:, name:, id:, options: }
      */
-    function initPrefsTree ( type, catF, resolverF, other ) {
+    function initPrefsTree ( type, catF, resolverF, proxyF, other ) {
         // unhide the tab
         var tabId = "libx-contextmenu-" + type + "-prefs-tab";
         var tabPanelId = "libx-" + type + "-tab";
@@ -236,6 +258,7 @@ function libxInitContextMenuTrees() {
         var count = 0;
         var catI;
         var resolverI;
+        var proxyI;
         var otherI;
         if ( catF && libxConfig.numCatalogs > 0 ) {
             types.push ( ["Catalogs", type + ".catalog" ] );
@@ -246,6 +269,12 @@ function libxInitContextMenuTrees() {
         if ( resolverF && libxConfig.numResolvers > 0 ) {
             types.push ( ["Open Url Resolvers", type + ".openurl" ] );
             resolverI = count;
+            count++;
+        }
+        
+        if ( proxyF && libxConfig.numProxy > 0 ) {
+            types.push ( ["Proxy", type + ".proxy" ] );
+            proxyI = count;
             count++;
         }
         
@@ -264,6 +293,7 @@ function libxInitContextMenuTrees() {
             
             tab.parentNode.removeChild ( tab );
             tabPanel.parentNode.removeChild ( tabPanel );
+            return;
         }
         
             
@@ -271,6 +301,7 @@ function libxInitContextMenuTrees() {
         
         var catalogChildren = labels[catI];
         var resolverChildren = labels[resolverI];
+        var proxyChildren = labels[proxyI];
         var otherChildren = labels[otherI];
         
         if ( catF ) {
@@ -290,6 +321,14 @@ function libxInitContextMenuTrees() {
             }
         }
         
+        if ( proxyF ) {
+            for ( var k in libxConfig.proxy ) {
+                var opts = proxyF ( libxConfig.proxy[k] );
+                if ( opts )
+                    addCatalog ( proxyChildren, k, opts, type + ".proxy" );
+            }    
+        }
+        
         if ( other ) {
             addCatalog ( otherChildren, other.name, other.options, other.id );
         }
@@ -303,7 +342,7 @@ function libxInitContextMenuTrees() {
         if ( cat.options.indexOf ( 'i' ) >= 0 ) {
             opts.push ( 'i' );
         }
-        if ( cat.xisbn ) {
+        if ( cat.xisbn && ( cat.xisbn.opacid ||  cat.xisbn.oai ) ) {
             opts.push ( 'xisbn' );
         }
         
@@ -341,6 +380,7 @@ function libxInitContextMenuTrees() {
         }
         return opts;        
     },
+    null, 
     null,
     { type:"Scholar", name:"Google Scholar", id:"general.scholar", options:["magicsearch"] }
     );
@@ -356,7 +396,9 @@ function libxInitContextMenuTrees() {
     initPrefsTree ( 'proxy',
     null,
     null,
-    {type:"Proxy", name:"Proxy", id:"proxy.proxy", options:["Enabled"] }
+    function ( proxy ) {
+        return ['enabled'];
+    }
     );    
 }
 

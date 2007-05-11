@@ -127,11 +127,7 @@ function libxInitializeCatalog(doc, node)
         
     var xisbnNode = libxEnv.xpath.findSingle ( doc.xml, "xisbn", node );
     if ( xisbnNode ) {
-        cat.xisbn = new Object();
         doc.copyAttributes ( xisbnNode, cat.xisbn );
-    }
-    else {
-        cat.xisbn = null;
     }
         	
     cat.urlregexp = new RegExp( cat.urlregexp );
@@ -239,28 +235,38 @@ function libxContextPopupShowing(e) {
  * Initialize proxy support.
  */
 function libxProxyInit() {
-
-    var pnode = libxEnv.xmlDoc.getNode('/edition/proxy/*[1]');
-    if ( pnode )
-        var proxytype = pnode.nodeName;
-
-    switch (proxytype) {
-    case "ezproxy":
-		libxProxy = new libxEZProxy();
-        break;
-    case "wam":
-		libxProxy = new libxWAMProxy();
-        break;
-    default:
-		libxEnv.writeLog("Unsupported proxy.type=" + proxytype);
-        /* FALLTHROUGH */
-    case null:
-    case "":
-        return;
-	}
-    libxProxy.type = proxytype;
+    libxConfig.proxy = new Array();
     
-    libxEnv.xmlDoc.copyAttributes(pnode, libxProxy);
+    var pnodes = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, '/edition/proxy/*');
+
+    libxConfig.numProxy = pnodes.length;
+    for ( var i = 0; i < pnodes.length; i++ ) {
+        var proxytype = pnodes[i].nodeName;
+        var proxy;
+        switch ( proxytype ) {
+        case "ezproxy":
+    	    proxy = new libxEZProxy();
+            break;
+        case "wam":
+    	    proxy = new libxWAMProxy();
+            break;
+        default:
+    	    libxEnv.writeLog("Unsupported proxy.type=" + proxytype);
+            /* FALLTHROUGH */
+        case null:
+        case "":
+            proxy = null;
+        }
+        if ( proxy != null ) {
+            proxy.type = proxytype;
+            libxEnv.xmlDoc.copyAttributes( pnodes[i], proxy );
+            libxConfig.proxy[proxy.name] = proxy;
+        }
+        if ( i == 0 ) {
+            libxProxy = proxy;
+        }
+
+    }
 }
 
 /* If the searchType is 'i', examine if user entered an ISSN

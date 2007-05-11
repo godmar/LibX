@@ -50,11 +50,12 @@
             <tabs>
                 <tab label="General Preferences" />
                 <tab label="Context Menu" />
+                <tab label="AJAX Options" />
                 <tab label="About" />
             </tabs>
             <tabpanels flex="1">
                 <tabpanel id="libx-prefs-tab" orient="vertical" >      
-                    <groupbox orient="vertical" style="border-style: solid; border-width: 1px; ">
+                    <groupbox orient="vertical" >
                          <caption label="Display Preferences" />
                          <radiogroup id="libx-display-prefs">
                              <radio id="libx.newtabswitch" label="Display results in new tab and switch to it" />
@@ -63,7 +64,7 @@
                              <radio id="libx.sametab" label="Display results in same tab" />
                          </radiogroup>
                      </groupbox>   
-                     <groupbox style="border-style: solid; border-width: 1px; ">
+                     <groupbox >
                          <caption label="Autolinking" />
                          <checkbox id="libx-autolink-checkbox" label="Autolink" />
                      </groupbox>                     
@@ -139,6 +140,12 @@
                         <button label="Restore Defaults" tooltiptext="Restore Default Settings" oncommand="restoreDefault();" />
                         <label value="" />
                     </hbox>
+                </tabpanel>
+                <tabpanel id="libx-ajax-tab" orient="vertical" >
+                    <groupbox orient="vertical" >
+                         <caption label="Proxy AJAX Options" />
+                         <checkbox id="libx-proxy-ajax-checkbox" label="Contact EZProxy to check whether page could be proxied." />
+                     </groupbox>
                 </tabpanel>
                 <tabpanel id="libx-about-tab" >
                     <vbox id="libx-about-details" />
