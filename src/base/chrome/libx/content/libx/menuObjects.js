@@ -71,7 +71,7 @@ function libxInitializeMenuObjects()
         return s.replace(/^\s*/, "").replace(/\s*$/, "");
     }
     
-    /********************** Initilizes the Default label ********************************/
+    /********************** Initializes the Default label ********************************/
     LibxLabels.push ( "allOn" );
     LibxMenuItems["allOn"] = new Array();
     /*********************** Do Not Remove/Modify ***************************************/
