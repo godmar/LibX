@@ -171,7 +171,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		</toolbar>
 	</toolbox>
 	<menupopup id="contentAreaContextMenu">
-		<menuseparator />
+		<menuseparator id="libx-context-menu-separator" />
 		<!-- create a nested menu like so -->
 		<menu hidden="true" image="&libx.image;" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as...">
 		</menu>
