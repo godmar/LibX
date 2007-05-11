@@ -167,8 +167,8 @@ libxEnv.SelectCatalog = function(mitem, event) {
 libxEnv.initializeContextMenu = function () {
     popuphelper = new ContextPopupHelper();
     var menu = document.getElementById("contentAreaContextMenu");
-    menu.addEventListener("popupshowing", libxContextPopupShowing, false);
-    menu.addEventListener("popuphidden", libxEnv.libxContextMenuHidden, false );
+    menu.addEventListener("popupshowing", libxEnv.contextMenuShowing, false);
+    menu.addEventListener("popuphidden", libxEnv.contextMenuHidden, false );
 }
 
 //GUI-related stuff////////////////////////////////////////////////////
@@ -311,10 +311,10 @@ libxEnv.setObjectVisible = function(obj, show) {
     obj.hidden = !show;
 }
 
-libxEnv.setVisible = function(elemName, hide) {
+libxEnv.setVisible = function(elemName, visible) {
     elem = document.getElementById(elemName);
     if (elem != null) {
-        elem.hidden = !hide;
+        elem.hidden = !visible;
     }
 }
 
@@ -380,7 +380,8 @@ function libxClearAllFields() {
 }
 
 // copy selection into search field - this is called from the nested right-click menu
-function addSearchFieldAs(mitem) {
+// This is currently unused
+function libx___unused___addSearchFieldAs(mitem) {
 	if (!popuphelper.isTextSelected()) {
 		alert(libxGetProperty("selectterm.alert"));
 		return;
@@ -635,6 +636,11 @@ libxEnv.addMenuObject = function () {
                     document.getElementById ( 'toolbarFieldsMenu' ).
                     getAttribute ( 'image' ) );
         this.setAttribute ( 'class', 'menuitem-iconic' );
+
+        // crude work-around alert.
+        // if setImage is called, at least one 1 item is displayed,
+        // so make the menu separator visible
+        libxEnv.setVisible("libx-context-menu-separator", true);
     }
     
     m.setVisible = function( visible ) {
@@ -643,10 +649,11 @@ libxEnv.addMenuObject = function () {
 
     return m;
 }
+
 /*
  * Event handler called when context menu is hidden
  */
-libxEnv.libxContextMenuHidden = function (e) {
+libxEnv.contextMenuHidden = function (e) {
     if (e.target.id != 'contentAreaContextMenu') 
         return;
         
@@ -656,11 +663,17 @@ libxEnv.libxContextMenuHidden = function (e) {
         par.removeChild ( node );    
     }
     LibxNodes = new Array();
-    loaded = false;
+    libxEnv.contextMenuLoaded = false;
 }
 
+/*
+ * Event handler called right before context menu is shown.
+ */
+libxEnv.contextMenuShowing = function (e) {
+    if (e.target.id != 'contentAreaContextMenu')
+        return;
 
-
-
+    libxContextMenuShowing ( popuphelper );
+}
 
 // vim: ts=4

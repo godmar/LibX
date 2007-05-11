@@ -220,17 +220,6 @@ function libxInitSearchOptions() {
     libxConfig.searchOptions["xisbn"] = "xISBN";
 }
 
-//this function is called right before the right click context menu is shown
-//in this function we must adjust the hidden attributes of the context menu 
-//items we would like the user to see
-function libxContextPopupShowing(e) {
-    
-    if (e.target.id != 'contentAreaContextMenu') 
-        return;
-        
-    ContextMenuShowing ( popuphelper );
-}
-
 /*
  * Initialize proxy support.
  */

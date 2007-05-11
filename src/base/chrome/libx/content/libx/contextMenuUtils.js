@@ -42,9 +42,6 @@ var LibxNodes = new Array();
 // Holds preferences for Context Menu
 var libxMenuPrefs;
 
-// Used to prevent loading menu multiple times
-var loaded = false;
-
 /*
  * MenuObject class
  * Stores all info required about the menu item
@@ -129,13 +126,19 @@ function LibxContextMenuObject ( type, label, tmatch, comm ) {
 
 // Function that is run if there is text selected and context menu is requested
 // p = popuphelper
-function ContextMenuShowing( p ) {
+function libxContextMenuShowing( p ) {
     
-    if ( loaded )
+    if ( libxEnv.contextMenuLoaded ) 
         return;
-    loaded = true;
+
+    // Used to prevent loading menu multiple times 
+    // (Q.: how could that happen? Is the popupshowing event handler called multiple times? -- gback)
+    libxEnv.contextMenuLoaded = true;
     libxInitializeMenuObjects();
-    
+
+    // hide menu separator separator.
+    // it is unhidden in setImage if at least 1 item is displayed
+    libxEnv.setVisible("libx-context-menu-separator", false);
 
     for ( var k = LibxLabels.length - 1 ; k >= 0; k-- ) {
         // get the group of menu items!
