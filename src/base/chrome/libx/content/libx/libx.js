@@ -199,6 +199,7 @@ function libxInit()
     libxEnv.initializeContextMenu();
 
     libxEnv.init();
+	hoverInit();
 }
 
 function libxInitSearchOptions() {
