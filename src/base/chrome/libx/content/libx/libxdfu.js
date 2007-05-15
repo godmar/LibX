@@ -75,6 +75,24 @@ function doAmazon(doc, match) {
     div.insertBefore(cue, booktitle.nextSibling);
 }
 
+// alibris.com
+new DoForURL(/\.alibris\.com\//, function (doc, match) {
+    var isbnLinks = libxEnv.xpath.findNodes(doc, "//a[contains(@href, 'qisbn=')]");
+
+    for (var i = 0; i < isbnLinks.length; i++) {
+        var isbnLink = isbnLinks[i];
+        var href = isbnLink.getAttribute('href');
+        var isbn, isbnMatch = href.match(/isbn=((\d|X){10,13})/i);
+        if (isbnMatch != null && (isbn = isISBN(isbnMatch[1])) != null) {
+            var cue = makeLink(doc, 
+                        libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
+                        libraryCatalog.linkByISBN(isbn));
+            isbnLink.parentNode.insertBefore(cue, isbnLink.nextSibling);
+            isbnLink.parentNode.insertBefore(doc.createTextNode(" "), cue);
+        }
+    }
+});
+
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
 new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (doc, match) {
