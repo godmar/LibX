@@ -85,7 +85,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         image="&libx.image;" id="libx-menu-toolbarbutton">
 						<menupopup id="libxmenu">
                             <menuseparator id="libxmenu.separator"/>
-							<menuitem id="libx-about" label="About" oncommand="openPrefWindow()" />
+							<menuitem id="libx-about" label="LibX Preferences" oncommand="openPrefWindow()" />
 						</menupopup>
 					</toolbarbutton>
 				</hbox>
