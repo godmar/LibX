@@ -89,6 +89,7 @@ function setVersion() {
         <vbox id="adaptedbybox">
             <label class="header" value="Adapted by" />
             <label id="adaptedby" value="" />
+            <spacer height="10px" />
         </vbox>
 		<label value="Home Page" class="header" />
 		<label onclick="window.open('&libx.aboutbox.homepage;')" class="url">&libx.aboutbox.homepage;</label>
