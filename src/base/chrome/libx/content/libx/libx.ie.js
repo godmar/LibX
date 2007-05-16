@@ -55,17 +55,17 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
         window.open(url2, '_self');
         break;
     case "libx.newtabswitch": //open in new window, focus it
-        var newWindow = window.open(url2, '_blank');
+        /*var newWindow = window.open(url2, '_blank');
         if(newWindow) {
             newWindow.focus();
-        }
-        //libxInterface.openNewWindow(url, true);
+        }*/
+        libxInterface.openNewWindow(url, true);
         break;
     case "libx.newwindow": //open in new window, don't explicitly focus it
     case "libx.newtab":
     default:
-        window.open(url2, '_blank');
-        //libxInterface.openNewWindow(url, false);
+        //window.open(url2, '_blank');
+        libxInterface.openNewWindow(url, false);
         break;
     }
 }
@@ -93,7 +93,7 @@ libxEnv.getXMLDocument = function (url, callback) {
         // see http://jibbering.com/2002/4/httprequest.html for documentation.
     return libxInterface.config;  
 }
-  
+
 //Logging functions///////////////////////////////////////////////////////////
 
 //Writes to the log, prepending the string 'LibX: '
@@ -148,7 +148,6 @@ function libxClearAllFields() {
 
 function addSearchFieldAs(mitem) {
 }
-
 
 function aboutVersion() {
 }

@@ -75,3 +75,11 @@ libxEnv.recordPreference = function (property, value)
 libxEnv.libxInitializePreferences = function (property)
 {
 }
+
+libxEnv.getLocalXML = function ( path ) {
+    return libxInterface.getXMLPrefFile(path);
+}
+
+libxEnv.writeToFile = function ( path, str ) {
+    return libxInterface.writeXMLPrefFile(path, str);
+}

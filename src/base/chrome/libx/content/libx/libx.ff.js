@@ -28,16 +28,20 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
  
+ /*
+  * Designed to hold Firefox-specific code for the Libx extension
+  */
+ 
 if ( libxEnv == null )
   var libxEnv = new Object(); 
   
 var defaultPrefs = "chrome://libx/content/defaultprefs.xml"
 
-var userPrefs = "userprefs.xml"; 
- /*
-  * Designed to hold Firefox-specific code for the Libx extension
-  */
- 
+var userPrefs = "userprefs.xml";
+
+/*  init
+ * Initialize Firefox-specific parts.
+ */
 libxEnv.init = function() {
     libxInitializeAutolink();
     var menu = document.getElementById ( 'libxmenu' )
@@ -322,6 +326,40 @@ libxEnv.setGUIAttribute = function(elemName, attrName, attrValue) {
     elem = document.getElementById(elemName);
     if (elem != null) {
         elem.setAttribute(attrName, attrValue);
+    }
+}
+
+/*
+ * adjust drop-down menus based on catalog.options
+ */
+function libxActivateCatalogOptions(catalog, alwaysreset) {
+    var opt = catalog.options.split(/;/);
+    // for each open search field
+    for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {
+        var f = libxSearchFieldVbox.childNodes.item(i);
+        var tbb = f.firstChild;
+        var uservalue = f.firstChild.nextSibling.firstChild.value;
+        var oldvalue = tbb.value;   // try to retain old selection
+        var newvalue = null;
+        var mpp = tbb.firstChild;
+        // clear out the old ones
+        while (mpp.childNodes.length > 0)
+            mpp.removeChild(mpp.firstChild);
+        // clone in the new ones
+        for (var j = 0; j < opt.length; j++) {
+            var ddo = libxDropdownOptions[opt[j]];
+            var mitem = ddo.cloneNode(true);
+            // cloneNode doesnt clone the attributes !?
+            mitem.value = ddo.value;
+            mitem.label = ddo.label;
+            if (oldvalue == mitem.value)
+                newvalue = mitem;
+            mpp.appendChild(mitem);
+        }
+        if (newvalue == null || alwaysreset || uservalue == "")
+            setFieldType(mpp.firstChild);   // pick first entry the default
+        else
+            setFieldType(newvalue);         // recreate prior selection
     }
 }
 

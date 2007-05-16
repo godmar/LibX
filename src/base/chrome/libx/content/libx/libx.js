@@ -199,7 +199,7 @@ function libxInit()
     libxEnv.initializeContextMenu();
 
     libxEnv.init();
-	hoverInit();
+    //hoverInit();
 }
 
 function libxInitSearchOptions() {
@@ -298,41 +298,6 @@ function setFieldType(menuitem) {
 	//propagate label and value of menuitem to grandparent (toolbarbutton)
 	menuitem.parentNode.parentNode.label = menuitem.label;
 	menuitem.parentNode.parentNode.value = menuitem.value;
-}
-
-
-/*
- * adjust drop-down menus based on catalog.options
- */
-function libxActivateCatalogOptions(catalog, alwaysreset) {
-    var opt = catalog.options.split(/;/);
-    // for each open search field
-	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {
-		var f = libxSearchFieldVbox.childNodes.item(i);
-        var tbb = f.firstChild;
-        var uservalue = f.firstChild.nextSibling.firstChild.value;
-        var oldvalue = tbb.value;   // try to retain old selection
-        var newvalue = null;
-        var mpp = tbb.firstChild;
-        // clear out the old ones
-        while (mpp.childNodes.length > 0)
-            mpp.removeChild(mpp.firstChild);
-        // clone in the new ones
-        for (var j = 0; j < opt.length; j++) {
-            var ddo = libxDropdownOptions[opt[j]];
-            var mitem = ddo.cloneNode(true);
-            // cloneNode doesnt clone the attributes !?
-            mitem.value = ddo.value;
-            mitem.label = ddo.label;
-            if (oldvalue == mitem.value)
-                newvalue = mitem;
-            mpp.appendChild(mitem);
-        }
-        if (newvalue == null || alwaysreset || uservalue == "")
-            setFieldType(mpp.firstChild);   // pick first entry the default
-        else
-            setFieldType(newvalue);         // recreate prior selection
-    }
 }
 
 // vim: ts=4
