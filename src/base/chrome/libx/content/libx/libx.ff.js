@@ -613,6 +613,10 @@ libxEnv.addMenuObject = function () {
     contMenu.insertBefore ( m, 
             document.getElementById ( "libx-endholder" ) );
 
+    m.docommand = function () { 
+        alert("LibX bug: menu handler not set!");
+    }
+    m.setAttribute ( 'oncommand', "this.docommand(event);" );
 
     /*
      * Sets the label of an item
@@ -624,8 +628,8 @@ libxEnv.addMenuObject = function () {
     /*
      * Sets the event function for the menuitem
      */
-    m.setCommand = function ( command ) {
-        this.setAttribute ( 'oncommand', command );
+    m.setHandler = function ( handlerfunc ) {
+        this.docommand = handlerfunc;
     }
     
     /*

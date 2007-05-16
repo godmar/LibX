@@ -121,9 +121,9 @@ function libxInitializeMenuObjects()
             mitem.setVisible ( true );
             mitem.setLabel ( 
                 "Search " + name + " for " + libxConfig.searchOptions[obj.type] + " \"" + text + "\"" );
-            mitem.docommand = function () {
+            mitem.setHandler ( function () {
                                   this.searcher.search ( this.fields ); 
-                              };
+                              } );
         }
         else if ( obj.source == "catalog" || obj.source == 'openurl' ) {
             libxEnv.writeLog ( "Error initializing menuitem: { " + menuObjectToString( obj ) + " }" );
@@ -162,10 +162,10 @@ function libxInitializeMenuObjects()
                 mitem.searcher = libxConfig.catalogs[name];
                 mitem.setLabel (   
                     libxGetProperty("xisbnsearch.label", [pureISN]) );
-                mitem.docommand = function () {
+                mitem.setHandler ( function () {
                         libxEnv.openSearchWindow( 
                             this.searcher.makeXISBNRequest( pureISN  )); 
-                    };
+                    } );
             }              
                    
         }    
@@ -293,7 +293,7 @@ function libxInitializeMenuObjects()
             }
 
             if ( menuObjects[i].source ==  "scholar" ) {
-                    mitem.docommand = function () { magicSearch (p); };
+                    mitem.setHandler ( function () { magicSearch (p); } );
                     mitem.setLabel ( libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
                     mitem.setVisible(true);
             }    
@@ -370,7 +370,7 @@ function libxInitializeMenuObjects()
             } else {
                 showLabel(p.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", m, urltocheck, proxy);
             }
-            m.docommand = function () { doProxify(p, proxy); };
+            m.setHandler ( function () { doProxify(p, proxy); } );
         }
     }
 }
