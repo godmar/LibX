@@ -34,10 +34,6 @@
  
 if ( libxEnv == null )
   var libxEnv = new Object(); 
-  
-var defaultPrefs = "chrome://libx/content/defaultprefs.xml"
-
-var userPrefs = "userprefs.xml";
 
 /*  init
  * Initialize Firefox-specific parts.
@@ -307,8 +303,7 @@ libxEnv.initializeGUI = function () {
             libxEnv.xmlDoc.getAttr("/edition/name", "edition" ) );
         
     // Use user defined preferences if available
-    libxMenuPrefs = new LibxXMLPreferences ( 
-        libxEnv.getXMLDocument ( userPrefs ) ? userPrefs : defaultPrefs );
+    libxMenuPrefs = new libxXMLPreferences();
 }
 
 libxEnv.setObjectVisible = function(obj, show) {
@@ -591,7 +586,7 @@ libxEnv.writeToFile = function ( path, str ) {
 // Returns file for given path
 libxEnv.getFile = function ( path ) {
     var file;
-    if ( path.indexOf ( 'chrome' ) > 0 )
+    if ( path.indexOf ( 'chrome' ) == 0 )
         file = FileIO.openChrome( path );
     else {
         file = DirIO.get ( 'ProfD' );

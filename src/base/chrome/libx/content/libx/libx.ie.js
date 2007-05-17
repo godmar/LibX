@@ -34,7 +34,7 @@
   */
   
 libxEnv.init = function() {
-    
+    libxInitializeMenuObjects();
 }
   
 /*  openSearchWindow
@@ -114,6 +114,16 @@ libxEnv.addEventHandler = function(obj, event, func) {
     return document.attachEvent(event, func);
 }
 
+//Context menu functions//////////////////////////////////////////////////////
+
+libxEnv.initializeContextMenu = function () {
+    popuphelper = new ContextPopupHelper();
+}
+
+libxEnv.addMenuObject = function() {
+    return libxInterface.addMenuObject();
+}
+
 //GUI functions///////////////////////////////////////////////////////////////
 /*
  * GUI functions are not used in the IE version, as the GUI is not controlled
@@ -123,9 +133,6 @@ libxEnv.initializeGUI = function () {
 }
 
 libxEnv.initCatalogGUI = function () {
-}
-
-libxEnv.initializeContextMenu = function () {
 }
 
 libxEnv.SelectCatalog = function(mitem, event) {

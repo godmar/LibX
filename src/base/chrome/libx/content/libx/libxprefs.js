@@ -21,8 +21,7 @@ function initPrefWindow() {
     }
     
     // Use user defined preferences if available
-    libxMenuPrefs = new LibxXMLPreferences ( 
-        libxEnv.getLocalXML ( userPrefs ) ? userPrefs : defaultPrefs );
+    libxMenuPrefs = new libxXMLPreferences();
         
     libxInitializeProperties();
     
@@ -69,7 +68,7 @@ function libxSavePreferences() {
     /**** Saves all of the context menu preferences *********/
     
     // Initializes the libxUserMenuPrefs
-    libxUserMenuPrefs = new LibxXMLPreferences ( userPrefs );
+    libxUserMenuPrefs = new libxXMLPreferences();
     libxUserMenuPrefs.children = new Array();
     libxUserMenuPrefs.nodeName = 'preferences';
     var obj = libxUserMenuPrefs.contextmenu =  new Object();
@@ -136,9 +135,8 @@ function libxSaveAndQuit() {
 function restoreDefault () {
     
     // Remove user prefs file
-    libxEnv.removeFile ( userPrefs );
-    libxMenuPrefs = new LibxXMLPreferences ( 
-        libxEnv.getLocalXML ( userPrefs ) ? userPrefs : defaultPrefs );
+    libxEnv.removeFile ( libxEnv.userPrefs );
+    libxMenuPrefs = new libxXMLPreferences();
     // Re-set prefs to default
     var nodes = document.getElementsByTagName ( 'treecell' );
     for ( var i = 0; i < nodes.length; i++ ) {

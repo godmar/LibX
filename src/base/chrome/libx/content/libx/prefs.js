@@ -1,11 +1,13 @@
 
+libxEnv.defaultPrefs = "chrome://libx/content/defaultprefs.xml"
+libxEnv.userPrefs = "userprefs.xml";
 
-function LibxXMLPreferences ( filePath ) {
-    this.path = filePath;
+function libxXMLPreferences () {
+    this.path = libxEnv.userPrefs;
     this.init();
 }
 
-LibxXMLPreferences.prototype = {
+libxXMLPreferences.prototype = {
     serialize: function () {
         return this.serializeObjectHelper ( this, "" );
     },
@@ -36,10 +38,18 @@ LibxXMLPreferences.prototype = {
      */
     init : function () {
         var doc = libxEnv.getLocalXML ( this.path );
-        if ( doc )
+        if ( doc ) {
             this.loadXMLhelper ( doc.firstChild, this );
-        else
-            libxEnv.writeLog ( "Preferences Error: " + this.path + " not found." );
+        }
+        else {
+            doc = libxEnv.getLocalXML(libxEnv.defaultPrefs);
+            if(doc) {
+                this.loadXMLhelper(doc.firstChild, this);                
+            }
+            else {
+                libxEnv.writeLog (this.path + " not found.", "Preferences");
+            }
+        }
     },
     
     loadXMLhelper: function ( parentNode, parentObj ) {

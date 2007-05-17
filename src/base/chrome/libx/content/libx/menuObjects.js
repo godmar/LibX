@@ -62,8 +62,7 @@ function libxInitializeMenuObjects()
     var imgSet = false;
     
     // Use user defined preferences if available
-    libxMenuPrefs = new LibxXMLPreferences ( 
-        libxEnv.getLocalXML ( userPrefs ) ? userPrefs : defaultPrefs );
+    libxMenuPrefs = new libxXMLPreferences();
     
     // trim a string
     function trim(s) 
