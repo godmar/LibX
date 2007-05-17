@@ -142,7 +142,7 @@ function libxInitializeCatalog(doc, node)
 function libxInitializeCatalogs() 
 {
     searchCatalogs = new Array(); 
-    libxConfig.catalogs = new Array();
+    libxConfig.catalogs = new Object();
     libxConfig.numCatalogs = 0;
 
     function addCatalog( node, catnumber ) {
