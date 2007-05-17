@@ -366,6 +366,9 @@ function libxInitializeMenuObjects()
                     } else {
                         showLabel("proxy.denied.label", m, urltocheck, proxy);
                     }
+                    if (proxy.disableIfCheckFails()) {
+                        m.setActive(ok);
+                    }
                 });
             } else {
                 showLabel(p.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", m, urltocheck, proxy);

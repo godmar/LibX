@@ -61,6 +61,12 @@ libxEZProxy.prototype = {
         }, postdata);
     },
 
+    // as suggested by Matthias Liffers, provide an option to outright disable
+    // proxyings if the urlcheck above fails.
+    disableIfCheckFails: function() {
+        return this.disableifcheckfails == true;
+    },
+
     /* Rewriting URLs for EZProxy is eazy. */
     rewriteURL: function (url) {
         return this.url.replace(/%S/, url);

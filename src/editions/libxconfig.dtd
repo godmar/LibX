@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.16 2007/05/05 14:28:00 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.17 2007/05/17 14:54:25 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -183,6 +183,7 @@
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
         urlcheckpassword CDATA #IMPLIED
+        disableifcheckfails (true|false) 'false'
 >
 <!ELEMENT wam EMPTY>
 <!ATTLIST wam

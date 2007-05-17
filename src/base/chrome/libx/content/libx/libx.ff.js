@@ -689,6 +689,10 @@ libxEnv.addMenuObject = function () {
         this.setAttribute ( "hidden", !visible );
     }
 
+    m.setActive = function ( active ) {
+        this.setAttribute ( "disabled", !active );
+    }
+
     return m;
 }
 
