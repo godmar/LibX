@@ -66,10 +66,10 @@ function magicSearch(data, inpub, justmakeurl)
         function c(s) {
             return s.replace(/[:\.,\)]*$/, "").replace(/^[\(]*/, "");
         }
-        for (var i in str1toks) {
+        for (var i = 0; i < str1toks.length; i++) {
             str1toks[i] = c(str1toks[i]);
         }
-        for (var i in str2toks) {
+        for (var i = 0; i < str2toks.length; i++) {
             str2toks[i] = c(str2toks[i]);
         }
         var str1terms = 0;
