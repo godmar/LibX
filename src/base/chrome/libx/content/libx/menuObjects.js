@@ -69,6 +69,12 @@ function libxInitializeMenuObjects()
     {
         return s.replace(/^\s*/, "").replace(/\s*$/, "");
     }
+
+    function computeDisplayText(text) 
+    {
+        // XXX handle newlines in the text - they can cause weird symbols
+        return text.length > 25 ? text.substr ( 0, 25 ) + "..." : text;
+    }
     
     /********************** Initializes the Default label ********************************/
     LibxLabels.push ( "allOn" );
@@ -118,8 +124,9 @@ function libxInitializeMenuObjects()
         }         
         if ( mitem.searcher ) {
             mitem.setVisible ( true );
+            var displayText = computeDisplayText(text);
             mitem.setLabel ( 
-                "Search " + name + " for " + libxConfig.searchOptions[obj.type] + " \"" + text + "\"" );
+                "Search " + name + " for " + libxConfig.searchOptions[obj.type] + " \"" + displayText + "\"" );
             mitem.setHandler ( function () {
                                   this.searcher.search ( this.fields ); 
                               } );
@@ -279,21 +286,20 @@ function libxInitializeMenuObjects()
     function DEFAULTAction ( p, menuObjects ) 
     {
         p = trim(p);
-        var displayText = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
 
         for ( var i = 0; i < menuObjects.length; i++ ) {
             var mitem = menuObjects[i].menuitem;
             
             if ( menuObjects[i].type == 'a' ) { // Transform author
-                initMenuObject ( menuObjects[i], transformAuthorHeuristics(displayText) );
+                initMenuObject ( menuObjects[i], transformAuthorHeuristics(p) );
             } 
             else {
-                initMenuObject ( menuObjects[i], displayText );
+                initMenuObject ( menuObjects[i], p );
             }
 
             if ( menuObjects[i].source ==  "scholar" ) {
                     mitem.setHandler ( function () { magicSearch (p); } );
-                    mitem.setLabel ( libxGetProperty("contextmenu.scholarsearch.label", [displayText] ) );
+                    mitem.setLabel ( libxGetProperty("contextmenu.scholarsearch.label", [computeDisplayText(p)] ) );
                     mitem.setVisible(true);
             }    
         }    
@@ -338,9 +344,7 @@ function libxInitializeMenuObjects()
             if (m) {
                 p = m[1];
             }
-            p = p.length > 25 ? p.substr ( 0, 25 ) + "..." : p;
-
-            menuitem.setLabel ( libxGetProperty(which, [proxy.name, p]));
+            menuitem.setLabel ( libxGetProperty(which, [proxy.name, computeDisplayText(p)]));
         }
         
         for (var i = 0; i < menuObjects.length; i++) {
