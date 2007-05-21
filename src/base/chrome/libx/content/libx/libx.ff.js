@@ -43,6 +43,7 @@ libxEnv.init = function() {
     var menu = document.getElementById ( 'libxmenu' )
     menu.addEventListener ( 'popupshowing', libxToolbarMenuShowing, false );
     libxInitializeDFU();
+    libxEnv.hoverInit();
 }
   
 /* fix this later should it be necessary - so far, we were able to get at every catalog via GET

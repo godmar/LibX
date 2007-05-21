@@ -1,16 +1,8 @@
 
-// gives an object to keep track of a hoverDiv getting ready to dissapear
-function hoverObject()
-{
-    this.disappeardelay
-    this.delayhide;
-    this.toHide;
-}
 // Creates a hover box object
 // doc is the current document, link is what you will add the hover box to
 // and persist is to allow for a persistent link closable only by the user, not timeout
-function libxHoverBox( doc, link, persist )
-{
+libxEnv.libxHoverBox = function ( doc, link, persist ) {
     this.doc = doc;
     this.linked = link;
     //used for a possible future persistent link
@@ -18,7 +10,7 @@ function libxHoverBox( doc, link, persist )
     // methods of object
     this.add = function( linkobj )
     {
-        addElement(this.menuDiv, linkobj);
+        libxEnv.addElement(this.menuDiv, linkobj);
     }
     this.cueHover = function( _title )
     {
@@ -26,50 +18,49 @@ function libxHoverBox( doc, link, persist )
         var text = doc.createTextNode('Search ISBN');
         obj.href = this.linked.href;
         obj.appendChild(text);
-        addElement( this.menuDiv, obj );
+        libxEnv.addElement( this.menuDiv, obj );
         var obj2 = doc.createElement('a');
         var text2 = doc.createTextNode('Search by Title');
         obj2.appendChild(text2);
-        addElement( this.menuDiv, obj2 );
+        libxEnv.addElement( this.menuDiv, obj2 );
     }
 
-    this.menuDiv = makeHoverBox(this.doc, this.linked);
+    this.menuDiv = libxEnv.makeHoverBox(this.doc, this.linked);
 }
 
 
 // Initializer function to initialize the timeout and the hover object
-function hoverInit()
+libxEnv.hoverInit = function ()
 {
-    libxEnv.HoverObject = new hoverObject();
+    libxEnv.HoverObject = new Object();
     libxEnv.HoverObject.disappeardelay = 250;
-	
+
 }
 
 // A method to an element to the menu
 // the menu is the object, and the linkObj is the element to be added
-function addElement(object, linkObj)
+libxEnv.addElement = function(object, linkObj)
 {
 	
-    linkObj.onmouseover = function() { clearhidemenu(doc); };
-    linkObj.onclick = function() { hidemenu(doc); };
+    linkObj.onmouseover = function() { libxEnv.clearhidemenu(); };
+    linkObj.onclick = function() { libxEnv.hidemenu(linkObj); };
     object.appendChild( linkObj );
 }
 
 // A way to initially make the hover box and bringing in the stylesheet for
 // user by the box to allow easy modifications
-function makeHoverBox(doc, linkObj)
+libxEnv.makeHoverBox = function(doc, linkObj)
 {
     if(doc.createStyleSheet) 
     {
-        doc.createStyleSheet('http://server/stylesheet.css');
+        doc.createStyleSheet('chrome://libx/skin/hover.css');
     }
     else 
     {
-        var styles = "@import url(' chrome://libx/skin/hover.css ');";
         var newSS = doc.createElement('link');
         newSS.rel='stylesheet';
-        newSS.href='data:text/css,'+escape(styles);
-        doc.getElementsByTagName("head")[0].appendChild(newSS);
+        newSS.href= "chrome://libx/skin/hover.css";
+        libxEnv.xpath.findSingle( doc, "//head").appendChild(newSS);
     }
     var hoverDiv = doc.createElement('div');
 
@@ -78,27 +69,29 @@ function makeHoverBox(doc, linkObj)
 
     hoverDiv.className = "hoverdiv";
 
-    linkObj.onmouseover = function() { dropMenu(linkObj, hoverDiv); };
+    linkObj.onmouseover = function() { libxEnv.dropMenu(linkObj, hoverDiv); };
 
     var outside = libxEnv.xpath.findSingle(doc, "//body");
     outside.appendChild(hoverDiv);
 
     linkObj.id = 'hoverdiv';
-
-    var object = doc.getElementById("hover123");
     return hoverDiv;
 }
 
 // Function to pop the menu and prepare the closing of the menu
-function dropMenu(object, ele)
+libxEnv.dropMenu = function (object, ele)
 {
-    ele.style.visibility = "visible";
+    libxEnv.clearhidemenu();
+	ele.style.visibility = "visible";
     ele.display = "block";
     var dropmenuID = "hovermenu";
-    ele.onmouseover = function() { clearhidemenu(); };
-    ele.onmouseout = function() { hidemenu(ele); };
-    object.onmouseout = function() { hidemenu(ele); };
-    ele.onclick = function() { ele.style.visibility='hidden'; };
+    
+    ele.onmouseover = function() { libxEnv.clearhidemenu(); };
+    
+    ele.onmouseout = function() { libxEnv.hidemenu(ele); };
+    object.onmouseout = function() { libxEnv.hidemenu(ele); };
+    ele.onclick = function() { libxEnv.hidemenu(ele); };
+    
     var totaloffset = object.offsetLeft;
     var parentElement = object.offsetParent;
     while ( parentElement != null)
@@ -118,17 +111,15 @@ function dropMenu(object, ele)
 }
 
 // This function will hide the ele passed into it
-function hidemenu(ele)
+libxEnv.hidemenu = function (ele)
 {
     libxEnv.HoverObject.toHide = ele;
     var str_to ="var ele = libxEnv.HoverObject.toHide; ele.style.visibility='hidden';";
-    libxEnv.HoverObject.delayhide = setTimeout(str_to,libxEnv.HoverObject.disappeardelay) //hide menu
+    libxEnv.HoverObject.delayhide = setTimeout(str_to,libxEnv.HoverObject.disappeardelay); //hide menu
 }
 
 // This function will clear the currently planned hiding
-function clearhidemenu()
+libxEnv.clearhidemenu = function ()
 {
-    if (libxEnv.HoverObject.delayhide != "undefined")
-        clearTimeout(libxEnv.HoverObject.delayhide)
+    clearTimeout(libxEnv.HoverObject.delayhide);
 }
-
