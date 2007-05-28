@@ -34,25 +34,33 @@ libxXMLPreferences.prototype = {
     
     },
     /*
-     * Loads an XML into this javascript object
+     * Loads XML into this javascript object
      */
     init : function () {
+        // First see if we can get the user preferences
         var doc = libxEnv.getLocalXML ( this.path );
         if ( doc ) {
             this.loadXMLhelper ( doc.firstChild, this );
         }
         else {
+            // If not, we fall back to defaults (but path is still user prefs)
             doc = libxEnv.getLocalXML(libxEnv.defaultPrefs);
             if(doc) {
                 this.loadXMLhelper(doc.firstChild, this);                
             }
             else {
+                // OK, I guess it's time to fail
                 libxEnv.writeLog (this.path + " not found.", "Preferences");
             }
         }
     },
     
     loadXMLhelper: function ( parentNode, parentObj ) {
+        // Fix for differing IE and Firefox interpretations of
+        // "firstChild" when the document contains an xml version specifier
+        if(parentNode.nodeName == 'xml') {
+            parentNode = parentNode.nextSibling;
+        }
         /* Load parents attributes */
         this.copyAttributes ( parentNode, parentObj );
     
@@ -98,12 +106,4 @@ libxXMLPreferences.prototype = {
     save: function () {
         libxEnv.writeToFile ( this.path, this.serialize() );
     }
-
 }
-
-
-
-
-
-
-

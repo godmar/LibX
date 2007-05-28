@@ -116,7 +116,10 @@ libxEnv.getXMLDocument = function ( url, callback, postdata ) {
         return null;
     }
 }
-  
+
+libxEnv.getXMLConfig = function () {
+    return libxEnv.getXMLDocument("chrome://libx/content/config.xml");
+}
   
 // output a message to the JS console
 libxEnv.writeLog = function (msg, type) {
@@ -637,6 +640,10 @@ function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttribute
     return arrReturnElements;
 }
 
+libxEnv.getCurrentWindowContent = function() {
+    return window._content;
+}
+
 /*
  * Adds a object to the context menu
  * and returns a reference to that object
@@ -698,14 +705,8 @@ libxEnv.addMenuObject = function () {
 libxEnv.contextMenuHidden = function (e) {
     if (e.target.id != 'contentAreaContextMenu') 
         return;
-        
-    var par = document.getElementById ( 'contentAreaContextMenu');
-    for ( var i = 0; i < LibxNodes.length; i++ ) {
-        var node = LibxNodes[i];
-        par.removeChild ( node );    
-    }
-    LibxNodes = new Array();
-    libxEnv.contextMenuLoaded = false;
+
+    libxContextMenuHidden();
 }
 
 /*
@@ -715,7 +716,7 @@ libxEnv.contextMenuShowing = function (e) {
     if (e.target.id != 'contentAreaContextMenu')
         return;
 
-    libxContextMenuShowing ( popuphelper );
+    libxContextMenuShowing ();
 }
 
 // vim: ts=4

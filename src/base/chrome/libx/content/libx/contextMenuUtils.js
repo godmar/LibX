@@ -59,10 +59,9 @@ var libxMenuPrefs;
 function LibxMenuObject ( type, tmatch, comm ) {
     
     this.menuentries = new Array();
-  
-    
-    var defined = eval ( "libxMenuPrefs.contextmenu." + type + ";" );
 
+    //Using this notation (versus eval) works better with IE  
+    var defined = libxMenuPrefs.contextmenu[type];
     
     if ( defined == "" || defined == null )
         return;
@@ -113,15 +112,25 @@ function LibxContextMenuObject ( type, label, tmatch, comm ) {
 }
 
 
+function libxContextMenuHidden() {
+    var par = document.getElementById ( 'contentAreaContextMenu');
+    for ( var i = 0; i < LibxNodes.length; i++ ) {
+        var node = LibxNodes[i];
+        par.removeChild ( node );    
+    }
+    LibxNodes = new Array();
+    libxEnv.contextMenuLoaded = false;
+}
+
 // Function that is run if there is text selected and context menu is requested
-// p = popuphelper
-function libxContextMenuShowing( p ) {
+function libxContextMenuShowing() {
     
     if ( libxEnv.contextMenuLoaded ) 
         return;
 
     // Used to prevent loading menu multiple times 
     // (Q.: how could that happen? Is the popupshowing event handler called multiple times? -- gback)
+    // (A: It is called whenever submenus are opened as well as the top-level menu -- nathanb)
     libxEnv.contextMenuLoaded = true;
     libxInitializeMenuObjects();
 
@@ -149,7 +158,7 @@ function libxContextMenuShowing( p ) {
             if ( keepGoing && menuObj.length > 0 ) { 
                 
                 // Pass in popuphelper to match function
-                var m = CMO[i].matchf( p );   
+                var m = CMO[i].matchf( popuphelper );   
                 
                 // Match is considered true if matchf returns a non-null value
                 if ( m ) {

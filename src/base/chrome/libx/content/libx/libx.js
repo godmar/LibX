@@ -38,7 +38,6 @@ var libxProxy;          // Proxy object or null if no proxy support, see proxy.j
 var libxSelectedCatalog;// currently selected search type
 var libxSearchFieldVbox;    // global variable to hold a reference to vbox with search fields.
 var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
-var popuphelper;        // for context menu
 
 var libxEnv = new Object(); /* Global libx object */
 /* Currently implemented under libxEnv 

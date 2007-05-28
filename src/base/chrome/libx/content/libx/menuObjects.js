@@ -140,7 +140,7 @@ function libxInitializeMenuObjects()
                   
     LibxContextMenuObject ( "isbn", 
                             "libx",
-                            function(p) { 
+                            function(p) {
                                 if (p.isTextSelected()) 
                                     return isISBN(p.getSelection()); 
                                 else 
@@ -330,7 +330,8 @@ function libxInitializeMenuObjects()
             var href = p.getNode().href;
             libxEnv.openSearchWindow(proxy.rewriteURL(href));
         } else {
-            _content.location.href = proxy.rewriteURL(_content.location.toString());
+            var _location = libxEnv.getCurrentWindowContent().location;
+            _location.href = proxy.rewriteURL(_location.toString());
         }
     }
 
@@ -358,7 +359,7 @@ function libxInitializeMenuObjects()
             if (p.isOverLink())
                 urltocheck = p.getNode().href;
             else
-                urltocheck = _content.location.toString();
+                urltocheck = libxEnv.getCurrentWindowContent().location.toString();
 
             if (proxy.canCheck() && libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
                 showLabel("proxy.checking.label", m, urltocheck, proxy);

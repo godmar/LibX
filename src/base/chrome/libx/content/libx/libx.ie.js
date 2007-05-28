@@ -34,14 +34,21 @@
   */
   
 libxEnv.init = function() {
-    libxInitializeMenuObjects();
+    // Use user defined preferences if available
+    libxMenuPrefs = new libxXMLPreferences();
 }
-  
+
+libxEnv.setObjectVisible = function(obj, show) {
+    libxEnv.writeLog("An object is supposed to be either hidden or visible");
+}
+
+//Window functions////////////////////////////////////////////////////////////
+
 /*  openSearchWindow
  * Opens a new browser window for searching. Since standard JavaScript does
  * not contain the concept of 'tabs', this is emulated by opening new windows
  * and letting the browser figure out how to handle the situation.
- */     
+ */
 libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
     var url2;
@@ -70,9 +77,20 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     }
 }
 
-//Sets the xpath stuff for ie
-libxEnv.xpath = new Object();
+/*  getCurrentWindowContent
+ * In Firefox, there is a window._content property because of the way XUL
+ * creates windows. In IE, Opera, etc. this is unnecessary. This function
+ * is designed to abstract this (of course, if it were possible to treat
+ * inserted C# objects like JavaScript objects we could just say
+ * window._content = window, but that would be too easy).
+ */
+libxEnv.getCurrentWindowContent = function() {
+    return window;
+}
 
+//XPath functions/////////////////////////////////////////////////////////////
+
+libxEnv.xpath = new Object();
 
 libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
     return null;
@@ -86,14 +104,64 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
     return null;
 }
 
+//XML + config functions//////////////////////////////////////////////////////
 
 //Returns an XML DOM document for the config file  
-libxEnv.getXMLDocument = function (url, callback) {
-    // FIXME: pass on url and observe callback
-        // see http://jibbering.com/2002/4/httprequest.html for documentation.
-    return libxInterface.config;  
+libxEnv.getXMLDocument = function (url, callback, postdata) {
+    //Get the request object
+    var req;
+    if(window.XMLHttpRequest) { //This should work under IE7
+        try {
+            req = new XMLHttpRequest();
+        }
+        catch(e) {
+            req = false;
+        }
+    }
+    else if(window.ActiveXObject) {
+        try {
+            req = new ActiveXObject("Msxml2.XMLHTTP");
+        }
+        catch(e) {
+            try {
+                req = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            catch(e) {
+                req = false;
+            }
+        }
+    }
+    
+    if(!req) {
+        return null;
+    }
+
+    var synch = (!callback);
+    if(!synch) {
+        //We're asynchronous, so set a callback
+        req.onreadystatechange = function() {
+            //Make sure we're ready for processing
+            if (req.readyState == 4) {
+                if(req.status != 200) {
+                    libxEnv.writeLog("Could not retrieve resource at " +
+                                     url + ": Error code " + req.status);
+                }
+                else {
+                    callback(req);
+                }
+            }
+        }
+    }
+
+    //Do the request
+    req.open(postdata ? 'POST' : 'GET', url, synch);
+    req.send(postdata);
+    return req.responseXML;
 }
 
+libxEnv.getXMLConfig = function () {
+    return libxInterface.config;
+}
 //Logging functions///////////////////////////////////////////////////////////
 
 //Writes to the log, prepending the string 'LibX: '
@@ -117,7 +185,6 @@ libxEnv.addEventHandler = function(obj, event, func) {
 //Context menu functions//////////////////////////////////////////////////////
 
 libxEnv.initializeContextMenu = function () {
-    popuphelper = new ContextPopupHelper();
 }
 
 libxEnv.addMenuObject = function() {

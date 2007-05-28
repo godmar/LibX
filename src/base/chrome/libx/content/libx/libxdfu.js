@@ -222,7 +222,7 @@ function doNyTimes(doc) {
 
 new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
     var n = libxEnv.xpath.findSingle(doc, "//h1[text()='Search Results']");
-    var searchterms = _content.document.getElementById("yschsp").value;
+    var searchterms = libxEnv.getCurrentWindowContent().document.getElementById("yschsp").value;
     n.appendChild(doc.createTextNode(" "));
     n.appendChild(makeLink(doc, libxGetProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });

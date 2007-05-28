@@ -36,6 +36,8 @@
  * helper.getNode() will return DOM node over which last popup opened.
  */
 
+var popuphelper;        // for context menu
+
 function ContextPopupHelper() { 
 }
 
