@@ -648,16 +648,17 @@ libxEnv.getCurrentWindowContent = function() {
  * Adds a object to the context menu
  * and returns a reference to that object
  */
-libxEnv.addMenuObject = function () {
+libxEnv.addMenuObject = function (menuEntry) {
     var contMenu = document.getElementById("contentAreaContextMenu");  
     var m = document.createElement ( "menuitem" );
+    m.menuentry = menuEntry;
     contMenu.insertBefore ( m, 
             document.getElementById ( "libx-endholder" ) );
 
     m.docommand = function () { 
         alert("LibX bug: menu handler not set!");
     }
-    m.setAttribute ( 'oncommand', "this.docommand(event);" );
+    m.setAttribute ( 'oncommand', "this.docommand(this.menuentry);" );
 
     /*
      * Sets the label of an item
@@ -696,7 +697,13 @@ libxEnv.addMenuObject = function () {
         this.setAttribute ( "disabled", !active );
     }
 
+    m.setVisible (false);
     return m;
+}
+
+libxEnv.removeMenuObject = function (menuitem) {
+    var contMenu = document.getElementById("contentAreaContextMenu");  
+    contMenu.removeChild ( menuitem );
 }
 
 /*

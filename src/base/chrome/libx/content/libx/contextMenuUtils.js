@@ -29,58 +29,17 @@
  *
  */
  
-// Holds all the menu items
-var LibxMenuItems = new Array();
-
-// Holds all the unique labels
-var LibxLabels = new Array();
+// Maps 'labels' to menu object lists
+// Current labels are "libx" and "always"
+// Each property is an array of LibxMenuObject
+var libxLabels2MenuObjectLists;
 
 // Holds all nodes put in the context menu
 // Used for quick removal
-var LibxNodes = new Array();
+var libxCreatedMenuItems = new Array();
 
 // Holds preferences for Context Menu
 var libxMenuPrefs;
-
-/*
- * MenuObject class
- * Stores all info required about the menu item
- * Has the following fields:
- * this.menuentries[] -- each menuentry contains
- *          type  -- catalog or openurlresolver
- *          name   -- which catalog or openurlresolver
- *       menuitem -- DOM menuitem it pertains to
- * this.matchf -- matching function ( generally a regular expression, that
- *                will return a non null result when a match is found )
- * this.commf -- command function to be run when the match is found.
- *               this function is passed in the menuitems as well as the
- *               result from the matchf
- */
-function LibxMenuObject ( type, tmatch, comm ) {
-    
-    this.menuentries = new Array();
-
-    //Using this notation (versus eval) works better with IE  
-    var defined = libxMenuPrefs.contextmenu[type];
-    
-    if ( defined == "" || defined == null )
-        return;
-       
-       
-    for ( var i = 0; i < defined.children.length; i++ ) {
-        var item = defined.children[i];
-        var newMenuItem = libxEnv.addMenuObject();
-        LibxNodes.push ( newMenuItem );
-        this.menuentries[i] = { source: item.nodeName, name: item.attr.name, type: item.attr.type, menuitem: newMenuItem };    
-           
-    }
-    
-    
-    this.matchf = tmatch;
-    this.commf = comm;
-}
-    
-    
 
 /* Creates a new Context Menu Object
  * type      -- 'type' of the menuitem 
@@ -88,88 +47,112 @@ function LibxMenuObject ( type, tmatch, comm ) {
  *               - 'isbn', 'issn', 'doi', 'default', 'pmid'
  *
  * label     -- used to determine order of evaluation
- *                 anything with "DEFAULT" as label will always be evaluated
+ *                 anything with "general" as label will always be evaluated
  *
  * tmatch    -- function that takes a popuphelper ( see popuphelperutils.js for documentation ) and returns
  *              null - if no match is found and menuObject(s) should not be displayed
- *              otherwise the comm function will be called..
+ *              otherwise the onmatch function will be called..
  *
- * comm      -- function that is called if a non-null match is found
+ * onmatch      -- function that is called if a non-null match is found
  *                is given two paramaters 
  *                    s -- the match returned by tmatch function
  *                  menuItems -- an array of the actual menu items that were created from the data given by menuitems param
  */
-function LibxContextMenuObject ( type, label, tmatch, comm ) {
-    var menuObject = new LibxMenuObject ( type, tmatch, comm );
+function libxRegisterContextMenuObject ( label, type, tmatch, onmatch ) {
+    /*
+     * MenuObject class
+     * Stores all information about a group of related menu items
+     * Has the following fields:
+     * this.menuentries[] -- each menuentry contains
+     *          type     -- catalog or openurlresolver
+     *          name     -- which catalog or openurlresolver
+     *          menuitem -- DOM menuitem it pertains to
+     * this.matchf  -- matching function ( generally a regular expression, that
+     *                 will return a non null result when a match is found )
+     * this.onmatch -- command function to be run when the match is found.
+     *                 this function is passed in the menuitems as well as the
+     *                 result from the matchf
+     */
+    var menuObject = {
+        menuentries : new Array(),
+        matchf: tmatch,
+        onmatch: onmatch
+    };
+
+    //Using this notation (versus eval) works better with IE  
+    var defined = libxMenuPrefs.contextmenu[type];
     
-    if ( !LibxMenuItems[label] ) // if the label hasnt been previously used, intialize it
-    {
-        LibxLabels.push ( label );
-        LibxMenuItems[label] = new Array();
+    if ( defined != null && defined != "" ) {
+        for ( var i = 0; i < defined.children.length; i++ ) {
+            var item = defined.children[i];
+
+            var menuEntry = {
+                source: item.nodeName, 
+                name: item.attr.name, 
+                type: item.attr.type, 
+            };
+
+            var nativeMenuItem = libxEnv.addMenuObject(menuEntry);
+            libxCreatedMenuItems.push(nativeMenuItem);
+            menuEntry.menuitem = nativeMenuItem;
+            menuObject.menuentries.push(menuEntry);
+        }
     }
     
-    LibxMenuItems[label].push ( menuObject );
+    if ( libxLabels2MenuObjectLists[label] == null)
+        libxLabels2MenuObjectLists[label] = new Array();
+    
+    libxLabels2MenuObjectLists[label].push ( menuObject );
 }
 
 
 function libxContextMenuHidden() {
-    var par = document.getElementById ( 'contentAreaContextMenu');
-    for ( var i = 0; i < LibxNodes.length; i++ ) {
-        var node = LibxNodes[i];
-        par.removeChild ( node );    
-    }
-    LibxNodes = new Array();
+    while (libxCreatedMenuItems.length > 0)
+        libxEnv.removeMenuObject(libxCreatedMenuItems.pop());
+
     libxEnv.contextMenuLoaded = false;
 }
 
 // Function that is run if there is text selected and context menu is requested
 function libxContextMenuShowing() {
     
+    // guard against invocations resulting from when the user opens a nested menu
     if ( libxEnv.contextMenuLoaded ) 
         return;
 
-    // Used to prevent loading menu multiple times 
-    // (Q.: how could that happen? Is the popupshowing event handler called multiple times? -- gback)
-    // (A: It is called whenever submenus are opened as well as the top-level menu -- nathanb)
     libxEnv.contextMenuLoaded = true;
+
+    libxLabels2MenuObjectLists = new Object();
     libxInitializeMenuObjects();
 
-    // hide menu separator separator.
+    // hide menu separator.
     // it is unhidden in setImage if at least 1 item is displayed
     libxEnv.setVisible("libx-context-menu-separator", false);
 
-    for ( var k = LibxLabels.length - 1 ; k >= 0; k-- ) {
-        // get the group of menu items!
-        var CMO = LibxMenuItems[LibxLabels[k]];
+    for (var label in libxLabels2MenuObjectLists) {
+
+        // get the list of menu items for current label
+        var menuObjectList = libxLabels2MenuObjectLists[label];
         
-        // Used to stop evaluation once a match is found            
-        var keepGoing = true;                
-        
-        for (var i = 0; i < CMO.length; i++) {
+        for (var i = 0; i < menuObjectList.length; i++) {
+
+            // skip entries with no menu items
+            var menuObj = menuObjectList[i];
             
-            var menuObj = CMO[i].menuentries;
-            // Hide everything to begin with
-            for ( var j = 0; j < menuObj.length; j++ ) {
-                libxEnv.setObjectVisible(menuObj[j].menuitem, false);
-            }
-            
-            // only unhide if nothing else has been unhidden
-            // and if there were objects defined for this category
-            if ( keepGoing && menuObj.length > 0 ) { 
+            if ( menuObj.menuentries.length == 0 )
+                continue;
                 
-                // Pass in popuphelper to match function
-                var m = CMO[i].matchf( popuphelper );   
+            // match function checks if entry applies
+            var m = menuObj.matchf( popuphelper );   
                 
-                // Match is considered true if matchf returns a non-null value
-                if ( m ) {
+            if ( m ) {
                     
-                    // Call the command function that will unhide/set labels/etc
-                    CMO[i].commf( m, menuObj );                    
-                    
-                    // Stop once a match is found & label != allOn
-                    if ( k != 0 ) { 
-                        keepGoing = false;
-                    }
+                // call onmatch handler that will unhide/set labels/etc
+                menuObj.onmatch( m, menuObj.menuentries );
+                
+                // stop once a match is found unless processing "always"
+                if ( label != "always" ) { 
+                    break;
                 }
             }
         }
