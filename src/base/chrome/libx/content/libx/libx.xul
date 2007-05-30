@@ -176,7 +176,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<menu hidden="true" image="&libx.image;" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as...">
 		</menu>
 		<menuitem hidden="true" id="libx-endholder"/>
-		<!-- create a direct menu entry like so -->
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
 		<menuitem label="$emnameshort$" oncommand="openPrefWindow();" />
