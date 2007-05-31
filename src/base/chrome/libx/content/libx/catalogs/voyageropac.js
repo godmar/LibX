@@ -28,6 +28,8 @@ function VoyagerOPAC() { }
 VoyagerOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(VoyagerOPAC.prototype, {
+    keyword: "FT*",     // default keyword index
+    count: 25,          // default number of hits returned
     xisbn: { opacid: "voyager" },
 	convert: function (stype) {
 	    switch (stype) {
@@ -38,9 +40,9 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
             case 'is':  return "ISSN";
 	        case 'i':   return "ISBN";
 	        case 'c':   return "CALL_";
-	        case 'Y':   return "FT*";
+	        case 'Y':   return this.keyword;
 	        default:
-	            return "FT*";
+	            return this.keyword;
 	    }
 	},
 	convert2: function (stype) {
@@ -76,7 +78,7 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
         // order of fields seems to matter here (!??!)
         return this.url + "/cgi-bin/Pwebrecon.cgi?Search_Arg=" 
                     + sterm + "&HIST=1&SL=None&Search_Code="
-                    + this.convert(stype) + "&CNT=25&DB=local";
+                    + this.convert(stype) + "&CNT=" + this.count + "&DB=local";
 	},
 	makeAdvancedSearch: function(fields) {
         // https://gil.gatech.edu/cgi-bin/Pwebrecon.cgi?
