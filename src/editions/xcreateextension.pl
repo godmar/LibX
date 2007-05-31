@@ -2,20 +2,26 @@
 
 use strict;
 use XML::LibXML;
+use Cwd;
 
 #
 # Create an edition based on its XML file
 #
 my $config_xml = "config.xml";
 my $copytargetdir = "/home/www/libx.org/editions";
+my $httpeditionpath = "http://www.libx.org/editions/";
 
-my $edition = $ARGV[0];
-
-if (!defined($edition) || ! -d $edition) {
-    die "Usage: $0 edition\n";
+# path to edition directory
+my $editionpath = $ARGV[0];
+if (substr($editionpath, 0, 1) ne "/") {        # make relative paths absolute 
+    $editionpath = cwd() . "/" . $editionpath;
 }
 
-my $config = $edition . "/$config_xml";
+if (!defined($editionpath) || ! -d $editionpath) {
+    die "Usage: $0 edition_directory_path\n";
+}
+
+my $config = $editionpath . "/$config_xml";
 if (! -r $config) {
     die "$config does not exist.";
 }
@@ -117,7 +123,9 @@ if ($proxy0) {
     $prefcmenu->appendChild($proxy);
 }
 
-open (DEFPREF, ">" . $edition . "/defaultprefs.xml") || die;
+# XXX once edition maker writes this file, don't blindly overwrite it.
+my $defaultspreffile = $editionpath . "/defaultprefs.xml";
+open (DEFPREF, ">$defaultspreffile") || die "Could not write " . $defaultspreffile; 
 print DEFPREF $pref->toString(1);
 close (DEFPREF);
 
@@ -126,9 +134,9 @@ close (DEFPREF);
 #######################################################
 
 $conf{'additionalproperties'} = "";
-$conf{'emhomepageURL'} = "http://www.libx.org/editions/" . $editionid . "/libx.html";
-$conf{'emupdateURL'} = "http://www.libx.org/editions/" . $editionid . "/update.rdf";
-$conf{'xpilocation'} = "http://www.libx.org/editions/" . $editionid . "/libx-" . $editionid . ".xpi";
+$conf{'emhomepageURL'} = $httpeditionpath . $editionid . "/libx.html";
+$conf{'emupdateURL'} = $httpeditionpath . $editionid . "/update.rdf";
+$conf{'xpilocation'} = $httpeditionpath . $editionid . "/libx-" . $editionid . ".xpi";
 
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
@@ -154,7 +162,9 @@ sub copyandreplace
 }
 
 my $tmpdir = "tmp2";
-system("/bin/rm -rf $tmpdir");
+if (-d $tmpdir) {
+    system("/bin/rm -r $tmpdir") == 0 or die "$!: cannot rm " . $tmpdir . " in " . `pwd` . " running as " . `id`;
+}
 
 my @files = split(/\s+/, `find ../base`);
 foreach my $src (@files) {
@@ -162,7 +172,7 @@ foreach my $src (@files) {
     $dst =~ s/..\/base/$tmpdir/;
     if (-d $src) {
         # recreate directory
-        system("mkdir $dst");
+        system("mkdir $dst") == 0 || die "$!: cannot mkdir $dst in " . `pwd` . " running as " . `id`;
     } else {
         &copyandreplace($src, $dst);
     }
@@ -179,28 +189,28 @@ foreach my $f (@afiles) {
     my $dir = $f->getAttribute('directory');
     my $subvars = $f->getAttribute('substitutevars');
     if (defined($subvars) && $subvars eq "true") {
-        &copyandreplace("$edition/$file", "$tmpdir/$dir/$file");
+        &copyandreplace("$editionpath/$file", "$tmpdir/$dir/$file");
     } else {
-        system("cp $edition/$file $tmpdir/$dir/$file");
+        system("cp $editionpath/$file $tmpdir/$dir/$file") == 0 || die "Cannot copy $editionpath/$file $tmpdir/$dir/$file";
     }
 }
 
 my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 my $xpifile = $conf{'xpilocation'};
 $xpifile =~ s/.*\/([^\/]*)/$1/;         # basename
-system("cd $tmpdir; " .
-       "rm ../$edition/$xpifile; " .
+system("rm $editionpath/$xpifile; " .
+       "cd $tmpdir; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
-       "zip -r ../$edition/$xpifile ./chrome " . $addtoplevelfiles);
+       "zip -r $editionpath/$xpifile ./chrome " . $addtoplevelfiles) == 0 || die "zip failed";
 
-system("touch $edition/uses_xml_config");
+system("touch $editionpath/uses_xml_config") == 0 || die "touch failed";
 #print "created $xpifile. did not copy update.rdf and makelive.sh\n";
 #exit;
 ############################################################
 
-system("cp $tmpdir/update.rdf $edition");
+system("cp $tmpdir/update.rdf $editionpath") == 0 || die "could not copy update.rdf";
 
-my $livescript = "$edition/makelive.sh";
+my $livescript = "$editionpath/makelive.sh";
 open (O, ">$livescript") || die ("Could not write to $livescript");
 
 my $icon = $conf{'emiconURL'};
@@ -208,7 +218,7 @@ $icon =~ s/.*\/([^\/]*)/$1/;         # basename of icon
 
 print O <<MAKELIVE_SCRIPT;
 #!/bin/sh
-T=$copytargetdir/$edition
+T=$copytargetdir/$editionid
 test -d \$T || echo This works only on a machine where \$T exists
 test -d \$T || exit
 cp $xpifile \$T
@@ -216,14 +226,14 @@ cp update.rdf \$T
 cp $icon \$T
 cp config \$T
 
-echo I have copied the files for this edition to the $copytargetdir/$edition/ directory
+echo I have copied the files for this edition to the $copytargetdir/$editionid/ directory
 
 test -r \$T/.htaccess && echo \$T/.htaccess exists, please check for correctness of edition URL
 test -r \$T/.htaccess || echo No \$T/.htaccess file found, will create a default one.
 
 test -r \$T/.htaccess || cat > \$T/.htaccess << HTACCESSFILE
 AddType application/x-xpinstall .xpi
-Redirect /editions/$edition/libx.html http://libx.org/editions/download.php?edition=$edition
+Redirect /editions/$editionid/libx.html http://libx.org/editions/download.php?edition=$editionid
 HTACCESSFILE
 
 cat << BEGINHTACCESS
@@ -242,4 +252,4 @@ MAKELIVE_SCRIPT
 close (O);
 chmod 0755, "$livescript";
 
-
+exit 0;
