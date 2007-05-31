@@ -179,8 +179,11 @@ while (1) {
 
     &addproperty($e, $config{'$' . $catprefix . 'sirsi.sort'}, 'sort');
     &addproperty($e, $config{'$' . $catprefix . 'sirsi.path'}, 'path');
+    &addproperty($e, $config{'$' . $catprefix . 'sirsi.searchscope'}, 'searchscope');
 
     &addproperty($e, $config{'$' . $catprefix . 'voyager.advancedsearchforissn'}, 'advancedsearchforissn');
+    &addproperty($e, $config{'$' . $catprefix . 'voyager.keyword'}, 'keyword');
+    &addproperty($e, $config{'$' . $catprefix . 'voyager.count'}, 'count');
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.searchBy'}, 'searchby');
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.ssLibHash'}, 'sslibhash');
     &addproperty($e, $config{'$' . $catprefix . 'centralsearch.catIDs'}, 'catids');
