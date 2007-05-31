@@ -13,15 +13,15 @@
     </millenium>
     <bookmarklet name="VT Database List" url="http://www.lib.vt.edu/dsp/index.php?searchval=%dbname&amp;action=SearchDatabase" options="dbname"/>
     <bookmarklet name="VT ETD" url="http://scholar.lib.vt.edu:8765/query.html?qt=%Y&amp;col=theses&amp;charset=iso-8859-1" options="Y"/>
-    <sersol name="VT EJournals" url="http://su8bj7jh4j.search.serialssolutions.com"/>
+    <sersol name="VT EJournals" url="http://su8bj7jh4j.search.serialssolutions.com" options="jt;i"/>
     <bookmarklet name="WorldCat" url="http://www.worldcat.org/search?q=%Y+ti%3A%t+au%3A%a+kw%3A%i&amp;qt=advanced" options="Y;t;a;i"/>
-    <scholar name="Google Scholar" url="http://scholar.google.com"/>
+    <scholar name="Google Scholar" url="http://scholar.google.com" options="Y;at;jt;a"/>
   </catalogs>
   <openurl>
     <resolver type="sersol" url="http://su8bj7jh4j.search.serialssolutions.com/" sid="libx:virginiatech" name="VT Article Linker" version="1.0" autolinkissn="true"/>
   </openurl>
   <proxy>
-    <ezproxy url="http://ezproxy.lib.vt.edu:8080/login?url=%S" name="EZProxy"/>
+    <ezproxy url="http://ezproxy.lib.vt.edu:8080/login?url=%S" name="EZProxy" urlcheckpassword="Af81Ixt3sT"/>
   </proxy>
   <options>
     <option key="rewritescholarpage" value="true"/>
@@ -36,6 +36,7 @@
   </searchoptions>
   <additionalfiles>
     <file name="config.xml" directory="chrome/libx/content/libx"/>
+    <file name="defaultprefs.xml" directory="chrome/libx/content/libx"/>
     <file name="virginiatech.ico" directory="chrome/libx/skin/libx"/>
     <file name="shield50.gif" directory="chrome/libx/skin/libx"/>
   </additionalfiles>

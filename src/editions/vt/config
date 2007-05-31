@@ -391,6 +391,14 @@ $proxy.url=http://ezproxy.lib.vt.edu:8080/login?url=%S
 $proxy.name=EZProxy
 
 #
+# If url checking is enabled at the EZProxy site, provide the needed
+# password here.  Chris Zagar says future versions of EZProxy will
+# provide this service without a password.
+# Don't use a password here that's secret.
+#
+$proxy.urlcheckpassword=Af81Ixt3sT
+
+#
 # Should we hijack and rewrite OpenURLs displayed on the Google Scholar page?
 # If your library is registered with Scholar, this will simply turn your links into cues 
 # If your library is not registered with Scholar, *and* you set preferences in Scholar
