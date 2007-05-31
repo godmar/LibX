@@ -123,6 +123,7 @@ function libxInitializeMenuObjects()
             menuentry.searcher = libxConfig.resolvers[name];
             break;
         case "scholar":
+            text = trim(text);
             mitem.setHandler ( function (menuentry) { magicSearch (text); } );
             mitem.setLabel ( libxGetProperty("contextmenu.scholarsearch.label", [computeDisplayText(text)] ) );
             return;
@@ -293,7 +294,7 @@ function libxInitializeMenuObjects()
         for ( var i = 0; i < menuEntries.length; i++ ) {
             
             if ( menuEntries[i].type == 'a' )   // Transform author
-                sterm = transformAuthorHeuristics(sterm);
+                sterm = trim(transformAuthorHeuristics(sterm));
 
             initMenuEntry ( menuEntries[i], sterm );
         }    
