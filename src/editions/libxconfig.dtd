@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.17 2007/05/17 14:54:25 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.18 2007/05/31 00:03:43 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -130,6 +130,8 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
+        keyword         CDATA #IMPLIED
+        count           CDATA #IMPLIED
         options         CDATA #REQUIRED
         advancedsearchforissn CDATA #IMPLIED
 >
@@ -171,7 +173,7 @@
         sid            CDATA #REQUIRED
         xrefsid        CDATA #IMPLIED
         pmidsid        CDATA #IMPLIED
-        version        CDATA #IMPLIED   
+        version        (1.0|0.1) '0.1'
         autolinkissn   (true|false) 'false'
         image          CDATA #IMPLIED   
 >
