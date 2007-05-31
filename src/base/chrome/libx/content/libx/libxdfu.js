@@ -360,7 +360,7 @@ if (libxEnv.openUrlResolver && libxEnv.options.supportcoins) {
 //
 if (libxEnv.openUrlResolver && libxEnv.options.sersolisbnfix) {
     new DoForURL(/serialssolutions\.com\/(.*genre=book.*)/, function (doc, match) {
-        var im = match[1].match(/isbn=([0-9xX]{10}|[0-9xX]{13})/i);
+        var im = match[1].match(/isbn=([0-9xX]{10,13})/i);
         var isbn;
         if (im && (isbn = isISBN(im[1]))) {
             var h4 = libxEnv.xpath.findSingle(doc, "//h4[contains(text(), 'No direct links were found')]");
