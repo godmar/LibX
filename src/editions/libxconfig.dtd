@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.18 2007/05/31 00:03:43 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.19 2007/06/01 15:29:31 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -58,7 +58,7 @@
         catgroupids     CDATA #IMPLIED
 >
  
-<!ELEMENT bookmarklet (xisbn)?>
+<!ELEMENT bookmarklet>
 <!ATTLIST bookmarklet 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
@@ -134,6 +134,7 @@
         count           CDATA #IMPLIED
         options         CDATA #REQUIRED
         advancedsearchforissn CDATA #IMPLIED
+        relevanceranking (true|false) 'true'
 >
 <!ELEMENT horizon (xisbn)?>
 <!ATTLIST horizon 
