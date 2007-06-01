@@ -82,14 +82,16 @@ my $prefcmenu = $pref->createElement('contextmenu');
 $prefroot->appendChild($prefcmenu);
 
 my $isbn = $pref->createElement('isbn');
-$isbn->appendChild(getCatalog($cat0, 'i'));
-if ($cat0->findnodes('xisbn')) {
-    $isbn->appendChild(getCatalog($cat0, 'xisbn'));
+if ($cat0) {
+    $isbn->appendChild(getCatalog($cat0, 'i'));
+    if ($cat0->findnodes('xisbn')) {
+        $isbn->appendChild(getCatalog($cat0, 'xisbn'));
+    }
 }
 $prefcmenu->appendChild($isbn);
 
 my $issn = $pref->createElement('issn');
-$issn->appendChild(getCatalog($cat0, 'i'));
+$issn->appendChild(getCatalog($cat0, 'i')) if ($cat0);
 $issn->appendChild(getOpenURL($openurl0, 'i')) if ($openurl0);
 $prefcmenu->appendChild($issn);
 
@@ -103,9 +105,9 @@ $prefcmenu->appendChild($pmid);
 
 # enable Keyword, Title, Author by default for general
 my $default = $pref->createElement('general');
-$default->appendChild(getCatalog($cat0, 'Y'));
-$default->appendChild(getCatalog($cat0, 't'));
-$default->appendChild(getCatalog($cat0, 'a'));
+$default->appendChild(getCatalog($cat0, 'Y')) if ($cat0);
+$default->appendChild(getCatalog($cat0, 't')) if ($cat0);
+$default->appendChild(getCatalog($cat0, 'a')) if ($cat0);
 
 # enable magic button by default
 my $scholarpref = $pref->createElement('scholar');
