@@ -30,6 +30,7 @@ VoyagerOPAC.prototype = new libxCatalog();
 libxAddToPrototype(VoyagerOPAC.prototype, {
     keyword: "FT*",     // default keyword index
     count: 25,          // default number of hits returned
+    relevanceranking: true,     // by default, use relevance ranking for keyword
     xisbn: { opacid: "voyager" },
 	convert: function (stype) {
 	    switch (stype) {
@@ -67,7 +68,7 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
 	    return true;
 	},
 	makeSearch: function(stype, sterm) {
-        if (stype == 'Y') {
+        if (this.relevanceranking && stype == 'Y') {
             // + does "find all" as in Google; we assume the user wants this 
             sterm = sterm.replace(/^(\S)/, "+$1");
             sterm = sterm.replace(/\s+(\S)/, " +$1");
