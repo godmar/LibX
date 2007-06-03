@@ -32,8 +32,7 @@
   * Designed to hold Firefox-specific code for the Libx extension
   */
  
-if ( libxEnv == null )
-  var libxEnv = new Object(); 
+var libxEnv = new Object(); /* object through which platform-specific methods are accessed */
 
 /*  init
  * Initialize Firefox-specific parts.

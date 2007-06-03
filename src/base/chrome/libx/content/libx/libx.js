@@ -39,8 +39,7 @@ var libxSelectedCatalog;// currently selected search type
 var libxSearchFieldVbox;    // global variable to hold a reference to vbox with search fields.
 var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
 
-var libxEnv = new Object(); /* Global libx object */
-/* Currently implemented under libxEnv 
+/* Relies on following methods provided by libxEnv object 
  * 
  * xmlDoc -- return value of getConfigXML();
  * writeLog -- write to whatever log the current platform uses
