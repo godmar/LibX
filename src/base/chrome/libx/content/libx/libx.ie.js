@@ -32,10 +32,13 @@
  /*
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
+ 
+var libxEnv = new Object();
   
 libxEnv.init = function() {
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
+    libxEnv.loadProperties();
 }
 
 libxEnv.setObjectVisible = function(obj, show) {
@@ -187,8 +190,12 @@ libxEnv.addEventHandler = function(obj, event, func) {
 libxEnv.initializeContextMenu = function () {
 }
 
-libxEnv.addMenuObject = function() {
-    return libxInterface.addMenuObject();
+libxEnv.addMenuObject = function(menuentry) {
+    return libxInterface.addMenuItem(menuentry);
+}
+
+libxEnv.removeMenuObject = function(mitem) {
+    return libxInterface.removeMenuItem(mitem);
 }
 
 //GUI functions///////////////////////////////////////////////////////////////

@@ -125,7 +125,7 @@ function libxInitializeMenuObjects()
         case "scholar":
             text = trim(text);
             mitem.setHandler ( function (menuentry) { magicSearch (text); } );
-            mitem.setLabel ( libxGetProperty("contextmenu.scholarsearch.label", [computeDisplayText(text)] ) );
+            mitem.setLabel ( libxEnv.getProperty("contextmenu.scholarsearch.label", [computeDisplayText(text)] ) );
             return;
         default:
             libxEnv.writeLog ( "Unknown menuentry.source: " + menuentry.source );
@@ -175,7 +175,7 @@ function libxInitializeMenuObjects()
             // will overwrite values as needed from after initMenuEntry is run
             if ( menuEntries[i].type == "xisbn" ) {
                 menuEntries[i].searcher = libxConfig.catalogs[name];
-                mitem.setLabel (libxGetProperty("xisbnsearch.label", [pureISN]) );
+                mitem.setLabel (libxEnv.getProperty("xisbnsearch.label", [pureISN]) );
                 mitem.setHandler ( function (menuentry) {
                     libxEnv.openSearchWindow(menuentry.searcher.makeXISBNRequest( pureISN  )); 
                 });
@@ -340,7 +340,7 @@ function libxInitializeMenuObjects()
             if (m) {
                 p = m[1];
             }
-            menuitem.setLabel ( libxGetProperty(which, [proxy.name, computeDisplayText(p)]));
+            menuitem.setLabel ( libxEnv.getProperty(which, [proxy.name, computeDisplayText(p)]));            
         }
         
         for (var i = 0; i < menuEntries.length; i++) {

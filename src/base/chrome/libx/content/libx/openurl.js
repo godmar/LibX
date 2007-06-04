@@ -69,7 +69,7 @@ OpenURL.prototype = {
 			    if (pureISN != null) {
 				    url += "&issn=" + pureISN;
 			    } else {
-				    alert(libxGetProperty("openurlissn.alert", [fields[i].searchTerms]));
+				    alert(libxEnv.getProperty("openurlissn.alert", [fields[i].searchTerms]));
 				    return null;
 			    }
 			    this.haveTitleOrIssn = true;
@@ -96,7 +96,7 @@ OpenURL.prototype = {
 			    }
 			    break;
 		    case 'Y':
-			    alert(libxGetProperty("openurlarticlekeyword.alert", 
+			    alert(libxEnv.getProperty("openurlarticlekeyword.alert", 
                                     [this.name]));
 			    return null;
 			}//switch
@@ -217,7 +217,7 @@ ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
     // super.makeOpenURLFromFields()
     var url = OpenURL.prototype.makeOpenURLSearch.call(this, fields);   
 	/*if (this.haveTitleOrIssn != true) {
-		alert(libxGetProperty("aftitleissn.alert", [this.name]));
+		alert(libxEnv.getProperty("aftitleissn.alert", [this.name]));
 		return null;
 	}*/
 

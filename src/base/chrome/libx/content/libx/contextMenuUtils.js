@@ -89,7 +89,7 @@ function libxRegisterContextMenuObject ( label, type, tmatch, onmatch ) {
             var menuEntry = {
                 source: item.nodeName, 
                 name: item.attr.name, 
-                type: item.attr.type, 
+                type: item.attr.type 
             };
 
             var nativeMenuItem = libxEnv.addMenuObject(menuEntry);

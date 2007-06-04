@@ -18,7 +18,8 @@
  * the Initial Developer and Virginia Tech. All Rights Reserved.
  *
  * Contributor(s): Godmar Back (godmar@gmail.com)
- *
+ *                 Nathan Baker (nathanb@vt.edu)
+ * 
  * ***** END LICENSE BLOCK ***** */
 
 /*
@@ -27,22 +28,11 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
 
-var libx_version = "$libxversion$"; // this is constant, but 'const' is a Mozilla-specific keyword
 
-var libxProps;                  // a string bundle in the XUL file from which we read properties
-
-// get a property, returning null if property does not exist
-function libxGetProperty(prop, args) {
-	try {
-		if (args) {
-		    return libxProps.getFormattedString(prop, args);
-		} else {
-		    return libxProps.getString(prop);
-		}
-	} catch (e) {
-	    return null;
-	}
-}
+/*
+ * This file contains functionality that works in all browsers
+ * related to configuration, properties, and localization.
+ */
 
 function libxConvertToBoolean(value) 
 {

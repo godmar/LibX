@@ -44,7 +44,7 @@ window.addEventListener ( "load", function () { setVersion(); }, false );
 function setVersion() {
     libxInitializeProperties();
 	// does not work properly:
-	// document.getElementById("libx-aboutbox-image").setAttribute("src", libxGetProperty("logoURL"));
+	// document.getElementById("libx-aboutbox-image").setAttribute("src", libxEnv.getProperty("logoURL"));
 
     var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
 	//document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);

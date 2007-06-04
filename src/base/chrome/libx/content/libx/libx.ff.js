@@ -419,7 +419,7 @@ function libxClearAllFields() {
 // This is currently unused
 function libx___unused___addSearchFieldAs(mitem) {
 	if (!popuphelper.isTextSelected()) {
-		alert(libxGetProperty("selectterm.alert"));
+		alert(libxEnv.getProperty("selectterm.alert"));
 		return;
 	}
 	var sterm = popuphelper.getSelection();
@@ -463,7 +463,7 @@ var libxAutoLinkFilters = [
         href: function(match) { 
             if (!libxEnv.openUrlResolver) return null;
             var pmid = match[1];
-            this.name = libxGetProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid]);
+            this.name = libxEnv.getProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid]);
             return libxEnv.openUrlResolver.makeOpenURLForPMID(pmid);
         }
     },
@@ -473,7 +473,7 @@ var libxAutoLinkFilters = [
             if (!libxEnv.openUrlResolver) return null;
             var doi = isDOI(match[1]); 
             if (doi == null) return null;
-            this.name = libxGetProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi]);
+            this.name = libxEnv.getProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi]);
             return libxEnv.openUrlResolver.makeOpenURLForDOI(doi);
         }
     },
@@ -488,7 +488,7 @@ var libxAutoLinkFilters = [
         href: function(match) { 
             var isbn = isISBN(match[1]); 
             if (isbn == null) return null;
-            this.name = libxGetProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
+            this.name = libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
             return libraryCatalog.linkByISBN(isbn);
         }
     },
@@ -506,10 +506,10 @@ var libxAutoLinkFilters = [
                     return null;
             }
             if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.autolinkissn) {
-                this.name = libxGetProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, issn])
+                this.name = libxEnv.getProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, issn])
                 return libxEnv.openUrlResolver.makeOpenURLForISSN(issn);
             } else {
-                this.name = libxGetProperty("issnsearch.label", [libraryCatalog.name, issn]);
+                this.name = libxEnv.getProperty("issnsearch.label", [libraryCatalog.name, issn]);
                 return libraryCatalog.makeSearch('is', issn);
             }
         }
