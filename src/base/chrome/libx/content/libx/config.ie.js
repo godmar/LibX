@@ -68,7 +68,28 @@ libxEnv.getProperty = function(key, args) {
 };
 
 libxEnv.formatString = function(str, args) {
-    //UNDONE: Implement formatString
+    //I could hack it up with string.replace and a nasty regex, but who wants that?
+    var argPtr = 0;
+    for(var i = 0; i < str.length - 1; ++i) {
+        if(str.charAt(i) == '%') {
+            if(str.charAt(i + 1) == 'S') { //Easy case--just text replace
+                str = str.substring(0, i) + args[argPtr++] + str.substring(i+2);
+            }
+            else { //It's a number, so we need to use that number as an index
+                //I don't know if this format supports numbers >9
+                //(because this code definitely doesn't...)
+                var idx = str.substr(i+1, 1) * 1; //Goofy JS str-to-number
+                if(isNaN(idx)) {
+                    libxEnv.writeLog("Bogus format string: " + str);
+                    return null;
+                }
+                else {
+                    --idx; //For some reason, format strings are indexed by 1
+                    str = str.substring(0, i) + args[idx] + str.substring(i+4);
+                }
+            }
+        }
+    }
     return str;
 };
 
