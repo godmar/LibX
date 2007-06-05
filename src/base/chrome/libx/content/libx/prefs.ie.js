@@ -24,45 +24,32 @@
 
 libxEnv.getBoolPref = function ( prefName, defValue )
 {
-	return libxInterface.Preferences.getBoolPref(prefName, defValue);
+    return libxInterface.Preferences.getBoolPref(prefName, defValue);
 }
 
 libxEnv.getUnicharPref = function ( prefName, defValue )
 {
-	return libxInterface.Preferences.getUnicharPref(prefName, defValue);
+    return libxInterface.Preferences.getUnicharPref(prefName, defValue);
 }
 
 libxEnv.getIntPref = function ( prefName, defValue )
 {
-	return libxInterface.Preferences.getNumericPref(prefName, defValue);
+    return libxInterface.Preferences.getNumericPref(prefName, defValue);
 }
 
 libxEnv.setBoolPref = function ( prefName, value )
 {
-	libxInterface.Preferences.setBoolPref(prefName, value);
+    libxInterface.Preferences.setBoolPref(prefName, value);
 }
 
 libxEnv.setUnicharPref = function ( prefName, value )
 {
-	libxInterface.Preferences.setUnicharPref(prefName, value);
+    libxInterface.Preferences.setUnicharPref(prefName, value);
 }
 
 libxEnv.setIntPref = function ( prefName, value )
 {
-	libxInterface.Preferences.setNumericPref(prefName, value);
-}
-
-
-/*
- * 	recordPreference
- * In Firefox, this function propagates settings changes to UI widgets. In the
- * IE version this is unnecessary, as the toolbar uses an event-driven model
- * and the interested components subscribe to the 'settings change' event,
- * updating themselves right as the setting is applied.
- * The function still exists for compatibility reasons, but does nothing.
- */
-libxEnv.recordPreference = function (property, value)
-{
+    libxInterface.Preferences.setNumericPref(prefName, value);
 }
 
 /*

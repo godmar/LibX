@@ -25,7 +25,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://libx/skin/pref.css" type="text/css"?>
-<?xul-overlay    href="chrome://libx/content/about.xul" ?>
+<?xml-stylesheet href="chrome://libx/skin/about.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://libx/locale/definitions.dtd">
 
@@ -39,19 +39,43 @@
     <script type="application/x-javascript" src="chrome://libx/content/io.js" />    
     <script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/config.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.js" />
     <script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
     <script type="application/x-javascript" src="chrome://libx/content/libxprefs.js" />
+        <script type="application/x-javascript">
+<![CDATA[
+window.addEventListener ( "load", function () { setVersion(); }, false );
+
+function setVersion() {
+    libxInitializeProperties();
+    // does not work properly:
+    // document.getElementById("libx-aboutbox-image").setAttribute("src", libxEnv.getProperty("logoURL"));
+
+    var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
+    //document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);
+    document.getElementById("libx-version").setAttribute("value", "Version " + libx_version 
+        + (libxEnv.xmlDoc.xml ? " (XML)" : ""));
+    document.getElementById("libx-edition").setAttribute("value", edition);
+    var adaptedby = libxEnv.xmlDoc.getAttr("/edition/name", "adaptedby");
+    if (adaptedby) {
+        document.getElementById("adaptedby").setAttribute("value", adaptedby);
+    } else {
+        document.getElementById("adaptedbybox").setAttribute("hidden", true);
+    }
+}
+]]>
+    </script>
     
     <vbox flex="1" >
         <tabbox id="libx-pref-tabbox" flex="100">
             <tabs>
-                <tab label="General Preferences" />
-                <tab label="Context Menu" />
-                <tab label="AJAX Options" />
-                <tab label="About" />
+                <tab id="libxGeneral" label="General Preferences" />
+                <tab id="libxContext" label="Context Menu" />
+                <tab id="libxAJAX" label="AJAX Options" />
+                <tab id="libxAbout" label="About" />
             </tabs>
             <tabpanels flex="1">
                 <tabpanel id="libx-prefs-tab" orient="vertical" >      
@@ -148,14 +172,47 @@
                      </groupbox>
                 </tabpanel>
                 <tabpanel id="libx-about-tab" >
-                    <vbox id="libx-about-details" />
+                    <vbox id="libx-about-details">
+                        <hbox>
+                            <vbox>
+                                <!-- cannot make this dynamic since About Box will not
+                                     resize to proper size if image.src is not embedded here
+                                -->
+                                <image id="libx-aboutbox-image" src="$logoURL$" />
+                                <spacer flex="1" />
+                            </vbox>
+                            <vbox>
+                                <label value="&libx.aboutbox.label;" class="name" />
+                                <spacer flex="1" />
+                                <label id="libx-edition" />
+                                <hbox>
+                                    <label id="libx-version" />
+                                    <label value="$builddate$" />
+                                </hbox>
+                            </vbox>
+                            <spacer flex="1" />
+                        </hbox>
+                        <spacer height="10px" />
+                        <label value="Authors" class="header" />
+                        <label value="Annette Bailey" />
+                        <label value="Godmar Back" />
+                        <label value="Michael Doyle" />
+                        <spacer height="10px" />
+                        <vbox id="adaptedbybox">
+                            <label class="header" value="Adapted by" />
+                            <label id="adaptedby" value="" />
+                            <spacer height="10px" />
+                        </vbox>
+                        <label value="Home Page" class="header" />
+                        <label onclick="window.open('&libx.aboutbox.homepage;')" class="url">&libx.aboutbox.homepage;</label>
+                    </vbox>
                 </tabpanel>                                              
             </tabpanels>
         </tabbox>
         <hbox align="right" flex="1">
             <button label="Ok" tooltiptext="Save changes" oncommand="libxSaveAndQuit();" />
             <button label="Cancel" tooltiptext="Discard changes" oncommand="window.close();" />
-            <button label="Apply" tooltiptext="Apply changes now" oncommand="libxSavePreferences();" />
+            <button id="libxApply" label="Apply" tooltiptext="Apply changes now" oncommand="libxSavePreferences();" />
         </hbox>
     </vbox>
     

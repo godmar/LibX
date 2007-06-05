@@ -15,11 +15,6 @@ var libxUserMenuPrefs;
 // Initializes the preferences window
 function initPrefWindow() {
     
-    if ( window.arguments )
-    {
-        libxConfig = window.arguments[0].config;
-    }
-    
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
         
@@ -27,6 +22,23 @@ function initPrefWindow() {
     
     // Set the title
     var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
+    
+    if ( window.arguments )
+    {
+        libxConfig = window.arguments[0].config;
+    }
+    else { //Hide all tab panels except 'about'
+        document.getElementById('libxGeneral').setAttribute('hidden', true);
+        document.getElementById('libxContext').setAttribute('hidden', true);
+        document.getElementById('libxAJAX').setAttribute('hidden', true);
+        document.getElementById('libx-prefs-tab').setAttribute('hidden', true);
+        document.getElementById('libx-contextmenu-prefs-tab').setAttribute('hidden', true);
+        document.getElementById('libx-ajax-tab').setAttribute('hidden', true);
+        document.getElementById('libxApply').setAttribute('hidden', true);
+        //OK, we're done
+        return;
+    }
+    
     
     /****** Initialize the default preferences tab *********/
     // Initialize the display preferences radiogroup
@@ -126,7 +138,9 @@ function libxSavePreferences() {
 
 // Saves all preferences and closes window
 function libxSaveAndQuit() {
-    libxSavePreferences();
+    if(libxConfig) {
+        libxSavePreferences();
+    }
     window.close();
 }
 

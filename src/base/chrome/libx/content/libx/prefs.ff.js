@@ -24,48 +24,30 @@
  
 libxEnv.getBoolPref = function ( prefName, defValue )
 {
-	return nsPreferences.getBoolPref ( prefName, defValue );
+    return nsPreferences.getBoolPref ( prefName, defValue );
 }
 
 libxEnv.getUnicharPref = function ( prefName, defValue )
 {
-	return nsPreferences.getLocalizedUnicharPref ( prefName, defValue );
+    return nsPreferences.getLocalizedUnicharPref ( prefName, defValue );
 }
 
 libxEnv.getIntPref = function ( prefName, defValue )
 {
-	return nsPreferences.getIntPref ( prefName, defValue );
+    return nsPreferences.getIntPref ( prefName, defValue );
 }
 
 libxEnv.setBoolPref = function ( prefName, value )
 {
-	return nsPreferences.setBoolPref ( prefName, value );
+    return nsPreferences.setBoolPref ( prefName, value );
 }
 
 libxEnv.setUnicharPref = function ( prefName, value )
 {
-	return nsPreferences.setUnicharPref ( prefName, value );
+    return nsPreferences.setUnicharPref ( prefName, value );
 }
 
 libxEnv.setIntPref = function ( prefName, value )
 {
-	return nsPreferences.setIntPref ( prefName, value );
+    return nsPreferences.setIntPref ( prefName, value );
 }
-
-
-/*
- * initialize/record a change in preference
- * We assume 
- * - that properties are choices offered in a menupopup wrapping menuitems
- * - that the name of the property is also the id of the surrounding menupopup
- * - that the name of the value is also the id of the menuitem child reflecting the choice
- */
-function recordPreference(property, value)
-{
-    var parent = document.getElementById(property);
-    for (var i = 0; i < parent.childNodes.length; i++) {
-        parent.childNodes.item(i).setAttribute('checked', parent.childNodes.item(i).getAttribute('id') == value);
-    }
-    libxEnv.setUnicharPref(property, value);
-}
-
