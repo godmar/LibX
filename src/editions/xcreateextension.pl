@@ -2,6 +2,7 @@
 
 use strict;
 use XML::LibXML;
+use HTML::Entities;
 use Cwd;
 
 #
@@ -38,10 +39,12 @@ my $editionid = $root->getAttribute('id');
 $conf{'libxversion'} = $root->getAttribute('version');
 
 my $name = ${$root->getChildrenByTagName('name')}[0];
+# this goes in install.rdf which does not accept entities
 $conf{'emname'} = $name->getAttribute('long');
-$conf{'emnameshort'} = $name->getAttribute('short');
-$conf{'emdescription'} = $name->getAttribute('description');
-$conf{'libxedition'} = $name->getAttribute('edition');
+$conf{'emnameshort'} = encode_entities($name->getAttribute('short'));
+$conf{'emdescription'} = encode_entities($name->getAttribute('description'));
+# this goes in definitions.properties which requires entities
+$conf{'libxedition'} = encode_entities($name->getAttribute('edition'));
 
 # set logoURL and emiconURL variables from options
 my $options_node = ${$root->getChildrenByTagName('options')}[0];
