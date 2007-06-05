@@ -35,7 +35,7 @@
                    em:homepageURL="$emhomepageURL$"
                    em:updateURL="$emupdateURL$"
                    em:iconURL="$emiconURL$"
-                   em:aboutURL="chrome://libx/content/about.xul"
+                   em:aboutURL="chrome://libx/content/libxprefs.xul"
                    em:contributor="Godmar Back">
     <em:targetApplication RDF:resource="rdf:#$P7Gtk2"/>
     <em:file RDF:resource="urn:mozilla:extension:file:libx"/>
