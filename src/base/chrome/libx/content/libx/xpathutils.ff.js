@@ -24,12 +24,8 @@
  * Some utilities to help with xpath expressions
  */
 
-if ( libxEnv == null )
-    libxEnv = new Object();
-    
-    
+// assert libxEnv has already been created.
 libxEnv.xpath = new Object();
-
 
 // var xpathResult = document.evaluate(xpathExpression, contextNode, namespaceResolver, resultType, result);
 // http://www.xulplanet.com/references/objref/XPathResult.html
