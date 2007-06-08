@@ -248,6 +248,22 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
     n.parentNode.insertBefore(doc.createTextNode(" "), ns); 
 });
 
+new DoForURL(/books.\google\.com\/books/, function (doc) {
+    // look for links like this: http://books.google.com/books?q=editions:ISBN0786257784&id=dyF7AAAACAAJ
+    var n = libxEnv.xpath.findNodes(doc, "//a[contains(@href,'editions:ISBN')]");
+    for (var i = 0; i < n.length; i++) {
+        var ilink = n[i].getAttribute('href');
+        var m = ilink.match(/editions:ISBN(\d{10,13})&/);
+        if (m) {
+            var newlink = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]]),
+                    libraryCatalog.linkByISBN(m[1]));
+            var ns = n[i].nextSibling;
+            n[i].parentNode.insertBefore(newlink, ns);
+            n[i].parentNode.insertBefore(doc.createTextNode(" "), ns);
+        }
+    }
+});
+
 // rewrite OpenURLs on Google Scholar's page to show cue
 if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
  function rewriteScholarPage(doc, proxy) {
