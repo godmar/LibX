@@ -175,7 +175,7 @@ function libxInitializeMenuObjects()
             // will overwrite values as needed from after initMenuEntry is run
             if ( menuEntries[i].type == "xisbn" ) {
                 menuEntries[i].searcher = libxConfig.catalogs[name];
-                mitem.setLabel (libxEnv.getProperty("xisbnsearch.label", [pureISN]) );
+                mitem.setLabel (libxEnv.getProperty("xisbnsearch.label", [name, pureISN]) );
                 mitem.setHandler ( function (menuentry) {
                     libxEnv.openSearchWindow(menuentry.searcher.makeXISBNRequest( pureISN  )); 
                 });
