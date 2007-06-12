@@ -11,6 +11,7 @@
 # JS_PATH:       Path to LibX JavaScript files
 # LOCALE_PATH:   Path to LibX locale base directory
 # LOCALE:        Locale ID (like en-US)
+# EDITION_PATH:  Output directory
 
 SetCompressor bzip2
 
@@ -43,7 +44,7 @@ SetCompressor bzip2
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 Name "${PRODUCT_NAME}"
-OutFile "LibX for IE Setup.exe"
+OutFile "${EDITION_PATH}LibX.exe"
 InstallDir "$PROGRAMFILES\LibX for IE"
 ShowInstDetails show
 ShowUnInstDetails show
@@ -52,46 +53,46 @@ Section "LibX Core" SEC01
   SetOverwrite ifnewer
   SetOutPath "$INSTDIR"
   # Toolbar files
-  File "${DLL_PATH}\LibXIE.dll"
-  File "${DLL_PATH}\ActivScp.dll"
-  File "${DLL_PATH}\Interop.SHDocVw.dll"
-  File "${DLL_PATH}\Interop.MSXML2.dll"
-  File "${DLL_PATH}\Microsoft.mshtml.dll"
-  File "${DLL_PATH}\stdole.dll"
+  File "${DLL_PATH}LibXIE.dll"
+  File "${DLL_PATH}ActivScp.dll"
+  File "${DLL_PATH}Interop.SHDocVw.dll"
+  File "${DLL_PATH}Interop.MSXML2.dll"
+  File "${DLL_PATH}Microsoft.mshtml.dll"
+  File "${DLL_PATH}stdole.dll"
   # Needed to register assemblies
-  File "${DLL_PATH}\GACMeUp.exe"
-  File "${DLL_PATH}\Register.bat"
-  File "${DLL_PATH}\Unregister.bat"
+  File "${DLL_PATH}GACMeUp.exe"
+  File "${DLL_PATH}Register.bat"
+  File "${DLL_PATH}Unregister.bat"
   # String resources
   SetOutPath "$INSTDIR\en-US"
-  File "${DLL_PATH}\en-US\LibXIE.resources.dll"
+  File "${DLL_PATH}en-US/LibXIE.resources.dll"
   SetOutPath "$INSTDIR\ja"
-  File "${DLL_PATH}\ja\LibXIE.resources.dll"
+  File "${DLL_PATH}ja/LibXIE.resources.dll"
 SectionEnd
 
 Section "LibX JavaScript" SEC02
   SetOverwrite ifnewer
   SetOutPath "$APPDATA\LibX\content"
-  File "${JS_PATH}\proxy.js"
-  File "${JS_PATH}\libx.js"
-  File "${JS_PATH}\libx.ie.js"
-  File "${JS_PATH}\prefs.js"
-  File "${JS_PATH}\prefs.ie.js"
-  File "${JS_PATH}\config.js"
-  File "${JS_PATH}\config.ie.js"
-  File "${JS_PATH}\openurl.js"
-  File "${JS_PATH}\contextMenuUtils.js"
-  File "${JS_PATH}\menuObjects.js"
-  File "${JS_PATH}\isbnutils.js"
-  File "${JS_PATH}\doiutils.js"
+  File "${JS_PATH}proxy.js"
+  File "${JS_PATH}libx.js"
+  File "${JS_PATH}libx.ie.js"
+  File "${JS_PATH}prefs.js"
+  File "${JS_PATH}prefs.ie.js"
+  File "${JS_PATH}config.js"
+  File "${JS_PATH}config.ie.js"
+  File "${JS_PATH}openurl.js"
+  File "${JS_PATH}contextMenuUtils.js"
+  File "${JS_PATH}menuObjects.js"
+  File "${JS_PATH}isbnutils.js"
+  File "${JS_PATH}doiutils.js"
   SetOutPath "$APPDATA\LibX\content\catalogs"
-  File "${JS_PATH}\catalogs\*.js"
+  File "${JS_PATH}catalogs/*.js"
 SectionEnd
 
 Section "LibX Locale" SEC03
   SetOverwrite ifnewer
   SetOutPath "$APPDATA\LibX\locale\${LOCALE}"
-  File "${LOCALE_PATH}\${LOCALE}\libx\definitions.properties"
+  File "${LOCALE_PATH}${LOCALE}/libx/definitions.properties"
 SectionEnd
 
 Section "Edition" SEC04
