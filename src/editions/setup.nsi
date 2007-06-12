@@ -6,6 +6,12 @@
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
+#Needs the following symbols:
+# DLL_PATH:      Path to LibXIE core DLLs
+# JS_PATH:       Path to LibX JavaScript files
+# LOCALE_PATH:   Path to LibX locale base directory
+# LOCALE:        Locale ID (like en-US)
+
 SetCompressor bzip2
 
 # Modern UI
@@ -46,21 +52,21 @@ Section "LibX Core" SEC01
   SetOverwrite ifnewer
   SetOutPath "$INSTDIR"
   # Toolbar files
-  File "..\bin\Release\LibXIE.dll"
-  File "..\bin\Release\ActivScp.dll"
-  File "..\bin\Release\Interop.SHDocVw.dll"
-  File "..\bin\Release\Interop.MSXML2.dll"
-  File "..\bin\Release\Microsoft.mshtml.dll"
-  File "..\bin\Release\stdole.dll"
+  File "${DLL_PATH}\LibXIE.dll"
+  File "${DLL_PATH}\ActivScp.dll"
+  File "${DLL_PATH}\Interop.SHDocVw.dll"
+  File "${DLL_PATH}\Interop.MSXML2.dll"
+  File "${DLL_PATH}\Microsoft.mshtml.dll"
+  File "${DLL_PATH}\stdole.dll"
   # Needed to register assemblies
-  File "..\GACMeUp.exe"
-  File "Register.bat"
-  File "Unregister.bat"
+  File "${DLL_PATH}\GACMeUp.exe"
+  File "${DLL_PATH}\Register.bat"
+  File "${DLL_PATH}\Unregister.bat"
   # String resources
   SetOutPath "$INSTDIR\en-US"
-  File "..\bin\Release\en-US\LibXIE.resources.dll"
+  File "${DLL_PATH}\en-US\LibXIE.resources.dll"
   SetOutPath "$INSTDIR\ja"
-  File "..\bin\Release\ja\LibXIE.resources.dll"
+  File "${DLL_PATH}\ja\LibXIE.resources.dll"
 SectionEnd
 
 Section "LibX JavaScript" SEC02
@@ -125,9 +131,7 @@ Section Uninstall
   SetOutPath "$TEMP"
   
   # Remove edition files
-  Delete "$APPDATA\LibX\skin\virginiatech.ico"
-  Delete "$APPDATA\LibX\skin\shield50.gif"
-  Delete "$APPDATA\LibX\content\config.xml"
+  #$deleteeditionfiles$
   
   # Remove JavaScript files
   Delete "$APPDATA\LibX\content\catalogs\*.js"
