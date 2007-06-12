@@ -277,7 +277,7 @@ foreach my $afile (@afiles) {
 for my $dir (keys %flist) {
 	$eflist = $eflist . "  SetOutPath \"$dir\"\n";
 	foreach my $fname (@{$flist{$dir}}) {
-		$eflist = $eflist . "   File \"$fname\"\n";
+		$eflist = $eflist . "   File \"" . '${EDITION_PATH}' . "$fname\"\n";
 		$dlist = $dlist . '  Delete "'. "$dir$fname". "\"\n";
 	}
 }
@@ -291,6 +291,16 @@ open (NSIS, ">$editionpath/setup.nsi") || die "Could not upen $editionpath/setup
 print NSIS $nsisText;
 close (NSIS);
 
-#system("makensis.exe -DDLL_PATH=../LibXIE -DJS_PATH=../base/chrome/libx/content/libx -DLOCALE-PATH=../base/chrome/libx/locale -DLOCALE=en-US -V1 setup.nsi") || die "Could not create nullsoft install script";
+my $makensis = "/opt/nsis-2.28/Bin/makensis";
+if (-x $makensis) {
+    my $env = "-DJS_PATH=../base/chrome/libx/content/libx/";
+    $env .= " -DDLL_PATH=./LibXIE/";
+    $env .= " -DLOCALE_PATH=../base/chrome/libx/locale/";
+    $env .= " -DLOCALE=en-US";
+    $env .= " -DEDITION_PATH=$editionpath";
+    system ("$makensis $env -V1 -NOCD $editionpath/setup.nsi") == 0 or die "$makensis $env failed.";
+} else {
+    print "$makensis not found, skipping IE build.\n";
+}
 
 exit 0;
