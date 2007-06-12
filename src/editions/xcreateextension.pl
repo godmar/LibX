@@ -35,10 +35,20 @@ my %conf = ();
 my $root = $doc->documentElement();
 my $editionid = $root->getAttribute('id');
 
+my $editionrelpath = $editionid;
+if ($editionid =~ /([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{4})/) {
+    $editionrelpath = $1 . "/" . $2 . "/" . $editionid;
+}
+
 # major.minor.release taken from config file
 $conf{'libxversion'} = $root->getAttribute('version');
 
 my $name = ${$root->getChildrenByTagName('name')}[0];
+my $localhomepage = $name->getAttribute('localhomepage');
+if (!defined($localhomepage) || $localhomepage eq "") {
+    $localhomepage=$httpeditionpath . "download.php?edition=$editionid";
+}
+
 # this goes in install.rdf which does not accept entities
 $conf{'emname'} = $name->getAttribute('long');
 $conf{'emnameshort'} = encode_entities($name->getAttribute('short'));
@@ -139,9 +149,9 @@ close (DEFPREF);
 #######################################################
 
 $conf{'additionalproperties'} = "";
-$conf{'emhomepageURL'} = $httpeditionpath . $editionid . "/libx.html";
-$conf{'emupdateURL'} = $httpeditionpath . $editionid . "/update.rdf";
-$conf{'xpilocation'} = $httpeditionpath . $editionid . "/libx-" . $editionid . ".xpi";
+$conf{'emhomepageURL'} = $httpeditionpath . $editionrelpath . "/libx.html";
+$conf{'emupdateURL'} = $httpeditionpath . $editionrelpath . "/update.rdf";
+$conf{'xpilocation'} = $httpeditionpath . $editionrelpath . "/libx-" . $editionid . ".xpi";
 
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
@@ -208,6 +218,7 @@ system("rm $editionpath/$xpifile; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
        "zip -r $editionpath/$xpifile ./chrome " . $addtoplevelfiles) == 0 || die "zip failed";
 
+system("chmod g+w $editionpath/$xpifile") == 0 || die "chmod g+w failed";
 system("touch $editionpath/uses_xml_config") == 0 || die "touch failed";
 #print "created $xpifile. did not copy update.rdf and makelive.sh\n";
 #exit;
@@ -215,47 +226,16 @@ system("touch $editionpath/uses_xml_config") == 0 || die "touch failed";
 
 system("cp $tmpdir/update.rdf $editionpath") == 0 || die "could not copy update.rdf";
 
-my $livescript = "$editionpath/makelive.sh";
-open (O, ">$livescript") || die ("Could not write to $livescript");
+#my $icon = $conf{'emiconURL'};
+#$icon =~ s/.*\/([^\/]*)/$1/;         # basename of icon
 
-my $icon = $conf{'emiconURL'};
-$icon =~ s/.*\/([^\/]*)/$1/;         # basename of icon
-
-print O <<MAKELIVE_SCRIPT;
-#!/bin/sh
-T=$copytargetdir/$editionid
-test -d \$T || echo This works only on a machine where \$T exists
-test -d \$T || exit
-cp $xpifile \$T
-cp update.rdf \$T
-cp $icon \$T
-cp config \$T
-
-echo I have copied the files for this edition to the $copytargetdir/$editionid/ directory
-
-test -r \$T/.htaccess && echo \$T/.htaccess exists, please check for correctness of edition URL
-test -r \$T/.htaccess || echo No \$T/.htaccess file found, will create a default one.
-
-test -r \$T/.htaccess || cat > \$T/.htaccess << HTACCESSFILE
+my $htaccesspath = $editionpath . "/.htaccess";
+open (HT, ">" . $htaccesspath) || die ("Could not open $htaccesspath: $!");
+print HT <<HTACCESS_END;
 AddType application/x-xpinstall .xpi
-Redirect /editions/$editionid/libx.html http://libx.org/editions/download.php?edition=$editionid
-HTACCESSFILE
-
-cat << BEGINHTACCESS
------ begin of .htaccess file -----
-BEGINHTACCESS
-
-test -r \$T/.htaccess && cat \$T/.htaccess
-cat << ENDHTACCESS
------ end of .htaccess file -----
-
-Do not forget to add this edition to $copytargetdir/editions.list
-if it is to be shown on the libx.org main page
-ENDHTACCESS
-MAKELIVE_SCRIPT
-        
-close (O);
-chmod 0755, "$livescript";
+Redirect /editions/$editionrelpath/libx.html $localhomepage
+HTACCESS_END
+close (HT);
 
 #####Code to modify Nullsoft install script by adding edition-specific files
 sub convertChromeURL {
