@@ -13,6 +13,8 @@ my $copytargetdir = "/home/www/libx.org/editions";
 my $httpeditionpath = "http://www.libx.org/editions/";
 
 # path to edition directory
+# example: /home/www/libx.org/editions/vt.2
+# or /home/www/libx.org/editions/12/34/12345678.1
 my $editionpath = $ARGV[0];
 if (substr($editionpath, 0, 1) ne "/") {        # make relative paths absolute 
     $editionpath = cwd() . "/" . $editionpath;
@@ -33,8 +35,11 @@ my $doc = $parser->parse_file($config);
 my %conf = ();
 
 my $root = $doc->documentElement();
+# edition id is 'vt' or '12345678'
 my $editionid = $root->getAttribute('id');
 
+# relpath is for legacy: vt -> vt
+# for new: 12345678 -> 12/34/12345678
 my $editionrelpath = $editionid;
 if ($editionid =~ /([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{4})/) {
     $editionrelpath = $1 . "/" . $2 . "/" . $editionid;
@@ -279,7 +284,7 @@ for my $dir (keys %flist) {
 $nsisText =~ s/\$editionfiles\$/$eflist/;
 
 #Write the new file
-open (NSIS, ">setup.nsi") || die "Could not upen setup.nsi for writing";
+open (NSIS, ">$editionpath/setup.nsi") || die "Could not upen $editionpath/setup.nsi for writing";
 print NSIS $nsisText;
 close (NSIS);
 
