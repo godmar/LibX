@@ -43,7 +43,9 @@ sub addpropertyEntities() {
 }
 
 $doc->setDocumentElement($root);
-$root->setAttribute('id', $edition);
+my $tedition = $edition;
+$tedition =~ s/\.\d+//;
+$root->setAttribute('id', $tedition);
 if (defined($config{'libxversion'})) {
     $root->setAttribute('version', $config{'libxversion'});
 } else {
