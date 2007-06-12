@@ -132,7 +132,6 @@ Section Uninstall
   
   # Remove edition files
   #$deleteeditionfiles$
-  
   # Remove JavaScript files
   Delete "$APPDATA\LibX\content\catalogs\*.js"
   Delete "$APPDATA\LibX\content\*.js"

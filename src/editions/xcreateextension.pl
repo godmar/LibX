@@ -291,6 +291,6 @@ open (NSIS, ">$editionpath/setup.nsi") || die "Could not upen $editionpath/setup
 print NSIS $nsisText;
 close (NSIS);
 
-#system("NSIS -DDLL_PATH=../LibXIE -DJS_PATH=../base/chrome/libx/content/libx -DLOCALE-PATH=../base/chrome/libx/locale -DLOCALE=en-US -V1 setup.nsi") || die "Could not create nullsoft install script";
+#system("makensis.exe -DDLL_PATH=../LibXIE -DJS_PATH=../base/chrome/libx/content/libx -DLOCALE-PATH=../base/chrome/libx/locale -DLOCALE=en-US -V1 setup.nsi") || die "Could not create nullsoft install script";
 
 exit 0;
