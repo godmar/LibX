@@ -26,7 +26,7 @@ SetCompressor bzip2
 # Welcome page
 !insertmacro MUI_PAGE_WELCOME
 # License page
-!insertmacro MUI_PAGE_LICENSE "MPL-1.1.txt"
+!insertmacro MUI_PAGE_LICENSE "${DLL_PATH}MPL-1.1.txt"
 # Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 # Files to install page
@@ -158,6 +158,7 @@ Section Uninstall
   RMDir "$APPDATA\LibX\skin"
   RMDir "$APPDATA\LibX\content\catalogs"
   RMDir "$APPDATA\LibX\content"
+  RMDir /r "$APPDATA\LibX\locale"
   RMDir "$APPDATA\LibX"
   RMDir "$INSTDIR"
 

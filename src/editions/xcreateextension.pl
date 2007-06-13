@@ -247,7 +247,8 @@ sub convertChromeURL {
 	my ($url) = shift(@_);
 	if(substr($url, 0, 6) eq 'chrome') {	
 		$url =~ s!(chrome:?/?/)|(libx/?)!!g; #Normalize path to what NSIS expects
-		$url = '$APPDATA/LibX/' . $url;
+		$url =~ s!/!\\!g; #Replace all UNIX-style path seps with Windows-style
+		$url = '$APPDATA\LibX\\' . $url;
 	}
 	return $url;
 }
@@ -297,7 +298,7 @@ if (-x $makensis) {
     $env .= " -DDLL_PATH=./LibXIE/";
     $env .= " -DLOCALE_PATH=../base/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
-    $env .= " -DEDITION_PATH=$editionpath";
+    $env .= " -DEDITION_PATH=$editionpath/";
     system ("$makensis $env -V1 -NOCD $editionpath/setup.nsi") == 0 or die "$makensis $env failed.";
 } else {
     print "$makensis not found, skipping IE build.\n";
