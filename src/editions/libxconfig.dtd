@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.19 2007/06/01 15:29:31 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.20 2007/06/18 00:34:23 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -58,7 +58,7 @@
         catgroupids     CDATA #IMPLIED
 >
  
-<!ELEMENT bookmarklet>
+<!ELEMENT bookmarklet (xisbn)?>
 <!ATTLIST bookmarklet 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
