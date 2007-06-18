@@ -292,11 +292,13 @@ function libxInitializeMenuObjects()
         sterm = trim(sterm);
 
         for ( var i = 0; i < menuEntries.length; i++ ) {
+            var sterm1 = sterm;
             
+            // create local copy to avoid overwriting sterm when author heuristics is applied
             if ( menuEntries[i].type == 'a' )   // Transform author
-                sterm = trim(transformAuthorHeuristics(sterm));
+                sterm1 = trim(transformAuthorHeuristics(sterm));
 
-            initMenuEntry ( menuEntries[i], sterm );
+            initMenuEntry ( menuEntries[i], sterm1 );
         }    
     }
        
