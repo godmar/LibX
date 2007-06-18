@@ -32,13 +32,18 @@ getBoolPref:
         return defvalue;
     },
 openSearchWindow:
-    function (url) {
-        window.open(url);
+    function (url, donoturiencode) {
+        if (donoturiencode == null || donoturiencode == false) {
+            var url2 = encodeURI(url);
+        } else {
+            var url2 = url;
+        }
+        window.open(url2);
     },
 writeLog:
     function (msg) {
         alert("writeLog: " + msg);
-    },
+    }
 };
 
 /* remove this and make it so it can use libxInitializeCatalogs in libx.js ... */
@@ -147,3 +152,4 @@ function libxGetUrl(url, cb, sync) {
     xmlhttp.send(null);
     return xmlhttp;
 }
+
