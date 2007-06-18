@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.20 2007/06/18 00:34:23 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.21 2007/06/18 04:06:37 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -156,11 +156,18 @@
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
+<!--
+See http://xisbn.worldcat.org/liblook/howtolink.htm and
+
+opacid and siteparam is for 
+http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
+-->
 <!ELEMENT xisbn EMPTY>
 <!ATTLIST xisbn 
         cues (true|false) 'false'
+        res_id          CDATA #IMPLIED
         opacid          CDATA #IMPLIED
-        oai             CDATA #IMPLIED
+        siteparam       CDATA #IMPLIED
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->

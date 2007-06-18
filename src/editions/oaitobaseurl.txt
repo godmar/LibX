@@ -1,0 +1,178 @@
+google.com		http://worldcatlibraries.org
+http://purl.org/oai/bookmarks.oclc.org/catalog.library.cornell.edu/	Cornell University	http://catalog.library.cornell.edu
+http://purl.org/oai/bookmarks.oclc.org/catalog.smpl.org/	Santa Monica Public Library	http://catalog.smpl.org
+http://purl.org/oai/bookmarks.oclc.org/dev1.dev.oclc.org:6565/	OCLC WebCat	http://dev1.dev.oclc.org:6565
+http://purl.org/oai/bookmarks.oclc.org/felix.us.ohio-state.edu:211/	CIC (Big Ten)	http://felix.us.ohio-state.edu:211
+http://purl.org/oai/bookmarks.oclc.org/ipac.spl.org/	Seattle Public Library	http://ipac.spl.org
+http://purl.org/oai/bookmarks.oclc.org/library.ohio-state.edu/	Ohio State University	http://library.ohio-state.edu
+http://purl.org/oai/bookmarks.oclc.org/olc1.ohiolink.edu/	OhioLINK	http://olc1.ohiolink.edu
+http://purl.org/oai/bookmarks.oclc.org/webpac.cml.lib.oh.us/		http://webpac.cml.lib.oh.us
+http://purl.org/oai/bookmarks.oclc.org/www.riverside.lib.ca.us/	Riverside Public Library	http://www.riverside.lib.ca.us
+ksclib.keene.edu	Keene-Link	http://ksclib.keene.edu
+oai:bookmarks.oclc.org:131.128.70.2	HELIN Library	http://131.128.70.2
+oai:bookmarks.oclc.org:131.175.3.32	Catalogo Collettivo Bicocca - Insubria	http://131.175.3.32
+oai:bookmarks.oclc.org:148.197.5.10	University of Portsmouth Library	http://148.197.5.10
+oai:bookmarks.oclc.org:204.38.55.89	Dickinson Co. Library	http://204.38.55.89
+oai:bookmarks.oclc.org:204.60.100.3/lio	LION	http://204.60.100.3:8080
+oai:bookmarks.oclc.org:209.137.75.111	Utica College Library	http://209.137.75.111
+oai:bookmarks.oclc.org:80-link.lib.fit.edu.ezproxy.lib.fit.edu	Florida Tech Library	http://80-link.lib.fit.edu.ezproxy.lib.fit.edu
+oai:bookmarks.oclc.org:80-voyager.library.uvic.ca.ezproxy.library.uvic.ca	UVic Library	http://80-voyager.library.uvic.ca.ezproxy.library.uvic.ca
+oai:bookmarks.oclc.org:abell.austincollege.edu	Austin College, Abell Library	http://auco.sirsi.net
+oai:bookmarks.oclc.org:afcatalog.co.fulton.ga.us	Atlanta Fulton County Library	http://afcatalog.co.fulton.ga.us
+oai:bookmarks.oclc.org:alcat.nmsu.edu	NMSU-A Library	http://alcat.nmsu.edu
+oai:bookmarks.oclc.org:allconsuming.net	All Consuming	http://allconsuming.net
+oai:bookmarks.oclc.org:bib7.ulb.ac.be	Bibliotheques de l'Universite Libre de Bruxelles	http://bib7.ulb.ac.be
+oai:bookmarks.oclc.org:biblion.exeter.edu	Biblion Library	http://biblion.exeter.edu
+oai:bookmarks.oclc.org:bison.umanitoba.ca	University of Manitoba Libraries	http://bison.umanitoba.ca
+oai:bookmarks.oclc.org:bridges.missouri.edu.proxy.library.maryville.edu	Maryville University Library	http://bridges.missouri.edu.proxy.library.maryville.edu
+oai:bookmarks.oclc.org:bridges.missouri.edu	Bridges Library	http://bridges.missouri.edu
+oai:bookmarks.oclc.org:cat.cape-may.county.lib.nj.us	Cape May County Library	http://cat.cape-may.county.lib.nj.us
+oai:bookmarks.oclc.org:cat.knoxlib.org	Knox County Public Library	http://cat.knoxlib.org
+oai:bookmarks.oclc.org:catalog.cincinnatilibrary.org	Cincinnati Public Library	http://catalog.cincinnatilibrary.org
+oai:bookmarks.oclc.org:catalog.cmpl.org	Clinton-Macomb Pub Lib	http://catalog.cmpl.org
+oai:bookmarks.oclc.org:catalog.cuyahogafallslibrary.org	Cuyahoga Falls Library	http://catalog.cuyahogafallslibrary.org
+oai:bookmarks.oclc.org:catalog.kcls.org	King County Library System (WA)	http://catalog.kcls.org
+oai:bookmarks.oclc.org:catalog.lib.byu.edu	Brigham Young University Library	http://catalog.lib.byu.edu
+oai:bookmarks.oclc.org:catalog.lib.ksu.edu	K-State Libraries	http://catalog.lib.ksu.edu
+oai:bookmarks.oclc.org:catalog.library.jhu.edu	Johns Hopkins Library	http://catalog.library.jhu.edu
+oai:bookmarks.oclc.org:catalog.library.kumc.edu	KU Med Center Libraries	http://catalog.library.kumc.edu
+oai:bookmarks.oclc.org:catalog.library.phila.gov	Free Library of Philadelphia	http://catalog.library.phila.gov
+oai:bookmarks.oclc.org:catalog.loc.gov	Library of Congress OPAC	http://catalog.loc.gov
+oai:bookmarks.oclc.org:catalog.mvlc.org	Merrimack Valley Library Consortium	http://catalog.mvlc.org
+oai:bookmarks.oclc.org:catalog.noblenet.org	North of Boston Library Exchange	http://catalog.noblenet.org
+oai:bookmarks.oclc.org:catalog.princeton.edu	Princeton Library	http://catalog.princeton.edu
+oai:bookmarks.oclc.org:catalog.scld.org	Spokane County Library	http://catalog.scld.org
+oai:bookmarks.oclc.org:catalog.uwyo.edu	University of Wyoming Library	http://catalog.uwyo.edu
+oai:bookmarks.oclc.org:catalog.wpl.lib.oh.us	Westerville Public Library	http://catalog.wpl.lib.oh.us
+oai:bookmarks.oclc.org:catalog.wustl.edu	Washington University Libraries	http://catalog.wustl.edu
+oai:bookmarks.oclc.org:catalog3.mbln.org	Boston Public Library	http://catalog.mbln.org
+oai:bookmarks.oclc.org:catalogue.nla.gov.au	National Library of Australia	http://catalogue.nla.gov.au
+oai:bookmarks.oclc.org:catalogue.wellcome.ac.uk	Wellcome Library	http://catalogue.wellcome.ac.uk
+oai:bookmarks.oclc.org:catnyp.nypl.org	New York Public (Research Libraries)	http://catnyp.nypl.org
+oai:bookmarks.oclc.org:cbpl.sirsi.net	Cobb County Public Library	http://cbpl.sirsi.net
+oai:bookmarks.oclc.org:cerebrus.cshl.edu	Cold Spring Harbor Laboratory Library	http://library.cshl.edu
+oai:bookmarks.oclc.org:clarkbrg.clark.lib.wv.us	Morgantown Public Library	http://clarkbrg.clark.lib.wv.us
+oai:bookmarks.oclc.org:cruzcat.ucsc.edu	UC Santa Cruz Library	http://cruzcat.ucsc.edu
+oai:bookmarks.oclc.org:csul.iii.com	LINK+	http://csul.iii.com
+oai:bookmarks.oclc.org:dbpcosdcsg.co.san-diego.ca.us	San Diego County Library	http://dbpcosdcsg.co.san-diego.ca.us
+oai:bookmarks.oclc.org:dell76sz421.nu.edu	National University Library	http://dell76sz421.nu.edu
+oai:bookmarks.oclc.org:demo.talis.com:6080	talisPrism Demo Library	http://demo.talis.com:6080
+oai:bookmarks.oclc.org:eleanor.lib.gla.ac.uk	Glasgow Univ Library	http://eleanor.lib.gla.ac.uk
+oai:bookmarks.oclc.org:endeavor.flo.org	Wheelock College Library	http://endeavor.flo.org
+oai:bookmarks.oclc.org:fcaw.library.umass.edu	Mount Holyoke Library	http://fcaw.library.umass.edu:8991
+oai:bookmarks.oclc.org:fictionfinder.oclc.org	Fiction Finder	http://fictionfinder.oclc.org
+oai:bookmarks.oclc.org:gil.gatech.edu	Georgia Tech Library	http://gil.gatech.edu
+oai:bookmarks.oclc.org:gil.gsu.edu	Georgia State University Library	http://gil.gsu.edu
+oai:bookmarks.oclc.org:gil.uga.edu	University of Georgia Library	http://gil.uga.edu
+oai:bookmarks.oclc.org:hickory.palni.edu:4505	Taylor University Library	http://hickory.palni.edu:4505
+oai:bookmarks.oclc.org:hip.reginalibrary.ca	Regina Public Library	http://hip.reginalibrary.ca
+oai:bookmarks.oclc.org:hip.tpl.toronto.on.ca	Toronto Public Library Library	http://hip.tpl.toronto.on.ca
+oai:bookmarks.oclc.org:hzportal.spokanelibrary.org	Spokane Public Library	http://hzportal.spokanelibrary.org
+oai:bookmarks.oclc.org:iii.brooklynpubliclibrary.org	Brooklyn Public Library	http://iii.brooklynpubliclibrary.org
+oai:bookmarks.oclc.org:ilsprod.lib.neu.edu	Northeastern Library	http://ilsprod.lib.neu.edu
+oai:bookmarks.oclc.org:inlex.tempe.gov	Tempe Public Library	http://catalog.tempe.gov
+oai:bookmarks.oclc.org:ipac55.plcmc.org	Charlotte Public Library	http://ipac55.plcmc.org
+oai:bookmarks.oclc.org:isbn.lib.montana.edu	Montana State University Libraries	http://isbn.lib.montana.edu
+oai:bookmarks.oclc.org:jenson.stanford.edu	Stanford Univ Library	http://jenson.stanford.edu
+oai:bookmarks.oclc.org:kanawha.lib.wv.us	Kanawha County Public Library	http://kanawha.lib.wv.us
+oai:bookmarks.oclc.org:kentlink.kent.edu	Kent State Library	http://kentlink.kent.edu
+oai:bookmarks.oclc.org:leecoipac.leegov.com	Lee County Library	http://leecoipac.leegov.com:8080
+oai:bookmarks.oclc.org:leo.jmu.edu	JMU Carrier Library	http://leo.jmu.edu
+oai:bookmarks.oclc.org:leopac1.nypl.org	New York Public (Branch Libraries)	http://leopac1.nypl.org
+oai:bookmarks.oclc.org:levan-r:8080	Curiouser	http://levan-r:8080
+oai:bookmarks.oclc.org:lib.hamilton.edu	ALEX (Hamilton College Library)	http://lib.hamilton.edu
+oai:bookmarks.oclc.org:lib3.panam.edu	UTB/TSC Library	http://lib3.panam.edu
+oai:bookmarks.oclc.org:libcat.amnh.org	AMNH Library	http://libcat.amnh.org
+oai:bookmarks.oclc.org:libcat.bucknell.edu	Bucknell Univ. Library	http://libcat.bucknell.edu
+oai:bookmarks.oclc.org:libcat.dartmouth.edu	Dartmouth Library	http://libcat.dartmouth.edu
+oai:bookmarks.oclc.org:libcat.uchicago.edu	U. Chicago Library	http://libcat.uchicago.edu
+oai:bookmarks.oclc.org:library.bc.edu	Boston College Libraries	http://library.bc.edu
+oai:bookmarks.oclc.org:library.brown.edu	Brown University (Josiah) Catalog	http://library.brown.edu
+oai:bookmarks.oclc.org:library.bu.edu	Boston University Library	http://library.bu.edu
+oai:bookmarks.oclc.org:library.ci.chandler.az.us	Chandler Public Library	http://library.ci.chandler.az.us
+oai:bookmarks.oclc.org:library.deakin.edu.au	Deakin University Library	http://library.deakin.edu.au
+oai:bookmarks.oclc.org:library.georgetown.edu	Georgetown University Library	http://catalog.library.georgetown.edu
+oai:bookmarks.oclc.org:library.lac-nm.us	Los Alamos County Library	http://library.lac-nm.us
+oai:bookmarks.oclc.org:library.midsouthcc.edu	Mid-South Community College Library	http://library.midsouthcc.edu
+oai:bookmarks.oclc.org:library.minlib.net	Minuteman Library Network	http://library.minlib.net
+oai:bookmarks.oclc.org:library.mit.edu	MIT (Barton) Catalog	http://library.mit.edu
+oai:bookmarks.oclc.org:library.nscs.edu	Nebraska State College System	http://library.nscs.edu
+oai:bookmarks.oclc.org:library.pasadena.edu	Pasadena City College Library	http://library.pasadena.edu
+oai:bookmarks.oclc.org:library.regent.edu	Regent University Library	http://library.regent.edu
+oai:bookmarks.oclc.org:library.tufts.edu	Tufts University Library Catalog	http://library.tufts.edu
+oai:bookmarks.oclc.org:library.vmi.edu	VMI Preston Library	http://library.vmi.edu
+oai:bookmarks.oclc.org:libros.unm.edu	UNM-Los Alamos Library	http://libros.unm.edu
+oai:bookmarks.oclc.org:libus.csd.mu.edu	Marquette University Libraries	http://libus.csd.mu.edu
+oai:bookmarks.oclc.org:lion.wm.edu	College of William and Mary Libraries	http://lion.wm.edu
+oai:bookmarks.oclc.org:lms01.harvard.edu	Harvard (Hollis) Catalog	http://lms01.harvard.edu
+oai:bookmarks.oclc.org:lola.law.upenn.edu	Univ. of Penn, Biddle Law Library	http://lola.law.upenn.edu
+oai:bookmarks.oclc.org:lsu.louislibraries.org	LSU Libraries	http://lsu.louislibraries.org
+oai:bookmarks.oclc.org:lucas.liberty.edu	Guillermin ILRC - Liberty University	http://lucas.liberty.edu
+oai:bookmarks.oclc.org:lymannet.uchc.edu	UConn Health Center Library	http://lymannet.uchc.edu
+oai:bookmarks.oclc.org:magic.msu.edu	Michigan State Univ Libraries	http://magic.msu.edu
+oai:bookmarks.oclc.org:melvyl.cdlib.org	Melvyl	http://melvyl.cdlib.org
+oai:bookmarks.oclc.org:mill1.sjlibrary.org	San Jose Public Library	http://mill1.sjlibrary.org
+oai:bookmarks.oclc.org:millib.wisconsin.edu	University of Wisconsin-Milwaukee	https://millib.wisconsin.edu
+oai:bookmarks.oclc.org:mirlyn.lib.umich.edu	U. Michigan (Mirlyn) Catalog	http://mirlyn.lib.umich.edu
+oai:bookmarks.oclc.org:mnpals.gustavus.edu	Gustavus Adolphus College Library	http://mnpals.gustavus.edu
+oai:bookmarks.oclc.org:morris.law.yale.edu	MORRISxISBN	http://morris.law.yale.edu
+oai:bookmarks.oclc.org:mountainlynx.lib.wvu.edu	West Virginia University Libraries	http://mountainlynx.lib.wvu.edu
+oai:bookmarks.oclc.org:nstcc-lib.etsu.edu	Northeast State Library	http://nstcc-lib.etsu.edu
+oai:bookmarks.oclc.org:nucat.library.northwestern.edu	Northwestern University Libraries	http://nucat.library.northwestern.edu
+oai:bookmarks.oclc.org:oasis.oregonstate.edu	Oregon State Library	http://oasis.oregonstate.edu
+oai:bookmarks.oclc.org:opac.postech.ac.kr	POSTECH Library	http://opac.postech.ac.kr
+oai:bookmarks.oclc.org:opac1.ntu.edu.sg.ezlibproxy1.ntu.edu.sg	NTU Libraries	http://opac1.ntu.edu.sg.ezlibproxy1.ntu.edu.sg
+oai:bookmarks.oclc.org:orbis.library.yale.edu	Orbis Yale University Library	http://orbis.library.yale.edu
+oai:bookmarks.oclc.org:osucatalog.library.okstate.edu	Oklahoma State University-Stillwater	http://osucatalog.library.okstate.edu
+oai:bookmarks.oclc.org:phebe.bowdoin.edu	Find It @ Bowdoin	http://phebe.bowdoin.edu
+oai:bookmarks.oclc.org:poetry.lib.calpoly.edu	Cal Poly San Luis Obispo, PolyCAT	http://poetry.lib.calpoly.edu
+oai:bookmarks.oclc.org:prattcat.pratt.edu	Pratt Institute	http://prattcat.pratt.edu
+oai:bookmarks.oclc.org:regina.stmarytx.edu	St. Mary's University Blume Library	http://regina.stmarytx.edu
+oai:bookmarks.oclc.org:roger.ucsd.edu	UC San Diego Library	http://roger.ucsd.edu
+oai:bookmarks.oclc.org:scully.ccls.org	Chester County Pennsylvania Library	http://scully.ccls.org
+oai:bookmarks.oclc.org:sdplweb.sannet.gov	San Diego Public Library	http://sdplweb.sannet.gov
+oai:bookmarks.oclc.org:seter.lib.ucalgary.ca	UCalgary Library	http://seter.lib.ucalgary.ca
+oai:bookmarks.oclc.org:silver.stedwards.edu	St. Edward's University Scarborough-Phillips Library	http://silver.stedwards.edu
+oai:bookmarks.oclc.org:sirsi.nmc.edu	Northwestern Michigan College Library	http://sirsi.nmc.edu
+oai:bookmarks.oclc.org:sirsihost.ocln.org	Old Colony Library Network Libraries	http://sirsiweb.ocln.org
+oai:bookmarks.oclc.org:stulibrary.stu.edu	St. Thomas Univ. Library	http://stulibrary.stu.edu
+oai:bookmarks.oclc.org:swan.sls.lib.il.us	Swan	http://swan.sls.lib.il.us
+oai:bookmarks.oclc.org:ualweb.library.ualberta.ca	UAlberta Library	http://ualweb.library.ualberta.ca
+oai:bookmarks.oclc.org:uclid.uc.edu	U. of Cincinnati Library	http://uclid.uc.edu
+oai:bookmarks.oclc.org:uhmanoa.lib.hawaii.edu	University of Hawaii at Manoa Library	http://uhmanoa.lib.hawaii.edu
+oai:bookmarks.oclc.org:umiss.lib.olemiss.edu	University of Mississippi Library	http://umiss.lib.olemiss.edu
+oai:bookmarks.oclc.org:uncclc.coast.uncwil.edu	UNCW Library	http://uncclc.coast.uncwil.edu
+oai:bookmarks.oclc.org:unicorn.lib.ic.ac.uk	Imperial College Library	http://unicorn.lib.ic.ac.uk
+oai:bookmarks.oclc.org:unicorn.sait.ab.ca	SAIT Library	http://unicorn.sait.ab.ca
+oai:bookmarks.oclc.org:vikat.pdx.edu	Portland State Library	http://vikat.pdx.edu
+oai:bookmarks.oclc.org:virgo.lib.virginia.edu	UVA Libraries	http://virgo.lib.virginia.edu
+oai:bookmarks.oclc.org:virtua.lib.tku.edu.tw	Tamkang Univ. Library	http://virtua.lib.tku.edu.tw
+oai:bookmarks.oclc.org:vistaweb.nlb.gov.sg	National Library Board Singapore	http://vistaweb.nlb.gov.sg
+oai:bookmarks.oclc.org:voyager.clarku.edu	Clark University Library	http://voyager.clarku.edu
+oai:bookmarks.oclc.org:voyager.mtsu.edu	Middle Tennessee State Library	http://voyager.mtsu.edu
+oai:bookmarks.oclc.org:vtls.ualibrary.org	Upper Arlington Public Library	http://vtls.ualibrary.org
+oai:bookmarks.oclc.org:web2.cs.upei.ca	Robertson Library, UPEI	http://web2.cs.upei.ca
+oai:bookmarks.oclc.org:webcat.library.ubc.ca	Univ. of British Columbia Library	http://webcat.library.ubc.ca
+oai:bookmarks.oclc.org:webcat.montgomerylibrary.org	Montgomery County Public Library	http://webcat.montgomerylibrary.org
+oai:bookmarks.oclc.org:webcat.winnefox.org	Winnefox Library System	http://webcat.winnefox.org
+oai:bookmarks.oclc.org:webpac.clic.edu	CLICnet Catalog	http://webpac.clic.edu
+oai:bookmarks.oclc.org:webpac.cml.lib.oh.us	Columbus Metro Lib	http://webpac.cml.lib.oh.us
+oai:bookmarks.oclc.org:webvoyage.atu.edu	Arkansas Tech Library	http://webvoyage.atu.edu
+oai:bookmarks.oclc.org:worldcatlibraries.org	Open WorldCat	http://worldcatlibraries.org
+oai:bookmarks.oclc.org:wpl-pac.winnipeg.ca	Winnipeg Public Library	http://wpl-pac.winnipeg.ca
+oai:bookmarks.oclc.org:www.amazon.com	FRBR Amazon	http://www.amazon.com
+oai:bookmarks.oclc.org:www.berkeley-public.org	Berkeley, CA Public Library	http://www.berkeley-public.org
+oai:bookmarks.oclc.org:www.chipubweb.org	Chicago Public Library	http://www.chipubweb.org
+oai:bookmarks.oclc.org:www.consuls.org	Conn St Lib	http://www.consuls.org
+oai:bookmarks.oclc.org:www.franklin.library.upenn.edu	University of Pennsylvania Library	http://www.franklin.library.upenn.edu
+oai:bookmarks.oclc.org:www.lib.iastate.edu	Iowa State University Library	http://www.lib.iastate.edu:81
+oai:bookmarks.oclc.org:www.library.emory.edu	Emory University (EUCLID)	http://www.library.emory.edu
+oai:bookmarks.oclc.org:www.linkcat.info		http://www.linkcat.info
+oai:bookmarks.oclc.org:www.linkcat.info2	LINK	http://www.linkcat.info
+oai:bookmarks.oclc.org:www.lirico.ca	Ottawa Public Library	http://www.lirico.ca
+oai:bookmarks.oclc.org:www.livermore.lib.ca.us	Livermore Public Library	http://www.livermore.lib.ca.us
+oai:bookmarks.oclc.org:www.opac.ssb.stockholm.se	Stockholm City Library	http://www.opac.ssb.stockholm.se
+oai:bookmarks.oclc.org:www.phoenixpubliclibrary.org	Pheonix Public Library	http://www.phoenixpubliclibrary.org
+oai:bookmarks.oclc.org:www.webcat.calbaptist.edu	Annie Gabriel Library	http://www.webcat.calbaptist.edu
+oai:bookmarks.oclc.org:wyvern.uwe.ac.uk	University of Bath	http://wyvern.uwe.ac.uk
+oai:bookmarks.oclc.org:zen.lib.strath.ac.uk	U. of Strathclyde Library	http://zen.lib.strath.ac.uk

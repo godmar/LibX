@@ -19,6 +19,15 @@ while (<F>) {
 }
 close (F);
 
+my %oai = ();
+open (OAILIST, "<oaitobaseurl.txt") || die "cannot open oaitobaseurl.txt: $!";
+while (<OAILIST>) {
+    chomp;
+    my @line = split (/\t/);
+    $oai{$line[0]} = $line[2];
+}
+close (OAILIST);
+
 my $doc = XML::LibXML::Document->new();
 my $root = $doc->createElement('edition');
 
@@ -200,7 +209,14 @@ while (1) {
     }
 
     #$catalog.xisbn.oai=oai:bookmarks.oclc.org:library.mit.edu
-    &addproperty($xisbn, $config{'$' . $catprefix . 'catalog.xisbn.oai'}, 'oai');
+    my $xisbnoai = $config{'$' . $catprefix . 'catalog.xisbn.oai'};
+    if (defined ($xisbnoai)) {
+        my $res_id = $oai{$xisbnoai};
+        if (!defined($res_id)) {
+            print STDERR "OAI: " . $xisbnoai . " not found\n.";
+        }
+        &addproperty($xisbn, $res_id, 'res_id');
+    }
 
     #$catalog.xisbn.opacid=aleph4
     &addproperty($xisbn, $config{'$' . $catprefix . 'catalog.xisbn.opacid'}, 'opacid');

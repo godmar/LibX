@@ -60,18 +60,20 @@ libxCatalog.prototype = {
     // Create a url that requests an item by ISBN from the xISBN service,
     // if the current catalog supports it
     makeXISBNRequest: function(isbn) {
-        if (this.xisbn.oai) {
-            // jeff young from OCLC says to use this URL for libraries registered
-            // with their service, see http://alcme.oclc.org/bookmarks/
-            return "http://alcme.oclc.org/bookmarks/servlet/OAIHandler/extension"
-                + "?verb=FRBRRedirect&identifier=" + this.xisbn.oai
-                + "&isbn=" + isbn;
+        if (this.xisbn.res_id) {
+            // new service described at http://xisbn.worldcat.org/liblook/howtolink.htm
+            return "http://xisbn.worldcat.org:80/liblook/resolve.htm?res_id="
+                + this.xisbn.res_id
+                + "&rft.isbn=" + isbn
+                + "&url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:book";
         } else
         if (this.xisbn.opacid) {
-            // xISBN barks at https URLs
-            return "http://labs.oclc.org/xisbn/liblook?baseURL=" 
+            // new service as per http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
+            return "http://xisbn.worldcat.org/liblook/resolve.htm?res_id=" 
                 + this.url.replace(/https/, "http")
-                + "&opacID=" + this.xisbn.opacid + "&isbn=" + isbn;
+                + "&opactype=" + this.xisbn.opacid 
+                + (this.xisbn.siteparam != null ? this.xisbn.siteparam : "") 
+                + "&rft.isbn=" + isbn;
         } else {
             return this.makeISBNSearch(isbn);
         }
