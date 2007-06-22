@@ -112,6 +112,10 @@ function libxInitializeCatalog(doc, node)
         cat = new OpenURLCatalog();
         break;
 
+    case "web2":    // contributed by whikloj@cc.umanitoba.ca - 2007-06-20
+        cat = new Web2OPAC();
+        break;
+
     default:
 		libxEnv.writeLog("Catalog type " + cattype + " not supported.");
     case null:

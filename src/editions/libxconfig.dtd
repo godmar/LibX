@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.21 2007/06/18 04:06:37 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.22 2007/06/22 17:49:31 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -30,19 +30,19 @@
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar|openurlresolver)* >
+<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar|openurlresolver|web2)* >
 
 <!ELEMENT openurlresolver EMPTY>
 <!ATTLIST openurlresolver
         name            CDATA #REQUIRED
-        resolvernum     CDATA #REQUIRED	
+        resolvernum     CDATA #REQUIRED 
         options         CDATA #REQUIRED
 >
 
 <!ELEMENT scholar EMPTY>
 <!ATTLIST scholar
         name            CDATA #REQUIRED
-        url             CDATA #REQUIRED	
+        url             CDATA #REQUIRED 
         options         CDATA #REQUIRED
 >
 
@@ -122,6 +122,19 @@
         searchscope     CDATA #IMPLIED
         sort            CDATA #IMPLIED
         options         CDATA #REQUIRED
+        path            CDATA #IMPLIED
+>
+<!ELEMENT web2 (xisbn)?>
+<!ATTLIST web2
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        options         CDATA #REQUIRED
+        servers         CDATA #REQUIRED
+        setting_key     CDATA #REQUIRED
+        sid             CDATA #IMPLIED
+        urlregexp       CDATA #IMPLIED
+        searchscope     CDATA #IMPLIED
+        sort            CDATA #IMPLIED
         path            CDATA #IMPLIED
 >
 <!ELEMENT voyager (xisbn)?>

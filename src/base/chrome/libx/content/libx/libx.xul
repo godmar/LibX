@@ -61,6 +61,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/voyageropac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/alephopac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/sirsiopac.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/web2opac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/centralsearch.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libxdfu.js" />

@@ -84,6 +84,10 @@ function libxClientSideCatalogInit(configurl) {
         case "scholar":
             cat = new libxScholarSearch();
             break;
+        // whikloj@cc.umanitoba.ca - 2007-06-20
+        case "web2": 
+            cat = new Web2OPAC();
+            break;
         default:
             continue;
         }
