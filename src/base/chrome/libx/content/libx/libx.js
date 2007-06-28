@@ -52,6 +52,8 @@ var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, ke
  * options -- previously under libxConfig.options
  * init -- initializes browser-specific stuff
  * openURLResolver -- OpenURL resolver or null if no OpenURL support, see openurl.js
+ * addMenuObject/removeMenuObject -- Context menu abstraction layer
+ * initNode + PrefsTreeNode -- Preferences tree view abstraction layer
  */
 
 

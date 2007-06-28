@@ -1,5 +1,32 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is LibX Firefox Extension.
+ *
+ * The Initial Developer of the Original Code is Annette Bailey (libx.org@gmail.com)
+ * Portions created by the Initial Developer are Copyright (C) 2005
+ * the Initial Developer and Virginia Tech. All Rights Reserved.
+ *
+ * Contributor(s): Godmar Back (godmar@gmail.com)
+ *                 Michael Doyle ( vtdoylem@gmail.com )
+ *                 Nathan Baker (nathanb@vt.edu)
+ *
+ * ***** END LICENSE BLOCK ***** */
 
-
+/*
+ * Code for the preferences window. Note that this is different from prefs.js
+ * and prefs.*.js, which actually manage preferences.
+ */
 
 // libxConfig, as passed in from main window.
 var libxConfig;
@@ -68,7 +95,6 @@ function initPrefWindow() {
         document.getElementById ( 'libx-proxy-ajax-checkbox' )
             .setAttribute ( 'disabled', 'true' );
     }
-    
 }
 
 // Saves all of the preferences
@@ -158,147 +184,100 @@ function restoreDefault () {
         if ( node.getAttribute ( 'value' ) )
             isEnabled ( node.getAttribute ( 'id' ) ) ? 
                 node.setAttribute ( 'properties', 'enabled' ) : 
-                node.setAttribute ( 'properties', 'disabled' );          
-        
+                node.setAttribute ( 'properties', 'disabled' ); 
     }
 }
 
-
-
 // Initializes all of the context menu trees
 function libxInitContextMenuTrees() {
-    
-    /*
-     * Appends a child row to the parent
-     * parent should be a treeitem or tree
-     */
-    function addChild ( parent ) {
-        parent.setAttribute ( "container", true );
-        var tchildren = document.createElement ( "treechildren" );
-        parent.appendChild ( tchildren );
-        return tchildren;
-    }
 
-    /*                    
-     * Creates the following:
-     * <treeitem container=isContainer >
-     *     <treerow>
-     *         <treecell attr1=attrs[atr1] />
-     *     </treerow>
-     * </treeitem>
-     * Copies all attrs to the treecell
-     */
-    function createRow ( attrs ) {
-        var titem = document.createElement ( "treeitem" );
-        
-        var trow = document.createElement ( "treerow" );
-        var tcell = document.createElement ( "treecell" );
-    
-        titem.appendChild ( trow );
-        trow.appendChild ( tcell );
-        for ( var k in attrs ) {
-            tcell.setAttribute ( k, attrs[k] );
-        }
-    
-        titem.setAttribute ( 'onclick', 'toggleImage ( this.children[0].children[0] )' );
-        return titem;    
-    }
-
-    /*
-     * Creates the high level labels for the given tree
-     * @param tree      -- tree to initialize
-     * @param attrs    -- array of labels & id's to create entries for
-     * @return children -- array of treeitem entries that were created
-     */
-    function initTree ( tree, attrs ) {
-        tree.setAttribute ( 'width', '250' );
-        tree.setAttribute ( 'height', '150' );
-        tree.setAttribute ( 'onclick', 'treeEventHandler(event, this);' );
-        tree.setAttribute ( 'flex', '1' );
-        
-        var child = addChild ( tree );
-        var children = new Array();
-        for ( var k in attrs ) {
-            var tmp = child.appendChild ( createRow (  {label:attrs[k][0], id:attrs[k][1]} ) );        
-            children.push ( addChild ( tmp ) );
-        }
-        return children;
-    }
-
-    /*
+    /*  addCatalog
      * Adds a catalog entry to the given tree
-     * Can be used for a catalog or open url resolver entries
-     * @param parent   -- Where to append catalog to
-     * @param options  -- what options to add under catalog
-     * @param idprefix -- id prefix ( each opt will be appended to the prefix
+     * 
+     * @param parent {PrefsTreeNode}  Where to append the new node
+     * @param name {string}           String used to build the node ID
+     * @param options {object}        What options (subnodes) to add under new node
+     * @param idprefix {string}       String prepended to node ID
+     * 
+     * This function adds a node entry for a catalog, resolver, etc. This
+     * entry contains subentries which are the actual options users can
+     * enable/disable. These subentries are passed in the options parameter.
+     *
+     * These subentries/options have (hopefully) unique IDs. These IDs are
+     * built through {idprefix}.{name}.{option}. For example, this may give
+     * us "isbn.Addison.xISBN" for the checkbox that determines whether to
+     * display the Addison xISBN resolver in the context menu.
      */
-    function addCatalog ( parent, name, options, idprefix ) {
-        var cat1 = parent.appendChild ( createRow ( {label:name } ) );
-        var cat1Children = addChild ( cat1 );
-         
+    function addCatalog (parent, name, options, idprefix) {
+        var catalogNode = parent.createChild(name, idprefix + '.' + name);
+
         var open = false;
-        for ( var k in options ) {
+        for (var k in options) {
             var opt = options[k];
             var id = idprefix + "." + name + "." + opt;
             var lbl = libxConfig.searchOptions[opt] ?
                 libxConfig.searchOptions[opt] : opt;
-            var enabled = isEnabled ( id ) ? 'enabled' : 'disabled';
-            if ( enabled == 'enabled' )
+            var enabled = isEnabled (id) ? 'enabled' : 'disabled';
+            if (enabled == 'enabled') {
                 open = true;
-            cat1Children.appendChild ( createRow ( {label:lbl, id:id, properties:enabled, value:opt} ) );
+            }
+            catalogNode.createChild(lbl,
+                                    id,
+                                    {   label:lbl,
+                                        id:id,
+                                        properties:enabled,
+                                        value:opt
+                                    });
         }
          
         // Opens elements holding a enabled item
-        if ( open ) {
+    /*    if ( open ) {
             parent.parentNode.setAttribute ( 'open', 'true' );
     //         cat1Children.childNodes[0].setAttribute ( 'open', 'true' );
             cat1Children.parentNode.setAttribute ( 'open', 'true' );
-        }
+        }*/
     }
     /*
      * Initializes the preferences tree with a Catalogs and OpenUrlResolvers label
      * other must specify { type:, name:, id:, options: }
      */
     function initPrefsTree ( type, catF, resolverF, proxyF, other ) {
-        // unhide the tab
+        //Build the ID strings
         var tabId = "libx-contextmenu-" + type + "-prefs-tab";
         var tabPanelId = "libx-" + type + "-tab";
         var id = "libx-contextmenu-" + type + "-prefs-tree";
-        var tree = document.getElementById ( id );
         
         var types = new Array ();
-        var count = 0;
-        var catI;
-        var resolverI;
-        var proxyI;
-        var otherI;
+        var newID;
+        var catID;
+        var resolverID;
+        var proxyID;
+        var otherID;
         if ( catF && libxConfig.numCatalogs > 0 ) {
-            types.push ( ["Catalogs", type + ".catalog" ] );
-            catI = count;
-            count++;
+            newID = type + ".catalog";
+            types.push ( {label: "Catalogs", id: newID} );
+            catID = newID;
         }
         
         if ( resolverF && libxConfig.numResolvers > 0 ) {
-            types.push ( ["Open Url Resolvers", type + ".openurl" ] );
-            resolverI = count;
-            count++;
+            newID = type + ".openurl";
+            types.push ( {label: "Open Url Resolvers", id: newID} );
+            resolverID = newID;
         }
         
         if ( proxyF && libxConfig.numProxy > 0 ) {
-            types.push ( ["Proxy", type + ".proxy" ] );
-            proxyI = count;
-            count++;
+            newID = type + ".proxy";
+            types.push ( {label: "Proxy", id: newID} );
+            proxyID = newID;
         }
         
         if ( other ) {
-            types.push ( [other.type, other.id] );
-            otherI = count;
-            count++;
+            newID = other.id;
+            types.push ( {label: other.type, id: other.id} );
+            otherID = other.id;
         }
-        
-        
-        if ( count == 0 ) {
-            
+
+        /*if ( types.length == 0 ) {
             var tab = document.getElementById ( tabId );
             var tabPanel = document.getElementById ( tabPanelId );
             var tabPanels = tabPanel.parentNode;
@@ -306,22 +285,21 @@ function libxInitContextMenuTrees() {
             tab.parentNode.removeChild ( tab );
             tabPanel.parentNode.removeChild ( tabPanel );
             return;
-        }
+        }*/
+
+        var treeNode = libxEnv.initTree(id, types);
         
-            
-        var labels = initTree ( tree, types );
-        
-        var catalogChildren = labels[catI];
-        var resolverChildren = labels[resolverI];
-        var proxyChildren = labels[proxyI];
-        var otherChildren = labels[otherI];
+        var catalogChildren = treeNode.getChild(catID);
+        var resolverChildren = treeNode.getChild(resolverID);
+        var proxyChildren = treeNode.getChild(proxyID);
+        var otherChildren = treeNode.getChild(otherID);
         
         if ( catF ) {
             for ( var k in libxConfig.catalogs ) {
                 var cat = libxConfig.catalogs[k];
                 var opts = catF ( cat );
                 if ( opts )
-                    addCatalog ( catalogChildren, k, opts, type + ".catalog" );        
+                    addCatalog ( catalogChildren, k, opts, type + ".catalog" );
             }
         }
         
@@ -368,7 +346,8 @@ function libxInitContextMenuTrees() {
     initPrefsTree ( 'issn', 
     function ( cat ) {
         if ( cat.options.indexOf ( 'i' ) >= 0 )
-            return ['i'];        
+            return ['i'];
+        return null;
     },
     function ( resolver ) {
         return ['i'];
@@ -462,7 +441,7 @@ function toggleEnabled (node) {
  * Returns true if a particular search option is enabled
  * id will look something like: isbn.catalog.Addison.i
  */
-function isEnabled ( id ) { //catalog, searchtype, type ) {
+function isEnabled ( id ) { //catalog, searchtype, type ) 
     var parts = id.split ( '.' );
     var type = parts[0];
     var nodeType = parts[1];

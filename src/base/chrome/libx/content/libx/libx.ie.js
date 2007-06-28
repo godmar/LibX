@@ -111,6 +111,12 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
 
 //Returns an XML DOM document for the config file  
 libxEnv.getXMLDocument = function (url, callback, postdata) {
+    //First see if we can grab it from chrome
+    var xdoc = libxInterface.getChromeXMLDocument(url);
+    if(xdoc != null) {
+        return xdoc;
+    }
+    //If not...
     //Get the request object
     var req;
     if(window.XMLHttpRequest) { //This should work under IE7
@@ -191,11 +197,41 @@ libxEnv.initializeContextMenu = function () {
 }
 
 libxEnv.addMenuObject = function(menuentry) {
-    return libxInterface.addMenuItem(menuentry);
+    return libxInterface.addMenuEntry(menuentry);
 }
 
-libxEnv.removeMenuObject = function(mitem) {
-    return libxInterface.removeMenuItem(mitem);
+libxEnv.removeMenuObject = function(menuentry) {
+    return libxInterface.removeMenuEntry(menuentry);
+}
+
+//Context menu preferences functions//////////////////////////////////////////
+
+/*
+ * This object contains strings and labels needed for the preferences UI.
+ * This is necessary because C# currently cannot load the xul file (because
+ * the DTD is using a chrome URL, which of course MSXML6 cannot resolve).
+ *
+ * If it ever becomes possible to load and parse the xul file, this object
+ * should be populated from that.
+ */
+libxEnv.cmLabels = {
+    'isbn':{label:'ISBN', text:'Right-click context menu items that are displayed when an ISBN is selected.'},
+    'issn':{label:'ISSN', text:'Right-click context menu items that are displayed when an ISSN is selected.'},
+    'pmid':{label:'PMID', text:'Right-click context menu items that are displayed when a PubMed ID is selected.'},
+     'doi':{label:'DOI', text:'Right-click context menu items that are displayed when a DOI (Digital Object labelentifier) is selected.'},
+ 'general':{label:'General', text:'Right-click context menu items that are displayed when text other than an ISBN/ISSN/PubMed ID/DOI is selected.'},
+   'proxy':{label:'Proxy', text:'Enable/Disable proxy right-click menu item.'}
+};
+
+libxEnv.addContextMenuPreferencesTab = function (label, id) {
+    return libxInterface.addTab(libxEnv.cmLabels[label].label,
+                                id,
+                                libxEnv.cmLabels[label].text
+                               );
+}
+
+libxEnv.addContextMenuTreeItem = function (id) {
+    return libxInterface.addSibling(id);
 }
 
 //GUI functions///////////////////////////////////////////////////////////////

@@ -725,4 +725,141 @@ libxEnv.contextMenuShowing = function (e) {
     libxContextMenuShowing ();
 }
 
+/////// Preferences dialog functions
+
+/*  PrefsTreeRoot object
+ * Object representing a tree root.
+ * 
+ * @param treeNode {DOMElement}  A <tree> element
+ *
+ * This object is a non-visible container of PrefsTreeNode objects.
+ */
+libxEnv.PrefsTreeRoot = function(treeNode)
+{
+    this.node = treeNode;
+    this.children = new Array();
+}
+
+/*  getChild
+ * Locates the child with the given ID.
+ *
+ * @param id {string}        The ID of the child to locate
+ * 
+ * @returns {PrefsTreeNode}  The located child node, or null if not found
+ */
+libxEnv.PrefsTreeRoot.prototype.getChild = function (id) {
+    for(var i = 0; i < this.children.length; ++i) {
+        if(this.children[i].id == id) {
+            return this.children[i];
+        }
+    }
+    return null;
+}
+
+/*  createChild
+ * Creates a child node (PrefsTreeNode) and appends it.
+ * 
+ * @param label {string}     The label of the node (visible to user)
+ * @param id {string}        A unique node identifier
+ * @param attrs {object}     Name, value pairs used to set node attributes
+ *
+ * @returns {PrefsTreeNode}  The new child node
+ */
+libxEnv.PrefsTreeRoot.prototype.createChild = function (label, id, attrs) {
+    //Create the node object.
+    var child = new libxEnv.PrefsTreeNode(this.node, label, id, attrs);
+    this.children.push(child);
+
+    return child;
+};
+
+/*  PrefsTreeNode object
+ * Object representing a tree node.
+ * 
+ * @param parent {DOMElement}  A <tree> or <treeitem> element
+ * @param label {string}       The label of the node (visible to user)
+ * @param id {string}          A unique node identifier
+ * @param attrs {object}       Name, value pairs used to set node attributes
+ */
+libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
+    var tchildren = null;
+    var createAsSibling = false;
+
+    //Attempt to get an existing treechildren node (there should only be one)
+    for(var i = 0; i < parent.childNodes.length; ++i) {
+        if(parent.childNodes[i].nodeName.toLowerCase() == 'treechildren') {
+            tchildren = parent.childNodes[i];
+            createAsSibling = true;
+            break;
+        }
+    }
+
+    if(!createAsSibling) { //We need to make a treechildren node
+        //Configure the parent
+        parent.setAttribute('container', true);
+        //Create a treechildren node to form a nested list
+        tchildren = document.createElement('treechildren');
+        parent.appendChild(tchildren);
+    }
+
+    //Create the child node and append to parent
+    var titem = document.createElement('treeitem');
+    var trow = document.createElement('treerow');
+    var tcell = document.createElement('treecell');
+    trow.appendChild(tcell);
+    titem.appendChild(trow);
+    tchildren.appendChild(titem);
+
+    //Configure child node
+    for(var a in attrs) {
+        tcell.setAttribute(a, attrs[a]);
+    }
+    //Set the node label
+    tcell.setAttribute('label', label);
+    titem.setAttribute('onclick', 'toggleImage(this.children[0].children[0])');
+
+    this.node = titem;
+    this.children = new Array();
+    this.id = id;
+};
+
+libxEnv.PrefsTreeNode.prototype.getChild = libxEnv.PrefsTreeRoot.prototype.getChild;
+
+libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.createChild;
+
+/*
+ * Initializes a tree and inserts the top-level nodes.
+ * @param treeID {string}    The node id of the tree to initialize
+ * @param items {array}      Labels & ids to create entries for
+ * @returns {PrefsTreeNode}  Node containing the children
+ *
+ * The 'items' array is used to create top-level nodes for the tree. So if,
+ * for example, we wanted to have two top-level nodes (Catalogs and
+ * OpenURL Resolvers), items would have two elements.
+ *
+ * Each element is an object with at least the label and id properties set.
+ * Any additional properties are added as attributes to the node.
+ */
+libxEnv.initTree = function(treeID, items) {
+    var tree = document.getElementById(treeID);
+    
+    //Configure the tree
+    tree.setAttribute('width', '250');
+    tree.setAttribute('height', '150');
+    tree.setAttribute('onclick', 'treeEventHandler(event, this);');
+    tree.setAttribute('flex', '1');
+    tree.setAttribute('container', true);
+
+    //Create the root for the tree
+    var root = new libxEnv.PrefsTreeRoot(tree);
+
+    //Create the initial items
+    for (var i in items) {
+        root.createChild(items[i].label, items[i].id, items[i]);
+    }
+    return root;
+};
+
+
+
 // vim: ts=4

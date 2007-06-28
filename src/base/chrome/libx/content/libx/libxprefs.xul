@@ -27,7 +27,7 @@
 <?xml-stylesheet href="chrome://libx/skin/pref.css" type="text/css"?>
 <?xml-stylesheet href="chrome://libx/skin/about.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://libx/locale/definitions.dtd">
+<!DOCTYPE window SYSTEM "chrome://libx/locale/definitions.dtd">
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
     id="libx-pref-dialog" title="LibX Preferences" orient="vertical" onload="initPrefWindow();" >

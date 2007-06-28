@@ -68,5 +68,5 @@ libxEnv.getLocalXML = function ( path ) {
 }
 
 libxEnv.writeToFile = function ( path, str ) {
-    return libxInterface.writeXMLPrefFile(path, str);
+    return libxInterface.writeFile(path, str);
 }
