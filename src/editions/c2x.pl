@@ -73,20 +73,6 @@ my $e = $doc->createElement('name');
 &addpropertyEntities($e, $config{'libxedition'}, 'edition');
 &addpropertyEntities($e, $config{'emdescription'}, 'description');
 
-# find redirect target in edition live page and add as "localhomepage"
-# attribute
-if (open (HTACC, "<" . $installdir . "/" . $edition . "/.htaccess")) {
-    while (<HTACC>) {
-        # Redirect /editions/vt/libx.html http://www.lib.vt.edu/services/libX/libX.php
-        if (/^Redirect\s+\/editions\/$edition\/libx.html\s+(.*)$/) {
-            $e->setAttribute('localhomepage', $1);
-            last;
-        }
-    }
-    close (HTACC);
-}
-#####
-
 #$adaptedby=
 my $adaptedby = $config{'$adaptedby'};
 &addpropertyEntities($e, $adaptedby, 'adaptedby') if (defined($adaptedby) && $adaptedby ne "");
