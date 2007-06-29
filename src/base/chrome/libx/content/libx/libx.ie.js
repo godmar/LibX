@@ -215,24 +215,132 @@ libxEnv.removeMenuObject = function(menuentry) {
  * should be populated from that.
  */
 libxEnv.cmLabels = {
-    'isbn':{label:'ISBN', text:'Right-click context menu items that are displayed when an ISBN is selected.'},
-    'issn':{label:'ISSN', text:'Right-click context menu items that are displayed when an ISSN is selected.'},
-    'pmid':{label:'PMID', text:'Right-click context menu items that are displayed when a PubMed ID is selected.'},
-     'doi':{label:'DOI', text:'Right-click context menu items that are displayed when a DOI (Digital Object labelentifier) is selected.'},
- 'general':{label:'General', text:'Right-click context menu items that are displayed when text other than an ISBN/ISSN/PubMed ID/DOI is selected.'},
-   'proxy':{label:'Proxy', text:'Enable/Disable proxy right-click menu item.'}
+    'libx-contextmenu-isbn-prefs-tree':{label:'ISBN', text:'Right-click context menu items that are displayed when an ISBN is selected.'},
+    'libx-contextmenu-issn-prefs-tree':{label:'ISSN', text:'Right-click context menu items that are displayed when an ISSN is selected.'},
+    'libx-contextmenu-pmid-prefs-tree':{label:'PMID', text:'Right-click context menu items that are displayed when a PubMed ID is selected.'},
+     'libx-contextmenu-doi-prefs-tree':{label:'DOI', text:'Right-click context menu items that are displayed when a DOI (Digital Object Identifier) is selected.'},
+ 'libx-contextmenu-general-prefs-tree':{label:'General', text:'Right-click context menu items that are displayed when text other than an ISBN/ISSN/PubMed ID/DOI is selected.'},
+   'libx-contextmenu-proxy-prefs-tree':{label:'Proxy', text:'Enable/Disable proxy right-click menu item.'}
 };
 
-libxEnv.addContextMenuPreferencesTab = function (label, id) {
-    return libxInterface.addTab(libxEnv.cmLabels[label].label,
+/*
+ * Adds a tab to the context menu preferences page. This function is not
+ * necessary in Firefox because the tabs are hard-coded in XUL.
+ *
+ * What *is* hard-coded here is the id => label/text mappings (given above).
+ * @param id {string}   The ID of the new tab
+ * @returns {LibXTree}  The C# tree object for the new tab
+ */
+libxEnv.addContextMenuPreferencesTab = function (id) {
+    if(libxEnv.cmLabels[id] === undefined) {
+        libxEnv.writeLog(id + " is not known as a valid id");
+        return null;
+    }
+    return libxInterface.addTab(libxEnv.cmLabels[id].label,
                                 id,
-                                libxEnv.cmLabels[label].text
+                                libxEnv.cmLabels[id].text
                                );
 }
 
-libxEnv.addContextMenuTreeItem = function (id) {
-    return libxInterface.addSibling(id);
+/*
+ * Initializes a tree and inserts the top-level nodes.
+ * @param treeID {string}    The node id of the tree to initialize
+ * @param items {array}      Labels & ids to create entries for
+ * @returns {PrefsTreeNode}  Node containing the children, or null if no items
+ *
+ * The 'items' array is used to create top-level nodes for the tree. So if,
+ * for example, we wanted to have two top-level nodes (Catalogs and
+ * OpenURL Resolvers), items would have two elements.
+ *
+ * Each element is an object with at least the label and id properties set.
+ * Any additional properties are added as attributes to the node.
+ */
+libxEnv.initTree = function(treeID, items) {    
+    if(items.length == 0) {
+        return null;
+    }
+
+    //Create the root for the tree
+    var tree = libxEnv.addContextMenuPreferencesTab(treeID);
+    if(tree == null) {
+        return null;
+    }
+    var root = new libxEnv.PrefsTreeRoot(tree);
+
+    //Create the initial items
+    for (var i in items) {
+        root.createChild(items[i].label, items[i].id);
+    }
+    return root;
+};
+
+/*  PrefsTreeRoot object
+ * Object representing a tree root.
+ * 
+ * @param treeNode {LibXTree}  A C# LibXTree object
+ *
+ * This object is a non-visible container of PrefsTreeNode objects.
+ */
+libxEnv.PrefsTreeRoot = function(treeNode)
+{
+    this.node = treeNode;
+    this.children = new Array();
 }
+
+/*  getChild
+ * Locates the child with the given ID.
+ *
+ * @param id {string}        The ID of the child to locate
+ * 
+ * @returns {PrefsTreeNode}  The located child node, or null if not found
+ */
+libxEnv.PrefsTreeRoot.prototype.getChild = function (id) {
+    for(var i = 0; i < this.children.length; ++i) {
+        if(this.children[i].id == id) {
+            return this.children[i];
+        }
+    }
+    return null;
+}
+
+/*  createChild
+ * Creates a child node (PrefsTreeNode) and appends it.
+ * 
+ * @param label {string}     The label of the node (visible to user)
+ * @param id {string}        A unique node identifier
+ * @param attrs {object}     Name, value pairs used to set node attributes
+ *
+ * @returns {PrefsTreeNode}  The new child node
+ */
+libxEnv.PrefsTreeRoot.prototype.createChild = function (label, id, attrs) {
+    //Create the node object.
+    var child = new libxEnv.PrefsTreeNode(this.node, label, id, attrs);
+    this.children.push(child);
+
+    return child;
+};
+
+/*  PrefsTreeNode object
+ * Object representing a tree node.
+ * 
+ * @param parent {LibXTreeNode}  The tree or tree node that contains this node
+ * @param label {string}         The label of the node (visible to user)
+ * @param id {string}            A unique node identifier
+ * @param attrs {object}         Name, value pairs used to set node attributes
+ */
+libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
+    //Create the C# node (easier than Firefox, for once)
+    var titem = parent.createChild(label, id);
+
+    //Populate the JavaScript fields
+    this.node = titem;
+    this.children = new Array();
+    this.id = id;
+};
+
+libxEnv.PrefsTreeNode.prototype.getChild = libxEnv.PrefsTreeRoot.prototype.getChild;
+
+libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.createChild;
 
 //GUI functions///////////////////////////////////////////////////////////////
 /*

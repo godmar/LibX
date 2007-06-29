@@ -831,7 +831,7 @@ libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.cr
  * Initializes a tree and inserts the top-level nodes.
  * @param treeID {string}    The node id of the tree to initialize
  * @param items {array}      Labels & ids to create entries for
- * @returns {PrefsTreeNode}  Node containing the children
+ * @returns {PrefsTreeNode}  Node containing the children, or null if no items
  *
  * The 'items' array is used to create top-level nodes for the tree. So if,
  * for example, we wanted to have two top-level nodes (Catalogs and
@@ -841,6 +841,9 @@ libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.cr
  * Any additional properties are added as attributes to the node.
  */
 libxEnv.initTree = function(treeID, items) {
+    if(items.length == 0) {
+        return null;
+    }
     var tree = document.getElementById(treeID);
     
     //Configure the tree
