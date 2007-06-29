@@ -76,7 +76,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
             break;
         }
 
-        query += "&startLimit=&searchscope=" + this.searchscope 
+        query += "&startLimit=" + (this.searchscope != null ? "&searchscope=" + this.searchscope : "")
                 + "&SORT=" + this.sort + "&endLimit="
                 + ((this.sid != null) ? "&sid=" + this.sid : "");
         return query;
