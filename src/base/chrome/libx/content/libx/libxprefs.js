@@ -65,8 +65,7 @@ function initPrefWindow() {
         //OK, we're done
         return;
     }
-    
-    
+
     /****** Initialize the default preferences tab *********/
     // Initialize the display preferences radiogroup
     document.getElementById ( libxEnv.getUnicharPref ( "libx.displaypref", "libx.newtabswitch" ) )
@@ -100,8 +99,8 @@ function initPrefWindow() {
 // Saves all of the preferences
 function libxSavePreferences() {
     /**** Saves all of the default preferences **************/
-    libxEnv.setUnicharPref ( 'libx.displaypref', document.getElementById ( "libx-display-prefs" ).selectedItem.id );
-    libxSelectAutolink( document.getElementById ( "libx-autolink-checkbox" ).getAttribute ( "checked" ) );
+    libxEnv.setUnicharPref ('libx.displaypref',  libxEnv.getDisplayPref());
+    libxSelectAutolink(libxEnv.getAutolinkPref());
 
     /**** Saves all of the context menu preferences *********/
     
@@ -156,10 +155,7 @@ function libxSavePreferences() {
     libxUserMenuPrefs.save();
     
     /** Save AJAX Preferences tab options **/
-    libxEnv.setBoolPref ( 'libx.proxy.ajaxlabel', 
-        document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true' ? true : false );
-    
-    
+    libxEnv.setBoolPref ('libx.proxy.ajaxlabel', libxEnv.getProxyPref());
 }
 
 // Saves all preferences and closes window
@@ -324,6 +320,22 @@ function libxInitContextMenuTrees() {
         }
     }
 
+    // Initializes the default preferences tree
+    initPrefsTree ( 'general', 
+    function ( cat ) {
+        var options = cat.options.split ( ';' );
+        var opts = new Array();
+        for ( var k in options ) {
+            if ( options[k] != 'i' )
+                opts.push ( options[k] );
+        }
+        return opts;        
+    },
+    null, 
+    null,
+    { type:"Scholar", name:"Google Scholar", id:"general.scholar", options:["magicsearch"] }
+    );
+
     // Initializes the ISBN Preference Tree
     initPrefsTree ( 'isbn', 
     function ( cat ) {
@@ -359,22 +371,6 @@ function libxInitContextMenuTrees() {
     function ( resolver ) {
         return ['pmid'];
     });
-
-    // Initializes the default preferences tree
-    initPrefsTree ( 'general', 
-    function ( cat ) {
-        var options = cat.options.split ( ';' );
-        var opts = new Array();
-        for ( var k in options ) {
-            if ( options[k] != 'i' )
-                opts.push ( options[k] );
-        }
-        return opts;        
-    },
-    null, 
-    null,
-    { type:"Scholar", name:"Google Scholar", id:"general.scholar", options:["magicsearch"] }
-    );
 
     // Initializes the DOI preference tree
     initPrefsTree ( 'doi', 

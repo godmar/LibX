@@ -85,6 +85,7 @@ Section "LibX JavaScript" SEC02
   File "${JS_PATH}menuObjects.js"
   File "${JS_PATH}isbnutils.js"
   File "${JS_PATH}doiutils.js"
+  File "${JS_PATH}libxprefs.js"
   SetOutPath "$APPDATA\LibX\content\catalogs"
   File "${JS_PATH}catalogs/*.js"
 SectionEnd

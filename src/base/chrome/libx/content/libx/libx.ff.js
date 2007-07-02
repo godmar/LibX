@@ -727,6 +727,19 @@ libxEnv.contextMenuShowing = function (e) {
 
 /////// Preferences dialog functions
 
+libxEnv.getDisplayPref = function() {
+    return document.getElementById ( "libx-display-prefs" ).selectedItem.id;
+};
+
+libxEnv.getAutolinkPref = function() {
+    return document.getElementById ( "libx-autolink-checkbox" ).getAttribute ( "checked" );
+};
+
+libxEnv.getProxyPref = function() {
+    return document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true' ? true : false
+};
+
+
 /*  PrefsTreeRoot object
  * Object representing a tree root.
  * 

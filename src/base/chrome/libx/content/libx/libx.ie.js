@@ -342,6 +342,26 @@ libxEnv.PrefsTreeNode.prototype.getChild = libxEnv.PrefsTreeRoot.prototype.getCh
 
 libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.createChild;
 
+//Preferences UI functions////////////////////////////////////////////////////
+/*
+ * These functions interface with the preferences UI developed in C#. They are
+ * distinct from the context menu preferences above in that they handle the
+ * other types of preferences exposed through this UI.
+ */
+
+libxEnv.getDisplayPref = function() {
+    return libxInterface.getDisplayPreference("libx.newtabswitch");
+};
+
+libxEnv.getProxyPref = function() {
+    return libxInterface.getProxyPreference(false);
+};
+
+libxEnv.getAutolinkPref = function() {
+    //There is no specialized autolink in IE
+    return false;
+};
+
 //GUI functions///////////////////////////////////////////////////////////////
 /*
  * GUI functions are not used in the IE version, as the GUI is not controlled
