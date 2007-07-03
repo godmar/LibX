@@ -39,6 +39,14 @@ libxEnv.init = function() {
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
     libxEnv.loadProperties();
+
+    //Read in search optiosn and add to libxConfig.searchOptions
+    var libxSearchOptions = 
+        libxEnv.xpath.findNodes(libxGetConfigXML().xml, "/edition/searchoptions/*");
+    for (var option = 0; option < libxSearchOptions.length; option++ ) {
+        var mitem = libxSearchOptions[option];
+        libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
+    }
 }
 
 libxEnv.setObjectVisible = function(obj, show) {
