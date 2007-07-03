@@ -96,7 +96,7 @@ libxEnv.getCurrentWindowContent = function() {
 libxEnv.xpath = new Object();
 
 libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
-    return null;
+    return doc.selectSingleNode(xpathexpr);
 }
 
 libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
@@ -104,6 +104,7 @@ libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
 }
 
 libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
+    libxEnv.writeLog("Warning: xpath.findSnapshot not implemented in IE!");
     return null;
 }
 
@@ -118,30 +119,10 @@ libxEnv.getXMLDocument = function (url, callback, postdata) {
     }
     //If not...
     //Get the request object
-    var req;
-    if(window.XMLHttpRequest) { //This should work under IE7
-        try {
-            req = new XMLHttpRequest();
-        }
-        catch(e) {
-            req = false;
-        }
-    }
-    else if(window.ActiveXObject) {
-        try {
-            req = new ActiveXObject("Msxml2.XMLHTTP");
-        }
-        catch(e) {
-            try {
-                req = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            catch(e) {
-                req = false;
-            }
-        }
-    }
-    
+    var req = libxInterface.getXMLHTTPRequest();
+
     if(!req) {
+        libxEnv.writeLog("Could not get request object for url " + url);
         return null;
     }
 
