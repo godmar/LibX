@@ -160,6 +160,17 @@ libxEnv.getXMLDocument = function (url, callback, postdata) {
 libxEnv.getXMLConfig = function () {
     return libxInterface.config;
 }
+
+//File IO functions///////////////////////////////////////////////////////////
+
+libxEnv.writeToFile = function(path, str) {
+    libxInterface.writeToFile(path, str);
+}
+
+libxEnv.getFileText = function(path) {
+    return libxInterface.readFileText(path);
+}
+
 //Logging functions///////////////////////////////////////////////////////////
 
 //Writes to the log, prepending the string 'LibX: '

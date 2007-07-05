@@ -604,6 +604,13 @@ libxEnv.getFile = function ( path ) {
     return file;
 }
 
+//Gets the text of a file.
+libxEnv.getFileText = function (path) {
+    var file = libxEnv.getFile(path);
+    //Note that FileIO.read closes the file, so we're not leaking a handle
+    return FileIO.read(file);
+}
+
 // Used to get the defaultprefs.xml and userprefs.xml files
 libxEnv.getLocalXML = function ( path ) {
     return libxEnv.getXMLDocument ( libxEnv.getFilePath ( path ) );
