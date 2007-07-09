@@ -225,13 +225,10 @@ function libxInitContextMenuTrees() {
                                         value:opt
                                     });
         }
-         
+
         // Opens elements holding a enabled item
-    /*    if ( open ) {
-            parent.parentNode.setAttribute ( 'open', 'true' );
-    //         cat1Children.childNodes[0].setAttribute ( 'open', 'true' );
-            cat1Children.parentNode.setAttribute ( 'open', 'true' );
-        }*/
+        catalogNode.setExpanded(open);
+        parent.setExpanded(open);
     }
     /*
      * Initializes the preferences tree with a Catalogs and OpenUrlResolvers label

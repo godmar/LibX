@@ -843,6 +843,13 @@ libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
     this.id = id;
 };
 
+libxEnv.PrefsTreeNode.prototype.setExpanded = function (expanded) {
+    if (expanded) {
+        //this.parentNode.setAttribute ( 'open', 'true' );
+        this.node.setAttribute ( 'open', 'true' );
+    }
+}
+
 libxEnv.PrefsTreeNode.prototype.getChild = libxEnv.PrefsTreeRoot.prototype.getChild;
 
 libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.createChild;
