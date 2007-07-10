@@ -177,7 +177,7 @@ sub copyandreplace
     close (FD);
 }
 
-my $tmpdir = "tmp2";
+my $tmpdir = "tmp2.$$";
 if (-d $tmpdir) {
     system("/bin/rm -r $tmpdir") == 0 or die "$!: cannot rm " . $tmpdir . " in " . `pwd` . " running as " . `id`;
 }
