@@ -49,10 +49,6 @@ if ($editionid =~ /([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{4})/) {
 $conf{'libxversion'} = $root->getAttribute('version');
 
 my $name = ${$root->getChildrenByTagName('name')}[0];
-my $localhomepage = $name->getAttribute('localhomepage');
-if (!defined($localhomepage) || $localhomepage eq "") {
-    $localhomepage=$httpeditionpath . "download.php?edition=$editionid";
-}
 
 # this goes in install.rdf which does not accept entities
 $conf{'emname'} = $name->getAttribute('long');
@@ -234,14 +230,6 @@ system("cp $tmpdir/update.rdf $editionpath") == 0 || die "could not copy update.
 #my $icon = $conf{'emiconURL'};
 #$icon =~ s/.*\/([^\/]*)/$1/;         # basename of icon
 
-my $htaccesspath = $editionpath . "/.htaccess";
-open (HT, ">" . $htaccesspath) || die ("Could not open $htaccesspath: $!");
-print HT <<HTACCESS_END;
-AddType application/x-xpinstall .xpi
-Redirect /editions/$editionrelpath/libx.html $localhomepage
-HTACCESS_END
-close (HT);
-
 #####Code to modify Nullsoft install script by adding edition-specific files
 sub convertChromeURL {
 	my ($url) = shift(@_);
@@ -303,5 +291,7 @@ if (-x $makensis) {
 } else {
     print "$makensis not found, skipping IE build.\n";
 }
+
+system ("/bin/rm -rf $tmpdir");
 
 exit 0;
