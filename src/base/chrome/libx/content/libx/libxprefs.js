@@ -270,15 +270,13 @@ function libxInitContextMenuTrees() {
             otherID = other.id;
         }
 
-        /*if ( types.length == 0 ) {
-            var tab = document.getElementById ( tabId );
-            var tabPanel = document.getElementById ( tabPanelId );
-            var tabPanels = tabPanel.parentNode;
-            
-            tab.parentNode.removeChild ( tab );
-            tabPanel.parentNode.removeChild ( tabPanel );
+        if ( types.length == 0 ) {
+            //Remove the tab and bail (nothing to do)
+            //Note that the tab hasn't even been added yet in IE, but
+            //the function is smart enough to handle that.
+            libxEnv.removeContextMenuPreferencesTab(type);
             return;
-        }*/
+        }
 
         var treeNode = libxEnv.initTree(id, types);
         

@@ -746,6 +746,18 @@ libxEnv.getProxyPref = function() {
     return document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true' ? true : false
 };
 
+libxEnv.removeContextMenuPreferencesTab = function (idbase) {
+    var tabId = "libx-contextmenu-" + idbase + "-prefs-tab";
+    var tabPanelId = "libx-" + idbase + "-tab";
+    var id = "libx-contextmenu-" + idbase + "-prefs-tree";
+        
+    var tab = document.getElementById ( tabId );
+    var tabPanel = document.getElementById ( tabPanelId );
+    var tabPanels = tabPanel.parentNode;
+    
+    tab.parentNode.removeChild ( tab );
+    tabPanel.parentNode.removeChild ( tabPanel );
+}
 
 /*  PrefsTreeRoot object
  * Object representing a tree root.

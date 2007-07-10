@@ -243,6 +243,17 @@ libxEnv.addContextMenuPreferencesTab = function (id) {
 }
 
 /*
+ * Removes a tab from the context menu preferences page. If no tab exists
+ * with the given ID, we do nothing.
+ *
+ * @param idbase {string}  The string used to form the ID for the tab
+ */
+libxEnv.removeContextMenuPreferencesTab = function (idbase) {
+    var tabId = "libx-contextmenu-" + idbase + "-prefs-tab";
+    libxInterface.removeTab(id);
+}
+
+/*
  * Initializes a tree and inserts the top-level nodes.
  * @param treeID {string}    The node id of the tree to initialize
  * @param items {array}      Labels & ids to create entries for
@@ -338,6 +349,11 @@ libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
     this.id = id;
 };
 
+/*  setExpanded
+ * Sets the expanded state of the node.
+ *
+ * @param expanded {bool}   The desired state. true=expanded, false=collapsed.
+ */
 libxEnv.PrefsTreeNode.prototype.setExpanded = function (expanded) {
     this.node.setExpanded(expanded);
 }
