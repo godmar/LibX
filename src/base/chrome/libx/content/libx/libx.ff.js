@@ -733,6 +733,55 @@ libxEnv.contextMenuShowing = function (e) {
 }
 
 /////// Preferences dialog functions
+libxEnv.initPrefsGUI = function () {
+    // Set the title
+    var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
+    
+    if ( window.arguments )
+    {
+        libxConfig = window.arguments[0].config;
+    }
+    else { //Hide all tab panels except 'about'
+        document.getElementById('libxGeneral').setAttribute('hidden', true);
+        document.getElementById('libxContext').setAttribute('hidden', true);
+        document.getElementById('libxAJAX').setAttribute('hidden', true);
+        document.getElementById('libx-prefs-tab').setAttribute('hidden', true);
+        document.getElementById('libx-contextmenu-prefs-tab').setAttribute('hidden', true);
+        document.getElementById('libx-ajax-tab').setAttribute('hidden', true);
+        document.getElementById('libxApply').setAttribute('hidden', true);
+        //OK, we're done
+        return;
+    }
+
+    /****** Initialize the default preferences tab *********/
+    // Initialize the display preferences radiogroup
+    document.getElementById ( libxEnv.getUnicharPref ( "libx.displaypref", "libx.newtabswitch" ) )
+        .setAttribute ( "selected", true );
+        
+    // Initialize the autolinking checkbox
+    document.getElementById ( "libx-autolink-checkbox" )
+        .setAttribute ( "checked", libxEnv.getBoolPref ( "libx.autolink", true ) );
+    
+    /****** Initialize the context menu preferences tab *****/
+    libxInitContextMenuTrees();
+    
+    /***** Initialize the AJAX tab ****/
+    // Figure out whether Proxy checkbox should be grayed out or not
+    var ajaxenabled = false;
+
+    for ( var k in libxConfig.proxy ) {
+        if ( libxConfig.proxy[k].urlcheckpassword )
+            ajaxenabled = true;
+    }
+    
+    if ( ajaxenabled ) {
+        document.getElementById ( 'libx-proxy-ajax-checkbox')
+            .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', 'true' ) ? 'true' : 'false' );
+    } else {
+        document.getElementById ( 'libx-proxy-ajax-checkbox' )
+            .setAttribute ( 'disabled', 'true' );
+    }
+}
 
 libxEnv.getDisplayPref = function() {
     return document.getElementById ( "libx-display-prefs" ).selectedItem.id;

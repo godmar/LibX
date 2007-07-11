@@ -164,6 +164,7 @@ libxEnv.getXMLConfig = function () {
 //File IO functions///////////////////////////////////////////////////////////
 
 libxEnv.writeToFile = function(path, str) {
+    libxEnv.writeLog("167: writeToFile " + path);
     libxInterface.writeToFile(path, str);
 }
 
@@ -343,6 +344,12 @@ libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
     //Create the C# node (easier than Firefox, for once)
     var titem = parent.createChild(label, id);
 
+    //Are we checked?
+    if(attrs && attrs.properties) {
+        if(attrs.properties == 'enabled') {
+            titem.isChecked = true;
+        }
+    }
     //Populate the JavaScript fields
     this.node = titem;
     this.children = new Array();
@@ -368,6 +375,10 @@ libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.cr
  * distinct from the context menu preferences above in that they handle the
  * other types of preferences exposed through this UI.
  */
+
+libxEnv.initPrefsGUI = function() {
+    //This is just a dummy for Firefox compatability.
+}
 
 libxEnv.getDisplayPref = function() {
     return libxInterface.getDisplayPreference("libx.newtabswitch");
