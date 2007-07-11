@@ -1,4 +1,17 @@
 #!/usr/bin/perl -w
+
+print <<EOF;
+
+As of 7/10/2007, this script is no longer being maintained.
+All config files hosted on libx.org have been converted, and subsequent
+changes will not be retroactively be added to the config files.
+
+See http://libx.org/editionbuilder for our edition builder that allows
+anybody to make and maintain an edition.
+
+EOF
+exit 1;
+
 #
 # This scripts converts a config file to an XML file
 #
