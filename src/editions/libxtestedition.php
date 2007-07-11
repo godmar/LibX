@@ -336,6 +336,7 @@ You should be seeings cues on these pages.  (If there is a date in parentheses,
 this indicates that your edition must have been rebuilt after that date for
 the cue to work.)
 <ul>
+<li><a target="_new" href="http://www.alibris.com/search/search.cfm?qwork=8803863&wtit=historian&matches=501&qsort=r&cm_re=works*listing*title">alibris.com</a> (5/11/07)
 <li><a target="_new" href="http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=006073132X&itm=1">
         Barnes &amp; Noble</a> (8/18/06),
 <li><a target="_new" href="http://www.amazon.com/gp/product/006073132X">Amazon</a> (revised 4/4/07),
