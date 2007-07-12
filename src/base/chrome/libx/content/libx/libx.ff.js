@@ -783,6 +783,22 @@ libxEnv.initPrefsGUI = function () {
     }
 }
 
+libxEnv.resetToDefaultPrefs = function() {
+    // Re-set prefs to default
+    var nodes = document.getElementsByTagName ( 'treecell' );
+    for ( var i = 0; i < nodes.length; i++ ) {
+        var node = nodes[i];
+        if ( node.getAttribute ( 'value' ) ) {
+            if(isEnabled ( node.getAttribute ( 'id' ) )) {
+                node.setAttribute ( 'properties', 'enabled' );
+            }
+            else {
+                node.setAttribute ( 'properties', 'disabled' );
+            }
+        }
+    }
+}
+
 libxEnv.getDisplayPref = function() {
     return document.getElementById ( "libx-display-prefs" ).selectedItem.id;
 };
@@ -808,6 +824,21 @@ libxEnv.removeContextMenuPreferencesTab = function (idbase) {
     tabPanel.parentNode.removeChild ( tabPanel );
 }
 
+/* Returns all nodes which are checked
+ * @param tree {libxEnv.PrefsTree}  A tree node
+ */
+libxEnv.getEnabledNodes = function (tree) {
+    enabledNodes = new Array();
+    nodeList = getElementsByAttribute (tree.node, 'treecell', 'properties', 'enabled');
+    for(var i = 0; i < nodeList.length; ++i) {
+        var n = libxFindInTree(nodeList[i].id, tree);
+        if(n) {
+            enabledNodes.push(n);
+        }
+    }
+    return enabledNodes;
+}
+
 /*  PrefsTreeRoot object
  * Object representing a tree root.
  * 
@@ -815,10 +846,11 @@ libxEnv.removeContextMenuPreferencesTab = function (idbase) {
  *
  * This object is a non-visible container of PrefsTreeNode objects.
  */
-libxEnv.PrefsTreeRoot = function(treeNode)
+libxEnv.PrefsTreeRoot = function(treeNode, id)
 {
     this.node = treeNode;
     this.children = new Array();
+    this.id = id;
 }
 
 /*  getChild
@@ -853,6 +885,10 @@ libxEnv.PrefsTreeRoot.prototype.createChild = function (label, id, attrs) {
 
     return child;
 };
+
+libxEnv.PrefsTreeRoot.prototype.isEnabled = function() {
+    return false;
+}
 
 /*  PrefsTreeNode object
  * Object representing a tree node.
@@ -906,8 +942,25 @@ libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
 
 libxEnv.PrefsTreeNode.prototype.setExpanded = function (expanded) {
     if (expanded) {
-        //this.parentNode.setAttribute ( 'open', 'true' );
         this.node.setAttribute ( 'open', 'true' );
+    }
+}
+
+libxEnv.PrefsTreeNode.prototype.isEnabled = function() {
+    if(this.node.hasAttribute('properties')) {
+        libxEnv.writeLog("====" + this.id + " has properties attribute " + this.node.getAttribute('properties'));
+        return this.node.getAttribute('properties').toLocaleLowerCase() == 'enabled';
+    }
+    libxEnv.writeLog("====" + this.id + " has no properties attribute");
+    return false;
+}
+
+libxEnv.PrefsTreeNode.prototype.toggleEnabled = function() {
+    if(this.node.getAttribute ('properties') == 'enabled') {
+        this.node.setAttribute ( 'properties', 'disabled' )
+    }
+    else {
+        this.node.setAttribute ( 'properties', 'enabled' );
     }
 }
 
@@ -942,7 +995,7 @@ libxEnv.initTree = function(treeID, items) {
     tree.setAttribute('container', true);
 
     //Create the root for the tree
-    var root = new libxEnv.PrefsTreeRoot(tree);
+    var root = new libxEnv.PrefsTreeRoot(tree, treeID);
 
     //Create the initial items
     for (var i in items) {

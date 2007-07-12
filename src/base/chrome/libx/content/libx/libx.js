@@ -180,7 +180,7 @@ function libxInitializeCatalogs()
 function libxInit() 
 {
     libxInitializeProperties();
-    
+    libxInitMagicSearch();
     /*
      * Config XML must be present to load options
      */

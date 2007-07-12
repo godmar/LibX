@@ -37,15 +37,42 @@ var libxMenuPrefs;
 // Preferences, where they will be saved
 var libxUserMenuPrefs;
 
+//List of root-level trees
+var libxTrees;
+
 /* Initializes the preferences window
  */
 function initPrefWindow() {
-    
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
 
     libxInitializeProperties();
     libxEnv.initPrefsGUI();
+}
+
+/* Locates a tree node given its id. Operates recursively on a tree node.
+ */
+function libxFindInTree(id, node) {
+    if(node.id && node.id == id) {
+        return node;
+    }
+    for(var i = 0; i < node.children.length; ++i) {
+        var ret = libxFindInTree(id, node.children[i]);
+        if(ret) {
+            return ret;
+        }
+    }
+    return false;
+}
+
+function libxFindTreeNode(id) {
+    for(var i = 0; i < libxTrees.length; ++i) {
+        var ret = libxFindInTree(id, libxTrees[i]);
+        if(ret) {
+            return ret;
+        }
+    }
+    return false;
 }
 
 // Saves all of the preferences
@@ -55,7 +82,13 @@ function libxSavePreferences() {
     libxSelectAutolink(libxEnv.getAutolinkPref());
 
     /**** Saves all of the context menu preferences *********/
+    libxSaveContextPrefs();
     
+    /** Save AJAX Preferences tab options **/
+    libxEnv.setBoolPref ('libx.proxy.ajaxlabel', libxEnv.getProxyPref());
+}
+
+function libxSaveContextPrefs() {
     // Initializes the libxUserMenuPrefs
     libxUserMenuPrefs = new libxXMLPreferences();
     libxUserMenuPrefs.children = new Array();
@@ -67,16 +100,16 @@ function libxSavePreferences() {
     
     // Saves preferences into libxUserMenuPrefs
     function saveTree ( tree  ) {
-
         try {    
-            var cells = getEnabledNodes( tree );
+            var cells = libxEnv.getEnabledNodes( tree );
         }
         catch ( e ) { // if tree is not found
+            libxEnv.writeLog("Tree not found when trying to save preferences.");
             return;
         }
-        
-        var type = tree.getAttribute ( 'id' ).split ( '-' )[2];
-        
+
+        var type = tree.id.split ( '-' )[2];
+
         var obj = new Object();
         obj.nodeName = type;
         obj.children = new Array();
@@ -84,8 +117,8 @@ function libxSavePreferences() {
         for ( var i = 0; i < cells.length; i++ ) {
             var entry = new Object();
             entry.attr = new Object();
-            var parts = cells[i].getAttribute ( 'id' ).split ( '.' );
-    
+            var parts = cells[i].id.split ( '.' );
+
             entry.nodeName = parts[1];
             entry.attr.name = parts[2];
             entry.attr.type = parts[3];
@@ -93,21 +126,12 @@ function libxSavePreferences() {
         }
         libxUserMenuPrefs.contextmenu.children.push ( obj );
     }
-    
-    function saveT ( type ) {
-        saveTree ( document.getElementById( 'libx-contextmenu-' + type + '-prefs-tree' ) );
+
+    for(var i = 0; i < libxTrees.length; ++i) {
+        saveTree(libxTrees[i]);
     }
-    saveT ( 'isbn' );
-    saveT ( 'issn' );
-    saveT ( 'doi' );
-    saveT ( 'general' );
-    saveT ( 'pmid' );
-    saveT ( 'proxy' );
-    
+
     libxUserMenuPrefs.save();
-    
-    /** Save AJAX Preferences tab options **/
-    libxEnv.setBoolPref ('libx.proxy.ajaxlabel', libxEnv.getProxyPref());
 }
 
 // Saves all preferences and closes window
@@ -121,24 +145,16 @@ function libxSaveAndQuit() {
 // Deletes the userprefs.xml file and restores the tree
 // based on defaultprefs.xml
 function restoreDefault () {
-    
     // Remove user prefs file
     libxEnv.removeFile ( libxEnv.userPrefs );
     libxMenuPrefs = new libxXMLPreferences();
-    // Re-set prefs to default
-    var nodes = document.getElementsByTagName ( 'treecell' );
-    for ( var i = 0; i < nodes.length; i++ ) {
-        var node = nodes[i];
-        if ( node.getAttribute ( 'value' ) )
-            isEnabled ( node.getAttribute ( 'id' ) ) ? 
-                node.setAttribute ( 'properties', 'enabled' ) : 
-                node.setAttribute ( 'properties', 'disabled' ); 
-    }
+
+    libxEnv.resetToDefaultPrefs();
 }
 
 // Initializes all of the context menu trees
 function libxInitContextMenuTrees() {
-
+    libxTrees = new Array();
     /*  addCatalog
      * Adds a catalog entry to the given tree
      * 
@@ -233,6 +249,7 @@ function libxInitContextMenuTrees() {
         }
 
         var treeNode = libxEnv.initTree(id, types);
+        libxTrees.push(treeNode);
         
         var catalogChildren = treeNode.getChild(catID);
         var resolverChildren = treeNode.getChild(resolverID);
@@ -360,18 +377,14 @@ function treeEventHandler(e, tree) {
     var cellItem = node.firstChild.firstChild;
     
     // Only leaf nodes have the 'value' attribute set
-    if ( cellItem.getAttribute ( 'value' ) ) {   
-        toggleEnabled ( node.firstChild.firstChild );
+    if ( cellItem.getAttribute ( 'value' ) ) {
+        var node = libxFindTreeNode(cellItem.id);
+        if(node) {
+            node.toggleEnabled();
+            toggleEnabled (cellItem);
+        }
     }
 }
-
-
-
-// Returns all nodes which have the enabled attribute set to true
-function getEnabledNodes ( tree ) {
-    return getElementsByAttribute ( tree, 'treecell', 'properties', 'enabled' );
-}
-
 
 /*
  * Toggles Image for the given node
@@ -379,14 +392,13 @@ function getEnabledNodes ( tree ) {
  */
 function toggleEnabled (node) {
     node.getAttribute ( 'properties' ) == 'enabled' ? node.setAttribute ( 'properties', 'disabled' ) : node.setAttribute ( 'properties', 'enabled' );
-    
 }
 
 /*
  * Returns true if a particular search option is enabled
  * id will look something like: isbn.catalog.Addison.i
  */
-function isEnabled ( id ) { //catalog, searchtype, type ) 
+function isEnabled ( id ) { 
     var parts = id.split ( '.' );
     var type = parts[0];
     var nodeType = parts[1];

@@ -74,7 +74,7 @@ libxXMLPreferences.prototype = {
             // If not, we fall back to defaults (but path is still user prefs)
             doc = libxEnv.getLocalXML(libxEnv.defaultPrefs);
             if(doc) {
-                this.loadXMLhelper(doc.firstChild, this);                
+                this.loadXMLhelper(doc.firstChild, this);
             }
             else {
                 // OK, I guess it's time to fail

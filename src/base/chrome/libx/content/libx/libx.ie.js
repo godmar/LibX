@@ -172,6 +172,10 @@ libxEnv.getFileText = function(path) {
     return libxInterface.readFileText(path);
 }
 
+libxEnv.removeFile = function(path) {
+    libxInterface.removeFile(path);
+}
+
 //Logging functions///////////////////////////////////////////////////////////
 
 //Writes to the log, prepending the string 'LibX: '
@@ -267,7 +271,7 @@ libxEnv.removeContextMenuPreferencesTab = function (idbase) {
  * Each element is an object with at least the label and id properties set.
  * Any additional properties are added as attributes to the node.
  */
-libxEnv.initTree = function(treeID, items) {    
+libxEnv.initTree = function(treeID, items) {
     if(items.length == 0) {
         return null;
     }
@@ -277,7 +281,7 @@ libxEnv.initTree = function(treeID, items) {
     if(tree == null) {
         return null;
     }
-    var root = new libxEnv.PrefsTreeRoot(tree);
+    var root = new libxEnv.PrefsTreeRoot(tree, treeID);
 
     //Create the initial items
     for (var i in items) {
@@ -286,6 +290,24 @@ libxEnv.initTree = function(treeID, items) {
     return root;
 };
 
+/* Returns all nodes which are checked
+ * @param tree {libxEnv.PrefsTree}  A tree node
+ */
+libxEnv.getEnabledNodes = function (tree) {
+    var enabledNodes = new Array();
+
+    //Check self
+    if(tree.isEnabled()) {
+        enabledNodes.push(tree);
+    }
+
+    //Check the children
+    for(var i = 0; i < tree.children.length; ++i) {
+        enabledNodes = enabledNodes.concat(libxEnv.getEnabledNodes(tree.children[i]));
+    }
+    return enabledNodes;
+}
+
 /*  PrefsTreeRoot object
  * Object representing a tree root.
  * 
@@ -293,10 +315,11 @@ libxEnv.initTree = function(treeID, items) {
  *
  * This object is a non-visible container of PrefsTreeNode objects.
  */
-libxEnv.PrefsTreeRoot = function(treeNode)
+libxEnv.PrefsTreeRoot = function(treeNode, id)
 {
     this.node = treeNode;
     this.children = new Array();
+    this.id = id;
 }
 
 /*  getChild
@@ -313,6 +336,10 @@ libxEnv.PrefsTreeRoot.prototype.getChild = function (id) {
         }
     }
     return null;
+}
+
+libxEnv.PrefsTreeRoot.prototype.isEnabled = function() {
+    return false;
 }
 
 /*  createChild
@@ -365,6 +392,10 @@ libxEnv.PrefsTreeNode.prototype.setExpanded = function (expanded) {
     this.node.setExpanded(expanded);
 }
 
+libxEnv.PrefsTreeNode.prototype.isEnabled = function() {
+    return this.node.isChecked;
+}
+
 libxEnv.PrefsTreeNode.prototype.getChild = libxEnv.PrefsTreeRoot.prototype.getChild;
 
 libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.createChild;
@@ -375,6 +406,10 @@ libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.cr
  * distinct from the context menu preferences above in that they handle the
  * other types of preferences exposed through this UI.
  */
+
+libxEnv.resetToDefaultPrefs = function () {
+    libxInterface.resetTabs();
+}
 
 libxEnv.initPrefsGUI = function() {
     //This is just a dummy for Firefox compatability.
