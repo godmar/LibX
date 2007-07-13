@@ -31,6 +31,10 @@ getBoolPref:
     function (pref, defvalue) {
         return defvalue;
     },
+getIntPref: 
+    function (pref, defvalue) {
+        return defvalue;
+    },
 openSearchWindow:
     function (url, donoturiencode) {
         if (donoturiencode == null || donoturiencode == false) {
@@ -49,6 +53,13 @@ writeLog:
 /* remove this and make it so it can use libxInitializeCatalogs in libx.js ... */
 var catalogs = new Array();
 function libxClientSideCatalogInit(configurl) {
+
+    function copyXMLAttributestoJS (fromXML, toJS) {
+        for (var j = 0; j < fromXML.attributes.length; j++) {
+            toJS[fromXML.attributes[j].nodeName] = fromXML.attributes[j].nodeValue;
+        }
+    }
+
     var xmlhttp = libxGetUrl(configurl, null);
     var configXML = xmlhttp.responseXML;
     var xmlCatalogs = configXML.getElementsByTagName("catalogs")[0];
@@ -91,9 +102,15 @@ function libxClientSideCatalogInit(configurl) {
         default:
             continue;
         }
-        for (var j = 0; j < xmlCat.attributes.length; j++) {
-            cat[xmlCat.attributes[j].nodeName] = xmlCat.attributes[j].nodeValue;
+        copyXMLAttributestoJS(xmlCat, cat);
+
+        /* find xisbn child (should be first child in current DTD) */
+        for (var k = 0; k < xmlCat.childNodes.length; k++) {
+            var xisbnNode = xmlCat.childNodes[k];
+            if (xisbnNode.nodeName == "xisbn")
+                copyXMLAttributestoJS ( xisbnNode, cat.xisbn );
         }
+
         catalogs.push (cat);
     }
 }
