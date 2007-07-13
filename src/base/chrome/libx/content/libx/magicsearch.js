@@ -151,13 +151,14 @@ function magicSearch(data, inpub, justmakeurl)
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
         libxEnv.writeLog("Attempt #" + _attempt + ": " + url, libxEnv.logTypes.magic);
 
-        var req = new XMLHttpRequest();
+        /*var req = new XMLHttpRequest();
         req.open('GET', url, false);    // synchronous request
         // This request will send along whatever cookie is already set by the user, 
         // so there is no need to set a cookie here - the cookie is used for Scholar
         // preferences
         req.send(null);
-        var r = req.responseText;
+        var r = req.responseText;*/
+        var r = libxEnv.getDocument(url, null, null);
         
         // see if the query was bungled b/c of searchterms clutched together
         // Let us see if scholar says that we should drop some search terms

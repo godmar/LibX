@@ -116,6 +116,50 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
     return null;
 }
 
+//Get remote text functions///////////////////////////////////////////////////
+
+libxEnv.getDocument = function (url, callback, postdata) {
+    //First try to grab it from chrome
+    var str = libxInterface.readFileText(url);
+    if(str != null) {
+        if(callback) {
+            callback(str);
+            return str;
+        }
+        else {
+            return str;
+        }
+    }
+    
+    var req = libxInterface.getXMLHTTPRequest();
+    if(!req) {
+        libxEnv.writeLog("Could not get request object for url " + url);
+        return null;
+    }
+
+    var synch = (!callback);
+    if(!synch) {
+        //We're asynchronous, so set a callback
+        req.onreadystatechange = function() {
+            //Make sure we're ready for processing
+            if (req.readyState == 4) {
+                if(req.status != 200) {
+                    libxEnv.writeLog("Could not retrieve resource at " +
+                                     url + ": Error code " + req.status);
+                }
+                else {
+                    callback(req.responseText);
+                }
+            }
+        }
+    }
+
+    //Do the request
+    req.open(postdata ? 'POST' : 'GET', url, synch);
+    req.send(postdata);
+    return req.responseText;
+}
+
 //XML + config functions//////////////////////////////////////////////////////
 
 //Returns an XML DOM document for the config file  

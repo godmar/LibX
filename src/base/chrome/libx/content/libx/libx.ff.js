@@ -80,7 +80,30 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
         break;
     }
 }
-  
+
+libxEnv.getDocument = function (url, callback, postdata) {
+     try {
+        var xmlhttp = new XMLHttpRequest();
+        if (callback === undefined) {
+            // synchronous
+            xmlhttp.open('GET', url, false);
+        } else {
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4) {
+                    callback(xmlhttp.responseText);
+                }
+            };
+            // asynchronous
+            xmlhttp.open(postdata !== undefined ? 'POST' : 'GET', url, true);
+        }
+        xmlhttp.send(postdata);
+        return xmlhttp.responseText;
+    } 
+    catch ( e ) { // File not found
+        return null;
+    }
+}
+
 /* 
  * Retrieve a XML document from a URL.
  * 'callback' is optional. 

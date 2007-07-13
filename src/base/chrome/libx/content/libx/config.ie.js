@@ -45,6 +45,10 @@ var libxProps;    //An associative array that holds the key=value pairs
  * into libxProps). Returns null on error or if property not found.
  */
 libxEnv.getProperty = function(key, args) {
+    //Make sure we've been properly initialized
+    if(libxProps == null) {
+        libxEnv.loadProperties();
+    }
     try {
         //Get the property
         var prop = libxProps[key];
@@ -99,7 +103,7 @@ libxEnv.formatString = function(str, args) {
  * not reflected in LibX until the next IE restart. I don't know how Firefox
  * handles it, but making it dynamic would require a lot more work.
  */
-libxEnv.loadProperties = function(path) {
+libxEnv.loadProperties = function() {
     libxProps = new Object();
     strProps = libxInterface.getLocaleStrings();
     var m = strProps.match(/([^=\r\n]+)=(.+)$/gm);
