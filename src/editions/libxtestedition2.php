@@ -67,15 +67,20 @@ libxClientSideCatalogInit("<? echo $edition_config_xml; ?>");
 <p>
 <? } ?>
 
-<p>This page contains links, status information, and testing instructions
-for the current test version of LibX - <? echo $edition_name; ?>.
-</p>
+<p>This page contains links, status information, and testing instructions for 
+LibX - <? echo $edition_name; ?>.</p>
+<p>If you have any questions, comments, concerns regarding this page and how
+testing a LibX edition works, do not hesitate to send email to libx.org@gmail.com</p>
 
-<h4>Edition Status</h4>
+<h4>Revision Status</h4>
 <ul>
 <?  // output build version 
-    echo '<li>Version of this build: <font color="red"><b>' 
-        . $config['version'] . "</b></font>";
+    if (@$revision != "") {
+        echo '<li>This page displays the configuration of <b>revision #' . $revision . "</b>";
+    } else {
+        echo '<li>This page displays the configuration of the <b>live revision</b>';
+    }
+    echo '<li>Internal version of this revision: <b>' . $config['version'] . "</b>";
 ?>
 
 <? if ($edition_built) { ?>
@@ -83,6 +88,14 @@ for the current test version of LibX - <? echo $edition_name; ?>.
     <font color="green"><b>
         <? echo date( "F d, Y. H:i:s a", filemtime($edition_xpi) ); ?>.
     </b></font>
+<? } else { ?>
+<li><font color="red">
+        This revision has not been built.
+        Use the "Build Revision" button in the edition builder to build it.
+    </font>
+        <br />
+        However, you can already perform testing on the catalogs using the
+        forms below.
 <? } ?>
 
 <li>Last modification to config file was made 
@@ -91,8 +104,7 @@ for the current test version of LibX - <? echo $edition_name; ?>.
     </b></font>
 
 <li> Direct link to 
-    <a href="<? echo $edition_config_xml; ?>">config.xml file</a> used to build
-        this edition.
+    <a href="<? echo $edition_config_xml; ?>">config.xml file</a> for this revision.
 
 <li>
     <a href="<? echo $editionpath ?>/">Click here</a> 
@@ -136,21 +148,20 @@ for the current test version of LibX - <? echo $edition_name; ?>.
         $copt = $catalog['options'];
         echo $copt;
         echo '</td><td>';
-        if($catalog->xisbn['cues']) {
-            echo '<b>cues use xISBN</b><br />';
+        if (@$catalog->xisbn['cues'] == "true") {
+            echo '<b>Cues use xISBN</b><br />';
         }
-        $oai = $catalog->xisbn['oai'];
+        $oai = $catalog->xisbn['res_id'];
         if ($oai != "") {
-            echo '<a href="http://alcme.oclc.org/bookmarks/">OCLC OAI Bookmark</a><span class="url">' . $oai . '</span>';
+            echo '<a href="http://xisbn.worldcat.org/liblook/listbookmarklets.htm">OCLC xISBN LibraryLookup OPAC Identifier</a> <span class="url">' . $oai . '</span>';
         } else {
-            if ($cattype == "bookmarklet") {    // XXX only show this if XML can have xisbn child
-                echo '<a href="http://alcme.oclc.org/bookmarks/">No OCLC OAI Bookmark defined.</a> <a href="/faq.html#QL12">Read FAQ.</a>.';
-            }
+            echo 'OPAC not registered. Linking by OPAC type.<br />' 
+               . '<a href="http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm">(More info)</a>.';
         }
         echo '</td></tr>';
 
         /* Support live testing. */
-        echo '<tr><td></td><td colspan="5">';
+        echo '<tr><td></td><td colspan="4">';
         echo '<form action="javascript:libxTestSearch('.$c.', \'stype'.$c.'\', \'sterm'.$c.'\');">';
         echo '<table><tr>';
         echo '<td><select id="stype' . $c . '">';
@@ -168,6 +179,12 @@ for the current test version of LibX - <? echo $edition_name; ?>.
         echo '</td>';
         echo '</tr></table>';
         echo '</form>';
+        echo '</td><td>';
+        /* xISBN test */
+        $testisbn = '006073132X';
+        echo '<a href="javascript:libxEnv.openSearchWindow(catalogs['.$c.'].makeXISBNRequest(\''.$testisbn.'\'));">';
+        echo 'Sample xISBN request: ' . $testisbn;
+        echo '</a>';
         echo '</td></tr>';
         $c++;
     }
@@ -184,7 +201,7 @@ for the current test version of LibX - <? echo $edition_name; ?>.
             // first openurl resolver is used in rest of page.
             $openurl = $config->openurl->resolver[0];
         }
-        echo ' OpenURL resolver(s) are defined for this edition.';
+        echo ' OpenURL resolver(s) are defined for this revision.';
 
         $openurl_image = $icon;
 ?>
