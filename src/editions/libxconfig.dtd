@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.24 2007/06/29 19:49:42 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.25 2007/07/13 01:58:47 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -50,7 +50,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
-        searchby        CDATA #REQUIRED
+        searchby        (Database|Category) 'Database'
         sslibhash       CDATA #REQUIRED
         dbidlist        CDATA #IMPLIED
         catids          CDATA #IMPLIED
@@ -82,7 +82,6 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
-        urlregexp       CDATA #IMPLIED
         options         CDATA #REQUIRED
         localbase       CDATA #REQUIRED
         title           CDATA #REQUIRED
@@ -116,8 +115,6 @@
 <!ATTLIST sirsi 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
-        sid             CDATA #IMPLIED
-        urlregexp       CDATA #IMPLIED
         searchscope     CDATA #IMPLIED
         sort            CDATA #IMPLIED
         options         CDATA #REQUIRED
@@ -130,7 +127,6 @@
         options         CDATA #REQUIRED
         servers         CDATA #REQUIRED
         setting_key     CDATA #REQUIRED
-        sid             CDATA #IMPLIED
         searchscope     CDATA #IMPLIED
         sort            CDATA #IMPLIED
         path            CDATA #IMPLIED
@@ -139,8 +135,6 @@
 <!ATTLIST voyager 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
-        sid             CDATA #IMPLIED
-        urlregexp       CDATA #IMPLIED
         keyword         CDATA #IMPLIED
         count           CDATA #IMPLIED
         options         CDATA #REQUIRED
@@ -151,8 +145,6 @@
 <!ATTLIST horizon 
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
-        sid             CDATA #IMPLIED
-        urlregexp       CDATA #IMPLIED
         options         CDATA #REQUIRED
         issn            CDATA #IMPLIED
         isbn            CDATA #IMPLIED
