@@ -261,7 +261,7 @@ libxEnv.addContextMenuPreferencesTab = function (id) {
  */
 libxEnv.removeContextMenuPreferencesTab = function (idbase) {
     var tabId = "libx-contextmenu-" + idbase + "-prefs-tab";
-    libxInterface.removeTab(id);
+    libxInterface.removeTab(tabId);
 }
 
 /*

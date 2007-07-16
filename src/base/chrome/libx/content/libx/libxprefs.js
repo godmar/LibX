@@ -209,31 +209,32 @@ function libxInitContextMenuTrees() {
         var tabId = "libx-contextmenu-" + type + "-prefs-tab";
         var tabPanelId = "libx-" + type + "-tab";
         var id = "libx-contextmenu-" + type + "-prefs-tree";
-        
+
         var types = new Array ();
         var newID;
         var catID;
         var resolverID;
         var proxyID;
         var otherID;
+
         if ( catF && libxConfig.numCatalogs > 0 ) {
             newID = type + ".catalog";
             types.push ( {label: "Catalogs", id: newID} );
             catID = newID;
         }
-        
+
         if ( resolverF && libxConfig.numResolvers > 0 ) {
             newID = type + ".openurl";
             types.push ( {label: "Open Url Resolvers", id: newID} );
             resolverID = newID;
         }
-        
+
         if ( proxyF && libxConfig.numProxy > 0 ) {
             newID = type + ".proxy";
             types.push ( {label: "Proxy", id: newID} );
             proxyID = newID;
         }
-        
+
         if ( other ) {
             newID = other.id;
             types.push ( {label: other.type, id: other.id} );
@@ -250,12 +251,12 @@ function libxInitContextMenuTrees() {
 
         var treeNode = libxEnv.initTree(id, types);
         libxTrees.push(treeNode);
-        
+
         var catalogChildren = treeNode.getChild(catID);
         var resolverChildren = treeNode.getChild(resolverID);
         var proxyChildren = treeNode.getChild(proxyID);
         var otherChildren = treeNode.getChild(otherID);
-        
+
         if ( catF ) {
             for ( var k in libxConfig.catalogs ) {
                 var cat = libxConfig.catalogs[k];
@@ -264,7 +265,7 @@ function libxInitContextMenuTrees() {
                     addCatalog ( catalogChildren, k, opts, type + ".catalog" );
             }
         }
-        
+
         if ( resolverF ) {
             for ( var k in libxConfig.resolvers ) {
                 var opts = resolverF ( libxConfig.resolvers[k] );
@@ -272,7 +273,7 @@ function libxInitContextMenuTrees() {
                     addCatalog ( resolverChildren, k, opts, type + ".openurl" );
             }
         }
-        
+
         if ( proxyF ) {
             for ( var k in libxConfig.proxy ) {
                 var opts = proxyF ( libxConfig.proxy[k] );
@@ -280,7 +281,7 @@ function libxInitContextMenuTrees() {
                     addCatalog ( proxyChildren, k, opts, type + ".proxy" );
             }    
         }
-        
+
         if ( other ) {
             addCatalog ( otherChildren, other.name, other.options, other.id );
         }
