@@ -78,7 +78,7 @@ libxXMLPreferences.prototype = {
             }
             else {
                 // OK, I guess it's time to fail
-                libxEnv.writeLog (this.path + " not found.", "Preferences");
+                libxEnv.writeLog ("Context menu file at " + this.path + " not found (and could not fall back).");
             }
         }
     },
@@ -86,7 +86,7 @@ libxXMLPreferences.prototype = {
     loadXMLhelper: function ( parentNode, parentObj ) {
         // Fix for differing IE and Firefox interpretations of
         // "firstChild" when the document contains an xml version specifier
-        if(parentNode.nodeName == 'xml') {
+        if(parentNode.nodeName.toLocaleLowerCase() == 'xml') {
             parentNode = parentNode.nextSibling;
         }
         /* Load parents attributes */
