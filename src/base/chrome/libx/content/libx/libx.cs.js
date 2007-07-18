@@ -95,6 +95,10 @@ function libxClientSideCatalogInit(configurl) {
         case "scholar":
             cat = new libxScholarSearch();
             break;
+        case "openurlresolver":
+            // cat = new OpenURLCatalog();
+            cat = { search: function () { alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
+            break;
         // whikloj@cc.umanitoba.ca - 2007-06-20
         case "web2": 
             cat = new Web2OPAC();
@@ -115,6 +119,32 @@ function libxClientSideCatalogInit(configurl) {
     }
 }
 
+// -----------------
+function props(x) {
+    var s = "";
+    if (typeof (x) == "array") {
+        s += "[";
+        for (var i = 0; i < x.length; i++) {
+            s += i + "=" + props(x[i]) + ",";
+        }
+        s += "]";
+    } else
+    if (typeof (x) == "object") {
+        s += "{";
+        for (var k in x) {
+            s += k + ":" + props(x[k]) + ",";
+        }
+        s += "}";
+    } else
+    if (typeof (x) == "function") {
+        return "function () { }";
+    } else {
+        return String(x);
+    }
+    return s;
+}
+// -----------------
+
 function libxTestSearch(catindex, type, term)
 {
     type = document.getElementById(type).value;
@@ -122,7 +152,7 @@ function libxTestSearch(catindex, type, term)
     try {
         var u = catalogs[catindex].search([{ searchType: type, searchTerms: term }]);
     } catch (er) {
-        libxEnv.writeLog(er);
+        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(catalogs[catindex]));
     }
 }
 
