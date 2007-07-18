@@ -15,14 +15,18 @@ if ($edition{0} >= 'a' && $edition{0} <= 'z') {
 }
 
 $t = split("\\.", $edition);
-$edition = $t[0];
-$revision = @$t[1];
+$tcout = count($t);
+$edition = join(".", array_slice($t, 0, $tcout-1));
+$revision = @$t[$tcout-1];
+if (!preg_match("/\d+/", $revision)) {
+    $revision = "";
+}
 $edition_config_xml = $editionpath . '/config.xml';
 $edition_xpi = $editionpath . '/libx-' . $edition . '.xpi';
 $edition_built = file_exists($edition_xpi);
 
 if (!file_exists($edition_config_xml)) {
-    die ("No such edition - check the edition argument; given was edition=" . $edition);
+    die ("No such edition - check the edition argument; given was edition=" . $edition); 
 }
 
 $config = simplexml_load_file($edition_config_xml);
