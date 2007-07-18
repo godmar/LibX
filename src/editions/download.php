@@ -24,7 +24,7 @@ include ('readconfigxml.php');
 <table>
 <tr><td width="658">
 <span class="text"><font color="green">
-<a target="_top" href="<? echo $edition ?>/libx-<? echo $edition ?>.xpi">Click here to install LibX 
+<a target="_top" href="<? echo $editionpath ?>/libx-<? echo $edition ?>.xpi">Click here to install LibX 
         <? echo $edition_name . ' Version ' . $version ?>
 </a>
 <img style="height:16px" src="<? echo $icon; ?>"/>
@@ -43,7 +43,12 @@ if ($edition == 'yours') {
 </p>
 </font> </span>
 
-<span class="text"><p><img src="images/toolbar.png" title="LibX Toolbar" border="1" height="175" width="610"></p>
+<span class="text">
+<p>
+    <img src="images/toolbar_transparentcropped.jpg" title="LibX Toolbar" border="1">
+    <img src="<? echo $icon; ?>" class="floatright" border="0" 
+         style="position: relative; right:634px; bottom:134px; height:16px" />
+</p>
 <p align="left">LibX <? echo $edition_name ?> is a Firefox extension that provides direct access to your Library's resources. 
 
 It features: </p>
