@@ -60,7 +60,7 @@ function libxClientSideCatalogInit(configurl) {
         }
     }
 
-    var xmlhttp = libxGetUrl(configurl, null);
+    var xmlhttp = libxGetUrl(configurl, null, false);
     var configXML = xmlhttp.responseXML;
     var xmlCatalogs = configXML.getElementsByTagName("catalogs")[0];
 
