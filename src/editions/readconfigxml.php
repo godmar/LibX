@@ -22,7 +22,7 @@ $t = split("\\.", $edition);
 $tcout = count($t);
 $revision = @$t[$tcout-1];
 
-if (preg_match("/\d+/", $revision)) {
+if ($tcout > 1 && preg_match("/\d+/", $revision)) {
     $edition = join(".", array_slice($t, 0, $tcout-1));
 } else {
     $revision = "";
