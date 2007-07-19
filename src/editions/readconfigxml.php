@@ -14,13 +14,20 @@ if ($edition{0} >= 'a' && $edition{0} <= 'z') {
     $editionpath = substr($edition, 0, 2) . "/" . substr($edition, 2, 2) . "/" . $edition;
 }
 
+/* Some edition ids have periods in them.  This was a bad idea, we must now handle it.
+ * vt.1 and ittdublin.ie looks very similar.  Check whether the string after the last .
+ * is a number. If so, interpret it as a revision.
+ */
 $t = split("\\.", $edition);
 $tcout = count($t);
-$edition = join(".", array_slice($t, 0, $tcout-1));
 $revision = @$t[$tcout-1];
-if (!preg_match("/\d+/", $revision)) {
+
+if (preg_match("/\d+/", $revision)) {
+    $edition = join(".", array_slice($t, 0, $tcout-1));
+} else {
     $revision = "";
 }
+
 $edition_config_xml = $editionpath . '/config.xml';
 $edition_xpi = $editionpath . '/libx-' . $edition . '.xpi';
 $edition_built = file_exists($edition_xpi);
