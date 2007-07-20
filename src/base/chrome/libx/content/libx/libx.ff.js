@@ -89,7 +89,7 @@ libxEnv.getDocument = function (url, callback, postdata) {
             xmlhttp.open('GET', url, false);
         } else {
             xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4) {
+                if (xmlhttp.readyState == 4  && callback != null) {
                     callback(xmlhttp.responseText);
                 }
             };
