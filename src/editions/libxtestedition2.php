@@ -91,7 +91,8 @@ testing a LibX edition works, do not hesitate to send email to libx.org@gmail.co
 <? } else { ?>
 <li><font color="red">
         This revision has not been built.
-        Use the "Build Revision" button in the edition builder to build it.
+        Use the "Build Revision" button in the edition builder 
+        under the "My Editions" tab to build it.
     </font>
         <br />
         However, you can already perform testing on the catalogs using the
