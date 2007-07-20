@@ -151,7 +151,7 @@ function magicSearch(data, inpub, justmakeurl)
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
         libxEnv.writeLog("Attempt #" + _attempt + ": " + url, libxEnv.logTypes.magic);
 
-        var r = libxEnv.getDocument(url, null, null);
+        var r = libxEnv.getDocument(url, null);
 
         // see if the query was bungled b/c of searchterms clutched together
         // Let us see if scholar says that we should drop some search terms
