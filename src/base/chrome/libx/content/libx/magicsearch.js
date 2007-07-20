@@ -55,7 +55,9 @@ function magicSearch(data, inpub, justmakeurl)
 {
     function handleMiss(url, data)
     {
-        if (libxEnv.options.scholarmissurl != null) {
+        // some editions were built with "scholarmissurl" set to false, 
+        // so take that into account.
+        if (libxEnv.options.scholarmissurl != null && typeof(libxEnv.options.scholarmissurl) == 'string') {
             // if so configured, libx can lead user to this URL on miss
             var onmissshow = libxEnv.options.scholarmissurl
                 .replace(/%S/i, encodeURIComponent(data));
