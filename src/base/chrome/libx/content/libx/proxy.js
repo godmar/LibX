@@ -52,7 +52,7 @@ libxEZProxy.prototype = {
             if (xmlhttp.status == 200) {
                 var resp = libxEnv.xpath.findSingle(xmlhttp.responseXML, 
                                                     "/proxy_url_response/proxy_urls/url[1]");
-                if (resp != null && libxConvertToBoolean(resp.getAttribute("proxy"))) {
+                if (resp != null && libxNormalizeOption(resp.getAttribute("proxy"))) {
                     okcallback(true);
                     return;
                 }

@@ -34,12 +34,20 @@
  * related to configuration, properties, and localization.
  */
 
-function libxConvertToBoolean(value) 
+/*
+ * Turn an option into a more suitable type.
+ * Turns (string) "true" -> (boolean) true
+ *       (string) "false" -> (boolean) false
+ *       (string) "" -> null
+ */ 
+function libxNormalizeOption(value) 
 {
     if (value == "false")
         return false;
     if (value == "true")
         return true;
+    if (value == "")
+        return null;
     return value;
 }
 
@@ -59,7 +67,7 @@ function libxInitializeOptions()
     
     for (var i = 0; i < options.length; i++) {
         opts[options[i].getAttribute('key')] = 
-            libxConvertToBoolean(options[i].getAttribute('value'));
+            libxNormalizeOption(options[i].getAttribute('value'));
     }
 
     if (!opts.autolinkstyle)
@@ -94,7 +102,7 @@ function libxGetConfigXML()
         xmlDoc.copyAttributes = function(xnode, obj) {
             for (var i = 0; i < xnode.attributes.length; i++) {
                 var attr = xnode.attributes[i];
-                obj[attr.nodeName] = libxConvertToBoolean(attr.nodeValue);
+                obj[attr.nodeName] = libxNormalizeOption(attr.nodeValue);
             }
         };
     } catch (er) { }

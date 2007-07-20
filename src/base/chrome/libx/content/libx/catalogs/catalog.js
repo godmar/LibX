@@ -34,7 +34,7 @@ libxCatalog.prototype = {
     xisbn: { },
     setIf: function (prop, what) {
         if (what != null)
-            this[prop] = libxConvertToBoolean(what);
+            this[prop] = libxNormalizeOption(what);
     },
     makeSubjectSearch: function(subject) {
         return this.makeSearch("d", subject);
