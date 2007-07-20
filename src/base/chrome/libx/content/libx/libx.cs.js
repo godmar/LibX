@@ -45,8 +45,14 @@ openSearchWindow:
         window.open(url2);
     },
 writeLog:
-    function (msg) {
+    function (msg, type) {
+        if (type !== undefined)
+                return;
         alert("writeLog: " + msg);
+    },
+logTypes: {
+      magic: 'Magic',
+      xpath: 'XPath'
     }
 };
 
