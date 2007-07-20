@@ -81,20 +81,26 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     }
 }
 
+/* url: url to be retrieved
+ * callback: callback to complete on asynchronous completion.
+ *           if null or if omitted, operation is synchronous.
+ * postdata: if given, use POST.
+ */
 libxEnv.getDocument = function (url, callback, postdata) {
      try {
+        var httprequest = postdata !== undefined ? 'POST' : 'GET';
         var xmlhttp = new XMLHttpRequest();
-        if (callback === undefined) {
+        if (callback == null) {         // if callback is 'null' or omitted
             // synchronous
-            xmlhttp.open('GET', url, false);
+            xmlhttp.open(httprequest, url, false);
         } else {
             xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4  && callback != null) {
+                if (xmlhttp.readyState == 4) {
                     callback(xmlhttp.responseText);
                 }
             };
             // asynchronous
-            xmlhttp.open(postdata !== undefined ? 'POST' : 'GET', url, true);
+            xmlhttp.open(httprequest, url, true);
         }
         xmlhttp.send(postdata);
         return xmlhttp.responseText;
