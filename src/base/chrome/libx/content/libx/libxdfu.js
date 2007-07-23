@@ -524,6 +524,22 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
     }
 });
 
+// abebooks.com makes things easy for us by placing ISBN in a hyperlink with class 'isbn'
+new DoForURL(/(\/\/|\.)abebooks\.com/, function (doc) {
+    var n = libxEnv.xpath.findNodes(doc, "//a[@class='isbn']");
+    for (var i = 0; i < n.length; i++) {
+        var isbn = isISBN(n[i].textContent);
+        if (isbn) {
+            var newlink = makeLink(doc,
+                libxEnv.getProperty("isbnsearch.label",
+                    [libraryCatalog.name, isbn]),
+                libraryCatalog.linkByISBN(isbn));
+            n[i].parentNode.insertBefore(newlink, n[i].nextSibling);
+            n[i].parentNode.insertBefore(doc.createTextNode(" "), newlink);
+        }
+    }
+});
+
 // invoke autolink on all pages, if active
 var autolink = new DoForURL(/.*/, function (doc) {
     // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
