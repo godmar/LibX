@@ -287,6 +287,7 @@ if (-x $makensis) {
     $env .= " -DLOCALE_PATH=../base/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
     $env .= " -DEDITION_PATH=$editionpath/";
+	 $env .= " -DEDITION_ID=$editionid";
     system ("$makensis $env -V1 -NOCD $editionpath/setup.nsi") == 0 or die "$makensis $env failed.";
 } else {
     print "$makensis not found, skipping IE build.\n";

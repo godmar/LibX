@@ -12,6 +12,7 @@
 # LOCALE_PATH:   Path to LibX locale base directory
 # LOCALE:        Locale ID (like en-US)
 # EDITION_PATH:  Output directory
+# EDITION_ID:    Edition short ID (vt for the Virginia Tech edition, say)
 
 SetCompressor bzip2
 
@@ -44,13 +45,13 @@ SetCompressor bzip2
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 Name "${PRODUCT_NAME}"
-OutFile "${EDITION_PATH}LibX.exe"
+OutFile "${EDITION_PATH}LibX-${EDITION_ID}.exe"
 InstallDir "$PROGRAMFILES\LibX for IE"
 ShowInstDetails show
 ShowUnInstDetails show
 
 Section "LibX Core" SEC01
-  SetOverwrite ifnewer
+  SetOverwrite ifdiff
   SetOutPath "$INSTDIR"
   # Toolbar files
   File "${DLL_PATH}LibXIE.dll"
@@ -71,7 +72,7 @@ Section "LibX Core" SEC01
 SectionEnd
 
 Section "LibX JavaScript" SEC02
-  SetOverwrite ifnewer
+  SetOverwrite ifdiff
   SetOutPath "$APPDATA\LibX\content"
   File "${JS_PATH}proxy.js"
   File "${JS_PATH}libx.js"
@@ -92,13 +93,13 @@ Section "LibX JavaScript" SEC02
 SectionEnd
 
 Section "LibX Locale" SEC03
-  SetOverwrite ifnewer
+  SetOverwrite ifdiff
   SetOutPath "$APPDATA\LibX\locale\${LOCALE}"
   File "${LOCALE_PATH}${LOCALE}/libx/definitions.properties"
 SectionEnd
 
 Section "Edition" SEC04
-  SetOverwrite ifnewer
+  SetOverwrite on
 # $editionfiles$
 SectionEnd
 
