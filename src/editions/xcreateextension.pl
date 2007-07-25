@@ -262,6 +262,9 @@ foreach my $afile (@afiles) {
 	}
 }
 
+#Add the install.rdf file
+push @{$flist{&convertChromeURL('chrome://')}}, "../$tmpdir/install.rdf";
+
 #Build the strings to insert
 for my $dir (keys %flist) {
 	$eflist = $eflist . "  SetOutPath \"$dir\"\n";
