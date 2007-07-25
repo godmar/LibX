@@ -64,8 +64,17 @@ libxClientSideCatalogInit("<? echo $edition_config_xml; ?>");
 <a target="_top" href="<? echo $edition_xpi ?>">
         Click here to install LibX <? echo $edition_name . ' --- Test Edition '?>
 </a>
-<p>
+</p>
 <? } ?>
+<? 
+if ($edition_exe_built) { 
+	echo "<p>Quick Install:\n";
+	echo "<a target='_top' href='$edition_exe'>\n";
+	echo "\tClick here to install LibX for Internet Explorer $edition_name --- Test edition\n";
+	echo "</a>\n</p>";
+} 
+?>
+<!--<? echo $edition_exe ?> -->
 
 <p>This page contains links, status information, and testing instructions for 
 LibX - <? echo $edition_name; ?>. This page is always in flux.</p>

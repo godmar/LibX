@@ -30,8 +30,11 @@ if ($tcout > 1 && preg_match("/\d+/", $revision)) {
 
 $edition_config_xml = $editionpath . '/config.xml';
 $edition_xpi = $editionpath . '/libx-' . $edition . '.xpi';
+$edition_exe = $editionpath . '/LibX-' . $edition . '.exe';
 $exp_edition_xpi = $editionpath . '/libx-experimental-' . $edition . '.xpi';
+$exp_edition_exe = $editionpath . '/LibX-experimental-' . $edition . '.xpi';
 $edition_built = file_exists($edition_xpi);
+$edition_exe_built = file_exists($edition_exe);
 
 if (!file_exists($edition_config_xml)) {
     die ("No such edition - check the edition argument; given was edition=" . $edition); 
