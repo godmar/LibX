@@ -68,9 +68,13 @@ libxClientSideCatalogInit("<? echo $edition_config_xml; ?>");
 <? } ?>
 
 <p>This page contains links, status information, and testing instructions for 
-LibX - <? echo $edition_name; ?>.</p>
-<p>If you have any questions, comments, concerns regarding this page and how
-testing a LibX edition works, do not hesitate to send email to libx.org@gmail.com</p>
+LibX - <? echo $edition_name; ?>. This page is always in flux.</p>
+<p><b>If you have any questions, comments, concerns regarding this page and how
+testing a LibX edition works, do not hesitate to send email to libx.org@gmail.com.</b>
+If you need help building your edition, feel free to grant shared ownership of your 
+edition to libx.editions@gmail.com.  (Go to My Editions, select the edition,
+click "Change Ownership", enter "libx.editions@gmail.com" and check the 
+"Retain shared ownership" box.)
 
 <h4>Revision Status</h4>
 <ul>
@@ -113,7 +117,9 @@ testing a LibX edition works, do not hesitate to send email to libx.org@gmail.co
 </ul>
 
 <h4>Catalog Settings</h4>
-<p>The following catalogs are configured:</p>
+<p>The following catalogs are configured.
+You can test these catalogs directly here, without building and installing your revision.
+</p>
     <hr width="90%">
     <table width="100%" cellpadding="4" border="0">
     <tr>
@@ -227,6 +233,8 @@ testing a LibX edition works, do not hesitate to send email to libx.org@gmail.co
 ?>
 
 </ul>
+<p>Note: as of 7/19/2007, LibX uses only the first OpenURL resolver, the others are ignored, 
+but they will be used in the future.</p>
 
 <h4>Proxy Settings</h4>
 <p>The following remote access proxies are configured for this edition:</p>
@@ -247,6 +255,9 @@ testing a LibX edition works, do not hesitate to send email to libx.org@gmail.co
     $proxy = $proxy[0];
 ?>
 </ul>
+<p>Note: as of 7/19/2007, LibX uses only the first configured proxy, the others are ignored, 
+but they will be used in the future.</p>
+
 <h4>Branding &amp; Logos</h4>
 <ul>
 <li><p>The small logo included in this edition is 
@@ -291,25 +302,9 @@ testing a LibX edition works, do not hesitate to send email to libx.org@gmail.co
 <p>
 <i>Warning:</i>
 This page is solely for the use of the edition maintainer/tester, it
-is not intended for end users.  The same applies to the .xpi build
-linked from this page.  Please do not link to this build.
+is not intended for end users.  
 <p>
-This build may or may not work with your version of Firefox.
-It will not benefit from automatic updates.
-Occasionally, we may rebuild your test edition as we develop and
-test LibX.  
-<p>
-If your edition is a "live" edition, the xpi file linked from this page
-is different from the one to which you should point your users.
-Your users should be pointed at the last vetted version located at
-<tt>http://libx.org/editions/<? echo $edition ?>/libx-<? echo $edition ?>.xpi</tt>.
-That xpi file should be linked from your 
-<a href="/editions/<? echo $edition ?>/libx.html">edition's homepage</a>, 
-<b>not</b> this one.  If you wish to make an edition live and are setting
-up a homepage to do so,  make sure to use the correct link.
-<p>
-If we upgrade an edition, we will build a new test edition here first and ask you 
-to test it. To test this edition, either use a <a target="_top" 
+To test this revision, either use a <a target="_top" 
 href="http://www.mozilla.org/support/firefox/profile#new">blank profile</a>, 
 or install this edition over your current edition.  (We believe that in 1.5.0.3 
 and higher, it is no longer necessary to uninstall the current version first.)
@@ -362,6 +357,8 @@ You should be seeings cues on these pages.  (If there is a date in parentheses,
 this indicates that your edition must have been rebuilt after that date for
 the cue to work.)
 <ul>
+<li><a target="_new" href="http://www.abebooks.com/servlet/BookDetailsPL?bi=936276021">abebooks.com</a> (7/23/2007)
+
 <li><a target="_new" href="http://www.alibris.com/search/search.cfm?qwork=8803863&wtit=historian&matches=501&qsort=r&cm_re=works*listing*title">alibris.com</a> (5/11/07)
 <li><a target="_new" href="http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=006073132X&itm=1">
         Barnes &amp; Noble</a> (8/18/06),
@@ -456,7 +453,7 @@ Right-click and select  "Search <? echo $catalog0['name'] ?> for ISSN 0164-0925"
 <p>
 Test author name heuristics.  
 Select the following names in their entirety, then right-click and select
-"Search <? echo $catalog0['name'] ?> by Author Now!":
+"Search <? echo $catalog0['name'] ?> for Author ...":
 <ul>
 <li><span class="selectthis">James Joyce</span>
 <li><span class="selectthis">Joyce, James</span>
@@ -466,7 +463,9 @@ Select the following names in their entirety, then right-click and select
 <li><span class="selectthis">Thomas C. Faulkner</span>
 </ul> 
 
-<p>LibX should run a proper author search against your catalog.</p>
+<p>LibX should run a proper author search against your catalog.
+Observe that the "for Author" option is different from the other options in the right-click menu.
+</p>
 
 <? if (@$openurl['type'] != "") { ?>
     <p><a class="suppressautolink"><!-- suppress autolink feature -->
@@ -598,6 +597,19 @@ search.</p>
         </td></tr>
 <?  } ?>
 </table>
+<hr>
+<? if (file_exists($exp_edition_xpi)) { ?>
+<p>There is an experimental build from
+    <font color="green">
+        <? echo date( "F d, Y. H:i:s a", filemtime($exp_edition_xpi) ); ?>
+    </font>
+in this directory.
+You should install this build only if so instructed.<br />
+<a target="_top" href="<? echo $exp_edition_xpi ?>">
+        Click here to install LibX <? echo $edition_name . ' --- Experimental Build '?>
+</a>
+<p>
+<? } ?>
 <hr>
 <p>
 <b>Copyright:</b><p>
