@@ -263,13 +263,16 @@ foreach my $afile (@afiles) {
 }
 
 #Add the install.rdf file
-push @{$flist{&convertChromeURL('chrome://')}}, "../$tmpdir/install.rdf";
+push @{$flist{&convertChromeURL('chrome://')}}, cwd() . "/$tmpdir/install.rdf";
 
 #Build the strings to insert
 for my $dir (keys %flist) {
 	$eflist = $eflist . "  SetOutPath \"$dir\"\n";
 	foreach my $fname (@{$flist{$dir}}) {
-		$eflist = $eflist . "   File \"" . '${EDITION_PATH}' . "$fname\"\n";
+		if (substr($fname, 0, 1) ne '/') {
+			$fname = '${EDITION_PATH}' . $fname;
+		}
+		$eflist = $eflist . '   File "' . "$fname\"\n";
 		$dlist = $dlist . '  Delete "'. "$dir$fname". "\"\n";
 	}
 }
