@@ -45,7 +45,7 @@ SetCompressor bzip2
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 Name "${PRODUCT_NAME}"
-OutFile "${EDITION_PATH}LibX-${EDITION_ID}.exe"
+OutFile "${EDITION_PATH}libx-${EDITION_ID}.exe"
 InstallDir "$PROGRAMFILES\LibX for IE"
 ShowInstDetails show
 ShowUnInstDetails show

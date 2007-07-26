@@ -74,7 +74,6 @@ if ($edition_exe_built) {
 	echo "</a>\n</p>";
 } 
 ?>
-<!--<? echo $edition_exe ?> -->
 
 <p>This page contains links, status information, and testing instructions for 
 LibX - <? echo $edition_name; ?>. This page is always in flux.</p>

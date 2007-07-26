@@ -30,7 +30,7 @@ if ($tcout > 1 && preg_match("/\d+/", $revision)) {
 
 $edition_config_xml = $editionpath . '/config.xml';
 $edition_xpi = $editionpath . '/libx-' . $edition . '.xpi';
-$edition_exe = $editionpath . '/LibX-' . $edition . '.exe';
+$edition_exe = $editionpath . '/libx-' . $edition . '.exe';
 $exp_edition_xpi = $editionpath . '/libx-experimental-' . $edition . '.xpi';
 $exp_edition_exe = $editionpath . '/LibX-experimental-' . $edition . '.xpi';
 $edition_built = file_exists($edition_xpi);
