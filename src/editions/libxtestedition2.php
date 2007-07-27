@@ -563,7 +563,7 @@ search.</p>
 <? } ?>
 
 <p>
-<? if ($proxy && $proxy->getName() != "") { ?>
+<? if (isset($proxy) && $proxy->getName() != "") { ?>
     <p><span class="part">Option: Proxy Support</span></p>
     <p>To test your proxy support, <a href="http://www.sciencedirect.com">right-click 
     on this link to www.sciencedirect.com</a> and then select 
