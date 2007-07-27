@@ -257,10 +257,10 @@ but they will be used in the future.</p>
     } 
     if (count($config->proxy->children()) == 0) {
         echo '<li> No remote access proxy is defined for this edition.';
+    } else {
+        $proxy = $config->proxy->children();
+        $proxy = $proxy[0];
     }
-
-    $proxy = $config->proxy->children();
-    $proxy = $proxy[0];
 ?>
 </ul>
 <p>Note: as of 7/19/2007, LibX uses only the first configured proxy, the others are ignored, 
@@ -563,7 +563,7 @@ search.</p>
 <? } ?>
 
 <p>
-<? if ($proxy->getName() != "") { ?>
+<? if ($proxy && $proxy->getName() != "") { ?>
     <p><span class="part">Option: Proxy Support</span></p>
     <p>To test your proxy support, <a href="http://www.sciencedirect.com">right-click 
     on this link to www.sciencedirect.com</a> and then select 
