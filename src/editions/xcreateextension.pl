@@ -19,12 +19,15 @@ my $editionpath = $ARGV[0];
 if (substr($editionpath, 0, 1) ne "/") {        # make relative paths absolute 
     $editionpath = cwd() . "/" . $editionpath;
 }
+if (substr($editionpath, length($editionpath) - 1, 1) ne "/") {
+    $editionpath = $editionpath . '/'
+}
 
 if (!defined($editionpath) || ! -d $editionpath) {
     die "Usage: $0 edition_directory_path\n";
 }
 
-my $config = $editionpath . "/$config_xml";
+my $config = $editionpath . "$config_xml";
 if (! -r $config) {
     die "$config does not exist.";
 }
@@ -140,7 +143,7 @@ if ($proxy0) {
 }
 
 # XXX once edition maker writes this file, don't blindly overwrite it.
-my $defaultspreffile = $editionpath . "/defaultprefs.xml";
+my $defaultspreffile = $editionpath . "defaultprefs.xml";
 open (DEFPREF, ">$defaultspreffile") || die "Could not write " . $defaultspreffile; 
 print DEFPREF $pref->toString(1);
 close (DEFPREF);
@@ -290,10 +293,10 @@ my $makensis = "/opt/nsis-2.28/Bin/makensis";
 if (-x $makensis) {
     my $env = "-DJS_PATH=../base/chrome/libx/content/libx/";
     $env .= " -DDLL_PATH=./LibXIE/";
-	 $env .= " -DDLL_URL=http://top.cs.vt.edu/editions/LibXIE"; #TODO: Change from hard-coded to $httpeditionpath . "LibXIE" or similar
+    $env .= " -DDLL_URL=http://top.cs.vt.edu/editions/LibXIE"; #TODO: Change from hard-coded to $httpeditionpath . "LibXIE" or similar
     $env .= " -DLOCALE_PATH=../base/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
-    $env .= " -DEDITION_PATH=$editionpath/";
+    $env .= " -DEDITION_PATH=$editionpath";
 	 $env .= " -DEDITION_ID=$editionid";
     system ("$makensis $env -V1 -NOCD $editionpath/setup.nsi") == 0 or die "$makensis $env failed.";
 } else {
