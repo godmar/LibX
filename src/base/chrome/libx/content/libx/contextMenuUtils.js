@@ -86,6 +86,27 @@ function libxRegisterContextMenuObject ( label, type, tmatch, onmatch ) {
         for ( var i = 0; i < defined.children.length; i++ ) {
             var item = defined.children[i];
 
+            //Validate menu item
+            //Sometimes, items that should be dead may come from beyond the
+            //grave in userprefs.xml.
+            switch(item.nodeName.toLowerCase()) {
+                case 'proxy':
+                    if(!libxConfig.proxy[item.attr.name]) {
+                        continue;
+                    }
+                    break;
+                case 'catalog':
+                    if(!libxConfig.catalogs[item.attr.name]) {
+                        continue;
+                    }
+                    break;
+                case 'openurl':
+                    if(!libxConfig.resolvers[item.attr.name]) {
+                        continue;
+                    }
+                    break;
+            }
+
             var menuEntry = {
                 source: item.nodeName, 
                 name: item.attr.name, 

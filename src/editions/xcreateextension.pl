@@ -285,7 +285,7 @@ $nsisText =~ s/\$editionfiles\$/$eflist/;
 $nsisText =~ s/\$deleteeditionfiles\$/$dlist/;
 
 #Write the new file
-open (NSIS, ">$editionpath/setup.nsi") || die "Could not upen $editionpath/setup.nsi for writing";
+open (NSIS, ">$editionpath" . "setup.nsi") || die "Could not upen $editionpath" . "setup.nsi for writing";
 print NSIS $nsisText;
 close (NSIS);
 

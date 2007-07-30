@@ -266,9 +266,9 @@ function libxInitializeMenuObjects()
     
     /*********************************** Author/Title/Keyword search *******************************************/
 
-         
+
     libxRegisterContextMenuObject ( "libx", "general", isTextSelected, defaultMatch );
-    
+
     function isTextSelected ( p ) {
         var sterm = p.getSelection();
         if ( !sterm )
@@ -281,8 +281,8 @@ function libxInitializeMenuObjects()
         // as per Ted Olson
         return sterm.replace(/[^[:alnum:]_&:\222\'\-\s/g, " ").replace(/\s+/g, " ");
     }
-    
-    
+
+
     /*
      * Default action that is called if no ISBN/ISSN/PMID was recognized
      * Defers to initMenuEntry
@@ -299,10 +299,9 @@ function libxInitializeMenuObjects()
                 sterm1 = trim(transformAuthorHeuristics(sterm));
 
             initMenuEntry ( menuEntries[i], sterm1 );
-        }    
+        }
     }
-       
-    
+
     /********************************* Proxy Options **********************************************/
 
     
@@ -349,6 +348,7 @@ function libxInitializeMenuObjects()
             var name = menuEntries[i].name;
             var m = menuEntries[i].menuitem;
             var proxy = libxConfig.proxy[name];
+            
             setMenuEntryVisible ( menuEntries[i] );
             m.setVisible (true);
             
