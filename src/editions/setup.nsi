@@ -79,9 +79,12 @@ Function getResource
   Pop $1 #ResourceID
   Pop $0 #Directory
   
-  Push "$0\$1"
-  Push "$1/$2"
-  Call getDependency
+  IfFileExists "$0\$1" +6
+    NSISdl::download "${DLL_URL}/$1/$2" "$0\$1\$2"
+    Pop $R0 ;Get the return value
+    StrCmp $R0 "success" +3
+      MessageBox MB_OK "Download of necessary component failed: $R0"
+      Quit
 FunctionEnd
 
 Section "Pre-Install Download" SEC00
@@ -115,12 +118,12 @@ Section "Pre-Install Download" SEC00
   Push "GACMeUp.exe"
   Call getDependency
   
-  Push "$INSTDIR\en-US"
-  Push "en-us"
+  Push "$INSTDIR\"
+  Push "en-US"
   Push "LibXIE.resources.dll"
   Call getResource
   
-  Push "$INSTDIR\ja"
+  Push "$INSTDIR"
   Push "ja"
   Push "LibXIE.resources.dll"
   Call getResource
