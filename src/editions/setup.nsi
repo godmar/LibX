@@ -6,8 +6,12 @@
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
+!define PRODUCT_REGISTRY_KEY "Software\LibX for IE"
+!define PRODUCT_DATA_STORE "${PRODUCT_DATA_STORE}"
+
 #Needs the following symbols:
 # DLL_PATH:      Path to LibXIE core DLLs
+# DLL_URL        URL to download dependencies
 # JS_PATH:       Path to LibX JavaScript files
 # LOCALE_PATH:   Path to LibX locale base directory
 # LOCALE:        Locale ID (like en-US)
@@ -47,8 +51,63 @@ SetCompressor bzip2
 Name "${PRODUCT_NAME}"
 OutFile "${EDITION_PATH}libx-${EDITION_ID}.exe"
 InstallDir "$PROGRAMFILES\LibX for IE"
+#Get installation folder from registry if available
+InstallDirRegKey HKCU "${PRODUCT_REGISTRY_KEY}" "Directory"
+
+XPStyle on
+
 ShowInstDetails show
 ShowUnInstDetails show
+
+# Download the file on the stack if it doesn't exist in the directory on the stack
+# Params:
+#   Directory
+#   File
+Function getDependency
+  Pop $D
+  Pop $F
+  IfFileExists "$D\$F" +6
+    NSISdl::download "${DLL_URL}/$F" "$D\$F"
+    Pop $R0 ;Get the return value
+    StrCmp $R0 "success" +3
+      MessageBox MB_OK "Download of necessary component failed: $R0"
+      Quit
+FunctionEnd
+
+Section "Pre-Install Download" SEC00
+  # Check to see if we have the dependency files already
+  Push "$INSTDIR"
+  Push "ActivScp.dll"
+  Call getDependency
+
+  Push "$INSTDIR"
+  Push "Interop.SHDocVw.dll"
+  Call getDependency
+
+  Push "$INSTDIR"
+  Push "Interop.MSXML2.dll"
+  Call getDependency
+  
+  Push "$INSTDIR"
+  Push "Microsoft.mshtml.dll"
+  Call getDependency
+
+  Push "$INSTDIR"
+  Push "stdole.dll"
+  Call getDependency
+
+  Push "$INSTDIR"
+  Push "GACMeUp.exe"
+  Call getDependency
+  
+  Push "$INSTDIR\en-US"
+  Push "LibXIE.resources.dll"
+  Call getDependency
+  
+  Push "$INSTDIR\ja"
+  Push "LibXIE.resources.dll"
+  Call getDependency
+SectionEnd
 
 Section "LibX Core" SEC01
   SetOverwrite ifdiff
@@ -73,7 +132,7 @@ SectionEnd
 
 Section "LibX JavaScript" SEC02
   SetOverwrite ifdiff
-  SetOutPath "$APPDATA\LibX\content"
+  SetOutPath "${PRODUCT_DATA_STORE}\content"
   File "${JS_PATH}proxy.js"
   File "${JS_PATH}libx.js"
   File "${JS_PATH}libx.ie.js"
@@ -88,13 +147,13 @@ Section "LibX JavaScript" SEC02
   File "${JS_PATH}doiutils.js"
   File "${JS_PATH}magicsearch.js"
   File "${JS_PATH}libxprefs.js"
-  SetOutPath "$APPDATA\LibX\content\catalogs"
+  SetOutPath "${PRODUCT_DATA_STORE}\content\catalogs"
   File "${JS_PATH}catalogs/*.js"
 SectionEnd
 
 Section "LibX Locale" SEC03
   SetOverwrite ifdiff
-  SetOutPath "$APPDATA\LibX\locale\${LOCALE}"
+  SetOutPath "${PRODUCT_DATA_STORE}\locale\${LOCALE}"
   File "${LOCALE_PATH}${LOCALE}/libx/definitions.properties"
 SectionEnd
 
@@ -112,19 +171,27 @@ Section -Post # Post-install registry manipulation
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
   
+  #Store install location
+  WriteRegStr HKCU "${PRODUCT_REGISTRY_KEY}" "Directory" $INSTDIR
+  
   # Register in GAC and for interop
   ExecWait '$INSTDIR\Register.bat'
 SectionEnd
 
+##############Uninstall
+
+Function un.onInit
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
+             "Uninstalling the LibX toolbar for IE will completely remove the toolbar and all its functionality. Continue?" \
+             /SD IDYES IDYES +2
+  Abort
+FunctionEnd
 
 Function un.onUninstSuccess
   HideWindow
-  MessageBox MB_ICONINFORMATION|MB_OK "LibX for IE was successfully removed from your computer."
-FunctionEnd
-
-Function un.onInit
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Uninstalling the LibX toolbar for IE will completely remove the toolbar and all its functionality. Continue?" IDYES +2
-  Abort
+  MessageBox MB_ICONINFORMATION|MB_OK \
+             "LibX for IE was successfully removed from your computer." \
+             /SD IDOK
 FunctionEnd
 
 Section Uninstall
@@ -137,8 +204,8 @@ Section Uninstall
   # Remove edition files
   #$deleteeditionfiles$
   # Remove JavaScript files
-  Delete "$APPDATA\LibX\content\catalogs\*.js"
-  Delete "$APPDATA\LibX\content\*.js"
+  Delete "${PRODUCT_DATA_STORE}\content\catalogs\*.js"
+  Delete "${PRODUCT_DATA_STORE}\content\*.js"
   
   # Remove toolbar files
   Delete "$INSTDIR\installLog.txt"
@@ -158,11 +225,11 @@ Section Uninstall
   # Remove directories
   RMDir "$INSTDIR\ja"
   RMDir "$INSTDIR\en-US"
-  RMDir "$APPDATA\LibX\skin"
-  RMDir "$APPDATA\LibX\content\catalogs"
-  RMDir "$APPDATA\LibX\content"
-  RMDir /r "$APPDATA\LibX\locale"
-  RMDir "$APPDATA\LibX"
+  RMDir "${PRODUCT_DATA_STORE}\skin"
+  RMDir "${PRODUCT_DATA_STORE}\content\catalogs"
+  RMDir "${PRODUCT_DATA_STORE}\content"
+  RMDir /r "${PRODUCT_DATA_STORE}\locale"
+  RMDir "${PRODUCT_DATA_STORE}"
   RMDir "$INSTDIR"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"

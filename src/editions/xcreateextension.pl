@@ -290,6 +290,7 @@ my $makensis = "/opt/nsis-2.28/Bin/makensis";
 if (-x $makensis) {
     my $env = "-DJS_PATH=../base/chrome/libx/content/libx/";
     $env .= " -DDLL_PATH=./LibXIE/";
+	 $env .= " -DDLL_URL=http://top.cs.vt.edu/editions/LibXIE"; #TODO: Change from hard-coded to $httpeditionpath . "LibXIE" or similar
     $env .= " -DLOCALE_PATH=../base/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
     $env .= " -DEDITION_PATH=$editionpath";
