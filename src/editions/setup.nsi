@@ -64,8 +64,8 @@ ShowUnInstDetails show
 #   Directory
 #   File
 Function getDependency
-  Pop $0
   Pop $1
+  Pop $0
   IfFileExists "$0\$1" +6
     NSISdl::download "${DLL_URL}/$1" "$0\$1"
     Pop $R0 ;Get the return value
