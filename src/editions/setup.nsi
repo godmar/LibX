@@ -67,7 +67,7 @@ Function getDependency
   Pop $1
   Pop $0
   IfFileExists "$0\$1" +6
-    NSISdl::download "${DLL_URL}/$1" "$0\$1"
+    NSISdl::download "${DLL_URL}/$1" '"$0\$1"'
     Pop $R0 ;Get the return value
     StrCmp $R0 "success" +3
       MessageBox MB_OK "Download of necessary component failed: $R0"
@@ -75,6 +75,11 @@ Function getDependency
 FunctionEnd
 
 Section "Pre-Install Download" SEC00
+  # Make the install dir
+  CreateDirectory "$INSTDIR"
+  CreateDirectory "$INSTDIR\en-US"
+  CreateDirectory "$INSTDIR\ja"
+
   # Check to see if we have the dependency files already
   Push "$INSTDIR"
   Push "ActivScp.dll"
