@@ -59,6 +59,8 @@ function libxInitializeDFU() {
 var amazonAction = new DoForURL(/amazon\.com\//, doAmazon);
 var amazonUkAction = new DoForURL(/amazon\.co\.uk\//, doAmazon);
 var amazonCaAction = new DoForURL(/amazon\.ca\//, doAmazon);
+var amazonDeAction = new DoForURL(/amazon\.de\//, doAmazon);
+var amazonFrAction = new DoForURL(/amazon\.fr\//, doAmazon);
     
 // revised Apr 4, 2007
 function doAmazon(doc, match) {
