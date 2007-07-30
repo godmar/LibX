@@ -75,12 +75,12 @@ Function getDependency
 FunctionEnd
 
 Function getResource
-  Pop $2 #Directory
+  Pop $2 #File
   Pop $1 #ResourceID
-  Pop $0 #File
+  Pop $0 #Directory
   
-  Push "$2\$1"
-  Push "$1/$0"
+  Push "$0\$1"
+  Push "$1/$2"
   Call getDependency
 FunctionEnd
 
