@@ -64,14 +64,24 @@ ShowUnInstDetails show
 #   Directory
 #   File
 Function getDependency
-  Pop $1
-  Pop $0
+  Pop $1 #File
+  Pop $0 #Directory
   IfFileExists "$0\$1" +6
-    NSISdl::download "${DLL_URL}/$1" '"$0\$1"'
+    NSISdl::download "${DLL_URL}/$1" "$0\$1"
     Pop $R0 ;Get the return value
     StrCmp $R0 "success" +3
       MessageBox MB_OK "Download of necessary component failed: $R0"
       Quit
+FunctionEnd
+
+Function getResource
+  Pop $2 #Directory
+  Pop $1 #ResourceID
+  Pop $0 #File
+  
+  Push "$2\$1"
+  Push "$1/$0"
+  Call getDependency
 FunctionEnd
 
 Section "Pre-Install Download" SEC00
@@ -106,12 +116,14 @@ Section "Pre-Install Download" SEC00
   Call getDependency
   
   Push "$INSTDIR\en-US"
+  Push "en-us"
   Push "LibXIE.resources.dll"
-  Call getDependency
+  Call getResource
   
   Push "$INSTDIR\ja"
+  Push "ja"
   Push "LibXIE.resources.dll"
-  Call getDependency
+  Call getResource
 SectionEnd
 
 Section "LibX Core" SEC01
