@@ -64,10 +64,10 @@ ShowUnInstDetails show
 #   Directory
 #   File
 Function getDependency
-  Pop $D
-  Pop $F
-  IfFileExists "$D\$F" +6
-    NSISdl::download "${DLL_URL}/$F" "$D\$F"
+  Pop $0
+  Pop $1
+  IfFileExists "$0\$1" +6
+    NSISdl::download "${DLL_URL}/$1" "$0\$1"
     Pop $R0 ;Get the return value
     StrCmp $R0 "success" +3
       MessageBox MB_OK "Download of necessary component failed: $R0"
@@ -114,20 +114,20 @@ Section "LibX Core" SEC01
   SetOutPath "$INSTDIR"
   # Toolbar files
   File "${DLL_PATH}LibXIE.dll"
-  File "${DLL_PATH}ActivScp.dll"
-  File "${DLL_PATH}Interop.SHDocVw.dll"
-  File "${DLL_PATH}Interop.MSXML2.dll"
-  File "${DLL_PATH}Microsoft.mshtml.dll"
-  File "${DLL_PATH}stdole.dll"
+  #File "${DLL_PATH}ActivScp.dll"
+  #File "${DLL_PATH}Interop.SHDocVw.dll"
+  #File "${DLL_PATH}Interop.MSXML2.dll"
+  #File "${DLL_PATH}Microsoft.mshtml.dll"
+  #File "${DLL_PATH}stdole.dll"
   # Needed to register assemblies
-  File "${DLL_PATH}GACMeUp.exe"
+  #File "${DLL_PATH}GACMeUp.exe"
   File "${DLL_PATH}Register.bat"
   File "${DLL_PATH}Unregister.bat"
   # String resources
-  SetOutPath "$INSTDIR\en-US"
-  File "${DLL_PATH}en-US/LibXIE.resources.dll"
-  SetOutPath "$INSTDIR\ja"
-  File "${DLL_PATH}ja/LibXIE.resources.dll"
+  #SetOutPath "$INSTDIR\en-US"
+  #File "${DLL_PATH}en-US/LibXIE.resources.dll"
+  #SetOutPath "$INSTDIR\ja"
+  #File "${DLL_PATH}ja/LibXIE.resources.dll"
 SectionEnd
 
 Section "LibX JavaScript" SEC02
