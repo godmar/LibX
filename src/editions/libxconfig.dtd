@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.25 2007/07/13 01:58:47 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.26 2007/08/03 16:47:32 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -119,6 +119,8 @@
         sort            CDATA #IMPLIED
         options         CDATA #REQUIRED
         path            CDATA #IMPLIED
+        user_id         CDATA #IMPLIED
+        password        CDATA #IMPLIED
 >
 <!ELEMENT web2 (xisbn)?>
 <!ATTLIST web2

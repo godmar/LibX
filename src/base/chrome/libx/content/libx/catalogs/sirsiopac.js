@@ -89,9 +89,17 @@ libxAddToPrototype(SirsiOPAC.prototype, {
         }
         return "";
     },
+    // Include user_id and password if given
+    userId: function (query) {
+        if (this.user_id) {
+            return "&user_id=" + this.user_id 
+                + "&password=" + ((this.password != null) ? this.password : "");
+        }
+        return "";
+    },
 	makeSearch: function(stype, sterm) {
         return this.url + this.path + "?searchdata1=" + sterm + this.convert(stype)
-            + this.scopeField() + this.sortField();
+            + this.scopeField() + this.sortField() + this.userId();
 	},
 	makeAdvancedSearch: function(fields) {
         var url = this.url + this.path + "?";
@@ -102,7 +110,7 @@ libxAddToPrototype(SirsiOPAC.prototype, {
                 url += "&searchoper" + (i+1) + "=AND&";
             }
 		}
-		return url + this.scopeField() + this.sortField();
+		return url + this.scopeField() + this.sortField() + this.userId();
 	}
 });
 
