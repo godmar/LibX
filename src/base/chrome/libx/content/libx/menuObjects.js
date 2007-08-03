@@ -117,7 +117,7 @@ function libxInitializeMenuObjects()
         menuentry.fields = [{ searchType: menuentry.type, searchTerms: text }];
         switch (menuentry.source) {
         case "catalog":
-            menuentry.searcher = libxConfig.catalogs[name];    
+            menuentry.searcher = libxConfig.catalogs[name];
             break;
         case "openurl":
             menuentry.searcher = libxConfig.resolvers[name];
@@ -142,6 +142,7 @@ function libxInitializeMenuObjects()
 
         if (menuentry.searcher == null || menuentry.searcher == "") {
             libxEnv.writeLog ( "Error initializing menuitem: { " + menuObjectToString( menuentry ) + " }" );
+            menuentry.menuitem.setVisible(false);
         }
     }
 

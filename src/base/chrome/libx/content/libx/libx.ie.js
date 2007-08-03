@@ -49,6 +49,8 @@ libxEnv.init = function() {
         libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
         libxDropdownOptions[mitem.value] = mitem;
     }
+    
+    libraryCatalog = searchCatalogs[0];
 }
 
 /*  populateDropdownOptions
