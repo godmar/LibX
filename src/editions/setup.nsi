@@ -7,7 +7,7 @@
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
 !define PRODUCT_REGISTRY_KEY "Software\LibX for IE"
-!define PRODUCT_DATA_STORE "${PRODUCT_DATA_STORE}"
+!define PRODUCT_DATA_STORE "$APPDATA\LibX"
 
 #Needs the following symbols:
 # DLL_PATH:      Path to LibXIE core DLLs
