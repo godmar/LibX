@@ -51,6 +51,111 @@ libxEnv.init = function() {
     }
     
     libraryCatalog = searchCatalogs[0];
+
+    libxEnv.initIEDFU();
+}
+
+libxEnv.debugInit = function () {}
+
+libxEnv.initIEDFU = function () {
+    new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
+        var n = doc.getElementById('yschinfo').firstChild;
+        var searchterms = libxEnv.getCurrentWindowContent().document.getElementById("yschsp").value;
+        n.appendChild(doc.createTextNode(" "));
+        n.appendChild(makeLink(doc,
+                               libxEnv.getProperty("catsearch.label",
+                                                   [libraryCatalog.name, searchterms]),
+                               libraryCatalog.makeKeywordSearch(searchterms)));
+    });
+    
+    // --------------------------------------------------------------------------------------------------
+    // Google results pages
+    // link to catalog via keyword
+    new DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
+        var n = doc.getElementById('sd');
+        var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
+        n.parentNode.appendChild(
+                makeLink(doc,
+                         libxEnv.getProperty("catsearch.label",
+                                             [libraryCatalog.name, searchterms]),
+                         libraryCatalog.makeKeywordSearch(searchterms)));
+    });
+
+    // --------------------------------------------------------------------------------------------------
+    // Link Barnes & Noble pages to catalog via ISBN
+    new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (doc, match) {
+        var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
+        
+        //var origTitle = libxEnv.xpath.findSingle(doc, "//h1[@id='title']");
+        var origTitle = doc.getElementById('title');
+        if (!origTitle) {
+            return;
+        }
+        // make link and insert after title
+        var link = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
+        origTitle.appendChild(link);
+        origTitle.insertBefore(doc.createTextNode(" "), link);
+    });
+
+    var amazonAction = new DoForURL(/amazon\.com\//, doAmazon);
+    var amazonUkAction = new DoForURL(/amazon\.co\.uk\//, doAmazon);
+    var amazonCaAction = new DoForURL(/amazon\.ca\//, doAmazon);
+    var amazonDeAction = new DoForURL(/amazon\.de\//, doAmazon);
+    var amazonFrAction = new DoForURL(/amazon\.fr\//, doAmazon);
+
+    // revised Apr 4, 2007
+    function doAmazon(doc, match) {
+        // extract ISBN from text <b>ISBN-10:</b>
+        var n = doc.getElementById('productDetails');
+        while(n.nodeName.toLowerCase() != 'table') {
+            n = n.nextSibling;
+        }
+        n = n.getElementsByTagName('tbody')[0].firstChild;
+        n = n.getElementsByTagName('td')[0].getElementsByTagName('div')[0];
+        n = n.getElementsByTagName('ul')[0].getElementsByTagName('li')[3].firstChild;
+        var isbn = n.nextSibling.nodeValue;
+
+        var booktitle = null;
+        var div = null;
+        var buyForm = doc.getElementById('handleBuy');
+        var elems = buyForm.getElementsByTagName('b');
+
+        for(var i = 0; i < elems.length; ++i) {
+            if(elems[i].attributes['class'].value == 'sans') {
+                if(elems[i].parentNode.attributes['class'].value == 'buying') {
+                    booktitle = elems[i];
+                    div = elems[i].parentNode;
+                    break;
+                }
+            }
+        }
+
+        if(!booktitle) {
+            return;
+        }
+        // make link and insert after title
+        var cue = makeLink(doc, 
+                           libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
+                           libraryCatalog.linkByISBN(isbn));
+        div.insertBefore(cue, booktitle.nextSibling);
+    }
+}
+
+// helper function that creates the cue logo to be inserted
+// make the equivalent of this html:
+// <a title="[title]" href="[url]"><img src="chrome://libx/skin/virginiatech.ico" border="0"/></a>
+// XXX to be done - link cue.iconurl to catalog
+function makeLink(doc, title, url, openurl) {
+    var link = doc.createElement('a');
+    link.setAttribute('title', title);
+    link.setAttribute('href', url);
+
+    var image = doc.createElement('img');
+    image.setAttribute('src', libxInterface.getIconURL());
+    image.setAttribute('border', '0');
+
+    link.appendChild(image);
+    return link;
 }
 
 /*  populateDropdownOptions

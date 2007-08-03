@@ -43,12 +43,7 @@
  */
 
 function dfu_log(msg) {
-    if (!libxEnv.getBoolPref("libx.doforurl.debug", false))
-        return;
-
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-                       .getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("doforurl: " + msg);
+    libxEnv.writeLog(msg, 'doforurl');
 }   
 
 var dfu_actions = new Array();
@@ -90,6 +85,32 @@ function newpage(ev) {
                     dfu.action(doc, m);
                 } catch (e) { 
                     dfu_log(e);
+                }
+            }
+        }
+}
+
+function newpage_ie(doc, location) {
+        if (!doc) return;
+
+        if (location == 'about:blank')
+                return;
+
+    outer:
+        for (var i = 0; i < dfu_actions.length; i++) {
+            var dfu = dfu_actions[i];
+            var m = location.match(dfu.pattern);
+            if (m) {
+                var exclude = dfu.exclude;
+                if (exclude) {
+                    for (var j = 0; j < exclude.length; j++)
+                        if (location.match(exclude[j]))
+                            continue outer;
+                }
+                try {
+                    dfu.action(doc, m);
+                } catch (e) { 
+                    dfu_log(e.message);
                 }
             }
         }
