@@ -134,20 +134,9 @@ Section "LibX Core" SEC01
   SetOutPath "$INSTDIR"
   # Toolbar files
   File "${DLL_PATH}LibXIE.dll"
-  #File "${DLL_PATH}ActivScp.dll"
-  #File "${DLL_PATH}Interop.SHDocVw.dll"
-  #File "${DLL_PATH}Interop.MSXML2.dll"
-  #File "${DLL_PATH}Microsoft.mshtml.dll"
-  #File "${DLL_PATH}stdole.dll"
   # Needed to register assemblies
-  #File "${DLL_PATH}GACMeUp.exe"
   File "${DLL_PATH}Register.bat"
   File "${DLL_PATH}Unregister.bat"
-  # String resources
-  #SetOutPath "$INSTDIR\en-US"
-  #File "${DLL_PATH}en-US/LibXIE.resources.dll"
-  #SetOutPath "$INSTDIR\ja"
-  #File "${DLL_PATH}ja/LibXIE.resources.dll"
 SectionEnd
 
 Section "LibX JavaScript" SEC02
@@ -192,11 +181,15 @@ Section -Post # Post-install registry manipulation
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
   
+  #Let's turn off some IE security hacks (er, I mean features)
+  WriteRegDWORD HKLM "SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_LOCALMACHINE_LOCKDOWN" \
+                "LibXIE.dll" 0x0
+  
   #Store install location
   WriteRegStr HKCU "${PRODUCT_REGISTRY_KEY}" "Directory" $INSTDIR
   
   # Register in GAC and for interop
-  ExecWait '$INSTDIR\Register.bat'
+  nsExec::ExecToLog '"$INSTDIR\Register.bat"'
 SectionEnd
 
 ##############Uninstall
@@ -218,7 +211,7 @@ FunctionEnd
 Section Uninstall
   SetOutPath "$INSTDIR"
   # Deregister
-  ExecWait '$INSTDIR\Unregister.bat'
+  nsExec::ExecToLog '"$INSTDIR\Unregister.bat"'
   
   SetOutPath "$TEMP"
   
