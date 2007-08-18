@@ -100,8 +100,8 @@ Section "Pre-Install Download" SEC00
     Push "$TEMP"
     Push "msxml6.msi"
     Call getDependency # Download installer to temp dir
-    nsExec::ExecToLog 'msiexec /quiet "$TEMP\msxml6.msi"' # Install
-    Delete "$TEMP\msxml6.msi"
+    nsExec::ExecToLog 'msiexec /quiet /i "$TEMP\msxml6.msi"' # Install
+    Delete "$TEMP\msxml6.msi" # Clean up
 
   # Check to see if we have the dependency files already
   Push "$INSTDIR"
