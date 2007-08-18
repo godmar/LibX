@@ -93,6 +93,16 @@ Section "Pre-Install Download" SEC00
   CreateDirectory "$INSTDIR\en-US"
   CreateDirectory "$INSTDIR\ja"
 
+  # MS XML 6 section ################################################
+  
+  # Check to see if we have MSXML6
+  IfFileExists "$SYSDIR\msxml6.dll" +6
+    Push "$TEMP"
+    Push "msxml6.msi"
+    Call getDependency # Download installer to temp dir
+    nsExec::ExecToLog 'msiexec /quiet "$TEMP\msxml6.msi"' # Install
+    Delete "$TEMP\msxml6.msi"
+
   # Check to see if we have the dependency files already
   Push "$INSTDIR"
   Push "ActivScp.dll"
