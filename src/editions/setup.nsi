@@ -28,6 +28,11 @@ SetCompressor bzip2
 !define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
+# Stuff for the finish page -- show checkbox to start IE
+!define MUI_FINISHPAGE_RUN "iexplore.exe"  # Run this command
+!define MUI_FINISHPAGE_RUN_NOTCHECKED      # Default to no
+!define MUI_FINISHPAGE_RUN_TEXT "Start Internet Explorer now"
+  
 # Welcome page
 !insertmacro MUI_PAGE_WELCOME
 # License page
@@ -103,6 +108,8 @@ Section "Pre-Install Download" SEC00
     nsExec::ExecToLog 'msiexec /quiet /i "$TEMP\msxml6.msi"' # Install
     Delete "$TEMP\msxml6.msi" # Clean up
 
+  # Other dependencies section ######################################
+
   # Check to see if we have the dependency files already
   Push "$INSTDIR"
   Push "ActivScp.dll"
@@ -150,7 +157,7 @@ Section "LibX Core" SEC01
 SectionEnd
 
 Section "LibX JavaScript" SEC02
-  SetOverwrite ifdiff
+  SetOverwrite on
   SetOutPath "${PRODUCT_DATA_STORE}\content"
   File "${JS_PATH}proxy.js"
   File "${JS_PATH}libx.js"

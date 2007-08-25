@@ -142,9 +142,7 @@ libxEnv.initIEDFU = function () {
 }
 
 // helper function that creates the cue logo to be inserted
-// make the equivalent of this html:
-// <a title="[title]" href="[url]"><img src="chrome://libx/skin/virginiatech.ico" border="0"/></a>
-// XXX to be done - link cue.iconurl to catalog
+// Calls into C# to get the URL for the icon.
 function makeLink(doc, title, url, openurl) {
     var link = doc.createElement('a');
     link.setAttribute('title', title);
