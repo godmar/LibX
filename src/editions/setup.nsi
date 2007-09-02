@@ -29,7 +29,10 @@ SetCompressor bzip2
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 # Stuff for the finish page -- show checkbox to start IE
-!define MUI_FINISHPAGE_RUN "iexplore.exe"  # Run this command
+# For some reason just passing 'iexplore.exe' to MUI_FINISHPAGE_RUN doesn't
+# work, so instead we have to do it using ExecShell in a function.
+!define MUI_FINISHPAGE_RUN_FUNCTION execIE # Run this function
+!define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_NOTCHECKED      # Default to no
 !define MUI_FINISHPAGE_RUN_TEXT "Start Internet Explorer now"
   
@@ -63,6 +66,11 @@ XPStyle on
 
 ShowInstDetails show
 ShowUnInstDetails show
+
+# Launch Internet Explorer
+Function execIE
+  ExecShell 'open' 'iexplore.exe'
+FunctionEnd
 
 # Download the file on the stack if it doesn't exist in the directory on the stack
 # Params:
