@@ -840,6 +840,8 @@ libxEnv.getProxyPref = function() {
     return document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true' ? true : false
 };
 
+libxEnv.getDFUPref = function() { return true; } //Doesn't apply to Firefox
+
 libxEnv.removeContextMenuPreferencesTab = function (idbase) {
     var tabId = "libx-contextmenu-" + idbase + "-prefs-tab";
     var tabPanelId = "libx-" + idbase + "-tab";

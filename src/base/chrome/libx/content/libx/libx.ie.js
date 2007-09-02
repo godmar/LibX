@@ -52,7 +52,9 @@ libxEnv.init = function() {
     
     libraryCatalog = searchCatalogs[0];
 
-    libxEnv.initIEDFU();
+    if(libxEnv.getBoolPref('libx.dfuexec', true)) {
+        libxEnv.initIEDFU();
+    }
 }
 
 libxEnv.debugInit = function () {}
@@ -557,6 +559,10 @@ libxEnv.getDisplayPref = function() {
 libxEnv.getProxyPref = function() {
     return libxInterface.getProxyPreference(false);
 };
+
+libxEnv.getDFUPref = function() {
+    return libxInterface.getDFUPreference(true);
+}
 
 libxEnv.getAutolinkPref = function() {
     //There is no specialized autolink in IE

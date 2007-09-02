@@ -83,9 +83,11 @@ function libxSavePreferences() {
 
     /**** Saves all of the context menu preferences *********/
     libxSaveContextPrefs();
-    
+
     /** Save AJAX Preferences tab options **/
     libxEnv.setBoolPref ('libx.proxy.ajaxlabel', libxEnv.getProxyPref());
+
+    libxEnv.setBoolPref ('libx.dfuexec', libxEnv.getDFUPref());
 }
 
 function libxSaveContextPrefs() {
