@@ -60,7 +60,9 @@ libxClientSideCatalogInit("<? echo $edition_config_xml; ?>");
 <h2 class="title">LibX <? echo $edition_name ?> - Test Edition Page</h2>
 
 <? if ($edition_built) { ?>
-<p>Quick Install:
+<p>
+<img src="http://libx.org/images/firefox.jpg" />
+Quick Install:
 <a target="_top" href="<? echo $edition_xpi ?>">
         Click here to install LibX <? echo $edition_name . ' --- Test Edition '?>
 </a>
@@ -68,7 +70,8 @@ libxClientSideCatalogInit("<? echo $edition_config_xml; ?>");
 <? } ?>
 <? 
 if ($edition_exe_built) { 
-	echo "<p>Quick Install:\n";
+    echo "<p><img src=\"http://www.microsoft.com/silverlight/images/icon_ie.jpg\" />";
+	echo "Quick Install:\n";
 	echo "<a target='_top' href='$edition_exe'>\n";
 	echo "\tClick here to install LibX for Internet Explorer $edition_name --- Test edition\n";
 	echo "</a>\n</p>";
