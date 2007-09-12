@@ -46,6 +46,7 @@ OpenURL.prototype = {
 	    var url = this.url + "?__char_set=utf8";
 	    this.haveTitleOrIssn = false;
 	    for (var i = 0; i < fields.length; i++) {
+            libxAdjustISNSearchType(fields[i]);
 		    switch (fields[i].searchType) {
 		    case 'doi':
                 url += "&id=doi:" + fields[i].searchTerms;
@@ -64,6 +65,15 @@ OpenURL.prototype = {
 			    url += "&atitle=" + fields[i].searchTerms.replace(/[^A-Za-z0-9_\s]/g, " ").replace(/\s+/, " ");
 			    break;
 		    case 'i':
+                var pureISN = isISBN(fields[i].searchTerms);
+			    if (pureISN != null) {
+				    url += "&isbn=" + pureISN;
+			    } else {
+				    alert(libxEnv.getProperty("openurlissn.alert", [fields[i].searchTerms]));
+				    return null;
+			    }
+			    this.haveTitleOrIssn = true;
+			    break;
 		    case 'is':
                 var pureISN = isISSN(fields[i].searchTerms);
 			    if (pureISN != null) {
@@ -247,9 +257,12 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
         switch (fields[i].searchType) {
         case 'jt':
             url += "&sfx.title_search=contains";
-            /* FALL THROUGH */
-        case 'is':
+            url += "&sfx.ignore_date_threshold=1";
+            break;
         case 'i':
+            /* FALL THROUGH */
+            genre = "book";
+        case 'is':
             url += "&sfx.ignore_date_threshold=1";
             break;
         case 'a':
