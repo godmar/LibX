@@ -283,10 +283,11 @@ push @{$flist{&convertChromeURL('chrome://')}}, cwd() . "/$tmpdir/install.rdf";
 for my $dir (keys %flist) {
 	$eflist = $eflist . "  SetOutPath \"$dir\"\n";
 	foreach my $fname (@{$flist{$dir}}) {
+		my $pname = $fname;
 		if (substr($fname, 0, 1) ne '/') {
-			$fname = '${EDITION_PATH}' . $fname;
+			$pname = '${EDITION_PATH}' . $fname;
 		}
-		$eflist = $eflist . '   File "' . "$fname\"\n";
+		$eflist = $eflist . '   File "' . "$pname\"\n";
 		$dlist = $dlist . '  Delete "'. "$dir$fname". "\"\n";
 	}
 }
