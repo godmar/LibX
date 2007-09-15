@@ -194,7 +194,7 @@ SectionEnd
 
 Section "Edition" SEC04
   SetOverwrite on
-# $editionfiles$
+$editionfiles$
 SectionEnd
 
 Section -Post # Post-install registry manipulation
@@ -241,7 +241,7 @@ Section Uninstall
   SetOutPath "$TEMP"
   
   # Remove edition files
-  #$deleteeditionfiles$
+  $deleteeditionfiles$
   # Remove JavaScript files
   Delete "${PRODUCT_DATA_STORE}\content\catalogs\*.js"
   Delete "${PRODUCT_DATA_STORE}\content\*.js"
