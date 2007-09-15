@@ -288,7 +288,7 @@ for my $dir (keys %flist) {
 			$pname = '${EDITION_PATH}' . $fname;
 		}
 		else {
-			$fname = substr($fname, rindex($fname, '/'));
+			$fname = substr($fname, rindex($fname, '/') + 1);
 		}
 		$eflist = $eflist . '   File "' . "$pname\"\n";
 		$dlist = $dlist . '  Delete "'. "$dir$fname". "\"\n";
