@@ -9,8 +9,13 @@ use Cwd;
 # Create an edition based on its XML file
 #
 my $config_xml = "config.xml";
-my $copytargetdir = "/home/www/libx.org/editions";
 my $httpeditionpath = "http://www.libx.org/editions/";
+my $libxiedllpath="http://libx.org/libx/src/editions/LibXIE";
+
+# Change this to build, say "libx-experimental-<edition>.xpi"
+# If set to non-empty, will suppress creation of update.rdf file
+# my $localbuild = "experimental-";
+my $localbuild = "";
 
 # path to edition directory
 # example: /home/www/libx.org/editions/vt.2
@@ -154,14 +159,20 @@ close (DEFPREF);
 
 $conf{'additionalproperties'} = "";
 $conf{'emhomepageURL'} = $httpeditionpath . $editionrelpath . "/libx.html";
-$conf{'emupdateURL'} = $httpeditionpath . $editionrelpath . "/update.rdf";
-$conf{'xpilocation'} = $httpeditionpath . $editionrelpath . "/libx-" . $editionid . ".xpi";
+if ($localbuild ne "") {
+    $conf{'emupdateURL'} = $httpeditionpath . $editionrelpath . "/update.rdf";
+}
+$conf{'xpilocation'} = $httpeditionpath . $editionrelpath . "/libx-" . $localbuild . $editionid . ".xpi";
 
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 
 #######################################################
 
+#
+# Copy file $src to $dst directory, replacing all occurrences
+# of $xxx$ with $conf{'xxx'}.
+#
 sub copyandreplace 
 {
     my ($src, $dst) = @_;
@@ -214,7 +225,7 @@ foreach my $f (@afiles) {
     }
 }
 
-my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
+my $addtoplevelfiles = "install.js install.rdf changelog.txt chrome.manifest";
 my $xpifile = $conf{'xpilocation'};
 $xpifile =~ s/.*\/([^\/]*)/$1/;         # basename
 system("rm $editionpath/$xpifile; " .
@@ -289,11 +300,12 @@ open (NSIS, ">$editionpath" . "setup.nsi") || die "Could not upen $editionpath" 
 print NSIS $nsisText;
 close (NSIS);
 
-my $makensis = "/opt/nsis-2.28/Bin/makensis";
+my $makensis = `/usr/bin/which makensis 2>/dev/null` || "/opt/nsis-current/Bin/makensis";
+chomp ($makensis);
 if (-x $makensis) {
     my $env = "-DJS_PATH=../base/chrome/libx/content/libx/";
     $env .= " -DDLL_PATH=./LibXIE/";
-    $env .= " -DDLL_URL=http://top.cs.vt.edu/editions/LibXIE"; #TODO: Change from hard-coded to $httpeditionpath . "LibXIE" or similar
+    $env .= " -DDLL_URL=$libxiedllpath";
     $env .= " -DLOCALE_PATH=../base/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
     $env .= " -DEDITION_PATH=$editionpath";
