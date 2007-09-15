@@ -20,6 +20,7 @@
    - the Initial Developer and Virginia Tech. All Rights Reserved.
    -
    - Contributor(s): Godmar Back (godmar@gmail.com)
+   -                 Richard Karnesky (karnesky@gmail.com)
    -
    - ***** END LICENSE BLOCK ***** -->
 
@@ -31,14 +32,55 @@
      <r:li> 
        <r:Description> 
          <version>$libxversion$</version> 
-         <targetApplication> 
-           <r:Description> 
-             <id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</id> 
-             <minVersion>1.0</minVersion> 
-             <maxVersion>2.0.*</maxVersion> 
+         <!-- Firefox (tested) -->
+         <targetApplication>
+           <r:Description>
+             <id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</id>
+             <minVersion>1.0</minVersion>
+             <maxVersion>2.0.*</maxVersion>
              <updateLink>$xpilocation$</updateLink> 
-           </r:Description> 
-         </targetApplication> 
+           </r:Description>
+         </targetApplication>
+
+         <!-- Flock (untested) -->
+         <targetApplication>
+           <r:Description>
+             <id>{a463f10c-3994-11da-9945-000d60ca027b}</id>
+             <minVersion>0.4</minVersion>
+             <maxVersion>0.9.*</maxVersion>
+             <updateLink>$xpilocation$</updateLink> 
+           </r:Description>
+         </targetApplication>        
+
+         <!-- Mozilla Suite (untested) -->
+         <targetApplication>
+           <r:Description>
+             <id>{86c18b42-e466-45a9-ae7a-9b95ba6f5640}</id>
+             <minVersion>1.7</minVersion>
+             <maxVersion>1.7.*</maxVersion>
+             <updateLink>$xpilocation$</updateLink> 
+           </r:Description>
+         </targetApplication>
+
+         <!-- Netscape (untested) -->
+         <targetApplication>
+           <r:Description>
+             <id>{3db10fab-e461-4c80-8b97-957ad5f8ea47}</id>
+             <minVersion>8.0</minVersion>
+             <maxVersion>9.0.*</maxVersion>
+             <updateLink>$xpilocation$</updateLink> 
+           </r:Description>
+         </targetApplication>
+
+         <!-- SeaMonkey (tested) -->
+         <targetApplication>
+           <r:Description>
+             <id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</id>
+             <maxVersion>1.0</maxVersion>
+             <minVersion>1.1.*</minVersion>
+             <updateLink>$xpilocation$</updateLink> 
+           </r:Description>
+         </targetApplication>
        </r:Description> 
      </r:li> 
    </r:Seq> 

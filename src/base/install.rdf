@@ -20,11 +20,11 @@
    - the Initial Developer and Virginia Tech. All Rights Reserved.
    -
    - Contributor(s): Godmar Back (godmar@gmail.com)
+   -                 Richard Karnesky (karnesky@gmail.com)
    -
    - ***** END LICENSE BLOCK ***** -->
 
 <RDF:RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#"
-         xmlns:NC="http://home.netscape.com/NC-rdf#"
          xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"
@@ -35,17 +35,59 @@
                    em:homepageURL="$emhomepageURL$"
                    em:updateURL="$emupdateURL$"
                    em:iconURL="$emiconURL$"
-                   em:aboutURL="chrome://libx/content/libxprefs.xul"
-                   em:contributor="Godmar Back">
-    <em:targetApplication RDF:resource="rdf:#$P7Gtk2"/>
+                   em:aboutURL="chrome://libx/content/libxprefs.xul">
+    <em:contributor>Godmar Back</em:contributor>
+    <em:contributor>Richard Karnesky</em:contributor>
     <em:file RDF:resource="urn:mozilla:extension:file:libx"/>
+
+    <!-- Firefox (tested) -->
+    <em:targetApplication>
+      <RDF:Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>1.0</em:minVersion>
+        <em:maxVersion>2.0.*</em:maxVersion>
+      </RDF:Description>
+    </em:targetApplication>
+
+    <!-- Flock (untested) -->
+    <em:targetApplication>
+      <RDF:Description>
+        <em:id>{a463f10c-3994-11da-9945-000d60ca027b}</em:id>
+        <em:minVersion>0.4</em:minVersion>
+        <em:maxVersion>0.9.*</em:maxVersion>
+      </RDF:Description>
+    </em:targetApplication>
+
+    <!-- Mozilla Suite (untested) -->
+    <em:targetApplication>
+      <RDF:Description>
+        <em:id>{86c18b42-e466-45a9-ae7a-9b95ba6f5640}</em:id>
+        <em:minVersion>1.7</em:minVersion>
+        <em:maxVersion>1.7.*</em:maxVersion>
+      </RDF:Description>
+    </em:targetApplication>
+
+    <!-- Netscape (untested) -->
+    <em:targetApplication>
+      <RDF:Description>
+        <em:id>{3db10fab-e461-4c80-8b97-957ad5f8ea47}</em:id>
+        <em:minVersion>8.0</em:minVersion>
+        <em:maxVersion>9.0.*</em:maxVersion>
+      </RDF:Description>
+    </em:targetApplication>
+
+    <!-- SeaMonkey (tested) -->
+    <em:targetApplication>
+      <RDF:Description>
+        <em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
+        <em:minVersion>1.0</em:minVersion>
+        <em:maxVersion>1.1.*</em:maxVersion>
+      </RDF:Description>
+    </em:targetApplication>
+
   </RDF:Description>
-  <RDF:Description RDF:about="rdf:#$P7Gtk2"
-                   em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
-                   em:minVersion="1.0"
-                   em:maxVersion="2.0.*" />
   <RDF:Description RDF:about="urn:mozilla:extension:file:libx"
-                   em:package="content/libx/"
-                   em:locale="locale/en-US/libx/"
-                   em:skin="skin/libx/" />
+                    em:package="content/libx/"
+                    em:locale="locale/en-US/libx/"
+                    em:skin="skin/libx/" />
 </RDF:RDF>
