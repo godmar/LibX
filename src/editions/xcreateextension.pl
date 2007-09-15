@@ -159,9 +159,7 @@ close (DEFPREF);
 
 $conf{'additionalproperties'} = "";
 $conf{'emhomepageURL'} = $httpeditionpath . $editionrelpath . "/libx.html";
-if ($localbuild ne "") {
-    $conf{'emupdateURL'} = $httpeditionpath . $editionrelpath . "/update.rdf";
-}
+$conf{'emupdateURL'} = $httpeditionpath . $editionrelpath . "/update.rdf";
 $conf{'xpilocation'} = $httpeditionpath . $editionrelpath . "/libx-" . $localbuild . $editionid . ".xpi";
 
 $conf{'builddate'} = `date +%Y%m%d`;
@@ -239,7 +237,9 @@ system("touch $editionpath/uses_xml_config") == 0 || die "touch failed";
 #exit;
 ############################################################
 
-system("cp $tmpdir/update.rdf $editionpath") == 0 || die "could not copy update.rdf";
+if ($localbuild eq "") {
+    system("cp $tmpdir/update.rdf $editionpath") == 0 || die "could not copy update.rdf";
+}
 
 #my $icon = $conf{'emiconURL'};
 #$icon =~ s/.*\/([^\/]*)/$1/;         # basename of icon
