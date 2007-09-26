@@ -194,6 +194,8 @@ SectionEnd
 
 Section "Edition" SEC04
   SetOverwrite on
+  # $editionfiles will be replaced with the edition-specific files. 
+  # This replacement is done by xcreateextension.pl
 $editionfiles$
 SectionEnd
 
@@ -240,8 +242,8 @@ Section Uninstall
   
   SetOutPath "$TEMP"
   
-  # Remove edition files
-  $deleteeditionfiles$
+  # Remove edition files (this is expanded by xcreateextension.pl)
+$deleteeditionfiles$
   # Remove JavaScript files
   Delete "${PRODUCT_DATA_STORE}\content\catalogs\*.js"
   Delete "${PRODUCT_DATA_STORE}\content\*.js"
