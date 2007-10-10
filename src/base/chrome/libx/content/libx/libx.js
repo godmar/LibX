@@ -131,6 +131,19 @@ function libxInitializeCatalog(doc, node)
         
     var xisbnNode = libxEnv.xpath.findSingle ( doc.xml, "xisbn", node );
     if ( xisbnNode ) {
+        /* Most catalogs will inherit the xisbn property from their prototype,
+         * but since the xisbn settings can be overridden on a per catalog basis,
+         * each catalog must have its own xisbn object.
+         * Otherwise, the prototyped object would be aliased and changes propagated.
+         * Therefore, we clone the inherited xisbn object, then override the
+         * inherited xisbn property.
+         */
+        var xisbnCopy = new Object();
+        for (var k in cat.xisbn) {
+            xisbnCopy[k] = cat.xisbn[k];
+        }
+        cat.xisbn = xisbnCopy;
+
         doc.copyAttributes ( xisbnNode, cat.xisbn );
     }
         	
