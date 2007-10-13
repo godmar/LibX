@@ -123,7 +123,9 @@ function libxClientSideCatalogInit(configurl) {
         case "custom":
         case "openurlresolver":
             // cat = new OpenURLCatalog();
-            cat = { search: function () { alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
+            cat = { xisbn : { },
+                    search: function () { 
+                        alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
             break;
         // whikloj@cc.umanitoba.ca - 2007-06-20
         case "web2": 
