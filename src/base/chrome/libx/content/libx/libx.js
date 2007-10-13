@@ -118,6 +118,10 @@ function libxInitializeCatalog(doc, node)
         cat = new Web2OPAC();
         break;
 
+    case "custom":
+        cat = new libxCustomCatalog();
+        break;
+
     default:
 		libxEnv.writeLog("Catalog type " + cattype + " not supported.");
     case null:
@@ -148,6 +152,9 @@ function libxInitializeCatalog(doc, node)
     }
         	
     cat.urlregexp = new RegExp( cat.urlregexp );
+    if (typeof (cat.__init) == "function") {
+        cat.__init();
+    }
 
     libxEnv.writeLog("xml registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
     return cat;

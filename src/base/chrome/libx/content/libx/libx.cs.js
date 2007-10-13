@@ -120,6 +120,7 @@ function libxClientSideCatalogInit(configurl) {
         case "scholar":
             cat = new libxScholarSearch();
             break;
+        case "custom":
         case "openurlresolver":
             // cat = new OpenURLCatalog();
             cat = { search: function () { alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
