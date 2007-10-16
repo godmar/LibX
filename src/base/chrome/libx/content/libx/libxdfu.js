@@ -100,14 +100,15 @@ new DoForURL(/\.alibris\.com\//, function (doc, match) {
 new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (doc, match) {
     var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
     
-    var origTitle = libxEnv.xpath.findSingle(doc, "//h1[@id='title']");
+    // last verified Oct 15, 2007
+    var origTitle = libxEnv.xpath.findSingle(doc, "//div[@id='product-info']//h2");
     if (!origTitle) {
         return;
     }
     // make link and insert after title
     var link = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
-    origTitle.appendChild(link);
-    origTitle.insertBefore(doc.createTextNode(" "), link);
+    origTitle.insertBefore(doc.createTextNode(" "), origTitle.firstChild);
+    origTitle.insertBefore(link, origTitle.firstChild);
 });
 
 // -----------------------------------------------------------------------------
