@@ -224,10 +224,10 @@ function doNyTimes(doc) {
 // link to catalog via keyword
 
 new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
-    var n = libxEnv.xpath.findSingle(doc, "//h1[text()='Search Results']");
+    // last updated 10/16/2007
     var searchterms = libxEnv.getCurrentWindowContent().document.getElementById("yschsp").value;
-    n.appendChild(doc.createTextNode(" "));
-    n.appendChild(makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    var alsotry = libxEnv.getCurrentWindowContent().document.getElementById("atatl");
+    alsotry.appendChild(makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
 });
 
 // --------------------------------------------------------------------------------------------------
