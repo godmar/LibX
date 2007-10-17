@@ -45,37 +45,79 @@ libxEnv.init = function() {
     libxEnv.hoverInit();
 }
   
-/* fix this later should it be necessary - so far, we were able to get at every catalog via GET
-   this code is intended should POST be necessary in the future.
-*/
-//    if (typeof url == "string") {
-//      getBrowser().addTab(encodeURI(url));
-//  } else
-//   if (url.constructor.name == "Array") {  // for catalog that require POST - UNTESTED code
-//      getBrowser().addTab(encodeURI(url[0]), null, null, /*aPostData*/url[1]);
-//    }
+/* 
+ * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
+ */
+libxEnv.convertPostString2PostData = function (dataString) {
+    // var dataString = "name1=data1&name2=data2";
 
-  // open search results, according to user preferences
+    // POST method requests must wrap the encoded text in a MIME stream
+    const Cc = Components.classes;
+    const Ci = Components.interfaces;
+    var stringStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+    if ("data" in stringStream) // Gecko 1.9 or newer
+        stringStream.data = dataString;
+    else // 1.8 or older
+        stringStream.setData(dataString, dataString.length);
+
+    var postData = Cc["@mozilla.org/network/mime-input-stream;1"].createInstance(Ci.nsIMIMEInputStream);
+    postData.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    postData.addContentLength = true;
+    postData.setData(stringStream);
+    return postData;
+}
+
+// open search results, according to user preferences
 libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
+
+    var isGet = typeof (url) == "string";
+    var url2 = isGet ? url : url[0];
     if (donoturiencode == null || donoturiencode == false) {
-        var url2 = encodeURI(url);
+        url2 = encodeURI(url2);
+    } 
+
+    if (isGet) {
+        var tabarguments = [ url2 ];
+        var windowarguments = [ url2 ];
     } else {
-        var url2 = url;
+        var postData = libxEnv.convertPostString2PostData(url[1]);
+        var tabarguments = [ url2, null, null, postData ];
+        var windowarguments = [ url2, null, postData ];
     }
     switch (what) {
     case "libx.newwindow":
-        window.open(url2);
+        if (isGet) {
+            window.open(url);
+        } else {
+            /* The only way I could figure out is to open a new browser window, attach an 
+             * onload event listener, than call loadURI.
+             * This is in contradiction to:
+             *   http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
+             */
+            var v = window.openDialog('chrome://browser/content', '_blank', 'all,dialog=no');
+            v.addEventListener("load", function () {
+                v.loadURI(url2, /* referrer*/null, postData);
+            }, false);
+        }
+
         break;
+
     case "libx.sametab":
-        _content.location.href = url;
+        if (isGet) {
+            _content.location.href = url;
+        } else {
+            loadURI.apply(this, windowarguments);
+        }
         break;
+
     case "libx.newtab":
     default:
-        getBrowser().addTab(url2);
+        getBrowser().addTab.apply(getBrowser(), tabarguments);
         break;
+
     case "libx.newtabswitch":
-        var tab = getBrowser().addTab(url2);
+        var tab = getBrowser().addTab.apply(getBrowser(), tabarguments);
         getBrowser().selectedTab = tab;
         break;
     }
