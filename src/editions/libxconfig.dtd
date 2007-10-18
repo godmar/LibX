@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.26 2007/08/03 16:47:32 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.27 2007/10/18 00:44:14 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
 <!ATTLIST edition 
@@ -29,7 +29,7 @@
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar|openurlresolver|web2)* >
+<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar|openurlresolver|web2|custom)* >
 
 <!ELEMENT openurlresolver EMPTY>
 <!ATTLIST openurlresolver
@@ -157,6 +157,38 @@
         keyword         CDATA #IMPLIED
         subject         CDATA #IMPLIED
         profile         CDATA #IMPLIED
+>
+
+<!-- A custom catalog 
+     The actual implementation resides at jsimplurl, 
+     which must be accessible by the client.
+  -->
+<!ELEMENT custom (xisbn)?>
+<!ATTLIST custom 
+        jsimplurl       CDATA #REQUIRED
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED
+        options         CDATA #REQUIRED
+        param0          CDATA #IMPLIED
+        param1          CDATA #IMPLIED
+        param2          CDATA #IMPLIED
+        param3          CDATA #IMPLIED
+        param4          CDATA #IMPLIED
+        param5          CDATA #IMPLIED
+        param6          CDATA #IMPLIED
+        param7          CDATA #IMPLIED
+        param8          CDATA #IMPLIED
+        param9          CDATA #IMPLIED
+        param10         CDATA #IMPLIED
+        param11         CDATA #IMPLIED
+        param12         CDATA #IMPLIED
+        param13         CDATA #IMPLIED
+        param14         CDATA #IMPLIED
+        param15         CDATA #IMPLIED
+        param16         CDATA #IMPLIED
+        param17         CDATA #IMPLIED
+        param18         CDATA #IMPLIED
+        param19         CDATA #IMPLIED
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
