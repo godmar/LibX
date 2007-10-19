@@ -215,6 +215,10 @@ my @afiles = $afiles_node->getChildrenByTagName('file');
 foreach my $f (@afiles) {
     my $file = $f->getAttribute('name');
     my $dir = $f->getAttribute('directory');
+
+    # ignore empty entries (they occur if people click and then do not upload.)
+    next if ($file eq "");
+
     my $subvars = $f->getAttribute('substitutevars');
     if (defined($subvars) && $subvars eq "true") {
         &copyandreplace("$editionpath/$file", "$tmpdir/$dir/$file");
