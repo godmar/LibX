@@ -99,6 +99,9 @@ function libxClientSideCatalogInit(configurl) {
         case "sfx":
             cat = new SFX();
             break;
+	case "centralsearch":
+	    cat = new CentralSearch();
+            break;
         case "sersol":
             cat = new ArticleLinker();
             break;
