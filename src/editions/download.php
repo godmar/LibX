@@ -65,7 +65,7 @@ It features: </p>
 <p><b>Quick full text access to journal articles:</b> LibX uses Google Scholar to search for articles and directs the user to the electronic copy subscribed to by your Library. Select  a citation, then drag-and-drop it onto the Scholar button on the toolbar. You can use this feature even from inside a PDF file, which makes retrieving papers referenced in a PDF file a snap.<br>
 To use this feature, your library must be a Google Scholar library, or you
 must activate this link in the Firefox profile in which LibX is installed: <a href="http://scholar.google.com/scholar_setprefs?num=10&amp;instq=&amp;inst=sfx-f7e167eec5dde9063b5a8770ec3aaba7&amp;q=einstein&amp;inststart=0&amp;submit=Save+Preferences">
-Activate Google Scholar support.</a> (See also <a href="http://libx.org/faq.html#QL10">LibX FAQ Question 11</a>)</p>
+Activate Google Scholar support.</a> (See also <a href="http://libx.org/faq.html#QL9">LibX FAQ Question 11</a>)</p>
 
 <p align="left"> 
     <img src="images/cue_amazon1.jpg" class="floatright" border="1" />
@@ -89,7 +89,7 @@ you can find a book, given an ISBN, even if the library holds this book under a 
 <h3>Installation:</h3>
 </p><p>
 <font color="green">
-<a href="<? echo $edition ?>/libx-<? echo $edition ?>.xpi">Click here to install LibX 
+<a href="<? echo $editionpath ?>/libx-<? echo $edition ?>.xpi">Click here to install LibX 
         <? echo $edition_name . ' Version ' . $version ?>
 </a>
 </font>
