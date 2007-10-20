@@ -249,8 +249,45 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
 
 //Get remote text functions///////////////////////////////////////////////////
 
-libxEnv.getDocument = function (url) {
-    return libxInterface.doWebRequest(url);
+/**
+ * Retrieve a text file from a URL.
+ * Same as getXMLDocument, except that responseText is returned.
+ * Should merge.
+ *
+ * There's also a C# implementation for synchronous retrieval as
+ *      libxInterface.doWebRequest(url);
+ * which returns the text of a url as a string.
+ */
+libxEnv.getDocument = function (url, callback, postdata) {
+    //Get the request object
+    var req = libxInterface.getXMLHTTPRequest();
+
+    if (!req) {
+        libxEnv.writeLog("Could not get request object for url " + url);
+        return null;
+    }
+
+    var synch = (!callback);
+    if (!synch) {
+        //We're asynchronous, so set a callback
+        req.onreadystatechange = function() {
+            //Make sure we're ready for processing
+            if (req.readyState == 4) {
+                if(req.status != 200) {
+                    libxEnv.writeLog("Could not retrieve text resource at " +
+                                     url + ": Error code " + req.status);
+                }
+                else {
+                    callback(req.responseText);
+                }
+            }
+        }
+    }
+
+    //Do the request
+    req.open(postdata ? 'POST' : 'GET', url, !synch);
+    req.send(postdata);
+    return synch ? req.responseText : null;
 }
 
 //XML + config functions//////////////////////////////////////////////////////
@@ -289,9 +326,9 @@ libxEnv.getXMLDocument = function (url, callback, postdata) {
     }
 
     //Do the request
-    req.open(postdata ? 'POST' : 'GET', url, synch);
+    req.open(postdata ? 'POST' : 'GET', url, !synch);
     req.send(postdata);
-    return req.responseXML;
+    return synch ? req.responseXML : null;
 }
 
 libxEnv.getXMLConfig = function () {
@@ -587,21 +624,6 @@ libxEnv.setVisible = function(elemName, hide) {
 }
 
 libxEnv.setGUIAttribute = function(elemName, attrName, attrVal) {
-}
-
-function addSearchField() {
-}
-
-function removeSearchField(fieldHbox) {
-}
-
-function libxClearAllFields() {
-}
-
-function addSearchFieldAs(mitem) {
-}
-
-function aboutVersion() {
 }
 
 //Autolink functions//////////////////////////////////////////////////////////
