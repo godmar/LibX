@@ -190,33 +190,28 @@ libxEnv.setObjectVisible = function(obj, show) {
  * Opens a new browser window for searching. Since standard JavaScript does
  * not contain the concept of 'tabs', this is emulated by opening new windows
  * and letting the browser figure out how to handle the situation.
+ *
+ * Assumes that the preferences are either libx.newtabswitch or libx.sametab
  */
 libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
-    var url2;
+    
+    var isGet = typeof (url) == "string";
+    var url2 = isGet ? url : url[0];
     if (donoturiencode == null || donoturiencode == false) {
-        url2 = encodeURI(url);
-    } else {
-        url2 = url;
+        url2 = encodeURI(url2);
     }
-    switch (what) {
-    case "libx.sametab": //open in current window
-        window.open(url2, '_self');
-        break;
-    case "libx.newtabswitch": //open in new window, focus it
-        /*var newWindow = window.open(url2, '_blank');
-        if(newWindow) {
-            newWindow.focus();
-        }*/
-        libxInterface.openNewWindow(url, true);
-        break;
-    case "libx.newwindow": //open in new window, don't explicitly focus it
-    case "libx.newtab":
-    default:
-        //window.open(url2, '_blank');
-        libxInterface.openNewWindow(url, false);
-        break;
-    }
+	
+	/* In IE, we are not given control over tabs, by design.
+	 * See http://blogs.msdn.com/ie/archive/2005/05/26/422103.aspx
+	 * The only choice we have is between _blank and _self
+	 */
+	var target = "_blank";
+	if (what == "libx.sametab")
+		target = "_self";
+		
+	/* Also, focus is controlled by the browser's settings, so we don't pass anything along here. */
+	libxInterface.openNewWindow(url2, target, isGet ? null : url[1]);
 }
 
 /*  getCurrentWindowContent
