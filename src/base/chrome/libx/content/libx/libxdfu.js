@@ -280,7 +280,7 @@ if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
 
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
-            var ourl = libxEnv.openUrlResolver.completeOpenURL(m[1]);
+            var ourl = libxEnv.openUrlResolver.completeOpenURL(m[1], "0.1");
             var newlink = makeLink(doc, libxEnv.getProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), ourl, true);
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.insertBefore(doc.createTextNode(" "), link.nextSibling); 
