@@ -33,16 +33,49 @@
   */
  
 var libxEnv = new Object(); /* object through which platform-specific methods are accessed */
+libxEnv.ff = new Object(); /* Holder for FF specific objects */
 
 /*  init
  * Initialize Firefox-specific parts.
  */
 libxEnv.init = function() {
+    libxEnv.ff.toolbar = document.getElementById('libx-toolbar');
     libxInitializeAutolink();
-    var menu = document.getElementById ( 'libxmenu' )
+    
+    function libxToolbarMenuShowing() {
+        var m = document.getElementById ( 'libx.autolink' );
+        libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
+        m.setAttribute('checked', libxEnv.options.autolink_active);
+    }
+
+	var menu = document.getElementById ( 'libxmenu' );
     menu.addEventListener ( 'popupshowing', libxToolbarMenuShowing, false );
-    libxInitializeDFU();
+		
+	/* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
+	menu = document.getElementById ( 'libx-statusbar-popup' );
+	menu.addEventListener('popupshowing', function () {
+		var mitem = document.getElementById('libx-statusbar-togglebar-item');
+		mitem.setAttribute('checked', !libxEnv.ff.toolbar.collapsed);
+	}, false);
+
+	libxInitializeDFU();
     libxEnv.hoverInit();
+}
+
+/* Invoked when hotkey for visibility is pressed. 
+ * Returns true if toolbar is not collapsed.
+ * We use 'collapsed' here instead of 'hidden' since collapsed is persistent and since the
+ * toolbox's View menu as well as View -> Toolbar use collapsed.
+ */
+libxEnv.ff.toggleToolBar = function (toolbarname) {
+	var tbar = document.getElementById(toolbarname);
+	tbar.collapsed = !tbar.collapsed;
+	if (!tbar.collapsed) {
+		setTimeout ( function () { 
+			libxSearchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
+		}, 100);
+	}
+	return !tbar.collapsed;
 }
   
 /* 
@@ -338,7 +371,7 @@ libxEnv.initializeGUI = function () {
         var mitem = document.createElement("menuitem");
         var opt = libxSearchOptions[option];
         libxEnv.xmlDoc.copyAttributes ( opt, mitem );
-        mitem.setAttribute('oncommand', 'setFieldType(this);');
+        mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
         libxDropdownOptions[mitem.value] = mitem;
         libxConfig.searchOptions[mitem.value] = mitem.label;
     }
@@ -426,9 +459,9 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
             mpp.appendChild(mitem);
         }
         if (newvalue == null || alwaysreset || uservalue == "")
-            setFieldType(mpp.firstChild);   // pick first entry the default
+            libxEnv.ff.setFieldType(mpp.firstChild);   // pick first entry the default
         else
-            setFieldType(newvalue);         // recreate prior selection
+            libxEnv.ff.setFieldType(newvalue);         // recreate prior selection
     }
 }
 
@@ -437,7 +470,7 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
 // the blue "add-field" button, child #2, is disabled for all children except the last
 // the red "close-field" button, child #3, is enabled for all children except the first
 // these function all depend intimately on the XUL used for the vbox/hbox search field stuff
-function addSearchField() {
+libxEnv.ff.addSearchField = function () {
 	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
 	var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
     // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
@@ -455,7 +488,7 @@ function addSearchField() {
     var ddMenu = newSearchField.firstChild.firstChild;
     for (var i = 0; i < ddMenu.childNodes.length - 1; i++) {
         if (ddMenu.childNodes.item(i).value == lastSelection) {
-            setFieldType(ddMenu.childNodes.item(i+1));
+            libxEnv.ff.setFieldType(ddMenu.childNodes.item(i+1));
             break;
         }
     }
@@ -465,7 +498,7 @@ function addSearchField() {
 
 // remove a specific search field
 // user must pass reference to hbox of search field to be removed
-function removeSearchField(fieldHbox) {
+libxEnv.ff.removeSearchField = function (fieldHbox) {
 	libxSearchFieldVbox.removeChild(fieldHbox);
 	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
 	lastSearchField.childNodes.item(2).disabled=false;// enable blue "add-field" button
@@ -474,10 +507,17 @@ function removeSearchField(fieldHbox) {
 	}
 }
 
-function libxClearAllFields() {
+// this function is called when the user switches the search field type for a given search field
+libxEnv.ff.setFieldType = function (menuitem) {
+	//propagate label and value of menuitem to grandparent (toolbarbutton)
+	menuitem.parentNode.parentNode.label = menuitem.label;
+	menuitem.parentNode.parentNode.value = menuitem.value;
+}
+
+libxEnv.ff.clearAllFields = function () {
 	// while there are more than one search field left, remove the last one
 	while (libxSearchFieldVbox.childNodes.length > 1) {
-		removeSearchField(libxSearchFieldVbox.lastChild);
+		libxEnv.ff.removeSearchField(libxSearchFieldVbox.lastChild);
 	}
 	// finally, clear the content of the only remaining one
 	libxSearchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
@@ -506,14 +546,14 @@ function libx___unused___addSearchFieldAs(mitem) {
 		}
 	}
 	//have found no empty field, must add one
-	addSearchField();
+	libxEnv.ff.addSearchField();
 	//try again - this time around there should be an empty field
 	addSearchFieldAs(mitem);
 }
 
 // Opens the LibX Preferences window
 // About window is now part of this window.
-function openPrefWindow() { 
+libxEnv.ff.openPrefWindow = function () { 
     window.openDialog ( "chrome://libx/content/libxprefs.xul", 
         "LibX Preferences", " centerscreen, chrome, modal, resizable",
         { config:libxConfig } 
@@ -615,12 +655,6 @@ function libxInitializeAutolink()
     m.setAttribute('checked', libxEnv.options.autolink_active);
     m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
     hbox.parentNode.insertBefore(m, hbox);
-}
-
-function libxToolbarMenuShowing() {
-    var m = document.getElementById ( 'libx.autolink' );
-    libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
-    m.setAttribute('checked', libxEnv.options.autolink_active);
 }
 
 // Returns the full file path for given path

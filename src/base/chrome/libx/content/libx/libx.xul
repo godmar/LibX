@@ -79,8 +79,17 @@ Author: Annette Bailey <annette.bailey@gmail.com>
       window.addEventListener("load", libxInit, false);
     ]]>
     </script>
+
+    <commandset id="mainCommandSet">
+        <command id="cmd_toggleLibX" oncommand="libxEnv.ff.toggleToolBar('libx-toolbar')"/>
+    </commandset>
+    <keyset id="mainKeyset">
+        <key keycode="VK_F9" command="cmd_toggleLibX"/>
+        <key keycode="VK_F6" modifiers="control" command="cmd_toggleLibX"/>
+    </keyset>
+
 	<toolbox id="navigator-toolbox"> <!-- must be called navigator-toolbox to overlay onto existing toolbox -->
-		<toolbar id="xlib-toolbar" toolbarname="$emnameshort$" class="chromeclass-toolbar">
+		<toolbar id="libx-toolbar" toolbarname="$emnameshort$" class="chromeclass-toolbar">
 			<vbox>
 				<hbox>
 					<toolbarbutton 
@@ -88,7 +97,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         image="&libx.image;" id="libx-menu-toolbarbutton">
 						<menupopup id="libxmenu">
                             <menuseparator id="libxmenu.separator"/>
-							<menuitem id="libx-about" label="LibX Preferences" oncommand="openPrefWindow()" />
+							<menuitem id="libx-about" label="LibX Preferences" oncommand="libxEnv.ff.openPrefWindow()" />
 						</menupopup>
 					</toolbarbutton>
 				</hbox>
@@ -104,36 +113,36 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                             label="-" type="menu" tooltiptext="Select Search Field Type" 
                             width="80" crop="end">
 						<menupopup id="libx-dropdown-menupopup">
-							<menuitem value="Y" label="Keyword" oncommand="setFieldType(this);" />
-							<menuitem value="t" label="Title" oncommand="setFieldType(this);" />
-							<menuitem value="jt" label="Journal Title" oncommand="setFieldType(this);" />
-							<menuitem value="at" label="Article Title" oncommand="setFieldType(this);" />
-							<menuitem value="a" label="Author" oncommand="setFieldType(this);" />
-							<menuitem value="d" label="Subject" oncommand="setFieldType(this);" />
-							<menuitem value="m" label="Genre" oncommand="setFieldType(this);" />
-							<menuitem value="i" label="ISBN/ISSN" oncommand="setFieldType(this);" />
-							<menuitem value="c" label="&libx.call.number;" oncommand="setFieldType(this);" />
-							<menuitem value="j" label="Dewey" oncommand="setFieldType(this);" />
-							<menuitem value="doi" label="DOI" oncommand="setFieldType(this);" />
-							<menuitem value="pmid" label="PubMed ID" oncommand="setFieldType(this);" />
+							<menuitem value="Y" label="Keyword" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="t" label="Title" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="jt" label="Journal Title" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="at" label="Article Title" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="a" label="Author" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="d" label="Subject" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="m" label="Genre" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="i" label="ISBN/ISSN" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="c" label="&libx.call.number;" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="j" label="Dewey" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="doi" label="DOI" oncommand="libxEnv.ff.setFieldType(this);" />
+							<menuitem value="pmid" label="PubMed ID" oncommand="libxEnv.ff.setFieldType(this);" />
 						</menupopup>
 					</toolbarbutton>
 					<!-- child number 1 -->
 					<toolbaritem flex="1">
 						<textbox editable="true" tooltiptext="Press Enter to Search, Press Ctrl-Enter to Add Another Search Field!"
-							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { doSearch(event); } else { addSearchField(); document.commandDispatcher.advanceFocus(); }"
+							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { doSearch(event); } else { libxEnv.ff.addSearchField(); document.commandDispatcher.advanceFocus(); }"
 							flex="1" minwidth="100" width="160" />
 					</toolbaritem>
 					<!-- child number 2 -->
 					<toolbarbutton tooltiptext="Create New Search Field" 
                                     class="down-button remove-icon-padding" 
                                     disabled="false" 
-                                    oncommand="addSearchField();" />
+                                    oncommand="libxEnv.ff.addSearchField();" />
 					<!-- child number 3 -->
 					<toolbarbutton tooltiptext="Close Search Field" 
                                     class="close-button remove-icon-padding" 
                                     disabled="true" 
-                                    oncommand="removeSearchField(this.parentNode);" />
+                                    oncommand="libxEnv.ff.removeSearchField(this.parentNode);" />
 				</hbox>
 				<!-- do not add anything here -->
 			</vbox>
@@ -151,7 +160,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                     <toolbarseparator style="&toolbar.separator.style;" />
 					<toolbarbutton 
                                 label=" Clear " tooltiptext="Clear All Search Fields" 
-                                oncommand="libxClearAllFields();" />
+                                oncommand="libxEnv.ff.clearAllFields();" />
 
                 <!-- Scholar button is (no longer) clickable - that is why we use
                      a toolbaritem/hbox combo here instead of a toolbarbutton.
@@ -181,13 +190,17 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<menuitem hidden="true" id="libx-endholder"/>
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
-		<menuitem label="$emnameshort$" oncommand="openPrefWindow();" />
+		<menuitem label="$emnameshort$" oncommand="libxEnv.ff.openPrefWindow();" />
 	</menupopup>
 	<statusbar id="status-bar">
         <statusbarpanel id="libx-status-bar" insertbefore="statusbar-updates"
             src="&libx.image;" class="statusbarpanel-menu-iconic" hidden="false">
             <menupopup id="libx-statusbar-popup">
-                <menuitem label="$emnameshort$" oncommand="openPrefWindow();" />
+                <menuitem label="$emnameshort$"/>
+                <menuseparator/>
+                <menuitem label="Show Preferences" oncommand="libxEnv.ff.openPrefWindow();" />
+                <menuitem label="Show Toolbar" type="checkbox" id="libx-statusbar-togglebar-item" 
+                    oncommand="this.setAttribute('checked', libxEnv.ff.toggleToolBar('libx-toolbar'));" />
             </menupopup>
         </statusbarpanel>
     </statusbar>
