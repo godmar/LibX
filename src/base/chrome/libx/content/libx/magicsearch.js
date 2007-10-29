@@ -264,7 +264,7 @@ function magicSearch(data, inpub, justmakeurl)
                             openurlpath += "&origdata=" + encodeURIComponent(data);
                         }
 
-                        vtu = libxEnv.openUrlResolver.completeOpenURL(openurlpath);
+                        vtu = libxEnv.openUrlResolver.completeOpenURL(openurlpath, "0.1");
                         display = true;
                         libxEnv.writeLog('OpenURL: ' + vtu, libxEnv.logTypes.magic);
                     } else {
