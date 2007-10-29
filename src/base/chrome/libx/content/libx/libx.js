@@ -316,11 +316,4 @@ function extractSearchFields() {
 	return fields;
 }
 
-// this function is called when the user switches the search field type for a given search field
-function setFieldType(menuitem) {
-	//propagate label and value of menuitem to grandparent (toolbarbutton)
-	menuitem.parentNode.parentNode.label = menuitem.label;
-	menuitem.parentNode.parentNode.value = menuitem.value;
-}
-
 // vim: ts=4
