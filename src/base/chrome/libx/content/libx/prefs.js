@@ -46,7 +46,7 @@ libxXMLPreferences.prototype = {
         var typename = o.nodeName;
         var s = offset + "<" + typename;
         for (var k in o.attr) {
-            s += " " + k + '="' + o.attr[k] + '"';
+            s += " " + k + '="' + this.encode_entities( o.attr[k] ) + '"';
         }
         if ( !o.children || o.children.length == 0  ) {
             s += "/>\n";
@@ -133,5 +133,14 @@ libxXMLPreferences.prototype = {
     },
     save: function () {
         libxEnv.writeToFile ( this.path, this.serialize() );
-    }
+    },
+	encode_entities: function (s){
+		 var result = '';
+		 for (var i = 0; i < s.length; i++){
+		   var c = s.charAt(i);
+		   result += {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c] || c;
+		 }
+		 return result;
+	}
+    
 }
