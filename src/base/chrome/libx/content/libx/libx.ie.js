@@ -210,7 +210,18 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
 	if (what == "libx.sametab")
 		target = "_self";
 		
-	/* Also, focus is controlled by the browser's settings, so we don't pass anything along here. */
+        /* When invoked from context menu doProxify, libxInterface.openNewWindow
+         * fails in IE7 with a COM Error ERROR_BUSY:
+         * The requested resource is in use. (Exception from HRESULT: 0x800700AA) 
+         * Use window.navigate in this case.
+         */
+        if (target == "_self" && isGet) {
+            window.navigate(url2);
+            return;
+        }
+
+	/* Where the focus goes is controlled by the browser's settings, so 
+         * we cannot implement libx.newtabswitch/libx.newtab */
 	libxInterface.openNewWindow(url2, target, isGet ? null : url[1]);
 }
 
