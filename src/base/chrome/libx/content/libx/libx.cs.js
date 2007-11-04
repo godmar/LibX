@@ -82,7 +82,7 @@ function libxClientSideCatalogInit(configurl) {
         'c' : 'Call Number',
         'j' : 'Dewey',
         'doi': 'DOI',
-        'pmid': 'PubMed ID',
+        'pmid': 'PubMed ID'
     };
 
     var xmlhttp = libxGetUrl(configurl, null, false);
