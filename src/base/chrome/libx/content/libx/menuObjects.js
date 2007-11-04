@@ -327,8 +327,8 @@ function libxInitializeMenuObjects()
             var href = p.getNode().href;
             libxEnv.openSearchWindow(proxy.rewriteURL(href));
         } else {
-            var _location = libxEnv.getCurrentWindowContent().location;
-            _location.href = proxy.rewriteURL(_location.toString());
+            var _location = libxEnv.getCurrentWindowContent().location.toString();
+            libxEnv.openSearchWindow(proxy.rewriteURL(_location), true, "libx.sametab");
         }
     }
 
