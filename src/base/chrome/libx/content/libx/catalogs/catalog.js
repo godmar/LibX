@@ -245,7 +245,7 @@ libxAddToPrototype(libxScholarSearch.prototype, {
             q = k + " " + at;
         }
         if (a != "") {
-            q += " author: " + a;
+            q += " author:" + a;
         }
         return magicSearch(q, t, true);    // true means suppress heuristics
     }
