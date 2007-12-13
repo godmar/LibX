@@ -33,6 +33,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
     advancedcode: 'X',
     keywordcode: 'Y',
     journaltitlecode: 't',
+    language: '',
 	supportsSearchType: function (stype) {
 	    if (stype == 'at') {
 	        alert(libxGetProperty("articletitle.alert"));
@@ -62,7 +63,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
         // or     (3) /search/?searchtype=<TYPE>&searcharg= ...
         // We have seen III use the first, second, and third form
     
-        var query = this.url + "/search/";
+        var query = this.url + "/search" + this.language + "/";
 
         switch (this.searchform) {
         case 1:
@@ -82,7 +83,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
         return query;
 	},
 	makeAdvancedSearch: function(fields) {
-		var url = this.url + "/search/" 
+		var url = this.url + "/search"  + this.language + "/" 
                 + this.advancedcode + "?SEARCH=";
 		url += this.normalizeSearchType(fields[0].searchType) + ":(" + fields[0].searchTerms + ")";
 		for (var i = 1; i < fields.length; i++) {
