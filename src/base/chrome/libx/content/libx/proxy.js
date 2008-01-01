@@ -98,7 +98,8 @@ libxWAMProxy.prototype = {
         if (m) {
             var host = m[1];
             var port = m[3];
-            if (port === undefined || port == 80) port = 0;
+            // missing port maps to undefined in FF, empty string "" in IE
+            if (port === undefined || port == "" || port == 80) port = 0;
             var path = m[4];
             var newurl = "http://" + port + "-" + host + "." + proxybase + "/" + path;
             return newurl;
