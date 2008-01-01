@@ -204,7 +204,7 @@ OpenURL.prototype = {
             genre = "article";
         else if (path.indexOf(this.isbnprefix) != -1)
             genre = "book";
-        else if (path.indexOf(this.issnprefix) != -1)
+        else if (path.indexOf(this.issnprefix) != -1 || path.indexOf(this.jtitleprefix) != -1)
             genre = "journal";
 
         if (this.version == "1.0") {
