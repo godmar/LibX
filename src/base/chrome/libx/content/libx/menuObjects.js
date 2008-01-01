@@ -346,11 +346,12 @@ function libxInitializeMenuObjects()
         }
         
         for (var i = 0; i < menuEntries.length; i++) {
-            var name = menuEntries[i].name;
-            var m = menuEntries[i].menuitem;
+            var menuEntry = menuEntries[i];
+            var name = menuEntry.name;
+            var m = menuEntry.menuitem;
             var proxy = libxConfig.proxy[name];
             
-            setMenuEntryVisible ( menuEntries[i] );
+            setMenuEntryVisible ( menuEntry );
             m.setVisible (true);
             
             var urltocheck;
@@ -361,21 +362,22 @@ function libxInitializeMenuObjects()
 
             if (proxy.canCheck() && libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
                 showLabel("proxy.checking.label", m, urltocheck, proxy);
-                proxy.checkURL(urltocheck, function (ok) {
+                proxy.checkURL(urltocheck, function (ok, cbdata) {
                     if (ok) {
                         showLabel(p.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", 
-                                    m, urltocheck, proxy);
+                                    cbdata.m, cbdata.urltocheck, cbdata.proxy);
                     } else {
-                        showLabel("proxy.denied.label", m, urltocheck, proxy);
+                        showLabel("proxy.denied.label", cbdata.m, cbdata.urltocheck, cbdata.proxy);
                     }
-                    if (proxy.disableIfCheckFails()) {
-                        m.setActive(ok);
+                    if (cbdata.proxy.disableIfCheckFails()) {
+                        cbdata.m.setActive(ok);
                     }
-                });
+                }, { m : m, urltocheck : urltocheck, proxy: proxy });
             } else {
                 showLabel(p.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", m, urltocheck, proxy);
             }
-            m.setHandler ( function () { doProxify(p, proxy); } );
+            menuEntry.proxy = proxy;
+            m.setHandler ( function (menuEntry) { doProxify(p, menuEntry.proxy); } );
         }
     }
 }

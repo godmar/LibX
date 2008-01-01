@@ -30,11 +30,11 @@ libxEZProxy.prototype = {
         return this.urlcheckpassword != null; 
     },
 
-    checkURL: function (pageurl, okcallback) {
+    checkURL: function (pageurl, okcallback, cbdata) {
         var m = this.url.match(/(http:\/\/[^\/]+)\/(.*)$/);
         if (!m) {
             libxEnv.writeLog("internal failure parsing proxy url: " + this.url + "...");
-            okcallback(false);
+            okcallback(false, cbdata);
             return;
         }
         /* Chris Zagar points out that ezproxy logs all requests, but no POST data,
@@ -53,11 +53,11 @@ libxEZProxy.prototype = {
                 var resp = libxEnv.xpath.findSingle(xmlhttp.responseXML, 
                                                     "/proxy_url_response/proxy_urls/url[1]");
                 if (resp != null && libxNormalizeOption(resp.getAttribute("proxy"))) {
-                    okcallback(true);
+                    okcallback(true, cbdata);
                     return;
                 }
             }
-            okcallback(false);
+            okcallback(false, cbdata);
         }, postdata);
     },
 
