@@ -83,7 +83,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
 		//assumption that we're only doing AND sets.  
 		var url = this.url + "/F?func="
 				+ this.advfindfunc
-				+ "&sourceid=" + this.sid
+                + (this.sid != null ? ("&sourceid=" + this.sid) : "")
 				+ "&local_base=" + this.localbase;
 		url += "&find_code=" + this.searchCodeLookup(fields[0].searchType) 
 			+ "&request=" + this.escape(fields[0].searchTerms);
