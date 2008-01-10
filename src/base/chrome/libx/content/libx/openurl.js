@@ -165,14 +165,20 @@ OpenURL.prototype = {
          * if this OpenURL contains a DOI if so configured.
          */
         url += "&" + this.sidprefix;
+        var sid = this.sid;
         if (this.pmidsid != null && url.match(/pmid/i)) {
-            url += this.pmidsid;
+            sid = this.pmidsid;
         } else
         if (this.xrefsid != null && url.match(/doi/i)) {
-            url += this.xrefsid;
-        } else {
-            url += this.sid;
+            sid = this.xrefsid;
         }
+
+        try {
+            sid = sid.replace(/%hostname%/, libxEnv.getCurrentWindowContent().location.hostname);
+        } catch (er) {
+            libxEnv.writeLog(er + ": exception occurred attempting to replace %hostname%");
+        }
+        url += sid;
         return url;
     },
     makeOpenURLSearch: function(fields) {
