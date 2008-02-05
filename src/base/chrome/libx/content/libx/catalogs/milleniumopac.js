@@ -90,6 +90,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
 			url += "+and+" + this.normalizeSearchType(fields[i].searchType) 
                             + ":(" + fields[i].searchTerms + ")"; 
 		}
+        url += (this.searchscope != null ? "&searchscope=" + this.searchscope : "");
 		url += "&SORT=" + this.sort;
         if (this.sid)
             url += "&sid=" + this.sid;
