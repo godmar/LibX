@@ -78,6 +78,13 @@ for my $o ($options_node->getChildrenByTagName('option')) {
 #
 my $pref = XML::LibXML::Document->new();
 
+# does this catalog support option X?
+sub hasOption {
+    my ($cat0, $type) = @_;
+    my $opt = $cat0->getAttribute('options');
+    return (";" . $opt . ";") =~ m/;$type;/;
+}
+
 sub getCatalog {
     my ($cat0, $type) = @_;
     my $cat = $pref->createElement("catalog");
@@ -104,7 +111,7 @@ my $prefcmenu = $pref->createElement('contextmenu');
 $prefroot->appendChild($prefcmenu);
 
 my $isbn = $pref->createElement('isbn');
-if ($cat0) {
+if ($cat0 && hasOption($cat0, 'i')) {
     $isbn->appendChild(getCatalog($cat0, 'i'));
     if ($cat0->findnodes('xisbn')) {
         $isbn->appendChild(getCatalog($cat0, 'xisbn'));
@@ -113,7 +120,7 @@ if ($cat0) {
 $prefcmenu->appendChild($isbn);
 
 my $issn = $pref->createElement('issn');
-$issn->appendChild(getCatalog($cat0, 'i')) if ($cat0);
+$issn->appendChild(getCatalog($cat0, 'i')) if ($cat0 && hasOption($cat0, 'i'));
 $issn->appendChild(getOpenURL($openurl0, 'i')) if ($openurl0);
 $prefcmenu->appendChild($issn);
 
@@ -127,9 +134,14 @@ $prefcmenu->appendChild($pmid);
 
 # enable Keyword, Title, Author by default for general
 my $default = $pref->createElement('general');
-$default->appendChild(getCatalog($cat0, 'Y')) if ($cat0);
-$default->appendChild(getCatalog($cat0, 't')) if ($cat0);
-$default->appendChild(getCatalog($cat0, 'a')) if ($cat0);
+$default->appendChild(getCatalog($cat0, 'Y')) if ($cat0 && hasOption($cat0, 'Y'));
+$default->appendChild(getCatalog($cat0, 't')) if ($cat0 && hasOption($cat0, 't'));
+$default->appendChild(getCatalog($cat0, 'a')) if ($cat0 && hasOption($cat0, 'a'));
+if ($cat0 && !$default->hasChildNodes()) {
+    # catalog has neither Y, t, or a - take the first option in this case
+    my @opts = split(/;/, $cat0->getAttribute('options'));
+    $default->appendChild(getCatalog($cat0, $opts[0])) if ($cat0);
+}
 
 # enable magic button by default
 my $scholarpref = $pref->createElement('scholar');
