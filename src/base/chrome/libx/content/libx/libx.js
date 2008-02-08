@@ -57,7 +57,7 @@ var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, ke
  */
 
 
-/*
+/**
  * Initializes a catalog from an XML Node
  * Assumes that the node has all of the relevant data needed
  * about that catalog. Returns a fully initialized catalog
@@ -197,6 +197,10 @@ function libxInitializeCatalogs()
 }
 
 // Initialization - this code is executed whenever a new window is opened
+/**
+ * Initialization
+ * This code is executed whenever a new window is opened
+ */
 function libxInit() 
 {
     libxInitializeProperties();
@@ -223,6 +227,141 @@ function libxInit()
     libxEnv.initializeContextMenu();
 
     libxEnv.init();
+
+	/**
+	 * helper function that creates the cue logo to be inserted
+	 * make the equivalent of this html:
+	 * <a title="[title]" href="[url]"><img src="chrome://libx/skin/virginiatech.ico" border="0"/></a>
+	 *
+	 * targetobject is either the catalog or openurl object used.
+	 * if it has an '.image' property, use that for the cue.
+     *
+     * @member libxEnv
+     *
+     * @param {DOM node} doc document node in HTML DOM
+     * @param {String} title title attribute for link
+     * @param {String} url href attribute for link
+     * @param {Object} either a catalog or openurl resolver
+	 *
+	 */
+    libxEnv.makeLink = function (doc, title, url, targetobject) {
+        var link = doc.createElement('a');
+        link.setAttribute('title', title);
+        link.setAttribute('href', url);
+        var image = doc.createElement('img');
+        if (targetobject && targetobject.image) {
+            image.setAttribute('src', targetobject.image);
+        } else {
+            if (libxEnv.options.cueicon != null)
+                image.setAttribute('src', libxEnv.options.cueicon);
+            else
+                image.setAttribute('src', libxEnv.options.icon);
+        }
+        image.setAttribute('border', '0');
+        link.appendChild(image);
+        return link;
+    }
+
+    /**
+     * Member function of libxEnv object that handles COinS (Context Object in
+     * Span).  Will append a child element to the span tag that will serve as a
+     * image based hyper link
+     *
+     * @member libxEnv
+     *
+     * @param {DOM node} doc document element in HTML DOM.
+     * @param {object} openUrlResolver Open url resolver object
+     */
+    libxEnv.handleCoins = function (doc, openUrlResolver) {
+        var is1_0 = openUrlResolver.version == "1.0";
+        var coins = doc.getElementsByTagName('span');
+
+        for (var i = 0; i < coins.length; i++) {
+            try { // the span attribute may be malformed, if so, recover and continue with next
+                var span = coins[i];
+
+                if (0 == span.attributes.length
+                    || !(span.attributes['class'])
+                    || span.attributes['class'].value != 'Z3988')
+                    continue;
+
+                var query = span.getAttribute('title');
+                query = query.replace(/&amp;/g, "&").replace(/\+/g, "%20").split(/&/);
+
+                var rft_book = "rft_val_fmt=info:ofi/fmt:kev:mtx:book";
+                var rft_journal = "rft_val_fmt=info:ofi/fmt:kev:mtx:journal";
+                var isBookOrArticle = false;
+
+                for (var j = 0; j < query.length; j++) {
+                    var qj = decodeURIComponent(query[j]);
+
+                    // some 0.1 resolver (SerSol) don't like the 'url_ver=' option
+                    if (!is1_0 && qj.match(/^url_ver=/)) {
+                        query.splice(j--, 1);
+                        continue;
+                    }
+
+                    // remove rfr_id= if present, we substitute our own sid/rfr_id
+                    if (qj.match(/^rfr_id=/)) {
+                        query.splice(j--, 1);
+                        continue;
+                    }
+
+                    // this is part of the context object version, but is not included in final URL
+                    if (qj.match(/^ctx_ver=/)) {
+                        query.splice(j--, 1);
+                        continue;
+                    }
+
+                    if (qj == rft_book) {
+                        isBookOrArticle = true;
+                        if (!is1_0)
+                            query[j] = "genre=book";
+                        continue;
+                    }
+                    if (qj == rft_journal) {
+                        isBookOrArticle = true;
+                        if (!is1_0)
+                            query[j] = "genre=article";
+                        continue;
+                    }
+
+                    if (!is1_0) {
+                        //convert to 0.1 unless 1.0 is given
+                        //remove "rft." from beginning of attribute keys
+                        qj = qj.replace(/rft\./g,"");
+
+                        //change some attribute names
+                        qj = qj.replace(/jtitle=/,"title=");
+                        qj = qj.replace(/btitle=/,"title=");
+                        qj = qj.replace(/rft_id=info:pmid\//,"id=pmid:");
+                        qj = qj.replace(/rft_id=info:doi\//,"id=doi:");
+                        qj = qj.replace(/rft_id=info:bibcode\//,"id=bibcode:");
+                    }
+
+                    var kv = qj.split(/=/);
+                    var val = kv.splice(1, 1).join("=");
+                    query[j] = kv[0] + '=' + encodeURIComponent(val);
+                }
+                if (is1_0)
+                    query.push("url_ver=Z39.88-2004");
+
+                query = query.join("&");
+
+                // handle any coins if 1.0, otherwise do only if book or article
+                if (is1_0 || isBookOrArticle) {
+                    span.appendChild(libxEnv.makeLink(doc, 
+                                                      libxEnv.getProperty("openurllookup.label", 
+                                                                          [openUrlResolver.name]), 
+                                                      openUrlResolver.completeOpenURL(query)),
+                                                      openUrlResolver);
+                }
+            } catch (e) {
+                libxEnv.writeLog("Exception during coins processing: " +e);
+            }
+
+        }
+    }
 }
 
 function libxInitSearchOptions() {

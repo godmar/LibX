@@ -28,29 +28,13 @@
  *
  */ 
 
-// helper function that creates the cue logo to be inserted
-// make the equivalent of this html:
-// <a title="[title]" href="[url]"><img src="chrome://libx/skin/virginiatech.ico" border="0"/></a>
-// XXX to be done - link cue.iconurl to catalog
-function makeLink(doc, title, url, openurl) {
-    var link = doc.createElement('a');
-    link.setAttribute('title', title);
-    link.setAttribute('href', url);
-    var image = doc.createElement('img');
-    if (openurl && libxEnv.openUrlResolver && libxEnv.openUrlResolver.image) {
-        image.setAttribute('src', libxEnv.openUrlResolver.image);
-    } else {
-        image.setAttribute('src', libxEnv.getProperty("cue.iconurl"));
-    }
-    image.setAttribute('border', '0');
-    link.appendChild(image);
-    return link;
-}
-
 // --------------------------------------------------------------------------------------------------
 // we wrap all constructor calls for the "DoForURL" objects in this function
 // the reason is that we must delay these calls until all of the extensions's XUL is loaded
 //
+/**
+ * Function that intializes various DoForURL functions
+ */
 function libxInitializeDFU() {
 
 // Link Amazon pages to the catalog via ISBN
@@ -71,9 +55,9 @@ function doAmazon(doc, match) {
 
     // make link and insert after title
     var div = booktitle.parentNode;
-    var cue = makeLink(doc, 
+    var cue = libxEnv.makeLink(doc, 
                         libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                        libraryCatalog.linkByISBN(isbn));
+                        libraryCatalog.linkByISBN(isbn), libraryCatalog);
     div.insertBefore(cue, booktitle.nextSibling);
 }
 
@@ -86,9 +70,9 @@ new DoForURL(/\.alibris\.com\//, function (doc, match) {
         var href = isbnLink.getAttribute('href');
         var isbn, isbnMatch = href.match(/isbn=((\d|X){10,13})/i);
         if (isbnMatch != null && (isbn = isISBN(isbnMatch[1])) != null) {
-            var cue = makeLink(doc, 
+            var cue = libxEnv.makeLink(doc, 
                         libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                        libraryCatalog.linkByISBN(isbn));
+                        libraryCatalog.linkByISBN(isbn), libraryCatalog);
             isbnLink.parentNode.insertBefore(cue, isbnLink.nextSibling);
             isbnLink.parentNode.insertBefore(doc.createTextNode(" "), cue);
         }
@@ -106,7 +90,7 @@ new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (
         return;
     }
     // make link and insert after title
-    var link = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
     origTitle.insertBefore(doc.createTextNode(" "), origTitle.firstChild);
     origTitle.insertBefore(link, origTitle.firstChild);
 });
@@ -120,7 +104,7 @@ new DoForURL(/(\/\/|\.)ecampus\.com.*(\d{9}[\d|X])/i, function (doc, match) {
     var isbn = isISBN(origISBN.textContent);
     if (!isbn)
         return;
-    var link = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
     origISBN.appendChild(link);
 });
 
@@ -135,7 +119,7 @@ function doAgricola(doc) {
     // starting relative to this <TR>, find the first <TD> child with an <A> grandchild and select the <A> - that's the hyperlinked call number
     var cn_a = libxEnv.xpath.findSingle(doc, "./td/a", cn_tr);
     var cn = cn_a.textContent;// call number
-    var link = makeLink(doc, libxEnv.getProperty("callnolookup.label", [libraryCatalog.name, cn]), libraryCatalog.makeCallnoSearch(cn));
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("callnolookup.label", [libraryCatalog.name, cn]), libraryCatalog.makeCallnoSearch(cn), libraryCatalog);
     // insert cue after <A> element within the containing <TD> element
     cn_a.parentNode.insertBefore(link, cn_a.nextSibling);
 }
@@ -172,10 +156,10 @@ new DoForURL(libraryCatalog.urlregexp, function (doc) {
             floorno = 4;
         }
         
-        var vtlogo = makeLink(doc, "Book is on floor " + floorno + ", click for map", "http://www.lib.vt.edu/help/direct/tour/floor" + floorno + "/map" + floorno + ".html");
+        var vtlogo = libxEnv.makeLink(doc, "Book is on floor " + floorno + ", click for map", "http://www.lib.vt.edu/help/direct/tour/floor" + floorno + "/map" + floorno + ".html", libraryCatalog);
                     
         if (floorno == 0) {
-            vtlogo = makeLink(doc, "Unable to determine book location!", "http://www.lib.vt.edu/help/direct/tour/");
+            vtlogo = libxEnv.makeLink(doc, "Unable to determine book location!", "http://www.lib.vt.edu/help/direct/tour/", libraryCatalog);
         }
         
         var lasttd = libxEnv.xpath.findSingle(doc, "td[3]", availrows[i]);
@@ -211,9 +195,9 @@ function doNyTimes(doc) {
         if (s != null) {
             var title = n[i].firstChild.textContent.replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "");
             n[i].parentNode.insertBefore(
-                makeLink(doc, 
+                libxEnv.makeLink(doc, 
                          libxEnv.getProperty("catsearch.label", [libraryCatalog.name, title]), 
-                         libraryCatalog.makeTitleSearch(title)), 
+                         libraryCatalog.makeTitleSearch(title), libraryCatalog), 
                 s);
         }      
     }
@@ -227,7 +211,7 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
     // last updated 10/16/2007
     var searchterms = libxEnv.getCurrentWindowContent().document.getElementById("yschsp").value;
     var alsotry = libxEnv.getCurrentWindowContent().document.getElementById("atatl");
-    alsotry.appendChild(makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    alsotry.appendChild(libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog));
 });
 
 // --------------------------------------------------------------------------------------------------
@@ -237,14 +221,14 @@ new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
 new DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
     var n = libxEnv.xpath.findSingle(doc, "//tr/td/span[@id='sd']");
     var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
-    n.parentNode.appendChild(makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms)));
+    n.parentNode.appendChild(libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog));
 });
 
 // link to catalog from google print via ISBN
 new DoForURL(/books.\google\.com\/books/, function (doc) {
     var n = libxEnv.xpath.findSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var m = n.textContent.match(/(\d{9}[X\d])/i);
-    var newlink = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), libraryCatalog.linkByISBN(m[1]));
+    var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), libraryCatalog.linkByISBN(m[1]), libraryCatalog);
     var ns = n.nextSibling;
     n.parentNode.insertBefore(newlink, ns);
     // a white space to make it pretty for Melissa
@@ -258,7 +242,7 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
         var ilink = n[i].getAttribute('href');
         var m = ilink.match(/editions:ISBN(\d{10,13})&/);
         if (m) {
-            var newlink = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]]),
+            var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]], libraryCatalog),
                     libraryCatalog.linkByISBN(m[1]));
             var ns = n[i].nextSibling;
             n[i].parentNode.insertBefore(newlink, ns);
@@ -281,7 +265,7 @@ if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
         // do not rewrite Refworks link
         if (m && (m[0].match(/\.refworks\.com/) == null)) {
             var ourl = libxEnv.openUrlResolver.completeOpenURL(m[1], "0.1");
-            var newlink = makeLink(doc, libxEnv.getProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), ourl, true);
+            var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), ourl, libxEnv.openUrlResolver);
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.insertBefore(doc.createTextNode(" "), link.nextSibling); 
             // link.parentNode.removeChild(link);
@@ -292,84 +276,10 @@ if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
 }
 
 if (libxEnv.openUrlResolver && libxEnv.options.supportcoins) {
- new DoForURL(/.+/, function (doc) {
-    var is1_0 = libxEnv.openUrlResolver.version == "1.0";
-    var coins = libxEnv.xpath.findNodes(doc, "//span[@class='Z3988']");
-    for (var i = 0; i < coins.length; i++) {
-        try { // the span attribute may be malformed, if so, recover and continue with next
-            var span = coins[i];
-            var query = span.getAttribute('title');
-            query = query.replace(/&amp;/g, "&").replace(/\+/g, "%20").split(/&/);
-
-            var rft_book = "rft_val_fmt=info:ofi/fmt:kev:mtx:book";
-            var rft_journal = "rft_val_fmt=info:ofi/fmt:kev:mtx:journal";
-            var isBookOrArticle = false;
-
-            for (var j = 0; j < query.length; j++) {
-                var qj = decodeURIComponent(query[j]);
-
-                // some 0.1 resolver (SerSol) don't like the 'url_ver=' option
-                if (!is1_0 && qj.match(/^url_ver=/)) {
-                    query.splice(j--, 1);
-                    continue;
-                }
-
-                // remove rfr_id= if present, we substitute our own sid/rfr_id
-                if (qj.match(/^rfr_id=/)) {
-                    query.splice(j--, 1);
-                    continue;
-                }
-
-                // this is part of the context object version, but is not included in final URL
-                if (qj.match(/^ctx_ver=/)) {
-                    query.splice(j--, 1);
-                    continue;
-                }
-
-                if (qj == rft_book) {
-                    isBookOrArticle = true;
-                    if (!is1_0)
-                        query[j] = "genre=book";
-                    continue;
-                }
-                if (qj == rft_journal) {
-                    isBookOrArticle = true;
-                    if (!is1_0)
-                        query[j] = "genre=article";
-                    continue;
-                }
-
-                if (!is1_0) {
-                    //convert to 0.1 unless 1.0 is given
-                    //remove "rft." from beginning of attribute keys
-                    qj = qj.replace(/rft\./g,"");
-
-                    //change some attribute names
-                    qj = qj.replace(/jtitle=/,"title=");
-                    qj = qj.replace(/btitle=/,"title=");
-                    qj = qj.replace(/rft_id=info:pmid\//,"id=pmid:");
-                    qj = qj.replace(/rft_id=info:doi\//,"id=doi:");
-                    qj = qj.replace(/rft_id=info:bibcode\//,"id=bibcode:");
-                }
-
-                var kv = qj.split(/=/);
-                var val = kv.splice(1).join("=");
-                query[j] = kv[0] + '=' + encodeURIComponent(val);
-            }
-            if (is1_0)
-                query.push("url_ver=Z39.88-2004");
-
-            query = query.join("&");
-
-            // handle any coins if 1.0, otherwise do only if book or article
-            if (is1_0 || isBookOrArticle) {
-                span.appendChild(makeLink(doc, libxEnv.getProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), libxEnv.openUrlResolver.completeOpenURL(query), true));
-            }
-        } catch (e) {
-            dfu_log ("Exception during coins processing: " +e);
-        }
-    }
- });
+    new DoForURL(/.+/, 
+                 function (doc) {
+                     libxEnv.handleCoins(doc, libxEnv.openUrlResolver) 
+                 });
 }
 
 //
@@ -389,7 +299,7 @@ if (libxEnv.openUrlResolver && libxEnv.options.sersolisbnfix) {
                 h4 = libxEnv.xpath.findSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
             if (h4 == null)
                 return;
-            var hint = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn));
+            var hint = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn), libraryCatalog);
             var it = doc.createElement("i");
             it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn])));
 
@@ -410,7 +320,7 @@ new DoForURL(/serialssolutions\.com\/.*id=doi:([^&]+)(&|$)/, function (doc, matc
             if (!h3)
                 return;
         }
-        var hint =  makeLink(doc, "Try dx.doi.org/" + doi,  "http://dx.doi.org/" + doi);
+        var hint =  libxEnv.makeLink(doc, "Try dx.doi.org/" + doi,  "http://dx.doi.org/" + doi, libxEnv.openUrlResolver);
         var it = doc.createElement("i");
         it.appendChild(doc.createTextNode(" LibX Enhancement: Try CrossRef for DOI " + doi));
         var par = doc.createElement("p");
@@ -431,9 +341,9 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
         var isbn = isISBN(isbn13.nextSibling.textContent);
         if (isbn == null)
             continue;
-        var hint = makeLink(doc, 
+        var hint = libxEnv.makeLink(doc, 
                     libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                    libraryCatalog.linkByISBN(isbn));
+                    libraryCatalog.linkByISBN(isbn), libraryCatalog);
         anode.parentNode.insertBefore(hint, anode.nextSibling);
     }
 });
@@ -454,9 +364,9 @@ function powellsComByISBN(doc, m)
     // will be at the title node.
     titleLabel = titleLabel.nextSibling.nextSibling;
 	if (titleLabel) {
-        var link = makeLink(doc, 
+        var link = libxEnv.makeLink(doc, 
                 libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                libraryCatalog.linkByISBN(isbn));
+                libraryCatalog.linkByISBN(isbn), libraryCatalog);
         // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
 		titleLabel.appendChild(link);
     }
@@ -475,9 +385,9 @@ new DoForURL(/chapters\..*\.ca\//, function (doc) {
     if (isbnlabel) {
         var isbn = isISBN(isbnlabel.nextSibling.textContent);
         if (isbn) {
-            var link = makeLink(doc,
+            var link = libxEnv.makeLink(doc,
                     libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
-                    libraryCatalog.linkByISBN(isbn));
+                    libraryCatalog.linkByISBN(isbn), libraryCatalog);
             // place this link prominently by the booktitle
             var t = libxEnv.xpath.findSingle(doc, "//span[contains(@id,'_Title')]");
             t.parentNode.insertBefore(link, t.nextSibling);
@@ -515,10 +425,10 @@ new DoForURL(/booklistonline\.com.*show_product/, function (doc) {
     for (var i = 0; i < n.length; i++) {
         var isbn = isISBN(n[i].textContent);
         if (isbn) {
-            var newlink = makeLink(doc,
+            var newlink = libxEnv.makeLink(doc,
                 libxEnv.getProperty("isbnsearch.label",
                     [libraryCatalog.name, isbn]),
-                libraryCatalog.linkByISBN(isbn));
+                libraryCatalog.linkByISBN(isbn), libraryCatalog);
             n[i].parentNode.insertBefore(newlink, n[i]);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), n[i]);
             // uncomment this to remove the worldcatlibraries link
@@ -533,10 +443,10 @@ new DoForURL(/(\/\/|\.)abebooks\.com/, function (doc) {
     for (var i = 0; i < n.length; i++) {
         var isbn = isISBN(n[i].textContent);
         if (isbn) {
-            var newlink = makeLink(doc,
+            var newlink = libxEnv.makeLink(doc,
                 libxEnv.getProperty("isbnsearch.label",
                     [libraryCatalog.name, isbn]),
-                libraryCatalog.linkByISBN(isbn));
+                libraryCatalog.linkByISBN(isbn), libraryCatalog);
             n[i].parentNode.insertBefore(newlink, n[i].nextSibling);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), newlink);
         }

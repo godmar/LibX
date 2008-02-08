@@ -60,14 +60,23 @@ libxEnv.init = function() {
 libxEnv.debugInit = function () {}
 
 libxEnv.initIEDFU = function () {
+
+    if (libxEnv.openUrlResolver && libxEnv.options.supportcoins) {
+        new DoForURL(/.+/, 
+                     function (doc) { 
+                         libxEnv.handleCoins(doc, libxEnv.openUrlResolver)
+                     });
+    }
+
     new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
         var n = doc.getElementById('yschinfo').firstChild;
         var searchterms = libxEnv.getCurrentWindowContent().document.getElementById("yschsp").value;
         n.appendChild(doc.createTextNode(" "));
-        n.appendChild(makeLink(doc,
+        n.appendChild(libxEnv.makeLink(doc,
                                libxEnv.getProperty("catsearch.label",
                                                    [libraryCatalog.name, searchterms]),
-                               libraryCatalog.makeKeywordSearch(searchterms)));
+                               libraryCatalog.makeKeywordSearch(searchterms),
+                               libraryCatalog));
     });
     
     // --------------------------------------------------------------------------------------------------
@@ -77,10 +86,11 @@ libxEnv.initIEDFU = function () {
         var n = doc.getElementById('sd');
         var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
         n.parentNode.appendChild(
-                makeLink(doc,
+                libxEnv.makeLink(doc,
                          libxEnv.getProperty("catsearch.label",
                                              [libraryCatalog.name, searchterms]),
-                         libraryCatalog.makeKeywordSearch(searchterms)));
+                         libraryCatalog.makeKeywordSearch(searchterms),
+                         libraryCatalog));
     });
 
     // --------------------------------------------------------------------------------------------------
@@ -94,7 +104,11 @@ libxEnv.initIEDFU = function () {
             return;
         }
         // make link and insert after title
-        var link = makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn));
+        var link = libxEnv.makeLink(doc, 
+                            libxEnv.getProperty("isbnsearch.label", 
+                                                [libraryCatalog.name, isbn]), 
+                            libraryCatalog.linkByISBN(isbn),
+                            libraryCatalog);
         origTitle.appendChild(link);
         origTitle.insertBefore(doc.createTextNode(" "), link);
     });
@@ -136,26 +150,13 @@ libxEnv.initIEDFU = function () {
             return;
         }
         // make link and insert after title
-        var cue = makeLink(doc, 
-                           libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                           libraryCatalog.linkByISBN(isbn));
+        var cue = libxEnv.makeLink(doc, 
+                           libxEnv.getProperty("isbnsearch.label", 
+                                               [libraryCatalog.name, isbn]), 
+                           libraryCatalog.linkByISBN(isbn),
+                           libraryCatalog);
         div.insertBefore(cue, booktitle.nextSibling);
     }
-}
-
-// helper function that creates the cue logo to be inserted
-// Calls into C# to get the URL for the icon.
-function makeLink(doc, title, url, openurl) {
-    var link = doc.createElement('a');
-    link.setAttribute('title', title);
-    link.setAttribute('href', url);
-
-    var image = doc.createElement('img');
-    image.setAttribute('src', libxInterface.getIconURL());
-    image.setAttribute('border', '0');
-
-    link.appendChild(image);
-    return link;
 }
 
 /*  populateDropdownOptions
