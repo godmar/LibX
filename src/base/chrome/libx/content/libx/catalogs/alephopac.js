@@ -57,41 +57,84 @@ libxAddToPrototype(AlephOPAC.prototype, {
 			default : return this.keyword;
 		}
 	},
+    storeCcl: function (ccl) {
+        /* This code based on 
+            http://source.ulg.ac.be/exlibris/aleph/u17_1/alephe/www_f_fre/icon/JS/find.js
+           Aleph stores the last ccl search in a cookie that's set when submitting a 
+           search.  Based on that cookie, the client js will restore the search options
+           the user used.
+         */
+        try {
+            if (libxEnv.getCurrentWindowContent().setCcl)
+                libxEnv.getCurrentWindowContent().setCcl(ccl);
+        } catch (er) {
+            libxEnv.writeLog("exception while setting aleph cookie: " + er, 'aleph');
+        }
+    },
 	makeSearch: function(stype, query) {
+
 		//split between heading indexes and straight keyword indexes
 		//aleph handles then both the same way but displays them in different
 		//ways.  
         var s = ";" + this.scanindexlist + ";";
         if (s.match(";" + stype + ";")) {
-            return this.url + "/F?func=" 
-                + this.scanfunc
-                + (this.sid != null ? ("&sourceid=" + this.sid) : "")
-                + "&local_base=" + this.localbase 
-                + "&scan_code=" + this.searchCodeLookup(stype)
+            var sterm = 
+                  "&scan_code=" + this.searchCodeLookup(stype)
                 + "&scan_start=" + this.escape(query);
+            var func = this.scanfunc;
+        } else {
+            var sterm = 
+                  "&find_code=" + this.searchCodeLookup(stype)
+                + "&request=" + this.escape(query);
+            var func = this.findfunc;
         }
 
-        // default
-        return this.url + "/F?func="
-            + this.findfunc 
+        /*
+          At the suggestion of Francois Renaville <francois.renaville@ulg.ac.be>
+          implemented support for ccl queries.  This is supposed to work with
+          both scan and find.
+
+          He also suggested to allow for empty localbase (even though this is a
+          required attribute in edition builder.)
+        */
+        if (this.usecclforsimple) {
+            var ccl = this.searchCodeLookup(stype) + "=" + query;
+            this.storeCcl(ccl);
+            sterm = "&ccl_term=" + this.escape(ccl);
+        }
+
+        return this.url 
+            + "/F?func=" + func
             + (this.sid != null ? ("&sourceid=" + this.sid) : "")
-            + "&local_base=" + this.localbase
-            + "&find_code=" + this.searchCodeLookup(stype)
-            + "&request=" + this.escape(query);
+            + (this.localbase != null ? ("&local_base=" + this.localbase) : "")
+            + sterm;
     },
 	makeAdvancedSearch: function(fields) {
 		//assumption that we're only doing AND sets.  
 		var url = this.url + "/F?func="
 				+ this.advfindfunc
                 + (this.sid != null ? ("&sourceid=" + this.sid) : "")
-				+ "&local_base=" + this.localbase;
-		url += "&find_code=" + this.searchCodeLookup(fields[0].searchType) 
-			+ "&request=" + this.escape(fields[0].searchTerms);
-		for (var i = 1; i < fields.length; i++) {
-			url += "&request_op=AND&find_code=" 
-				+ this.searchCodeLookup(fields[i].searchType) 
-				+ "&request=" + this.escape(fields[i].searchTerms); 
-		}
+                + (this.localbase != null ? ("&local_base=" + this.localbase) : "");
+
+        if (this.usecclforadv) {
+            var ccl = this.searchCodeLookup(fields[0].searchType) + "=" 
+                                + fields[0].searchTerms;
+            for (var i = 1; i < fields.length; i++) {
+                ccl += " AND "
+                    + this.searchCodeLookup(fields[i].searchType) 
+                    + "=" + fields[i].searchTerms; 
+            }
+            this.storeCcl(ccl);
+            url += "&ccl_term=" + this.escape(ccl);
+        } else {
+            url += "&find_code=" + this.searchCodeLookup(fields[0].searchType) 
+                + "&request=" + this.escape(fields[0].searchTerms);
+            for (var i = 1; i < fields.length; i++) {
+                url += "&request_op=AND&find_code=" 
+                    + this.searchCodeLookup(fields[i].searchType) 
+                    + "&request=" + this.escape(fields[i].searchTerms); 
+            }
+        }
 		return url;
 	}
 });
