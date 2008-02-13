@@ -596,10 +596,13 @@ var libxAutoLinkFilters = [
     },
     {   // ISBNs
         regexp: /((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig,
-        href: function(match) { 
+        href: function(match, anchor) { 
             var isbn = isISBN(match[1]); 
             if (isbn == null) return null;
             this.name = libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
+            libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+                anchor.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+            }});    // could implement notFound handler to remove ISBN link!
             return libraryCatalog.linkByISBN(isbn);
         }
     },
@@ -886,6 +889,8 @@ libxEnv.initPrefsGUI = function () {
         document.getElementById ( 'libx-proxy-ajax-checkbox' )
             .setAttribute ( 'disabled', 'true' );
     }
+    document.getElementById ( 'libx-oclc-ajax-checkbox')
+        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.oclc.ajaxpref', 'true' ) ? 'true' : 'false' );
 }
 
 libxEnv.resetToDefaultPrefs = function() {
@@ -913,7 +918,11 @@ libxEnv.getAutolinkPref = function() {
 };
 
 libxEnv.getProxyPref = function() {
-    return document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true' ? true : false
+    return document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
+};
+
+libxEnv.getOCLCPref = function() {
+    return document.getElementById ( 'libx-oclc-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
 };
 
 libxEnv.getDFUPref = function() { return true; } //Doesn't apply to Firefox
@@ -1110,7 +1119,5 @@ libxEnv.initTree = function(treeID, items) {
     }
     return root;
 };
-
-
 
 // vim: ts=4

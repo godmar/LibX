@@ -170,6 +170,10 @@ function setVersion() {
                          <caption label="Proxy AJAX Options" />
                          <checkbox id="libx-proxy-ajax-checkbox" label="Contact EZProxy to check whether page could be proxied." />
                      </groupbox>
+                    <groupbox orient="vertical" >
+                         <caption label="OCLC AJAX Options" />
+                         <checkbox id="libx-oclc-ajax-checkbox" label="Contact OCLC for metadata about ISBN etc." />
+                     </groupbox>
                 </tabpanel>
                 <tabpanel id="libx-about-tab" >
                     <vbox id="libx-about-details">

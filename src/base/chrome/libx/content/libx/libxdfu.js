@@ -58,6 +58,9 @@ function doAmazon(doc, match) {
     var cue = libxEnv.makeLink(doc, 
                         libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
                         libraryCatalog.linkByISBN(isbn), libraryCatalog);
+    libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+        cue.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+    }});
     div.insertBefore(cue, booktitle.nextSibling);
 }
 
