@@ -27,17 +27,22 @@
 // assert libxEnv has already been created.
 libxEnv.xpath = new Object();
 
+// See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
+// and http://www.xulplanet.com/references/objref/XPathResult.html
+//
 // var xpathResult = document.evaluate(xpathExpression, contextNode, namespaceResolver, resultType, result);
-// http://www.xulplanet.com/references/objref/XPathResult.html
+//
+// Note: namespaceResolver is required if examined XML uses namespaces.
+// namespaceResolver is a function that returns a name space based on a prefix.
 
-libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
-    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+libxEnv.xpath.findSingle = function (doc, xpathexpr, root, namespaceresolver) {
+    var r = doc.evaluate(xpathexpr, root?root:doc, namespaceresolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
     if (r) return r.singleNodeValue;
     return null;
 }
 
-libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
-    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ANY_TYPE, null);
+libxEnv.xpath.findNodes = function (doc, xpathexpr, root, namespaceresolver) {
+    var r = doc.evaluate(xpathexpr, root?root:doc, namespaceresolver, XPathResult.ANY_TYPE, null);
     if (r == null) return null;
 
     switch (r.resultType) {
