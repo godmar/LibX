@@ -315,6 +315,16 @@ function go(traversalRoot)
 
 function runFiltersOnTextNode(node)
 {
+  function genLink(filter, match, anchor)
+  {
+    try {
+      return filter.href(match, anchor); 
+    }
+    catch(er) {
+      return "data:text/plain,Error running AutoLink function for filter: " + encodeURIComponent(filter.name) + "%0A%0A" + encodeURIComponent(er);
+    }
+  }
+
   // Too many variables.  Good hint that I need to split this function up :P
   var source, j, regexp, match, lastLastIndex, k, filter, href, anyChanges; // things
   var used, unused, firstUnused, lastUnused, a, parent, nextSibling; // nodes
@@ -347,9 +357,10 @@ function runFiltersOnTextNode(node)
       // of global regexps and substring.
 
       for (match = null, lastLastIndex = 0; k < 40 && (match = regexp.exec(source)); ) {
-      
-        // this should happen first, so RegExp.foo is still good :)
-        href = genLink(filter, match); 
+
+        a = document.createElement("A");
+        // match will be overwritten by other calls to 'match', so use 'match' object right away.
+        href = genLink(filter, match, a); 
         
         if (href != null && href != location.href) { 
           ++k;
@@ -365,9 +376,11 @@ function runFiltersOnTextNode(node)
 
           used = document.createTextNode(match[0]);
   
-          a = document.createElement("A");
           a.setAttribute('href', href);
-          a.setAttribute('title', "LibX AutoLink: " + filter.name);
+          // .href function could have already set the title
+          if (a.getAttribute('title') == null) {
+            a.setAttribute('title', "LibX AutoLink: " + filter.name);
+          }
           a.className = "libx-autolink";
   
           styleLink(a, filter);
@@ -391,16 +404,6 @@ function runFiltersOnTextNode(node)
     }
   }
   return null;
-}
-
-function genLink(filter, match)
-{
-  try {
-    return filter.href(match); 
-  }
-  catch(er) {
-    return "data:text/plain,Error running AutoLink function for filter: " + encodeURIComponent(filter.name) + "%0A%0A" + encodeURIComponent(er);
-  }
 }
 
 function libxInitAL()
