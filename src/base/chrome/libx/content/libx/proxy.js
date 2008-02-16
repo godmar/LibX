@@ -31,7 +31,7 @@ libxEZProxy.prototype = {
     },
 
     checkURL: function (pageurl, okcallback, cbdata) {
-        var m = this.url.match(/(http:\/\/[^\/]+)\/(.*)$/);
+        var m = this.url.match(/(https?:\/\/[^\/]+)\/(.*)$/);
         if (!m) {
             libxEnv.writeLog("internal failure parsing proxy url: " + this.url + "...");
             okcallback(false, cbdata);
