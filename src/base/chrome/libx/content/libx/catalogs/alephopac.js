@@ -97,7 +97,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
           He also suggested to allow for empty localbase (even though this is a
           required attribute in edition builder.)
         */
-        if (this.usecclforsimple) {
+        if (this.usecclforsimple == "true") {
             var ccl = this.searchCodeLookup(stype) + "=" + query;
             this.storeCcl(ccl);
             sterm = "&ccl_term=" + this.escape(ccl);
@@ -116,7 +116,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
                 + (this.sid != null ? ("&sourceid=" + this.sid) : "")
                 + (this.localbase != null ? ("&local_base=" + this.localbase) : "");
 
-        if (this.usecclforadv) {
+        if (this.usecclforadv == "true") {
             var ccl = this.searchCodeLookup(fields[0].searchType) + "=" 
                                 + fields[0].searchTerms;
             for (var i = 1; i < fields.length; i++) {
