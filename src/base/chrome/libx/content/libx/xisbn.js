@@ -59,10 +59,12 @@ libxEnv.xisbn = {
 
         var cached = this.isbn2metadata[isbn];
         if (cached !== undefined) {
-            if (cached != null)
+            if (cached != null) {
                 formatFunc(cached, completionhandlers.ifFound);
-            else
-                completionhandlers.notFound();
+            } else {
+                if (completionhandlers.notFound)
+                    completionhandlers.notFound();
+            }
             return;
         }
 
