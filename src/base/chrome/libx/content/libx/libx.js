@@ -353,7 +353,8 @@ function libxInit()
                     span.appendChild(libxEnv.makeLink(doc, 
                                                       libxEnv.getProperty("openurllookup.label", 
                                                                           [openUrlResolver.name]), 
-                                                      openUrlResolver.completeOpenURL(query)),
+                                                      openUrlResolver.completeOpenURL(query),
+                                                      openUrlResolver ),
                                                       openUrlResolver);
                 }
             } catch (e) {

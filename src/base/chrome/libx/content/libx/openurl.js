@@ -270,7 +270,10 @@ function libxInitializeOpenURL()
         case "sfx":
             libxEnv.openUrlResolvers[i] = new SFX();
             break;
-        case "generic":
+        case "oclcgateway":
+            libxEnv.openUrlResolvers[i] = new libxOCLCGateway();
+            break;
+        case "generic":        
         case "webbridge":
             libxEnv.openUrlResolvers[i] = new OpenURL();
             break;
@@ -376,6 +379,24 @@ function libxOCLCRegistryResolver() {
 }
 
 libxOCLCRegistryResolver.prototype = new OpenURL();
+
+function libxOCLCGateway () {
+    var thisOpenURL = this;
+    // Actual Implementation:
+    libxEnv.getXMLDocument ( "http://worldcatlibraries.org/registry/lookup?IP=requestor",
+        function ( doc ) {
+            doc = doc.responseXML;
+            try {
+                var link = doc.getElementsByTagName ( 'linkIcon' )[0].firstChild.nodeValue;
+                thisOpenURL.image = link;
+        } catch (e) {}
+    } );
+}
+libxOCLCGateway.prototype = new OpenURL ();
+libxOCLCGateway.prototype.url = "http://worldcatlibraries.org/registry/gateway";
+libxOCLCGateway.prototype.name = "OCLC Gateway";
+libxOCLCGateway.prototype.sid = "libx:oclcgateway";
+
 
 /*
 <?xml version="1.0" encoding="UTF-8"?>
