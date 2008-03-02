@@ -36,13 +36,22 @@ libxEnv.xisbn = {
 
     /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
     formatISBNMetadataAsText: function (xisbnrspisbn, oncompletion_func) {
+        var text = '';
+        function addIfPresent(before, attr, after) {
+            var s = "";
+            if (attr != null) {
+                s = before + attr;
+                if (after !== undefined)
+                    s += after;
+            }
+            return s;
+        }
         // has: lccn form year lang ed title author publisher city
-        var text = '"';
-        text += xisbnrspisbn.getAttribute('title') + '" ';
-        text += xisbnrspisbn.getAttribute('author');
-        text += ", " + xisbnrspisbn.getAttribute('year');
-        text += ", " + xisbnrspisbn.getAttribute('publisher');
-        text += ", " + xisbnrspisbn.getAttribute('city');
+        text += addIfPresent('"', xisbnrspisbn.getAttribute('title'), '"');
+        text += addIfPresent(" ", xisbnrspisbn.getAttribute('author'));
+        text += addIfPresent(", ", xisbnrspisbn.getAttribute('year'));
+        text += addIfPresent(", ", xisbnrspisbn.getAttribute('publisher'));
+        text += addIfPresent(", ", xisbnrspisbn.getAttribute('city'));
         oncompletion_func(text);
     },
 
