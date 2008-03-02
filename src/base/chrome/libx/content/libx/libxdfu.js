@@ -364,7 +364,6 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
 // http://www.powells.com/biblio/1-0743226712-2
 function powellsComByISBN(doc, m) 
 {
-
     var isbn = isISBN(m[2]);
     if (isbn == null)
         return;
@@ -380,10 +379,14 @@ function powellsComByISBN(doc, m)
                 libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
                 libraryCatalog.linkByISBN(isbn), libraryCatalog);
         // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
-		titleLabel.appendChild(link);
+		//right of title use this: titleLabel.appendChild(link);
+		titleLabel.insertBefore(link, titleLabel.firstChild);
+        libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+            link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+        }});
     }
 }
-new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-((\d|x){10}|(\d|x){13})\-\d*/i, powellsComByISBN);
+new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-?((\d|x){10}|(\d|x){13})\-?\d*/i, powellsComByISBN);
 new DoForURL(/(\/\/|\.)powells\.com\/.*isbn=((\d|x){10}|(\d|x){13})/i, powellsComByISBN);
 new DoForURL(/(\/\/|\.)powells\.com\/.*:((\d|x){10}|(\d|x){13}):/i, powellsComByISBN);
 
