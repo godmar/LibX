@@ -1,7 +1,7 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.27 2007/10/18 00:44:14 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.28 2008/03/02 00:59:17 godmar Exp $ -->
 
-<!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?)>
+<!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?,localizationfeeds?)>
 <!ATTLIST edition 
         id              CDATA #REQUIRED
         version         CDATA #REQUIRED
@@ -36,6 +36,7 @@
         name            CDATA #REQUIRED
         resolvernum     CDATA #REQUIRED 
         options         CDATA #REQUIRED
+        image           CDATA #IMPLIED
 >
 
 <!ELEMENT scholar EMPTY>
@@ -43,6 +44,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED 
         options         CDATA #REQUIRED
+        image           CDATA #IMPLIED
 >
 
 <!ELEMENT centralsearch EMPTY>
@@ -55,6 +57,7 @@
         dbidlist        CDATA #IMPLIED
         catids          CDATA #IMPLIED
         catgroupids     CDATA #IMPLIED
+        image           CDATA #IMPLIED
 >
  
 <!ELEMENT bookmarklet (xisbn)?>
@@ -62,6 +65,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        image           CDATA #IMPLIED
 >
 <!ELEMENT millenium (xisbn)?>
 <!ATTLIST millenium 
@@ -76,6 +80,8 @@
         advancedcode    CDATA #IMPLIED
         journaltitlecode CDATA #IMPLIED
         searchform      CDATA #IMPLIED
+        language        CDATA #IMPLIED
+        image           CDATA #IMPLIED
 >
 <!ELEMENT aleph (xisbn)?>
 <!ATTLIST aleph 
@@ -96,6 +102,9 @@
         scanindexlist   CDATA #IMPLIED
         subject         CDATA #IMPLIED
         journaltitle    CDATA #IMPLIED
+        image           CDATA #IMPLIED
+        usecclforadv    (true|false) 'false'
+        usecclforsimple (true|false) 'false'
 >
 <!ELEMENT sfx EMPTY>
 <!ATTLIST sfx 
@@ -103,6 +112,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         options         CDATA #REQUIRED
+        image           CDATA #IMPLIED
 >
 <!ELEMENT sersol EMPTY>
 <!ATTLIST sersol 
@@ -110,6 +120,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         options         CDATA #REQUIRED
+        image           CDATA #IMPLIED
 >
 <!ELEMENT sirsi (xisbn)?>
 <!ATTLIST sirsi 
@@ -121,6 +132,7 @@
         path            CDATA #IMPLIED
         user_id         CDATA #IMPLIED
         password        CDATA #IMPLIED
+        image           CDATA #IMPLIED
 >
 <!ELEMENT web2 (xisbn)?>
 <!ATTLIST web2
@@ -132,6 +144,7 @@
         searchscope     CDATA #IMPLIED
         sort            CDATA #IMPLIED
         path            CDATA #IMPLIED
+        image           CDATA #IMPLIED
 >
 <!ELEMENT voyager (xisbn)?>
 <!ATTLIST voyager 
@@ -141,6 +154,7 @@
         count           CDATA #IMPLIED
         options         CDATA #REQUIRED
         advancedsearchforissn CDATA #IMPLIED
+        image           CDATA #IMPLIED
         relevanceranking (true|false) 'true'
 >
 <!ELEMENT horizon (xisbn)?>
@@ -157,6 +171,7 @@
         keyword         CDATA #IMPLIED
         subject         CDATA #IMPLIED
         profile         CDATA #IMPLIED
+        image           CDATA #IMPLIED
 >
 
 <!-- A custom catalog 
@@ -169,6 +184,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        image           CDATA #IMPLIED
         param0          CDATA #IMPLIED
         param1          CDATA #IMPLIED
         param2          CDATA #IMPLIED
@@ -212,7 +228,7 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
 
 <!ELEMENT resolver EMPTY>
 <!ATTLIST resolver
-        type           (sersol|sfx|webbridge|generic) 'generic'
+        type           (sersol|sfx|webbridge|generic|oclcgateway) 'generic'
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
         sid            CDATA #REQUIRED
@@ -230,12 +246,14 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
         urlcheckpassword CDATA #IMPLIED
+        image           CDATA #IMPLIED
         disableifcheckfails (true|false) 'false'
 >
 <!ELEMENT wam EMPTY>
 <!ATTLIST wam
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
+        image           CDATA #IMPLIED
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -245,7 +263,7 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
 <!ATTLIST option
         key            
             (sersolisbnfix 
-            |icon|logo
+            |icon|logo|cueicon
             |rewritescholarpage
             |supportcoins
             |scholarmissurl
@@ -273,3 +291,16 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
         directory     CDATA #REQUIRED
         substitutevars (true|false) 'false'
 >
+
+<!ELEMENT localizationfeeds (whitelist?,feed+)>
+<!ELEMENT whitelist EMPTY>
+<!ATTLIST whitelist
+        url          CDATA #REQUIRED
+>
+
+<!ELEMENT feed EMPTY>
+<!ATTLIST feed
+        description  CDATA #REQUIRED
+        url          CDATA #REQUIRED
+>
+
