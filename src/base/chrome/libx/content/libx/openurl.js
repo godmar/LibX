@@ -261,9 +261,6 @@ function libxInitializeOpenURL()
         var ourltype = pnode ? pnode.getAttribute("type") : null;
        
         switch (ourltype) {
-        case "oclcregistry":
-            libxEnv.openUrlResolvers[i] = new libxOCLCRegistryResolver();
-            break;
         case "sersol":
             libxEnv.openUrlResolvers[i] = new ArticleLinker();
             break;
@@ -356,30 +353,8 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
 }
 
 // ---------------------------------------------------------------------------------
-// OCLC is a subclass of OpenURL
+// libxOCLCGateway is a subclass of OpenURL
 // 
-function libxOCLCRegistryResolver() {
-    var thisOpenURL = this;
-    this.url = "http://worldcatlibraries.org/registry/gateway";
-
-    libxEnv.getXMLDocument("http://libx.org/php/getip.php", function (xmlhttp) {
-        var ip = libxEnv.xpath.findSingle(xmlhttp.responseXML, "/ip_address/ip/text()");
-        if (ip) {
-            libxEnv.getXMLDocument("http://worldcatlibraries.org/registry/lookup?IP=" + ip, function (xmlhttp) {
-                var rip = libxEnv.xpath.findSingle(xmlhttp.responseXML, "//resolver/baseURL/text()");
-                if (rip)
-                    thisOpenURL.url = rip;
-                var linkIcon = libxEnv.xpath.findSingle(xmlhttp.responseXML, "//resolver/linkIcon/text()");
-                if (linkIcon)
-                    thisOpenURL.image = linkIcon;
-                libxEnv.writeLog("found openurl resolver at: " + thisOpenURL.url);
-            });
-        }
-    });
-}
-
-libxOCLCRegistryResolver.prototype = new OpenURL();
-
 function libxOCLCGateway () {
     var thisOpenURL = this;
     // Actual Implementation:
