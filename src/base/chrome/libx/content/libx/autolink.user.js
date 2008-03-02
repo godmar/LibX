@@ -265,6 +265,10 @@ function skipChildren(node)
 
 function go(traversalRoot)
 {
+  /* some documents don't have document.body - such as XML documents */
+  if (traversalRoot == null)
+    return;
+
   var m;
   
   // Ensure we are not already in a forbidden element.
