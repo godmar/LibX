@@ -84,10 +84,12 @@ new DoForURL(/\.alibris\.com\//, function (doc, match) {
 
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
-new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (doc, match) {
+var bnFunction = function (doc, match) {
     var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
+    if (isbn == null)
+        return;
     
-    // last verified Oct 15, 2007
+    // last verified Mar 02, 2008
     var origTitle = libxEnv.xpath.findSingle(doc, "//div[@id='product-info']//h2");
     if (!origTitle) {
         return;
@@ -96,7 +98,14 @@ new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
     origTitle.insertBefore(doc.createTextNode(" "), origTitle.firstChild);
     origTitle.insertBefore(link, origTitle.firstChild);
-});
+    libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+        link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+    }});
+}
+// as in http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=9780060788704&itm=1
+new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, bnFunction);
+// as in http://search.barnesandnoble.com/The-Outlaw-Demon-Wails/Kim-Harrison/e/9780060788704/?itm=1
+new DoForURL(/\.barnesandnoble\.com.*\/(\d{10,12}[\d|X])\//i, bnFunction);
 
 // -----------------------------------------------------------------------------
 // Link ecampus.com pages to catalog via ISBN
