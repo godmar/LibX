@@ -102,7 +102,10 @@ function libxGetConfigXML()
         xmlDoc.copyAttributes = function(xnode, obj) {
             for (var i = 0; i < xnode.attributes.length; i++) {
                 var attr = xnode.attributes[i];
-                obj[attr.nodeName] = libxNormalizeOption(attr.nodeValue);
+                var opt = libxNormalizeOption(attr.nodeValue);
+                if (opt != null)
+                    obj[attr.nodeName] = opt;
+                // else preserve default.
             }
         };
     } catch (er) { }
