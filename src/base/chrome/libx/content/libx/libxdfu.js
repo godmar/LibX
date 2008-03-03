@@ -66,18 +66,21 @@ function doAmazon(doc, match) {
 
 // alibris.com
 new DoForURL(/\.alibris\.com\//, function (doc, match) {
-    var isbnLinks = libxEnv.xpath.findNodes(doc, "//a[contains(@href, 'qisbn=')]");
+    var isbnLinks = libxEnv.xpath.findNodes(doc, "//a[contains(@href, 'isbn')]");
 
     for (var i = 0; i < isbnLinks.length; i++) {
         var isbnLink = isbnLinks[i];
         var href = isbnLink.getAttribute('href');
-        var isbn, isbnMatch = href.match(/isbn=((\d|X){10,13})/i);
+        var isbn, isbnMatch = href.match(/isbn\/((\d|X){10,13})/i);
         if (isbnMatch != null && (isbn = isISBN(isbnMatch[1])) != null) {
             var cue = libxEnv.makeLink(doc, 
                         libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
                         libraryCatalog.linkByISBN(isbn), libraryCatalog);
             isbnLink.parentNode.insertBefore(cue, isbnLink.nextSibling);
             isbnLink.parentNode.insertBefore(doc.createTextNode(" "), cue);
+            libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+                this.cue.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+            }, cue: cue});
         }
     }
 });
@@ -118,6 +121,9 @@ new DoForURL(/(\/\/|\.)ecampus\.com.*(\d{9}[\d|X])/i, function (doc, match) {
         return;
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
     origISBN.appendChild(link);
+    libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+        link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+    }});
 });
 
 // --------------------------------------------------------------------------------------------------
@@ -187,7 +193,9 @@ var nytimesAction = new DoForURL(/nytimes\.com.*books/, doNyTimes);
 
 function doNyTimes(doc) {
     var n = new Array();
-    var n0 = libxEnv.xpath.findNodes(doc, "//div[@id='sectionPromo']//h4");  // new design
+    // see http://www.nytimes.com/2008/03/02/books/review/Brinkley-t.html
+    // and http://www.nytimes.com/2006/04/27/books/27masl.html
+    var n0 = libxEnv.xpath.findNodes(doc, "//div[@class='sectionPromo' or @id='sectionPromo']//h4");
     if (n0) {
         n = n.concat(n0);
     }
@@ -390,13 +398,10 @@ new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-?((\d|x){10}|(\d|x){13})\-?\d*
 new DoForURL(/(\/\/|\.)powells\.com\/.*isbn=((\d|x){10}|(\d|x){13})/i, powellsComByISBN);
 new DoForURL(/(\/\/|\.)powells\.com\/.*:((\d|x){10}|(\d|x){13}):/i, powellsComByISBN);
 
-//new DoForURL(/(\/\/|\.)powells\.com\/biblio\/\d*\-((\d|x){13})\-\d*/i, powellsComByISBN);
-
-
 // chapters.ca or chapters.indigo.ca
 // the URL appears to embed both a ISBN-13 and an ISBN - look for "ISBN:" instead
 new DoForURL(/chapters\..*\.ca\//, function (doc) {
-    var isbnlabel = libxEnv.xpath.findSingle(doc, "//strong[contains(text(),'ISBN:')]");
+    var isbnlabel = libxEnv.xpath.findSingle(doc, "//label[contains(text(),'ISBN:')]");
     if (isbnlabel) {
         var isbn = isISBN(isbnlabel.nextSibling.textContent);
         if (isbn) {
@@ -404,9 +409,12 @@ new DoForURL(/chapters\..*\.ca\//, function (doc) {
                     libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
                     libraryCatalog.linkByISBN(isbn), libraryCatalog);
             // place this link prominently by the booktitle
-            var t = libxEnv.xpath.findSingle(doc, "//span[contains(@id,'_Title')]");
-            t.parentNode.insertBefore(link, t.nextSibling);
-            t.parentNode.insertBefore(doc.createTextNode(" "), t.nextSibling);
+            var t = libxEnv.xpath.findSingle(doc, "//div[@id = 'itemProductHeading']/h1");
+            t.insertBefore(link, t.firstChild);
+            t.insertBefore(doc.createTextNode(" "), link);
+            libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+                link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+            }});
         } 
     } 
 });
@@ -464,6 +472,9 @@ new DoForURL(/(\/\/|\.)abebooks\.com/, function (doc) {
                 libraryCatalog.linkByISBN(isbn), libraryCatalog);
             n[i].parentNode.insertBefore(newlink, n[i].nextSibling);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), newlink);
+            libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+                this.link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+            }, link: newlink });
         }
     }
 });
