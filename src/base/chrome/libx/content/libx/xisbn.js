@@ -35,7 +35,7 @@ libxEnv.xisbn = {
     isbn2metadata: new Object(),
 
     /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
-    formatISBNMetadataAsText: function (xisbnrspisbn, oncompletion_func) {
+    formatISBNMetadataAsText: function (xisbnrspisbn, oncompletionobj, oncompletionfunc) {
         var text = '';
         function addIfPresent(before, attr, after) {
             var s = "";
@@ -52,7 +52,7 @@ libxEnv.xisbn = {
         text += addIfPresent(", ", xisbnrspisbn.getAttribute('year'));
         text += addIfPresent(", ", xisbnrspisbn.getAttribute('publisher'));
         text += addIfPresent(", ", xisbnrspisbn.getAttribute('city'));
-        oncompletion_func(text);
+        oncompletionobj[oncompletionfunc](text);
     },
 
     /* retrieve info about ISBN from xISBN and format as text */
@@ -69,7 +69,7 @@ libxEnv.xisbn = {
         var cached = this.isbn2metadata[isbn];
         if (cached !== undefined) {
             if (cached != null) {
-                formatFunc(cached, completionhandlers.ifFound);
+                formatFunc(cached, completionhandlers, 'ifFound');
             } else {
                 if (completionhandlers.notFound)
                     completionhandlers.notFound();
@@ -94,7 +94,7 @@ libxEnv.xisbn = {
                 // cache result (even if ISBN was not found)
                 isbn2metadata[isbn] = node;
                 if (node) {
-                    formatFunc(node, completionhandlers.ifFound);
+                    formatFunc(node, completionhandlers, 'ifFound');
                 } else {
                     if (completionhandlers.notFound)
                         completionhandlers.notFound();
