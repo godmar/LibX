@@ -604,6 +604,10 @@ libxEnv.getProxyPref = function() {
     return libxInterface.getProxyPreference(false);
 };
 
+libxEnv.getOCLCPref = function() {
+    return false;       // OCLC support not implemented in LibX IE
+};
+
 libxEnv.getDFUPref = function() {
     return libxInterface.getDFUPreference(true);
 }
