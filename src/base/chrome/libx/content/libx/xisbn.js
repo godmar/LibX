@@ -40,7 +40,7 @@ libxEnv.xisbn = {
         function addIfPresent(before, attr, after) {
             var s = "";
             if (attr != null) {
-                s = before + attr;
+                s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
                 if (after !== undefined)
                     s += after;
             }
