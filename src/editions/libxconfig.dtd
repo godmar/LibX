@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.28 2008/03/02 00:59:17 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.29 2008/03/11 16:09:58 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?,localizationfeeds?)>
 <!ATTLIST edition 
@@ -65,6 +65,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        postdata        CDATA #IMPLIED
         image           CDATA #IMPLIED
 >
 <!ELEMENT millenium (xisbn)?>
@@ -246,14 +247,12 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
         urlcheckpassword CDATA #IMPLIED
-        image           CDATA #IMPLIED
         disableifcheckfails (true|false) 'false'
 >
 <!ELEMENT wam EMPTY>
 <!ATTLIST wam
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
-        image           CDATA #IMPLIED
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
