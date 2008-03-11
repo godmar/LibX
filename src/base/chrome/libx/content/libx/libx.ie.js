@@ -130,6 +130,7 @@ libxEnv.initIEDFU = function () {
         n = n.getElementsByTagName('td')[0].getElementsByTagName('div')[0];
         n = n.getElementsByTagName('ul')[0].getElementsByTagName('li')[3].firstChild;
         var isbn = n.nextSibling.nodeValue;
+        isbn = isbn.replace(/^\s*/, "").replace(/\s*$/, "");    // trim()
 
         var booktitle = null;
         var div = null;
