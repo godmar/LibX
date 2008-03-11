@@ -53,7 +53,7 @@ openSearchWindow:
             form.setAttribute("method", "POST");
             form.setAttribute("action", url[0]);
             form.style.display = 'none';
-            var arg = url[1].split(/&amp;/);
+            var arg = url[1].split(/&/);
             for (var i = 0; i < arg.length; i++) {
                 var field = document.createElement("input");
                 var namevalue = arg[i].split("=");
