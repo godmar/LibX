@@ -140,13 +140,19 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },
     makeAdvancedSearch: function (fields) {
-        var url = this.url;
+        var usePost = this.postdata != null;
+        if (usePost) {
+            var argtemplate = this.postdata;
+        } else {
+            var argtemplate = this.url;
+        }
+
         /* Example of URL that uses %SWITCH statement and %termN:
             $catalog1.catalog.url=http://www.lib.umich.edu/ejournals/ejsearch.php?searchBy=%SWITCH{%type1}{t:KT}{d:KS}{sot:TV}{soi:IV}&AVterm1=%term1&Cnect2=AND&AVterm2=%term2&Cnect3=AND&AVterm3=%term3&New=All&submit=Find
         */
         var swtch;
         var swtchre = /%SWITCH\{(%[a-z0-9]+)\}\{(([^}]+(\}\{)?)+)}/i;
-        while ((swtch = url.match(swtchre)) != null) {
+        while ((swtch = argtemplate.match(swtchre)) != null) {
             var s = swtch[1];
             var repl = "";
             var caseargs = swtch[2].split("}{");
@@ -171,28 +177,33 @@ libxAddToPrototype(libxBookmarklet.prototype, {
                     break;
                 }
             }
-            url = url.replace(swtchre, repl);
+            argtemplate = argtemplate.replace(swtchre, repl);
         }
 
         // replace %termN with corresponding search terms
         for (var i = 0; i < fields.length; i++) {
-           url = url.replace("%term" + (i+1), encodeURIComponent(fields[i].searchTerms), "g");
+           argtemplate = argtemplate.replace("%term" + (i+1), encodeURIComponent(fields[i].searchTerms), "g");
         }
         // clear out remaining %termN
-        url = url.replace(/%term\d+/g, "");
+        argtemplate = argtemplate.replace(/%term\d+/g, "");
 
         // replace %X as with terms
         for (var i = 0; i < fields.length; i++) {
-           url = url.replace("%" + fields[i].searchType, encodeURIComponent(fields[i].searchTerms));
+           argtemplate = argtemplate.replace("%" + fields[i].searchType, encodeURIComponent(fields[i].searchTerms));
         }
 
         // clear out other %values if defined
         for (var option in libxDropdownOptions) {
             // to allow %is, %i, and %issue require that label be followed by a non-letter
             // XXX not very robust.
-            url = url.replace(new RegExp("%" + option + "(?![a-zA-Z0-9])"), "", "g");
+            argtemplate = argtemplate.replace(new RegExp("%" + option + "(?![a-zA-Z0-9])"), "", "g");
         }
-        return url;
+
+        if (usePost) {
+            return [ this.url, argtemplate ];
+        } else {
+            return argtemplate;
+        }
     }
 });
 

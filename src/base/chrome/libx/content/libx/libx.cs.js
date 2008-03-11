@@ -37,12 +37,33 @@ getIntPref:
     },
 openSearchWindow:
     function (url, donoturiencode) {
-        if (donoturiencode == null || donoturiencode == false) {
-            var url2 = encodeURI(url);
+        if (typeof url == "string") {
+            /* GET */
+            if (donoturiencode == null || donoturiencode == false) {
+                var url2 = encodeURI(url);
+            } else {
+                var url2 = url;
+            }
+            window.open(url2);
         } else {
-            var url2 = url;
+            /* POST - create a hidden POST form, populate and submit it. */
+            var target = url[0];
+            var postdata = url[1];
+            var form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            form.setAttribute("action", url[0]);
+            form.style.display = 'none';
+            var arg = url[1].split(/&amp;/);
+            for (var i = 0; i < arg.length; i++) {
+                var field = document.createElement("input");
+                var namevalue = arg[i].split("=");
+                field.setAttribute("name", namevalue[0]);
+                field.setAttribute("value", namevalue[1]);
+                form.appendChild(field);
+            }
+            document.body.appendChild(form);    // needed?
+            form.submit();
         }
-        window.open(url2);
     },
 writeLog:
     function (msg, type) {
