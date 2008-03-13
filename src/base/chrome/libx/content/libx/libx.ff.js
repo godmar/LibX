@@ -32,7 +32,6 @@
   * Designed to hold Firefox-specific code for the Libx extension
   */
  
-var libxEnv = new Object(); /* object through which platform-specific methods are accessed */
 libxEnv.ff = new Object(); /* Holder for FF specific objects */
 
 /*  init
@@ -891,6 +890,9 @@ libxEnv.initPrefsGUI = function () {
     }
     document.getElementById ( 'libx-oclc-ajax-checkbox')
         .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.oclc.ajaxpref', 'true' ) ? 'true' : 'false' );
+    
+    document.getElementById ( 'libx-citeulike-checkbox' )
+        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.urlbar.citeulike', 'true' ) ? 'true' : 'false' );
 }
 
 libxEnv.resetToDefaultPrefs = function() {
@@ -926,6 +928,10 @@ libxEnv.getOCLCPref = function() {
 };
 
 libxEnv.getDFUPref = function() { return true; } //Doesn't apply to Firefox
+
+libxEnv.getCiteulikePref = function () {
+	return document.getElementById ( 'libx-citeulike-checkbox' ).getAttribute ( 'checked' ) == 'true';
+}
 
 libxEnv.removeContextMenuPreferencesTab = function (idbase) {
     var tabId = "libx-contextmenu-" + idbase + "-prefs-tab";
@@ -1119,5 +1125,61 @@ libxEnv.initTree = function(treeID, items) {
     }
     return root;
 };
+
+
+// Initializes a URL Bar Icon with the setters defined below
+libxEnv.urlBarIcon = function () {
+    var hbox = document.getElementById ( "urlbar-icons" );
+    var img = this.img = document.createElement ( "image" );
+    hbox.appendChild ( img );
+}
+
+libxEnv.urlBarIcon.prototype = {
+    // modifies the hidden property of the icon
+    setHidden : function ( hidden ) {
+        if ( hidden == 'true' || hidden == null || hidden == true )
+            this.img.setAttribute ( "hidden", 'true' );
+        else
+            this.img.setAttribute ( "hidden", 'false' );
+    },
+    // sets the image src of the icon
+    setImage : function ( img ) {
+        this.img.setAttribute ( "src", img );
+    },
+    // sets the onclick function of the icon
+    setOnclick : function ( onclick ) {
+        libxEnv.addEventHandler ( this.img, "click", onclick );
+    },
+    setTooltipText : function ( text ) {
+        this.img.setAttribute ( 'tooltiptext', text );
+    }
+}
+
+
+
+// Initializes the event dispatcher
+libxEnv.eventDispatcher.init = function  () {
+
+    // Helper function to add an eventDispatcher of the given type to the eventDispatcher object
+    // This registers the notify function as the result of an event of eventType on targetObj
+    // @param libxtype -- type of event to register with
+    // @param targetObj -- object to register event handler with
+    // @param eventType -- type of event to watch for
+    function registerEventDispatcher ( libxtype, targetObj, eventType ) {
+        libxEnv.addEventHandler ( targetObj, eventType, function ( e ) {
+            libxEnv.eventDispatcher.notify(libxtype, e);
+        } );
+    }
+	
+	
+    // Init for onContentChange
+    var container = gBrowser.tabContainer;
+    registerEventDispatcher ( "onContentChange", container, "TabOpen" );
+    registerEventDispatcher ( "onContentChange", container, "TabSelect" );
+    var appcontent = document.getElementById ( 'appcontent' );
+    registerEventDispatcher ( "onContentChange", appcontent, "pageshow" );
+    //-------------------------
+} 
+
 
 // vim: ts=4

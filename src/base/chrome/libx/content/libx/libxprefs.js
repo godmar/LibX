@@ -89,6 +89,8 @@ function libxSavePreferences() {
     libxEnv.setBoolPref ('libx.oclc.ajaxpref', libxEnv.getOCLCPref());
 
     libxEnv.setBoolPref ('libx.dfuexec', libxEnv.getDFUPref());
+    
+    libxEnv.setBoolPref ( 'libx.urlbar.citeulike', libxEnv.getCiteulikePref() );
 }
 
 function libxSaveContextPrefs() {

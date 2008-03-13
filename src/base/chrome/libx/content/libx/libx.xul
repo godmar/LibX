@@ -73,6 +73,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/openURLCatalog.js" />
     <script type="application/x-javascript" src="chrome://libx/content/hover.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/citeulike-checkurl.js" />
 
 	<script type="application/x-javascript">
 	<![CDATA[

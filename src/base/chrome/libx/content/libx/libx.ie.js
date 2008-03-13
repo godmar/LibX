@@ -33,7 +33,6 @@
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
  
-var libxEnv = new Object();
   
 libxEnv.init = function() {
     // Use user defined preferences if available
@@ -618,6 +617,10 @@ libxEnv.getAutolinkPref = function() {
     return false;
 };
 
+libxEnv.getCiteulikePref = function () {
+	return false;
+}
+
 //GUI functions///////////////////////////////////////////////////////////////
 /*
  * GUI functions are not used in the IE version, as the GUI is not controlled
@@ -658,3 +661,20 @@ function libxSelectAutolink(value)
 function libxInitializeAutolink()
 {
 }
+
+libxEnv.urlBarIcon = function () { }
+libxEnv.urlBarIcon.prototype = {
+    // modifies the hidden property of the icon
+    setHidden : function ( hidden ) {	},
+    // sets the image src of the icon
+    setImage : function ( img ) {	},
+    // sets the onclick function of the icon
+    setOnclick : function ( onclick ) {	},
+    // sets the tooltip text
+    setTooltipText : function ( text ) { }
+}
+
+libxEnv.eventDispatcher.init = function  () {
+	// Int for onContentChange
+    //
+} 

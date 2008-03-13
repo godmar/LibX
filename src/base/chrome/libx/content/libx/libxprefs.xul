@@ -37,6 +37,7 @@
     </stringbundleset>
 
     <script type="application/x-javascript" src="chrome://libx/content/io.js" />    
+    <script type="application/x-javascript" src="chrome://libx/content/libx.js" />
     <script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.ff.js" />
@@ -91,7 +92,11 @@ function setVersion() {
                      <groupbox >
                          <caption label="Autolinking" />
                          <checkbox id="libx-autolink-checkbox" label="Autolink" />
-                     </groupbox>                     
+                     </groupbox>         
+                     <groupbox orient="vertical" id="citeulike-groupbox" >
+                         <caption label="CiteULike Options" />
+                         <checkbox id="libx-citeulike-checkbox" label="Display URL bar icon for posting to CiteULike on supported sites." />
+                     </groupbox>             
                 </tabpanel>
                 <tabpanel id="libx-contextmenu-prefs-tab" orient="vertical" >
                     <tabbox id="libx-contextmenu-prefs-tabbox" flex="100">

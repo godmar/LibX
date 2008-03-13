@@ -39,6 +39,8 @@ var libxSelectedCatalog;// currently selected search type
 var libxSearchFieldVbox;    // global variable to hold a reference to vbox with search fields.
 var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
 
+var libxEnv = new Object();
+
 /* Relies on following methods provided by libxEnv object 
  * 
  * xmlDoc -- return value of getConfigXML();
@@ -225,9 +227,9 @@ function libxInit()
     libxInitializeCatalogs();
     libxProxyInit();
     libxEnv.initializeContextMenu();
-
+    libxEnv.eventDispatcher.init();
     libxEnv.init();
-
+    libxEnv.citeulike();
 	/**
 	 * helper function that creates the cue logo to be inserted
 	 * make the equivalent of this html:
@@ -454,6 +456,68 @@ function extractSearchFields() {
 		fields.push(field);
 	}
 	return fields;
+}
+
+
+
+/*
+ * Creates a URL Bar icon and hides/shows based on whether or not posting to CiteULike is supported
+ * from a given website
+ */
+libxEnv.citeulike = function  ()  {
+    this.icon = new libxEnv.urlBarIcon();
+    this.icon.setHidden ( true );
+    this.icon.setImage ( "chrome://libx/skin/citeulike.ico" );
+    this.icon.setOnclick ( function  (e) {
+        var contentWindow = libxEnv.getCurrentWindowContent();
+        var url = contentWindow.location.href;
+        var title = contentWindow.document.title;
+        libxEnv.openSearchWindow("http://www.citeulike.org/posturl?url=" 
+            + encodeURIComponent(url) 
+            + "&title=" + encodeURIComponent(title), 
+            /* do not uri encode */true, "libx.sametab");
+    } );
+    this.icon.setTooltipText ( libxEnv.getProperty ( "citeulike.tooltiptext" ) );
+    
+    libxEnv.eventDispatcher.addEventListener( "onContentChange", function ( e, args ) {
+        var contentWindow = libxEnv.getCurrentWindowContent();
+        var url = contentWindow.location.href;
+        var icon = args.icon;
+            citeulike.canpost(url, function ( url, reg ) {
+            libxEnv.writeLog ( "Enabled: " + url, "citeulike" );
+            icon.setHidden ( libxEnv.getBoolPref ( 'libx.urlbar.citeulike', true ) ? 'false' : 'true' );    
+        }, function ( url ) {
+            libxEnv.writeLog ( "Disabled: " + url, "citeulike" );
+            icon.setHidden ( 'true' );
+        });
+    }, { icon: this.icon } );
+	
+}
+
+
+
+/*
+ * Designed to extended to implement events that we commonly re-use, but are not provided
+ * natively ( or to combine multiple events together )
+ * 
+ * - onContentChange -- events fired when the content of the website changes, either by switching tabs
+ *                      or navigating to another website
+ */
+libxEnv.eventDispatcher = {
+    // Notifies all listeners waiting for a given type
+    notify: function ( libxtype, e ) {
+        var listeners = libxEnv.eventDispatcher[libxtype];
+        if ( listeners )
+            for ( var i = 0; i < listeners.length; i++ ) {
+                listeners[i].funct(e, listeners[i].args);
+            }
+    },
+    // Adds a function to be executed when an event of the given type is triggered
+    addEventListener: function ( libxtype, listener, args ) {
+        if ( this[libxtype] == null )
+            this[libxtype] = new Array();    
+        this[libxtype].push({funct: listener, args: args});
+    }
 }
 
 // vim: ts=4
