@@ -235,7 +235,7 @@ foreach my $f (@afiles) {
     if (defined($subvars) && $subvars eq "true") {
         &copyandreplace("$editionpath/$file", "$tmpdir/$dir/$file");
     } else {
-        system("cp $editionpath/$file $tmpdir/$dir/$file") == 0 || die "Cannot copy $editionpath/$file $tmpdir/$dir/$file";
+        system("cp \"$editionpath/$file\" \"$tmpdir/$dir/$file\"") == 0 || die "Cannot copy $editionpath/$file $tmpdir/$dir/$file";
     }
 }
 
@@ -323,10 +323,10 @@ close (NSIS);
 my $makensis = `/usr/bin/which makensis 2>/dev/null` || "/opt/nsis-current/Bin/makensis";
 chomp ($makensis);
 if (-x $makensis) {
-    my $env = "-DJS_PATH=../base/chrome/libx/content/libx/";
+    my $env = "-DJS_PATH=$tmpdir/chrome/libx/content/libx/";
     $env .= " -DDLL_PATH=./LibXIE/";
     $env .= " -DDLL_URL=$libxiedllpath";
-    $env .= " -DLOCALE_PATH=../base/chrome/libx/locale/";
+    $env .= " -DLOCALE_PATH=$tmpdir/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
     $env .= " -DEDITION_PATH=$editionpath";
 	 $env .= " -DEDITION_ID=$editionid";
