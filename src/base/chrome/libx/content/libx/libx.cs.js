@@ -26,55 +26,49 @@
  * Client-side implementation of libxEnv
  */
 
-var libxEnv = {
-getBoolPref: 
-    function (pref, defvalue) {
-        return defvalue;
-    },
-getIntPref: 
-    function (pref, defvalue) {
-        return defvalue;
-    },
-openSearchWindow:
-    function (url, donoturiencode) {
-        if (typeof url == "string") {
-            /* GET */
-            if (donoturiencode == null || donoturiencode == false) {
-                var url2 = encodeURI(url);
-            } else {
-                var url2 = url;
-            }
-            window.open(url2);
+libxEnv.getBoolPref = function (pref, defvalue) {
+    return defvalue;
+}
+libxEnv.getIntPref = function (pref, defvalue) {
+    return defvalue;
+}
+libxEnv.openSearchWindow = function (url, donoturiencode) {
+    if (typeof url == "string") {
+        /* GET */
+        if (donoturiencode == null || donoturiencode == false) {
+            var url2 = encodeURI(url);
         } else {
-            /* POST - create a hidden POST form, populate and submit it. */
-            var target = url[0];
-            var postdata = url[1];
-            var form = document.createElement("form");
-            form.setAttribute("method", "POST");
-            form.setAttribute("action", url[0]);
-            form.style.display = 'none';
-            var arg = url[1].split(/&/);
-            for (var i = 0; i < arg.length; i++) {
-                var field = document.createElement("input");
-                var namevalue = arg[i].split("=");
-                field.setAttribute("name", namevalue[0]);
-                field.setAttribute("value", namevalue[1]);
-                form.appendChild(field);
-            }
-            document.body.appendChild(form);    // needed?
-            form.submit();
+            var url2 = url;
         }
-    },
-writeLog:
-    function (msg, type) {
-        if (type !== undefined)
-                return;
-        alert("writeLog: " + msg);
-    },
-logTypes: {
-      magic: 'Magic',
-      xpath: 'XPath'
+        window.open(url2);
+    } else {
+        /* POST - create a hidden POST form, populate and submit it. */
+        var target = url[0];
+        var postdata = url[1];
+        var form = document.createElement("form");
+        form.setAttribute("method", "POST");
+        form.setAttribute("action", url[0]);
+        form.style.display = 'none';
+        var arg = url[1].split(/&/);
+        for (var i = 0; i < arg.length; i++) {
+            var field = document.createElement("input");
+            var namevalue = arg[i].split("=");
+            field.setAttribute("name", namevalue[0]);
+            field.setAttribute("value", namevalue[1]);
+            form.appendChild(field);
+        }
+        document.body.appendChild(form);    // needed?
+        form.submit();
     }
+}
+libxEnv.writeLog = function (msg, type) {
+    if (type !== undefined)
+            return;
+    alert("writeLog: " + msg);
+}
+libxEnv.logTypes = {
+    magic: 'Magic',
+    xpath: 'XPath'
 };
 
 /* remove this and make it so it can use libxInitializeCatalogs in libx.js ... */
