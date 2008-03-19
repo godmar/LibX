@@ -59,7 +59,7 @@ $conf{'libxversion'} = $root->getAttribute('version');
 my $name = ${$root->getChildrenByTagName('name')}[0];
 
 # this goes in install.rdf which does not accept entities
-$conf{'emname'} = $name->getAttribute('long');
+$conf{'emname'} = encode_entities($name->getAttribute('long'));
 $conf{'emnameshort'} = encode_entities($name->getAttribute('short'));
 $conf{'emdescription'} = encode_entities($name->getAttribute('description'));
 # this goes in definitions.properties which requires entities
