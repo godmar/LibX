@@ -104,7 +104,7 @@ function libxClientSideCatalogInit(configurl) {
     var configXML = xmlhttp.responseXML;
     var xmlCatalogs = configXML.getElementsByTagName("catalogs")[0];
 
-    for (var i = 0; i < xmlCatalogs.childNodes.length; i++) { 
+    for (var i = 0; i < xmlCatalogs.childNodes.length; i++) {
         var xmlCat = xmlCatalogs.childNodes[i];
         var cat;
         switch (xmlCat.nodeName) {
@@ -114,8 +114,8 @@ function libxClientSideCatalogInit(configurl) {
         case "sfx":
             cat = new SFX();
             break;
-	case "centralsearch":
-	    cat = new CentralSearch();
+        case "centralsearch":
+            cat = new CentralSearch();
             break;
         case "sersol":
             cat = new ArticleLinker();
@@ -162,6 +162,13 @@ function libxClientSideCatalogInit(configurl) {
         }
 
         catalogs.push (cat);
+    }
+
+    // override libxDropdownOptions's option with options defined in config
+    var xmlSearchOptions = configXML.getElementsByTagName("searchoption");
+    for (var i = 0; i < xmlSearchOptions.length; i++) {
+        var xmlOption = xmlSearchOptions[i];
+        libxDropdownOptions[xmlOption.getAttribute("value")] = xmlOption.getAttribute("label");
     }
 }
 
