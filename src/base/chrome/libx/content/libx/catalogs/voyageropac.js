@@ -28,6 +28,7 @@ function VoyagerOPAC() { }
 VoyagerOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(VoyagerOPAC.prototype, {
+    doNotURIEncode: true,
     keyword: "FT*",     // default keyword index
     count: 25,          // default number of hits returned
     relevanceranking: true,     // by default, use relevance ranking for keyword
@@ -71,11 +72,12 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
         if (this.relevanceranking && stype == 'Y') {
             // + does "find all" as in Google; we assume the user wants this 
             sterm = sterm.replace(/^(\S)/, "+$1");
-            sterm = sterm.replace(/\s+(\S)/, " +$1");
+            sterm = sterm.replace(/\s+(\S)/g, " +$1");
         }
         if (this.advancedsearchforissn && stype == 'is') {
             return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
         } 
+        sterm = encodeURIComponent(sterm);
         // order of fields seems to matter here (!??!)
         return this.url + "/cgi-bin/Pwebrecon.cgi?Search_Arg=" 
                     + sterm + "&HIST=1&SL=None&Search_Code="
@@ -88,7 +90,7 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
         // SAB3=AAAAAA&BOOL3=all+of+these&FLD3=Author+%28NKEY%29&
 	    var url = this.url + "/cgi-bin/Pwebrecon.cgi?HIST=1&CNT=25&DB=local&SL=None";
 		for (var i = 0; i < fields.length; i++) {
-			url += "&SAB" + (i+1) + "=" + fields[i].searchTerms 
+			url += "&SAB" + (i+1) + "=" + encodeURIComponent(fields[i].searchTerms)
                 + "&BOOL1=all+of+these&FLD" + (i+1) + "=" 
                 + this.convert2(fields[i].searchType);
             if (i < fields.length - 1) {
