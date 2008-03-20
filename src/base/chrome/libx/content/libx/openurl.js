@@ -176,7 +176,7 @@ OpenURL.prototype = {
         try {
             sid = sid.replace(/%hostname%/, libxEnv.getCurrentWindowContent().location.hostname);
         } catch (er) {
-            libxEnv.writeLog(er + ": exception occurred attempting to replace %hostname%");
+            libxEnv.writeLog(er + ": exception occurred attempting to replace %hostname%", 'openurl');
         }
         url += sid;
         return url;
