@@ -26,7 +26,7 @@
 
 <r:RDF xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
 	 xmlns="http://www.mozilla.org/2004/em-rdf#"> 
-<r:Description about="urn:mozilla:extension:{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"> 
+<r:Description r:about="urn:mozilla:extension:{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"> 
 <updates> 
    <r:Seq> 
      <r:li> 
@@ -37,8 +37,9 @@
            <r:Description>
              <id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</id>
              <minVersion>1.0</minVersion>
-             <maxVersion>2.0.*</maxVersion>
+             <maxVersion>3.0.*</maxVersion>
              <updateLink>$xpilocation$</updateLink> 
+             <updateHash/>
            </r:Description>
          </targetApplication>
 
@@ -49,6 +50,7 @@
              <minVersion>0.4</minVersion>
              <maxVersion>0.9.*</maxVersion>
              <updateLink>$xpilocation$</updateLink> 
+             <updateHash/>
            </r:Description>
          </targetApplication>        
 
@@ -59,6 +61,7 @@
              <minVersion>1.7</minVersion>
              <maxVersion>1.7.*</maxVersion>
              <updateLink>$xpilocation$</updateLink> 
+             <updateHash/>
            </r:Description>
          </targetApplication>
 
@@ -69,6 +72,7 @@
              <minVersion>8.0</minVersion>
              <maxVersion>9.0.*</maxVersion>
              <updateLink>$xpilocation$</updateLink> 
+             <updateHash/>
            </r:Description>
          </targetApplication>
 
@@ -79,6 +83,7 @@
              <maxVersion>1.0</maxVersion>
              <minVersion>1.1.*</minVersion>
              <updateLink>$xpilocation$</updateLink> 
+             <updateHash/>
            </r:Description>
          </targetApplication>
        </r:Description> 
