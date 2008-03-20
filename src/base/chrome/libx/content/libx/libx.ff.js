@@ -371,6 +371,7 @@ libxEnv.initializeGUI = function () {
         var opt = libxSearchOptions[option];
         libxEnv.xmlDoc.copyAttributes ( opt, mitem );
         mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
+        mitem.setAttribute('label', mitem.label );
         libxDropdownOptions[mitem.value] = mitem;
         libxConfig.searchOptions[mitem.value] = mitem.label;
     }
