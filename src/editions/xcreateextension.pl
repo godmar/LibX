@@ -10,12 +10,56 @@ use Cwd;
 #
 my $config_xml = "config.xml";
 my $httpeditionpath = "http://www.libx.org/editions/";
-my $libxiedllpath="http://libx.org/libx/src/editions/LibXIE";
+# http URL to directory containing LibXIE dll files
+my $libxiedllurl="http://libx.org/libx/src/editions/LibXIE";
+
+# local path to directory containing LibXIE dll files
+my $libxiedllpath="./LibXIE";
+-d $libxiedllpath || die "DLL directory $libxiedllpath does not exist";
+
+# directory that contains key3.db
+my $keydirectory = "/home/www/libxprivatekey";
+my $libxextid = "urn:mozilla:extension:{d75de36c-af0d-4dc2-b63a-0d482d4b9815}";
+
+# from http://hyperstruct.net/projects/spock
+my $spockexe = `/usr/bin/which spock 2>/dev/null` || "/opt/spock/spock";
+chomp ($spockexe);
+my $makensis = `/usr/bin/which makensis 2>/dev/null` || "/opt/nsis-current/Bin/makensis";
+chomp ($makensis);
+
+# XXX fix this ridiculous dependency
+-d "../base" || die "This script must be run inside libx/src/editions";
 
 # Change this to build, say "libx-experimental-<edition>.xpi"
 # If set to non-empty, will suppress creation of update.rdf file
 # my $localbuild = "experimental-";
 my $localbuild = "";
+
+# process cmdline args
+# this loop courtesy of Pat Tullmann, 1997 
+while ($_ = $ARGV[0]) {
+    last if /^--$/;  # allow "--" to stop option arg parsing
+    last if /^[^-]/; # end on first non-switch
+
+    shift @ARGV; # eat the option
+
+    ## -h for usage
+    /^-h$/ && do {(&usage("Help:")); next;};
+
+    ## -localbuild to set a prefix
+    if (/^-localbuild$/) {
+        ($#ARGV >= 0) || &usage("-localbuild requires prefix");
+        $localbuild = shift @ARGV;
+        next;
+    }
+
+    # add more cmdline arguments here...
+    
+    ## Unknown -args are fatal
+    /^\-/ && (&usage("Unknown option: $_"));
+}
+
+&usage("config directory not specified") if !defined($ARGV[0]); 
 
 # path to edition directory
 # example: /home/www/libx.org/editions/vt.2
@@ -28,9 +72,7 @@ if (substr($editionpath, length($editionpath) - 1, 1) ne "/") {
     $editionpath = $editionpath . '/'
 }
 
-if (!defined($editionpath) || ! -d $editionpath) {
-    die "Usage: $0 edition_directory_path\n";
-}
+-d $editionpath || &usage("directory $editionpath does not exist.");
 
 my $config = $editionpath . "$config_xml";
 if (! -r $config) {
@@ -58,7 +100,7 @@ $conf{'libxversion'} = $root->getAttribute('version');
 
 my $name = ${$root->getChildrenByTagName('name')}[0];
 
-# this goes in install.rdf which does not accept entities
+# this goes in install.rdf so must escape HTML entities
 $conf{'emname'} = encode_entities($name->getAttribute('long'));
 $conf{'emnameshort'} = encode_entities($name->getAttribute('short'));
 $conf{'emdescription'} = encode_entities($name->getAttribute('description'));
@@ -253,8 +295,12 @@ system("touch $editionpath/uses_xml_config") == 0 || die "touch failed";
 #exit;
 ############################################################
 
+# add hash to and sign update.rdf
 if ($localbuild eq "") {
-    system("cp $tmpdir/update.rdf $editionpath") == 0 || die "could not copy update.rdf";
+    -x $spockexe || die "$spockexe does not exist or is not executable.";
+    system("$spockexe -d $keydirectory -i \"$libxextid\" -f $editionpath/$xpifile"
+        . " $tmpdir/update.rdf > $editionpath/update.rdf") == 0
+        || die "could not run spock to sign update.rdf: $!";
 }
 
 #my $icon = $conf{'emiconURL'};
@@ -314,23 +360,22 @@ for my $dir (keys %flist) {
 #Replace the $editionfiles$ symbol with the string
 $nsisText =~ s/\$editionfiles\$/$eflist/;
 $nsisText =~ s/\$deleteeditionfiles\$/$dlist/;
+$nsisText =~ s/\$localbuild\$/$localbuild/;
 
 #Write the new file
 open (NSIS, ">$editionpath" . "setup.nsi") || die "Could not upen $editionpath" . "setup.nsi for writing";
 print NSIS $nsisText;
 close (NSIS);
 
-my $makensis = `/usr/bin/which makensis 2>/dev/null` || "/opt/nsis-current/Bin/makensis";
-chomp ($makensis);
 if (-x $makensis) {
     my $env = "-DJS_PATH=$tmpdir/chrome/libx/content/libx/";
-    $env .= " -DDLL_PATH=./LibXIE/";
-    $env .= " -DDLL_URL=$libxiedllpath";
+    $env .= " -DDLL_PATH=$libxiedllpath/";
+    $env .= " -DDLL_URL=$libxiedllurl";
     $env .= " -DLOCALE_PATH=$tmpdir/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
     $env .= " -DEDITION_PATH=$editionpath";
 	 $env .= " -DEDITION_ID=$editionid";
-    system ("$makensis $env -V1 -NOCD $editionpath/setup.nsi") == 0 or die "$makensis $env failed.";
+    system ("$makensis $env -V1 -NOCD ${editionpath}setup.nsi") == 0 or die "$makensis $env failed.";
 } else {
     print "$makensis not found, skipping IE build.\n";
 }
@@ -338,3 +383,15 @@ if (-x $makensis) {
 system ("/bin/rm -rf $tmpdir");
 
 exit 0;
+
+sub usage {
+    print STDERR "@_\n";
+    print STDERR "xcreateextension.pl [-localbuild prefix] config_directory\n";
+    print STDERR "\n";
+    print STDERR " config_directory denotes the directory containing the files\n"
+                ." for the revision (including config.xml and all bundled files).\n";
+    print STDERR "\n";
+    print STDERR " -localbuild     an alternate prefix, such as 'experimental-'\n";
+    print STDERR "\n";
+    exit 1;
+}

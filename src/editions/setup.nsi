@@ -1,3 +1,11 @@
+#
+# This file is subject to the MPL license.
+# Copyright is 2008, Virginia Tech. 
+# libx.org@gmail.com
+#
+# Note: this file contains $xxx$ place holders, which are replaced
+# by xcreateextension.pl with actual values
+
 #Install script for LibX-IE
 !define PRODUCT_NAME "LibX for IE"
 !define PRODUCT_VERSION "1.0"
@@ -57,7 +65,8 @@ SetCompressor bzip2
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 Name "${PRODUCT_NAME}"
-OutFile "${EDITION_PATH}libx-${EDITION_ID}.exe"
+# localbuild is a (possibly non-empty) prefix to allow for alternate builds
+OutFile "${EDITION_PATH}libx-$localbuild$${EDITION_ID}.exe"
 InstallDir "$PROGRAMFILES\LibX for IE"
 #Get installation folder from registry if available
 InstallDirRegKey HKCU "${PRODUCT_REGISTRY_KEY}" "Directory"
