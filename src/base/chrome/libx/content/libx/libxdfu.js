@@ -52,6 +52,10 @@ function doAmazon(doc, match) {
     var isbnLabel = libxEnv.xpath.findSingle(doc, "//b[contains(text(), 'ISBN')]");
     var isbn = isISBN(isbnLabel.nextSibling.textContent);
     var booktitle = libxEnv.xpath.findSingle(doc, "//div[@class='buying']/b[@class='sans']");
+    if (booktitle == null) {
+        // new form, as of Apr 2, 2008
+        booktitle = libxEnv.xpath.findSingle(doc, "//div[@class='buying']/b[@class='asinTitle']");
+    }
 
     // make link and insert after title
     var div = booktitle.parentNode;

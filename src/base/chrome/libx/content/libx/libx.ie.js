@@ -137,7 +137,7 @@ libxEnv.initIEDFU = function () {
         var elems = buyForm.getElementsByTagName('b');
 
         for(var i = 0; i < elems.length; ++i) {
-            if(elems[i].attributes['class'].value == 'sans') {
+            if(elems[i].attributes['class'].value == 'sans' || elems[i].attributes['class'].value == 'asinTitle') {
                 if(elems[i].parentNode.attributes['class'].value == 'buying') {
                     booktitle = elems[i];
                     div = elems[i].parentNode;
