@@ -253,7 +253,7 @@ function libxInitializeOpenURL()
 {
     libxConfig.resolvers = new Array();
     libxConfig.numResolvers = 0;
-    var resolvers = libxEnv.xpath.findNodes ( libxEnv.xmlDoc.xml, "/edition/openurl/*" );
+    var resolvers = libxEnv.xpath.findNodesXML ( libxEnv.xmlDoc.xml, "/edition/openurl/*" );
     libxEnv.openUrlResolvers = new Object();
     for ( var i = 0; i < resolvers.length; i++ ) {
         

@@ -33,16 +33,16 @@
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
  
+//var libxEnv = new Object();
   
 libxEnv.init = function() {
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
-    libxEnv.loadProperties();
-
+    libxEnv.loadProperties(); 
     libxEnv.populateDropdownOptions();
     //Read in search options and add to libxConfig.searchOptions
     var libxSearchOptions = 
-        libxEnv.xpath.findNodes(libxGetConfigXML().xml, "/edition/searchoptions/*");
+        libxEnv.xpath.findNodesXML(libxGetConfigXML().xml, "/edition/searchoptions/*");
     for (var option = 0; option < libxSearchOptions.length; option++ ) {
         var mitem = libxSearchOptions[option];
         libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
@@ -60,104 +60,33 @@ libxEnv.debugInit = function () {}
 
 libxEnv.initIEDFU = function () {
 
-    if (libxEnv.openUrlResolver && libxEnv.options.supportcoins) {
-        new DoForURL(/.+/, 
-                     function (doc) { 
-                         libxEnv.handleCoins(doc, libxEnv.openUrlResolver)
-                     });
-    }
+    //Do for url functions utilizing jQuery are now located in libxiedfu.js
 
-    new DoForURL(/search\.yahoo\.com\/search.*p=/, function (doc) {
-        var n = doc.getElementById('yschinfo').firstChild;
-        var searchterms = libxEnv.getCurrentWindowContent().document.getElementById("yschsp").value;
-        n.appendChild(doc.createTextNode(" "));
-        n.appendChild(libxEnv.makeLink(doc,
-                               libxEnv.getProperty("catsearch.label",
-                                                   [libraryCatalog.name, searchterms]),
-                               libraryCatalog.makeKeywordSearch(searchterms),
-                               libraryCatalog));
-    });
-    
-    // --------------------------------------------------------------------------------------------------
-    // Google results pages
-    // link to catalog via keyword
-    new DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
-        var n = doc.getElementById('sd');
-        var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
-        n.parentNode.appendChild(
-                libxEnv.makeLink(doc,
-                         libxEnv.getProperty("catsearch.label",
-                                             [libraryCatalog.name, searchterms]),
-                         libraryCatalog.makeKeywordSearch(searchterms),
-                         libraryCatalog));
-    });
+    //Internet Explorer "do for url" functions.
+    //Cues that work:
+    //Amazon
+    //Alibris
+    //Barnes and Noble
+    //ECampus
+    //Agricola
+    //NY Times
+    //Yahoo
+    //Google
+    //Google books
+    //Google scholar
+    //Global books in print
+    //Powells
+    //Chapters.ca
+    //Abebooks
+    //
+    //Cues (and other things) that don't work
+    //Serial Solutions
+    //Wam proxy
+    //Booklist online (need registration to test)
+    //Autolinking
+    libxInitializeIEDFU();
 
-    // --------------------------------------------------------------------------------------------------
-    // Link Barnes & Noble pages to catalog via ISBN
-    new DoForURL(/\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, function (doc, match) {
-        var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
-        
-        //var origTitle = libxEnv.xpath.findSingle(doc, "//h1[@id='title']");
-        var origTitle = doc.getElementById('title');
-        if (!origTitle) {
-            return;
-        }
-        // make link and insert after title
-        var link = libxEnv.makeLink(doc, 
-                            libxEnv.getProperty("isbnsearch.label", 
-                                                [libraryCatalog.name, isbn]), 
-                            libraryCatalog.linkByISBN(isbn),
-                            libraryCatalog);
-        origTitle.appendChild(link);
-        origTitle.insertBefore(doc.createTextNode(" "), link);
-    });
-
-    var amazonAction = new DoForURL(/amazon\.com\//, doAmazon);
-    var amazonUkAction = new DoForURL(/amazon\.co\.uk\//, doAmazon);
-    var amazonCaAction = new DoForURL(/amazon\.ca\//, doAmazon);
-    var amazonDeAction = new DoForURL(/amazon\.de\//, doAmazon);
-    var amazonFrAction = new DoForURL(/amazon\.fr\//, doAmazon);
-
-    // revised Apr 4, 2007
-    function doAmazon(doc, match) {
-        // extract ISBN from text <b>ISBN-10:</b>
-        var n = doc.getElementById('productDetails');
-        while(n.nodeName.toLowerCase() != 'table') {
-            n = n.nextSibling;
-        }
-        n = n.getElementsByTagName('tbody')[0].firstChild;
-        n = n.getElementsByTagName('td')[0].getElementsByTagName('div')[0];
-        n = n.getElementsByTagName('ul')[0].getElementsByTagName('li')[3].firstChild;
-        var isbn = n.nextSibling.nodeValue;
-        isbn = isbn.replace(/^\s*/, "").replace(/\s*$/, "");    // trim()
-
-        var booktitle = null;
-        var div = null;
-        var buyForm = doc.getElementById('handleBuy');
-        var elems = buyForm.getElementsByTagName('b');
-
-        for(var i = 0; i < elems.length; ++i) {
-            if(elems[i].attributes['class'].value == 'sans' || elems[i].attributes['class'].value == 'asinTitle') {
-                if(elems[i].parentNode.attributes['class'].value == 'buying') {
-                    booktitle = elems[i];
-                    div = elems[i].parentNode;
-                    break;
-                }
-            }
-        }
-
-        if(!booktitle) {
-            return;
-        }
-        // make link and insert after title
-        var cue = libxEnv.makeLink(doc, 
-                           libxEnv.getProperty("isbnsearch.label", 
-                                               [libraryCatalog.name, isbn]), 
-                           libraryCatalog.linkByISBN(isbn),
-                           libraryCatalog);
-        div.insertBefore(cue, booktitle.nextSibling);
-    }
-}
+} //end of initializeDoForUrls
 
 /*  populateDropdownOptions
  * This function takes the hard-coded search options (in Firefox they are
@@ -240,18 +169,327 @@ libxEnv.getCurrentWindowContent = function() {
 //XPath functions/////////////////////////////////////////////////////////////
 
 libxEnv.xpath = new Object();
+libxEnv.xpath.shadowToOrigDOMMap = new Array();
+libxEnv.xpath.queue = new Array();
+libxEnv.xpath.headIdx = 0;
+libxEnv.xpath.tailIdx = 0;
+libxEnv.xpath.shadowDOM = new Object();
+
+//This function shadows the DOM tree of the original document (starting at the
+//document.body node) and make a well formed shadowDOM.  This allows XPath
+//queries to be executed in IE.  This method performs a breadth-first traversal
+//of the DOM tree.
+libxEnv.xpath.init = function (docRoot, nodeSet, attributeSet) {
+    //Reset values
+    libxEnv.xpath.shadowToOrigDOMMap = new Array();
+    libxEnv.xpath.queue = new Array();
+    libxEnv.xpath.headIdx = 0;
+    libxEnv.xpath.tailIdx = 0;
+
+    libxEnv.xpath.shadowDOM = new ActiveXObject("Msxml2.DOMDocument");
+    libxEnv.xpath.shadowDOM.async = false;
+    libxEnv.xpath.shadowDOM.resolveExternals = false;
+    libxEnv.xpath.shadowDOM.setProperty("SelectionLanguage", "XPath");
+
+    shadowRoot = undefined;
+    var allNodes = false;
+    var allAttributes = false;
+
+    if (undefined == nodeSet)
+        allNodes = true;
+
+    if (undefined == attributeSet)
+        allAttributes = true;
+
+    //We need to handle the root element of the document here for the iterative
+    //shadowing method
+    if (-1 == docRoot.nodeName.search("\/")
+        && docRoot.nodeName.search("#")) {
+        var shadowRoot 
+            = libxEnv.xpath.shadowDOM.createElement(docRoot.nodeName.toLowerCase());
+
+        //We only shadow attributes for nodes we're concerned with. Also, only
+        //attributes that we're concerned with are shadowed.  For example, if
+        //the XPath expression was //div[@id='whatever'], then we only shadow
+        //attributes for div elements, and we only shadow the id attribute of
+        //those elements.  This, hopefully, significantly decreases the amount
+        //of time required to generate the shadowDOM.  Of course, this requires
+        //that that arrays containing the element names and attribute names
+        //be passed into this function.
+        if (allNodes && allAttributes) {
+            for (var ctr = 0; ctr < docRoot.attributes.length; ++ ctr) {
+                var attribute = docRoot.attributes[ctr];
+                var attributeValue = attribute.nodeValue;
+                if (attributeValue && attribute.specified) {
+                    var shadowAttribute = libxEnv.xpath.shadowDOM.createAttribute(attribute.nodeName);
+                    shadowAttribute.value = attributeValue;
+                    shadowRoot.setAttributeNode(shadowAttribute);
+                } //end if
+            } //end for
+        } //end if (allNodes && allAttributes)
+        else {
+            var docRootNameMatch = false;
+            if (!allNodes) {
+                for (var elem = 0; elem < nodeSet.length; ++elem) {
+                    if (nodeSet[elem] == docRoot.nodeName) {
+                        docRootNameMatch = true;
+                        break;
+                    } //end if
+                } //end for
+            } //end if (!allNodes)
+            else
+                docRootNameMatch = true;
+
+            //We only shadow attributes for root if it was found in the list
+            //of element names, or if we're shadowing attributes for all
+            //elements
+            if (docRootNameMatch) {
+                if (!allAttributes) {
+                    for (var attr = 0; attr < attributeSet.length; ++attr) {
+                        var attributeName = attributeSet[attr];
+                        if (docRoot[attributeName]
+                            || ("class" == attributeName
+                               && docRoot.className)) {
+                            if ("class" == attributeName)
+                                var attributeValue = docRoot.className;
+                        } // end if
+                        else
+                            var attributeValue = docRoot[attributeName];
+                        var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
+                        shadowDOMAttr.value = attributeValue;
+                        shadowRoot.setAttributeNode(shadowAttribute);
+                    } //end for
+                } //end if (!allAttributes)
+                //otherwise shadow all attributes
+                else {
+                    for (var ctr = 0; ctr < docRoot.attributes.length; ++ ctr) {
+                        var attribute = docRoot.attributes[ctr];
+                        var attributeName = attribute.nodeName;
+                        var attributeValue = attribute.nodeValue;
+                        if (attributeValue && attribute.specified) {
+                            var shadowAttribute = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
+                            shadowAttribute.value = attributeValue;
+                            shadowRoot.setAttributeNode(shadowAttribute);
+                        } //end if
+                    } //end for
+                } //end else (allAttributes == true)
+            } //end if (docRootNameMatch)
+        } //end else (!(allNodes && allAttributes))
+
+        var uniqueID = docRoot.uniqueID;
+        shadowRoot.setAttribute("id", uniqueID);
+        libxEnv.xpath.shadowToOrigDOMMap[uniqueID] = docRoot;
+
+        libxEnv.xpath.shadowDOM.appendChild(shadowRoot);
+    }
+
+    libxEnv.xpath.queue.push({original: docRoot, shadow: shadowRoot});
+    ++libxEnv.xpath.tailIdx;
+    libxEnv.xpath.loadDocument(libxEnv.xpath.shadowDOM, docRoot, nodeSet, attributeSet);
+}
+
+libxEnv.xpath.loadDocument = function (dom, docRoot, nodeSet, attributeSet) {
+    libxEnv.writeLog("in load document");
+
+    var allNodes = false;
+    var allAttributes = false;
+
+    if (undefined == nodeSet)
+        allNodes = true;
+
+    if (undefined == attributeSet)
+        allAttributes = true;
+
+    //return libxEnv.xpath.loadNode(dom, dom, docRoot.body);
+    //return libxEnv.xpath.loadNode(dom, dom, docRoot);
+
+    while (libxEnv.xpath.headIdx < libxEnv.xpath.tailIdx) {
+        //Get node from queue
+        //var nodePair = libxEnv.xpath.queue.shift();
+        var nodePair = libxEnv.xpath.queue[libxEnv.xpath.headIdx];
+        ++libxEnv.xpath.headIdx;
+        var origNode = nodePair.original;
+        var shadowNode = nodePair.shadow;
+
+        if (undefined == shadowNode)
+            libxEnv.writeLog("shadowNode is undefined");
+
+        var length = origNode.childNodes.length;
+
+        //Get all children of that node and add to queue
+        //To do this, we need to create corresponding shadow nodes
+        for (var ctr = 0; ctr < length; ++ ctr) {
+            if (3 == origNode.childNodes[ctr].nodeType) {
+                //For text nodes, we simply create a text node and add it as
+                //a child node to its shadow parent node.  We don't have to
+                //worry about this node's attributes since it has none.
+                var shadowChildNode 
+                    = libxEnv.xpath.shadowDOM.createTextNode(origNode.childNodes[ctr].nodeValue);
+
+                shadowNode.appendChild(shadowChildNode);
+            } //end if node is textNode
+            else {
+                //Check to see whether elements are valid (since IE doesn't do
+                //this itself)
+                if (-1 == origNode.childNodes[ctr].nodeName.search("\/")
+                    && -1 == origNode.childNodes[ctr].nodeName.search("#")) {
+                    //Create the child node
+                    var shadowChildNode 
+                        = libxEnv.xpath.shadowDOM.createElement(origNode.childNodes[ctr].nodeName.toLowerCase());
+
+                    //Now give this element a unique id
+                    var uniqueID = origNode.childNodes[ctr].uniqueID;
+                    shadowChildNode.setAttribute("id", uniqueID);
+
+                    //Map the shadowChild node to the corresponding origNode.childNodes[ctr]
+                    libxEnv.xpath.shadowToOrigDOMMap[uniqueID] = origNode.childNodes[ctr];
+
+                    shadowNode.appendChild(shadowChildNode);
+
+                    //Handle attibutes.  See documentation in libxEnv.xpath.init()
+                    if (allNodes && allAttributes) {
+                        for (var attr = 0; attr < origNode.childNodes[ctr].attributes.length; ++ attr) {
+                            var attribute = origNode.childNodes[ctr].attributes[attr];
+                            var attributeName = attribute.nodeName;
+                            var attributeValue = attribute.nodeValue;
+                            if (attributeValue && attribute.specified) {
+                                var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
+                                shadowDOMAttr.value = attributeValue;
+                                shadowChildNode.setAttributeNode(shadowDOMAttr);
+                            } //end if (attributeValue && attribute.specified)
+                        } //end for
+                    } //end if(allNodes && allAttributes)
+                    else {
+                        var nodeNameMatch = false;
+                        if (!allNodes) {
+                            for (var elem = 0; elem < nodeSet.length; ++elem) {
+                                if (nodeSet[elem] == origNode.childNodes[ctr].nodeName) {
+                                    nodeNameMatch = true;
+                                    break;
+                                } //end if
+                            } //end for
+                        } //end if (!allNodes)
+                        else
+                            nodeNameMatch = true;
+
+                        if (nodeNameMatch) {
+                            if (!allAttributes) {
+                                for (var attr = 0; attr < attributeSet.length; ++attr) {
+                                    var attributeName = attributeSet[attr];
+                                    if (origNode.childNodes[ctr][attributeName]
+                                        || ("class" == attributeName
+                                            && origNode.childNodes[ctr].className)) {
+                                        if ("class" == attributeName)
+                                            var attributeValue = origNode.childNodes[ctr].className;
+                                        else
+                                            var attributeValue = origNode.childNodes[ctr][attributeName];
+                                        var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
+                                        shadowDOMAttr.value = attributeValue;
+                                        shadowChildNode.setAttributeNode(shadowDOMAttr);
+                                    } //end if
+                                } //end for
+                            } //end if (!allAttributes)
+                            else {
+                                for (var attr = 0; attr < origNode.childNodes[ctr].attributes.length; ++ attr) {
+                                    var attribute = origNode.childNodes[ctr].attributes[attr];
+                                    var attributeName = attribute.nodeName;
+                                    var attributeValue = attribute.nodeValue;
+                                    if (attributeValue && attribute.specified) {
+                                        var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
+                                        shadowDOMAttr.value = attributeValue;
+                                        shadowChildNode.setAttributeNode(shadowDOMAttr);
+                                    } //end if
+                                } //end for
+                            } //end else (allAttributes)
+                        } //end if (nodeNameMatch)
+                    } //end else (!(allNodes && allAttributes))
+                } //end if (node is valid)
+            } //end else (nodeType is element)
+            //Now we need to add the children to the queue
+            libxEnv.xpath.queue.push({original: origNode.childNodes[ctr], shadow: shadowChildNode});
+            ++libxEnv.xpath.tailIdx;
+        } //end for (loop for handling children)
+    } //end while (queue not empty)
+} //end libxEnv.xpath.loadDocument
+
+libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root) {
+    if (undefined == root) {
+        return doc.selectSingleNode(xpathexpr);
+    }
+    else {
+        return root.selectSingleNode(xpathexpr);
+    }
+}
 
 libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
-    return doc.selectSingleNode(xpathexpr);
+    //Requires XPath parser code in javascript-xpath.js
+    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    if (r) return r.singleNodeValue;
+    return null;
+
+    //Code that uses shadowDOM.  Obviously there has to be a shadow DOM for
+    //this to work
+    var origNode = null;
+    var shadowNode = libxEnv.xpath.shadowDOM.selectSingleNode(xpathexpr);
+
+    if (null != shadowNode) {
+        var shadowAttribute = shadowNode.getAttribute("id");
+        var origNode = libxEnv.xpath.shadowToOrigDOMMap[shadowAttribute];
+    }
+    return origNode;
+}
+
+libxEnv.xpath.findNodesXML = function (doc, xpathexpr, root) {
+    if (undefined == root)
+        return doc.selectNodes(xpathexpr);
+    else
+        return root.selectNodes(xpathexpr);
 }
 
 libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
-    return doc.selectNodes(xpathexpr);
+
+    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ANY_TYPE, null);
+    if (r == null) return null;
+
+    switch (r.resultType) {
+        case XPathResult.BOOLEAN_TYPE:
+            return r.booleanValue;
+        case XPathResult.STRING_TYPE:
+            return r.stringValue;
+        case XPathResult.NUMBER_TYPE:
+            return r.numberValue;
+        case XPathResult.UNORDERED_NODE_ITERATOR_TYPE:
+            var rr = new Array();
+            var n;
+            while ((n = r.iterateNext()) != null)
+                rr.push(n);
+            return rr;
+        default:
+            libxEnv.writeLog("unknown resultType: " + r.resultType, libxEnv.logTypes.xpath);
+            return null;
+    }
+    
+    //Code that uses shadowDOM.
+    var shadowNodes = libxEnv.xpath.shadowDOM.selectNodes(xpathexpr);
+    var origNodes = new Array();
+
+    for (var ctr = 0; ctr < shadowNodes.length; ++ ctr) {
+        var shadowAttribute = shadowNodes[ctr].getAttribute("id");
+        var origNode = libxEnv.xpath.shadowToOrigDOMMap[shadowAttribute];
+        origNodes.push(origNode);
+    }
+    return origNodes;
 }
 
 libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
-    libxEnv.writeLog("Warning: xpath.findSnapshot not implemented in IE!");
-    return null;
+    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    if (r == null) return null;
+
+    var rr = new Array();
+    for (var i = 0; i < r.snapshotLength; i++) {
+        rr.push(r.snapshotItem(i));
+    }
+    return rr;
 }
 
 //Get remote text functions///////////////////////////////////////////////////
@@ -608,6 +846,7 @@ libxEnv.getOCLCPref = function() {
     return false;       // OCLC support not implemented in LibX IE
 };
 
+
 libxEnv.getDFUPref = function() {
     return libxInterface.getDFUPreference(true);
 }
@@ -620,6 +859,7 @@ libxEnv.getAutolinkPref = function() {
 libxEnv.getCiteulikePref = function () {
 	return false;
 }
+
 
 //GUI functions///////////////////////////////////////////////////////////////
 /*
@@ -677,4 +917,4 @@ libxEnv.urlBarIcon.prototype = {
 libxEnv.eventDispatcher.init = function  () {
 	// Int for onContentChange
     //
-} 
+}

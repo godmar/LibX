@@ -135,7 +135,7 @@ function libxInitializeCatalog(doc, node)
     
     doc.copyAttributes( node, cat ); 
         
-    var xisbnNode = libxEnv.xpath.findSingle ( doc.xml, "xisbn", node );
+    var xisbnNode = libxEnv.xpath.findSingleXML ( doc.xml, "xisbn", node );
     if ( xisbnNode ) {
         /* Most catalogs will inherit the xisbn property from their prototype,
          * but since the xisbn settings can be overridden on a per catalog basis,
@@ -183,7 +183,7 @@ function libxInitializeCatalogs()
     }
 
     /* Build all catalogs into searchCatalogs */
-    var xmlCatalogs = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
+    var xmlCatalogs = libxEnv.xpath.findNodesXML(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
     libxEnv.writeLog("Found " + xmlCatalogs.length + " catalogs.");
     var addcatno;
     for ( addcatno = 0; 
@@ -221,15 +221,26 @@ function libxInit()
       xpath: 'XPath'
     };
 
+    //Set browser version variable
+    libxEnv.browserType = new Object();
+    var ieRegEx = new RegExp("Microsoft Internet Explorer");
+    var mozRegEx = new RegExp("Netscape");
+
+    if (ieRegEx.test(navigator.appName)) {
+        libxEnv.browserType.ie = true;
+    }
+    else if (mozRegEx.test(navigator.appName)) {
+        libxEnv.browserType.moz = true;
+    }
+
     libxInitSearchOptions();
     libxEnv.initializeGUI();
     libxInitializeOpenURL();
     libxInitializeCatalogs();
     libxProxyInit();
     libxEnv.initializeContextMenu();
-    libxEnv.eventDispatcher.init();
     libxEnv.init();
-    libxEnv.citeulike();
+
 	/**
 	 * helper function that creates the cue logo to be inserted
 	 * make the equivalent of this html:
@@ -365,6 +376,11 @@ function libxInit()
 
         }
     }
+
+    libxEnv.eventDispatcher.init();
+    libxEnv.citeulike();
+
+    
 }
 
 function libxInitSearchOptions() {
@@ -392,7 +408,7 @@ function libxInitSearchOptions() {
 function libxProxyInit() {
     libxConfig.proxy = new Array();
     
-    var pnodes = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, '/edition/proxy/*');
+    var pnodes = libxEnv.xpath.findNodesXML(libxEnv.xmlDoc.xml, '/edition/proxy/*');
 
     libxConfig.numProxy = pnodes.length;
     for ( var i = 0; i < pnodes.length; i++ ) {
@@ -458,44 +474,6 @@ function extractSearchFields() {
 	return fields;
 }
 
-
-
-/*
- * Creates a URL Bar icon and hides/shows based on whether or not posting to CiteULike is supported
- * from a given website
- */
-libxEnv.citeulike = function  ()  {
-    this.icon = new libxEnv.urlBarIcon();
-    this.icon.setHidden ( true );
-    this.icon.setImage ( "chrome://libx/skin/citeulike.ico" );
-    this.icon.setOnclick ( function  (e) {
-        var contentWindow = libxEnv.getCurrentWindowContent();
-        var url = contentWindow.location.href;
-        var title = contentWindow.document.title;
-        libxEnv.openSearchWindow("http://www.citeulike.org/posturl?url=" 
-            + encodeURIComponent(url) 
-            + "&title=" + encodeURIComponent(title), 
-            /* do not uri encode */true, "libx.sametab");
-    } );
-    this.icon.setTooltipText ( libxEnv.getProperty ( "citeulike.tooltiptext" ) );
-    
-    libxEnv.eventDispatcher.addEventListener( "onContentChange", function ( e, args ) {
-        var contentWindow = libxEnv.getCurrentWindowContent();
-        var url = contentWindow.location.href;
-        var icon = args.icon;
-            citeulike.canpost(url, function ( url, reg ) {
-            libxEnv.writeLog ( "Enabled: " + url, "citeulike" );
-            icon.setHidden ( libxEnv.getBoolPref ( 'libx.urlbar.citeulike', true ) ? 'false' : 'true' );    
-        }, function ( url ) {
-            libxEnv.writeLog ( "Disabled: " + url, "citeulike" );
-            icon.setHidden ( 'true' );
-        });
-    }, { icon: this.icon } );
-	
-}
-
-
-
 /*
  * Designed to extended to implement events that we commonly re-use, but are not provided
  * natively ( or to combine multiple events together )
@@ -518,6 +496,40 @@ libxEnv.eventDispatcher = {
             this[libxtype] = new Array();    
         this[libxtype].push({funct: listener, args: args});
     }
+};
+
+/*
+ * Creates a URL Bar icon and hides/shows based on whether or not posting to CiteULike is supported
+ * from a given website
+ */
+libxEnv.citeulike = function  ()  {
+    this.icon = new libxEnv.urlBarIcon();
+    this.icon.setHidden ( true );
+    this.icon.setImage ( "chrome://libx/skin/citeulike.ico" );
+    this.icon.setOnclick ( function  (e) {
+        var contentWindow = libxEnv.getCurrentWindowContent();
+        var url = contentWindow.location.href;
+        var title = contentWindow.document.title;
+        libxEnv.openSearchWindow("http://www.citeulike.org/posturl?url=" 
+            + encodeURIComponent(url) 
+            + "&title=" + encodeURIComponent(title), 
+            /* do not uri encode */true, "libx.sametab");
+    } );
+    this.icon.setTooltipText ( libxEnv.getProperty ( "citeulike.tooltiptext" ) );
+
+    libxEnv.eventDispatcher.addEventListener( "onContentChange", function ( e, args ) {
+        var contentWindow = libxEnv.getCurrentWindowContent();
+        var url = contentWindow.location.href;
+        var icon = args.icon;
+            citeulike.canpost(url, function ( url, reg ) {
+            libxEnv.writeLog ( "Enabled: " + url, "citeulike" );
+            icon.setHidden ( libxEnv.getBoolPref ( 'libx.urlbar.citeulike', true ) ? 'false' : 'true' );    
+        }, function ( url ) {
+            libxEnv.writeLog ( "Disabled: " + url, "citeulike" );
+            icon.setHidden ( 'true' );
+        });
+    }, { icon: this.icon } );
+	
 }
 
 // vim: ts=4
