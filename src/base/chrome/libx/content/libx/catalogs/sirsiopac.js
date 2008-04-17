@@ -29,6 +29,7 @@ SirsiOPAC.prototype = new libxCatalog();
 libxAddToPrototype(SirsiOPAC.prototype, {
     path: "/uhtbin/cgisirsi/x/0/0/5/",
     searchscope: 1,
+    doNotURIEncode: true,
     xisbn: { opacid: "sirsi6" },
 /*
       <option value="GENERAL^SUBJECT^GENERAL^^keywords anywhere">keyword anywhere</option>
@@ -98,14 +99,14 @@ libxAddToPrototype(SirsiOPAC.prototype, {
         return "";
     },
 	makeSearch: function(stype, sterm) {
-        return this.url + this.path + "?searchdata1=" + sterm + this.convert(stype)
+        return this.url + this.path + "?searchdata1=" + encodeURIComponent(sterm) + this.convert(stype)
             + this.scopeField() + this.sortField() + this.userId();
 	},
 	makeAdvancedSearch: function(fields) {
         var url = this.url + this.path + "?";
 		for (var i = 0; i < fields.length; i++) {
 			url += "srchfield" + (i+1) + "=" + this.convert2(fields[i].searchType) 
-                + "&searchdata" + (i+1) + "=" + fields[i].searchTerms;
+                + "&searchdata" + (i+1) + "=" + encodeURIComponent(fields[i].searchTerms);
             if (i < fields.length - 1) {
                 url += "&searchoper" + (i+1) + "=AND&";
             }
