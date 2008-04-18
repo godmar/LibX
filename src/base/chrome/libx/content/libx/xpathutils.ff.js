@@ -36,7 +36,7 @@ libxEnv.xpath = new Object();
 // namespaceResolver is a function that returns a name space based on a prefix.
 
 libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root, namespaceresolver) {
-    libxEnv.xpath.findSingle(doc, xpathexpr, root, namespaceresolver);
+    return libxEnv.xpath.findSingle(doc, xpathexpr, root, namespaceresolver);
 }
 
 libxEnv.xpath.findSingle = function (doc, xpathexpr, root, namespaceresolver) {
@@ -46,7 +46,7 @@ libxEnv.xpath.findSingle = function (doc, xpathexpr, root, namespaceresolver) {
 }
 
 libxEnv.xpath.findNodesXML = function (doc, xpathexpr, root, namespaceresolver) {
-    libxEnv.xpath.findNodes(doc, xpathexpr, root, namespaceresolver);
+    return libxEnv.xpath.findNodes(doc, xpathexpr, root, namespaceresolver);
 }
 
 libxEnv.xpath.findNodes = function (doc, xpathexpr, root, namespaceresolver) {
