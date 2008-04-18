@@ -30,6 +30,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
     // default values for millenium catalogs
     sort: 'R',  //sort by relevance, use 'D' for date
     searchform: 1,
+    doNotURIEncode: true,
     advancedcode: 'X',
     keywordcode: 'Y',
     journaltitlecode: 't',
@@ -67,13 +68,13 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
 
         switch (this.searchform) {
         case 1:
-            query += stype + "?" + sterm;
+            query += stype + "?" + encodeURIComponent(sterm);
             break;
         case 2:
-            query += stype + "?SEARCH=" + sterm;
+            query += stype + "?SEARCH=" + encodeURIComponent(sterm);
             break;
         case 3:
-            query += "?/searchtype=" + stype + "&searcharg=" + sterm;
+            query += "?/searchtype=" + stype + "&searcharg=" + encodeURIComponent(sterm);
             break;
         }
 
@@ -85,10 +86,10 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
 	makeAdvancedSearch: function(fields) {
 		var url = this.url + "/search"  + this.language + "/" 
                 + this.advancedcode + "?SEARCH=";
-		url += this.normalizeSearchType(fields[0].searchType) + ":(" + fields[0].searchTerms + ")";
+		url += this.normalizeSearchType(fields[0].searchType) + ":(" + encodeURIComponent(fields[0].searchTerms) + ")";
 		for (var i = 1; i < fields.length; i++) {
 			url += "+and+" + this.normalizeSearchType(fields[i].searchType) 
-                            + ":(" + fields[i].searchTerms + ")"; 
+                            + ":(" + encodeURIComponent(fields[i].searchTerms) + ")"; 
 		}
         url += (this.searchscope != null ? "&searchscope=" + this.searchscope : "");
 		url += "&SORT=" + this.sort;
