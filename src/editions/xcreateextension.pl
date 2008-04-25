@@ -9,7 +9,7 @@ use Cwd;
 # Create an edition based on its XML file
 #
 my $config_xml = "config.xml";
-my $httpeditionpath = "http://top.cs.vt.edu/editions/";
+my $httpeditionpath = "http://www.libx.org/editions/";
 # http URL to directory containing LibXIE dll files
 my $libxiedllurl="http://libx.org/libx/src/editions/LibXIE";
 
@@ -18,8 +18,7 @@ my $libxiedllpath="./LibXIE";
 -d $libxiedllpath || die "DLL directory $libxiedllpath does not exist";
 
 # directory that contains key3.db
-#my $keydirectory = "/opt/libx/libxprivatekey";
-my $keydirectory = "./libxprivatekey";
+my $keydirectory = "/home/www/libxprivatekey";
 my $libxextid = "urn:mozilla:extension:{d75de36c-af0d-4dc2-b63a-0d482d4b9815}";
 
 # from http://hyperstruct.net/projects/spock
@@ -310,9 +309,6 @@ system("touch $editionpath/uses_xml_config") == 0 || die "touch failed";
 # add hash to and sign update.rdf
 if ($localbuild eq "") {
     -x $spockexe || die "$spockexe does not exist or is not executable.";
-    #system("$spockexe -d $keydirectory -i \"$libxextid\" -f $editionpath/$xpifile"
-    #print "Attempting to run spock command as follows\n";
-    print "$spockexe -d $keydirectory -i \"$libxextid\" -f $editionpath$xpifile\n";
     system("$spockexe -d $keydirectory -i \"$libxextid\" -f $editionpath$xpifile"
         . " $tmpdir/update.rdf > $editionpath/update.rdf") == 0
         || die "could not run spock to sign update.rdf: $!";
