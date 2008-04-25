@@ -115,53 +115,8 @@ Section "Pre-Install Download" SEC00
   CreateDirectory "$INSTDIR\en-US"
   CreateDirectory "$INSTDIR\ja"
 
-  # MS XML 6 section ################################################
-  
-  # Check to see if we have MSXML6
-  IfFileExists "$SYSDIR\msxml6.dll" +6
-    Push "$TEMP"
-    Push "msxml6.msi"
-    Call getDependency # Download installer to temp dir
-    nsExec::ExecToLog 'msiexec /quiet /i "$TEMP\msxml6.msi"' # Install
-    Delete "$TEMP\msxml6.msi" # Clean up
-
-  # Other dependencies section ######################################
-
-  # Check to see if we have the dependency files already
-  Push "$INSTDIR"
-  Push "ActivScp.dll"
-  Call getDependency
-
-  Push "$INSTDIR"
-  Push "Interop.SHDocVw.dll"
-  Call getDependency
-
-  Push "$INSTDIR"
-  Push "Interop.MSXML2.dll"
-  Call getDependency
-  
-  Push "$INSTDIR"
-  Push "Microsoft.mshtml.dll"
-  Call getDependency
-
-  Push "$INSTDIR"
-  Push "stdole.dll"
-  Call getDependency
-
-  Push "$INSTDIR"
-  Push "GACMeUp.exe"
-  Call getDependency
-  
-  Push "$INSTDIR\"
-  Push "en-US"
-  Push "LibXIE.resources.dll"
-  Call getResource
-  
-  Push "$INSTDIR"
-  Push "ja"
-  Push "LibXIE.resources.dll"
-  Call getResource
-SectionEnd
+$downloadinstall$
+  SectionEnd
 
 Section "LibX Core" SEC01
   SetOverwrite ifdiff
@@ -171,6 +126,8 @@ Section "LibX Core" SEC01
   # Needed to register assemblies
   File "${DLL_PATH}Register.bat"
   File "${DLL_PATH}Unregister.bat"
+
+$fullinstall$
 SectionEnd
 
 Section "LibX JavaScript" SEC02
