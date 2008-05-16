@@ -120,7 +120,7 @@ var VariableReference;
  */
 var uai = new function() {
 
-    var ua = navigator.userAgent;
+    var ua = window.navigator.userAgent; 
 
     if (RegExp == undefined) {
         if (ua.indexOf("Opera") >= 0) {
@@ -197,7 +197,7 @@ var uai = new function() {
         /* for Gecko */
         else if (typeof Components == "object" &&
                  (/Gecko\/(\d{8})/.test(ua) ||
-                  navigator.product == "Gecko" && /^(\d{8})$/.test(navigator.productSub))) {
+                  window.navigator.product == "Gecko" && /^(\d{8})$/.test(window.navigator.productSub))) {
             this.gecko = RegExp.$1;
         }
 

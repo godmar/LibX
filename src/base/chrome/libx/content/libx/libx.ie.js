@@ -33,8 +33,6 @@
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
  
-//var libxEnv = new Object();
-  
 libxEnv.init = function() {
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();

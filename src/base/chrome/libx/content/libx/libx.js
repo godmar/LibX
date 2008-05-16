@@ -226,10 +226,10 @@ function libxInit()
     var ieRegEx = new RegExp("Microsoft Internet Explorer");
     var mozRegEx = new RegExp("Netscape");
 
-    if (ieRegEx.test(navigator.appName)) {
+    if (ieRegEx.test(window.navigator.appName)) {
         libxEnv.browserType.ie = true;
     }
-    else if (mozRegEx.test(navigator.appName)) {
+    else if (mozRegEx.test(window.navigator.appName)) {
         libxEnv.browserType.moz = true;
     }
 

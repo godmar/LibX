@@ -6,15 +6,13 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * $Date: 2008/04/12 00:03:14 $
+ * $Date: 2008/05/16 17:53:18 $
  * $Rev: 4663 $
  */
 
-//LIBX CHANGE we will no longer do this since jQuery will be part of the
-//libXEnv object
 // Map over jQuery in case of overwrite
-//if ( window.jQuery ) 
-//	var _jQuery = window.jQuery;
+if ( window.jQuery ) 
+	var _jQuery = window.jQuery;
 
 var jQuery = function( selector, context ) {
 //LIBX CHANGE var jQuery = window.jQuery = function( selector, context ) {
@@ -22,16 +20,13 @@ var jQuery = function( selector, context ) {
 	return new jQuery.prototype.init( selector, context );
 };
 
-//LIBX CHANGE we will no longer do this since jQuery will be part of the
-//libxEnv object
 // Map over the $ in case of overwrite
-//if ( window.$ )
-//	var _$ = window.$;
+if ( window.$ )
+	var _$ = window.$;
 	
 // Map the jQuery namespace to the '$' one
 //LIBX CHANGE window.$ = jQuery;
-//$ = jQuery;
-libxEnv.$ = jQuery;
+$ = jQuery;
 
 // A simple way to check for HTML strings or ID strings
 // (both of which we optimize for)
@@ -622,15 +617,12 @@ var exclude = /z-?index|font-?weight|opacity|zoom|line-?height/i;
 
 jQuery.extend({
 	noConflict: function( deep ) {
-        //LIBX CHANGE: commented out since original $ and _jQuery were never
-        //assigned due to changes at beginning of file
-		//window.$ = _$;
+		window.$ = _$;
 
-		//if ( deep ) {
-		//	//LIBX CHANGE: window.jQuery = _jQuery;
-        //    jQuery = _jQuery;
-        //}
-		return libxEnv.jQuery;
+		if ( deep )
+			window.jQuery = _jQuery;
+
+		return jQuery;
 	},
 
 	// See test/unit/core.js for details concerning this function.
@@ -1220,7 +1212,7 @@ jQuery.extend({
 	}
 });
 
-var userAgent = navigator.userAgent.toLowerCase();
+var userAgent = window.navigator.userAgent.toLowerCase();
 
 // Figure out what browser is being used
 jQuery.browser = {
@@ -2710,7 +2702,7 @@ jQuery.extend({
 				
 				// clear poll interval
 				if (ival) {
-					clearInterval(ival);
+					window.clearInterval(ival);
 					ival = null;
 				}
 				
@@ -2757,7 +2749,7 @@ jQuery.extend({
 		
 		if ( s.async ) {
 			// don't attach the handler to the request, just poll it instead
-			var ival = setInterval(onreadystatechange, 13); 
+			var ival = window.setInterval(onreadystatechange, 13); 
 
 			// Timeout checker
 			if ( s.timeout > 0 )
@@ -2956,7 +2948,7 @@ jQuery.fn.extend({
 	},
 	
 	fadeIn: function(speed, callback){
-		return this.animate({opacity: "show"}, speed, callback);
+        return this.animate({opacity: "show"}, speed, callback);
 	},
 	
 	fadeOut: function(speed, callback){
@@ -3197,7 +3189,7 @@ jQuery.fx.prototype = {
 		jQuery.timers.push(t);
 
 		if ( jQuery.timerId == null ) {
-			jQuery.timerId = setInterval(function(){
+			jQuery.timerId = window.setInterval(function(){
 				var timers = jQuery.timers;
 				
 				for ( var i = 0; i < timers.length; i++ )
@@ -3205,7 +3197,7 @@ jQuery.fx.prototype = {
 						timers.splice(i--, 1);
 
 				if ( !timers.length ) {
-					clearInterval( jQuery.timerId );
+					window.clearInterval( jQuery.timerId );
 					jQuery.timerId = null;
 				}
 			}, 13);
