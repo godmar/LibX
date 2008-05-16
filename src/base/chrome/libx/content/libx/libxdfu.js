@@ -264,7 +264,7 @@ new DoForURL(/books.\google\.com\/books/, function (doc) {
     var n = libxEnv.xpath.findNodes(doc, "//a[contains(@href,'editions:ISBN')]");
     for (var i = 0; i < n.length; i++) {
         var ilink = n[i].getAttribute('href');
-        var m = ilink.match(/editions:ISBN(\d{10,13})&/);
+        var m = ilink.match(/editions:ISBN(\d{9,12}(\d|x))&/i);
         if (m) {
             var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]], libraryCatalog),
                     libraryCatalog.linkByISBN(m[1]));
