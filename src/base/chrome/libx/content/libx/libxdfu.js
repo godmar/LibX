@@ -51,10 +51,14 @@ function doAmazon(doc, match) {
     // extract ISBN from text <b>ISBN-10:</b>
     var isbnLabel = libxEnv.xpath.findSingle(doc, "//b[contains(text(), 'ISBN')]");
     var isbn = isISBN(isbnLabel.nextSibling.textContent);
-    var booktitle = libxEnv.xpath.findSingle(doc, "//div[@class='buying']/b[@class='sans']");
+    // new form, as of May 23, 2008
+    var booktitle = libxEnv.xpath.findSingle(doc, "//div[@class='buying']//span[@id='btAsinTitle']");
     if (booktitle == null) {
-        // new form, as of Apr 2, 2008
+        // try older forms
         booktitle = libxEnv.xpath.findSingle(doc, "//div[@class='buying']/b[@class='asinTitle']");
+        if (booktitle == null) {
+            booktitle = libxEnv.xpath.findSingle(doc, "//div[@class='buying']/b[@class='sans']");
+        }
     }
 
     // make link and insert after title
