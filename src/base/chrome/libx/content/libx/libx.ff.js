@@ -59,7 +59,21 @@ libxEnv.init = function() {
 
 	libxInitializeDFU();
     libxEnv.hoverInit();
+    
+    if ( libxEnv.getBoolPref ( 'libx.firstrun', true ) ) {
+    	// Set Timeout of 1 to run after firefox has finished initializing
+    	// * Same approach as Google Toolbar
+    	setTimeout ( 
+    	function () {
+			window.openDialog ( "chrome://libx/content/firstrun.xul", 
+        	"LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
+        	{toolbar: document.getElementById ( 'libx-toolbar' ) }
+    		); 
+    	}, 1 );
+    	libxEnv.setBoolPref ( 'libx.firstrun', false );
+    }
 }
+
 
 /* Invoked when hotkey for visibility is pressed. 
  * Returns true if toolbar is not collapsed.
