@@ -57,9 +57,9 @@ function doAmazon(doc, match) {
 
     var isbn = isISBN(isbnVal);
 
-    var booktitleNodeArray = $("div.buying > b.sans, div.buying > b.asinTitle");
+    var booktitleNodeArray = $("div.buying > h1.parseasinTitle > span#btAsinTitle");
 
-    if (0 == booktitleNodeArray.length)
+    if (0 == booktitleNodeArray.length) 
         return;
 
     var booktitleNode = booktitleNodeArray[0];
