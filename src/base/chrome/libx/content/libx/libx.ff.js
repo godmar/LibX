@@ -494,7 +494,10 @@ libxEnv.ff.addSearchField = function () {
 		lastSearchField.childNodes.item(3).disabled=false; // OPTIONAL: show close button in first search field
 		newSearchField.childNodes.item(3).disabled=false; // if so, the second field must have the close button enabled
 	}
-	newSearchField.firstChild.nextSibling.firstChild.value = "";
+
+    // use setAttribute instead of setting property directly to avoid
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=433544
+	newSearchField.firstChild.nextSibling.firstChild.setAttribute("value", "");
 	libxSearchFieldVbox.appendChild(newSearchField);
 
     // provide the next option from the list as a default
