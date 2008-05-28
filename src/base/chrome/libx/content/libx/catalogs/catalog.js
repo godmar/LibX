@@ -148,7 +148,7 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         }
 
         /* Example of URL that uses %SWITCH statement and %termN:
-            $catalog1.catalog.url=http://www.lib.umich.edu/ejournals/ejsearch.php?searchBy=%SWITCH{%type1}{t:KT}{d:KS}{sot:TV}{soi:IV}&AVterm1=%term1&Cnect2=AND&AVterm2=%term2&Cnect3=AND&AVterm3=%term3&New=All&submit=Find
+            url="http://www.lib.umich.edu/ejournals/ejsearch.php?searchBy=%SWITCH{%type1}{t:KT}{d:KS}{sot:TV}{soi:IV}&AVterm1=%term1&Cnect2=AND&AVterm2=%term2&Cnect3=AND&AVterm3=%term3&New=All&submit=Find"
         */
         var swtch;
         var swtchre = /%SWITCH\{(%[a-z0-9]+)\}\{(([^}]+(\}\{)?)+)}/i;
@@ -187,9 +187,21 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         // clear out remaining %termN
         argtemplate = argtemplate.replace(/%term\d+/g, "");
 
-        // replace %X as with terms
+        // combine all search fields that share same type
+        var searchField2Term = { };
         for (var i = 0; i < fields.length; i++) {
-           argtemplate = argtemplate.replace("%" + fields[i].searchType, encodeURIComponent(fields[i].searchTerms));
+            with (fields[i]) {
+                if (searchType in searchField2Term) {
+                    searchField2Term[searchType] += " " + searchTerms;
+                } else {
+                    searchField2Term[searchType] = searchTerms;
+                }
+            }
+        }
+
+        // replace %X with terms
+        for (var stype in searchField2Term) {
+           argtemplate = argtemplate.replace("%" + stype, encodeURIComponent(searchField2Term[stype]));
         }
 
         // clear out other %values if defined
