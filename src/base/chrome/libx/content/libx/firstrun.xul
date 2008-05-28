@@ -30,6 +30,7 @@
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
     id="libx-firstrun-dialog" title="LibX Initial Configuration" 
+    buttons="accept"
     orient="vertical" 
     >
     
