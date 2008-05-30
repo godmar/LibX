@@ -199,6 +199,33 @@ libxAddToPrototype(libxBookmarklet.prototype, {
             }
         }
 
+        /*
+         * Process JOIN statement has the form %JOIN{JOINEXPR}{code|VALUE with %code}*
+         * Replaces {code|VALUE with %code} with either empty (if %code is not included)
+         * or to "VALUE with %code" if not.  Uses "JOINEXPR" as a connector a la 'join'.
+         * Example:
+         *
+         * options="Y;t;a" 
+         * url="http://ezproxy.lib.vt.edu:8080/login?url=http://firstsearch.oclc.org/dbname=WorldCat;FSIP;query=%JOIN{%20and%20}{Y|kw%3A%Y}{t|ti%3A%t}{a|au%3A%a}" 
+         */
+        var join;
+        var joinre = /%JOIN{(([^}]+(\}\{)?)+)}/i;
+        while ((join = argtemplate.match(joinre)) != null) {
+            var caseargs = join[1].split("}{");
+            var joiner = caseargs[0];
+            var repl = "";
+            for (var i = 1; i < caseargs.length; i++) {
+                var ca = caseargs[i].split("|");
+                if (searchField2Term[ca[0]]) {
+                    if (repl != "")
+                        repl += joiner;
+
+                    repl += ca[1];
+                }
+            }
+            argtemplate = argtemplate.replace(joinre, repl);
+        }
+
         // replace %X with terms
         for (var stype in searchField2Term) {
            argtemplate = argtemplate.replace("%" + stype, encodeURIComponent(searchField2Term[stype]));
