@@ -87,9 +87,15 @@ window.addEventListener ( "load",
 	        <label style="font-weight:bold;" value="&libx.firstrun.title;" /> 
 	        <spacer flex="1" />
 	        <label style="text-decoration:underline" value="&libx.firstrun.privacy.line1;" />
-	        <label value="&libx.firstrun.privacy.line2;" /> 
-	        <label value="&libx.firstrun.privacy.line3;" />
-	        <label value="&libx.firstrun.privacy.line4;" />
+	        <!--
+	            Multi-line textbox solution taken from
+	              http://xulsolutions.blogspot.com/2006/07/how-to-handle-text-and-keep-your.html
+	          -->
+	        <textbox class="plain" style="background-color: transparent;" width="350"
+              multiline="true" readonly="true"
+              onoverflow="this.height = this.inputField.scrollHeight;"
+              DOMAttrModified="if(event.attrName == 'value') this.value = event.newValue; return true;"
+              value="&libx.firstrun.privacy.text;" />
 	    </vbox>
         </hbox>
         <!-- Groupbox for Enabling/Disabling AJAX options --> 
@@ -100,8 +106,11 @@ window.addEventListener ( "load",
     	    <checkbox id="libx-oclc-ajax-checkbox" label="&libx.firstrun.privacy.oclclabel;"  
     	        tooltip="&libx.firstrun.privacy.oclctooltip;" />
     	</groupbox>
-    	<label value="&libx.firstrun.toolbar.line1;" />
-        <label value="&libx.firstrun.toolbar.line2;" />
+    	<textbox class="plain" style="background-color: transparent;" width="400"
+              multiline="true" readonly="true"
+              onoverflow="this.height = this.inputField.scrollHeight;"
+              DOMAttrModified="if(event.attrName == 'value') this.value = event.newValue; return true;"
+              value="&libx.firstrun.toolbar.text;" />
         <!-- Groupbox for Enabling/Disabling Toolbar -->
         <groupbox>
         	<caption label="&libx.firstrun.toolbar.groupboxlabel;" />
