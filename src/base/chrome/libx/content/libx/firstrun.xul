@@ -82,11 +82,11 @@ window.addEventListener ( "load",
         <vbox>
     		<image id="libx-aboutbox-image" src="$logoURL$" style="float:right" />
     	</vbox>
-    	
+    	<vbox width="4px" />
     	<vbox align="bottom">
 	        <label style="font-weight:bold;" value="&libx.firstrun.title;" /> 
 	        <spacer flex="1" />
-	        <label style="text-decoration:underline" value="&libx.firstrun.privacy.line1;" />
+	        <label style="text-decoration:underline" value="&libx.firstrun.privacy.title;" />
 	        <!--
 	            Multi-line textbox solution taken from
 	              http://xulsolutions.blogspot.com/2006/07/how-to-handle-text-and-keep-your.html
