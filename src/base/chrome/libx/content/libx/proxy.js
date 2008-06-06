@@ -50,7 +50,7 @@ libxEZProxy.prototype = {
             );
         libxEnv.getXMLDocument(purl, function (xmlhttp) {
             if (xmlhttp.status == 200) {
-                var resp = libxEnv.xpath.findSingle(xmlhttp.responseXML, 
+                var resp = libxEnv.xpath.findSingleXML(xmlhttp.responseXML, 
                                                     "/proxy_url_response/proxy_urls/url[1]");
                 if (resp != null && libxNormalizeOption(resp.getAttribute("proxy"))) {
                     okcallback(true, cbdata);

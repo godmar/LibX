@@ -16,10 +16,7 @@ new libxEnv.doforurls.DoForURL(/\.alibris\.com\//, function (doc, match) {
 		toShowJQ = $(isbnLink).after(cue);
         //    toShowJQ = libxEnv.$(isbnLink).next().before(cue);
             $(isbnLink).next().after(doc.createTextNode(" "));
-
-            $(cue).hide();
-            //fade in over 10 seconds.
-            $(cue).fadeIn(10000);
+            animateCue(isbnLink);
         }
     }
 });

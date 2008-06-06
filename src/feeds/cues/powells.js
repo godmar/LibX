@@ -22,16 +22,15 @@ function powellsComByISBN(doc, m)
 
 	if (titleLabel) {
         var link = libxEnv.makeLink(doc, 
-                libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                libraryCatalog.linkByISBN(isbn), libraryCatalog);
-        // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
-		//right of title use this: titleLabel.appendChild(link);
-	//titleLabel.after( link );
-	titleLabel.prepend( link );
-       	$(link).show();
-	$(link).fadeOut("slow");
-	$(link).fadeIn("slow");
-        }
+            libxEnv.getProperty("isbnsearch.label", 
+            [libraryCatalog.name, isbn]), 
+            libraryCatalog.linkByISBN(isbn), libraryCatalog);
+            // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
+	    	//right of title use this: titleLabel.appendChild(link);
+	        //titleLabel.after( link );
+	    titleLabel.prepend( link );
+        animateCue(link);
+    }
 }
 new libxEnv.doforurls.DoForURL(
 	/(\/\/|\.)powells\.com\/biblio\/\d*\-?((\d|x){13})\-?\d*/i, 

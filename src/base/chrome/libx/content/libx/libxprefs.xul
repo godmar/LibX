@@ -42,13 +42,18 @@
     <script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/hash.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/fileCache.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/doforurl.js" />
     <script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
     <script type="application/x-javascript" src="chrome://libx/content/libxprefs.js" />
         <script type="application/x-javascript">
 <![CDATA[
-window.addEventListener ( "load", function () { setVersion(); }, false );
+window.addEventListener ( "load", function () { setVersion(); libxEnv.displayLastUpdateDate(); libxEnv.displayLastModifieds();}, false );
+
+//libxEnv.doforurls = new libxEnv.doforurlClass();
 
 function setVersion() {
     libxInitializeProperties();
@@ -67,6 +72,43 @@ function setVersion() {
         document.getElementById("adaptedbybox").setAttribute("hidden", true);
     }
 }
+
+libxEnv.displayLastUpdateDate = function()
+{
+    document.getElementById("last-update-date").setAttribute("value",
+        new Date(libxEnv.getUnicharPref( "libx.lastupdate" )) );
+}
+
+libxEnv.displayLastModifieds = function()
+{
+     var rootInfo = libxEnv.doforurls.getRootInfo();
+     for ( var i = 0; i < rootInfo.length; i++ )
+     {
+        var temp1 = document.getElementById( rootInfo[i].url );
+        var found = true;
+        if ( !temp1 )
+        {
+            found = false;
+            temp = document.createElement( "label" );
+            temp1 = document.createElement( "label" );
+            temp2 = document.createElement( "label" );
+            temp1.setAttribute("id", rootInfo[i].url );
+            temp.setAttribute("value", rootInfo[i].url );
+            temp2.setAttribute("value", "" );
+        }
+        temp1.setAttribute("value", "   Last Modified: " + rootInfo[i].lastMod );
+        if ( !found )
+        {
+            var parent = document.getElementById("libx-cue-versions");
+            if ( parent )
+            {
+               parent.appendChild( temp );
+               parent.appendChild( temp1 );
+               parent.appendChild( temp2 );
+            }
+        }
+     }
+}
 ]]>
     </script>
     
@@ -76,6 +118,7 @@ function setVersion() {
                 <tab id="libxGeneral" label="General Preferences" />
                 <tab id="libxContext" label="Context Menu" />
                 <tab id="libxAJAX" label="AJAX Options" />
+                <tab id="libxFeeds" label="Cue Options" />
                 <tab id="libxAbout" label="About" />
             </tabs>
             <tabpanels flex="1">
@@ -179,6 +222,19 @@ function setVersion() {
                          <caption label="OCLC AJAX Options" />
                          <checkbox id="libx-oclc-ajax-checkbox" label="Contact OCLC for metadata about ISBN etc." />
                      </groupbox>
+                </tabpanel>
+                <tabpanel id="libx-feed-tab" orient="vertical">
+                    <groupbox orient="vertical">
+                        <caption label="Cue update Preferences" />
+                        <label value="Last Update was: " />
+                        <label id="last-update-date" value="This will be replaced by date" />
+                        <label value="" />
+                        <button label="Update Cues" tooltiptext="Updates all cues" oncommand="libxEnv.doforurls.updateDoforurls();" />
+                    </groupbox>
+                    <groupbox id="libx-cue-versions" orient="vertical">
+                        <caption label="Cue Version Information" />
+                        <label value="" />
+                    </groupbox>
                 </tabpanel>
                 <tabpanel id="libx-about-tab" >
                     <vbox id="libx-about-details">

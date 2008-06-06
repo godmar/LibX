@@ -43,9 +43,12 @@ var libxTrees;
 /* Initializes the preferences window
  */
 function initPrefWindow() {
+
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
 
+    libxEnv.doforurls = new libxEnv.doforurlClass();
+    
     libxInitializeProperties();
     libxEnv.initPrefsGUI();
 }

@@ -20,8 +20,6 @@ function(doc) {
                     libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
                     libraryCatalog.linkByISBN(isbn), libraryCatalog);
         anode.parentNode.insertBefore(hint, anode.nextSibling);
-        $(hint).show();
-	$(hint).fadeOut("slow");
-        $(hint).fadeIn("slow");
+        animateCue(hint);
     }
 });

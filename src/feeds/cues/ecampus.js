@@ -14,7 +14,5 @@ function (doc, match) {
         return;
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
     origISBNNode.appendChild(link);
-    $(link).show();
-    $(link).fadeOut("slow");
-    $(link).fadeIn("slow");
+    animateCue(link);
 });

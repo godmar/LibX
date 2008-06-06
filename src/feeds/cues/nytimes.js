@@ -1,15 +1,12 @@
 // --------------------------------------------------------------------------------------------------
 // book review pages on the NY Times website
 // link book title to catalog via title
-var nytimesAction = new libxEnv.doforurls.DoForURL(/nytimes\.com.*books/, doNyTimes);
-
 function doNyTimes(doc) {
     var n = new Array();
     
     //Try a couple of queries
     var archiveN = $("div[id='sectionPromo'] strong");
     var n = $("div.sectionPromo h4, div[id='sectionPromo'] h4");
-
     if (0 < archiveN.length) {
         //We found an older version of the page, so handle getting information here
         // see <http://www.nytimes.com/2005/05/15/books/review/15HOLTL.html>
@@ -58,11 +55,7 @@ function doNyTimes(doc) {
         var spacer = archiveNNext[0].insertBefore(doc.createTextNode(" "), authorNode);
 
         archiveNNext[0].insertBefore(link, spacer);
-	$(link).show()
-
-        //Fade in effect
-        $(link).fadeOut("slow");
-        $(link).fadeIn("slow");
+        animateCue(link);
     }
 
     else if (0 < n.length) {
@@ -104,9 +97,7 @@ function doNyTimes(doc) {
                 //insert before, but using null instead works ...
                 n[i].insertBefore(link, null);
 
-                $(link).show();
-		$(link).fadeOut("slow");
-                $(link).fadeIn("slow");
+                animateCue( link );
             }
         }
 
@@ -114,3 +105,7 @@ function doNyTimes(doc) {
     else
         return;
 }
+
+var nytimesAction = new libxEnv.doforurls.DoForURL(/nytimes\.com.*books/, doNyTimes);
+
+

@@ -67,6 +67,7 @@ libxEnv.getLocalXML = function ( path ) {
     return libxInterface.getXMLPrefFile(path);
 }
 
+/** another duplicate 
 libxEnv.writeToFile = function ( path, str ) {
     return libxInterface.writeToFile(path, str);
-}
+} **/

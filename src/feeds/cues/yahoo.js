@@ -22,8 +22,6 @@ new libxEnv.doforurls.DoForURL(
 
     if (alsotry && searchterms) {
         alsotry.appendChild(link);
-	$(link).show()
-	$(link).fadeOut("slow");
-        $(link).fadeIn("slow");
+        animateCue(link);
     }
 });

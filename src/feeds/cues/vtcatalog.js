@@ -2,11 +2,11 @@ if (libraryCatalog.sid == "libxvt")   // only for VT edition
 new libxEnv.doforurls.DoForURL(libraryCatalog.urlregexp, function (doc) {
     // find all <tr> where the first <td> child says "Newman Library"
     // and the third <td> child says "AVAILABLE"
-    var availrows = libxEnv.xpath.findNodes(doc, '//tr[     td[3] / text()[contains(.,"AVAILABLE")] '
+    var availrows = libxEnv.xpath.findNodesXML(doc, '//tr[     td[3] / text()[contains(.,"AVAILABLE")] '
                                       + '      and td[1] / text()[contains(.,"Newman Library")]]');
     for (var i = 0; i < availrows.length; i++) {
         // find the second <TD> child, relative to ith <TR>
-        var callno = libxEnv.xpath.findSingle(doc, "td[2]", availrows[i]).textContent;
+        var callno = libxEnv.xpath.findSingleXML(doc, "td[2]", availrows[i]).textContent;
 
 
 
@@ -28,7 +28,7 @@ new libxEnv.doforurls.DoForURL(libraryCatalog.urlregexp, function (doc) {
         if (callno.match(/^[T-Zt-z]/)) {//if call number begins with T-Z, then link to 5th floor map
             floorno = 5;
         }
-        var hasISSN = libxEnv.xpath.findSingle(doc, "//td[@class='bibInfoLabel' and contains(text(),'ISSN')]");
+        var hasISSN = libxEnv.xpath.findSingleXML(doc, "//td[@class='bibInfoLabel' and contains(text(),'ISSN')]");
         if (doc.body.textContent.match(/Periodicals/i) || hasISSN) {
             floorno = 4;
         }
@@ -39,7 +39,7 @@ new libxEnv.doforurls.DoForURL(libraryCatalog.urlregexp, function (doc) {
             vtlogo = makeLink(doc, "Unable to determine book location!", "http://www.lib.vt.edu/help/direct/tour/");
         }
         
-        var lasttd = libxEnv.xpath.findSingle(doc, "td[3]", availrows[i]);
+        var lasttd = libxEnv.xpath.findSingleXML(doc, "td[3]", availrows[i]);
         lasttd.appendChild(doc.createTextNode(" "));
         lasttd.appendChild(vtlogo);
     }

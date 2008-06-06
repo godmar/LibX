@@ -87,7 +87,7 @@ libxEnv.makeHoverBox = function(doc, linkObj)
         var newSS = doc.createElement('link');
         newSS.rel='stylesheet';
         newSS.href= "chrome://libx/skin/hover.css";
-        libxEnv.xpath.findSingle( doc, "//head").appendChild(newSS);
+        libxEnv.xpath.findSingleXML( doc, "//head").appendChild(newSS);
     }
     // create the div to be used by the script that will act as the
     // container for all drop down menus. 
@@ -100,7 +100,7 @@ libxEnv.makeHoverBox = function(doc, linkObj)
 
     linkObj.onmouseover = function() { libxEnv.dropMenu(linkObj, hoverDiv); };
 
-    var outside = libxEnv.xpath.findSingle(doc, "//body");
+    var outside = libxEnv.xpath.findSingleXML(doc, "//body");
     outside.appendChild(hoverDiv);
 
     linkObj.id = 'hoverdiv';

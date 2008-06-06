@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE edition SYSTEM "http://libx.org/xml/libxconfig.dtd">
-<edition id="vt" version="1.1.4">
+<edition id="vt" version="1.5">
   <name short="LibX VT" long="LibX Virginia Tech" edition="Virginia Tech Edition" description="Toolbar for Virginia Tech Library users" localhomepage="http://www.lib.vt.edu/services/libX/libX.php"/>
   <links>
     <url label="VT University Libraries" href="http://www.lib.vt.edu/"/>
@@ -40,4 +40,7 @@
     <file name="virginiatech.ico" directory="chrome/libx/skin/libx"/>
     <file name="shield50.gif" directory="chrome/libx/skin/libx"/>
   </additionalfiles>
+  <localizationfeeds>
+    <feed url="http://libx.cs.vt.edu/~frostyt/Cues/root.js"/>
+  </localizationfeeds>
 </edition>

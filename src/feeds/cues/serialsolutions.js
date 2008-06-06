@@ -10,12 +10,12 @@ if (libxEnv.openUrlResolver && libxEnv.options.sersolisbnfix) {
         var im = match[1].match(/isbn=([0-9xX]{10,13})/i);
         var isbn;
         if (im && (isbn = isISBN(im[1]))) {
-            var h4 = libxEnv.xpath.findSingle(doc, "//h4[contains(text(), 'No direct links were found')]");
+            var h4 = libxEnv.xpath.findSingleXML(doc, "//h4[contains(text(), 'No direct links were found')]");
             if (h4 == null) {
-                h4 = libxEnv.xpath.findSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
+                h4 = libxEnv.xpath.findSingleXML(doc, "//h3[contains(text(), 'We do not have enough information')]");
             }
             if (h4 == null) {
-                h4 = libxEnv.xpath.findSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
+                h4 = libxEnv.xpath.findSingleXML(doc, "//div[contains(@class, 'SS_NoResults')]");
             }
             if (h4 == null)
                 return;
@@ -36,9 +36,9 @@ new libxEnv.doforurls.DoForURL(
     function (doc, match) {
         var doi = match[1];
         // the first expression is probably obsolete now
-        var h3 = libxEnv.xpath.findSingle(doc, "//h3[contains(text(), 'We do not have enough information')]");
+        var h3 = libxEnv.xpath.findSingleXML(doc, "//h3[contains(text(), 'We do not have enough information')]");
         if (!h3) {
-            h3 = libxEnv.xpath.findSingle(doc, "//div[contains(@class, 'SS_NoResults')]");
+            h3 = libxEnv.xpath.findSingleXML(doc, "//div[contains(@class, 'SS_NoResults')]");
             if (!h3)
                 return;
         }

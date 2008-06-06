@@ -147,10 +147,11 @@ Section "LibX JavaScript" SEC02
   File "${JS_PATH}doiutils.js"
   File "${JS_PATH}magicsearch.js"
   File "${JS_PATH}libxprefs.js"
+  File "${JS_PATH}fileCache.js"
   File "${JS_PATH}doforurl.js"
+  File "${JS_PATH}libxdfu.js"
   File "${JS_PATH}javascript-xpath.js"
   File "${JS_PATH}jquery-1.2.3.js"
-  File "${JS_PATH}libxiedfu.js"
   SetOutPath "${PRODUCT_DATA_STORE}\content\catalogs"
   File "${JS_PATH}catalogs/*.js"
 SectionEnd

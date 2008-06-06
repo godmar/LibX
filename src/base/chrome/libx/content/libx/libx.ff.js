@@ -47,33 +47,34 @@ libxEnv.init = function() {
         m.setAttribute('checked', libxEnv.options.autolink_active);
     }
 
-	var menu = document.getElementById ( 'libxmenu' );
+    var menu = document.getElementById ( 'libxmenu' );
     menu.addEventListener ( 'popupshowing', libxToolbarMenuShowing, false );
-		
-	/* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
-	menu = document.getElementById ( 'libx-statusbar-popup' );
-	menu.addEventListener('popupshowing', function () {
-		var mitem = document.getElementById('libx-statusbar-togglebar-item');
-		mitem.setAttribute('checked', !libxEnv.ff.toolbar.collapsed);
-	}, false);
-
-	libxInitializeDFU();
+        
+    /* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
+    menu = document.getElementById ( 'libx-statusbar-popup' );
+    menu.addEventListener('popupshowing', function () {
+        var mitem = document.getElementById('libx-statusbar-togglebar-item');
+        mitem.setAttribute('checked', !libxEnv.ff.toolbar.collapsed);
+    }, false);
+   
+    libxEnv.hash = new libxEnv.hashClass();
+    libxInitializeDFU();
     libxEnv.hoverInit();
     
+    
     if ( libxEnv.getBoolPref ( 'libx.firstrun', true ) ) {
-    	// Set Timeout of 1 to run after firefox has finished initializing
-    	// * Same approach as Google Toolbar
-    	setTimeout ( 
-    	function () {
-			window.openDialog ( "chrome://libx/content/firstrun.xul", 
-        	"LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
-        	{toolbar: document.getElementById ( 'libx-toolbar' ) }
-    		); 
-    	}, 1 );
-    	libxEnv.setBoolPref ( 'libx.firstrun', false );
+       // Set Timeout of 1 to run after firefox has finished initializing
+       // * Same approach as Google Toolbar
+       setTimeout (
+       function () {
+                       window.openDialog ( "chrome://libx/content/firstrun.xul",
+               "LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
+               {toolbar: document.getElementById ( 'libx-toolbar' ) }
+               );
+       }, 1 );
+       libxEnv.setBoolPref ( 'libx.firstrun', false );
     }
 }
-
 
 /* Invoked when hotkey for visibility is pressed. 
  * Returns true if toolbar is not collapsed.
@@ -81,14 +82,14 @@ libxEnv.init = function() {
  * toolbox's View menu as well as View -> Toolbar use collapsed.
  */
 libxEnv.ff.toggleToolBar = function (toolbarname) {
-	var tbar = document.getElementById(toolbarname);
-	tbar.collapsed = !tbar.collapsed;
-	if (!tbar.collapsed) {
-		setTimeout ( function () { 
-			libxSearchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
-		}, 100);
-	}
-	return !tbar.collapsed;
+    var tbar = document.getElementById(toolbarname);
+    tbar.collapsed = !tbar.collapsed;
+    if (!tbar.collapsed) {
+        setTimeout ( function () { 
+            libxSearchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
+        }, 100);
+    }
+    return !tbar.collapsed;
 }
   
 /* 
@@ -198,6 +199,41 @@ libxEnv.getDocument = function (url, callback, postdata) {
     }
 }
 
+/**
+  * CAUTION THIS DOES NOT RETURN THE TEXT BUT THE HTTPREQUEST SO THAT WE CAN GET THE LAST MODIFIED HEADER 
+  * The reason I put this functionallity into a new method instead of adding it to the getDocument function is that this function returns the request to give me access to the request status instead of returning the text.
+  * For discussion of the return status 304 issues that is worked around here bythe if-modified-since header see the bug report: https://bugzilla.mozilla.org/show_bug.cgi?id=342977
+  */
+libxEnv.getCueDocument = function ( cue, lastMod, callback, postdata)
+{
+    try {
+        var httprequest = postdata !== undefined ? 'POST' : 'GET';
+        var xmlhttp = new XMLHttpRequest();
+        if ( callback === undefined ) { // if callback is 'null' or omitted
+            // synchronous
+            xmlhttp.open(httprequest, cue.url, false);
+        } else {
+            xmlhttp.onreadystatechange =  function () {
+                if ( xmlhttp.readyState == 4 ) {
+                    libxEnv.fileCache.downloadCueCallback(xmlhttp, cue, callback);
+                }
+            };
+            //asynchronous
+            xmlhttp.open(httprequest, cue.url, true);
+        }
+        if ( lastMod !== undefined )
+        {
+            xmlhttp.setRequestHeader( "If-Modified-Since", lastMod );
+        }
+        xmlhttp.send(postdata);
+        return xmlhttp;
+    }
+    catch (e) {
+        alert(e);
+        return null;
+    }
+}
+
 /* 
  * Retrieve a XML document from a URL.
  * 'callback' is optional. 
@@ -260,7 +296,13 @@ libxEnv.writeLog = function (msg, type) {
 libxEnv.addEventHandler = function(obj, event, func, b) {
     if(!obj) obj = window;
     if(!b) b = false;
-    return obj.addEventListener(event, func, b);
+    try {
+        return obj.addEventListener(event, func, b);
+    }
+    catch (e)
+    {
+        alert ( "failing function called from " + arguments.caller );
+    }
 }
 
 // switch the current search type (addison, openurl, etc.)
@@ -297,7 +339,7 @@ libxEnv.initializeContextMenu = function () {
 //this function is called if the user presses the search button, 
 //it performs a search in the catalog which the user previously selected
 function doSearch() {
-	var fields = extractSearchFields();
+    var fields = extractSearchFields();
     if (!libxSelectedCatalog.search)
         alert("Internal error, invalid catalog object: " + libxSelectedCatalog);
     libxSelectedCatalog.search(fields);
@@ -485,20 +527,20 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
 // the red "close-field" button, child #3, is enabled for all children except the first
 // these function all depend intimately on the XUL used for the vbox/hbox search field stuff
 libxEnv.ff.addSearchField = function () {
-	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
-	var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
+    var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
+    var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
     // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
     newSearchField.firstChild.value = lastSearchField.firstChild.value;
-	lastSearchField.childNodes.item(2).disabled=true;// disable blue "add-field" button in what will be the next-to-last searchfield
-	if (libxSearchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
-		lastSearchField.childNodes.item(3).disabled=false; // OPTIONAL: show close button in first search field
-		newSearchField.childNodes.item(3).disabled=false; // if so, the second field must have the close button enabled
-	}
+    lastSearchField.childNodes.item(2).disabled=true;// disable blue "add-field" button in what will be the next-to-last searchfield
+    if (libxSearchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
+        lastSearchField.childNodes.item(3).disabled=false; // OPTIONAL: show close button in first search field
+        newSearchField.childNodes.item(3).disabled=false; // if so, the second field must have the close button enabled
+    }
 
     // use setAttribute instead of setting property directly to avoid
     // https://bugzilla.mozilla.org/show_bug.cgi?id=433544
-	newSearchField.firstChild.nextSibling.firstChild.setAttribute("value", "");
-	libxSearchFieldVbox.appendChild(newSearchField);
+    newSearchField.firstChild.nextSibling.firstChild.setAttribute("value", "");
+    libxSearchFieldVbox.appendChild(newSearchField);
 
     // provide the next option from the list as a default
     var lastSelection = lastSearchField.firstChild.value;
@@ -516,28 +558,28 @@ libxEnv.ff.addSearchField = function () {
 // remove a specific search field
 // user must pass reference to hbox of search field to be removed
 libxEnv.ff.removeSearchField = function (fieldHbox) {
-	libxSearchFieldVbox.removeChild(fieldHbox);
-	var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
-	lastSearchField.childNodes.item(2).disabled=false;// enable blue "add-field" button
-	if (libxSearchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
-	    lastSearchField.childNodes.item(3).disabled=true;
-	}
+    libxSearchFieldVbox.removeChild(fieldHbox);
+    var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
+    lastSearchField.childNodes.item(2).disabled=false;// enable blue "add-field" button
+    if (libxSearchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
+        lastSearchField.childNodes.item(3).disabled=true;
+    }
 }
 
 // this function is called when the user switches the search field type for a given search field
 libxEnv.ff.setFieldType = function (menuitem) {
-	//propagate label and value of menuitem to grandparent (toolbarbutton)
-	menuitem.parentNode.parentNode.label = menuitem.label;
-	menuitem.parentNode.parentNode.value = menuitem.value;
+    //propagate label and value of menuitem to grandparent (toolbarbutton)
+    menuitem.parentNode.parentNode.label = menuitem.label;
+    menuitem.parentNode.parentNode.value = menuitem.value;
 }
 
 libxEnv.ff.clearAllFields = function () {
-	// while there are more than one search field left, remove the last one
-	while (libxSearchFieldVbox.childNodes.length > 1) {
-		libxEnv.ff.removeSearchField(libxSearchFieldVbox.lastChild);
-	}
-	// finally, clear the content of the only remaining one
-	libxSearchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
+    // while there are more than one search field left, remove the last one
+    while (libxSearchFieldVbox.childNodes.length > 1) {
+        libxEnv.ff.removeSearchField(libxSearchFieldVbox.lastChild);
+    }
+    // finally, clear the content of the only remaining one
+    libxSearchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
 
     // set options back to default for currently selected catalog
     libxActivateCatalogOptions(libxSelectedCatalog, true);
@@ -546,26 +588,26 @@ libxEnv.ff.clearAllFields = function () {
 // copy selection into search field - this is called from the nested right-click menu
 // This is currently unused
 function libx___unused___addSearchFieldAs(mitem) {
-	if (!popuphelper.isTextSelected()) {
-		alert(libxEnv.getProperty("selectterm.alert"));
-		return;
-	}
-	var sterm = popuphelper.getSelection();
-	
-	//XXX investigate if we should pretreat sterm
-	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
-		var tbb = libxSearchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
-		if (tbb.nextSibling.firstChild.value == "") {//is this field empty - use it if so
-			tbb.value = mitem.value;
-			tbb.label = mitem.label;
-			tbb.nextSibling.firstChild.value = sterm;
-			return;
-		}
-	}
-	//have found no empty field, must add one
-	libxEnv.ff.addSearchField();
-	//try again - this time around there should be an empty field
-	addSearchFieldAs(mitem);
+    if (!popuphelper.isTextSelected()) {
+        alert(libxEnv.getProperty("selectterm.alert"));
+        return;
+    }
+    var sterm = popuphelper.getSelection();
+    
+    //XXX investigate if we should pretreat sterm
+    for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
+        var tbb = libxSearchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
+        if (tbb.nextSibling.firstChild.value == "") {//is this field empty - use it if so
+            tbb.value = mitem.value;
+            tbb.label = mitem.label;
+            tbb.nextSibling.firstChild.value = sterm;
+            return;
+        }
+    }
+    //have found no empty field, must add one
+    libxEnv.ff.addSearchField();
+    //try again - this time around there should be an empty field
+    addSearchFieldAs(mitem);
 }
 
 // Opens the LibX Preferences window
@@ -703,16 +745,25 @@ libxEnv.getFilePath = function ( path ) {
     }
 }
 
-
 // Assumes /libx directory off of profile if an absolute chrome path is
 // not specified
-libxEnv.writeToFile = function ( path, str ) {
-    var file = libxEnv.getFile ( path );
-    FileIO.write ( file, str );
+// modified: can now create the file if 3rd param is passed as true
+libxEnv.writeToFile = function ( path, str, create ) {
+    var file;
+    if ( create == true )
+        file = libxEnv.getFile( path, true );
+    else
+        file = libxEnv.getFile ( path );
+    if ( !FileIO.write ( file, str ) )
+        return;
+        //alert( "Write didnt happen" );
 }
 
+
 // Returns file for given path
-libxEnv.getFile = function ( path ) {
+// modified: now able to take path with folders and will create the folders if
+// not there if second param is passed as true
+libxEnv.getFile = function ( path, create ) {
     var file;
     if ( path.indexOf ( 'chrome' ) == 0 )
         file = FileIO.openChrome( path );
@@ -721,13 +772,25 @@ libxEnv.getFile = function ( path ) {
         file.append ( 'libx' );
         
         if ( !file.exists() ) {
-            file = DirIO.create(file);
+            DirIO.create(file);
         }
         
-        file.append ( path );
+        var patharray = path.split( "/" );
+        for (var i = 0; i < (patharray.length - 1); i++ )
+        {
+            file.append( patharray[i] );
+            if ( !file.exists() && create ) {
+                DirIO.create(file);
+            }
+        }
+        file.append( patharray[patharray.length-1] );
+        if ( !file.exists() && create ) {
+            FileIO.create(file);
+        }
     }
     return file;
 }
+
 
 //Gets the text of a file.
 libxEnv.getFileText = function (path) {
@@ -873,6 +936,7 @@ libxEnv.initPrefsGUI = function () {
         document.getElementById('libx-prefs-tab').setAttribute('hidden', true);
         document.getElementById('libx-contextmenu-prefs-tab').setAttribute('hidden', true);
         document.getElementById('libx-ajax-tab').setAttribute('hidden', true);
+        document.getElementById('libx-feed-tab').setAttribute('hidden', true);
         document.getElementById('libxApply').setAttribute('hidden', true);
         //OK, we're done
         return;
@@ -948,7 +1012,7 @@ libxEnv.getOCLCPref = function() {
 libxEnv.getDFUPref = function() { return true; } //Doesn't apply to Firefox
 
 libxEnv.getCiteulikePref = function () {
-	return document.getElementById ( 'libx-citeulike-checkbox' ).getAttribute ( 'checked' ) == 'true';
+    return document.getElementById ( 'libx-citeulike-checkbox' ).getAttribute ( 'checked' ) == 'true';
 }
 
 libxEnv.removeContextMenuPreferencesTab = function (idbase) {
@@ -1188,8 +1252,8 @@ libxEnv.eventDispatcher.init = function  () {
             libxEnv.eventDispatcher.notify(libxtype, e);
         } );
     }
-	
-	
+    
+    
     // Init for onContentChange
     var container = gBrowser.tabContainer;
     registerEventDispatcher ( "onContentChange", container, "TabOpen" );

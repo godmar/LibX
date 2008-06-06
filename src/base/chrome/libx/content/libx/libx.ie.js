@@ -33,6 +33,8 @@
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
  
+//var libxEnv = new Object();
+  
 libxEnv.init = function() {
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
@@ -47,11 +49,14 @@ libxEnv.init = function() {
         libxDropdownOptions[mitem.value] = mitem;
     }
     
+    libxEnv.doforurls.initDoforurls();    
+    
     libraryCatalog = searchCatalogs[0];
 
     if(libxEnv.getBoolPref('libx.dfuexec', true)) {
         libxEnv.initIEDFU();
     }
+    //libxEnv.hash.initHash();
 }
 
 libxEnv.debugInit = function () {}
@@ -82,7 +87,12 @@ libxEnv.initIEDFU = function () {
     //Wam proxy
     //Booklist online (need registration to test)
     //Autolinking
-    libxInitializeIEDFU();
+
+
+//    libxInitializeIEDFU();
+
+libxInitializeDFU();
+
 
 } //end of initializeDoForUrls
 
@@ -503,7 +513,7 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
  */
 libxEnv.getDocument = function (url, callback, postdata) {
     //Get the request object
-    var req = libxInterface.getXMLHTTPRequest();
+    var req = new window.xmlHttpRequest();
 
     if (!req) {
         libxEnv.writeLog("Could not get request object for url " + url);
@@ -514,6 +524,7 @@ libxEnv.getDocument = function (url, callback, postdata) {
     if (!synch) {
         //We're asynchronous, so set a callback
         req.onreadystatechange = function() {
+            //window.alert( "onreadystatefunction" );
             //Make sure we're ready for processing
             if (req.readyState == 4) {
                 if(req.status != 200) {
@@ -531,6 +542,77 @@ libxEnv.getDocument = function (url, callback, postdata) {
     req.open(postdata ? 'POST' : 'GET', url, !synch);
     req.send(postdata);
     return synch ? req.responseText : null;
+}
+
+
+libxEnv.getCueDocument = function( cue, lastMod, callback )
+{
+    function reportStatus()
+    {
+        //window.alert( "ZOOM" );
+        if (oReq.readyState == 4) {
+            //window.alert( "callback" );
+            libxEnv.fileCache.downloadCueCallback( oReq, cue, callback );
+        }
+    }
+    var oReq = new window.XMLHttpRequest();
+    oReq.onreadystatechange = reportStatus;
+    oReq.open( "GET", cue.url, true );
+    if ( lastMod === undefined )
+	{
+		oReq.setRequestHeader( "If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT" );
+	}
+	else
+	{
+		oReq.setRequestHeader( "If-Modified-Since", lastMod );
+	}
+    oReq.send();
+}
+
+
+/*
+libxEnv.getCueDocument = function( cue, lastMod, callback, postdata ) {
+	// get the reuqest object
+	var req = new window.XMLHttpRequest();
+    //var req = new ActiveXObject("MSXML2.XMLHTTP.3.0");
+
+
+    function statechangefunc () {
+        //window.alert( "ZOOM" );
+        if ( req.readyState == 4 ) {
+            libxEnv.fileCache.downloadCueCallback( req, cue, callback );
+        }
+    }
+    
+	if (!req) {
+		libxEnv.writeLog( "Could not get request object for url " + url );
+		return null;
+	}
+
+	var synch = (!callback);
+    
+	if ( !synch) {
+        //window.alert( "setting onstatereadythingy" );
+		//We're asynchronous, so get a callback
+		req.onreadystatchange = statechangefunc;
+	}
+    
+	// Do the request
+	req.open('GET', cue.url, !synch );
+	if ( lastMod === undefined )
+	{
+		req.setRequestHeader( "If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT" );
+	}
+	else
+	{
+		req.setRequestHeader( "If-Modified-Since", lastMod );
+	}
+    if ( !synch) {
+		//We're asynchronous, so get a callback
+		req.onreadystatchange = statechangefunc;
+	}
+	req.send();
+	return req;
 }
 
 //XML + config functions//////////////////////////////////////////////////////
@@ -572,7 +654,7 @@ libxEnv.getXMLDocument = function (url, callback, postdata) {
     req.open(postdata ? 'POST' : 'GET', url, !synch);
     req.send(postdata);
     return synch ? req.responseXML : null;
-}
+}*/
 
 libxEnv.getXMLConfig = function () {
     return libxInterface.config;
@@ -580,8 +662,15 @@ libxEnv.getXMLConfig = function () {
 
 //File IO functions///////////////////////////////////////////////////////////
 
-libxEnv.writeToFile = function(path, str) {
+libxEnv.writeToFile = function(path, str, create, dirPath) {
     libxEnv.writeLog("167: writeToFile " + path);
+    if ( create )
+    {
+        var path1 = dirPath.substring( 0 , 12 );
+        libxInterface.createAllDirsInPath( dirPath );
+        path1 += dirPath.substring(12,25);
+        libxInterface.createAllDirsInPath( path1 );
+    }
     libxInterface.writeToFile(path, str);
 }
 
@@ -915,4 +1004,13 @@ libxEnv.urlBarIcon.prototype = {
 libxEnv.eventDispatcher.init = function  () {
 	// Int for onContentChange
     //
+}
+
+libxEnv.hash = new Object();
+
+libxEnv.hash.hashString = function ( text )
+{
+    var temp = libxInterface.hashString( text );
+    ////window.alert( temp );
+    return temp;
 }

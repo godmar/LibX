@@ -21,8 +21,6 @@ new libxEnv.doforurls.DoForURL(/chapters\..*\.ca\//, function (doc) {
 
 		t[0].insertBefore(link, t[0].firstChild);
 		t[0].insertBefore(doc.createTextNode(" "), link);
-		$(link).show();
-		$(link).fadeOut("show");
-		$(link).fadeIn("show");
+        animateCue(link);
 	} 
 });

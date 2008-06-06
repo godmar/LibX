@@ -21,7 +21,5 @@ function doAgricola(doc) {
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("callnolookup.label", [libraryCatalog.name, cn]), libraryCatalog.makeCallnoSearch(cn), libraryCatalog);
     // insert cue after <A> element within the containing <TD> element
     cn_a.parentNode.insertBefore(link, cn_a.nextSibling);
-    $(link).show();
-    $(link).fadeOut("slow");
-    $(link).fadeIn("slow");
+    animateCue(link);
 }

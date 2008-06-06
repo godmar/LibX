@@ -19,13 +19,14 @@ function doAmazon(doc, match) {
     var isbnVal = isbnNodeArray[0].nextSibling.nodeValue;
 
     var isbn = isISBN(isbnVal);
-
-    var booktitleNodeArray = $("div.buying > b.sans, div.buying > b.asinTitle");
+    var booktitleNodeArray = $(
+        "div.buying > h1.parseasinTitle > span#btAsinTitle");
 
     if (0 == booktitleNodeArray.length)
         return;
 
     var booktitleNode = booktitleNodeArray[0];
+    
 
     // make link and insert after title
     var div = booktitleNode.parentNode;
@@ -34,10 +35,8 @@ function doAmazon(doc, match) {
                         libraryCatalog.linkByISBN(isbn), libraryCatalog);
 
     div.insertBefore(cue, booktitleNode.nextSibling);
-    $(cue).show();
     try {
-   	$(cue).fadeOut("slow");
-	$(cue).fadeIn("slow");
+        animateCue(cue);
     }
     catch (ex) {
 	libxEnv.writeLog( "Caught exception when fading in cue " + ex );

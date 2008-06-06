@@ -9,21 +9,19 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
 
     n = nArray[0];
 
-    var searchterms = doc.gs.q.value;   // google stores its search terms there for its own use
+    var searchterms = unsafeWindow.document.gs.q.value;   // google stores its search terms there for its own use
 
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog)
 
     n.parentNode.appendChild(link);
-    $(link).show(); 
-    $(link).fadeOut("slow");
-    $(link).fadeIn("slow");
+    animateCue(link);
 
 });
 
 // link to catalog from google print via ISBN
 new libxEnv.doforurls.DoForURL(/books.\google\.com\/books\?id/, 
 function (doc) {
-    var n = libxEnv.xpath.findSingle(doc, "//tr/td//text()[contains(.,'ISBN')]");
+    var n = libxEnv.xpath.findSingleXML(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var nArray = $("tr > td").filter(":contains('ISBN')");
 
     if (0 == nArray.length)
@@ -37,15 +35,13 @@ function (doc) {
     cue = n.insertBefore(newlink, ns);
     // a white space to make it pretty for Melissa
     n.insertBefore(doc.createTextNode(" "), cue);
-    $(link).show(); 
-    $(link).fadeOut("slow");
-    $(link).fadeIn("slow");
+    animateCue(link);
 });
 
 new libxEnv.doforurls.DoForURL(/books.\google\.com\/books\?q/, 
 function (doc) {
     // look for links like this: http://books.google.com/books?q=editions:ISBN0786257784&id=dyF7AAAACAAJ
-    var n = libxEnv.xpath.findNodes(doc, "//a[contains(@href,'editions:ISBN')]");
+    var n = libxEnv.xpath.findNodesXML(doc, "//a[contains(@href,'editions:ISBN')]");
     nArray = $("a[href*='editions:ISBN']");
 
     for (var i = 0; i < n.length; i++) {
@@ -56,10 +52,8 @@ function (doc) {
                     libraryCatalog.linkByISBN(m[1]));
             var ns = n[i].nextSibling;
             n[i].parentNode.insertBefore(newlink, ns);
-            n[i].parentNode.insertBefore(doc.createTextNode(" "), ns);
-   	 $(link).show(); 
-   	 $(link).fadeOut("slow");
-   	 $(link).fadeIn("slow");
+            n[i].parentNode.insertBefore(doc.createTextNode(" "), ns);i
+            animateCue(link);
         }
     }
 });
@@ -81,10 +75,9 @@ if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
             var ourl = libxEnv.openUrlResolver.completeOpenURL(m[1], "0.1");
             var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), ourl, libxEnv.openUrlResolver);
             link.parentNode.insertBefore(newlink, link.nextSibling);
-            link.parentNode.insertBefore(doc.createTextNode(" "), link.nextSibling); 
-	    $(link).show(); 
-	    $(link).fadeOut("slow");
-	    $(link).fadeIn("slow");
+            link.parentNode.insertBefore(doc.createTextNode(" "), 
+                link.nextSibling); 
+            animateCue( link );
             // link.parentNode.removeChild(link);
         }
     }

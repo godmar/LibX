@@ -18,9 +18,7 @@ var bnFunction = function (doc, match) {
 
     $(origTitleNode).contents().eq(0).before(doc.createTextNode(" "));
     $(origTitleNode).contents().eq(0).before(link);
-    $(link).show();
-    $(link).fadeOut("slow");
-    $(link).fadeIn("slow");
+    animateCue(link);
 }
 
 // as in http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=9780060788704&itm=1

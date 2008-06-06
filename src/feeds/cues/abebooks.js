@@ -17,9 +17,7 @@ new libxEnv.doforurls.DoForURL(/(\/\/|\.)abebooks\.com/, function (doc) {
                 libraryCatalog.linkByISBN(isbn), libraryCatalog);
             n[i].parentNode.insertBefore(newlink, n[i].nextSibling);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), newlink);
-	    $(newlink).show();
-	    $(newlink).fadeOut("slow");
-	    $(newlink).fadeIn("slow");
+            animateCue(newlink);
         }
     }
 });
