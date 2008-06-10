@@ -55,7 +55,7 @@ function doAmazon(doc, match) {
 
     var isbnVal = isbnNodeArray[0].nextSibling.nodeValue;
 
-    var isbn = isISBN(isbnVal);
+    var isbn = isISBN(isbnVal, libraryCatalog.downconvertisbn13);
 
     var booktitleNodeArray = $("div.buying > h1.parseasinTitle > span#btAsinTitle");
 
@@ -90,7 +90,7 @@ new DoForURL(/\.alibris\.com\//, function (doc, match) {
         var isbnLink = isbnLinks[i];
         var href = isbnLink.getAttribute('href');
         var isbn, isbnMatch = href.match(/isbn\/((\d|X){10,13})/i);
-        if (isbnMatch != null && (isbn = isISBN(isbnMatch[1])) != null) {
+        if (isbnMatch != null && (isbn = isISBN(isbnMatch[1], libraryCatalog.downconvertisbn13)) != null) {
             var cue = libxEnv.makeLink(doc, 
                         libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
                         libraryCatalog.linkByISBN(isbn), libraryCatalog);
@@ -110,7 +110,7 @@ new DoForURL(/\.alibris\.com\//, function (doc, match) {
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
 var bnFunction = function (doc, match) {
-    var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
+    var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);    // grab captured isbn in matched URL
     if (isbn == null)
         return;
     
@@ -442,7 +442,7 @@ new DoForURL(/\.globalbooksinprint\.com.*Search/, function(doc) {
 
         var isbn13Text = isbn13[0].nextSibling.nodeValue;
 
-        var isbn = isISBN(isbn13Text);
+        var isbn = isISBN(isbn13Text, libraryCatalog.downconvertisbn13);
 
         if (isbn == null)
             continue;
@@ -461,7 +461,7 @@ function powellsComByISBN(doc, m)
 {
     libxEnv.writeLog("m " + m);
     libxEnv.writeLog("m[2] " + m[2]);
-    var isbn = isISBN(m[2]);
+    var isbn = isISBN(m[2], libraryCatalog.downconvertisbn13);
     if (isbn == null) {
         libxEnv.writeLog("isbn was null");
         return;
@@ -502,7 +502,7 @@ new DoForURL(/chapters\..*\.ca\//, function (doc) {
 
     isbnLabelText = isbnlabel[0].nextSibling.nodeValue;
 
-        var isbn = isISBN(isbnLabelText);
+        var isbn = isISBN(isbnLabelText, libraryCatalog.downconvertisbn13);
         if (isbn) {
             var link = libxEnv.makeLink(doc,
                     libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]),

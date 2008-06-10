@@ -151,6 +151,7 @@ function libxInitializeMenuObjects()
     libxRegisterContextMenuObject ( 
         "libx", "isbn",
         function (p) {
+            // can't downconvert ISBN 13 here since we don't know if catalog requires it
             if (p.isTextSelected()) 
                 return isISBN(p.getSelection()); 
             else 
@@ -170,6 +171,12 @@ function libxInitializeMenuObjects()
             var mitem = menuEntries[i].menuitem;
             
             var name = menuEntries[i].name;
+
+            // down convert if necessary
+            if (menuEntries[i].source == "catalog") {
+                pureISN = isISBN(pureISN, libxConfig.catalogs[name].downconvertisbn13);
+            }
+
             initMenuEntry ( menuEntries[i], pureISN );
             
             // xisbn requires special case

@@ -95,7 +95,7 @@ OpenURL.prototype = {
 			    url += this.atitleprefix + fields[i].searchTerms.replace(/[^A-Za-z0-9_\s]/g, " ").replace(/\s+/, " ");
 			    break;
 		    case 'i':
-                var pureISN = isISBN(fields[i].searchTerms);
+                var pureISN = isISBN(fields[i].searchTerms, this.downconvertisbn13);
 			    if (pureISN != null) {
 				    url += this.isbnprefix + pureISN;
 			    } else {

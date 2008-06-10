@@ -31,6 +31,7 @@
 function libxCatalog() { }
 
 libxCatalog.prototype = {
+    downconvertisbn13: true,
     xisbn: { },
     setIf: function (prop, what) {
         if (what != null)

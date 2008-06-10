@@ -84,6 +84,9 @@ libxEnv.init = function() {
 libxEnv.ff.toggleToolBar = function (toolbarname) {
     var tbar = document.getElementById(toolbarname);
     tbar.collapsed = !tbar.collapsed;
+    // persist, see chrome://browser/content/browser.js
+    tbar.ownerDocument.persist(tbar.id, "collapsed");
+
     if (!tbar.collapsed) {
         setTimeout ( function () { 
             libxSearchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
@@ -656,7 +659,7 @@ var libxAutoLinkFilters = [
     {   // ISBNs
         regexp: /((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig,
         href: function(match, anchor) { 
-            var isbn = isISBN(match[1]); 
+            var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);
             if (isbn == null) return null;
             this.name = libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
             libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
