@@ -312,18 +312,10 @@ libxEnv.addEventHandler = function(obj, event, func, b) {
 libxEnv.SelectCatalog = function(mitem, event) {
     event.stopPropagation();
 
-
-/*
-<vbox id="search-field-vbox" flex="1">
-    <hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
-    <!-- child number 0 aka firstChild -->
-    <toolbarbutton label="Keyword" ...
-    <menupopup id="libx-dropdown-menupopup">
-        <menuitem value="Y" label="Keyword" oncommand="setFieldType(this)
-*/
     var sb = document.getElementById("libx-search-button");
     sb.label = mitem.label;
     libxSelectedCatalog = searchCatalogs[mitem.value];
+    libxEnv.setIntPref("libx.selectedcatalognumber", mitem.value);
 
     libxActivateCatalogOptions(libxSelectedCatalog);
 }
@@ -349,11 +341,9 @@ function doSearch() {
 }
 
 libxEnv.initCatalogGUI = function () {
-    // we insert additional catalogs before the openurl button for now
     var catdropdown = document.getElementById("libxcatalogs");
-    var openurlsbutton = document.getElementById("libx-openurl-search-menuitem");
     
-    for ( var i = 1; i < searchCatalogs.length; i++ ) {
+    for ( var i = 0; i < searchCatalogs.length; i++ ) {
         var cat = searchCatalogs[i];
         var newbutton = document.createElement("menuitem");
         newbutton.setAttribute("oncommand", "libxEnv.SelectCatalog(this,event);");
@@ -363,13 +353,12 @@ libxEnv.initCatalogGUI = function () {
     }
     
     // record initially selected catalog and activate its search options
-    catdropdown.firstChild.value = 0;  
-    libxSelectedCatalog = searchCatalogs[0];
+    var selectedCatalog = libxEnv.getIntPref("libx.selectedcatalognumber", 0);
+    libxSelectedCatalog = searchCatalogs[selectedCatalog];
     libxActivateCatalogOptions(libxSelectedCatalog);
     libraryCatalog = searchCatalogs[0];
     // copy initial label to toolbarbutton parent from menuitem first child
-    catdropdown.firstChild.setAttribute("label", "Search " + searchCatalogs[0].name + " ");
-    catdropdown.parentNode.label = catdropdown.firstChild.label;
+    catdropdown.parentNode.setAttribute("label", catdropdown.childNodes.item(selectedCatalog).getAttribute("label"));
 }
 
 libxEnv.initializeGUI = function () {

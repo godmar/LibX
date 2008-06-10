@@ -159,7 +159,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         tooltiptext="Press to search or drag search terms onto this button!"
 						id="libx-search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
-							<menuitem oncommand="libxEnv.SelectCatalog(this,event);" />
+                            <!-- catalog choices go here, see libxEnv.initCatalogGUI -->
 						</menupopup>
 					</toolbarbutton>
 
