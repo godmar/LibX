@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.29 2008/03/11 16:09:58 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.30 2008/06/10 04:08:06 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?,localizationfeeds?)>
 <!ATTLIST edition 
@@ -83,6 +83,7 @@
         searchform      CDATA #IMPLIED
         language        CDATA #IMPLIED
         image           CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
 >
 <!ELEMENT aleph (xisbn)?>
 <!ATTLIST aleph 
@@ -106,6 +107,7 @@
         image           CDATA #IMPLIED
         usecclforadv    (true|false) 'false'
         usecclforsimple (true|false) 'false'
+        downconvertisbn13 (true|false) 'true'
 >
 <!ELEMENT sfx EMPTY>
 <!ATTLIST sfx 
@@ -114,6 +116,7 @@
         sid             CDATA #IMPLIED
         options         CDATA #REQUIRED
         image           CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
 >
 <!ELEMENT sersol EMPTY>
 <!ATTLIST sersol 
@@ -122,6 +125,7 @@
         sid             CDATA #IMPLIED
         options         CDATA #REQUIRED
         image           CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
 >
 <!ELEMENT sirsi (xisbn)?>
 <!ATTLIST sirsi 
@@ -134,6 +138,7 @@
         user_id         CDATA #IMPLIED
         password        CDATA #IMPLIED
         image           CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
 >
 <!ELEMENT web2 (xisbn)?>
 <!ATTLIST web2
@@ -146,6 +151,7 @@
         sort            CDATA #IMPLIED
         path            CDATA #IMPLIED
         image           CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
 >
 <!ELEMENT voyager (xisbn)?>
 <!ATTLIST voyager 
@@ -157,6 +163,7 @@
         advancedsearchforissn CDATA #IMPLIED
         image           CDATA #IMPLIED
         relevanceranking (true|false) 'true'
+        downconvertisbn13 (true|false) 'true'
 >
 <!ELEMENT horizon (xisbn)?>
 <!ATTLIST horizon 
@@ -173,6 +180,7 @@
         subject         CDATA #IMPLIED
         profile         CDATA #IMPLIED
         image           CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
 >
 
 <!-- A custom catalog 
