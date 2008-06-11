@@ -31,7 +31,6 @@
  
 function libxInitializeDFU() 
 {
-    var jQuery = $;
     for ( var i = 0; i < libxEnv.doforurls.cueList.length; i++ )
     {
         try {

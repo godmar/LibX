@@ -8,13 +8,19 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
         return;
 
     n = nArray[0];
-
-    var searchterms = unsafeWindow.document.gs.q.value;   // google stores its search terms there for its own use
+    
+    if ( unsafeWindow === undefined )
+        var searchterms = window.document.gs.q.value;
+    else
+        var searchterms = unsafeWindow.document.gs.q.value;   
+    // google stores its search terms there for its own use
 
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog)
 
     n.parentNode.appendChild(link);
-    animateCue(link);
+    $(link,unsafeWindow.document).fadeOut("slow");
+    $(link,unsafeWindow.document).fadeIn("slow");
+    //animateCue(link);
 
 });
 

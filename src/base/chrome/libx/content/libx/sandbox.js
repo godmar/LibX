@@ -56,14 +56,6 @@ libxEnv.sandboxClass = function ()
         theSandBox.libxEnv.openUrlResolver = libxEnv.openUrlResolver;
         theSandBox.libxEnv.openUrlResolvers = libxEnv.openUrlResolvers;
         theSandBox.libxProxy = libxProxy;
-        theSandBox.libxEnv.xpath = libxEnv.xpath;
-        theSandBox.jQuery = $;
-        theSandBox.$ = function( selector, context )
-        {
-            if ( !context || context == undefined )
-                context = theSandBox.document;
-            return theSandBox.jQuery( selector, context );
-        }
         theSandBox.run = function ()
         {
             theSandBox.action(this.document, this.m);

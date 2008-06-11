@@ -4,7 +4,7 @@ function powellsComByISBN(doc, m)
 {
     libxEnv.writeLog("m " + m);
     libxEnv.writeLog("m[2] " + m[2]);
-    var isbn = isISBN(m[2]);
+    var isbn = isISBN(m[2], libraryCatalog.downconvertisbn13);
     if (isbn == null) {
         libxEnv.writeLog("isbn was null");
         return;

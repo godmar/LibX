@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
 var bnFunction = function (doc, match) {
-    var isbn = isISBN(match[1]);    // grab captured isbn in matched URL
+    var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);    // grab captured isbn in matched URL
     if (isbn == null)
         return;
     

@@ -43,11 +43,12 @@
  */
 
 
-var cueUrl = rootURL + "cues/";
-var sandboxUrl = "http://libx.cs.vt.edu/~frostyt/Cues/sandbox/";
-var hotfixUrl = "http://libx.cs.vt.edu/~frostyt/Cues/hotfixes/";
+var cueUrl = "cues/";
+var sandboxUrl = "sandbox/";
+var hotfixUrl = "hotfixes/";
 
 
+addSandboxScript( sandboxUrl + "jquery-1.2.3.js" );
 addSandboxScript( sandboxUrl + "handleCoins.js" );
 addSandboxScript( sandboxUrl + "cueAnimation.js" );
 addCue( cueUrl + "agricola.js" );

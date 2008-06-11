@@ -12,7 +12,7 @@ function(doc) {
 
         var isbn13Text = isbn13[0].nextSibling.nodeValue;
 
-        var isbn = isISBN(isbn13Text);
+        var isbn = isISBN(isbn13Text, libraryCatalog.downconvertisbn13);
 
         if (isbn == null)
             continue;

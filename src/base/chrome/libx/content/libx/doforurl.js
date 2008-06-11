@@ -83,7 +83,6 @@ libxEnv.doforurlClass = function()
     // Default Root in case no Roots are specified in config.xml
 	var defaultRoot = "http://libx.org/libx/src/feeds/root.js";
 	
-	
 	// Cue Object
     var cue = function ( url, type )
     {
@@ -92,9 +91,20 @@ libxEnv.doforurlClass = function()
         this.text = null;
     }
     
+	function isRelativeURL( url )
+	{
+		if ( url.match(/http/) )
+			return false;
+		return true;
+	}
+	
     // Adds a cue to the list
     function addCue( url )
     {
+		if ( isRelativeURL ( url ) )
+		{
+			url = curroot.baseURL + url;
+		}
         var c = new cue( url, "cue", curroot );
         that.cueList.push( c );
         if ( curroot.updating == true )
@@ -111,12 +121,15 @@ libxEnv.doforurlClass = function()
                 dfu_log( "Error from cue " + c.url + " of type " + c.type + "\n error: " + e );
             }
         }
-            
     }
     
 	// Adds a sandbox script to the list
     function addSandboxScript( url )
     {
+		if ( isRelativeURL ( url ) )
+		{
+			url = curroot.baseURL + url;
+		}
         var c = new cue( url , "sandbox", curroot );
         sandboxScriptList.push( c );
         if ( curroot.updating == true )
@@ -128,6 +141,10 @@ libxEnv.doforurlClass = function()
 	// Adds a hotfix to the list
     function addHotfix( url )
     {
+		if ( isRelativeURL ( url ) )
+		{
+			url = curroot.baseURL + url;
+		}
         var c = new cue( url, "hotfix", curroot );
         that.hotfixList.push( c );
         if ( curroot.updating == true )
@@ -140,6 +157,7 @@ libxEnv.doforurlClass = function()
     function addRoot( url, updating )
     {
         var c = new cue( url, "root" );
+		c.baseURL = c.url.substring(0,c.url.lastIndexOf("/")+1);
         c.callback = function ()
         {
             try {
@@ -182,7 +200,13 @@ libxEnv.doforurlClass = function()
 
         if (location == 'about:blank')
                 return;
-
+	
+		for ( var l = 0; l < sandboxScriptList.length; l++ )
+		{
+			eval( sandboxScriptList[l].text );
+		} 
+				
+				
     outer:
         for (var i = 0; i < dfu_actions.length; i++) {
             var dfu = dfu_actions[i];
@@ -195,10 +219,6 @@ libxEnv.doforurlClass = function()
                             continue outer;
                 }
                 try {
-                    for ( var l = 0; l < sandboxScriptList.length; l++ )
-                    {
-                        eval( sandboxScriptList[l].text );
-                    } 
                     dfu.action(doc, m);
                 } catch (e) { 
                     dfu_log(e.message);
@@ -219,6 +239,18 @@ libxEnv.doforurlClass = function()
         if (ev.originalTarget.location == 'about:blank')
                 return;     
                 
+		var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href, m );
+		for ( var l = 0; l < sandboxScriptList.length; l++ )
+		{
+			try {
+					libxEnv.sandbox.evaluateInSandbox( sandboxScriptList[l].text, sandbox );
+			}
+			catch(f)
+			{
+				dfu_log(" sandboxScript " + f );
+			}
+		}
+				
     outer:
         for (var i = 0; i < dfu_actions.length; i++) {
             var dfu = dfu_actions[i];
@@ -233,17 +265,6 @@ libxEnv.doforurlClass = function()
 
                 try {                    
                     var func = "this.action = " + dfu.action + "; run();";				
-					var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href, m );
-                    for ( var l = 0; l < sandboxScriptList.length; l++ )
-                    {
-                        try {
-                                libxEnv.sandbox.evaluateInSandbox( sandboxScriptList[l].text, sandbox );
-                        }
-                        catch(f)
-                        {
-                            dfu_log(" sandboxScript " + f );
-                        }
-                    }
 					libxEnv.sandbox.evaluateInSandbox( func , sandbox);
                 } catch (e) { 
                     dfu_log(" sandbox " + e);
@@ -327,7 +348,7 @@ libxEnv.doforurlClass = function()
     {
 		processDoforurls( false );
         libxEnv.fileCache.saveFileList();
-        that.setUpdateTimeOut();
+        that.setUpdateTimeOut( false );
     }
 	
 	
@@ -337,8 +358,7 @@ libxEnv.doforurlClass = function()
         dfu_log( "Updating Cues" );
         var curdate = Date();
         updating = true;
-        libxEnv.setIntPref("libx.nextupdate", (Date.parse(curdate) + 24*hour));
-		this.setUpdateTimeOut();
+		setNextUpdatePref( Date.parse(curdate) + 24*hour);
 		processDoforurls( true );
         dfu_log( "Done Updating Cues" );
     }
@@ -346,23 +366,24 @@ libxEnv.doforurlClass = function()
     
 	// This function is called by the timeout we set and is used to revive the update process
     function reviveUpdate()
-    {
-		//window.//alert( "reviving update" );
+	{
         var curdate  = Date();
-        var timeout = libxEnv.getIntPref( "libx.timeout" );
+		var timeout = getTimeoutPref();
         var timeDifference = Date.parse(curdate) - timeout;
-		//window.//alert( "time difference is " + timeDifference + " curdate " + Date.parse(curdate) + " timeout " + timeout );
+		
         if ( timeDifference >= 0 )
         {
             if ( timeDifference < hour )
             { // we woke up around the right time
+			
                 dfu_log( "Updating NOW!" );
+				
                 that.updateDoforurls();
                 that.setUpdateTimeOut( true );
             }
             else
             {   //we missed by a lot setting a new random update in the future
-                var update = libxEnv.getIntPref( "libx.nextupdate" );
+				var update = getNextUpdatePref();
                 timeDifference = Date.parse(curdate) - update;
                 var timeToResetUpdate = Math.floor(((6*hour/timeDifference)*
                     hour*Math.random()));
@@ -371,11 +392,12 @@ libxEnv.doforurlClass = function()
                     timeToResetUpdate = 4*hour + Math.floor( 
                         Math.random()*2*hour );
                 }
+				
                 dfu_log( "Update: timeout is set for : " + timeToResetUpdate );
                 //    makeUpdateTimeString( timeToResetUpdate ));
-				libxEnv.setIntPref( "libx.timeout", 
-                    (Date.parse(curdate) + timeToResetUpdate ) );
-                setTimeout( reviveUpdate, timeToResetUpdate );
+				
+				setTimeoutPref( Date.parse(curdate) + timeToResetUpdate );
+                setTimeout( reviveUpdate, timeToResetUpdate + sec*15 );
             }
         }
     }
@@ -410,37 +432,61 @@ libxEnv.doforurlClass = function()
         return result;
     }
     
+	function setNextUpdatePref( value )
+	{
+		libxEnv.setUnicharPref( "libx.nextupdate" , value );
+	}
+	
+	function getNextUpdatePref()
+	{
+		var temp = libxEnv.getUnicharPref( "libx.nextupdate" );
+		return parseFloat( temp );
+	}
+	
+	function setTimeoutPref( value )
+	{
+		libxEnv.setUnicharPref( "libx.timeout" , value );
+	}
+	
+	function getTimeoutPref()
+	{
+		var temp = libxEnv.getUnicharPref( "libx.timeout" );
+		return parseFloat( temp );
+	}
+	
 	// Sets the timeout for the update and if needed the nextUpdate preference in about:config
     this.setUpdateTimeOut = function ( setNew )
     {
-        var nextUpdate = libxEnv.getIntPref( "libx.nextupdate" );
-        if ( !nextUpdate || setNew || true)
+        var nextUpdate = getNextUpdatePref();
+        if ( !nextUpdate || setNew )
         {
-			//alert( "Setting update since it hasn't been set" );
             dfu_log( "Update: Next Update has not been set, setting it now " );
             var curdate = Date();
             var update = Math.floor( Math.random()*day );
+			
             dfu_log( "Update: current date is " + curdate + 
                 " setting update for " + new Date(
-                Date.parse(curdate) + update) );
-            libxEnv.setIntPref( "libx.nextupdate" , (Date.parse(
-                curdate) + update) );
+                Date.parse(curdate) + update) );			
+			setNextUpdatePref( Date.parse(curdate) + update );
+			var x = getNextUpdatePref();
+				
             dfu_log( "Update: timeout is set for : " + 
                 makeUpdateTimeString( update ));
-			//alert( "Setting new timeout: " + (Date.parse(curdate) + update));
-            libxEnv.setIntPref( "libx.timeout", 
-                (Date.parse(curdate) + update ) );
+			
+			setTimeoutPref( Date.parse(curdate) + update );
             window.setTimeout ( reviveUpdate, update );
         }
         else
         {
             var curdate = Date.parse(Date());
+			
             dfu_log( "Update: current date " + new Date(curdate) );
             dfu_log( "Update: next update will be " + new Date( nextUpdate ));
+			
             if ( curdate > nextUpdate )
             {   // set timeout missed its update somehow reseting
                 var timeSinceUpdateTarget = curdate - nextUpdate;
-				//alert( "time passed " + timeSinceUpdateTarget + " curdate " + curdate +  " nextupdate " + nextUpdate );
+				
                 var timeToResetUpdate = Math.floor((
                     6*hour/timeSinceUpdateTarget)*hour*Math.random());
                 if ( timeToResetUpdate > 6*hour )
@@ -448,22 +494,25 @@ libxEnv.doforurlClass = function()
                     timeToResetUpdate = 4*hour + Math.floor( 
                         Math.random()*2*hour );
                 }
+				
                 dfu_log( "Update: timeout is set for : " + 
                     makeUpdateTimeString( timeToResetUpdate ));
-                libxEnv.setIntPref( "libx.timeout", 
-                    (curdate + timeToResetUpdate ) );
-				//alert( "Missed it reseting timeout: " + (curdate + timeToResetUpdate) + " actual timeout " + timeToResetUpdate );
+				
+				setTimeoutPref( curdate + timeToResetUpdate );
+				
                 window.setTimeout( reviveUpdate, timeToResetUpdate );
             }
             else
             {   // timeout is in the future so we just set it for that date
                 var timeLeft = nextUpdate - curdate;
+				
                 dfu_log( "Update: update is still good and will occure at " + 
                     new Date(nextUpdate) );
                 dfu_log( "Update: timeout is set for : " + 
                     makeUpdateTimeString( timeLeft ));
-                libxEnv.setIntPref( "libx.timeout", (curdate + timeLeft ) );
-				//alert( "Setting new timeout: " + (curdate + timeLeft) + " timeout " + timeLeft );
+					
+				setTimeoutPref( curdate + timeLeft );
+				
                 window.setTimeout( reviveUpdate, timeLeft );
             }
         }

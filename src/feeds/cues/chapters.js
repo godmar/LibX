@@ -8,7 +8,7 @@ new libxEnv.doforurls.DoForURL(/chapters\..*\.ca\//, function (doc) {
 
     isbnLabelText = isbnlabel[0].nextSibling.nodeValue;
 
-	var isbn = isISBN(isbnLabelText);
+	var isbn = isISBN(isbnLabelText, libraryCatalog.downconvertisbn13);
 	if (isbn) {
 		var link = libxEnv.makeLink(doc,
 				libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]),

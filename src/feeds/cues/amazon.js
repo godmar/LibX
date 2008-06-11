@@ -18,7 +18,7 @@ function doAmazon(doc, match) {
 
     var isbnVal = isbnNodeArray[0].nextSibling.nodeValue;
 
-    var isbn = isISBN(isbnVal);
+    var isbn = isISBN(isbnVal, libraryCatalog.downconvertisbn13);
     var booktitleNodeArray = $(
         "div.buying > h1.parseasinTitle > span#btAsinTitle");
 
@@ -31,8 +31,8 @@ function doAmazon(doc, match) {
     // make link and insert after title
     var div = booktitleNode.parentNode;
     var cue = libxEnv.makeLink(doc, 
-                        libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                        libraryCatalog.linkByISBN(isbn), libraryCatalog);
+        libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
+        libraryCatalog.linkByISBN(isbn), libraryCatalog);
 
     div.insertBefore(cue, booktitleNode.nextSibling);
     try {
