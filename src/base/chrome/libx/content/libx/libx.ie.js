@@ -49,14 +49,13 @@ libxEnv.init = function() {
         libxDropdownOptions[mitem.value] = mitem;
     }
     
-    libxEnv.doforurls.initDoforurls();    
+    //libxEnv.doforurls.initDoforurls();    
     
     libraryCatalog = searchCatalogs[0];
 
     if(libxEnv.getBoolPref('libx.dfuexec', true)) {
         libxEnv.initIEDFU();
     }
-    //libxEnv.hash.initHash();
 }
 
 libxEnv.debugInit = function () {}
@@ -502,6 +501,43 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
 
 //Get remote text functions///////////////////////////////////////////////////
 
+
+//Returns an XML DOM document for the config file  
+
+libxEnv.getCueDocument = function( cue, lastMod, callback, postdata )
+{
+    //Get the request object
+    var req = libxInterface.getXMLHTTPRequest();
+
+    if(!req) {
+        libxEnv.writeLog("Could not get request object for url " + url);
+        return null;
+    }
+
+    var synch = (!callback);
+    if(!synch) {
+        //We're asynchronous, so set a callback
+        req.onreadystatechange = function() {
+            //Make sure we're ready for processing
+			if (req.readyState == 4) {
+				libxEnv.fileCache.downloadCueCallback( req, cue, callback );
+			}
+        }
+    }
+
+	if ( lastMod === undefined )
+	{
+		oReq.setRequestHeader( "If-Modified-Since", lastMod );
+	}
+	
+    //Do the request
+    req.open(postdata ? 'POST' : 'GET', cue.url, !synch);
+    req.send(postdata);
+    return synch ? req.responseXML : null;
+}
+
+
+
 /**
  * Retrieve a text file from a URL.
  * Same as getXMLDocument, except that responseText is returned.
@@ -511,9 +547,9 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
  *      libxInterface.doWebRequest(url);
  * which returns the text of a url as a string.
  */
-libxEnv.getDocument = function (url, callback, postdata) {
+libxEnv.getXMLDocument = function (url, callback, postdata) {
     //Get the request object
-    var req = new window.xmlHttpRequest();
+    var req = libxInterface.getXMLHTTPRequest();
 
     if (!req) {
         libxEnv.writeLog("Could not get request object for url " + url);
@@ -544,14 +580,12 @@ libxEnv.getDocument = function (url, callback, postdata) {
     return synch ? req.responseText : null;
 }
 
-
+/*
 libxEnv.getCueDocument = function( cue, lastMod, callback )
 {
     function reportStatus()
     {
-        //window.alert( "ZOOM" );
         if (oReq.readyState == 4) {
-            //window.alert( "callback" );
             libxEnv.fileCache.downloadCueCallback( oReq, cue, callback );
         }
     }

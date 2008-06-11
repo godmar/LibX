@@ -43,7 +43,7 @@
  */
 
 
-var cueUrl = "http://libx.cs.vt.edu/~frostyt/Cues/cues/";
+var cueUrl = rootURL + "cues/";
 var sandboxUrl = "http://libx.cs.vt.edu/~frostyt/Cues/sandbox/";
 var hotfixUrl = "http://libx.cs.vt.edu/~frostyt/Cues/hotfixes/";
 
