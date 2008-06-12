@@ -34,16 +34,6 @@
  
 libxEnv.ff = new Object(); /* Holder for FF specific objects */
 
-//Moved here since IE doesn't need this code
-libxEnv.addEventHandler(window, "load", 
-        function () {
-        var ac = document.getElementById("appcontent");
-        if (ac) {
-        libxEnv.addEventHandler(ac, "DOMContentLoaded", 
-            libxEnv.doforurls.onPageComplete_ff, true);
-        }
-        },
-        false);
 
 /*  init
  * Initialize Firefox-specific parts.
@@ -320,6 +310,18 @@ libxEnv.addEventHandler = function(obj, event, func, b) {
         alert ( "failing function called from " + arguments.caller );
     }
 }
+
+//Moved here since IE doesn't need this code
+libxEnv.addEventHandler(window, "load", 
+        function () {
+        var ac = document.getElementById("appcontent");
+        if (ac) {
+        libxEnv.addEventHandler(ac, "DOMContentLoaded", 
+            libxEnv.doforurls.onPageComplete_ff, true);
+        }
+        },
+        false);
+
 
 // switch the current search type (addison, openurl, etc.)
 libxEnv.SelectCatalog = function(mitem, event) {
