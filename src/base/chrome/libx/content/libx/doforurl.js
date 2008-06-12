@@ -523,14 +523,3 @@ libxEnv.doforurlClass = function()
 
 // creates a new doforurlClass object to attach to libxEnv
 libxEnv.doforurls = new libxEnv.doforurlClass();
-
-    libxEnv.addEventHandler(window, "load", 
-    function () {
-        var ac = document.getElementById("appcontent");
-        if (ac) {
-            libxEnv.addEventHandler(ac, "DOMContentLoaded", 
-                libxEnv.doforurls.onPageComplete_ff, true);
-        }
-    },
-    false);
-
