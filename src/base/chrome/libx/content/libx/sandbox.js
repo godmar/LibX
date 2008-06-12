@@ -40,27 +40,35 @@ libxEnv.sandboxClass = function ()
         theSandBox.window = safeWin;
         theSandBox.unsafeWindow = window;
         theSandBox.document = theSandBox.window.document;
+
         if ( url )
             theSandBox.url = url;
-        theSandBox.alert = alert;
-        theSandBox.libxEnv = new Object();
-        theSandBox.libxEnv.writeLog = libxEnv.writeLog;
-        theSandBox.libxEnv.makeLink = libxEnv.makeLink;
+
+        theSandBox.libxEnv = {
+            writeLog : libxEnv.writeLog,
+            makeLink : libxEnv.makeLink,
+            getProperty : libxEnv.getProperty,
+            options : libxEnv.options,
+            xpath : libxEnv.xpath,
+            openUrlResolver : libxEnv.openUrlResolver,
+            openUrlResolvers : libxEnv.openUrlResolvers
+        };
+
+        theSandBox.libxConfig = libxConfig;
         theSandBox.libraryCatalog = libraryCatalog;
         theSandBox.searchCatalogs = searchCatalogs;
-        theSandBox.libxEnv.getProperty = libxEnv.getProperty;
-        theSandBox.libxEnv.options = libxEnv.options;
-        theSandBox.libxEnv.xpath = libxEnv.xpath;
         theSandBox.isISBN = isISBN;
         theSandBox.libxRunAutoLink = libxRunAutoLink;
-        theSandBox.libxEnv.openUrlResolver = libxEnv.openUrlResolver;
-        theSandBox.libxEnv.openUrlResolvers = libxEnv.openUrlResolvers;
-        theSandBox.libxProxy = libxProxy;
+        theSandBox.libxProxy = libxProxy;   // used only by wam.js for first configured proxy
+
         theSandBox.run = function ()
         {
             theSandBox.action(this.document, this.m);
         }
         theSandBox.m = m;
+
+        // XPCNativeWrapper does not set the prototype chain
+        theSandBox.__proto__ = safeWin; 
         return theSandBox;
     }
     
