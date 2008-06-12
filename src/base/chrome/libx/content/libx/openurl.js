@@ -376,7 +376,7 @@ libxAddToPrototype(libxOCLCGateway.prototype, {
     url : "http://worldcatlibraries.org/registry/gateway",
     name : "OCLC Gateway",
     sid : "libx:oclcgateway"
-}
+});
 
 /*
 <?xml version="1.0" encoding="UTF-8"?>
