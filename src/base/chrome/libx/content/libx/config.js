@@ -77,9 +77,6 @@ function libxInitializeOptions()
 // Initialization - this code is executed when extension is loaded
 function libxInitializeProperties() 
 {
-    // this function is called after the entire overlay has been built
-    // we must wait until here before calling document.getElementById
-    libxProps = document.getElementById("libx-string-bundle");
     libxEnv.xmlDoc = libxGetConfigXML();
 
     libxInitializeOptions();
