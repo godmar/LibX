@@ -44,7 +44,7 @@
 
 
 var cueUrl = "cues/";
-var sandboxUrl = "sandbox/";
+var sandboxUrl = "sandboxScripts/";
 var hotfixUrl = "hotfixes/";
 
 
