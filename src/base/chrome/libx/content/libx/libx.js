@@ -221,18 +221,6 @@ function libxInit()
       xpath: 'XPath'
     };
 
-    //Set browser version variable
-    libxEnv.browserType = new Object();
-    var ieRegEx = new RegExp("Microsoft Internet Explorer");
-    var mozRegEx = new RegExp("Netscape");
-
-    if (ieRegEx.test(window.navigator.appName)) {
-        libxEnv.browserType.ie = true;
-    }
-    else if (mozRegEx.test(window.navigator.appName)) {
-        libxEnv.browserType.moz = true;
-    }
-
     libxInitSearchOptions();
     libxEnv.initializeGUI();
     libxInitializeOpenURL();
