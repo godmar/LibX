@@ -299,7 +299,7 @@ libxEnv.doforurlClass = function()
         }
 		if ( rootList.length == 0 ) 
         {
-            addRoot( defaultRoot );
+            addRoot( defaultRoot, updating );
         }
     }
     
