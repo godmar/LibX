@@ -144,7 +144,6 @@ libxEnv.fileCacheClass = function()
     // been updated then we simply return the version we still have on the hdd
     function downloadCue( cue, callback ) 
     {
-        //window.alert( "downloadCue " + cue.url );
         if ( cue.forceDL )
             libxEnv.getCueDocument( cue, null, callback );
         else
@@ -173,10 +172,12 @@ libxEnv.fileCacheClass = function()
                 if ( cue.type == "root" )
                     setLastUpdateDate( docRequest.getResponseHeader( "Date" ) );
                 callback( cue, null );
+                return;
             }
             storage_log( "Could not read or retrieve file with url: " + cue.url 
 		        + " status=" + docRequest.status);
             callback( cue, null );
+            return;
         }
     }
     
@@ -206,10 +207,7 @@ libxEnv.fileCacheClass = function()
         {
             text = readCueFile( cue.url );
             if ( !text || text == "" )
-            {
-                storage_log( "Couldn't download or read file with url: " + cue.url );
                 return;
-            }
             // since we haven't updated if cue is root we disable updating of it contents
             if ( cue.type == "root" )
                 cue.updating = false;
@@ -226,7 +224,7 @@ libxEnv.fileCacheClass = function()
         var text = readCueFile( cue.url );
         if ( text == null || text == "" || text == false ) 
         {
-            storage_log( "!!! Stored file could not be read, downloading it" );
+            storage_log( "Stored file could not be read, downloading it" );
             cue.forceDL = true;
             text = downloadCue( cue, getCueCallback );
             return;

@@ -221,7 +221,7 @@ libxEnv.getCueDocument = function ( cue, lastMod, callback, postdata)
             //asynchronous
             xmlhttp.open(httprequest, cue.url, true);
         }
-        if ( lastMod !== undefined )
+        if ( lastMod == null || lastMod !== undefined )
         {
             xmlhttp.setRequestHeader( "If-Modified-Since", lastMod );
         }
