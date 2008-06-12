@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.30 2008/06/10 04:08:06 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.31 2008/06/12 15:44:30 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?,localizationfeeds?)>
 <!ATTLIST edition 
@@ -36,6 +36,7 @@
         name            CDATA #REQUIRED
         resolvernum     CDATA #REQUIRED 
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         image           CDATA #IMPLIED
 >
 
@@ -44,6 +45,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED 
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         image           CDATA #IMPLIED
 >
 
@@ -52,6 +54,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         searchby        (Database|Category) 'Database'
         sslibhash       CDATA #REQUIRED
         dbidlist        CDATA #IMPLIED
@@ -65,6 +68,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         postdata        CDATA #IMPLIED
         image           CDATA #IMPLIED
 >
@@ -75,6 +79,7 @@
         sid             CDATA #IMPLIED
         urlregexp       CDATA #IMPLIED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         searchscope     CDATA #IMPLIED
         sort            CDATA #IMPLIED
         keywordcode     CDATA #IMPLIED
@@ -91,6 +96,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         localbase       CDATA #REQUIRED
         title           CDATA #REQUIRED
         author          CDATA #REQUIRED
@@ -115,6 +121,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         image           CDATA #IMPLIED
         downconvertisbn13 (true|false) 'true'
 >
@@ -124,6 +131,7 @@
         url             CDATA #REQUIRED
         sid             CDATA #IMPLIED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         image           CDATA #IMPLIED
         downconvertisbn13 (true|false) 'true'
 >
@@ -134,6 +142,7 @@
         searchscope     CDATA #IMPLIED
         sort            CDATA #IMPLIED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         path            CDATA #IMPLIED
         user_id         CDATA #IMPLIED
         password        CDATA #IMPLIED
@@ -145,6 +154,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         servers         CDATA #REQUIRED
         setting_key     CDATA #REQUIRED
         searchscope     CDATA #IMPLIED
@@ -160,6 +170,7 @@
         keyword         CDATA #IMPLIED
         count           CDATA #IMPLIED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         advancedsearchforissn CDATA #IMPLIED
         image           CDATA #IMPLIED
         relevanceranking (true|false) 'true'
@@ -170,6 +181,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         issn            CDATA #IMPLIED
         isbn            CDATA #IMPLIED
         callno          CDATA #IMPLIED
@@ -193,6 +205,7 @@
         name            CDATA #REQUIRED
         url             CDATA #REQUIRED
         options         CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
         image           CDATA #IMPLIED
         param0          CDATA #IMPLIED
         param1          CDATA #IMPLIED
@@ -230,6 +243,7 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
         res_id          CDATA #IMPLIED
         opacid          CDATA #IMPLIED
         siteparam       CDATA #IMPLIED
+        includeincontextmenu   (true|false) #IMPLIED
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -245,6 +259,7 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
         pmidsid        CDATA #IMPLIED
         version        (1.0|0.1) '0.1'
         autolinkissn   (true|false) 'false'
+        includeincontextmenu   (true|false) 'true'
         image          CDATA #IMPLIED   
 >
 
@@ -256,11 +271,13 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
         name           CDATA #REQUIRED
         urlcheckpassword CDATA #IMPLIED
         disableifcheckfails (true|false) 'false'
+        includeincontextmenu   (true|false) 'true'
 >
 <!ELEMENT wam EMPTY>
 <!ATTLIST wam
         url            CDATA #REQUIRED
         name           CDATA #REQUIRED
+        includeincontextmenu   (true|false) 'true'
 >
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -279,6 +296,7 @@ http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm
             |suppressscholardisplay
             |autolink
             |autolinkstyle
+            |magicsearchincontextmenu
             )
         #REQUIRED
         value          CDATA #REQUIRED
