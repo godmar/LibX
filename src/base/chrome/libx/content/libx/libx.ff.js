@@ -34,10 +34,26 @@
  
 libxEnv.ff = new Object(); /* Holder for FF specific objects */
 
+//Moved here since IE doesn't need this code
+libxEnv.addEventHandler(window, "load", 
+        function () {
+        var ac = document.getElementById("appcontent");
+        if (ac) {
+        libxEnv.addEventHandler(ac, "DOMContentLoaded", 
+            libxEnv.doforurls.onPageComplete_ff, true);
+        }
+        },
+        false);
+
 /*  init
  * Initialize Firefox-specific parts.
  */
 libxEnv.init = function() {
+
+    // this function is called after the entire overlay has been built
+    // we must wait until here before calling document.getElementById
+    libxProps = document.getElementById("libx-string-bundle");
+
     libxEnv.ff.toolbar = document.getElementById('libx-toolbar');
     libxInitializeAutolink();
     
