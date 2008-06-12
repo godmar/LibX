@@ -50,6 +50,7 @@ libxEnv.sandboxClass = function ()
             getProperty : libxEnv.getProperty,
             options : libxEnv.options,
             xpath : libxEnv.xpath,
+            xisbn : libxEnv.xisbn,
             openUrlResolver : libxEnv.openUrlResolver,
             openUrlResolvers : libxEnv.openUrlResolvers
         };
