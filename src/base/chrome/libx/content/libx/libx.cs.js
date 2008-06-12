@@ -32,15 +32,10 @@ libxEnv.getBoolPref = function (pref, defvalue) {
 libxEnv.getIntPref = function (pref, defvalue) {
     return defvalue;
 }
-libxEnv.openSearchWindow = function (url, donoturiencode) {
+libxEnv.openSearchWindow = function (url) {
     if (typeof url == "string") {
         /* GET */
-        if (donoturiencode == null || donoturiencode == false) {
-            var url2 = encodeURI(url);
-        } else {
-            var url2 = url;
-        }
-        window.open(url2);
+        window.open(url);
     } else {
         /* POST - create a hidden POST form, populate and submit it. */
         var target = url[0];

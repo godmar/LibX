@@ -42,7 +42,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
 	},
     // escape spaces using + rather than %20
     escape: function(sterm) {
-        return sterm.replace(/\s/g, "+");
+        return encodeURIComponent(sterm).replace(/%20/g, "+");
     },
 	searchCodeLookup: function(stype) {
 		switch(stype) {

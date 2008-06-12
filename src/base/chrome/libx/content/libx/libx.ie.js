@@ -130,14 +130,11 @@ libxEnv.setObjectVisible = function(obj, show) {
  *
  * Assumes that the preferences are either libx.newtabswitch or libx.sametab
  */
-libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
+libxEnv.openSearchWindow = function (url, pref) {
     var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
     
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
-    if (donoturiencode == null || donoturiencode == false) {
-        url2 = encodeURI(url2);
-    }
 	
 	/* In IE, we are not given control over tabs, by design.
 	 * See http://blogs.msdn.com/ie/archive/2005/05/26/422103.aspx

@@ -41,13 +41,8 @@ getIntPref:
         return defvalue;
     },
 openSearchWindow:
-    function (url, donoturiencode) {
-        if (donoturiencode == null || donoturiencode == false) {
-            var url2 = encodeURI(url);
-        } else {
-            var url2 = url;
-        }
-        window.open(url2);
+    function (url) {
+        window.open(url);
     },
 getXMLConfig: 
     function () {

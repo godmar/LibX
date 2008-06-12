@@ -28,7 +28,6 @@ function VoyagerOPAC() { }
 VoyagerOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(VoyagerOPAC.prototype, {
-    doNotURIEncode: true,
     keyword: "FT*",     // default keyword index
     count: 25,          // default number of hits returned
     relevanceranking: true,     // by default, use relevance ranking for keyword

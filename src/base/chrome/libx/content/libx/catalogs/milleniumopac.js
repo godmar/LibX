@@ -30,7 +30,6 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
     // default values for millenium catalogs
     sort: 'R',  //sort by relevance, use 'D' for date
     searchform: 1,
-    doNotURIEncode: true,
     advancedcode: 'X',
     keywordcode: 'Y',
     journaltitlecode: 't',

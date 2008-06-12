@@ -118,14 +118,11 @@ libxEnv.convertPostString2PostData = function (dataString) {
 }
 
 // open search results, according to user preferences
-libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
+libxEnv.openSearchWindow = function (url, pref) {
     var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
 
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
-    if (donoturiencode == null || donoturiencode == false) {
-        url2 = encodeURI(url2);
-    } 
 
     if (isGet) {
         var tabarguments = [ url2 ];

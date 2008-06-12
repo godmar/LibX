@@ -62,7 +62,7 @@ function magicSearch(data, inpub, justmakeurl)
             var onmissshow = libxEnv.options.scholarmissurl
                 .replace(/%S/i, encodeURIComponent(data));
 
-            libxEnv.openSearchWindow(onmissshow, true);
+            libxEnv.openSearchWindow(onmissshow);
         }
     }
 
@@ -144,7 +144,7 @@ function magicSearch(data, inpub, justmakeurl)
     // to read Google Scholar pages simply open the scholar page for the 
     // user to see.
     if (!libxEnv.openUrlResolver) { 
-        libxEnv.openSearchWindow(url, true);
+        libxEnv.openSearchWindow(url);
         return null;
     }
 
@@ -272,7 +272,7 @@ function magicSearch(data, inpub, justmakeurl)
                         libxEnv.writeLog('DirectURL: ' + vtu, libxEnv.logTypes.magic);
                     }
                     if (display) {
-                        libxEnv.openSearchWindow(vtu, true);
+                        libxEnv.openSearchWindow(vtu);
                         found = true;
                     }
                     break;
@@ -305,9 +305,9 @@ function magicSearch(data, inpub, justmakeurl)
 
             // show google scholar page also
             if (found) {
-                libxEnv.openSearchWindow(url, true, "libx.newtab" );       // in second tab if we got a hit
+                libxEnv.openSearchWindow(url, "libx.newtab" );       // in second tab if we got a hit
             } else {
-                libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata), true);  // as primary window if not
+                libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata));  // as primary window if not
             }
             return null;
         } else {
@@ -327,7 +327,7 @@ function magicSearch(data, inpub, justmakeurl)
         handleMiss(url, originaldata);
 
         if (!libxEnv.options.suppressscholardisplay)
-            libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata), true);
+            libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata));
         return null;
     }
     return null;

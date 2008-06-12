@@ -92,12 +92,12 @@ libxAddToPrototype(Web2OPAC.prototype, {
         return "";
     },
 	makeSearch: function(stype, sterm) {
-        return this.url + this.path + "setting_key=" + this.setting_key + "&index=" + this.convert(stype) + "&servers=" + this.servers + "&query=" + sterm + this.scopeField() + this.sortField();
+        return this.url + this.path + "setting_key=" + this.setting_key + "&index=" + this.convert(stype) + "&servers=" + this.servers + "&query=" + encodeURIComponent(sterm) + this.scopeField() + this.sortField();
 	},
 	makeAdvancedSearch: function(fields) {
 		var url = this.url + this.path + "setting_key=" + this.setting_key + "&servers=" + this.servers + "&index=default&query=";
 		for (var i = 0; i < fields.length; i++) {
-			url += "(" + this.convert2(fields[i].searchType) + " " + fields[i].searchTerms + ")";
+			url += "(" + this.convert2(fields[i].searchType) + " " + encodeURIComponent(fields[i].searchTerms) + ")";
 			if (i < fields.length - 1) {
       	url += " AND ";
 			}

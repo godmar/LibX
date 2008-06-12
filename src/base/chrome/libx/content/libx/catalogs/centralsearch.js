@@ -88,7 +88,7 @@ libxAddToPrototype(CentralSearch.prototype, {
     },
 	makeSearch: function(stype, sterm) {
         return this.prolog("basic")
-            + "&field=" + this.convert(stype) + "&term=" + sterm
+            + "&field=" + this.convert(stype) + "&term=" + encodeURIComponent(sterm)
             + this.epilog()
             ;
 	},
@@ -103,7 +103,7 @@ libxAddToPrototype(CentralSearch.prototype, {
                 url += "&boolop" + (i) + "=And";
             }
 			url += "&field" + (i) + "=" + this.convert(fields[i].searchType) 
-                + "&term" + (i) + "=" + fields[i].searchTerms;
+                + "&term" + (i) + "=" + encodeURIComponent(fields[i].searchTerms);
 		}
         url += this.epilog();
 		return url;

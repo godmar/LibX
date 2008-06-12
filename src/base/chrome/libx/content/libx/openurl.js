@@ -86,13 +86,12 @@ OpenURL.prototype = {
                 } else {
                     url += this.btitleprefix;
                 }
-			    // replace removes everything that is not letter, digit, _, or whitespace
-			    // and replaces multiple whitespaces with a single one
-                url += fields[i].searchTerms.replace(/[^A-Za-z0-9_\s]/g, " ").replace(/\s+/, " ");
+
+                url += encodeURIComponent(fields[i].searchTerms.replace(/\s+/, " "));
 			    this.haveTitleOrIssn = true;
 			    break;
 		    case 'at':
-			    url += this.atitleprefix + fields[i].searchTerms.replace(/[^A-Za-z0-9_\s]/g, " ").replace(/\s+/, " ");
+			    url += this.atitleprefix + encodeURIComponent(fields[i].searchTerms.replace(/\s+/, " "));
 			    break;
 		    case 'i':
                 var pureISN = isISBN(fields[i].searchTerms, this.downconvertisbn13);
@@ -120,15 +119,15 @@ OpenURL.prototype = {
 			    sterm = sterm.replace(/[^A-Za-z0-9_\-\s]/g, " ");
 			    var names = sterm.split(/\s+/);
 			    if (names.length == 1) {// if author is single word, use as aulast field
-				    url += this.aulastprefix + names[0];
+				    url += this.aulastprefix + encodeURIComponent(names[0]);
 			    } else {// if author name is multiple words, see in which order to use fields
 				    if (hasComma || names[names.length-1].match(/^[A-Z][A-Z]?$/i)) {// assume it is already last, first middle
-					    url += this.aulastprefix + names[0];
-					    url += this.aufirstprefix + names[1];
+					    url += this.aulastprefix + encodeURIComponent(names[0]);
+					    url += this.aufirstprefix + encodeURIComponent(names[1]);
 					    // XXX do not discard middle names/initials 2 and up
 				    } else {
-					    url += this.aulastprefix + names[names.length-1];
-					    url += this.aufirstprefix + names[0];
+					    url += this.aulastprefix + encodeURIComponent(names[names.length-1]);
+					    url += this.aufirstprefix + encodeURIComponent(names[0]);
 					    // XXX do not discard middle names/initials 1 through names.length-2
 				    }
 				    // XXX investigate if we need to properly set auinit, auinit1, and auinitm here
@@ -178,7 +177,7 @@ OpenURL.prototype = {
         } catch (er) {
             libxEnv.writeLog(er + ": exception occurred attempting to replace %hostname%", 'openurl');
         }
-        url += sid;
+        url += encodeURIComponent(sid);
         return url;
     },
     makeOpenURLSearch: function(fields) {
@@ -309,15 +308,15 @@ ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
         var stype = fields[0].searchType;
         if (stype == 'jt') {
             // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
-            return this.url + '?V=1.0&S=T_W_A&C=' + fields[0].searchTerms;
+            return this.url + '?V=1.0&S=T_W_A&C=' + encodeURIComponent(fields[0].searchTerms);
         }
         if (stype == 'is') {
-            return this.url + '?V=1.0&S=I_M&C=' + fields[0].searchTerms;
+            return this.url + '?V=1.0&S=I_M&C=' + encodeURIComponent(fields[0].searchTerms);
         }
     }
 
     // super.makeOpenURLFromFields()
-    return OpenURL.prototype.makeOpenURLSearch.call(this, fields);   
+    return OpenURL.prototype.makeOpenURLSearch.call(this, fields);
 }
 
 // ---------------------------------------------------------------------------------
@@ -355,23 +354,29 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
 // ---------------------------------------------------------------------------------
 // libxOCLCGateway is a subclass of OpenURL
 // 
+// Retrieve icon of whichever OpenURL resolver is reported as being accessible for the current IP
+// Actual requests go through the worldcatlibraries URL below.
+//
 function libxOCLCGateway () {
     var thisOpenURL = this;
-    // Actual Implementation:
+
     libxEnv.getXMLDocument ( "http://worldcatlibraries.org/registry/lookup?IP=requestor",
-        function ( doc ) {
-            doc = doc.responseXML;
+        function ( xmlhttprequest ) {
+            var doc = xmlhttprequest.responseXML;
             try {
                 var link = doc.getElementsByTagName ( 'linkIcon' )[0].firstChild.nodeValue;
                 thisOpenURL.image = link;
-        } catch (e) {}
+            } catch (e) { /* ignore */ }
     } );
 }
-libxOCLCGateway.prototype = new OpenURL ();
-libxOCLCGateway.prototype.url = "http://worldcatlibraries.org/registry/gateway";
-libxOCLCGateway.prototype.name = "OCLC Gateway";
-libxOCLCGateway.prototype.sid = "libx:oclcgateway";
 
+libxOCLCGateway.prototype = new OpenURL ();
+
+libxAddToPrototype(libxOCLCGateway.prototype, {
+    url : "http://worldcatlibraries.org/registry/gateway",
+    name : "OCLC Gateway",
+    sid : "libx:oclcgateway"
+}
 
 /*
 <?xml version="1.0" encoding="UTF-8"?>

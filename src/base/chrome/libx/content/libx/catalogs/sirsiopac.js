@@ -29,7 +29,6 @@ SirsiOPAC.prototype = new libxCatalog();
 libxAddToPrototype(SirsiOPAC.prototype, {
     path: "/uhtbin/cgisirsi/x/0/0/5/",
     searchscope: 1,
-    doNotURIEncode: true,
     xisbn: { opacid: "sirsi6" },
 /*
       <option value="GENERAL^SUBJECT^GENERAL^^keywords anywhere">keyword anywhere</option>

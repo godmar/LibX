@@ -63,15 +63,15 @@ libxAddToPrototype(HorizonOPAC.prototype, {
 	    return this.url + this.path + "?" 
             + (this.profile ? ("profile=" + this.profile + "&") : "")
 	    + ((this.sid != null) ? "sid=" + this.sid + "&" : "")
-            + "index=" + this.convert(stype) + "&term=" + sterm;
+            + "index=" + this.convert(stype) + "&term=" + encodeURIComponent(sterm);
 	},
 	makeAdvancedSearch: function(fields) {
 	    var url = this.url + this.path + "?";
             url += (this.profile ? ("profile=" + this.profile + "&") : "");
             url += (this.sid ? ("sid=" + this.sid + "&") : "");
-		url += "index=" + this.convert(fields[0].searchType) + "&term=" + fields[0].searchTerms;
+		url += "index=" + this.convert(fields[0].searchType) + "&term=" + encodeURIComponent(fields[0].searchTerms);
 		for (var i = 1; i < fields.length; i++) {
-			url += "&oper=and&index=" + this.convert(fields[i].searchType) + "&term=" + fields[i].searchTerms; 
+			url += "&oper=and&index=" + this.convert(fields[i].searchType) + "&term=" + encodeURIComponent(fields[i].searchTerms);
 		}
 		return url;
 	}

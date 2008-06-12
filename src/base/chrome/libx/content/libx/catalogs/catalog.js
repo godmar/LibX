@@ -106,7 +106,7 @@ libxCatalog.prototype = {
             var url = this.makeAdvancedSearch(fields);
         }
         if (url != null) {
-            libxEnv.openSearchWindow(url, this.doNotURIEncode);
+            libxEnv.openSearchWindow(url);
         } else {
             libxEnv.writeLog("Could not construct search");
         }
@@ -136,7 +136,6 @@ function libxBookmarklet() { }
 libxBookmarklet.prototype = new libxCatalog();
 
 libxAddToPrototype(libxBookmarklet.prototype, {
-    doNotURIEncode: true,
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },
@@ -252,7 +251,6 @@ function libxScholarSearch() { }
 libxScholarSearch.prototype = new libxCatalog();
 
 libxAddToPrototype(libxScholarSearch.prototype, {
-    doNotURIEncode: true,
     options: "Y;at;jt;a",
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
