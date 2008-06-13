@@ -7,13 +7,8 @@ function doAgricola(doc) {
     // find a <TR> that has a <TH> child whose textContent is equal to 'Call Number:'
     var cn_tr = $("tr th").filter(":contains('Call Number:')");
 
-    if (0 == cn_tr.length)
-        return;
     // starting relative to this <TR>, find the first <TD> child with an <A> grandchild and select the <A> - that's the hyperlinked call number
     var cn_aNode = cn_tr.next("td").children("a");
-
-    if (0 == cn_aNode.length)
-        return;
 
     var cn_a = cn_aNode.contents()[0];
     var cn = cn_a.nodeValue;

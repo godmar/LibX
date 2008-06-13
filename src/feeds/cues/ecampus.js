@@ -7,15 +7,8 @@ function (doc, match) {
     var origISBNTextNode = origISBNNodeArray.contents();
     var isbn = origISBNTextNode[0].nodeValue;
 
-    if (0 == origISBNNodeArray.length)
-        return;
-
-    if (!isbn)
-        return;
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
-    libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
-        link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
-    }});
+    createXISBNTooltip(link, isbn, libraryCatalog.name);
     origISBNNode.appendChild(link);
     animateCue(link);
 });

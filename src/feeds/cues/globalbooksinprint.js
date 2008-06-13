@@ -19,6 +19,7 @@ function(doc) {
         var hint = libxEnv.makeLink(doc, 
                     libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
                     libraryCatalog.linkByISBN(isbn), libraryCatalog);
+        createXISBNTooltip(hint, isbn, libraryCatalog.name);
         anode.parentNode.insertBefore(hint, anode.nextSibling);
         animateCue(hint);
     }

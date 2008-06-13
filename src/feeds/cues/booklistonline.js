@@ -10,6 +10,9 @@ function (doc) {
                 libxEnv.getProperty("isbnsearch.label",
                     [libraryCatalog.name, isbn]),
                 libraryCatalog.linkByISBN(isbn));
+
+            createXISBNTooltip(newlink, isbn, libraryCatalog.name);
+
             n[i].parentNode.insertBefore(newlink, n[i]);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), n[i]);
             // uncomment this to remove the worldcatlibraries link

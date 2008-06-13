@@ -2,23 +2,15 @@
 // Link Barnes & Noble pages to catalog via ISBN
 var bnFunction = function (doc, match) {
     var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);    // grab captured isbn in matched URL
-    if (isbn == null)
-        return;
     
     // last verified Mar 02, 2008
     var origTitleNodeArray = $("div#product-info").find("h2");
-
-    if (0 == origTitleNodeArray.length)
-        return;
 
     var origTitleNode = origTitleNodeArray[0];
     
     // make link and insert after title
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
-    libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
-        link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
-    }});
-
+    createXISBNTooltip(link, isbn, libraryCatalog.name);
 
     $(origTitleNode).contents().eq(0).before(doc.createTextNode(" "));
     $(origTitleNode).contents().eq(0).before(link);

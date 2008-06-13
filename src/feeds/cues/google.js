@@ -4,20 +4,21 @@
 
 new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
     var nArray = $("tr td span[id='sd']");
-    if (0 == nArray.length)
-        return;
 
     n = nArray[0];
     
+    // XXX unify (maybe place 'unsafeWindow' in LibX IE script engine?
     if ( unsafeWindow === undefined )
-        var searchterms = window.document.gs.q.value;
+        var searchterms = window.document.gs.q.value;   // LibX IE
     else
-        var searchterms = unsafeWindow.document.gs.q.value;   
+        var searchterms = unsafeWindow.document.gs.q.value;   // LibX FF
     // google stores its search terms there for its own use
 
-    var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog)
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog);
 
     n.parentNode.appendChild(link);
+
+    // XXX why this?  Tobias, please explain or fix
     $(link,unsafeWindow.document).fadeOut("slow");
     $(link,unsafeWindow.document).fadeIn("slow");
     //animateCue(link);
@@ -30,16 +31,13 @@ function (doc) {
     var n = libxEnv.xpath.findSingleXML(doc, "//tr/td//text()[contains(.,'ISBN')]");
     var nArray = $("tr > td").filter(":contains('ISBN')");
 
-    if (0 == nArray.length)
-        return;
-
     var n = nArray[1];
     var nText = $(n).text();
     var m = nText.match(/(\d{9}[X\d])/i);
     var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), libraryCatalog.linkByISBN(m[1]), libraryCatalog);
+    createXISBNTooltip(newlink, isbn, libraryCatalog.name);
     var ns = n.nextSibling;
     cue = n.insertBefore(newlink, ns);
-    // a white space to make it pretty for Melissa
     n.insertBefore(doc.createTextNode(" "), cue);
     animateCue(link);
 });
@@ -56,6 +54,7 @@ function (doc) {
         if (m) {
             var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]], libraryCatalog),
                     libraryCatalog.linkByISBN(m[1]));
+            createXISBNTooltip(newlink, isbn, libraryCatalog.name);
             var ns = n[i].nextSibling;
             n[i].parentNode.insertBefore(newlink, ns);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), ns);i

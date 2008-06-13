@@ -3,24 +3,24 @@
 new libxEnv.doforurls.DoForURL(/chapters\..*\.ca\//, function (doc) {
     var isbnlabel = $("label:contains('ISBN:')");
 
-    if (0 == isbnlabel.length)
-        return;
-
     isbnLabelText = isbnlabel[0].nextSibling.nodeValue;
 
-	var isbn = isISBN(isbnLabelText, libraryCatalog.downconvertisbn13);
-	if (isbn) {
-		var link = libxEnv.makeLink(doc,
-				libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
-				libraryCatalog.linkByISBN(isbn), libraryCatalog);
-		// place this link prominently by the booktitle
-		var t = $("div[id=itemProductHeading] > h1");
+    var isbn = isISBN(isbnLabelText, libraryCatalog.downconvertisbn13);
+    if (isbn) {
+        var link = libxEnv.makeLink(doc,
+                libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
+                libraryCatalog.linkByISBN(isbn), libraryCatalog);
 
-		if (0 == t.length)
-			return;
+        createXISBNTooltip(link, isbn, libraryCatalog.name);
 
-		t[0].insertBefore(link, t[0].firstChild);
-		t[0].insertBefore(doc.createTextNode(" "), link);
+        // place this link prominently by the booktitle
+        var t = $("div[id=itemProductHeading] > h1");
+
+        if (0 == t.length)
+            return;
+
+        t[0].insertBefore(link, t[0].firstChild);
+        t[0].insertBefore(doc.createTextNode(" "), link);
         animateCue(link);
-	} 
+    } 
 });

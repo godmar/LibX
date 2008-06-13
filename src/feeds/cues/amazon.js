@@ -13,20 +13,12 @@ new libxEnv.doforurls.DoForURL(/amazon\.fr\//, doAmazon);
 function doAmazon(doc, match) {
     var isbnNodeArray = $("b:contains('ISBN')");
 
-    if (0 == isbnNodeArray.length)
-        return;
-
     var isbnVal = isbnNodeArray[0].nextSibling.nodeValue;
 
     var isbn = isISBN(isbnVal, libraryCatalog.downconvertisbn13);
-    var booktitleNodeArray = $(
-        "div.buying > h1.parseasinTitle > span#btAsinTitle");
-
-    if (0 == booktitleNodeArray.length)
-        return;
+    var booktitleNodeArray = $("div.buying > h1.parseasinTitle > span#btAsinTitle");
 
     var booktitleNode = booktitleNodeArray[0];
-    
 
     // make link and insert after title
     var div = booktitleNode.parentNode;
@@ -34,19 +26,10 @@ function doAmazon(doc, match) {
         libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
         libraryCatalog.linkByISBN(isbn), libraryCatalog);
 
-    libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
-        cue.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
-    }});
+    createXISBNTooltip(cue, isbn, libraryCatalog.name);
 
     div.insertBefore(cue, booktitleNode.nextSibling);
-    try {
-        animateCue(cue);
-    }
-    catch (ex) {
-	libxEnv.writeLog( "Caught exception when fading in cue " + ex );
-	for ( prop in ex )
-		libxEnv.writeLog( "ex." + prop + " " + ex[prop] );
-    }
+    animateCue(cue);
 }
 
 // vim ts := 4

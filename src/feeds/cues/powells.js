@@ -24,9 +24,7 @@ function powellsComByISBN(doc, m)
             // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
             //right of title use this: titleLabel.appendChild(link);
             //titleLabel.after( link );
-        libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
-            link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
-        }});
+        createXISBNTooltip(link, isbn, libraryCatalog.name);
         titleLabel.prepend( link );
         animateCue(link);
     }

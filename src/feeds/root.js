@@ -64,7 +64,6 @@ addCue( cueUrl + "google.js" );
 addCue( cueUrl + "nytimes.js" );
 addCue( cueUrl + "powells.js" );
 addCue( cueUrl + "serialsolutions.js" );
-addCue( cueUrl + "vtcatalog.js" );
 addCue( cueUrl + "wam.js" );
 addCue( cueUrl + "yahoo.js" );
 addCue( cueUrl + "coins.js" );
