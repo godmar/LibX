@@ -462,11 +462,12 @@ libxEnv.initializeGUI = function () {
      * It's still incorrect on FF 1.5 on Macintosh.  FF 1.5 is unsupported
      * by Mozilla as of 04/07, so let's not bother fixing it.
      */
+/*
     if (navigator.userAgent.match(/.*Macintosh.*Firefox\/2/)) {
         searchbutton.style.margin = "-4px 0px -2px 0px";
-        document.getElementById("libx-scholar-box")
-            .style.margin = "1px 0px 0px 0px";
+        document.getElementById("libx-scholar-box").style.margin = "1px 0px 0px 0px";
     }
+*/
 
     document.getElementById("libx-menu-toolbarbutton")
         .setAttribute("tooltiptext", "LibX - " + 
@@ -538,10 +539,10 @@ libxEnv.ff.addSearchField = function () {
     var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
     // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
     newSearchField.firstChild.value = lastSearchField.firstChild.value;
-    lastSearchField.childNodes.item(2).disabled=true;// disable blue "add-field" button in what will be the next-to-last searchfield
+    lastSearchField.childNodes.item(2).setAttribute("disabled", true);// disable blue "add-field" button in what will be the next-to-last searchfield
     if (libxSearchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
-        lastSearchField.childNodes.item(3).disabled=false; // OPTIONAL: show close button in first search field
-        newSearchField.childNodes.item(3).disabled=false; // if so, the second field must have the close button enabled
+        lastSearchField.childNodes.item(3).setAttribute("disabled", false); // OPTIONAL: show close button in first search field
+        newSearchField.childNodes.item(3).setAttribute("disabled", false); // if so, the second field must have the close button enabled
     }
 
     // use setAttribute instead of setting property directly to avoid
@@ -567,9 +568,9 @@ libxEnv.ff.addSearchField = function () {
 libxEnv.ff.removeSearchField = function (fieldHbox) {
     libxSearchFieldVbox.removeChild(fieldHbox);
     var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
-    lastSearchField.childNodes.item(2).disabled=false;// enable blue "add-field" button
+    lastSearchField.childNodes.item(2).setAttribute("disabled", false);// enable blue "add-field" button
     if (libxSearchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
-        lastSearchField.childNodes.item(3).disabled=true;
+        lastSearchField.childNodes.item(3).setAttribute("disabled", true);
     }
 }
 
