@@ -32,7 +32,7 @@ libxEnv.sandboxClass = function ()
     // creates the sandbox with all the functions we need for our doforurls
     // window is the window object, url is the url of the current pages,
     // and m containes the matched part of the url which some doforurls need
-    this.createSandbox = function( window, url, m )
+    this.createSandbox = function( window, url )
     {
         var safeWin = new XPCNativeWrapper(window);
         var theSandBox = new Components.utils.Sandbox( safeWin );
@@ -57,16 +57,10 @@ libxEnv.sandboxClass = function ()
 
         theSandBox.libxConfig = libxConfig;
         theSandBox.libraryCatalog = libraryCatalog;
-        theSandBox.searchCatalogs = searchCatalogs;
+        theSandBox.searchCatalogs = searchCatalogs; // not used at all (?)
         theSandBox.isISBN = isISBN;
         theSandBox.libxRunAutoLink = libxRunAutoLink;
         theSandBox.libxProxy = libxProxy;   // used only by wam.js for first configured proxy
-
-        theSandBox.run = function ()
-        {
-            theSandBox.action(this.document, this.m);
-        }
-        theSandBox.m = m;
 
         // XPCNativeWrapper does not set the prototype chain
         theSandBox.__proto__ = safeWin; 
