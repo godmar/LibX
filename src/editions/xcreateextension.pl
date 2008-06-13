@@ -124,12 +124,27 @@ for my $o ($options_node->getChildrenByTagName('option')) {
     $conf{'logoURL'} = $o->getAttribute('value') if ($o->getAttribute('key') eq 'logo');
     $conf{'emiconURL'} = $o->getAttribute('value') if ($o->getAttribute('key') eq 'icon');
 }
+
 #######################################################
 # code to create default preferences file
 #
-# Should we use XML::Simple here? Order doesn't matter.
+# Default preferences are determined by
+# attr contextmenuoptions for catalogs
+# attr includeincontextmenu for catalogs/xisbn
+# attr includeincontextmenu for OpenURL resolvers
+# attr magicsearchincontextmenu for options
+#
+# These attributes may not exist, or may exist on only same
+# catalogs.
 #
 my $pref = XML::LibXML::Document->new();
+
+# Step 0.  Create <preferences><contextmenu></contextmenu><preferences>
+
+my $prefroot = $pref->createElement('preferences');
+$pref->setDocumentElement($prefroot);
+my $prefcmenu = $pref->createElement('contextmenu');
+$prefroot->appendChild($prefcmenu);
 
 # does this catalog support option X?
 sub hasOption {
@@ -138,81 +153,113 @@ sub hasOption {
     return (";" . $opt . ";") =~ m/;$type;/;
 }
 
-sub getCatalog {
+# create <elemtype name=@name type=@type> entry
+sub makeElementNameType {
+    my ($elemtype, $name, $type) = @_;
+    my $elem = $pref->createElement($elemtype);
+    $elem->setAttribute('name', $name);
+    $elem->setAttribute('type', $type);
+    return $elem;
+}
+
+# create <catalog name=@name type=@type> entry
+sub makeCatalogEntry {
     my ($cat0, $type) = @_;
-    my $cat = $pref->createElement("catalog");
-    $cat->setAttribute('name', $cat0->getAttribute('name'));
-    $cat->setAttribute('type', $type);
-    return $cat;
+    return makeElementNameType('catalog', $cat0->getAttribute('name'), $type);
 }
 
-sub getOpenURL {
+# create <openurl name=@name type=@type> entry
+sub makeOpenURLEntry {
     my ($openurl0, $type) = @_;
-    my $o = $pref->createElement("openurl");
-    $o->setAttribute('name', $openurl0->getAttribute('name'));
-    $o->setAttribute('type', $type);
-    return $o;
+    return makeElementNameType('openurl', $openurl0->getAttribute('name'), $type);
 }
 
-my $cat0 = ${$root->findnodes('//catalogs/*')}[0];
-my $openurl0 = ${$root->findnodes('//openurl/resolver[1]')}[0];
-my $proxy0 = ${$root->findnodes('//proxy/*[1]')}[0];
+# retrieve configuration
+my @catalogs = $root->findnodes('//catalogs/*');
+my @openurls = $root->findnodes('//openurl/resolver');
+my @proxies = $root->findnodes('//proxy/*');
+my @magicsearchoption = $root->findnodes('//option[@key=\'magicsearchincontextmenu\']');
 
-my $prefroot = $pref->createElement('preferences');
-$pref->setDocumentElement($prefroot);
-my $prefcmenu = $pref->createElement('contextmenu');
-$prefroot->appendChild($prefcmenu);
+my $cat0 = $catalogs[0];
 
-my $isbn = $pref->createElement('isbn');
-if ($cat0 && hasOption($cat0, 'i')) {
-    $isbn->appendChild(getCatalog($cat0, 'i'));
-    if ($cat0->findnodes('xisbn')) {
-        $isbn->appendChild(getCatalog($cat0, 'xisbn'));
-    }
-}
-$prefcmenu->appendChild($isbn);
-
-my $issn = $pref->createElement('issn');
-$issn->appendChild(getCatalog($cat0, 'i')) if ($cat0 && hasOption($cat0, 'i'));
-$issn->appendChild(getOpenURL($openurl0, 'i')) if ($openurl0);
-$prefcmenu->appendChild($issn);
-
-my $doi = $pref->createElement('doi');
-$doi->appendChild(getOpenURL($openurl0, 'doi')) if ($openurl0);
-$prefcmenu->appendChild($doi);
-
-my $pmid = $pref->createElement('pmid');
-$pmid->appendChild(getOpenURL($openurl0, 'pmid')) if ($openurl0);
-$prefcmenu->appendChild($pmid);
-
-# enable Keyword, Title, Author by default for general
+# Step 1.  Create <general>
 my $default = $pref->createElement('general');
-$default->appendChild(getCatalog($cat0, 'Y')) if ($cat0 && hasOption($cat0, 'Y'));
-$default->appendChild(getCatalog($cat0, 't')) if ($cat0 && hasOption($cat0, 't'));
-$default->appendChild(getCatalog($cat0, 'a')) if ($cat0 && hasOption($cat0, 'a'));
-if ($cat0 && !$default->hasChildNodes()) {
-    # catalog has neither Y, t, or a - take the first option in this case
-    my @opts = split(/;/, $cat0->getAttribute('options'));
-    $default->appendChild(getCatalog($cat0, $opts[0])) if ($cat0);
-}
-
-# enable magic button by default
-my $scholarpref = $pref->createElement('scholar');
-$scholarpref->setAttribute('name', 'Google Scholar');
-$scholarpref->setAttribute('type', 'magicsearch');
-$default->appendChild($scholarpref);
 $prefcmenu->appendChild($default);
 
-if ($proxy0) {
-    my $proxy = $pref->createElement('proxy');
-    my $proxypref = $pref->createElement('proxy');
-    $proxypref->setAttribute('name', $proxy0->getAttribute('name'));
-    $proxypref->setAttribute('type', 'enabled');
-    $proxy->appendChild($proxypref);
-    $prefcmenu->appendChild($proxy);
+foreach my $catalog (@catalogs) {
+    my $ctxtoptions = $catalog->getAttribute("contextmenuoptions");
+    next if !(defined($ctxtoptions));
+    foreach my $copt (split(/;/, $ctxtoptions)) {
+        # exclude ISBN
+        $default->appendChild(makeCatalogEntry($catalog, $copt)) if ($copt ne "i" && hasOption($catalog, $copt));
+    }
 }
 
-# XXX once edition maker writes this file, don't blindly overwrite it.
+# fallback
+if (!$default->hasChildNodes() && $cat0) {
+    # enable Keyword, Title, Author by default for general
+    $default->appendChild(makeCatalogEntry($cat0, 'Y')) if (hasOption($cat0, 'Y'));
+    $default->appendChild(makeCatalogEntry($cat0, 't')) if (hasOption($cat0, 't'));
+    $default->appendChild(makeCatalogEntry($cat0, 'a')) if (hasOption($cat0, 'a'));
+    if (!$default->hasChildNodes()) {
+        # catalog has neither Y, t, or a - take the first option in this case
+        my @opts = split(/;/, $cat0->getAttribute('options'));
+        $default->appendChild(makeCatalogEntry($cat0, $opts[0]));
+    }
+}
+
+# enable magic button unless turned off
+if (!(@magicsearchoption) || $magicsearchoption[0]->getAttribute('value') eq "true") {
+    $default->appendChild(makeElementNameType('scholar', 'Google Scholar', 'magicsearch'));
+}
+
+# Step 2.  Create <isbn>, <issn>, <pmid>, and <doi> together
+my $isbn = $pref->createElement('isbn');
+$prefcmenu->appendChild($isbn);
+my $issn = $pref->createElement('issn');
+$prefcmenu->appendChild($issn);
+my $doi = $pref->createElement('doi');
+$prefcmenu->appendChild($doi);
+my $pmid = $pref->createElement('pmid');
+$prefcmenu->appendChild($pmid);
+
+# all openurl resolvers appear in ISSN, DOI, and PMID preferences
+foreach my $openurl (@openurls) {
+    my $icim = $openurl->getAttribute('includeincontextmenu');
+    next if (defined($icim) && $icim eq "false");
+
+    $issn->appendChild(makeOpenURLEntry($openurl, 'i'));
+    $doi->appendChild(makeOpenURLEntry($openurl, 'doi'));
+    $pmid->appendChild(makeOpenURLEntry($openurl, 'pmid'));
+}
+
+# all catalogs with 'i' appear in ISBN + ISSN
+# if xisbn child does not have includeincontextmenu set to false also include all children
+foreach my $catalog (@catalogs) {
+    my $ctxtoptions = $catalog->getAttribute("contextmenuoptions");
+    next if !(defined($ctxtoptions));
+    if (hasOption($catalog, 'i') && ";$ctxtoptions;" =~ m/;i;/) {
+        $isbn->appendChild(makeCatalogEntry($catalog, 'i'));
+        $issn->appendChild(makeCatalogEntry($catalog, 'i'));
+    }
+
+    if ($catalog->findnodes('xisbn') && !$catalog->findnodes('xisbn[@includeincontextmenu = "false"]')) {
+        $isbn->appendChild(makeCatalogEntry($catalog, 'xisbn'));
+    }
+}
+
+# Step 3.  Create <proxy>
+my $proxycat = $pref->createElement('proxy');
+$prefcmenu->appendChild($proxycat);
+
+foreach my $proxy (@proxies) {
+    my $icim = $proxy->getAttribute('includeincontextmenu');
+    next if (defined($icim) && $icim eq "false");
+
+    $proxycat->appendChild(makeElementNameType('proxy', $proxy->getAttribute('name'), 'enabled'));
+}
+
+# write preferences to file
 my $defaultspreffile = $editionpath . "defaultprefs.xml";
 open (DEFPREF, ">$defaultspreffile") || die "Could not write " . $defaultspreffile; 
 print DEFPREF $pref->toString(1);
@@ -222,7 +269,7 @@ close (DEFPREF);
 #
 #######################################################
 
-$conf{'additionalproperties'} = "";
+$conf{'additionalproperties'} = "";     # legacy
 $conf{'emhomepageURL'} = $httpeditionpath . $editionrelpath . "/libx.html";
 $conf{'emupdateURL'} = $httpeditionpath . $editionrelpath . "/update.rdf";
 $conf{'xpilocation'} = $httpeditionpath . $editionrelpath . "/libx-" . $localbuild . $editionid . ".xpi";
@@ -500,7 +547,7 @@ if (-x $makensis) {
     $env .= " -DLOCALE_PATH=$tmpdir/chrome/libx/locale/";
     $env .= " -DLOCALE=en-US";
     $env .= " -DEDITION_PATH=$editionpath";
-	 $env .= " -DEDITION_ID=$editionid";
+    $env .= " -DEDITION_ID=$editionid";
     system ("$makensis $env -V1 -NOCD ${editionpath}setup.nsi") == 0 or die "$makensis $env failed.";
 } else {
     print "$makensis not found, skipping IE build.\n";
