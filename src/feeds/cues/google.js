@@ -8,7 +8,7 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
     n = nArray[0];
     
     // XXX unify (maybe place 'unsafeWindow' in LibX IE script engine?
-    if ( unsafeWindow === undefined )
+    if ( unsafeWindow == null )
         var searchterms = window.document.gs.q.value;   // LibX IE
     else
         var searchterms = unsafeWindow.document.gs.q.value;   // LibX FF
@@ -18,10 +18,7 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
 
     n.parentNode.appendChild(link);
 
-    // XXX why this?  Tobias, please explain or fix
-    $(link,unsafeWindow.document).fadeOut("slow");
-    $(link,unsafeWindow.document).fadeIn("slow");
-    //animateCue(link);
+    animateCue(link);
 
 });
 
