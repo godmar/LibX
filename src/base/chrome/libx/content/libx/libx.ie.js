@@ -130,11 +130,14 @@ libxEnv.setObjectVisible = function(obj, show) {
  *
  * Assumes that the preferences are either libx.newtabswitch or libx.sametab
  */
-libxEnv.openSearchWindow = function (url, pref) {
+libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
     
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
+    if (donoturiencode == null || donoturiencode == false) {
+        url2 = encodeURI(url2);
+    }
 	
 	/* In IE, we are not given control over tabs, by design.
 	 * See http://blogs.msdn.com/ie/archive/2005/05/26/422103.aspx
@@ -1044,4 +1047,24 @@ libxEnv.hash.hashString = function ( text )
     var temp = libxInterface.hashString( text );
     ////window.alert( temp );
     return temp;
+}
+
+libxEnv.displayLastUpdateDate = function()
+{
+//	window.alert( "displayLastUpdateDate()" );
+	var text = libxEnv.getUnicharPref("libx.lastupdate");
+	libxInterface.updateLastUpdateDate( text );
+//	window.alert("jaja");
+		//newDate(libxEnv.getUnicharPref( "libx.lastupdate" )).toString());
+}
+
+libxEnv.displayLastModifieds = function()
+{
+//	window.alert( "displayLastModifieds()" );
+//	window.alert( libxInterface.updateLastModified );
+	var rootInfo = libxEnv.doforurls.getRootInfo();
+	for ( var i = 0; i < rootInfo.length; i++ )
+	{
+		libxInterface.updateLastModified( rootInfo[i].lastMod, rootInfo[i].url );
+	}
 }

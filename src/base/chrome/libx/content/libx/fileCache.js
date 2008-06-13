@@ -160,7 +160,7 @@ libxEnv.fileCacheClass = function()
             var text = docRequest.responseText;
             writeCueFile( cue.url, text );
             if ( cue.type == "root" )
-                setLastUpdateDate( docRequest.getResponseHeader( "Date" ) );
+                setLastUpdateDate( new Date() );
             callback( cue, text );
         }
         else
@@ -170,7 +170,9 @@ libxEnv.fileCacheClass = function()
                 storage_log( "File with url: " + cue.url  
                     + "\n has not been updated on server, status: 304" );
                 if ( cue.type == "root" )
-                    setLastUpdateDate( docRequest.getResponseHeader( "Date" ) );
+				{
+                    setLastUpdateDate( new Date() );
+				}
                 callback( cue, null );
                 return;
             }

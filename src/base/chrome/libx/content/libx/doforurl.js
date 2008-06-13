@@ -232,14 +232,14 @@ libxEnv.doforurlClass = function()
     // runs through all the doforurls once a new page is loaded (FF version)
     this.onPageComplete_ff = function(ev)
     {
-        if (!ev || !ev.originalTarget) return;
+        if (!ev) return;
         
         var win = ev.explicitOriginalTarget.defaultView;
         var doc = win.document;
         if (ev.originalTarget.location == 'about:blank')
                 return;     
                 
-		var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
+		var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href, m );
 		for ( var l = 0; l < sandboxScriptList.length; l++ )
 		{
 			try {
@@ -254,8 +254,8 @@ libxEnv.doforurlClass = function()
     outer:
         for (var i = 0; i < dfu_actions.length; i++) {
             var dfu = dfu_actions[i];
-            var match;
-            if (match = ev.originalTarget.location.href.match(dfu.pattern)) {
+            var m;
+            if (m = ev.originalTarget.location.href.match(dfu.pattern)) {
                 var exclude = dfu.exclude;
                 if (exclude) {
                     for (var j = 0; j < exclude.length; j++)
@@ -263,21 +263,8 @@ libxEnv.doforurlClass = function()
                             continue outer;
                 }
 
-                try {
-                    /* NB: dfu.action is already defined in chrome space.  We'd like to do:
-                     * sandbox.action = function () {
-                     *   dfu.action(this.document, match);
-                     * }
-                     * and then evaluate 'this.action()'.  However, evaluating
-                     * a chrome function within the sandbox switches the global object to 
-                     * the chrome global object, hiding all properties added by the
-                     * (untrusted) sandbox code (such as jQuery's $ included earlier.)
-                     *
-                     * Therefore, we must convert the function back to a string and
-                     * evaluate that string in the box, as shown below.
-                     */
-                    sandbox.match = match;
-                    var func = "(" + dfu.action + ")(this.document, this.match);";				
+                try {                    
+                    var func = "this.action = " + dfu.action + "; run();";				
 					libxEnv.sandbox.evaluateInSandbox( func , sandbox);
                 } catch (e) { 
                     dfu_log(" sandbox " + e);
