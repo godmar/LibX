@@ -98,8 +98,10 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 			<vbox>
 				<hbox>
 					<toolbarbutton 
+                        class="libx-align-center libx-toolbar-button libx-toolbarbutton-with-image"
                         label=" $emnameshort$ " type="menu" 
-                        image="&libx.image;" id="libx-menu-toolbarbutton">
+                        image="&libx.image;" 
+                        id="libx-menu-toolbarbutton">
 						<menupopup id="libxmenu">
                             <menuseparator id="libxmenu.separator"/>
 							<menuitem id="libx-about" label="LibX Preferences" oncommand="libxEnv.ff.openPrefWindow()" />
@@ -114,7 +116,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<!-- do not add more children to vbox, the addSearchField function relies on being able to clone vbox.lastChild -->
 				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
 					<!-- child number 0 aka firstChild -->
-					<toolbarbutton style="margin-top: -1px;"
+					<toolbarbutton class="libx-align-center libx-toolbar-button libx-toolbarbutton-with-menu"
                             label="-" type="menu" tooltiptext="Select Search Field Type" 
                             width="80" crop="end">
 						<menupopup id="libx-dropdown-menupopup">
@@ -133,19 +135,21 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 						</menupopup>
 					</toolbarbutton>
 					<!-- child number 1 -->
-					<toolbaritem flex="1">
-						<textbox editable="true" tooltiptext="Press Enter to Search, Press Ctrl-Enter to Add Another Search Field!"
+					<toolbaritem flex="1" class="libx-toolbaritem" >
+						<textbox 
+                            class="libx-textbox"
+                            editable="true" tooltiptext="Press Enter to Search, Press Ctrl-Enter to Add Another Search Field!"
 							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { doSearch(event); } else { libxEnv.ff.addSearchField(); document.commandDispatcher.advanceFocus(); }"
 							flex="1" minwidth="100" width="160" />
 					</toolbaritem>
 					<!-- child number 2 -->
 					<toolbarbutton tooltiptext="Create New Search Field" 
-                                    class="down-button remove-icon-padding" 
+                                    class="down-button libx-toolbar-button libx-toolbarbutton-with-image"
                                     disabled="false" 
                                     oncommand="libxEnv.ff.addSearchField();" />
 					<!-- child number 3 -->
 					<toolbarbutton tooltiptext="Close Search Field" 
-                                    class="close-button remove-icon-padding" 
+                                    class="close-button libx-toolbar-button libx-toolbarbutton-with-image"
                                     disabled="true" 
                                     oncommand="libxEnv.ff.removeSearchField(this.parentNode);" />
 				</hbox>
@@ -155,6 +159,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 				<hbox id="libx-right-toolbarbutton-hbox">
 					<toolbarbutton 
                         type="menu-button" 
+                        class="libx-align-center libx-toolbar-button libx-toolbarbutton-with-menu-button"
                         tooltiptext="Press to search or drag search terms onto this button!"
 						id="libx-search-button" oncommand="doSearch();">
 						<menupopup id="libxcatalogs">
@@ -164,6 +169,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
                     <toolbarseparator style="&toolbar.separator.style;" />
 					<toolbarbutton 
+                                class="libx-toolbar-button libx-align-center"
                                 label=" Clear " tooltiptext="Clear All Search Fields" 
                                 oncommand="libxEnv.ff.clearAllFields();" />
 
@@ -173,7 +179,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                      we then correct for in the style sheet.
                  -->
                     <toolbarseparator style="&toolbar.separator.style;" />
-					<toolbaritem id="libx-magic-button">
+					<toolbaritem id="libx-magic-button" class="libx-align-center libx-toolbaritem">
                         <!-- See #libx-scholar-box style rule in libx.css -->
                         <hbox id="libx-scholar-box">
                             <image src="&libx.magicbutton.image;" />
