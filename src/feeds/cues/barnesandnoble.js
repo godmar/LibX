@@ -15,6 +15,10 @@ var bnFunction = function (doc, match) {
     
     // make link and insert after title
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
+    libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
+        link.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
+    }});
+
 
     $(origTitleNode).contents().eq(0).before(doc.createTextNode(" "));
     $(origTitleNode).contents().eq(0).before(link);
