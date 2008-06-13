@@ -112,7 +112,7 @@ libxEnv.xisbn = {
     /* retrieve info about ISSN from xISSN and format as text */
     // NB: libx.org is the LibX affiliate account; these are limited to 100 requests a day.
     // either arrange for unlimited use with OCLC or ask that edition maintainers
-    // either affiliate id via edition builder
+    // enter an affiliate id via edition builder
     getISSNMetadataAsText: function (issn, completionhandlers) {
         this.process(issn, 
                     "http://xissn.worldcat.org/webservices/xid/issn/" 
