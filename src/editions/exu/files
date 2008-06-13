@@ -1,6 +1,0 @@
-# format of this file is "file directory"
-exetersmall.png chrome/libx/skin/libx
-exeterlarge.png chrome/libx/skin/libx
-# use this instead of the default definitions.dtd
-#no longer necessary because it was only done for Classmark
-#definitions.dtd chrome/libx/locale/en-US/libx
