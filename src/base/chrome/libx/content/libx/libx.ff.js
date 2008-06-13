@@ -674,7 +674,7 @@ var libxAutoLinkFilters = [
     },
     {   // ISSNs - we try to only accept 0000-0000
         regexp: /(\d{4}-\d{3}[\dx])(?!\d)/ig,
-        href: function(match) { 
+        href: function(match, anchor) { 
             var issn = isISSN(match[1]); 
             if (issn == null) return null;
             var split = issn.match(/(\d{4})-(\d{4})/);
@@ -686,9 +686,15 @@ var libxAutoLinkFilters = [
                     return null;
             }
             if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.autolinkissn) {
+                libxEnv.xisbn.getISSNMetadataAsText(issn, { ifFound: function (text) {
+                    anchor.title = "LibX: " + libxEnv.getProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, text]);
+                }});    // could implement notFound handler to remove ISSN link!
                 this.name = libxEnv.getProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, issn])
                 return libxEnv.openUrlResolver.makeOpenURLForISSN(issn);
             } else {
+                libxEnv.xisbn.getISSNMetadataAsText(issn, { ifFound: function (text) {
+                    anchor.title = "LibX: " + libxEnv.getProperty("issnsearch.label", [libraryCatalog.name, text]);
+                }});    // could implement notFound handler to remove ISSN link!
                 this.name = libxEnv.getProperty("issnsearch.label", [libraryCatalog.name, issn]);
                 return libraryCatalog.makeSearch('is', issn);
             }

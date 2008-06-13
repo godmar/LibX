@@ -55,14 +55,76 @@ libxEnv.xisbn = {
         oncompletionobj[oncompletionfunc](text);
     },
 
-    /* retrieve info about ISBN from xISBN and format as text */
-    getISBNMetadataAsText: function (isbn, completionhandlers) {
-        this.doWithXIsbn(isbn, this.formatISBNMetadataAsText, completionhandlers);
+    // see http://xissn.worldcat.org/xissnadmin/doc/api.htm
+    //
+    // * title: Title
+    // * publisher: Publisher
+    // * rawcoverage: Human-readable Coverage
+    // * peerreview: Peerreview, 'Y' if the ISSN is peer-reviewed, 
+    //                           'N' if the ISSN is not peer-reviewed.
+    // * form: Each ISSN has a production form, indicated by an ONIX production form code. 
+    // Current supported values include: JB ( Printed serial ), 
+    // JC ( Serial distributed electronically by carrier ),
+    // JD ( Electronic serial distributed online ), 
+    // MA ( Microform )
+    //
+    /* xissnrsp is a XML document node returned by xisbn.worldcat.org */
+    formatISSNMetadataAsText: function (xissnrsp, oncompletionobj, oncompletionfunc) {
+        var text = '';
+        function addIfPresent(before, attr, after) {
+            var s = "";
+            if (attr != null) {
+                s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                if (after !== undefined)
+                    s += after;
+            }
+            return s;
+        }
+
+        text += addIfPresent('"', xissnrsp.getAttribute('title'), '"');
+        text += addIfPresent(", ", xissnrsp.getAttribute('publisher'));
+        text += addIfPresent(" ", 
+            xissnrsp.getAttribute('peerreview') == 'Y' ? "(peer-reviewed)" : "(non-peer-reviewed)");
+        switch (xissnrsp.getAttribute('form')) {
+        case "JB": 
+            var form = "Printed serial"; break;
+        case "JC": 
+            var form = "Serial distributed electronically by carrier"; break;
+        case "JD": 
+            var form = "Electronic serial distributed online"; break;
+        case "MA": 
+            var form = "Microform"; break;
+        }
+        text += addIfPresent(", ", form);
+        oncompletionobj[oncompletionfunc](text);
     },
 
-    /* retrieve info about ISBN from xISBN - either from cache or from xisbn, and 
+    /* retrieve info about ISBN from xISBN and format as text */
+    getISBNMetadataAsText: function (isbn, completionhandlers) {
+        this.process(isbn, 
+                    "http://xisbn.worldcat.org/webservices/xid/isbn/" 
+                        + isbn + "?method=getMetadata&format=xml&fl=*",
+                    "//xisbn:rsp[@stat='ok']/xisbn:isbn", 
+                    "http://worldcat.org/xid/isbn/",
+                    this.formatISBNMetadataAsText, completionhandlers);
+    },
+
+    /* retrieve info about ISSN from xISSN and format as text */
+    // NB: libx.org is the LibX affiliate account; these are limited to 100 requests a day.
+    // either arrange for unlimited use with OCLC or ask that edition maintainers
+    // either affiliate id via edition builder
+    getISSNMetadataAsText: function (issn, completionhandlers) {
+        this.process(issn, 
+                    "http://xissn.worldcat.org/webservices/xid/issn/" 
+                        + issn + "?method=getMetadata&format=xml&fl=*&ai=libx.org",
+                    "//xissn:rsp[@stat='ok']//xissn:issn", 
+                    "http://worldcat.org/xid/issn/",
+                    this.formatISSNMetadataAsText, completionhandlers);
+    },
+
+    /* retrieve info about ISBN or ISSN from xISBN - either from cache or from service, and 
        call formatFunc(result, completion_func) */
-    doWithXIsbn: function (isbn, formatFunc, completionhandlers) {
+    process: function (isbn, requestUrlPath, xpathResponseOk, xmlnsResponse, formatFunc, completionhandlers) {
         if (!libxEnv.getBoolPref ('libx.oclc.ajaxpref', 'true'))
             return;
 
@@ -80,15 +142,15 @@ libxEnv.xisbn = {
         var isbn2metadata = this.isbn2metadata;
 
         // see http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
-        libxEnv.getXMLDocument("http://xisbn.worldcat.org/webservices/xid/isbn/" + isbn + "?method=getMetadata&format=xml&fl=*",
+        libxEnv.getXMLDocument(requestUrlPath,
             function (xmlhttp) {
                 var node = libxEnv.xpath.findSingle(
                         xmlhttp.responseXML, 
-                        "//xisbn:rsp[@stat='ok']/xisbn:isbn", 
+                        xpathResponseOk,
                         xmlhttp.responseXML, 
                         function (prefix) {
-                            // only 1 namespace is used;
-                            return "http://worldcat.org/xid/isbn/";
+                            // specify namespace for XPath
+                            return xmlnsResponse;
                         });
 
                 // cache result (even if ISBN was not found)
