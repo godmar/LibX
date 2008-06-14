@@ -453,17 +453,17 @@ libxEnv.initializeGUI = function () {
         libxSelectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
     }).attachToElement(searchbutton);
 
-    /* Adjust for bug in style rendering on Macintosh with FF 2.0.
-     * The type field to toolbarbutton can take the value "menu" or "menu-button".
-     * The two are very different: menu has a label child, menu-button does not.
-     * labels have padding.  
+    /*
+     * Adjust styles to achieve aligned layouts.
      */
-/*
     if (navigator.userAgent.match(/.*Macintosh.*Firefox\/2/)) {
-        ???
+        searchbutton.style.marginTop = "-2px";
+        document.getElementById("libx-menu-toolbarbutton").style.marginTop = "2px";
+        document.styleSheets[0].insertRule('.libx-textbox { padding-top: 3px; padding-bottom: -1px; }',0);
+        document.styleSheets[0].insertRule('.libx-toolbarbutton-with-menu { margin-top: 1px; }',0);
     }
-*/
-    if (navigator.userAgent.match(/.*Macintosh.*Firefox\/[23]/)) {
+
+    if (navigator.userAgent.match(/.*Macintosh.*Firefox\/3/)) {
         searchbutton.style.marginTop = "-1px";
         document.getElementById("libx-menu-toolbarbutton").style.marginTop = "2px";
     }
