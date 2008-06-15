@@ -519,7 +519,7 @@ libxEnv.doforurlClass = function()
             {   // timeout is in the future so we just set it for that date
                 var timeLeft = nextUpdate - curdate;
 				
-                dfu_log( "Update: update is still good and will occure at " + 
+                dfu_log( "Update: update is still good and will occur at " + 
                     new Date(nextUpdate) );
                 dfu_log( "Update: timeout is set for : " + 
                     makeUpdateTimeString( timeLeft ));
@@ -536,3 +536,5 @@ libxEnv.doforurlClass = function()
 
 // creates a new doforurlClass object to attach to libxEnv
 libxEnv.doforurls = new libxEnv.doforurlClass();
+
+// vim: ts=4

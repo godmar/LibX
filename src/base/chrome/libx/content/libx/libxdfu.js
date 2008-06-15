@@ -38,7 +38,7 @@ function libxInitializeDFU()
         }
         catch (e)
         {
-           LibxEnv.writeLog( "error while evaling cue " + cue.url + "\n of type " + cue.type + 
+           libxEnv.writeLog( "error while evaling cue " + cue.url + "\n of type " + cue.type + 
                 "\n error: " + e.message );
         }
     }
