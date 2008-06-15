@@ -6,7 +6,7 @@ function (doc) {
     for (var i = 0; i < n.length; i++) {
         var isbn = isISBN(n[i].textContent);
         if (isbn) {
-            var newlink = makeLink(doc,
+            var newlink = libxEnv.makeLink(doc,
                 libxEnv.getProperty("isbnsearch.label",
                     [libraryCatalog.name, isbn]),
                 libraryCatalog.linkByISBN(isbn));

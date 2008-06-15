@@ -1,7 +1,12 @@
 // chapters.ca or chapters.indigo.ca
 // the URL appears to embed both a ISBN-13 and an ISBN - look for "ISBN:" instead
 new libxEnv.doforurls.DoForURL(/chapters\..*\.ca\//, function (doc) {
-    var isbnlabel = $("label:contains('ISBN:')");
+
+    var isbnlabel = $("label:contains('ISBN - 13:')");
+    if (isbnlabel.length == 0)
+        isbnlabel = $("label:contains('ISBN - 10:')");
+    if (isbnlabel.length == 0)
+        isbnlabel = $("label:contains('ISBN:')");
 
     isbnLabelText = isbnlabel[0].nextSibling.nodeValue;
 
