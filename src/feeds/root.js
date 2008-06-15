@@ -68,4 +68,3 @@ addCue( cueUrl + "wam.js" );
 addCue( cueUrl + "yahoo.js" );
 addCue( cueUrl + "coins.js" );
 addCue( cueUrl + "abebooks.js" );
-addCue( cueUrl + "openurl.js" );

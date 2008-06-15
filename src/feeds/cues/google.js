@@ -79,8 +79,8 @@ if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
             link.parentNode.insertBefore(newlink, link.nextSibling);
             link.parentNode.insertBefore(doc.createTextNode(" "), 
                 link.nextSibling); 
-            animateCue( link );
-            // link.parentNode.removeChild(link);
+            animateCue( newlink );
+            // this would remove the "Get VText" link Scholar places link.parentNode.removeChild(link);
         }
     }
  }
