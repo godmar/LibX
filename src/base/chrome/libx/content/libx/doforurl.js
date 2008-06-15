@@ -17,19 +17,15 @@
  * Portions created by the Initial Developer are Copyright (C) 2005
  * the Initial Developer and Virginia Tech. All Rights Reserved.
  *
- * Contributor(s): Godmar Back (godmar@gmail.com)
  * Contributor(s): Tobias Wieschnowsky (frostyt@vt.edu)
+ * Contributor(s): Godmar Back (godmar@gmail.com)
  *
  * ***** END LICENSE BLOCK ***** */
 
 /*
  * doforurl.js
- * Author: Godmar Back
  *
  * Associate an action when the user reaches a given URL, greasemonkey style.
- * The difference between this and greasemonkey is that
- * greasemonkey scripts will run inside the DOM of the page, just ordinary
- * user javascripts, whereas the scripts here will run inside Chrome JS.
  *
  * Example:
  * function doAmazon(doc) {
@@ -37,15 +33,14 @@
  *      //alert("you're at amazon");
  * }
  *
- * then place outside a function:
+ * then place in a cue file
  *
  * new DoForURL(/\.amazon\.com/, doAmazon);
  * Voila!
  *
- * The actual DoForURLs are now hosted as automatically updated file on:
- * http://libx.cs.vt.edu/~frostyt/Cues/rootList.js
- * This list will tell you the location and name of the DoForUrls
- *
+ * The actual cue files are now sourced as external javascript files.
+ * The default set is here:
+ * http://libx.cs.vt.edu/libx/src/feeds/root.js
  */
 
 //**********************************************************************
@@ -105,8 +100,40 @@ libxEnv.doforurlClass = function()
 		{
 			url = curroot.baseURL + url;
 		}
+/*
+ * Tobias, please fix:
+ * 'cue' constructor doesn't take three arguments.
+ * Consider using object literal syntax instead (it documents the purpose of each variable passed:)
+ * as in:
+ *
+ * var c = { 
+ *      url: url,
+ *      type: "cue"
+ * }
+ *
+ * The term 'cue' is misleading anyway ---- it's really a bundle of properties that describes
+ * a cached item.  My recommendation: either use object-literal syntax (my preference), or find a more descriptive
+ * name.  If you don't use object-literal syntax, define the class in fileCache since this is
+ * where it would logically belong.
+ */
         var c = new cue( url, "cue", curroot );
         that.cueList.push( c );
+
+/*
+ * The code below is broken.
+ *
+ * If updateCue is called, callback is undefined.  If updateCue completes synchronously (say a really fast server, such as localhost)
+ * it won't call the callback.  In this case, you're saved because you're later evaluating cueList[i].text in libxInitializeDFU
+ *
+ * If updateCue blocks, callback will be set after the call.  If the data arrives before you reach libxInitializeDFU,
+ * you'll evaluate it twice, adding the DoForURL twice.  Two cues will appear (I've seen this, actually.)
+ *
+ * If getCue is called, callback is undefined.  getCue may or may not block.  It doesn't block if the cue file is in
+ * the file system.  It blocks if it needs to be downloaded.  If it blocks, the same problem as above may arise.
+ *
+ * My recommendation: get rid of libxInitializeDFU and always trigger the evaluation of the cue code here.
+ * Also, get rid of the if (curroot.updating == true) and instead set c.forceUpdate = true. 
+ */
         if ( curroot.updating == true )
             libxEnv.fileCache.updateCue( c );
         else
@@ -131,6 +158,9 @@ libxEnv.doforurlClass = function()
 			url = curroot.baseURL + url;
 		}
         var c = new cue( url , "sandbox", curroot );
+/**
+ * You're pushing this script in the list even though you don't know if the download succeeded.
+ */
         sandboxScriptList.push( c );
         if ( curroot.updating == true )
             libxEnv.fileCache.updateCue( c );
@@ -144,6 +174,9 @@ libxEnv.doforurlClass = function()
 		if ( isRelativeURL ( url ) )
 		{
 			url = curroot.baseURL + url;
+/*
+ * Third time this code appears.  Refactor.
+ */
 		}
         var c = new cue( url, "hotfix", curroot );
         that.hotfixList.push( c );
@@ -161,6 +194,10 @@ libxEnv.doforurlClass = function()
         c.callback = function ()
         {
             try {
+/* 
+ * Ugly.
+ * Either use observer pattern or ensure libxEnv.displayLastUpdateDate etc. is always defined.
+ */
                 if ( libxEnv.displayLastUpdateDate !== undefined )
                 {   // if it exists we are in the perfs part and need to update last update date
                     libxEnv.displayLastUpdateDate();
@@ -203,6 +240,7 @@ libxEnv.doforurlClass = function()
 	
 		for ( var l = 0; l < sandboxScriptList.length; l++ )
 		{
+/* XXX should catch exception */
 			eval( sandboxScriptList[l].text );
 		} 
 				
@@ -336,6 +374,16 @@ libxEnv.doforurlClass = function()
         }
         if ( rootInfo.length == 0 )
         {
+/**
+ * Consider using object-literal syntax here; which is more readable:
+ * 
+ * rootInfo.push({
+ *       url: defaultRoot,
+ *       lastMod: libxEnv.fileCache.getLastModifiedDate( defaultRoot)
+ * });
+ *
+ * or this:
+ */
             var temp = new Object();
             temp.url = defaultRoot;
             temp.lastMod = libxEnv.fileCache.getLastModifiedDate( temp.url );
