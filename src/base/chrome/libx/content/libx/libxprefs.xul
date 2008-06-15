@@ -262,6 +262,7 @@ libxEnv.displayLastModifieds = function()
                         <label value="Annette Bailey" />
                         <label value="Godmar Back" />
                         <label value="Michael Doyle" />
+                        <label value="Tobias Wieschnowsky" />
                         <spacer height="10px" />
                         <vbox id="adaptedbybox">
                             <label class="header" value="Adapted by" />
