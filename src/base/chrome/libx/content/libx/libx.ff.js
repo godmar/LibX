@@ -369,6 +369,10 @@ libxEnv.initCatalogGUI = function () {
     
     // record initially selected catalog and activate its search options
     var selectedCatalog = libxEnv.getIntPref("libx.selectedcatalognumber", 0);
+    // previously selected catalog may no longer be in list
+    if (selectedCatalog >= searchCatalogs.length)
+        selectedCatalog = 0;    
+
     libxSelectedCatalog = searchCatalogs[selectedCatalog];
     libxActivateCatalogOptions(libxSelectedCatalog);
     libraryCatalog = searchCatalogs[0];
