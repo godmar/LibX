@@ -34,12 +34,13 @@ function libxInitializeDFU()
     for ( var i = 0; i < libxEnv.doforurls.cueList.length; i++ )
     {
         try {
-            eval( libxEnv.doforurls.cueList[i].text );
+            var cue = libxEnv.doforurls.cueList[i];
+            eval( cue.text );
         }
         catch (e)
         {
-           libxEnv.writeLog( "error while evaling cue " + cue.url + "\n of type " + cue.type + 
-                "\n error: " + e.message );
+           libxEnv.writeLog( "error while evaling cue " + cue.url + "\n of type " 
+                + cue.type + "\n error: " + e.message );
         }
     }
 }
