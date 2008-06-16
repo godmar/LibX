@@ -75,7 +75,10 @@ libxEnv.init = function() {
        function () {
                        window.openDialog ( "chrome://libx/content/firstrun.xul",
                "LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
-               {toolbar: document.getElementById ( 'libx-toolbar' ) }
+               {
+               		toolbar: document.getElementById ( 'libx-toolbar' ), 
+	               	proxyAjaxable: ( libxProxy != null && libxProxy.canCheck() ) 
+               }
                );
        }, 1 );
        libxEnv.setBoolPref ( 'libx.firstrun', false );
