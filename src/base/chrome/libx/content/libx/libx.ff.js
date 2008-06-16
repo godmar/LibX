@@ -417,7 +417,7 @@ libxEnv.initializeGUI = function () {
     
     for (var i = 0; i < ddOptions.childNodes.length; i++) {
         var d = ddOptions.childNodes.item(i);
-        libxDropdownOptions[d.value] = d;
+        libxDropdownOptions[d.getAttribute("value")] = d;
     }
 
     /* If an edition wants to use searchoptions that are not 
@@ -583,8 +583,8 @@ libxEnv.ff.removeSearchField = function (fieldHbox) {
 // this function is called when the user switches the search field type for a given search field
 libxEnv.ff.setFieldType = function (menuitem) {
     //propagate label and value of menuitem to grandparent (toolbarbutton)
-    menuitem.parentNode.parentNode.label = menuitem.label;
-    menuitem.parentNode.parentNode.value = menuitem.value;
+    menuitem.parentNode.parentNode.label = menuitem.getAttribute("label");
+    menuitem.parentNode.parentNode.value = menuitem.getAttribute("value");
 }
 
 libxEnv.ff.clearAllFields = function () {
