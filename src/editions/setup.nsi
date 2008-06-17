@@ -150,7 +150,6 @@ Section "LibX JavaScript" SEC02
   File "${JS_PATH}libxprefs.js"
   File "${JS_PATH}fileCache.js"
   File "${JS_PATH}doforurl.js"
-  File "${JS_PATH}libxdfu.js"
   File "${JS_PATH}javascript-xpath.js"
   SetOutPath "${PRODUCT_DATA_STORE}\content\catalogs"
   File "${JS_PATH}catalogs/*.js"
