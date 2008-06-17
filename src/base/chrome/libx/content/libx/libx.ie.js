@@ -42,7 +42,8 @@ libxEnv.init = function() {
     libxEnv.populateDropdownOptions();
     //Read in search options and add to libxConfig.searchOptions
     var libxSearchOptions = 
-        libxEnv.xpath.findNodesXML(libxGetConfigXML().xml, "/edition/searchoptions/*");
+        libxEnv.xpath.findNodesXML(libxGetConfigXML().xml, 
+        "/edition/searchoptions/*");
     for (var option = 0; option < libxSearchOptions.length; option++ ) {
         var mitem = libxSearchOptions[option];
         libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
@@ -59,41 +60,6 @@ libxEnv.init = function() {
 }
 
 libxEnv.debugInit = function () {}
-
-libxEnv.initIEDFU = function () {
-
-    //Do for url functions utilizing jQuery are now located in libxiedfu.js
-
-    //Internet Explorer "do for url" functions.
-    //Cues that work:
-    //Amazon
-    //Alibris
-    //Barnes and Noble
-    //ECampus
-    //Agricola
-    //NY Times
-    //Yahoo
-    //Google
-    //Google books
-    //Google scholar
-    //Global books in print
-    //Powells
-    //Chapters.ca
-    //Abebooks
-    //
-    //Cues (and other things) that don't work
-    //Serial Solutions
-    //Wam proxy
-    //Booklist online (need registration to test)
-    //Autolinking
-
-
-//    libxInitializeIEDFU();
-
-libxInitializeDFU();
-
-
-} //end of initializeDoForUrls
 
 /*  populateDropdownOptions
  * This function takes the hard-coded search options (in Firefox they are
@@ -138,15 +104,15 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
     if (donoturiencode == null || donoturiencode == false) {
         url2 = encodeURI(url2);
     }
-	
-	/* In IE, we are not given control over tabs, by design.
-	 * See http://blogs.msdn.com/ie/archive/2005/05/26/422103.aspx
-	 * The only choice we have is between _blank and _self
-	 */
-	var target = "_blank";
-	if (what == "libx.sametab")
-		target = "_self";
-		
+    
+    /* In IE, we are not given control over tabs, by design.
+     * See http://blogs.msdn.com/ie/archive/2005/05/26/422103.aspx
+     * The only choice we have is between _blank and _self
+     */
+    var target = "_blank";
+    if (what == "libx.sametab")
+        target = "_self";
+        
         /* When invoked from context menu doProxify, libxInterface.openNewWindow
          * fails in IE7 with a COM Error ERROR_BUSY:
          * The requested resource is in use. (Exception from HRESULT: 0x800700AA) 
@@ -157,9 +123,9 @@ libxEnv.openSearchWindow = function (url, donoturiencode, pref) {
             return;
         }
 
-	/* Where the focus goes is controlled by the browser's settings, so 
+    /* Where the focus goes is controlled by the browser's settings, so 
          * we cannot implement libx.newtabswitch/libx.newtab */
-	libxInterface.openNewWindow(url2, target, isGet ? null : url[1]);
+    libxInterface.openNewWindow(url2, target, isGet ? null : url[1]);
 }
 
 /*  getCurrentWindowContent
@@ -519,17 +485,17 @@ libxEnv.getCueDocument = function( cue, lastMod, callback, postdata )
         //We're asynchronous, so set a callback
         req.onreadystatechange = function() {
             //Make sure we're ready for processing
-			if (req.readyState == 4) {
-				libxEnv.fileCache.downloadCueCallback( req, cue, callback );
-			}
+            if (req.readyState == 4) {
+                libxEnv.fileCache.downloadCueCallback( req, cue, callback );
+            }
         }
     }
 
-	if ( lastMod === undefined )
-	{
-		oReq.setRequestHeader( "If-Modified-Since", lastMod );
-	}
-	
+    if ( lastMod === undefined )
+    {
+        oReq.setRequestHeader( "If-Modified-Since", lastMod );
+    }
+    
     //Do the request
     req.open(postdata ? 'POST' : 'GET', cue.url, !synch);
     req.send(postdata);
@@ -580,74 +546,6 @@ libxEnv.getXMLDocument = function (url, callback, postdata) {
     return synch ? req.responseText : null;
 }
 
-/*
-libxEnv.getCueDocument = function( cue, lastMod, callback )
-{
-    function reportStatus()
-    {
-        if (oReq.readyState == 4) {
-            libxEnv.fileCache.downloadCueCallback( oReq, cue, callback );
-        }
-    }
-    var oReq = new window.XMLHttpRequest();
-    oReq.onreadystatechange = reportStatus;
-    oReq.open( "GET", cue.url, true );
-    if ( lastMod === undefined )
-	{
-		oReq.setRequestHeader( "If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT" );
-	}
-	else
-	{
-		oReq.setRequestHeader( "If-Modified-Since", lastMod );
-	}
-    oReq.send();
-}
-
-
-/*
-libxEnv.getCueDocument = function( cue, lastMod, callback, postdata ) {
-	// get the reuqest object
-	var req = new window.XMLHttpRequest();
-    //var req = new ActiveXObject("MSXML2.XMLHTTP.3.0");
-
-
-    function statechangefunc () {
-        //window.alert( "ZOOM" );
-        if ( req.readyState == 4 ) {
-            libxEnv.fileCache.downloadCueCallback( req, cue, callback );
-        }
-    }
-    
-	if (!req) {
-		libxEnv.writeLog( "Could not get request object for url " + url );
-		return null;
-	}
-
-	var synch = (!callback);
-    
-	if ( !synch) {
-        //window.alert( "setting onstatereadythingy" );
-		//We're asynchronous, so get a callback
-		req.onreadystatchange = statechangefunc;
-	}
-    
-	// Do the request
-	req.open('GET', cue.url, !synch );
-	if ( lastMod === undefined )
-	{
-		req.setRequestHeader( "If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT" );
-	}
-	else
-	{
-		req.setRequestHeader( "If-Modified-Since", lastMod );
-	}
-    if ( !synch) {
-		//We're asynchronous, so get a callback
-		req.onreadystatchange = statechangefunc;
-	}
-	req.send();
-	return req;
-}
 
 //XML + config functions//////////////////////////////////////////////////////
 
@@ -978,7 +876,7 @@ libxEnv.getAutolinkPref = function() {
 };
 
 libxEnv.getCiteulikePref = function () {
-	return false;
+    return false;
 }
 
 
@@ -1026,17 +924,17 @@ function libxInitializeAutolink()
 libxEnv.urlBarIcon = function () { }
 libxEnv.urlBarIcon.prototype = {
     // modifies the hidden property of the icon
-    setHidden : function ( hidden ) {	},
+    setHidden : function ( hidden ) {   },
     // sets the image src of the icon
-    setImage : function ( img ) {	},
+    setImage : function ( img ) {   },
     // sets the onclick function of the icon
-    setOnclick : function ( onclick ) {	},
+    setOnclick : function ( onclick ) { },
     // sets the tooltip text
     setTooltipText : function ( text ) { }
 }
 
 libxEnv.eventDispatcher.init = function  () {
-	// Int for onContentChange
+    // Int for onContentChange
     //
 }
 
@@ -1051,20 +949,16 @@ libxEnv.hash.hashString = function ( text )
 
 libxEnv.displayLastUpdateDate = function()
 {
-//	window.alert( "displayLastUpdateDate()" );
-	var text = libxEnv.getUnicharPref("libx.lastupdate");
-	libxInterface.updateLastUpdateDate( text );
-//	window.alert("jaja");
-		//newDate(libxEnv.getUnicharPref( "libx.lastupdate" )).toString());
+    var text = libxEnv.getUnicharPref("libx.lastupdate");
+    libxInterface.updateLastUpdateDate( text );
 }
 
 libxEnv.displayLastModifieds = function()
 {
-//	window.alert( "displayLastModifieds()" );
-//	window.alert( libxInterface.updateLastModified );
-	var rootInfo = libxEnv.doforurls.getRootInfo();
-	for ( var i = 0; i < rootInfo.length; i++ )
-	{
-		libxInterface.updateLastModified( rootInfo[i].lastMod, rootInfo[i].url );
-	}
+    var rootInfo = libxEnv.doforurls.getRootInfo();
+    for ( var i = 0; i < rootInfo.length; i++ )
+    {
+        libxInterface.updateLastModified( rootInfo[i].lastMod, 
+            rootInfo[i].desc );
+    }
 }

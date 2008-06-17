@@ -64,7 +64,6 @@ libxEnv.init = function() {
     }, false);
    
     libxEnv.hash = new libxEnv.hashClass();
-    libxInitializeDFU();
     libxEnv.hoverInit();
     
     

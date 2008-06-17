@@ -156,7 +156,7 @@ libxEnv.fileCacheClass = function()
         if ( docRequest.status == "200" )
         {
             setLastModifiedDate( cue.url, docRequest.getResponseHeader( 
-		        "Last-Modified" ) );
+                "Last-Modified" ) );
             var text = docRequest.responseText;
             writeCueFile( cue.url, text );
             if ( cue.type == "root" )
@@ -170,14 +170,14 @@ libxEnv.fileCacheClass = function()
                 storage_log( "File with url: " + cue.url  
                     + "\n has not been updated on server, status: 304" );
                 if ( cue.type == "root" )
-				{
+                {
                     setLastUpdateDate( new Date() );
-				}
+                }
                 callback( cue, null );
                 return;
             }
             storage_log( "Could not read or retrieve file with url: " + cue.url 
-		        + " status=" + docRequest.status);
+                + " status=" + docRequest.status);
             callback( cue, null );
             return;
         }

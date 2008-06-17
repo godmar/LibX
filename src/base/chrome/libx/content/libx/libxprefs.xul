@@ -93,7 +93,8 @@ libxEnv.displayLastModifieds = function()
             temp1 = document.createElement( "label" );
             temp2 = document.createElement( "label" );
             temp1.setAttribute("id", rootInfo[i].url );
-            temp.setAttribute("value", rootInfo[i].url );
+            temp.setAttribute("value", rootInfo[i].desc );
+            temp.setAttribute("tooltiptext", rootInfo[i].url );
             temp2.setAttribute("value", "" );
         }
         temp1.setAttribute("value", "   Last Modified: " + rootInfo[i].lastMod );
@@ -110,7 +111,7 @@ libxEnv.displayLastModifieds = function()
      }
 }
 ]]>
-    </script>
+    /</script>
     
     <vbox flex="1" >
         <tabbox id="libx-pref-tabbox" flex="100">

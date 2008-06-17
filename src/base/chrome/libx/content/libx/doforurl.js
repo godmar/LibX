@@ -76,91 +76,70 @@ libxEnv.doforurlClass = function()
     //the current root to tell cues and such if they should update
     var curroot;
     // Default Root in case no Roots are specified in config.xml
-	var defaultRoot = "http://libx.org/libx/src/feeds/root.js";
-	
-	// Cue Object
+    var defaultRoot = "http://libx.org/libx/src/feeds/root.js";
+    
+/*  // Cue Object
     var cue = function ( url, type )
     {
         this.url = url;
         this.type = type;
         this.text = null;
+    } */
+    
+    function updatePreferenceMenu()
+    {
+        if ( libxEnv.displayLastUpdateDate != undefined )
+        {   // this means the preference menu is active
+            libxEnv.displayLastUpdateDate();
+            libxEnv.displayLastModifieds();
+        }
     }
     
-	function isRelativeURL( url )
-	{
-		if ( url.match(/http/) )
-			return false;
-		return true;
-	}
-	
+    function convertRelativeURL( url, baseURL )
+    {
+        if ( url.match(/http/) )
+        {
+            return url;
+        }
+        return url = baseURL + url;
+    }
+    
     // Adds a cue to the list
     function addCue( url )
     {
-		if ( isRelativeURL ( url ) )
-		{
-			url = curroot.baseURL + url;
-		}
-/*
- * Tobias, please fix:
- * 'cue' constructor doesn't take three arguments.
- * Consider using object literal syntax instead (it documents the purpose of each variable passed:)
- * as in:
- *
- * var c = { 
- *      url: url,
- *      type: "cue"
- * }
- *
- * The term 'cue' is misleading anyway ---- it's really a bundle of properties that describes
- * a cached item.  My recommendation: either use object-literal syntax (my preference), or find a more descriptive
- * name.  If you don't use object-literal syntax, define the class in fileCache since this is
- * where it would logically belong.
- */
-        var c = new cue( url, "cue", curroot );
+        url = convertRelativeURL ( url, curroot.baseURL );  
+        var c = {
+            url:  url,
+            type: "cue",
+            root: curroot,
+            callback: function () { 
+                try {
+                    eval( c.text );
+                }
+                catch ( e )
+                {
+                    dfu_log( "Error from cue " + c.url + " of type " + c.type +
+                         "\n error: " + e );
+                }
+            }
+        };
         that.cueList.push( c );
-
-/*
- * The code below is broken.
- *
- * If updateCue is called, callback is undefined.  If updateCue completes synchronously (say a really fast server, such as localhost)
- * it won't call the callback.  In this case, you're saved because you're later evaluating cueList[i].text in libxInitializeDFU
- *
- * If updateCue blocks, callback will be set after the call.  If the data arrives before you reach libxInitializeDFU,
- * you'll evaluate it twice, adding the DoForURL twice.  Two cues will appear (I've seen this, actually.)
- *
- * If getCue is called, callback is undefined.  getCue may or may not block.  It doesn't block if the cue file is in
- * the file system.  It blocks if it needs to be downloaded.  If it blocks, the same problem as above may arise.
- *
- * My recommendation: get rid of libxInitializeDFU and always trigger the evaluation of the cue code here.
- * Also, get rid of the if (curroot.updating == true) and instead set c.forceUpdate = true. 
- */
         if ( curroot.updating == true )
             libxEnv.fileCache.updateCue( c );
         else
             libxEnv.fileCache.getCue( c );
-        c.callback = function ()
-        {
-            try {
-                eval( c.text );
-            }
-            catch ( e )
-            {
-                dfu_log( "Error from cue " + c.url + " of type " + c.type + "\n error: " + e );
-            }
-        }
+
     }
     
-	// Adds a sandbox script to the list
+    // Adds a sandbox script to the list
     function addSandboxScript( url )
     {
-		if ( isRelativeURL ( url ) )
-		{
-			url = curroot.baseURL + url;
-		}
-        var c = new cue( url , "sandbox", curroot );
-/**
- * You're pushing this script in the list even though you don't know if the download succeeded.
- */
+        url = convertRelativeURL ( url, curroot.baseURL );
+        var c = {
+            url: url,
+            type: "sandbox",
+            root: curroot,
+        };
         sandboxScriptList.push( c );
         if ( curroot.updating == true )
             libxEnv.fileCache.updateCue( c );
@@ -168,17 +147,16 @@ libxEnv.doforurlClass = function()
             libxEnv.fileCache.getCue( c );
     }
     
-	// Adds a hotfix to the list
+    // Adds a hotfix to the list
     function addHotfix( url )
     {
-		if ( isRelativeURL ( url ) )
-		{
-			url = curroot.baseURL + url;
-/*
- * Third time this code appears.  Refactor.
- */
-		}
-        var c = new cue( url, "hotfix", curroot );
+        url = convertRelativeURL( url );
+        
+        var c = { 
+            url: url,
+            type: "hotfix",
+            root: curroot 
+        };
         that.hotfixList.push( c );
         if ( curroot.updating == true )
             libxEnv.fileCache.updateCue( c );
@@ -186,34 +164,27 @@ libxEnv.doforurlClass = function()
             libxEnv.fileCache.getCue( c );
     }
     
-	// Adds a root to the list and processes its content
+    // Adds a root to the list and processes its content
     function addRoot( url, updating )
     {
-        var c = new cue( url, "root" );
-		c.baseURL = c.url.substring(0,c.url.lastIndexOf("/")+1);
-        c.callback = function ()
-        {
-            try {
-/* 
- * Ugly.
- * Either use observer pattern or ensure libxEnv.displayLastUpdateDate etc. is always defined.
- */
-                if ( libxEnv.displayLastUpdateDate !== undefined )
-                {   // if it exists we are in the perfs part and need to update last update date
-                    libxEnv.displayLastUpdateDate();
+        var c = {
+            url: url,
+            type: "root",
+            baseURL: url.substring(0, url.lastIndexOf("/")+1),
+            callback: function () {
+                try 
+                {
+                    updatePreferenceMenu();
+                    curroot = c;
+                    eval( c.text );
                 }
-                if ( libxEnv.displayLastModifieds !== undefined )
-                { // if it exists we are in the prefs part and need to update the last modified dates
-                    libxEnv.displayLastModifieds();
+                catch ( e )
+                {
+                    dfu_log( "Error from cue " + c.url + " of type " + c.type + 
+                        "\n error: " + e );
                 }
-                curroot = c;
-                eval( c.text );
             }
-            catch ( e )
-            {
-                dfu_log( "Error from cue " + c.url + " of type " + c.type + "\n error: " + e );
-            }
-        }
+        };
         rootList.push( c );
         if ( updating == true )
             libxEnv.fileCache.updateCue( c );
@@ -221,8 +192,10 @@ libxEnv.doforurlClass = function()
             libxEnv.fileCache.getCue( c );
     }
     
-    // DoForUrl function to create the doforurls and automatically add them to the dfu_actions list
-    this.DoForURL = function (/* a regex */urlpattern, /* function */what, /* array<regex> */exclude)
+    // DoForUrl function to create the doforurls and automatically add them to 
+    // the dfu_actions list
+    this.DoForURL = function (/* a regex */urlpattern, /* function */what, 
+        /* array<regex> */exclude)
     {
         this.pattern = urlpattern;
         this.action = what;
@@ -230,21 +203,24 @@ libxEnv.doforurlClass = function()
         this.aidx = dfu_actions.push(this);
     }
     
-	// runs through all the doforurls once a new page is loaded ( IE version)
+    // runs through all the doforurls once a new page is loaded ( IE version)
     this.onPageComplete_ie = function(doc, location)
     {
         if (!doc) return;
 
         if (location == 'about:blank')
                 return;
-	
-		for ( var l = 0; l < sandboxScriptList.length; l++ )
-		{
-/* XXX should catch exception */
-			eval( sandboxScriptList[l].text );
-		} 
-				
-				
+    
+        for ( var l = 0; l < sandboxScriptList.length; l++ )
+        {
+            try {
+                eval( sandboxScriptList[l].text );
+            } catch (e) {
+                dfu_log( "Sandbox Script Error: " + e.message );
+            }
+        } 
+                
+                
     outer:
         for (var i = 0; i < dfu_actions.length; i++) {
             var dfu = dfu_actions[i];
@@ -277,18 +253,18 @@ libxEnv.doforurlClass = function()
         if (ev.originalTarget.location == 'about:blank')
                 return;     
                 
-		var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
-		for ( var l = 0; l < sandboxScriptList.length; l++ )
-		{
-			try {
-					libxEnv.sandbox.evaluateInSandbox( sandboxScriptList[l].text, sandbox );
-			}
-			catch(f)
-			{
-				dfu_log(" sandboxScript " + f );
-			}
-		}
-				
+        var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
+        for ( var l = 0; l < sandboxScriptList.length; l++ )
+        {
+            try {
+                    libxEnv.sandbox.evaluateInSandbox( sandboxScriptList[l].text, sandbox );
+            }
+            catch(f)
+            {
+                dfu_log(" sandboxScript " + f );
+            }
+        }
+                
     outer:
         for (var i = 0; i < dfu_actions.length; i++) {
             var dfu = dfu_actions[i];
@@ -315,8 +291,8 @@ libxEnv.doforurlClass = function()
                      * evaluate that string in the box, as shown below.
                      */
                     sandbox.match = match;
-                    var func = "(" + dfu.action + ")(this.document, this.match);";				
-					libxEnv.sandbox.evaluateInSandbox( func , sandbox);
+                    var func = "(" + dfu.action + ")(this.document, this.match);";              
+                    libxEnv.sandbox.evaluateInSandbox( func , sandbox);
                 } catch (e) { 
                     dfu_log(" sandbox " + e);
                 }
@@ -324,8 +300,8 @@ libxEnv.doforurlClass = function()
         }
     }
 
-	// loads and initializes the roots 
-	// if updating parameter is specified instead of initializing we attempt to update the roots
+    // loads and initializes the roots 
+    // if updating parameter is specified instead of initializing we attempt to update the roots
     function initRoots( updating )
     {
         if ( libxEnv.xmlDoc.xml )
@@ -341,110 +317,106 @@ libxEnv.doforurlClass = function()
             }
             else
             {
-                dfu_log( "Did not find any roots specified in config.xml switching to default" );
+                dfu_log( "Did not find any roots specified in config.xml " + 
+                    "switching to default" );
             }
         }
         else
         {   
             dfu_log( "Could not access libxEnv.xmlDoc.xml!" );
         }
-		if ( rootList.length == 0 ) 
+        if ( rootList.length == 0 ) 
         {
             addRoot( defaultRoot, updating );
         }
     }
     
-	// Retrieves the information of the roots for the prefs menu
+    // Retrieves the information of the roots for the prefs menu
     this.getRootInfo = function()
     {
         var rootInfo = new Array();
         if ( libxEnv.xmlDoc.xml )
         {
-            var rootsInXML = libxEnv.xpath.findNodesXML( libxEnv.xmlDoc.xml, "/edition/localizationfeeds/feed" );
+            var rootsInXML = libxEnv.xpath.findNodesXML( libxEnv.xmlDoc.xml, 
+                "/edition/localizationfeeds/feed" );
             if ( rootsInXML )
             {
                 for ( var i = 0; i < rootsInXML.length; i++ )
                 {
-                    var temp = new Object();
-                    temp.url = rootsInXML[i].getAttribute( "url" );
-                    temp.lastMod = libxEnv.fileCache.getLastModifiedDate( temp.url );
-                    rootInfo.push( temp );
+                    rootInfo.push(
+                    {
+                        url : rootsInXML[i].getAttribute( "url" ),
+                        desc: rootsInXML[i].getAttribute( "description" ),
+                        lastMod: libxEnv.fileCache.getLastModifiedDate( url )
+                    } );
                 }
             }
         }
         if ( rootInfo.length == 0 )
-        {
-/**
- * Consider using object-literal syntax here; which is more readable:
- * 
- * rootInfo.push({
- *       url: defaultRoot,
- *       lastMod: libxEnv.fileCache.getLastModifiedDate( defaultRoot)
- * });
- *
- * or this:
- */
-            var temp = new Object();
-            temp.url = defaultRoot;
-            temp.lastMod = libxEnv.fileCache.getLastModifiedDate( temp.url );
-            rootInfo.push( temp );
+        { 
+            rootInfo.push(
+            {
+                url: defaultRoot,
+                desc: "Default Root",
+                lastMod: libxEnv.fileCache.getLastModifiedDate( defaultRoot )
+            });
         }
         return rootInfo;
     }
     
-	// Helper function for init and updateDoforurls
-	function processDoforurls( updating )
-	{
-		rootList = new Array();
-		this.cueList = new Array();
-		sandboxScriptList = new Array();
-		this.hotfixList = new Array();
-		initRoots( updating );
-	}
+    // Helper function for init and updateDoforurls
+    function processDoforurls( updating )
+    {
+        rootList = new Array();
+        this.cueList = new Array();
+        sandboxScriptList = new Array();
+        this.hotfixList = new Array();
+        initRoots( updating );
+    }
 
-	
+    
     // initializes the doforurls by reading them from file and adding them to 
     // the cueList.
     this.initDoforurls = function () 
     {
-		processDoforurls( false );
+        processDoforurls( false );
         libxEnv.fileCache.saveFileList();
         that.setUpdateTimeOut( false );
     }
-	
-	
+    
+    
     // updates all the doforurls with the most current version found online
     this.updateDoforurls = function () 
     {   // think about detecting failure to update and then not setting new update date
         dfu_log( "Updating Cues" );
         var curdate = Date();
         updating = true;
-		setNextUpdatePref( Date.parse(curdate) + 24*hour);
-		processDoforurls( true );
+        setNextUpdatePref( Date.parse(curdate) + 24*hour);
+        processDoforurls( true );
         dfu_log( "Done Updating Cues" );
     }
 
     
-	// This function is called by the timeout we set and is used to revive the update process
+    // This function is called by the timeout we set and is used to revive the update process
     function reviveUpdate()
-	{
+    {
         var curdate  = Date();
-		var timeout = getTimeoutPref();
+        var timeout = getTimeoutPref();
         var timeDifference = Date.parse(curdate) - timeout;
-		
+        
         if ( timeDifference >= 0 )
         {
             if ( timeDifference < hour )
             { // we woke up around the right time
-			
+            
                 dfu_log( "Updating NOW!" );
-				
+                
                 that.updateDoforurls();
                 that.setUpdateTimeOut( true );
             }
             else
             {   //we missed by a lot setting a new random update in the future
-				var update = getNextUpdatePref();
+                var update = getNextUpdatePref();
                 timeDifference = Date.parse(curdate) - update;
                 var timeToResetUpdate = Math.floor(((6*hour/timeDifference)*
                     hour*Math.random()));
@@ -453,17 +425,17 @@ libxEnv.doforurlClass = function()
                     timeToResetUpdate = 4*hour + Math.floor( 
                         Math.random()*2*hour );
                 }
-				
+                
                 dfu_log( "Update: timeout is set for : " + timeToResetUpdate );
                 //    makeUpdateTimeString( timeToResetUpdate ));
-				
-				setTimeoutPref( Date.parse(curdate) + timeToResetUpdate );
+                
+                setTimeoutPref( Date.parse(curdate) + timeToResetUpdate );
                 setTimeout( reviveUpdate, timeToResetUpdate + sec*15 );
             }
         }
     }
     
-	// Converts the updateTime into a nice string that we can print out for debugging
+    // Converts the updateTime into a nice string that we can print out for debugging
     var makeUpdateTimeString = function( updateTime )
     {
         var result = "";
@@ -493,29 +465,30 @@ libxEnv.doforurlClass = function()
         return result;
     }
     
-	function setNextUpdatePref( value )
-	{
-		libxEnv.setUnicharPref( "libx.nextupdate" , value );
-	}
-	
-	function getNextUpdatePref()
-	{
-		var temp = libxEnv.getUnicharPref( "libx.nextupdate" );
-		return parseFloat( temp );
-	}
-	
-	function setTimeoutPref( value )
-	{
-		libxEnv.setUnicharPref( "libx.timeout" , value );
-	}
-	
-	function getTimeoutPref()
-	{
-		var temp = libxEnv.getUnicharPref( "libx.timeout" );
-		return parseFloat( temp );
-	}
-	
-	// Sets the timeout for the update and if needed the nextUpdate preference in about:config
+    function setNextUpdatePref( value )
+    {
+        libxEnv.setUnicharPref( "libx.nextupdate" , value );
+    }
+    
+    function getNextUpdatePref()
+    {
+        var temp = libxEnv.getUnicharPref( "libx.nextupdate" );
+        return parseFloat( temp );
+    }
+    
+    function setTimeoutPref( value )
+    {
+        libxEnv.setUnicharPref( "libx.timeout" , value );
+    }
+    
+    function getTimeoutPref()
+    {
+        var temp = libxEnv.getUnicharPref( "libx.timeout" );
+        return parseFloat( temp );
+    }
+    
+    // Sets the timeout for the update and if needed the nextUpdate preference
+    //  in about:config
     this.setUpdateTimeOut = function ( setNew )
     {
         var nextUpdate = getNextUpdatePref();
@@ -524,30 +497,30 @@ libxEnv.doforurlClass = function()
             dfu_log( "Update: Next Update has not been set, setting it now " );
             var curdate = Date();
             var update = Math.floor( Math.random()*day );
-			
+            
             dfu_log( "Update: current date is " + curdate + 
                 " setting update for " + new Date(
-                Date.parse(curdate) + update) );			
-			setNextUpdatePref( Date.parse(curdate) + update );
-			var x = getNextUpdatePref();
-				
+                Date.parse(curdate) + update) );            
+            setNextUpdatePref( Date.parse(curdate) + update );
+            var x = getNextUpdatePref();
+                
             dfu_log( "Update: timeout is set for : " + 
                 makeUpdateTimeString( update ));
-			
-			setTimeoutPref( Date.parse(curdate) + update );
+            
+            setTimeoutPref( Date.parse(curdate) + update );
             window.setTimeout ( reviveUpdate, update );
         }
         else
         {
             var curdate = Date.parse(Date());
-			
+            
             dfu_log( "Update: current date " + new Date(curdate) );
             dfu_log( "Update: next update will be " + new Date( nextUpdate ));
-			
+            
             if ( curdate > nextUpdate )
             {   // set timeout missed its update somehow reseting
                 var timeSinceUpdateTarget = curdate - nextUpdate;
-				
+                
                 var timeToResetUpdate = Math.floor((
                     6*hour/timeSinceUpdateTarget)*hour*Math.random());
                 if ( timeToResetUpdate > 6*hour )
@@ -555,25 +528,25 @@ libxEnv.doforurlClass = function()
                     timeToResetUpdate = 4*hour + Math.floor( 
                         Math.random()*2*hour );
                 }
-				
+                
                 dfu_log( "Update: timeout is set for : " + 
                     makeUpdateTimeString( timeToResetUpdate ));
-				
-				setTimeoutPref( curdate + timeToResetUpdate );
-				
+                
+                setTimeoutPref( curdate + timeToResetUpdate );
+                
                 window.setTimeout( reviveUpdate, timeToResetUpdate );
             }
             else
             {   // timeout is in the future so we just set it for that date
                 var timeLeft = nextUpdate - curdate;
-				
+                
                 dfu_log( "Update: update is still good and will occur at " + 
                     new Date(nextUpdate) );
                 dfu_log( "Update: timeout is set for : " + 
                     makeUpdateTimeString( timeLeft ));
-					
-				setTimeoutPref( curdate + timeLeft );
-				
+                    
+                setTimeoutPref( curdate + timeLeft );
+                
                 window.setTimeout( reviveUpdate, timeLeft );
             }
         }
