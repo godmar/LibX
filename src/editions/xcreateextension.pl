@@ -237,8 +237,7 @@ foreach my $openurl (@openurls) {
 # if xisbn child does not have includeincontextmenu set to false also include all children
 foreach my $catalog (@catalogs) {
     my $ctxtoptions = $catalog->getAttribute("contextmenuoptions");
-    next if !(defined($ctxtoptions));
-    if (hasOption($catalog, 'i') && ";$ctxtoptions;" =~ m/;i;/) {
+    if (hasOption($catalog, 'i') && (!defined($ctxtoptions) || ";$ctxtoptions;" =~ m/;i;/)) {
         $isbn->appendChild(makeCatalogEntry($catalog, 'i'));
         $issn->appendChild(makeCatalogEntry($catalog, 'i'));
     }
@@ -258,6 +257,9 @@ foreach my $proxy (@proxies) {
 
     $proxycat->appendChild(makeElementNameType('proxy', $proxy->getAttribute('name'), 'enabled'));
 }
+# for testing
+#print $pref->toString(1);
+#exit;
 
 # write preferences to file
 my $defaultspreffile = $editionpath . "defaultprefs.xml";
