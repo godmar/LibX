@@ -65,8 +65,6 @@ libxEnv.doforurlClass = function()
     var that = this;
     // list of doforurl actions
     var dfu_actions = new Array();
-    // list of cue files read from root.js
-    this.cueList = new Array();
     // list of sandbox files read from root.js
     sandboxScriptList = new Array();
     // list of hotfix files
@@ -97,7 +95,7 @@ libxEnv.doforurlClass = function()
     
     function convertRelativeURL( url, baseURL )
     {
-        if ( url.match(/http/) )
+        if ( url.match(/^http/) )
         {
             return url;
         }
@@ -123,7 +121,6 @@ libxEnv.doforurlClass = function()
                 }
             }
         };
-        that.cueList.push( c );
         if ( curroot.updating == true )
             libxEnv.fileCache.updateCue( c );
         else
@@ -194,12 +191,17 @@ libxEnv.doforurlClass = function()
     
     // DoForUrl function to create the doforurls and automatically add them to 
     // the dfu_actions list
-    this.DoForURL = function (/* a regex */urlpattern, /* function */what, 
-        /* array<regex> */exclude)
+    // urlpattern ( a reqex )
+    // what ( function )
+    // exclude ( array<regex> )
+    // description ( string )
+    this.DoForURL = function (urlpattern, what, exclude, description)
     {
         this.pattern = urlpattern;
         this.action = what;
         this.exclude = exclude;
+        this.description = 
+            description ? description : "No description available";
         this.aidx = dfu_actions.push(this);
     }
     
@@ -253,11 +255,13 @@ libxEnv.doforurlClass = function()
         if (ev.originalTarget.location == 'about:blank')
                 return;     
                 
-        var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
+        var sandbox = libxEnv.sandbox.createSandbox( win, 
+            ev.originalTarget.location.href );
         for ( var l = 0; l < sandboxScriptList.length; l++ )
         {
             try {
-                    libxEnv.sandbox.evaluateInSandbox( sandboxScriptList[l].text, sandbox );
+                libxEnv.sandbox.evaluateInSandbox( 
+                    sandboxScriptList[l].text, sandbox );
             }
             catch(f)
             {
@@ -294,7 +298,8 @@ libxEnv.doforurlClass = function()
                     var func = "(" + dfu.action + ")(this.document, this.match);";              
                     libxEnv.sandbox.evaluateInSandbox( func , sandbox);
                 } catch (e) { 
-                    dfu_log(" sandbox " + e);
+                    dfu_log(" action: " + dfu.description + " caused error " +
+                         e.message);
                 }
             }
         }
@@ -343,9 +348,10 @@ libxEnv.doforurlClass = function()
             {
                 for ( var i = 0; i < rootsInXML.length; i++ )
                 {
+                    var url = rootsInXML[i].getAttribute( "url" );
                     rootInfo.push(
                     {
-                        url : rootsInXML[i].getAttribute( "url" ),
+                        url : url,
                         desc: rootsInXML[i].getAttribute( "description" ),
                         lastMod: libxEnv.fileCache.getLastModifiedDate( url )
                     } );
@@ -368,7 +374,6 @@ libxEnv.doforurlClass = function()
     function processDoforurls( updating )
     {
         rootList = new Array();
-        this.cueList = new Array();
         sandboxScriptList = new Array();
         this.hotfixList = new Array();
         initRoots( updating );

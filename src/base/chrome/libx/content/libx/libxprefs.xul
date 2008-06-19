@@ -111,7 +111,7 @@ libxEnv.displayLastModifieds = function()
      }
 }
 ]]>
-    /</script>
+    </script>
     
     <vbox flex="1" >
         <tabbox id="libx-pref-tabbox" flex="100">
