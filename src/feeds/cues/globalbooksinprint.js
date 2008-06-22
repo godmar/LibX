@@ -1,7 +1,7 @@
 // globalbooksinprint.com
 new libxEnv.doforurls.DoForURL(/\.globalbooksinprint\.com.*Search/, 
 function(doc) {
-    var labels = $("tr > td a").contents().filter("[href*='/merge_shared/Details']'");
+    var labels = $("tr > td a").filter("[href*='/merge_shared/Details']");
 
     for (var i = 0; i < labels.length; i++) {
         var anode = labels[i];
