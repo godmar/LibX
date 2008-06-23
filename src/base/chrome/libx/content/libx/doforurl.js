@@ -66,16 +66,17 @@ libxEnv.doforurlClass = function()
     // list of doforurl actions
     var dfu_actions = new Array();
     // list of sandbox files read from root.js
-    sandboxScriptList = new Array();
+    var sandboxScriptList = new Array();
     // list of hotfix files
     this.hotfixList = new Array();
-    // list of roots
-    var rootList = new Array();
     //the current root to tell cues and such if they should update
     var curroot;
     // Default Root in case no Roots are specified in config.xml
     var defaultRoot = "http://libx.org/libx/src/feeds/root.js";
-    
+    //  the prefs menu window so we can update the information on it when we update
+	this.prefsMenu;
+	
+	
 /*  // Cue Object
     var cue = function ( url, type )
     {
@@ -86,10 +87,10 @@ libxEnv.doforurlClass = function()
     
     function updatePreferenceMenu()
     {
-        if ( libxEnv.displayLastUpdateDate != undefined )
+        if ( that.prefsMenu != undefined )
         {   // this means the preference menu is active
-            libxEnv.displayLastUpdateDate();
-            libxEnv.displayLastModifieds();
+            that.prefsMenu.libxEnv.displayLastUpdateDate();
+            that.prefsMenu.libxEnv.displayLastModifieds();
         }
     }
     
@@ -182,7 +183,6 @@ libxEnv.doforurlClass = function()
                 }
             }
         };
-        rootList.push( c );
         if ( updating == true )
             libxEnv.fileCache.updateCue( c );
         else
@@ -313,11 +313,13 @@ libxEnv.doforurlClass = function()
         {
             var rootsInXML = libxEnv.xpath.findNodesXML( libxEnv.xmlDoc.xml,
                 "/edition/localizationfeeds/feed" );
+			var count = 0;
             if ( rootsInXML )
             {
                 for (var i = 0; i < rootsInXML.length; i++ )
                 {
                     addRoot(rootsInXML[i].getAttribute( "url" ), updating );
+					count++;
                 }
             }
             else
@@ -330,7 +332,7 @@ libxEnv.doforurlClass = function()
         {   
             dfu_log( "Could not access libxEnv.xmlDoc.xml!" );
         }
-        if ( rootList.length == 0 ) 
+        if ( count == 0 ) 
         {
             addRoot( defaultRoot, updating );
         }
@@ -373,9 +375,9 @@ libxEnv.doforurlClass = function()
     // Helper function for init and updateDoforurls
     function processDoforurls( updating )
     {
-        rootList = new Array();
         sandboxScriptList = new Array();
         this.hotfixList = new Array();
+		dfu_actions = new Array();
         initRoots( updating );
     }
 
@@ -392,7 +394,7 @@ libxEnv.doforurlClass = function()
     
     // updates all the doforurls with the most current version found online
     this.updateDoforurls = function () 
-    {   // think about detecting failure to update and then not setting new update date
+    {   
         dfu_log( "Updating Cues" );
         var curdate = Date();
         updating = true;

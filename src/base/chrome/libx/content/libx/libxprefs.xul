@@ -53,7 +53,7 @@
 <![CDATA[
 window.addEventListener ( "load", function () { setVersion(); libxEnv.displayLastUpdateDate(); libxEnv.displayLastModifieds();}, false );
 
-//libxEnv.doforurls = new libxEnv.doforurlClass();
+
 
 function setVersion() {
     libxInitializeProperties();
@@ -72,6 +72,8 @@ function setVersion() {
         document.getElementById("adaptedbybox").setAttribute("hidden", true);
     }
 }
+
+
 
 libxEnv.displayLastUpdateDate = function()
 {
@@ -110,6 +112,8 @@ libxEnv.displayLastModifieds = function()
         }
      }
 }
+
+window.opener.libxEnv.doforurls.prefsMenu = this;
 ]]>
     </script>
     
@@ -230,7 +234,7 @@ libxEnv.displayLastModifieds = function()
                         <label value="Last Update was: " />
                         <label id="last-update-date" value="This will be replaced by date" />
                         <label value="" />
-                        <button label="Update Cues" tooltiptext="Updates all cues" oncommand="libxEnv.doforurls.updateDoforurls();" />
+                        <button label="Update Cues" tooltiptext="Updates all cues" oncommand="window.opener.libxEnv.doforurls.updateDoforurls();" />
                     </groupbox>
                     <groupbox id="libx-cue-versions" orient="vertical">
                         <caption label="Cue Version Information" />

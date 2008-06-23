@@ -209,20 +209,23 @@ libxEnv.fileCacheClass = function()
         {
             text = readCueFile( cue.url );
             if ( !text || text == "" )
+			{
+				storage_log( "!!!File with url " + cue.url + "could not be read from file either.");
                 return;
+			}
             // since we haven't updated if cue is root we disable updating of it contents
+			cue.text = text;
             if ( cue.type == "root" )
                 cue.updating = false;
             if ( cue.callback !== undefined )
                 cue.callback();
-            cue.text = text;
-        }        
+			}        
     }
     
     // returns the text of the cue file. We first try to read the cue from hdd 
     // if it is not found, we download it from the url associated with it.
-    this.getCue = function ( cue ) {
-        //window.alert( "getCue "  + cue.url);
+    this.getCue = function ( cue ) 
+	{
         var text = readCueFile( cue.url );
         if ( text == null || text == "" || text == false ) 
         {
