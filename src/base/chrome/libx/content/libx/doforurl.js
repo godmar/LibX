@@ -73,17 +73,10 @@ libxEnv.doforurlClass = function()
     var curroot;
     // Default Root in case no Roots are specified in config.xml
     var defaultRoot = "http://libx.org/libx/src/feeds/root.js";
-    //  the prefs menu window so we can update the information on it when we update
-	this.prefsMenu;
-	
-	
-/*  // Cue Object
-    var cue = function ( url, type )
-    {
-        this.url = url;
-        this.type = type;
-        this.text = null;
-    } */
+    //  the prefs menu window so we can update the information on it when we 
+    //  update
+    this.prefsMenu;
+    
     
     function updatePreferenceMenu()
     {
@@ -111,6 +104,7 @@ libxEnv.doforurlClass = function()
             url:  url,
             type: "cue",
             root: curroot,
+            updating: curroot.updating,
             callback: function () { 
                 try {
                     eval( c.text );
@@ -118,15 +112,11 @@ libxEnv.doforurlClass = function()
                 catch ( e )
                 {
                     dfu_log( "Error from cue " + c.url + " of type " + c.type +
-                         "\n error: " + e );
+                        "\n error: " + e );
                 }
             }
         };
-        if ( curroot.updating == true )
-            libxEnv.fileCache.updateCue( c );
-        else
-            libxEnv.fileCache.getCue( c );
-
+        libxEnv.fileCache.getFile( c );
     }
     
     // Adds a sandbox script to the list
@@ -137,12 +127,10 @@ libxEnv.doforurlClass = function()
             url: url,
             type: "sandbox",
             root: curroot,
+            updating: curroot.updating
         };
         sandboxScriptList.push( c );
-        if ( curroot.updating == true )
-            libxEnv.fileCache.updateCue( c );
-        else
-            libxEnv.fileCache.getCue( c );
+        libxEnv.fileCache.getFile( c );
     }
     
     // Adds a hotfix to the list
@@ -153,13 +141,11 @@ libxEnv.doforurlClass = function()
         var c = { 
             url: url,
             type: "hotfix",
-            root: curroot 
+            root: curroot,
+            updating: curroot.updating
         };
         that.hotfixList.push( c );
-        if ( curroot.updating == true )
-            libxEnv.fileCache.updateCue( c );
-        else
-            libxEnv.fileCache.getCue( c );
+        libxEnv.fileCache.getFile( c );
     }
     
     // Adds a root to the list and processes its content
@@ -169,6 +155,7 @@ libxEnv.doforurlClass = function()
             url: url,
             type: "root",
             baseURL: url.substring(0, url.lastIndexOf("/")+1),
+            updating: updating,
             callback: function () {
                 try 
                 {
@@ -183,10 +170,7 @@ libxEnv.doforurlClass = function()
                 }
             }
         };
-        if ( updating == true )
-            libxEnv.fileCache.updateCue( c );
-        else
-            libxEnv.fileCache.getCue( c );
+        libxEnv.fileCache.getFile( c );
     }
     
     // DoForUrl function to create the doforurls and automatically add them to 
@@ -282,44 +266,46 @@ libxEnv.doforurlClass = function()
                 }
 
                 try {
-                    /* NB: dfu.action is already defined in chrome space.  We'd like to do:
-                     * sandbox.action = function () {
-                     *   dfu.action(this.document, match);
-                     * }
-                     * and then evaluate 'this.action()'.  However, evaluating
-                     * a chrome function within the sandbox switches the global object to 
-                     * the chrome global object, hiding all properties added by the
-                     * (untrusted) sandbox code (such as jQuery's $ included earlier.)
-                     *
-                     * Therefore, we must convert the function back to a string and
-                     * evaluate that string in the box, as shown below.
-                     */
+    /* NB: dfu.action is already defined in chrome space.  We'd like to do:
+     * sandbox.action = function () {
+     *   dfu.action(this.document, match);
+     * }
+     * and then evaluate 'this.action()'.  However, evaluating
+     * a chrome function within the sandbox switches the global object to 
+     * the chrome global object, hiding all properties added by the
+     * (untrusted) sandbox code (such as jQuery's $ included earlier.)
+     *
+     * Therefore, we must convert the function back to a string and
+     * evaluate that string in the box, as shown below.
+     */
                     sandbox.match = match;
-                    var func = "(" + dfu.action + ")(this.document, this.match);";              
+                    var func = "(" + dfu.action + 
+                        ")(this.document, this.match);";              
                     libxEnv.sandbox.evaluateInSandbox( func , sandbox);
                 } catch (e) { 
                     dfu_log(" action: " + dfu.description + " caused error " +
-                         e.message);
+                        e.message);
                 }
             }
         }
     }
 
     // loads and initializes the roots 
-    // if updating parameter is specified instead of initializing we attempt to update the roots
+    // if updating parameter is specified instead of initializing we attempt to 
+    // update the roots
     function initRoots( updating )
     {
         if ( libxEnv.xmlDoc.xml )
         {
             var rootsInXML = libxEnv.xpath.findNodesXML( libxEnv.xmlDoc.xml,
                 "/edition/localizationfeeds/feed" );
-			var count = 0;
+            var count = 0;
             if ( rootsInXML )
             {
                 for (var i = 0; i < rootsInXML.length; i++ )
                 {
                     addRoot(rootsInXML[i].getAttribute( "url" ), updating );
-					count++;
+                    count++;
                 }
             }
             else
@@ -377,7 +363,7 @@ libxEnv.doforurlClass = function()
     {
         sandboxScriptList = new Array();
         this.hotfixList = new Array();
-		dfu_actions = new Array();
+        dfu_actions = new Array();
         initRoots( updating );
     }
 
@@ -404,7 +390,8 @@ libxEnv.doforurlClass = function()
     }
 
     
-    // This function is called by the timeout we set and is used to revive the update process
+    // This function is called by the timeout we set and is used to revive the 
+    // update process
     function reviveUpdate()
     {
         var curdate  = Date();
@@ -442,7 +429,8 @@ libxEnv.doforurlClass = function()
         }
     }
     
-    // Converts the updateTime into a nice string that we can print out for debugging
+    // Converts the updateTime into a nice string that we can print out for 
+    // debugging
     var makeUpdateTimeString = function( updateTime )
     {
         var result = "";
@@ -472,22 +460,26 @@ libxEnv.doforurlClass = function()
         return result;
     }
     
+    // sets the preference in about:config for next update
     function setNextUpdatePref( value )
     {
         libxEnv.setUnicharPref( "libx.nextupdate" , value );
     }
     
+    // gets the about:config value of next update
     function getNextUpdatePref()
     {
         var temp = libxEnv.getUnicharPref( "libx.nextupdate" );
         return parseFloat( temp );
     }
     
+    // sets the about:config prefs value for the timeout
     function setTimeoutPref( value )
     {
         libxEnv.setUnicharPref( "libx.timeout" , value );
     }
     
+    //gets the about:config prefs value for the timeout
     function getTimeoutPref()
     {
         var temp = libxEnv.getUnicharPref( "libx.timeout" );

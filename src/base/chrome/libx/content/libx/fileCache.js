@@ -30,6 +30,7 @@
 libxEnv.fileCacheClass = function()
 {
     var that = this;
+    // List of files maintaned for debuging purposes
     var fileList = new Object();
     var jsFileEnding = ".js";
     var optionFileEnding = "options.js";
@@ -46,7 +47,7 @@ libxEnv.fileCacheClass = function()
     
     // Returns the hashed path of the .js file that is associated with the 
     // given url
-    function getCuePath( url ) 
+    function getHashedPath( url ) 
     {
         var path;
         if ( fileList[url] === undefined )
@@ -64,9 +65,9 @@ libxEnv.fileCacheClass = function()
     
     // Returns the hashed path of the options file associated with the given 
     // url
-    function getCueOptionPath( url ) 
+    function getHashedOptionPath( url )
     {
-        var path = getCuePath( url );
+        var path = getHashedPath( url );
         return ( path.substring(0,path.length-jsFileEnding.length) + 
             optionFileEnding);
     }
@@ -83,37 +84,37 @@ libxEnv.fileCacheClass = function()
         return path;
     }
 
-    // reads the cue file from the hdd and returns the content
-    function readCueFile( url ) 
+    // reads the file from the hdd and returns the content
+    function readFile( url ) 
     {
-        return libxEnv.getFileText( getCuePath( url ) );
+        return libxEnv.getFileText( getHashedPath( url ) );
     }
     
-    // reads the cue option file from the hdd and returns the content
+    // reads the option file from the hdd and returns the content
     function readOptionsFile( url ) 
     {
-        return libxEnv.getFileText( getCueOptionPath( url ) );
+        return libxEnv.getFileText( getHashedOptionPath( url ) );
     }
     
-    // writes text to the cue file
-    function writeCueFile( url, text ) 
+    // writes text to the file
+    function writeFile( url, text ) 
     {
-        var path = getCuePath( url );
+        var path = getHashedPath( url );
         var dirPath = path.substring(0,path.length-segmentLength +
              jsFileEnding.length);
         libxEnv.writeToFile( path, text, true, dirPath );
     }
     
-    // writes text to the cue options file
+    // writes text to the options file
     function writeOptionsFile( url, text ) 
     {
-        var path = getCueOptionPath(url);
+        var path = getHashedOptionPath(url);
         var dirPath = path.substring(0,path.length-segmentLength + 
             optionFileEnding.length);
         libxEnv.writeToFile( path, text, true, dirPath );
     }
     
-    // gets and returns the last modified date found in the cue options file 
+    // gets and returns the last modified date found in the options file 
     // associated with url
     this.getLastModifiedDate = function ( url )
     {
@@ -122,145 +123,170 @@ libxEnv.fileCacheClass = function()
         return lastMod;
     }
 
-    // writes the last modified date in lastMod to the cue options file 
+    // writes the last modified date in lastMod to the options file 
     // assoicated with url
-    function  setLastModifiedDate( url, lastMod )
+    function setLastModifiedDate( url, lastMod )
     {
         lastMod = "lastMod = '" + lastMod + "';";
         writeOptionsFile( url, lastMod );
     }
     
+    /**
+     *   Sets the last update date in the about:config so it can be displayed 
+     *   in the prefs menu later
+     */
     function setLastUpdateDate( dateString )
     {
         libxEnv.setUnicharPref( "libx.lastupdate", dateString );
     }
 
     
-    // Downloads the cueFile at url, if force is true it will always pull the 
+    // Downloads the file at url, if force is true it will always pull the 
     // file no matter when it was last modified, if force is false or omitted 
     // then we send a last-modified
     // header to make sure we only get the file if it has been updated. If the 
     // file has not
     // been updated then we simply return the version we still have on the hdd
-    function downloadCue( cue, callback ) 
+    function downloadFile( finfo, callback ) 
     {
-        if ( cue.forceDL )
-            libxEnv.getCueDocument( cue, null, callback );
+        if ( finfo.forceDL )
+            libxEnv.getDocumentRequest( finfo, null, callback );
         else
-            libxEnv.getCueDocument( cue, 
-                that.getLastModifiedDate( cue.url ), callback );
+            libxEnv.getDocumentRequest( finfo, 
+                that.getLastModifiedDate( finfo.url ), callback );
     }
     
-    this.downloadCueCallback = function( docRequest, cue, callback )
+    /**
+     *  Asynchronous callback to downloadFile that is called after the 
+     *  xmlHttpRequest has completed
+     */
+    this.downloadFileCallback = function( docRequest, finfo, callback )
     {
         if ( docRequest.status == "200" )
         {
-            setLastModifiedDate( cue.url, docRequest.getResponseHeader( 
+            setLastModifiedDate( finfo.url, docRequest.getResponseHeader( 
                 "Last-Modified" ) );
             var text = docRequest.responseText;
-            writeCueFile( cue.url, text );
-            if ( cue.type == "root" )
+            writeFile( finfo.url, text );
+            if ( finfo.type == "root" )
                 setLastUpdateDate( new Date() );
-            callback( cue, text );
+            callback( finfo, text );
         }
         else
         {
             if ( docRequest.status == "304" )
             {
-                storage_log( "File with url: " + cue.url  
+                storage_log( "File with url: " + finfo.url  
                     + "\n has not been updated on server, status: 304" );
-                if ( cue.type == "root" )
+                if ( finfo.type == "root" )
                 {
                     setLastUpdateDate( new Date() );
                 }
-                callback( cue, null );
+                callback( finfo, null );
                 return;
             }
-            storage_log( "Could not read or retrieve file with url: " + cue.url 
+            storage_log( "Could not read or retrieve file with url: " + finfo.url 
                 + " status=" + docRequest.status);
-            callback( cue, null );
+            callback( finfo, null );
             return;
         }
     }
     
-    // updates the cue associated with url by downloading it from the url. 
-    // If force is true then we will always download the file no matter if it 
-    // has been updated or not. If force is false or omitted then we only 
-    // redownload the file if it has been modified since the last time we got 
-    // it. If the file is not found or not downloaded we simply us the copy we 
-    // still have on hdd and return it instead
-    this.updateCue = function ( cue ) {
-        storage_log( "Updating cue " + cue.url );
-        var text = downloadCue( cue, updateCueCallBack );
+    /**
+      *  Manages the retrieval of a file either from hdd or from online
+      *  finfo object has following properties:
+      *  updating    bool if true we update (optional - defaults to: false)
+      *  url       string webaddress of the file we wish to retrieve (required)
+      *  forceDL    bool forces the download even if there isn't a new version 
+      *            (optional - defaults to: false / sometimes set by method)
+      *  callback       function is called after text is retrieved (optional)
+      *  type       string the type of file we are retrieving (required)
+      *  text       text of the file (text is set by the method)
+      */
+    this.getFile = function ( finfo )
+    {
+        if ( finfo.updating )
+        {
+            storage_log( "Updating file " + finfo.url );
+            var text = downloadFile( finfo, getFileCallback );
+        }
+        else
+        {
+            storage_log( "Loading stored file " + finfo.url );
+            var text = readFile( finfo.url );
+            if ( text == null || text == "" || text == false ) 
+            {
+                storage_log( "Stored file " + finfo.url + 
+                    "could not be read, downloading it" );
+                finfo.forceDL = true;
+                downloadFile( finfo, getFileCallback );
+                return;
+            }
+            finfo.text = text;
+            if ( finfo.callback !== undefined )
+            {
+                finfo.callback();
+            }
+        }
     }
     
-    function updateCueCallBack( cue, text )
+    /**
+     *  Asynchronous part of the get File method that is called after a file 
+     *  is retrieved from
+     *  online.
+     */
+    function getFileCallback( finfo, text )
     {
         if ( text != null )
         {
-            cue.text = text;
-            if ( cue.type == "root" )
-                cue.updating = true;
-            if ( cue.callback !== undefined )
-                cue.callback();
+            finfo.text = text;
+            if ( finfo.callback !== undefined )
+                finfo.callback();
             return;
         }
         else
         {
-            text = readCueFile( cue.url );
-            if ( !text || text == "" )
-			{
-				storage_log( "!!!File with url " + cue.url + "could not be read from file either.");
-                return;
-			}
-            // since we haven't updated if cue is root we disable updating of it contents
-			cue.text = text;
-            if ( cue.type == "root" )
-                cue.updating = false;
-            if ( cue.callback !== undefined )
-                cue.callback();
-			}        
-    }
-    
-    // returns the text of the cue file. We first try to read the cue from hdd 
-    // if it is not found, we download it from the url associated with it.
-    this.getCue = function ( cue ) 
-	{
-        var text = readCueFile( cue.url );
-        if ( text == null || text == "" || text == false ) 
-        {
-            storage_log( "Stored file could not be read, downloading it" );
-            cue.forceDL = true;
-            text = downloadCue( cue, getCueCallback );
-            return;
-        }
-        cue.text = text;
-        if ( cue.callback !== undefined )
-        {
-            cue.callback();
-        }
-    }
-    
-    // callback for the getCue function
-    function getCueCallback( cue, text )
-    {
-        if ( text == null )
-        {
-            storage_log( "Could not open or download file with url: " + 
-                cue.url );
-        }
-        else
-        {
-            cue.text = text;
-            if ( cue.callback !== undefined )
+            if ( finfo.updating == true )
             {
-                cue.callback();
+                text = readFile( finfo.url );
+                if ( !text || text == "" )
+                {
+                    storage_log( "!!!File with url " + finfo.url + 
+                        " could not be read from file either." );
+                    return;
+                }
+                finfo.text = text;
+                if ( finfo.type == "root" )
+                {
+                    finfo.updating = false;
+                }
+                if ( finfo.callback !== undefined )
+                {
+                    finfo.callback();
+                }
+                return;
+            }
+            else
+            {
+                if ( text == null )
+                {
+                    storage_log( "Could not open or download file with url: " + 
+                        finfo.url );
+                }
+                else
+                {
+                    finfo.text = text;
+                    if ( finfo.callback !== undefined )
+                    {
+                        finfo.callback();
+                    }
+                }
             }
         }
     }
     
-    // saves the urls and hashings into a file called index.txt to make it easier to 
-    // figure out which hashed file is which feed/cue
+    // saves the urls and hashings into a file called index.txt to make it 
+    // easier to figure out which hashed file represents which url
     this.saveFileList = function() {
         var the_list = "";
         for ( i in fileList )

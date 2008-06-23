@@ -467,16 +467,13 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
 
 //Get remote text functions///////////////////////////////////////////////////
 
-
-//Returns an XML DOM document for the config file  
-
-libxEnv.getCueDocument = function( cue, lastMod, callback, postdata )
+libxEnv.getDocumentRequest = function( finfo, lastMod, callback, postdata )
 {
     //Get the request object
     var req = libxInterface.getXMLHTTPRequest();
 
     if(!req) {
-        libxEnv.writeLog("Could not get request object for url " + url);
+        libxEnv.writeLog("Could not get request object for url " + finfo.url);
         return null;
     }
 
@@ -486,7 +483,7 @@ libxEnv.getCueDocument = function( cue, lastMod, callback, postdata )
         req.onreadystatechange = function() {
             //Make sure we're ready for processing
             if (req.readyState == 4) {
-                libxEnv.fileCache.downloadCueCallback( req, cue, callback );
+                libxEnv.fileCache.downloadFileCallback( req, finfo, callback );
             }
         }
     }
@@ -497,7 +494,7 @@ libxEnv.getCueDocument = function( cue, lastMod, callback, postdata )
     }
     
     //Do the request
-    req.open(postdata ? 'POST' : 'GET', cue.url, !synch);
+    req.open(postdata ? 'POST' : 'GET', finfo.url, !synch);
     req.send(postdata);
     return synch ? req.responseXML : null;
 }
@@ -513,7 +510,7 @@ libxEnv.getCueDocument = function( cue, lastMod, callback, postdata )
  *      libxInterface.doWebRequest(url);
  * which returns the text of a url as a string.
  */
-libxEnv.getXMLDocument = function (url, callback, postdata) {
+libxEnv.getDocument = function (url, callback, postdata) {
     //Get the request object
     var req = libxInterface.getXMLHTTPRequest();
 
@@ -526,7 +523,6 @@ libxEnv.getXMLDocument = function (url, callback, postdata) {
     if (!synch) {
         //We're asynchronous, so set a callback
         req.onreadystatechange = function() {
-            //window.alert( "onreadystatefunction" );
             //Make sure we're ready for processing
             if (req.readyState == 4) {
                 if(req.status != 200) {
@@ -586,7 +582,7 @@ libxEnv.getXMLDocument = function (url, callback, postdata) {
     req.open(postdata ? 'POST' : 'GET', url, !synch);
     req.send(postdata);
     return synch ? req.responseXML : null;
-}*/
+}
 
 libxEnv.getXMLConfig = function () {
     return libxInterface.config;

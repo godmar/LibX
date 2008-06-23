@@ -49,7 +49,8 @@ libxEnv.init = function() {
     
     function libxToolbarMenuShowing() {
         var m = document.getElementById ( 'libx.autolink' );
-        libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
+        libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", 
+			true);
         m.setAttribute('checked', libxEnv.options.autolink_active);
     }
 
@@ -212,22 +213,22 @@ libxEnv.getDocument = function (url, callback, postdata) {
   * The reason I put this functionallity into a new method instead of adding it to the getDocument function is that this function returns the request to give me access to the request status instead of returning the text.
   * For discussion of the return status 304 issues that is worked around here bythe if-modified-since header see the bug report: https://bugzilla.mozilla.org/show_bug.cgi?id=342977
   */
-libxEnv.getCueDocument = function ( cue, lastMod, callback, postdata)
+libxEnv.getDocumentRequest = function ( finfo, lastMod, callback, postdata)
 {
     try {
         var httprequest = postdata !== undefined ? 'POST' : 'GET';
         var xmlhttp = new XMLHttpRequest();
         if ( callback === undefined ) { // if callback is 'null' or omitted
             // synchronous
-            xmlhttp.open(httprequest, cue.url, false);
+            xmlhttp.open(httprequest, finfo.url, false);
         } else {
             xmlhttp.onreadystatechange =  function () {
                 if ( xmlhttp.readyState == 4 ) {
-                    libxEnv.fileCache.downloadCueCallback(xmlhttp, cue, callback);
+                    libxEnv.fileCache.downloadFileCallback(xmlhttp, finfo, callback);
                 }
             };
             //asynchronous
-            xmlhttp.open(httprequest, cue.url, true);
+            xmlhttp.open(httprequest, finfo.url, true);
         }
         if ( lastMod == null || lastMod !== undefined )
         {
