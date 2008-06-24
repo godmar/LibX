@@ -48,15 +48,19 @@ libxEnv.init = function() {
         var mitem = libxSearchOptions[option];
         libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
         libxDropdownOptions[mitem.value] = mitem;
+        
+
     }
-    
-    //libxEnv.doforurls.initDoforurls();    
     
     libraryCatalog = searchCatalogs[0];
 
+    // Listener for the prefs window to catch changes to the roots info
+    libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
+
+/** Ask if this functionality should be recoded to work with new cues
     if(libxEnv.getBoolPref('libx.dfuexec', true)) {
         libxEnv.initIEDFU();
-    }
+    } **/
 }
 
 libxEnv.debugInit = function () {}
@@ -591,10 +595,7 @@ libxEnv.writeToFile = function(path, str, create, dirPath) {
     libxEnv.writeLog("167: writeToFile " + path);
     if ( create )
     {
-        var path1 = dirPath.substring( 0 , 12 );
         libxInterface.createAllDirsInPath( dirPath );
-        path1 += dirPath.substring(12,25);
-        libxInterface.createAllDirsInPath( path1 );
     }
     libxInterface.writeToFile(path, str);
 }
@@ -954,4 +955,10 @@ libxEnv.displayLastModifieds = function()
         libxInterface.updateLastModified( rootInfo[i].lastMod, 
             rootInfo[i].desc );
     }
+}
+
+libxEnv.updateRootInfo = function ()
+{
+    libxEnv.displayLastUpdateDate();
+    libxEnv.displayLastModifieds();
 }

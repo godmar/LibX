@@ -73,19 +73,15 @@ libxEnv.doforurlClass = function()
     var curroot;
     // Default Root in case no Roots are specified in config.xml
     var defaultRoot = "http://libx.org/libx/src/feeds/root.js";
-    //  the prefs menu window so we can update the information on it when we 
-    //  update
-    this.prefsMenu;
-    
-    
-    function updatePreferenceMenu()
+    // Empty onRootUpdate function so that we don't get an is not a 
+    // function error
+    this.onRootUpdate = function () { };   
+
+    this.setRootUpdateListener = function ( func )
     {
-        if ( that.prefsMenu != undefined )
-        {   // this means the preference menu is active
-            that.prefsMenu.libxEnv.displayLastUpdateDate();
-            that.prefsMenu.libxEnv.displayLastModifieds();
-        }
-    }
+        this.onRootUpdate = func;
+    } 
+
     
     function convertRelativeURL( url, baseURL )
     {
@@ -159,7 +155,7 @@ libxEnv.doforurlClass = function()
             callback: function () {
                 try 
                 {
-                    updatePreferenceMenu();
+                    libxEnv.doforurls.onRootUpdate();
                     curroot = c;
                     eval( c.text );
                 }

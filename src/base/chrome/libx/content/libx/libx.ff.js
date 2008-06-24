@@ -957,6 +957,7 @@ libxEnv.initPrefsGUI = function () {
         document.getElementById('libx-contextmenu-prefs-tab').setAttribute('hidden', true);
         document.getElementById('libx-ajax-tab').setAttribute('hidden', true);
         document.getElementById('libx-feed-tab').setAttribute('hidden', true);
+        document.getElementById('libxFeeds').setAttribute('hidden', true );
         document.getElementById('libxApply').setAttribute('hidden', true);
         //OK, we're done
         return;

@@ -229,9 +229,10 @@ function libxInit()
     libxInitializeCatalogs();
     libxProxyInit();
     libxEnv.initializeContextMenu();
-    libxEnv.doforurls.initDoforurls();
     // Adds onPageComplete to the eventlistener of DOMContentLoaded
     libxEnv.init();
+
+    libxEnv.doforurls.initDoforurls();
 
 	/**
 	 * helper function that creates the cue logo to be inserted

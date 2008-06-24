@@ -100,8 +100,7 @@ libxEnv.fileCacheClass = function()
     function writeFile( url, text ) 
     {
         var path = getHashedPath( url );
-        var dirPath = path.substring(0,path.length-segmentLength +
-             jsFileEnding.length);
+        var dirPath = path.substring(0, secondSlashPos);
         libxEnv.writeToFile( path, text, true, dirPath );
     }
     
@@ -109,8 +108,7 @@ libxEnv.fileCacheClass = function()
     function writeOptionsFile( url, text ) 
     {
         var path = getHashedOptionPath(url);
-        var dirPath = path.substring(0,path.length-segmentLength + 
-            optionFileEnding.length);
+        var dirPath = path.substring(0, secondSlashPos);
         libxEnv.writeToFile( path, text, true, dirPath );
     }
     
@@ -185,8 +183,8 @@ libxEnv.fileCacheClass = function()
                 callback( finfo, null );
                 return;
             }
-            storage_log( "Could not read or retrieve file with url: " + finfo.url 
-                + " status=" + docRequest.status);
+            storage_log( "Could not read or retrieve file with url: " + 
+                finfo.url + " status=" + docRequest.status);
             callback( finfo, null );
             return;
         }

@@ -75,12 +75,19 @@ function setVersion() {
 
 
 
+/**
+ * Updates the Last Update Label in the Cue Preferences Tab
+ */
 libxEnv.displayLastUpdateDate = function()
 {
     document.getElementById("last-update-date").setAttribute("value",
         new Date(libxEnv.getUnicharPref( "libx.lastupdate" )) );
 }
 
+
+/**
+ * Updates the Last Modified Labels in the Cue Preferences Tab
+ */
 libxEnv.displayLastModifieds = function()
 {
      var rootInfo = libxEnv.doforurls.getRootInfo();
@@ -113,7 +120,17 @@ libxEnv.displayLastModifieds = function()
      }
 }
 
-window.opener.libxEnv.doforurls.prefsMenu = this;
+// function to update the root Info in prefs menu
+libxEnv.updateRootInfo = function()
+{
+    libxEnv.displayLastUpdateDate();
+    libxEnv.displayLastModifieds();
+}
+
+
+// Sets the listener so that the root file info in prefs menu is always updated
+window.opener.libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
+
 ]]>
     </script>
     
