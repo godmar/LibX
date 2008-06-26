@@ -251,7 +251,7 @@ window.opener.libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
                         <label value="Last Update was: " />
                         <label id="last-update-date" value="This will be replaced by date" />
                         <label value="" />
-                        <button label="Update Cues" tooltiptext="Updates all cues" oncommand="window.opener.libxEnv.doforurls.updateDoforurls();" />
+                        <button label="Update Cues" tooltiptext="Updates all cues" oncommand="libxEnv.updateFunc();" />
                     </groupbox>
                     <groupbox id="libx-cue-versions" orient="vertical">
                         <caption label="Cue Version Information" />

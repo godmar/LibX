@@ -629,7 +629,7 @@ function libx___unused___addSearchFieldAs(mitem) {
 libxEnv.ff.openPrefWindow = function () { 
     window.openDialog ( "chrome://libx/content/libxprefs.xul", 
         "LibX Preferences", " centerscreen, chrome, modal, resizable",
-        { config:libxConfig } 
+        { config:libxConfig, updateFunc: libxEnv.doforurls.updateDoforurls } 
     );
 }
 
@@ -948,6 +948,7 @@ libxEnv.initPrefsGUI = function () {
     if ( window.arguments )
     {
         libxConfig = window.arguments[0].config;
+		libxEnv.updateFunc = window.arguments[0].updateFunc;
     }
     else { //Hide all tab panels except 'about'
         document.getElementById('libxGeneral').setAttribute('hidden', true);
