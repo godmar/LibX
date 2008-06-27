@@ -139,90 +139,93 @@ libxEnv.fileCacheClass = function()
     }
 
     
-    // Downloads the file at url, if force is true it will always pull the 
-    // file no matter when it was last modified, if force is false or omitted 
-    // then we send a last-modified
-    // header to make sure we only get the file if it has been updated. If the 
-    // file has not
-    // been updated then we simply return the version we still have on the hdd
+    /**
+     *Downloads the file at url, if force is true it will always pull the 
+     * file no matter when it was last modified, if force is false or omitted 
+     * then we send a last-modified header to make sure we only get the file
+     * if it has been updated. If the file has not been updated then we 
+     *simply return the version we still have on the hdd
+     */
     function downloadFile( finfo ) 
     {
-        if ( finfo.forceDL )
-            libxEnv.getDocumentRequest( finfo, null, that.downloadFileCallback );
-        else
-            libxEnv.getDocumentRequest( finfo, 
-                that.getLastModifiedDate( finfo.url ), that.downloadFileCallback);
-    }
-    
- /**
-     *  Asynchronous callback to downloadFile that is called after the 
-     *  xmlHttpRequest has completed
-     */
-    this.downloadFileCallback = function( docRequest, finfo)
-    {
-        if ( docRequest.status == "200" )
+        // Internal function designed to handle the callback from the 
+        // documentRequest
+        function downloadFileCallback( docRequest )
         {
-            setLastModifiedDate( finfo.url, docRequest.getResponseHeader( 
-                "Last-Modified" ) );
-            var text = docRequest.responseText;
-            writeFile( finfo.url, text );
-            if ( finfo.type == "root" )
-                setLastUpdateDate( new Date() );
-            getFileCallback( finfo, text );
-        }
-        else
-        {
-            if ( docRequest.status == "304" )
+            if ( docRequest.status == "200" )
             {
-                storage_log( "File with url: " + finfo.url  
-                    + "\n has not been updated on server, status: 304" );
+                // We did download the file
+                setLastModifiedDate( finfo.url, docRequest.getResponseHeader( 
+                    "Last-Modified" ) );
+                var text = docRequest.responseText;
+                writeFile( finfo.url, text );
                 if ( finfo.type == "root" )
-                {
                     setLastUpdateDate( new Date() );
-                }
-            }
-			else
-			{
-				storage_log( "Could not read or retrieve file with url: " + 
-					finfo.url + " status=" + docRequest.status);
-			}
-			// we printed the msgs depending stating why we didn't get the file
-			// from online now we decide if we should get it from file or if 
-			// we already tried that
-            if ( finfo.updating == true )
-            {
-                if ( finfo.type == "root" )
-                {
-                    finfo.updating = false;
-                }
-                text = readFile( finfo.url );
-                if ( !text || text == "" )
-                {
-                    storage_log( "!!!File with url " + finfo.url + 
-                        " could not be read from file either." );
-                    return;
-                }
-				getFileCallback( finfo, text );
+                getFileCallback( finfo, text );
             }
             else
             {
-				storage_log( "Could not open or download file with url: " + 
-					finfo.url );
+                // We didn't download the file because ....
+                if ( docRequest.status == "304" )
+                {
+                    // .... it hasn't been updated since we last downloaded it
+                    storage_log( "File with url: " + finfo.url  
+                        + "\n has not been updated on server, status: 304" );
+                    if ( finfo.type == "root" )
+                    {
+                        setLastUpdateDate( new Date() );
+                    }
+                }
+                else
+                {
+                    // ..... we couldn't get it print error and continue
+                    storage_log( "Could not read or retrieve file with url: " + 
+                        finfo.url + " status=" + docRequest.status);
+                }
+                // we printed the messages stating why we didn't get the file 
+                // from online now we decide if we should get it from file or 
+                // if we already tried that
+                if ( finfo.updating == true )
+                {
+                    if ( finfo.type == "root" )
+                    {
+                        finfo.updating = false;
+                    }
+                    text = readFile( finfo.url );
+                    if ( !text || text == "" )
+                    {
+                        storage_log( "!!!File with url " + finfo.url + 
+                            " could not be read from file either." );
+                        return;
+                    }
+                    getFileCallback( finfo, text );
+                }
+                else
+                {
+                    storage_log( "Could not open or download file with url: " + 
+                        finfo.url );
+                }
             }
         }
+
+        if ( finfo.forceDL )
+            libxEnv.getDocumentRequest( finfo.url, downloadFileCallback );
+        else
+            libxEnv.getDocumentRequest( finfo.url, downloadFileCallback, 
+                undefined, that.getLastModifiedDate( finfo.url ));  
     }
-	
-  /**
-      *  Manages the retrieval of a file either from hdd or from online
-      *  finfo object has following properties:
-      *  updating    bool if true we update (optional - defaults to: false)
-      *  url       string webaddress of the file we wish to retrieve (required)
-      *  forceDL    bool forces the download even if there isn't a new version 
-      *            (optional - defaults to: false / sometimes set by method)
-      *  callback       function is called after text is retrieved (optional)
-      *  type       string the type of file we are retrieving (required)
-      *  text       text of the file (text is set by the method)
-      */
+    
+    /**
+     *  Manages the retrieval of a file either from hdd or from online
+     *  finfo object has following properties:
+     *  updating    bool if true we update (optional - defaults to: false)
+     *  url       string webaddress of the file we wish to retrieve (required)
+     *  forceDL    bool forces the download even if there isn't a new version 
+     *            (optional - defaults to: false / sometimes set by method)
+     *  callback       function is called after text is retrieved (optional)
+     *  type       string the type of file we are retrieving (required)
+     *  text       text of the file (text is set by the method)
+     */
     this.getFile = function ( finfo )
     {
         if ( finfo.updating )
@@ -250,21 +253,25 @@ libxEnv.fileCacheClass = function()
         }
     }
     
+
     /**
      *  Asynchronous part of the get File method that is called after a file 
-     *  is retrieved from
-     *  online.
+     *  is retrieved from online.
      */
     function getFileCallback( finfo, text )
     {
-		finfo.text = text;
-		if ( finfo.callback !== undefined )
-			finfo.callback();
-		return;
+        finfo.text = text;
+        if ( finfo.callback !== undefined )
+            finfo.callback();
+        return;
     }
     
-    // saves the urls and hashings into a file called index.txt to make it 
-    // easier to figure out which hashed file represents which url
+    /**
+     * Saves the urls and corresponding hashings to a file called index.txt
+     * This is intended to make it easier to find a file in the hashed 
+     * directory structure. (The file is not actually needed by the extension 
+     * its only for People)
+     */
     this.saveFileList = function() {
         var the_list = "";
         for ( i in fileList )

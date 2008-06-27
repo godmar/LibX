@@ -179,66 +179,43 @@ libxEnv.openSearchWindow = function (url, pref) {
     }
 }
 
-/* url: url to be retrieved
- * callback: callback to complete on asynchronous completion.
- *           if null or if omitted, operation is synchronous.
- * postdata: if given, use POST.
- */
-libxEnv.getDocument = function (url, callback, postdata) {
-     try {
-        var httprequest = postdata !== undefined ? 'POST' : 'GET';
-        var xmlhttp = new XMLHttpRequest();
-        if (callback == null) {         // if callback is 'null' or omitted
-            // synchronous
-            xmlhttp.open(httprequest, url, false);
-        } else {
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4) {
-                    callback(xmlhttp.responseText);
-                }
-            };
-            // asynchronous
-            xmlhttp.open(httprequest, url, true);
-        }
-        xmlhttp.send(postdata);
-        return xmlhttp.responseText;
-    } 
-    catch ( e ) { // File not found
-        return null;
-    }
-}
 
-/**
-  * CAUTION THIS DOES NOT RETURN THE TEXT BUT THE HTTPREQUEST SO THAT WE CAN GET THE LAST MODIFIED HEADER 
-  * The reason I put this functionallity into a new method instead of adding it to the getDocument function is that this function returns the request to give me access to the request status instead of returning the text.
-  * For discussion of the return status 304 issues that is worked around here bythe if-modified-since header see the bug report: https://bugzilla.mozilla.org/show_bug.cgi?id=342977
-  */
-libxEnv.getDocumentRequest = function ( finfo, lastMod, callback, postdata)
+/*
+ *  Retrieves a Document from the given url and returns the xmlHTTPRequest object
+ *   If callback is specified the request is asynchronous if not synchronous
+ *   If postdata is specified then we do a POST request instead,
+ *  Does not support synchronous POST.
+ *  If lastModified is specified it is set as a requestHeader.
+ *
+ *   !!! This method returns the xmlHTTPRequest object not the text or xml. 
+ *  ( if you want text/xml use getDocument/getXMLDocument ) 
+ */
+libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified )
 {
     try {
-        var httprequest = postdata !== undefined ? 'POST' : 'GET';
+        var httprequest = (postdata !== undefined) ? 'POST' : 'GET';
         var xmlhttp = new XMLHttpRequest();
         if ( callback === undefined ) { // if callback is 'null' or omitted
             // synchronous
-            xmlhttp.open(httprequest, finfo.url, false);
+            xmlhttp.open('GET', url, false);
         } else {
             xmlhttp.onreadystatechange =  function () {
                 if ( xmlhttp.readyState == 4 ) {
-                    callback( xmlhttp, finfo );
+                    callback( xmlhttp );
                 }
             };
             //asynchronous
-            xmlhttp.open(httprequest, finfo.url, true);
+            xmlhttp.open(httprequest, url, true);
         }
-        if ( lastMod == null || lastMod !== undefined )
+		// sets the lastModified Header if lastModified parameter is given
+        if ( lastModified != null && lastModified !== undefined )
         {
-            xmlhttp.setRequestHeader( "If-Modified-Since", lastMod );
+            xmlhttp.setRequestHeader( "If-Modified-Since", lastModified );
         }
         xmlhttp.send(postdata);
         return xmlhttp;
     }
     catch (e) {
-        alert(e);
         return null;
     }
 }
@@ -254,29 +231,44 @@ libxEnv.getDocumentRequest = function ( finfo, lastMod, callback, postdata)
  *
  * If postdata is given, a POST request is sent instead.
  * Does not support synchronous POST.
+ * 
+ * If lastModified is specified a LastModified header will be set and sent with the request
  */
-libxEnv.getXMLDocument = function ( url, callback, postdata ) {
-    try {
-        var xmlhttp = new XMLHttpRequest();
-        if (callback === undefined) {
-            // synchronous
-            xmlhttp.open('GET', url, false);
-        } else {
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4) {
-                    callback(xmlhttp);
-                }
-            };
-            // asynchronous
-            xmlhttp.open(postdata !== undefined ? 'POST' : 'GET', url, true);
-        }
-        xmlhttp.send(postdata);
-        return xmlhttp.responseXML;
-    } 
-    catch ( e ) { // File not found
-        return null;
-    }
+libxEnv.getXMLDocument = function ( url, callback, postdata, lastModified ) 
+{
+    var returnV = libxEnv.getDocumentRequest( url, callback, postdata, 
+		lastModified);
+	if ( returnV )
+		return returnV.responseXML;
+	else	
+		return null;
 }
+
+/* 
+ * Retrieve a document from a URL.
+ * 'callback' is optional. 
+ * If omitted, retrieval is synchronous.
+ * Returns document on success, and (probably) null on failure.
+ *
+ * If given, retrieval is asynchronous.
+ * Return value is undefined in this case.
+ *
+ * If postdata is given, a POST request is sent instead.
+ * Does not support synchronous POST.
+ * 
+ * If lastModified is specified a LastModified header will be set and sent with the request
+ */
+libxEnv.getDocument = function (url, callback, postdata, lastModified ) 
+{
+	var returnV = libxEnv.getDocumentRequest( url,
+		( callback === undefined ) ? undefined : function (xml) { callback(xml.responseText) },
+		postdata, lastModified );
+	if ( returnV )
+		return returnV.responseText;
+	else
+		return null;
+}
+
 
 libxEnv.getXMLConfig = function () {
     return libxEnv.getXMLDocument("chrome://libx/content/config.xml");
