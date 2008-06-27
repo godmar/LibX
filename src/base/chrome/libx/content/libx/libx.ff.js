@@ -224,7 +224,7 @@ libxEnv.getDocumentRequest = function ( finfo, lastMod, callback, postdata)
         } else {
             xmlhttp.onreadystatechange =  function () {
                 if ( xmlhttp.readyState == 4 ) {
-                    libxEnv.fileCache.downloadFileCallback(xmlhttp, finfo, callback);
+                    callback( xmlhttp, finfo );
                 }
             };
             //asynchronous

@@ -145,20 +145,20 @@ libxEnv.fileCacheClass = function()
     // header to make sure we only get the file if it has been updated. If the 
     // file has not
     // been updated then we simply return the version we still have on the hdd
-    function downloadFile( finfo, callback ) 
+    function downloadFile( finfo ) 
     {
         if ( finfo.forceDL )
-            libxEnv.getDocumentRequest( finfo, null, callback );
+            libxEnv.getDocumentRequest( finfo, null, that.downloadFileCallback );
         else
             libxEnv.getDocumentRequest( finfo, 
-                that.getLastModifiedDate( finfo.url ), callback );
+                that.getLastModifiedDate( finfo.url ), that.downloadFileCallback);
     }
     
-    /**
+ /**
      *  Asynchronous callback to downloadFile that is called after the 
      *  xmlHttpRequest has completed
      */
-    this.downloadFileCallback = function( docRequest, finfo, callback )
+    this.downloadFileCallback = function( docRequest, finfo)
     {
         if ( docRequest.status == "200" )
         {
@@ -168,7 +168,7 @@ libxEnv.fileCacheClass = function()
             writeFile( finfo.url, text );
             if ( finfo.type == "root" )
                 setLastUpdateDate( new Date() );
-            callback( finfo, text );
+            getFileCallback( finfo, text );
         }
         else
         {
@@ -180,17 +180,39 @@ libxEnv.fileCacheClass = function()
                 {
                     setLastUpdateDate( new Date() );
                 }
-                callback( finfo, null );
-                return;
             }
-            storage_log( "Could not read or retrieve file with url: " + 
-                finfo.url + " status=" + docRequest.status);
-            callback( finfo, null );
-            return;
+			else
+			{
+				storage_log( "Could not read or retrieve file with url: " + 
+					finfo.url + " status=" + docRequest.status);
+			}
+			// we printed the msgs depending stating why we didn't get the file
+			// from online now we decide if we should get it from file or if 
+			// we already tried that
+            if ( finfo.updating == true )
+            {
+                if ( finfo.type == "root" )
+                {
+                    finfo.updating = false;
+                }
+                text = readFile( finfo.url );
+                if ( !text || text == "" )
+                {
+                    storage_log( "!!!File with url " + finfo.url + 
+                        " could not be read from file either." );
+                    return;
+                }
+				getFileCallback( finfo, text );
+            }
+            else
+            {
+				storage_log( "Could not open or download file with url: " + 
+					finfo.url );
+            }
         }
     }
-    
-    /**
+	
+  /**
       *  Manages the retrieval of a file either from hdd or from online
       *  finfo object has following properties:
       *  updating    bool if true we update (optional - defaults to: false)
@@ -206,7 +228,7 @@ libxEnv.fileCacheClass = function()
         if ( finfo.updating )
         {
             storage_log( "Updating file " + finfo.url );
-            var text = downloadFile( finfo, getFileCallback );
+            var text = downloadFile( finfo );
         }
         else
         {
@@ -217,7 +239,7 @@ libxEnv.fileCacheClass = function()
                 storage_log( "Stored file " + finfo.url + 
                     "could not be read, downloading it" );
                 finfo.forceDL = true;
-                downloadFile( finfo, getFileCallback );
+                downloadFile( finfo );
                 return;
             }
             finfo.text = text;
@@ -235,52 +257,10 @@ libxEnv.fileCacheClass = function()
      */
     function getFileCallback( finfo, text )
     {
-        if ( text != null )
-        {
-            finfo.text = text;
-            if ( finfo.callback !== undefined )
-                finfo.callback();
-            return;
-        }
-        else
-        {
-            if ( finfo.updating == true )
-            {
-                text = readFile( finfo.url );
-                if ( !text || text == "" )
-                {
-                    storage_log( "!!!File with url " + finfo.url + 
-                        " could not be read from file either." );
-                    return;
-                }
-                finfo.text = text;
-                if ( finfo.type == "root" )
-                {
-                    finfo.updating = false;
-                }
-                if ( finfo.callback !== undefined )
-                {
-                    finfo.callback();
-                }
-                return;
-            }
-            else
-            {
-                if ( text == null )
-                {
-                    storage_log( "Could not open or download file with url: " + 
-                        finfo.url );
-                }
-                else
-                {
-                    finfo.text = text;
-                    if ( finfo.callback !== undefined )
-                    {
-                        finfo.callback();
-                    }
-                }
-            }
-        }
+		finfo.text = text;
+		if ( finfo.callback !== undefined )
+			finfo.callback();
+		return;
     }
     
     // saves the urls and hashings into a file called index.txt to make it 
