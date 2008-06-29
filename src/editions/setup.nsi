@@ -130,11 +130,14 @@ Section "LibX Core" SEC01
 $fullinstall$
 SectionEnd
 
+# XXXX Arif, please place those files in a list that's stored in a file, then change both
+# xcreateextension.pl and LibXIE.dll to use that list.
 Section "LibX JavaScript" SEC02
   SetOverwrite on
   SetOutPath "${PRODUCT_DATA_STORE}\content"
   File "${JS_PATH}xisbn.js"
   File "${JS_PATH}pubmed.js"
+  File "${JS_PATH}crossref.js"
   File "${JS_PATH}proxy.js"
   File "${JS_PATH}libx.js"
   File "${JS_PATH}libx.ie.js"
