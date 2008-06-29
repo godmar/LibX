@@ -273,6 +273,18 @@ libxEnv.getDocument = function (url, callback, postdata, lastModified )
 libxEnv.getXMLConfig = function () {
     return libxEnv.getXMLDocument("chrome://libx/content/config.xml");
 }
+
+/*
+ * Load XML String into a XMLDocument
+ *
+ * Arif, please see 
+ * http://www.webreference.com/programming/javascript/domwrapper/2.html
+ * and provide an IE implementation, then remove this comment
+ */
+libxEnv.loadXMLString = function (xmlstring) {
+    parser = new DOMParser();
+    return parser.parseFromString(xmlstring,"text/xml");
+}
   
 // output a message to the JS console
 libxEnv.writeLog = function (msg, type) {
@@ -636,10 +648,14 @@ libxEnv.ff.openPrefWindow = function () {
 var libxAutoLinkFilters = [
     {   // Pubmed IDs, form PMID... 
         regexp: /PMID[^\d]*(\d+)/ig,
-        href: function(match) { 
+        href: function(match, anchor) { 
             if (!libxEnv.openUrlResolver) return null;
             var pmid = match[1];
             this.name = libxEnv.getProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid]);
+            libxEnv.pubmed.getPubmedMetadataAsText(pmid, { 
+                ifFound: function (text) {
+                    anchor.title = libxEnv.getProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid + ": " + text]);
+            }});    // could implement notFound handler to remove pubmed link!
             return libxEnv.openUrlResolver.makeOpenURLForPMID(pmid);
         }
     },
@@ -873,6 +889,13 @@ libxEnv.addMenuObject = function (menuEntry) {
         this.setAttribute ( 'label', text );
     }
     
+    /*
+     * Sets the tooltip title of an item
+     */
+    m.setTooltip = function ( text ) {
+        this.setAttribute ( 'tooltiptext', text );
+    }
+
     /*
      * Sets the event function for the menuitem
      */

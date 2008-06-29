@@ -61,8 +61,9 @@ function setVersion() {
     // document.getElementById("libx-aboutbox-image").setAttribute("src", libxEnv.getProperty("logoURL"));
 
     var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
+    var editionId = libxEnv.xmlDoc.getAttr("/edition", "id");
     //document.getElementById("libx-about-dialog").setAttribute("title", "LibX - " + edition);
-    document.getElementById("libx-version").setAttribute("value", "Version " + libx_version 
+    document.getElementById("libx-version").setAttribute("value", "Version " + editionId + " " + libx_version 
         + (libxEnv.xmlDoc.xml ? " (XML)" : ""));
     document.getElementById("libx-edition").setAttribute("value", edition);
     var adaptedby = libxEnv.xmlDoc.getAttr("/edition/name", "adaptedby");

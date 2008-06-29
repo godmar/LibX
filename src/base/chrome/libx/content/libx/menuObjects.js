@@ -228,7 +228,15 @@ function libxInitializeMenuObjects()
     
     function pmidMatch ( pmid, menuEntries ) {
         for ( var i = 0; i < menuEntries.length; i++ ) {
-            initMenuEntry ( menuEntries[i], pmid );
+            var menuEntry = menuEntries[i];
+            initMenuEntry ( menuEntry, pmid );
+
+            if (typeof menuEntry.menuitem.setTooltip == "function") {
+                libxEnv.pubmed.getPubmedMetadataAsText(pmid, { 
+                    ifFound: function (text) {
+                        menuEntry.menuitem.setTooltip(libxEnv.getProperty("openurlpmidsearch.label", [menuEntry.searcher.name, pmid + ": " + text]));
+                }});
+            }
         }
     }
     
