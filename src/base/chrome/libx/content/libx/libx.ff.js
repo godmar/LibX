@@ -660,12 +660,16 @@ var libxAutoLinkFilters = [
         }
     },
     {   // DOIs
-        regexp: /(10\.\S+\/[^\s,;\"\']+)/ig,
-        href: function(match) { 
+        regexp: /(10\.\S+\/[^\s,;\"\'\]\}]+)/ig,
+        href: function(match, anchor) { 
             if (!libxEnv.openUrlResolver) return null;
             var doi = isDOI(match[1]); 
             if (doi == null) return null;
             this.name = libxEnv.getProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi]);
+            libxEnv.crossref.getDOIMetadataAsText(doi, { 
+                ifFound: function (text) {
+                    anchor.title = libxEnv.getProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi + ": " + text]);
+            }});    // could implement notFound handler to remove doi link!
             return libxEnv.openUrlResolver.makeOpenURLForDOI(doi);
         }
     },

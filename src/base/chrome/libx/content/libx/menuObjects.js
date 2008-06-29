@@ -306,6 +306,14 @@ function libxInitializeMenuObjects()
     function doiMatch ( doi, menuEntries ) {
         for ( var i = 0; i < menuEntries.length; i++ ) {
             initMenuEntry ( menuEntries[i], doi );
+
+            if (typeof menuEntries[i].menuitem.setTooltip == "function") {
+                libxEnv.crossref.getDOIMetadataAsText(doi, {
+                    menuEntry: menuEntries[i],
+                    ifFound: function (text) {
+                        this.menuEntry.menuitem.setTooltip(libxEnv.getProperty("openurldoisearch.label", [this.menuEntry.searcher.name, doi + ": " + text]));
+                }});
+            }
         }
     }     
     

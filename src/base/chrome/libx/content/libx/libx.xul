@@ -55,6 +55,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/xisbn.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/pubmed.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/crossref.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/config.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/hash.js" />
