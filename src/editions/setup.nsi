@@ -134,6 +134,7 @@ Section "LibX JavaScript" SEC02
   SetOverwrite on
   SetOutPath "${PRODUCT_DATA_STORE}\content"
   File "${JS_PATH}xisbn.js"
+  File "${JS_PATH}pubmed.js"
   File "${JS_PATH}proxy.js"
   File "${JS_PATH}libx.js"
   File "${JS_PATH}libx.ie.js"
