@@ -178,7 +178,7 @@ function libxInitializeMenuObjects()
             }
 
             initMenuEntry ( menuEntries[i], pureISN );
-            
+
             // xisbn requires special case
             // will overwrite values as needed from after initMenuEntry is run
             if ( menuEntries[i].type == "xisbn" ) {
@@ -187,8 +187,25 @@ function libxInitializeMenuObjects()
                 mitem.setHandler ( function (menuentry) {
                     libxEnv.openSearchWindow(menuentry.searcher.makeXISBNRequest( pureISN  )); 
                 });
+                if (typeof mitem.setTooltip == "function") {
+                    mitem.setTooltip("LibX: Use OCLC's xISBN service to search for all ISBNs describing the same item as " + pureISN);
+                }
             }
         }    
+
+        if (menuEntries.length == 0 || typeof menuEntries[0].menuitem.setTooltip != "function")
+            return;
+
+        libxEnv.xisbn.getISBNMetadataAsText(pureISN, { 
+            menuEntries: menuEntries,
+            ifFound: function (text) {
+                for ( var i = 0; i < this.menuEntries.length; i++ ) {
+                    var mitem = this.menuEntries[i].menuitem;
+                    if ( menuEntries[i].type != "xisbn" )
+                        mitem.setTooltip("LibX: " + libxEnv.getProperty("catsearch.label", [this.menuEntries[i].searcher.name, text]));
+                }
+            }
+        });    // could implement notFound handler to remove ISBN link!
     }
     
     /*********************************** ISSN options *******************************************/
@@ -212,6 +229,17 @@ function libxInitializeMenuObjects()
         for ( var i = 0; i < menuEntries.length; i++ ) {
             initMenuEntry ( menuEntries[i], pureISN );
         }
+
+        if (menuEntries.length == 0 || typeof menuEntries[0].menuitem.setTooltip != "function")
+            return;
+
+        libxEnv.xisbn.getISSNMetadataAsText(pureISN, { 
+            menuEntries: menuEntries,
+            ifFound: function (text) {
+                for ( var i = 0; i < this.menuEntries.length; i++ ) {
+                    this.menuEntries[i].menuitem.setTooltip("ISSN " + pureISN + ": " + text);
+                }
+        }});
     }
     
     /********************************* PMID Options **********************************************/
@@ -233,8 +261,9 @@ function libxInitializeMenuObjects()
 
             if (typeof menuEntry.menuitem.setTooltip == "function") {
                 libxEnv.pubmed.getPubmedMetadataAsText(pmid, { 
+                    menuEntry: menuEntry,
                     ifFound: function (text) {
-                        menuEntry.menuitem.setTooltip(libxEnv.getProperty("openurlpmidsearch.label", [menuEntry.searcher.name, pmid + ": " + text]));
+                        this.menuEntry.menuitem.setTooltip(libxEnv.getProperty("openurlpmidsearch.label", [this.menuEntry.searcher.name, pmid + ": " + text]));
                 }});
             }
         }
@@ -358,6 +387,7 @@ function libxInitializeMenuObjects()
                 p = m[1];
             }
             menuitem.setLabel ( libxEnv.getProperty(which, [proxy.name, computeDisplayText(p)]));            
+            // XXX add a tooltip here
         }
         
         for (var i = 0; i < menuEntries.length; i++) {
