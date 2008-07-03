@@ -44,32 +44,34 @@ libxEnv.fileCacheClass = function()
     {
         libxEnv.writeLog(msg, 'fileStorage');
     }
-    
-    // Returns the hashed path of the .js file that is associated with the 
-    // given url
-    function getHashedPath( url ) 
-    {
-        var path;
-        if ( fileList[url] === undefined )
-        {
-            path = calculateHashedPath( url );
-            path += jsFileEnding;
-            fileList[url] = path;
-        }
-        else
-        {
-            path = fileList[url]; 
-        }
-        return path;
-    }
+	
+	// Returns the hashed path of the .js file that is associated with the 
+    // given url and ending in the given file ending
+	function getHashedPath( url, ext )
+	{
+		var path;
+		if ( fileList[url] === undefined )
+		{
+			path = calculateHashedPath( url );
+			fileList[url] = path;
+		}
+		else
+		{
+			path = fileList[url];
+		}
+		if (!ext)
+			path += jsFileEnding;
+		else
+			path += ext;
+		return path;
+	}
     
     // Returns the hashed path of the options file associated with the given 
     // url
     function getHashedOptionPath( url )
     {
-        var path = getHashedPath( url );
-        return ( path.substring(0,path.length-jsFileEnding.length) + 
-            optionFileEnding);
+        var temp = getHashedPath( url, optionFileEnding );
+		return temp;
     }
 
     // calculates the sha1 path associated with the url (without file ending)
@@ -85,21 +87,22 @@ libxEnv.fileCacheClass = function()
     }
 
     // reads the file from the hdd and returns the content
-    function readFile( url ) 
+    function readFile( finfo ) 
     {
-        return libxEnv.getFileText( getHashedPath( url ) );
+		var path = getHashedPath( finfo.url, finfo.ext );
+        return libxEnv.getFileText( path );
     }
     
     // reads the option file from the hdd and returns the content
-    function readOptionsFile( url ) 
+    function readOptionsFile( url )
     {
         return libxEnv.getFileText( getHashedOptionPath( url ) );
     }
     
     // writes text to the file
-    function writeFile( url, text ) 
+    function writeFile( finfo, text ) 
     {
-        var path = getHashedPath( url );
+        var path = getHashedPath( finfo.url, finfo.ext );
         var dirPath = path.substring(0, secondSlashPos);
         libxEnv.writeToFile( path, text, true, dirPath );
     }
@@ -111,7 +114,7 @@ libxEnv.fileCacheClass = function()
         var dirPath = path.substring(0, secondSlashPos);
         libxEnv.writeToFile( path, text, true, dirPath );
     }
-    
+	
     // gets and returns the last modified date found in the options file 
     // associated with url
     this.getLastModifiedDate = function ( url )
@@ -129,7 +132,7 @@ libxEnv.fileCacheClass = function()
         writeOptionsFile( url, lastMod );
     }
     
-    /**
+	/**
      *   Sets the last update date in the about:config so it can be displayed 
      *   in the prefs menu later
      */
@@ -155,10 +158,14 @@ libxEnv.fileCacheClass = function()
             if ( docRequest.status == "200" )
             {
                 // We did download the file
-                setLastModifiedDate( finfo.url, docRequest.getResponseHeader( 
+                setLastModifiedDate( finfo, docRequest.getResponseHeader( 
                     "Last-Modified" ) );
                 var text = docRequest.responseText;
-                writeFile( finfo.url, text );
+				if ( finfo.contentType !== undefined )
+				{
+					text = docRequest.responseText;
+				}
+                writeFile( finfo, text );
                 if ( finfo.type == "root" )
                     setLastUpdateDate( new Date() );
                 getFileCallback( finfo, text );
@@ -191,7 +198,7 @@ libxEnv.fileCacheClass = function()
                     {
                         finfo.updating = false;
                     }
-                    text = readFile( finfo.url );
+                    text = readFile( finfo );
                     if ( !text || text == "" )
                     {
                         storage_log( "!!!File with url " + finfo.url + 
@@ -207,12 +214,13 @@ libxEnv.fileCacheClass = function()
                 }
             }
         }
-
         if ( finfo.forceDL )
-            libxEnv.getDocumentRequest( finfo.url, downloadFileCallback );
+            libxEnv.getDocumentRequest( finfo.url, downloadFileCallback,
+				undefined, undefined, finfo.contentType);
         else
             libxEnv.getDocumentRequest( finfo.url, downloadFileCallback, 
-                undefined, that.getLastModifiedDate( finfo.url ));  
+                undefined, getLastModifiedDate( finfo.url ), 
+				finfo.contentType );
     }
     
     /**
@@ -225,6 +233,8 @@ libxEnv.fileCacheClass = function()
      *  callback       function is called after text is retrieved (optional)
      *  type       string the type of file we are retrieving (required)
      *  text       text of the file (text is set by the method)
+     *  ext	file extension as string to save it in the correct format ( default: .js )
+     * dir	the directory (chrome url ) to save the file in (defaults to /libx in the profile folder)
      */
     this.getFile = function ( finfo )
     {
@@ -236,7 +246,7 @@ libxEnv.fileCacheClass = function()
         else
         {
             storage_log( "Loading stored file " + finfo.url );
-            var text = readFile( finfo.url );
+            var text = readFile( finfo );
             if ( text == null || text == "" || text == false ) 
             {
                 storage_log( "Stored file " + finfo.url + 
@@ -253,7 +263,16 @@ libxEnv.fileCacheClass = function()
         }
     }
     
-
+	/**
+	 *  Method to lookup the file path of a finfo object. Returns the hashed 
+	 *  path + containing dir if given
+	 */
+	this.getFilePath = function ( finfo )
+	{
+		return getHashedPath( finfo.url, finfo.ext );;
+	}
+	
+	
     /**
      *  Asynchronous part of the get File method that is called after a file 
      *  is retrieved from online.
@@ -266,7 +285,7 @@ libxEnv.fileCacheClass = function()
         return;
     }
     
-    /**
+	/**
      * Saves the urls and corresponding hashings to a file called index.txt
      * This is intended to make it easier to find a file in the hashed 
      * directory structure. (The file is not actually needed by the extension 

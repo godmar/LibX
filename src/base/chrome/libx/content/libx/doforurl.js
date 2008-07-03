@@ -77,12 +77,78 @@ libxEnv.doforurlClass = function()
     // function error
     this.onRootUpdate = function () { };   
 
+	// resource internal class
+	// used for requesting and storing resources
+	function resourceClass()
+	{
+		this.resourceList = new Array();
+		var that = this;
+		
+		// internal helper for getting resource text
+		function getResourceText(url)
+		{
+			var resource = resourceExists( url );
+			if ( resource != false )
+			{
+				return resource.text;
+			}
+			return null;
+		}
+		
+		// internal helper to determine if resource exists
+		// returns the resource object if it does
+		// false if not
+		function resourceExists( url )
+		{
+			for ( var i = 0; i < that.resourceList.length; i++ )
+			{
+				if ( that.resourceList[i].url == url )
+				{
+					return that.resourceList[i];
+				}
+			}
+			return false;
+		}
+		
+		// internal helper for getting a resources chrome url
+		function getResourceChrome(url)
+		{
+			var resource = resourceExists(url);
+			if ( resource != false )
+			{
+				var path = "chrome://libxresource/content/";
+				path += libxEnv.fileCache.getFilePath( resource );
+				return path;
+			}
+		}
+		
+		// Accessor method to a resource
+		// method can either be:
+		// text	- gets the text content of the resource (for images this might be garbage)
+		// chrome	- gets the chrome url of the resouces (can be included in html to get resource)
+		this.getResource = function ( url, method )
+		{
+			if ( !method )
+				method = "default";
+			switch ( method )
+			{
+			case "text":
+				return getResourceText(url);
+			case "chrome":
+				return getResourceChrome(url);
+			default:
+				return getResourceText(url);
+			}
+		}
+	}  // End of resources internal class
+	
+	// Sets a listener that is called if the root is updated
     this.setRootUpdateListener = function ( func )
     {
         this.onRootUpdate = func;
-    } 
+    }
 
-    
+    // converts a relative url into a absolute url
     function convertRelativeURL( url, baseURL )
     {
         if ( url.match(/^http/) )
@@ -92,6 +158,25 @@ libxEnv.doforurlClass = function()
         return url = baseURL + url;
     }
     
+	
+	// Adds a resource to the list and makes it available to cues for use
+	function addResource ( url, ext )
+	{
+		url = convertRelativeURL ( url, curroot.baseURL );
+		if ( ext == ".gif" )
+			var contentType = "image/gif";
+		var c = { 
+			url: url,
+			type: "resource",
+			ext: ext,
+			root: curroot,
+			contentType: contentType,
+			updating: curroot.updating
+		};
+		libxEnv.fileCache.getFile( c );
+		libxEnv.doforurls.resources.resourceList.push( c );
+	}
+	
     // Adds a cue to the list
     function addCue( url )
     {
@@ -100,6 +185,7 @@ libxEnv.doforurlClass = function()
             url:  url,
             type: "cue",
             root: curroot,
+			ext: ".js",
             updating: curroot.updating,
             callback: function () { 
                 try {
@@ -123,6 +209,7 @@ libxEnv.doforurlClass = function()
             url: url,
             type: "sandbox",
             root: curroot,
+			ext: ".js",
             updating: curroot.updating
         };
         sandboxScriptList.push( c );
@@ -138,6 +225,7 @@ libxEnv.doforurlClass = function()
             url: url,
             type: "hotfix",
             root: curroot,
+			ext: ".js",
             updating: curroot.updating
         };
         that.hotfixList.push( c );
@@ -151,6 +239,7 @@ libxEnv.doforurlClass = function()
             url: url,
             type: "root",
             baseURL: url.substring(0, url.lastIndexOf("/")+1),
+			ext: ".js",
             updating: updating,
             callback: function () {
                 try 
@@ -245,7 +334,7 @@ libxEnv.doforurlClass = function()
             }
             catch(f)
             {
-                dfu_log(" sandboxScript " + f );
+                dfu_log(" sandboxScript " +sandboxScriptList[l].url + " " + f );
             }
         }
                 
@@ -276,7 +365,7 @@ libxEnv.doforurlClass = function()
      */
                     sandbox.match = match;
                     var func = "(" + dfu.action + 
-                        ")(this.document, this.match);";              
+                        ")(this.document, this.match);";
                     libxEnv.sandbox.evaluateInSandbox( func , sandbox);
                 } catch (e) { 
                     dfu_log(" action: " + dfu.description + " caused error " +
@@ -368,6 +457,7 @@ libxEnv.doforurlClass = function()
     // the cueList.
     this.initDoforurls = function () 
     {
+		this.resources = new resourceClass();
         processDoforurls( false );
         libxEnv.fileCache.saveFileList();
         that.setUpdateTimeOut( false );
@@ -546,7 +636,7 @@ libxEnv.doforurlClass = function()
             }
         }
     }
-    
+	
     return this;
 }
 

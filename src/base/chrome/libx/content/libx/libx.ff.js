@@ -186,11 +186,12 @@ libxEnv.openSearchWindow = function (url, pref) {
  *   If postdata is specified then we do a POST request instead,
  *  Does not support synchronous POST.
  *  If lastModified is specified it is set as a requestHeader.
+ *  contentType is used to override the mimetype for images (optional)
  *
  *   !!! This method returns the xmlHTTPRequest object not the text or xml. 
  *  ( if you want text/xml use getDocument/getXMLDocument ) 
  */
-libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified )
+libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified, contentType )
 {
     try {
         var httprequest = (postdata !== undefined) ? 'POST' : 'GET';
@@ -212,6 +213,11 @@ libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified )
         {
             xmlhttp.setRequestHeader( "If-Modified-Since", lastModified );
         }
+		// this is used mostly for images since they break if requested as text
+		if ( contentType !== undefined )
+		{	
+			xmlhttp.overrideMimeType(contentType + "; charset=x-user-defined");
+		}
         xmlhttp.send(postdata);
         return xmlhttp;
     }
@@ -233,11 +239,13 @@ libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified )
  * Does not support synchronous POST.
  * 
  * If lastModified is specified a LastModified header will be set and sent with the request
+ *
+ * If contentType is given it overrides the default mimetype (used to request images)
  */
-libxEnv.getXMLDocument = function ( url, callback, postdata, lastModified ) 
+libxEnv.getXMLDocument = function ( url, callback, postdata, lastModified, contentType ) 
 {
     var returnV = libxEnv.getDocumentRequest( url, callback, postdata, 
-		lastModified);
+		lastModified, contentType );
 	if ( returnV )
 		return returnV.responseXML;
 	else	
@@ -257,8 +265,10 @@ libxEnv.getXMLDocument = function ( url, callback, postdata, lastModified )
  * Does not support synchronous POST.
  * 
  * If lastModified is specified a LastModified header will be set and sent with the request
+ *
+ * If contentType is given it overrides the default mimetype (used to request images)
  */
-libxEnv.getDocument = function (url, callback, postdata, lastModified ) 
+libxEnv.getDocument = function (url, callback, postdata, lastModified, contentType ) 
 {
 	var returnV = libxEnv.getDocumentRequest( url,
 		( callback === undefined ) ? undefined : function (xml) { callback(xml.responseText) },

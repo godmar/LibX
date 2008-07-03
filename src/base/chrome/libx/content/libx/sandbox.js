@@ -52,7 +52,9 @@ libxEnv.sandboxClass = function ()
             xpath : libxEnv.xpath,
             xisbn : libxEnv.xisbn,
             openUrlResolver : libxEnv.openUrlResolver,
-            openUrlResolvers : libxEnv.openUrlResolvers
+            openUrlResolvers : libxEnv.openUrlResolvers,
+			resources : libxEnv.doforurls.resources,
+			libxess : libxEnv.libxess
         };
 
         theSandBox.libxConfig = libxConfig;
@@ -70,7 +72,7 @@ libxEnv.sandboxClass = function ()
     // evaluates the given function in the sandbox
     this.evaluateInSandbox = function ( func, sandBox )
     {
-        Components.utils.evalInSandbox( func , sandBox );
+        Components.utils.evalInSandbox( func, sandBox );
     }
 }
 
