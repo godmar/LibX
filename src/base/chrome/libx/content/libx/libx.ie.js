@@ -113,7 +113,7 @@ libxEnv.openSearchWindow = function (url, pref) {
          * Use window.navigate in this case.
          */
         if (target == "_self" && isGet) {
-            window.navigate(url2);
+            libxChromeWindow.navigate(url2);
             return;
         }
 
@@ -130,7 +130,7 @@ libxEnv.openSearchWindow = function (url, pref) {
  * window._content = window, but that would be too easy).
  */
 libxEnv.getCurrentWindowContent = function() {
-    return window;
+    return libxChromeWindow;
 }
 
 //XPath functions/////////////////////////////////////////////////////////////

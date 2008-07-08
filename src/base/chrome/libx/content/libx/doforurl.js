@@ -600,7 +600,7 @@ libxEnv.doforurlClass = function()
                 makeUpdateTimeString( update ));
             
             setTimeoutPref( Date.parse(curdate) + update );
-            window.setTimeout ( reviveUpdate, update );
+            libxChromeWindow.setTimeout ( reviveUpdate, update );
         }
         else
         {
@@ -626,7 +626,7 @@ libxEnv.doforurlClass = function()
                 
                 setTimeoutPref( curdate + timeToResetUpdate );
                 
-                window.setTimeout( reviveUpdate, timeToResetUpdate );
+                libxChromeWindow.setTimeout( reviveUpdate, timeToResetUpdate );
             }
             else
             {   // timeout is in the future so we just set it for that date
@@ -639,7 +639,7 @@ libxEnv.doforurlClass = function()
                     
                 setTimeoutPref( curdate + timeLeft );
                 
-                window.setTimeout( reviveUpdate, timeLeft );
+                libxChromeWindow.setTimeout( reviveUpdate, timeLeft );
             }
         }
     }
