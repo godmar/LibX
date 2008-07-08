@@ -48,19 +48,12 @@ libxEnv.init = function() {
         var mitem = libxSearchOptions[option];
         libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
         libxDropdownOptions[mitem.value] = mitem;
-        
-
     }
     
     libraryCatalog = searchCatalogs[0];
 
     // Listener for the prefs window to catch changes to the roots info
     libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
-
-/** Ask if this functionality should be recoded to work with new cues
-    if(libxEnv.getBoolPref('libx.dfuexec', true)) {
-        libxEnv.initIEDFU();
-    } **/
 }
 
 libxEnv.debugInit = function () {}
@@ -106,7 +99,7 @@ libxEnv.openSearchWindow = function (url, pref) {
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
     
- /* In IE, we are not given control over tabs, by design.
+    /* In IE, we are not given control over tabs, by design.
      * See http://blogs.msdn.com/ie/archive/2005/05/26/422103.aspx
      * The only choice we have is between _blank and _self
      */
