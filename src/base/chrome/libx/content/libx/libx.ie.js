@@ -461,7 +461,7 @@ libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
 
 //Get remote text functions///////////////////////////////////////////////////
 
-libxEnv.getDocumentRequest = function( url, callback, postdata, lastModified, 
+libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod, 
     contentType )
 {
     //Get the request object
