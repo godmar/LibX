@@ -478,7 +478,7 @@ libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod,
         req.onreadystatechange = function() {
             //Make sure we're ready for processing
             if (req.readyState == 4) {
-                callback(xmlhttp);
+                callback(req);
             }
         }
     }
@@ -490,7 +490,7 @@ libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod,
     if ( contentType !== undefined )
     {
             // PROBABLY WONT WORK IN IE FIND ANOTHER SOLUTION
-        xmlhttp.overrideMimeType( contentType + "; charset=x-user-defined");
+        req.overrideMimeType( contentType + "; charset=x-user-defined");
     }
     
     //Do the request
