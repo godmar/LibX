@@ -435,4 +435,59 @@ libxEnv.citeulike = function  ()  {
 	
 }
 
+
+/*
+ * Retrieve a XML document from a URL.
+ * 'callback' is optional.
+ * If omitted, retrieval is synchronous.
+ * Returns document on success, and (probably) null on failure.
+ *
+ * If given, retrieval is asynchronous.
+ * Return value is undefined in this case.
+ *
+ * If postdata is given, a POST request is sent instead.
+ * Does not support synchronous POST.
+ *
+ * If lastModified is specified a LastModified header will be set and sent with the request
+ *
+ * If contentType is given it overrides the default mimetype (used to request images)
+ */
+libxEnv.getXMLDocument = function ( url, callback, postdata, lastModified, contentType )
+{
+    var returnV = libxEnv.getDocumentRequest( url, callback, postdata,
+        lastModified, contentType );
+    if ( returnV )
+        return returnV.responseXML;
+    else
+        return null;
+}
+
+/*
+ * Retrieve a document from a URL.
+ * 'callback' is optional.
+ * If omitted, retrieval is synchronous.
+ * Returns document on success, and (probably) null on failure.
+ *
+ * If given, retrieval is asynchronous.
+ * Return value is undefined in this case.
+ *
+ * If postdata is given, a POST request is sent instead.
+ * Does not support synchronous POST.
+ *
+ * If lastModified is specified a LastModified header will be set and sent with the request
+ *
+ * If contentType is given it overrides the default mimetype (used to request images)
+ */
+libxEnv.getDocument = function (url, callback, postdata, lastModified, contentType )
+{
+    var returnV = libxEnv.getDocumentRequest( url,
+        ( callback === undefined ) ? undefined : function (xml) { callback(xml.responseText) },
+        postdata, lastModified );
+    if ( returnV )
+        return returnV.responseText;
+    else
+        return null;
+}
+
+
 // vim: ts=4

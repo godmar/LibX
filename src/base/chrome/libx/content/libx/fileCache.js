@@ -158,12 +158,13 @@ libxEnv.fileCacheClass = function()
             if ( docRequest.status == "200" )
             {
                 // We did download the file
-                setLastModifiedDate( finfo, docRequest.getResponseHeader( 
+                setLastModifiedDate( finfo.url, docRequest.getResponseHeader( 
                     "Last-Modified" ) );
                 var text = docRequest.responseText;
-				if ( finfo.contentType !== undefined )
+				if ( finfo.contentType !== undefined 
+                    && docRequest.responseBody !== undefined )
 				{
-					text = docRequest.responseText;
+					text = docRequest.responseBody;
 				}
                 writeFile( finfo, text );
                 if ( finfo.type == "root" )
@@ -219,7 +220,7 @@ libxEnv.fileCacheClass = function()
 				undefined, undefined, finfo.contentType);
         else
             libxEnv.getDocumentRequest( finfo.url, downloadFileCallback, 
-                undefined, getLastModifiedDate( finfo.url ), 
+                undefined, this.getLastModifiedDate( finfo.url ), 
 				finfo.contentType );
     }
     

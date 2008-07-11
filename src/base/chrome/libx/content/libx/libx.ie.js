@@ -472,8 +472,9 @@ libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod,
         return null;
     }
 
-    var synch = (!callback);
-    if(!synch) {
+    if( callback === undefined || callback == null) 
+    {
+        var synch = false;    
         //We're asynchronous, so set a callback
         req.onreadystatechange = function() {
             //Make sure we're ready for processing
@@ -482,60 +483,23 @@ libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod,
             }
         }
     }
+    else
+        var synch = true;
 
+    req.open(postdata ? 'POST' : 'GET', url, !synch);
     if ( lastMod !== undefined && lastMod != null)
     {
         req.setRequestHeader( "If-Modified-Since", lastMod );
     }
-    if ( contentType !== undefined )
-    {
-            // PROBABLY WONT WORK IN IE FIND ANOTHER SOLUTION
-        req.overrideMimeType( contentType + "; charset=x-user-defined");
-    }
     
     //Do the request
-    req.open(postdata ? 'POST' : 'GET', url, !synch);
     req.send(postdata);
-    return synch ? req.responseXML : null;
+    return req;
 }
 
 
 
-/**
- * Retrieve a text file from a URL.
- * Same as getXMLDocument, except that responseText is returned.
- * Should merge.
- *
- * There's also a C# implementation for synchronous retrieval as
- *      libxInterface.doWebRequest(url);
- * which returns the text of a url as a string.
- */
-libxEnv.getDocument = function (url, callback, postdata, lastModified, 
-    contentType) 
-{
-    var returnV = libxEnv.getDocumentRequest( url, 
-        (callback === undefined ) ? undefined : function (xml) { 
-            callback(xml.responseText ) }, postdata, lastModified );
-    if ( returnV )
-        return returnV.responseText;
-    else
-        return null; 
-}
 
-
-//XML + config functions//////////////////////////////////////////////////////
-
-//Returns an XML DOM document for the config file  
-libxEnv.getXMLDocument = function (url, callback, postdata, lastModified, 
-    contentType) 
-{
-    var returnV = libxEnv.getDocumentRequest( url, callback, postdata,
-        lastModified, contentType );
-    if ( returnV )
-        return returnV.responseXML;
-    else 
-        return null;
-}
 
 libxEnv.getXMLConfig = function () {
     return libxInterface.config;
