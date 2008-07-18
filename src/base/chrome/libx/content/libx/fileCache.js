@@ -215,12 +215,13 @@ libxEnv.fileCacheClass = function()
                 }
             }
         }
+        
         if ( finfo.forceDL )
             libxEnv.getDocumentRequest( finfo.url, downloadFileCallback,
 				undefined, undefined, finfo.contentType);
         else
             libxEnv.getDocumentRequest( finfo.url, downloadFileCallback, 
-                undefined, this.getLastModifiedDate( finfo.url ), 
+                undefined, that.getLastModifiedDate( finfo.url ), 
 				finfo.contentType );
     }
     

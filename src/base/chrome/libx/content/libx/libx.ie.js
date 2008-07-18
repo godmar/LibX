@@ -472,7 +472,7 @@ libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod,
         return null;
     }
 
-    if( callback === undefined || callback == null) 
+    if( callback !== undefined || callback != null) 
     {
         var synch = false;    
         //We're asynchronous, so set a callback
