@@ -207,9 +207,6 @@ function libxInitializeCatalogs()
  */
 function libxInit() 
 {
-    if ("undefined" == typeof libxChromeWindow)
-        libxChromeWindow = window;
-
     libxInitializeProperties();
     libxInitMagicSearch();
     /*
