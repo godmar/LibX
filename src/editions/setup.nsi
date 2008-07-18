@@ -130,34 +130,10 @@ Section "LibX Core" SEC01
 $fullinstall$
 SectionEnd
 
-# XXXX Arif, please place those files in a list that's stored in a file, then change both
-# xcreateextension.pl and LibXIE.dll to use that list.
 Section "LibX JavaScript" SEC02
   SetOverwrite on
-  SetOutPath "${PRODUCT_DATA_STORE}\content"
-  File "${JS_PATH}xisbn.js"
-  File "${JS_PATH}pubmed.js"
-  File "${JS_PATH}crossref.js"
-  File "${JS_PATH}proxy.js"
-  File "${JS_PATH}libx.js"
-  File "${JS_PATH}libx.ie.js"
-  File "${JS_PATH}prefs.js"
-  File "${JS_PATH}prefs.ie.js"
-  File "${JS_PATH}config.js"
-  File "${JS_PATH}config.ie.js"
-  File "${JS_PATH}openurl.js"
-  File "${JS_PATH}contextMenuUtils.js"
-  File "${JS_PATH}menuObjects.js"
-  File "${JS_PATH}isbnutils.js"
-  File "${JS_PATH}doiutils.js"
-  File "${JS_PATH}magicsearch.js"
-  File "${JS_PATH}libxprefs.js"
-  File "${JS_PATH}fileCache.js"
-  File "${JS_PATH}doforurl.js"
-  File "${JS_PATH}javascript-xpath.js"
-  SetOutPath "${PRODUCT_DATA_STORE}\content\catalogs"
-  File "${JS_PATH}catalogs/*.js"
-SectionEnd
+$javascriptfiles$
+  SectionEnd
 
 Section "LibX Locale" SEC03
   SetOverwrite ifdiff
