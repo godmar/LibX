@@ -609,7 +609,10 @@ open (NSIS, ">$editionpath" . "setup.nsi") || die "Could not upen $editionpath" 
 print NSIS $nsisText;
 close (NSIS);
 
-if (-x $makensis) {
+if (0) {
+    print "LibX IE is currently not being built.\n";
+} 
+elsif (-x $makensis) {
     my $env = "-DJS_PATH=$tmpdir/chrome/libx/content/libx/";
     $env .= " -DDLL_PATH=$libxiedllpath/";
     $env .= " -DDLL_URL=$libxiedllurl";
