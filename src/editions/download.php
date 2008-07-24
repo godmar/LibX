@@ -101,9 +101,10 @@ button labelled "Edit Options..." and click "Allow" add
 installed. Then click "Ok" and visit the "Install" link again.</span><span class="text"></span><span class="text">
 <p>
 This extension works with <a href="http://getfirefox.com/">Firefox</a>
-only. It does not work with other browsers such as Internet Explorer or
-Safari. It has been tested with Firefox versions 1.0, 1.5, 1.5.0.1, and 1.5.0.2 
-on Windows, Linux, and Macintosh OS-X.</p>
+only. It does not work with other browsers such as Internet Explorer or Safari. 
+It has been tested with Firefox versions 1.5 - 2.0.0.14 on Windows, Linux, 
+and Macintosh OS-X.  Versions built after April 2008 also support Firefox 3.0.
+</p>
 
 <b>Copyright:</b>
 <p>
@@ -122,6 +123,9 @@ If you wish to avoid this you must turn off the referrer URL by
 setting <a href="http://www.mozilla.org/quality/networking/docs/netprefs.html">network.http.sendRefererHeader to 0</a> 
 
 in your preferences.</p>
+<p>In addition, you may be sending information such as ISBN numbers to OCLC.
+Use LibX -&gt; Preferences -&gt; AJAX Options to turn this services off if desired.
+</p>
 
 <p>For more information about LibX, visit the <a href="http://libx.org">LibX Homepage</a>.
 </p></span>
