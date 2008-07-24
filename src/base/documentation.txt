@@ -71,3 +71,8 @@ as defined in /edition/catalogs/*
 Special catalog types include "openurlresolver", which means that an
 entry is added that allows searching the OpenURLResolver.
 
+----
+
+To Do:
+http://developer.mozilla.org/en/docs/Safely_accessing_content_DOM_from_chrome
+
