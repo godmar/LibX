@@ -113,7 +113,7 @@ libxEnv.openSearchWindow = function (url, pref) {
          * Use window.navigate in this case.
          */
         if (target == "_self" && isGet) {
-            libxChromeWindow.navigate(url2);
+            libxEnv.getCurrentWindowContent().navigate(url2);
             return;
         }
 
@@ -128,9 +128,12 @@ libxEnv.openSearchWindow = function (url, pref) {
  * is designed to abstract this (of course, if it were possible to treat
  * inserted C# objects like JavaScript objects we could just say
  * window._content = window, but that would be too easy).
+ *
+ * In IE, we store the current window in a C# object which can then be
+ * used in JavaScript
  */
 libxEnv.getCurrentWindowContent = function() {
-    return libxChromeWindow;
+    return libxChromeWindow.CurrentWindow;
 }
 
 //XPath functions/////////////////////////////////////////////////////////////
