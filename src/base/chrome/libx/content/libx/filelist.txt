@@ -19,6 +19,8 @@ doforurl.js
 crossref.js
 pubmed.js
 iepagecomplete.js
+textexplorer.js
+texttransformer.js
 <catalog>alephopac.js
 <catalog>centralsearch.js
 <catalog>custom.js
