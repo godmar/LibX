@@ -48,7 +48,7 @@ libxEnv.pubmed = {
         }
 
         function get(xpath) {
-            var node = libxEnv.xpath.findSingle(docsum.ownerDocument, xpath, docsum);
+            var node = libxEnv.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
             return node ? node.nodeValue : null;
         }
 
@@ -83,11 +83,12 @@ libxEnv.pubmed = {
         // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082
         var requestUrlPath = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + pubmedid;
         // NCBI returns a content type text/html
+        try {
         libxEnv.getDocument(requestUrlPath,
             function (responsetext) {
                 var xmlResponse = libxEnv.loadXMLString(responsetext);
                 var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + pubmedid + ']';
-                var node = libxEnv.xpath.findSingle(
+                var node = libxEnv.xpath.findSingleXML(
                         xmlResponse, docsumxpath, xmlResponse);
 
                 // cache result (even if Pubmed ID was not found)
@@ -99,6 +100,10 @@ libxEnv.pubmed = {
                         completionhandlers.notFound();
                 }
             });
+        }
+        catch (ex) {
+            libxEnv.writeLog("Exception when calling pubmed getDocument " + ex.message);
+        }
     }
 };
 
