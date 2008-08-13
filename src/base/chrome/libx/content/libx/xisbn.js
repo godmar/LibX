@@ -144,13 +144,19 @@ libxEnv.xisbn = {
         // see http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
         libxEnv.getXMLDocument(requestUrlPath,
             function (xmlhttp) {
-                var node = libxEnv.xpath.findSingle(
+                //Get the namespace prefix
+                var match = /http:\/\/(.*?)\./.exec(requestUrlPath);
+                var prefix = match[1];
+                var node = libxEnv.xpath.findSingleXML(
                         xmlhttp.responseXML, 
                         xpathResponseOk,
                         xmlhttp.responseXML, 
                         function (prefix) {
                             // specify namespace for XPath
-                            return xmlnsResponse;
+                            this.ns = { 'xissn' : 'http://worldcat.org/xid/issn/',
+                                        'xisbn' : 'http://worldcat.org/xid/isbn/' };
+                            return this.ns[prefix] || null;
+                            //return xmlnsResponse;
                         });
 
                 // cache result (even if ISBN was not found)
