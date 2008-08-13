@@ -39,6 +39,34 @@ doforurls.sandboxScriptList = libxEnv.doforurls.getsandboxScriptList();
 doforurls.dfu_log = libxEnv.doforurls.getdfu_log();
 
 function onPageComplete_ie (doc, location) {
+
+    //These objects were defined in the global engine.  We just set references to the
+    //current window and document objects here so they can run on the current page.
+
+    //Check the autolink preference
+    if (libxEnv.getBoolPref("libx.oclc.ajaxpref", true))
+    {
+        DOMTraverse = new TextExplorer();
+
+        //Create the text transformers using the object array defined in the global
+        //engine 
+        for (var ctr = 0; ctr < filterProcs.length; ++ctr)
+        {
+            //Create a new AnchorNodeProcessor passing in the process function
+            nodeProcessor = new AnchorNodeProcessor(filterProcs[ctr].processor);
+
+            //Create a new TextTransformer
+            textTransformer = new TextTransformer(filterProcs[ctr].filter,
+                    nodeProcessor);
+
+            //Add the TextTransformer to the TextExplorer
+            DOMTraverse.AddTextTransformer(textTransformer);
+        }
+        //Set the current window and document objects here
+        DOMTraverse.SetCurrentWindow(window);
+        DOMTraverse.SetCurrentDocument(document);
+    }
+
     if (!doc) return;
 
     if (location == 'about:blank')
@@ -46,12 +74,20 @@ function onPageComplete_ie (doc, location) {
 
     //We check the readyState of the document.  If it isn't complete, we attach
     //a function to the onreadystatechange event handler.
-    if ("complete" == doc.readyState)
+    if ("complete" == doc.readyState) {
         ProcessDoForURLS(doc, location);
+
+        //Try autolinking here
+        if (libxEnv.getBoolPref("libx.oclc.ajaxpref", true))
+            DOMTraverse.Traverse(doc.body);
+    }
     else {
         doc.onreadystatechange= function () {
             if ("complete" == doc.readyState) {
                 ProcessDoForURLS(doc, location)
+
+                if (libxEnv.getBoolPref("libx.oclc.ajaxpref", true))
+                    DOMTraverse.Traverse(doc.body);
             }
         }
     }
