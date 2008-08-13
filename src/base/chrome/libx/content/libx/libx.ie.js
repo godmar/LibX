@@ -54,6 +54,181 @@ libxEnv.init = function() {
 
     // Listener for the prefs window to catch changes to the roots info
     libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
+
+    //Define a set of filters and processors for autolinking.  This will 
+    //be relocated to a feed file.
+    filterProcs
+        = [ 
+            //PubMed
+            { filter : new RegExpFilter(/PMID[^\d]*(\d+)/ig),
+              processor : function (match, anchor)
+                          {
+                              if (!libxEnv.openUrlResolver)
+                                  return null;
+
+                              var pmid = match[1];
+
+                              libxEnv.pubmed.getPubmedMetadataAsText(pmid,
+                                      {ifFound: function (text)
+                                      {
+                                      anchor.title
+                                      = libxEnv.getProperty("openurlpmidsearch.label",
+                                          [libxEnv.openUrlResolver.name, 
+                                          pmid + ": " + text]);
+                                      }
+                                      });
+
+                              var href = libxEnv.openUrlResolver.makeOpenURLForPMID(pmid);
+
+                              if (null == href)
+                                  return null;
+
+                              anchor.setAttribute('href', href);
+
+                              return anchor;
+                          }
+            },
+            //DOI
+            { filter : new RegExpFilter(/(10\.\S+\/[^\s,;"'\]\}]+)/ig),
+              processor : function (match, anchor)
+                          {
+                              if (!libxEnv.openUrlResolver)
+                              {
+                                  return null;
+                              }
+
+                              var doi = isDOI(match[1]);
+
+                              if (null == doi)
+                              {
+                                  return null;
+                              }
+
+                              libxEnv.crossref.getDOIMetadataAsText(doi,
+                                      {ifFound: 
+                                      function(text)
+                                      {
+                                      anchor.title
+                                      = libxEnv.getProperty("openurldoisearch.label",
+                                          [libxEnv.openUrlResolver.name, 
+                                          doi + ": " + text]);
+                                      }
+                                      });
+
+                              var href = libxEnv.openUrlResolver.makeOpenURLForDOI(doi);
+
+                              if (null == href)
+                              {
+                                  libxEnv.writeLog("Got null for href");
+                                  return null;
+                              }
+
+                              anchor.setAttribute('href', href);
+
+                              return anchor;
+                          }
+            },
+
+            //ISBN
+            { filter: new ISBNRegExpFilter(/((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig),
+              processor: function (match, anchor)
+                         {
+                             var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);
+
+                             if (null == isbn)
+                                 return null;
+
+                             this.name = libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
+                             libxEnv.xisbn.getISBNMetadataAsText(isbn,
+                                     {ifFound:
+                                     function(text)
+                                     {
+                                     anchor.title 
+                                     = "LibX: " 
+                                     + libxEnv.getProperty("catsearch.label", 
+                                         [libraryCatalog.name, 
+                                         text]);
+                                     }
+                                     });
+
+
+                             var href = libraryCatalog.linkByISBN(isbn);
+
+                             if (null == href)
+                                 return null;
+
+                             anchor.setAttribute('href', href);
+
+                             return anchor;
+                         }
+            },
+
+            //ISSN
+            { filter: new RegExpFilter(/(\d{4}-\d{3}[\dx])(?!\d)/ig),
+              processor: function (match, anchor)
+                         {
+                             var issn = isISSN(match[1]);
+
+                             if (null == issn)
+                                 return null;
+
+                             var split = issn.match(/(\d{4})-(\d{4})/);
+
+                             // suppress what are likely year ranges.
+                             if (null != split)
+                             {
+                                 var from = parseInt(split[1]);
+                                 var to = parseInt(split[2]);
+
+                                 if (1000 <= from && 2050 > from && 2200 > to && from < to)
+                                     return null;
+                             }
+
+                             href = null;
+
+                             if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.autolinkissn)
+                             {
+                                 libxEnv.xisbn.getISSNMetadataAsText(issn,
+                                         {ifFound:
+                                         function(text)
+                                         {
+                                         anchor.title 
+                                         = "LibX: " 
+                                         + libxEnv.getProperty("openurlissnsearch.label", 
+                                             [libxEnv.openUrlResolver.name, 
+                                             text]);
+                                         }
+                                         });
+
+
+                                 href = libxEnv.openUrlResolver.makeOpenURLForISSN(issn);
+
+
+                             }
+                             else
+                             {
+                                 libxEnv.xisbn.getISSNMetadataAsText(issn, {ifFound:
+                                         function(text)
+                                         {
+                                         anchor.title
+                                         = "LibX: "
+                                         + libxEnv.getProperty("issnsearch.label",
+                                             [libraryCatalog.name,
+                                             text]);
+                                         }
+                                         });
+
+                                 href = libraryCatalog.makeSearch('is', issn);
+                             }
+
+                             if (null == href)
+                                 return null;
+
+                             anchor.setAttribute('href', href);
+                             return anchor;
+                         }
+            }
+          ];
 }
 
 libxEnv.debugInit = function () {}
@@ -382,7 +557,22 @@ libxEnv.xpath.loadDocument = function (dom, docRoot, nodeSet, attributeSet) {
     } //end while (queue not empty)
 } //end libxEnv.xpath.loadDocument
 
-libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root) {
+libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root, namespaceresolver) {
+
+    if (undefined != namespaceresolver) {
+
+        myNameSpaceResolver = new namespaceresolver();
+        myNS = myNameSpaceResolver.ns;
+        currentPrefix = "";
+
+        for (prefix in myNS) {
+            if ("" != currentPrefix)
+                currentPrefix += " ";
+            currentPrefix += "xmlns:" + prefix + "='" + myNS[prefix] + "'";
+        }
+
+        doc.setProperty("SelectionNamespaces", currentPrefix);
+    }
     if (undefined == root) {
         return doc.selectSingleNode(xpathexpr);
     }
@@ -498,6 +688,24 @@ libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod,
     //Do the request
     req.send(postdata);
     return req;
+}
+
+/*
+ * Load XML String into a XMLDocument
+ */
+libxEnv.loadXMLString = function (xmlstring) {
+
+    //We ideally want to Msxml2.DOMDocument.6.0 instead of
+    //Msxml2.DOMDocument.3.0, but that leads to certain problems
+    //1. With PubMed, the 6.0 parser claims that an element
+    //   in the XML document doesn't exist in the DTD.  This
+    //   isn't an issue when using the 3.0 version.
+    var xmlDoc  = new ActiveXObject('Msxml2.DOMDocument.3.0');
+    xmlDoc.setProperty("SelectionLanguage","XPath");
+
+    xmlDoc.loadXML(xmlstring);
+
+    return xmlDoc;
 }
 
 
@@ -775,7 +983,7 @@ libxEnv.getProxyPref = function() {
 };
 
 libxEnv.getOCLCPref = function() {
-    return false;       // OCLC support not implemented in LibX IE
+    return libxInterface.getOCLCPreference(false);
 };
 
 
