@@ -48,9 +48,11 @@ libxEnv.crossref = {
         }
 
         function get(xpath) {
-            var node = libxEnv.xpath.findSingle(query.ownerDocument, xpath, query, function (prefix) {
-                    return "http://www.crossref.org/qrschema/2.0";
-            });
+            var node = libxEnv.xpath.findSingleXML(query.ownerDocument, xpath, query, function (prefix) {
+                    this.ns = { 'qr' : 'http://www.crossref.org/qrschema/2.0' };
+                    return this.ns[prefix] || null;
+                });
+                    
             return node ? node.nodeValue : null;
         }
 
@@ -112,8 +114,10 @@ libxEnv.crossref = {
                 var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + doi + "']";
                 //var querypath = "//qr:query[@status = 'resolved']";
 
-                var node = libxEnv.xpath.findSingle(xmlResponse, querypath, xmlResponse, function (prefix) {
-                    return "http://www.crossref.org/qrschema/2.0";
+                var node = libxEnv.xpath.findSingleXML(xmlResponse, querypath, xmlResponse, function (prefix) {
+                    this.ns = { 'qr' : 'http://www.crossref.org/qrschema/2.0' };
+
+                    return this.ns[prefix] || null;
                 });
                 // libxEnv.writeLog("Doi " + doi + ": " + new XMLSerializer().serializeToString(xmlResponse));
 
