@@ -3,9 +3,13 @@
 // link to catalog via keyword
 
 new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
-    var nArray = $("tr td span[id='sd']");
+    var nArray = $("div div[id='prs'] b");
+    var nArray2 = $("tr td span[id='sd']"); // old, before Aug 2008
 
-    n = nArray[0];
+    if (nArray.length > 0)
+        var n = nArray[0];
+    else
+        var n = nArray2[0];
     
     // XXX unify (maybe place 'unsafeWindow' in LibX IE script engine?
     if ( unsafeWindow == null )
