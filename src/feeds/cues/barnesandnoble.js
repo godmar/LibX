@@ -3,8 +3,8 @@
 var bnFunction = function (doc, match) {
     var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);    // grab captured isbn in matched URL
     
-    // last verified Mar 02, 2008
-    var origTitleNodeArray = $("div#product-info").find("h2");
+    // last verified Jul 25, 2008
+    var origTitleNodeArray = $("div#product-info").find("h1");
 
     var origTitleNode = origTitleNodeArray[0];
     
@@ -12,8 +12,9 @@ var bnFunction = function (doc, match) {
     var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
     createXISBNTooltip(link, isbn, libraryCatalog.name);
 
-    $(origTitleNode).contents().eq(0).before(doc.createTextNode(" "));
-    $(origTitleNode).contents().eq(0).before(link);
+    var parent = $(origTitleNode).contents().eq(0);
+    parent.before(doc.createTextNode(" "));
+    parent.before(link);
     animateCue(link);
 }
 
