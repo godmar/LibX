@@ -83,7 +83,12 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript">
 	<![CDATA[
 	  // must postpone initialization until entire overlay is loaded into chrome
-      window.addEventListener("load", libxInit, false);
+      window.addEventListener("load", function () { 
+        // delay LibX initialization until after all other handlers have executed
+        // improves startup speed and avoids triggering bugs in Firefox proper on MacOS
+        // suggested by Fritz Anderson (fritza@uchicago.edu)
+        window.setTimeout(libxInit, 0); 
+      }, false);
     ]]>
     </script>
 
