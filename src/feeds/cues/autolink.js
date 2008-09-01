@@ -187,10 +187,10 @@ var autolink
       // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
       // we skip autolink if the page contains any textarea element.
       // (though the bug purportedly only affects large textarea elements.)
-      var n = libxEnv.xpath.findNodesXML(document, "//textarea");
+      //var n = libxEnv.xpath.findNodesXML(document, "//textarea");
 
-      if (0 < n.length)
-          return;
+      //if (0 < n.length)
+      //    return;
 
       if (libxEnv.options.autolink_active)
       {
@@ -219,7 +219,7 @@ var autolink
               DOMTraverse.Traverse(document.body);
           }
       }
-  }
+  });
 
 // Add Serials Solution page to list of sites where we don't autolink 
 if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.type == "sersol") 
