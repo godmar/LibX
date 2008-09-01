@@ -151,13 +151,8 @@ libxEnv.xisbn = {
                         xmlhttp.responseXML, 
                         xpathResponseOk,
                         xmlhttp.responseXML, 
-                        function (prefix) {
-                            // specify namespace for XPath
-                            this.ns = { 'xissn' : 'http://worldcat.org/xid/issn/',
-                                        'xisbn' : 'http://worldcat.org/xid/isbn/' };
-                            return this.ns[prefix] || null;
-                            //return xmlnsResponse;
-                        });
+                        { 'xissn' : 'http://worldcat.org/xid/issn/',
+                          'xisbn' : 'http://worldcat.org/xid/isbn/' });
 
                 // cache result (even if ISBN was not found)
                 isbn2metadata[isbn] = node;
