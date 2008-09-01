@@ -79,8 +79,6 @@ outer:
         if (m) {
             var dfuFunc = dfu.actionText + "(doc, m);";
 
-            if (dfu.pattern == "/.*/")
-                continue;
             var exclude = dfu.exclude;
             if (exclude) {
                 for (var j = 0; j < exclude.length; j++)
