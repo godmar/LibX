@@ -36,6 +36,9 @@
 //var libxEnv = new Object();
   
 libxEnv.init = function() {
+    //Set libxEnv.autolink_active
+    libxInitializeAutolink();
+
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
     libxEnv.loadProperties(); 
@@ -561,16 +564,21 @@ libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root, namespaceresolver)
 
     if (undefined != namespaceresolver) {
 
-        myNameSpaceResolver = new namespaceresolver();
-        myNS = myNameSpaceResolver.ns;
         currentPrefix = "";
 
-        for (prefix in myNS) {
+        //Iterate through the namespaceresolver object to get
+        //the prefixes
+        for (prefix in namespaceresolver) {
             if ("" != currentPrefix)
                 currentPrefix += " ";
-            currentPrefix += "xmlns:" + prefix + "='" + myNS[prefix] + "'";
-        }
 
+            currentPrefix 
+                += "xmlns:" 
+                + prefix 
+                + "='" 
+                + namespaceresolver[prefix] 
+                + "'";
+        }
         doc.setProperty("SelectionNamespaces", currentPrefix);
     }
     if (undefined == root) {
@@ -599,7 +607,28 @@ libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
     return origNode;
 }
 
-libxEnv.xpath.findNodesXML = function (doc, xpathexpr, root) {
+libxEnv.xpath.findNodesXML = function (doc, xpathexpr, root, namespaceresolver) {
+
+    if (undefined != namespaceresolver) {
+
+        currentPrefix = "";
+
+        //Iterate through the namespaceresolver object to get
+        //the prefixes
+        for (prefix in namespaceresolver) {
+            if ("" != currentPrefix)
+                currentPrefix += " ";
+
+            currentPrefix 
+                += "xmlns:" 
+                + prefix 
+                + "='" 
+                + namespaceresolver[prefix] 
+                + "'";
+        }
+        doc.setProperty("SelectionNamespaces", currentPrefix);
+    }
+
     if (undefined == root)
         return doc.selectNodes(xpathexpr);
     else
@@ -992,8 +1021,7 @@ libxEnv.getDFUPref = function() {
 }
 
 libxEnv.getAutolinkPref = function() {
-    //There is no specialized autolink in IE
-    return false;
+    return libxInterface.getAutolinkPreference(false);
 };
 
 libxEnv.getCiteulikePref = function () {
@@ -1023,23 +1051,20 @@ libxEnv.setGUIAttribute = function(elemName, attrName, attrVal) {
 
 //Autolink functions//////////////////////////////////////////////////////////
 /*
- * Autolink is not used by IE. Once the page rewriting framework is in place,
- * the autolink functions will not be necessary anyway, so making them work
- * in IE would be a waste of time.
+ * These functions handle setting the appropriate variables to enable
+ * or disable autolinking as well as storing the preference.
  */
-
-var libxAutoLinkFilters = [];
-
-function libxRunAutoLink(document, rightaway) 
-{
-}
 
 function libxSelectAutolink(value)
 {
+    value = (/true/i.test(value)) ? true : false;   // convert string to bool
+    libxEnv.setBoolPref("libx.autolink", value);
+    libxEnv.options.autolink_active = value;
 }
-
+//
 function libxInitializeAutolink()
 {
+    libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
 }
 
 libxEnv.urlBarIcon = function () { }
