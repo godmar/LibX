@@ -40,7 +40,9 @@ libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root, namespaceresolver)
 }
 
 libxEnv.xpath.findSingle = function (doc, xpathexpr, root, namespaceresolver) {
-    var r = doc.evaluate(xpathexpr, root?root:doc, namespaceresolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+
+    var r = doc.evaluate(xpathexpr, root?root:doc, 
+            function (prefix) { return namespaceresolver[prefix]; }, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
     if (r) return r.singleNodeValue;
     return null;
 }
@@ -50,7 +52,7 @@ libxEnv.xpath.findNodesXML = function (doc, xpathexpr, root, namespaceresolver) 
 }
 
 libxEnv.xpath.findNodes = function (doc, xpathexpr, root, namespaceresolver) {
-    var r = doc.evaluate(xpathexpr, root?root:doc, namespaceresolver, XPathResult.ANY_TYPE, null);
+    var r = doc.evaluate(xpathexpr, root?root:doc, function (prefix) { return namespaceresolver[prefix]; }, XPathResult.ANY_TYPE, null);
     if (r == null) return null;
 
     switch (r.resultType) {
