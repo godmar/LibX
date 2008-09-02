@@ -24,14 +24,36 @@ function doAmazon(doc, match) {
 
     var booktitleNode = booktitleNodeArray[0];
 
-    // make link and insert after title
-    var div = booktitleNode.parentNode;
+    // extract book title
+    var booktitle = $(booktitleNode).text();
+    // some books, say freakonomics, include in the name [ROUGHCUT] and (HardCover), remove those
+    booktitle = booktitle.replace(/\(Hardcover\)/i, "").replace(/\[[^\]]*\]/, "").replace(/\s*$/, "").replace(/^\s*/, "");
+    // III is known to not handle punctuation chars, such as :
+    if (libraryCatalog.url.toString().indexOf("encore") != -1) {
+        booktitle = booktitle.replace(/:/, " ");
+    }
+
+    // if catalog supports ISBN, link by ISBN
+    // else try 'by Title' (t), then 'by Keyword' (Y)
+    var options = ";" + libraryCatalog.options + ";";
+    if (options.indexOf(";i;") != -1) {
+        var targeturl = libraryCatalog.linkByISBN(isbn);
+    } else
+    if (options.indexOf(";t;") != -1) {
+        var targeturl = libraryCatalog.makeSearch("t", booktitle);
+    } else
+    if (options.indexOf(";Y;") != -1) {
+        var targeturl = libraryCatalog.makeSearch("Y", booktitle);
+    }
+
     var cue = libxEnv.makeLink(doc, 
         libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-        libraryCatalog.linkByISBN(isbn), libraryCatalog);
+        targeturl, libraryCatalog);
 
     createXISBNTooltip(cue, isbn, libraryCatalog.name);
 
+    // make link and insert after title
+    var div = booktitleNode.parentNode;
     div.insertBefore(cue, booktitleNode.nextSibling);
     animateCue(cue);
 }
