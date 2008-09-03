@@ -1,4 +1,30 @@
-function TextExplorer()
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is LibX Firefox Extension.
+ *
+ * The Initial Developer of the Original Code is Annette Bailey (libx.org@gmail.com)
+ * Portions created by the Initial Developer are Copyright (C) 2005
+ * the Initial Developer and Virginia Tech. All Rights Reserved.
+ *
+ * Contributor(s): Arif Khokar (aikhokar@cs.vt.edu)
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+if (undefined == libxEnv.autolink)
+    libxEnv.autolink = new Object();
+
+libxEnv.autolink.TextExplorerClass = function ()
 {
     //Allow for prototype access within nested functions
     var instance = this;
@@ -128,9 +154,9 @@ function TextExplorer()
 }
 
 
-TextExplorer.prototype.textTransformerList = new Array();
+libxEnv.autolink.TextExplorerClass.prototype.textTransformerList = new Array();
 
-TextExplorer.prototype.filterFlag = new Array();
+libxEnv.autolink.TextExplorerClass.prototype.filterFlag = new Array();
 
 /**
  * Add a TextTransformer object to the list of objects
@@ -139,7 +165,7 @@ TextExplorer.prototype.filterFlag = new Array();
  * @param {TextTransformer} object that handles processing of text node
  * @param {Array} array to store filter states
  */
-TextExplorer.prototype.AddTextTransformer
+libxEnv.autolink.TextExplorerClass.prototype.AddTextTransformer
 = function (transformer)
 {
     //TODO: Add code to compute/update intersection set
@@ -148,7 +174,7 @@ TextExplorer.prototype.AddTextTransformer
 }
 
 /**
- * Enable a filter by setting the appropriate character in the string to "1"
+ * Enable a filter by setting the index in the array to true
  *
  * @param {number} index of the filter
  * @param {Array} current flag
@@ -156,7 +182,7 @@ TextExplorer.prototype.AddTextTransformer
  * @return modified flag or null
  * @type {Array}
  */
-TextExplorer.prototype.EnableFilter
+libxEnv.autolink.TextExplorerClass.prototype.EnableFilter
     = function (index, currentFlag)
       {
           //Make a copy of the array to return
@@ -180,7 +206,7 @@ TextExplorer.prototype.EnableFilter
  * @return true if filter enabled, false otherwise
  * @type {boolean}
  */
-TextExplorer.prototype.CheckFilter
+libxEnv.autolink.TextExplorerClass.prototype.CheckFilter
     = function (index, currentFlag)
       {
           if ((this.textTransformerList.length - 1) < index
@@ -191,7 +217,7 @@ TextExplorer.prototype.CheckFilter
       }
 
 /**
- * Disable a filter by setting the appropriate character in the string to "0"
+ * Disable a filter by setting the index in the array to false
  *
  * @param {number} index of the filter
  * @param {string} current flag
@@ -199,7 +225,7 @@ TextExplorer.prototype.CheckFilter
  * @return modified flag
  * @type {string}
  */
-TextExplorer.prototype.DisableFilter 
+libxEnv.autolink.TextExplorerClass.prototype.DisableFilter 
     = function (index, currentFlag)
       {
           //Make a copy of the array to return
@@ -218,7 +244,7 @@ TextExplorer.prototype.DisableFilter
  * @final
  * Provide symbols for DOM node types
  */
-TextExplorer.prototype.NodeType
+libxEnv.autolink.TextExplorerClass.prototype.NodeType
     = {
         ELEMENT_NODE: 1,
         ATTRIBUTE_NODE: 2,
