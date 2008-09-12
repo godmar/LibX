@@ -599,100 +599,14 @@ libxEnv.ff.openPrefWindow = function () {
 
 //Autolink-related stuff//////////////////////////////////////////////////////
 
-/* Definition of autolink filters.
- *
- * Order matters, if a regexp match supercedes another, the subsequent
- * matches's href function is not called, even if no superceding one
- * returned null - fix this?
- */
-var libxAutoLinkFilters = [
-    {   // Pubmed IDs, form PMID... 
-        regexp: /PMID[^\d]*(\d+)/ig,
-        href: function(match, anchor) { 
-            if (!libxEnv.openUrlResolver) return null;
-            var pmid = match[1];
-            this.name = libxEnv.getProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid]);
-            libxEnv.pubmed.getPubmedMetadataAsText(pmid, { 
-                ifFound: function (text) {
-                    anchor.title = libxEnv.getProperty("openurlpmidsearch.label", [libxEnv.openUrlResolver.name, pmid + ": " + text]);
-            }});    // could implement notFound handler to remove pubmed link!
-            return libxEnv.openUrlResolver.makeOpenURLForPMID(pmid);
-        }
-    },
-    {   // DOIs
-        regexp: /(10\.\S+\/[^\s,;\"\'\]\}]+)/ig,
-        href: function(match, anchor) { 
-            if (!libxEnv.openUrlResolver) return null;
-            var doi = isDOI(match[1]); 
-            if (doi == null) return null;
-            this.name = libxEnv.getProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi]);
-            libxEnv.crossref.getDOIMetadataAsText(doi, { 
-                ifFound: function (text) {
-                    anchor.title = libxEnv.getProperty("openurldoisearch.label", [libxEnv.openUrlResolver.name, doi + ": " + text]);
-            }});    // could implement notFound handler to remove doi link!
-            return libxEnv.openUrlResolver.makeOpenURLForDOI(doi);
-        }
-    },
-    {   // suppress possible ISBN match for US phone numbers
-        regexp: /\d{3}-\d{3}-?\d{4}/ig,
-        href: function(match) { 
-            return null;
-        }
-    },
-    {   // ISBNs
-        regexp: /((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig,
-        href: function(match, anchor) { 
-            var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);
-            if (isbn == null) return null;
-            this.name = libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
-            libxEnv.xisbn.getISBNMetadataAsText(isbn, { ifFound: function (text) {
-                anchor.title = "LibX: " + libxEnv.getProperty("catsearch.label", [libraryCatalog.name, text]);
-            }});    // could implement notFound handler to remove ISBN link!
-            return libraryCatalog.linkByISBN(isbn);
-        }
-    },
-    {   // ISSNs - we try to only accept 0000-0000
-        regexp: /(\d{4}-\d{3}[\dx])(?!\d)/ig,
-        href: function(match, anchor) { 
-            var issn = isISSN(match[1]); 
-            if (issn == null) return null;
-            var split = issn.match(/(\d{4})-(\d{4})/);
-            // suppress what are likely year ranges.
-            if (split != null) {
-                var from = parseInt(split[1]);
-                var to = parseInt(split[2]);
-                if (from >= 1000 && from < 2050 && to < 2200 && from < to)
-                    return null;
-            }
-            if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.autolinkissn) {
-                libxEnv.xisbn.getISSNMetadataAsText(issn, { ifFound: function (text) {
-                    anchor.title = "LibX: " + libxEnv.getProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, text]);
-                }});    // could implement notFound handler to remove ISSN link!
-                this.name = libxEnv.getProperty("openurlissnsearch.label", [libxEnv.openUrlResolver.name, issn])
-                return libxEnv.openUrlResolver.makeOpenURLForISSN(issn);
-            } else {
-                libxEnv.xisbn.getISSNMetadataAsText(issn, { ifFound: function (text) {
-                    anchor.title = "LibX: " + libxEnv.getProperty("issnsearch.label", [libraryCatalog.name, text]);
-                }});    // could implement notFound handler to remove ISSN link!
-                this.name = libxEnv.getProperty("issnsearch.label", [libraryCatalog.name, issn]);
-                return libraryCatalog.makeSearch('is', issn);
-            }
-        }
-    },
-];
-
-function libxRunAutoLink(document, rightaway) 
-{
-    libxAutoLink(_content.window, document, libxAutoLinkFilters, rightaway);
-}
-
 function libxSelectAutolink(value)
 {
     value = (value == "true") ? true : false;   // convert string to bool
     libxEnv.setBoolPref("libx.autolink", value);
     libxEnv.options.autolink_active = value;
-    if (value && _content != null )
-        libxRunAutoLink(_content.document, true);
+
+    //We no longer run autolink code from here.  The new cue options framework
+    //will handle invocation of feed autolink code from a menu item event
 }
 
 function libxInitializeAutolink()
