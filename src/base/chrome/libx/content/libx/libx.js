@@ -207,6 +207,11 @@ function libxInitializeCatalogs()
  */
 function libxInit() 
 {
+    //Store the build date here.  Checking whether this value exists
+    //as well as comparison can be used by feed code if needed.
+    libxEnv.buildDate = $builddate$;
+
+
     libxInitializeProperties();
     libxInitMagicSearch();
     /*
