@@ -8,9 +8,7 @@
 //that adds a cue to the right of each match) could be created and added to the
 //array of objects below
 
-libxEnv.writeLog("In autolink.js");
-
-filterProcs
+libxEnv.autolink.filterProcs
     = [ 
         //PubMed filter and processor
         { filter : new libxEnv.autolink.RegExpFilterClass(/PMID[^\d]*(\d+)/ig),
@@ -117,7 +115,7 @@ filterProcs
         },
 
         //ISSN filter and processor
-        { filter: new libxEnv.autolink.RegExpFilterClass(/(\d{4}-\d{3}[\dx])(?!\d)/ig),
+        { filter: new libxEnv.autolink.RegExpFilterClass(/[^0-9](\d{4}-\d{3}[\dx])(?!\d)/ig),
           processor: function (match, anchor)
                      {
                          var issn = isISSN(match[1]);
@@ -183,51 +181,62 @@ filterProcs
         }
       ];
 
-      libxEnv.writeLog("defined filterProcs");
 
+autolinkFunc 
+= function (doc, match)
+{
+    // Prevent execution for builds that lack a buildDate property
+    if (typeof libxEnv.buildDate == "undefined")
+    {
+        return;
+    }
+
+    // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
+    // we skip autolink if the page contains any textarea element.
+    // (though the bug purportedly only affects large textarea elements.)
+    //      var n = libxEnv.xpath.findNodesXML(doc, "//textarea");
+    //
+    //      if (0 < n.length)
+    //          return;
+    //
+    if (libxEnv.options.autolink_active)
+    {
+        //Define a new TextExplorer object here.  This handles traversing the
+        //DOM tree
+        DOMTraverse = new libxEnv.autolink.TextExplorerClass();
+
+        //Create the text transformers using the object array defined above
+        for (var ctr = 0; ctr < libxEnv.autolink.filterProcs.length; ++ctr)
+        {
+            //Create a new AnchorNodeProcessor passing in the process function
+            nodeProcessor = new libxEnv.autolink.AnchorNodeProcessorClass(libxEnv.autolink.filterProcs[ctr].processor);
+
+            //Create a new TextTransformer
+            textTransformer = new libxEnv.autolink.TextTransformerClass(libxEnv.autolink.filterProcs[ctr].filter,
+                    nodeProcessor);
+
+            //Add the TextTransformer to the TextExplorer
+            DOMTraverse.AddTextTransformer(textTransformer);
+
+        }
+
+        //Set the current window and document objects here
+        DOMTraverse.SetCurrentWindow(window);
+        DOMTraverse.SetCurrentDocument(doc);
+
+        //Start traversing
+        DOMTraverse.Traverse(doc.body);
+
+    }
+};
+
+//Define a doforurl object
 var autolink 
-= new libxEnv.doforurls.DoForURL(/.*/, function (doc) 
-  {
-      // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
-      // we skip autolink if the page contains any textarea element.
-      // (though the bug purportedly only affects large textarea elements.)
-//      var n = libxEnv.xpath.findNodesXML(doc, "//textarea");
-//
-//      if (0 < n.length)
-//          return;
-//
-      if (libxEnv.options.autolink_active)
-      {
-          libxEnv.writeLog("autolink is active");
-          //Define a new TextExplorer object here.  This handles traversing the
-          //DOM tree
-          DOMTraverse = new libxEnv.autolink.TextExplorerClass();
-
-          //Create the text transformers using the object array defined above
-          for (var ctr = 0; ctr < filterProcs.length; ++ctr)
-          {
-              //Create a new AnchorNodeProcessor passing in the process function
-              nodeProcessor = new libxEnv.autolink.AnchorNodeProcessorClass(filterProcs[ctr].processor);
-
-              //Create a new TextTransformer
-              textTransformer = new libxEnv.autolink.TextTransformerClass(filterProcs[ctr].filter,
-                      nodeProcessor);
-
-              //Add the TextTransformer to the TextExplorer
-              DOMTraverse.AddTextTransformer(textTransformer);
-
-              //Set the current window and document objects here
-              DOMTraverse.SetCurrentWindow(window);
-              DOMTraverse.SetCurrentDocument(doc);
-
-              //Start traversing
-              DOMTraverse.Traverse(doc.body);
-          }
-      }
-  });
+= new libxEnv.doforurls.DoForURL(/.*/, autolinkFunc, null, "autolink");
 
 // Add Serials Solution page to list of sites where we don't autolink 
 if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.type == "sersol") 
 {
     autolink.exclude = [libxEnv.openUrlResolver.url.replace("http://", "")];
 }
+
