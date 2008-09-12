@@ -47,10 +47,12 @@ var cueUrl = "cues/";
 var sandboxUrl = "sandboxScripts/";
 var hotfixUrl = "hotfixes/";
 
-
 addSandboxScript( sandboxUrl + "jquery-1.2.3.js" );
 addSandboxScript( sandboxUrl + "handleCoins.js" );
 addSandboxScript( sandboxUrl + "cueAnimation.js" );
+
+addCue( cueUrl + "textexplorer.js" );
+addCue( cueUrl + "texttransformer.js" );
 addCue( cueUrl + "agricola.js" );
 addCue( cueUrl + "alibris.js" );
 addCue( cueUrl + "amazon.js" );
