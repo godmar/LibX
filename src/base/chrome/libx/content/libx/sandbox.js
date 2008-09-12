@@ -54,14 +54,15 @@ libxEnv.sandboxClass = function ()
             openUrlResolver : libxEnv.openUrlResolver,
             openUrlResolvers : libxEnv.openUrlResolvers,
 			resources : libxEnv.doforurls.resources,
-			libxess : libxEnv.libxess
+			libxess : libxEnv.libxess,
+            autolink : libxEnv.autolink,
+            buildDate : libxEnv.buildDate
         };
 
         theSandBox.libxConfig = libxConfig;
         theSandBox.libraryCatalog = libraryCatalog;
         theSandBox.searchCatalogs = searchCatalogs; // not used at all (?)
         theSandBox.isISBN = isISBN;
-        theSandBox.libxRunAutoLink = libxRunAutoLink;
         theSandBox.libxProxy = libxProxy;   // used only by wam.js for first configured proxy
 
         // XPCNativeWrapper does not set the prototype chain
