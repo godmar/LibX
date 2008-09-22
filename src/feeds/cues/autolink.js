@@ -185,9 +185,11 @@ libxEnv.autolink.filterProcs
 autolinkFunc 
 = function (doc, match)
 {
-    // Prevent execution for builds that lack a buildDate property
+    // Prevent execution for builds that lack a buildDate property (before 2008/09/22)
     if (typeof libxEnv.buildDate == "undefined")
     {
+        if (libxEnv.options.autolink_active)
+            libxRunAutoLink(doc, false);
         return;
     }
 
