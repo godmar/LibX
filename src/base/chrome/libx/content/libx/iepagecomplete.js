@@ -39,7 +39,6 @@ doforurls.sandboxScriptList = libxEnv.doforurls.getsandboxScriptList();
 doforurls.dfu_log = libxEnv.doforurls.getdfu_log();
 
 function onPageComplete_ie (doc, location) {
-    libxEnv.writeLog("In onPageComplete_ie");
 
     if (!doc) 
         return;
