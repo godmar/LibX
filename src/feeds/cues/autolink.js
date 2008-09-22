@@ -206,7 +206,7 @@ autolinkFunc
 
     }
 
-    if (libxEnv.options.autolink_active)
+    if (libxEnv.getBoolPref('libx.autolink', true ))
     {
         //Define a new TextExplorer object here.  This handles traversing the
         //DOM tree
