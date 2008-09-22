@@ -458,8 +458,8 @@ libxEnv.getXMLDocument = function ( url, callback, postdata, lastModified, conte
 {
     var returnV = libxEnv.getDocumentRequest( url, callback, postdata,
         lastModified, contentType );
-    if ( returnV )
-        return returnV.responseXML;
+    if ( callback === undefined )
+        return returnV.responseXML;     // synchronous
     else
         return null;
 }
@@ -485,10 +485,10 @@ libxEnv.getDocument = function (url, callback, postdata, lastModified, contentTy
     var returnV = libxEnv.getDocumentRequest( url,
         ( callback === undefined ) ? undefined : function (xml) { callback(xml.responseText) },
         postdata, lastModified );
-    if ( returnV )
-        return returnV.responseText;
+    if ( callback === undefined )
+        return returnV.responseText;        // synchronous
     else
-        return null;
+        return null;                        // asynchronous, avoid accessing xmlhttprequest obj
 }
 
 

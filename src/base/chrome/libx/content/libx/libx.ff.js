@@ -48,16 +48,13 @@ libxEnv.init = function() {
 
     libxEnv.ff.toolbar = document.getElementById('libx-toolbar');
     libxInitializeAutolink();
-    
-    function libxToolbarMenuShowing() {
-        var m = document.getElementById ( 'libx.autolink' );
-        libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", 
-			true);
-        m.setAttribute('checked', libxEnv.options.autolink_active);
-    }
 
     var menu = document.getElementById ( 'libxmenu' );
-    menu.addEventListener ( 'popupshowing', libxToolbarMenuShowing, false );
+    menu.addEventListener ( 'popupshowing', 
+        function () {
+            var m = document.getElementById ( 'libx-autolink-checkbox' );
+            m.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
+        }, false );
         
     /* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
     menu = document.getElementById ( 'libx-statusbar-popup' );
@@ -68,21 +65,20 @@ libxEnv.init = function() {
    
     libxEnv.hash = new libxEnv.hashClass();
     libxEnv.hoverInit();
-    
-    
+
     if ( libxEnv.getBoolPref ( 'libx.firstrun', true ) ) {
        // Set Timeout of 1 to run after firefox has finished initializing
        // * Same approach as Google Toolbar
        setTimeout (
-       function () {
-                       window.openDialog ( "chrome://libx/content/firstrun.xul",
-               "LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
-               {
-               		toolbar: document.getElementById ( 'libx-toolbar' ), 
-	               	proxyAjaxable: ( libxProxy != null && libxProxy.canCheck() ) 
-               }
-               );
-       }, 1 );
+           function () {
+                           window.openDialog ( "chrome://libx/content/firstrun.xul",
+                   "LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
+                   {
+                        toolbar: document.getElementById ( 'libx-toolbar' ), 
+                        proxyAjaxable: ( libxProxy != null && libxProxy.canCheck() ) 
+                   }
+                   );
+           }, 1);
        libxEnv.setBoolPref ( 'libx.firstrun', false );
     }
 }
@@ -601,12 +597,7 @@ libxEnv.ff.openPrefWindow = function () {
 
 function libxSelectAutolink(value)
 {
-    value = (value == "true") ? true : false;   // convert string to bool
     libxEnv.setBoolPref("libx.autolink", value);
-    libxEnv.options.autolink_active = value;
-
-    //We no longer run autolink code from here.  The new cue options framework
-    //will handle invocation of feed autolink code from a menu item event
 }
 
 function libxInitializeAutolink()
@@ -618,10 +609,9 @@ function libxInitializeAutolink()
     var m = document.createElement("menuitem");
     m.setAttribute('type', 'checkbox');
     m.setAttribute('label', 'Autolink Pages');
-    m.setAttribute ( 'id', 'libx.autolink' );
-    libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
-    m.setAttribute('checked', libxEnv.options.autolink_active);
-    m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked'));");
+    m.setAttribute('id', 'libx-autolink-checkbox' );
+    m.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
+    m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked') == 'true');");
     hbox.parentNode.insertBefore(m, hbox);
 }
 
@@ -913,7 +903,7 @@ libxEnv.getDisplayPref = function() {
 };
 
 libxEnv.getAutolinkPref = function() {
-    return document.getElementById ( "libx-autolink-checkbox" ).getAttribute ( "checked" );
+    return document.getElementById ( "libx-autolink-checkbox" ).getAttribute ( "checked" ) == 'true';
 };
 
 libxEnv.getProxyPref = function() {

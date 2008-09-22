@@ -36,9 +36,6 @@
 //var libxEnv = new Object();
   
 libxEnv.init = function() {
-    //Set libxEnv.autolink_active
-    libxInitializeAutolink();
-
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
     libxEnv.loadProperties(); 
@@ -880,16 +877,11 @@ libxEnv.setGUIAttribute = function(elemName, attrName, attrVal) {
  * or disable autolinking as well as storing the preference.
  */
 
+// XXX fix this - eliminate libxSelectAutolink or make type-consistent with FF version 
 function libxSelectAutolink(value)
 {
     value = (/true/i.test(value)) ? true : false;   // convert string to bool
     libxEnv.setBoolPref("libx.autolink", value);
-    libxEnv.options.autolink_active = value;
-}
-//
-function libxInitializeAutolink()
-{
-    libxEnv.options.autolink_active = libxEnv.getBoolPref("libx.autolink", true);
 }
 
 libxEnv.urlBarIcon = function () { }
