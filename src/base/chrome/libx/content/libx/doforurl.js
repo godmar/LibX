@@ -324,15 +324,15 @@ libxEnv.doforurlClass = function()
     // For IE, see the file iepagecomplete.js
     this.onPageComplete_ff = function(ev)
     {
-        if (!ev || !ev.originalTarget) return;
+        if (!ev || !ev.originalTarget || !ev.originalTarget.location) return;
         
         var win = ev.explicitOriginalTarget.defaultView;
         var doc = win.document;
         if (ev.originalTarget.location == 'about:blank')
                 return;     
                 
-        var sandbox = libxEnv.sandbox.createSandbox( win, 
-            ev.originalTarget.location.href );
+        var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
+
         for ( var l = 0; l < sandboxScriptList.length; l++ )
         {
             try {
