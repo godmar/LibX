@@ -18,8 +18,8 @@ function doAmazon(doc, match) {
     var isbn = isISBN(isbnVal, libraryCatalog.downconvertisbn13);
     var booktitleNodeArray = $("div.buying > h1.parseasinTitle > span#btAsinTitle");
     if (booktitleNodeArray.length == 0) {
-        // old style, still used on amazon.ca apparently
-        var booktitleNodeArray = $("div.buying > b.sans > span#btAsinTitle");
+        // amazon.ca uses this
+        var booktitleNodeArray = $("div.buying > h1.parsesans > span#btAsinTitle");
     }
 
     var booktitleNode = booktitleNodeArray[0];
