@@ -1,4 +1,7 @@
-/* ***** BEGIN LICENSE BLOCK *****
+/* 
+ * About: License
+ *
+ * ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -20,58 +23,110 @@
  * Contributor(s): Godmar Back (godmar@gmail.com)
  * Contributor(s): Arif Khokar (aikhokar@cs.vt.edu)
  *
- * ***** END LICENSE BLOCK ***** */
+ * ***** END LICENSE BLOCK ***** 
+ */
 
 if (undefined == libxEnv.autolink)
     libxEnv.autolink = new Object();
 
-libxEnv.autolink.TextExplorerClass = function ()
+/*
+ * class: TextExplorerClass
+ *
+ * Handles traversing the DOM tree and finding text nodes.  It stores
+ * a list of TextTransformerClass objects that will handle transforming
+ * text nodes.
+ */
+libxEnv.autolink.textExplorerClass = function ()
 {
 
+    /*
+     * array: textTransformerList
+     *
+     * Stores a list of TextTransformerClass objects
+     */
     this.textTransformerList = new Array();
 
+    /*
+     * array: filterFlag
+     *
+     * An array of booleans indicating whether a particular TextExplorerClass
+     * is currently enabled.
+     */
     this.filterFlag = new Array();
 
     //Allow for prototype access within nested functions
     var instance = this;
+
     DFSStack = new Array();
 
+    /*
+     * object: currentWindow
+     *
+     * Store a reference to the current window object (used for invoking
+     * setTimeout.
+     */
     this.currentWindow = null;
 
-    this.GetFilterCount
+    /*
+     * function: getFilterCount
+     *
+     * Returns the number of TextExplorerClass objects stored in
+     * this class
+     *
+     * returns: integer
+     */
+    this.getFilterCount
         = function()
         {
             return this.textTransformerList.length;
         };
 
-    this.SetCurrentWindow 
+    /*
+     * function: setCurrentWindow
+     *
+     * Sets the reference to the window object that this class uses (for
+     * calling setTimeout)
+     */
+    this.setCurrentWindow 
         = function(currentWindow)
     {
         instance.currentWindow = currentWindow;
     };
 
-    this.SetCurrentDocument
+    /*
+     * function: setCurrentDocument
+     *
+     * Sets the reference to the document object that this class uses 
+     */
+
+    this.setCurrentDocument
         = function(currentDocument)
         {
             for (var ctr = 0; ctr < this.textTransformerList.length; ++ctr)
             {
-                this.textTransformerList[ctr].SetCurrentDocument(currentDocument);
+                this.textTransformerList[ctr].setCurrentDocument(currentDocument);
             }
         };
 
-    function DFSTraverse() 
+    /*
+     * function: dfsTraverse
+     *
+     * Performs a depth first traversal of the DOM tree.  Uses setTimeout
+     * to call itself
+     */
+    function dfsTraverse() 
     {
         var maxcnt = 25;    // do 25 nodes at a time
         var cnt = 0;
         var q;
-        while (cnt++ < maxcnt && instance.DFSStack.length > 0) 
+        while (cnt++ < maxcnt && instance.dfsStack.length > 0) 
         {
-            var n = instance.DFSStack.pop();
+            var n = instance.dfsStack.pop();
             var currentFlag = n.flag;
             var currentNode = n.node;
 
             //Check the node type
-            if (instance.NodeType.TEXT_NODE == currentNode.nodeType)
+            if (instance.nodeType.TEXT_NODE == currentNode.nodeType)
             {
                 //Check whether this node needs to be skipped by any
                 //of the filters
@@ -80,12 +135,12 @@ libxEnv.autolink.TextExplorerClass = function ()
                 for (ctr = 0; ctr < instance.textTransformerList.length; ++ctr)
                 {
                     //Check whether the filter is enabled
-                    if (instance.CheckFilter(ctr, currentFlag))
+                    if (instance.checkFilter(ctr, currentFlag))
                     {
                         var nodes = null;
 
                         //Pass the text node to the textTransformer
-                        nodes = instance.textTransformerList[ctr].ProcessNode(currentNode);
+                        nodes = instance.textTransformerList[ctr].processNode(currentNode);
 
                         if (null != nodes)
                         {
@@ -108,8 +163,8 @@ libxEnv.autolink.TextExplorerClass = function ()
                             //it'll be processed again.  For efficiency, we
                             //disable the current filter so that it doesn't
                             //run again on the same set of nodes
-                            parentFlag = instance.DisableFilter(ctr, currentFlag);
-                            instance.DFSStack.push({node: currentParent,
+                            parentFlag = instance.disableFilter(ctr, currentFlag);
+                            instance.dfsStack.push({node: currentParent,
                                                       flag: parentFlag});
 
                             //Before running other filters, we should break out of this loop
@@ -128,14 +183,14 @@ libxEnv.autolink.TextExplorerClass = function ()
                 //and disable them based on their skipped element property
                 for (ctr = 0; ctr < instance.textTransformerList.length; ++ctr)
                 {
-                    if (instance.CheckFilter(ctr, currentFlag))
+                    if (instance.checkFilter(ctr, currentFlag))
                     {
                         //Check to see whether this element is in the skipped
                         //element list
                         if (instance.textTransformerList[ctr].skippedElementList[nodeName])
                         {
                             //Disable this filter
-                            currentFlag = instance.DisableFilter(ctr, currentFlag);
+                            currentFlag = instance.disableFilter(ctr, currentFlag);
                         }
                     }
                 }
@@ -144,7 +199,7 @@ libxEnv.autolink.TextExplorerClass = function ()
                 //with the currentFlag
                 for (var ctr = 0; ctr < currentNode.childNodes.length; ++ctr)
                 {
-                    instance.DFSStack.push( {node: currentNode.childNodes.item(ctr), 
+                    instance.dfsStack.push( {node: currentNode.childNodes.item(ctr), 
                                              flag: currentFlag} );
 
                 }
@@ -152,31 +207,34 @@ libxEnv.autolink.TextExplorerClass = function ()
         }
 
         //If there are still nodes on the stack, set a timeout for 20 ms
-        if (0 < instance.DFSStack.length)
+        if (0 < instance.dfsStack.length)
         {
-            //window.setTimeout(DFSTraverse, 20);
-            instance.currentWindow.setTimeout(DFSTraverse, 20);
+            instance.currentWindow.setTimeout(dfsTraverse, 20);
         }
     }
 
-    this.Traverse = function (root)
+    this.traverse = function (root)
     {
-        //invoke DFSTraverse
-        instance.DFSStack = [ {node: root, flag: instance.filterFlag} ];
-        DFSTraverse();
+        //invoke dfsTraverse
+        instance.dfsStack = [ {node: root, flag: instance.filterFlag} ];
+        dfsTraverse();
     }
 }
 
 
 
-/**
+/*
+ * function: addTextTransformer
+ *
  * Add a TextTransformer object to the list of objects
  * that will process a given text node.
  *
- * @param {TextTransformer} object that handles processing of text node
- * @param {Array} array to store filter states
+ * parameters:
+ *
+ * transformer - object that handles processing of text node
+ *
  */
-libxEnv.autolink.TextExplorerClass.prototype.AddTextTransformer
+libxEnv.autolink.textExplorerClass.prototype.addTextTransformer
 = function (transformer)
 {
     //TODO: Add code to compute/update intersection set
@@ -184,16 +242,22 @@ libxEnv.autolink.TextExplorerClass.prototype.AddTextTransformer
     this.textTransformerList.push(transformer);
 }
 
-/**
+/*
+ * function: enableFilter
+ *
  * Enable a filter by setting the index in the array to true
  *
- * @param {number} index of the filter
- * @param {Array} current flag
+ * parameters:
  *
- * @return modified flag or null
- * @type {Array}
+ * index       - index of the filter (in the filter list)
+ * currentFlag - array of boolean values to act upon
+ *
+ * returns:
+ *
+ * An array of booleans with the boolean at the corresponding index set to 
+ * true
  */
-libxEnv.autolink.TextExplorerClass.prototype.EnableFilter
+libxEnv.autolink.textExplorerClass.prototype.enableFilter
     = function (index, currentFlag)
       {
           //Make a copy of the array to return
@@ -208,16 +272,19 @@ libxEnv.autolink.TextExplorerClass.prototype.EnableFilter
           return toReturn;
       }
 
-/**
+/*
+ * function: checkFilter
+ *
  * Checks whether a given filter is enabled or not
  *
- * @param {number} index of filter
- * @param {string} current flag
+ * parameters:
+ * index       - index of filter
+ * currentFlag - array of booleans corresponding to filter list state
  *
- * @return true if filter enabled, false otherwise
- * @type {boolean}
+ * returns:
+ * true if filter is enabled.  false otherwise
  */
-libxEnv.autolink.TextExplorerClass.prototype.CheckFilter
+libxEnv.autolink.textExplorerClass.prototype.checkFilter
     = function (index, currentFlag)
       {
           if ((this.textTransformerList.length - 1) < index
@@ -227,16 +294,21 @@ libxEnv.autolink.TextExplorerClass.prototype.CheckFilter
           return currentFlag[index];
       }
 
-/**
- * Disable a filter by setting the index in the array to false
+/*
+ * function: disableFilter
  *
- * @param {number} index of the filter
- * @param {string} current flag
+ * Disables a filter by setting the index in the array to false
  *
- * @return modified flag
- * @type {string}
+ * parameters:
+ *
+ * index       - index of the filter
+ * currentFlag - array of booleans corresponding to filter list state
+ *
+ * returns:
+ *
+ * An array of booleans with the boolean at the index specified set to false.
  */
-libxEnv.autolink.TextExplorerClass.prototype.DisableFilter 
+libxEnv.autolink.textExplorerClass.prototype.disableFilter 
     = function (index, currentFlag)
       {
           //Make a copy of the array to return
@@ -251,11 +323,12 @@ libxEnv.autolink.TextExplorerClass.prototype.DisableFilter
           return toReturn;
       }
 
-/**
- * @final
+/*
+ * variable: NodeType
+ *
  * Provide symbols for DOM node types
  */
-libxEnv.autolink.TextExplorerClass.prototype.NodeType
+libxEnv.autolink.textExplorerClass.prototype.nodeType
     = {
         ELEMENT_NODE: 1,
         ATTRIBUTE_NODE: 2,

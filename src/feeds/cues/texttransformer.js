@@ -24,37 +24,82 @@
 if (undefined == libxEnv.autolink)
     libxEnv.autolink = new Object();
 
-//Base class for filters
-libxEnv.autolink.FilterClass = function () {};
-libxEnv.autolink.FilterClass.prototype.Test 
+/*
+ * class: FilterClass
+ *
+ * A base class for DOM node filters
+ */
+libxEnv.autolink.filterClass = function () {};
+
+/*
+ * function: Test
+ *
+ * Tests whether a node matches filter criteria.
+ *
+ */
+libxEnv.autolink.filterClass.prototype.test 
 = function () 
 { 
     throw new Error("Test not implemented"); 
 }
 
-libxEnv.autolink.RegExpFilterClass = function (filter) 
+/*
+ * class: RegExpFilterClass
+ *
+ * DOMnode filter that uses regular expressions for filtering. Subclass of
+ * FilterClass
+ *
+ * parameters:
+ *
+ * filter - a regular expression filter for this object
+ *
+ */
+libxEnv.autolink.regExpFilterClass = function (filter) 
 {
     this.filterExpression = filter;
 }
-libxEnv.autolink.RegExpFilterClass.prototype = new libxEnv.autolink.FilterClass();
-libxEnv.autolink.RegExpFilterClass.constructor = libxEnv.autolink.RegExpFilterClass;
-libxEnv.autolink.RegExpFilterClass.prototype.Test
+
+libxEnv.autolink.regExpFilterClass.prototype = new libxEnv.autolink.filterClass();
+libxEnv.autolink.regExpFilterClass.constructor = libxEnv.autolink.regExpFilterClass;
+
+/*
+ * function: Test
+ *
+ * Tests whether a node matches a regular expressoin filter criteria.
+ *
+ * parameter:
+ *
+ * source - text to run filter on
+ *
+ * precondition:
+ *
+ * filterExpression is of type RegExp
+ *
+ */
+libxEnv.autolink.regExpFilterClass.prototype.test
  = function(source)
 {
     return this.filterExpression.test(source);
 }
 
-/**
+/*
+ * function: GetMatches
+ *
  * Applies the filter and returns an array that represents the segmented
  * string where each segment is associated with a flag that indicates whether
  * it matched or not
  *
- * @param {string} source text to test
- * @returns Array of objects that contain flags associated with substrings of
- * text
- * @type {Array}
+ * parameters:
+ *
+ * source - source text to test
+ *
+ * returns:
+ * array of objects
+ * - match - boolean value that indicates whether substring is part of match
+ * - text  - substring of text
+ *
  */
-libxEnv.autolink.RegExpFilterClass.prototype.GetMatches
+libxEnv.autolink.regExpFilterClass.prototype.getMatches
 = function(source)
 {
     //Set to 0 to start matching at beginning of string
@@ -63,7 +108,7 @@ libxEnv.autolink.RegExpFilterClass.prototype.GetMatches
     var matchArray = new Array();
 
     //First test the source to see if it matches at all
-    var found = this.Test(source);
+    var found = this.test(source);
     this.filterExpression.lastIndex = 0;
 
     matches = false;
@@ -135,23 +180,52 @@ libxEnv.autolink.RegExpFilterClass.prototype.GetMatches
     return matchArray;
 }
 
-//Subclass of RegExpFilter.  The test function performs an additional RegExp
-//test
-libxEnv.autolink.ISBNRegExpFilterClass = function (filter) 
+/*
+ * class: ISBNRegExpFilterClass
+ *
+ * Subclass of RegExpFilter.  The test function performs an additional RegExp
+ * test
+ *
+ * paramters:
+ *
+ * filter - regular expression used for testing
+ *
+ */
+libxEnv.autolink.isbnRegExpFilterClass = function (filter) 
 {
     //Call the base class constructor assigning this object's filterExpression
     //property
-    libxEnv.autolink.RegExpFilterClass.call(this, filter);
+    libxEnv.autolink.regExpFilterClass.call(this, filter);
 }
-libxEnv.autolink.ISBNRegExpFilterClass.prototype = new libxEnv.autolink.RegExpFilterClass();
-libxEnv.autolink.ISBNRegExpFilterClass.prototype.constructor = libxEnv.autolink.ISBNRegExpFilterClass;
-libxEnv.autolink.ISBNRegExpFilterClass.prototype.BaseTest = libxEnv.autolink.RegExpFilterClass.prototype.Test;
+libxEnv.autolink.isbnRegExpFilterClass.prototype = new libxEnv.autolink.regExpFilterClass();
+libxEnv.autolink.isbnRegExpFilterClass.prototype.constructor = libxEnv.autolink.isbnRegExpFilterClass;
 
+/*
+ * function: BaseTest
+ *
+ * Set to the Test function of the RegExpFilterClass.
+ */
+libxEnv.autolink.isbnRegExpFilterClass.prototype.baseTest = libxEnv.autolink.regExpFilterClass.prototype.test;
+
+/*
+ * function: Test
+ *
+ * Invokes the RegExpFilterClass base class function Test and then runs its own filter on the source text.
+ *
+ * parameters:
+ *
+ * source - text to run filter on
+ *
+ * returns:
+ *
+ * - true if base filter matches and this filter doesn't
+ * - false otherwise
+ */
 //Override Test so that we can implement a secondary filter
-libxEnv.autolink.ISBNRegExpFilterClass.prototype.Test
+libxEnv.autolink.isbnRegExpFilterClass.prototype.test
 = function(source)
 {
-    var toReturn = this.BaseTest(source);
+    var toReturn = this.baseTest(source);
 
     //We want to check whether the source matches with a US phone number
     if (toReturn)
@@ -166,13 +240,37 @@ libxEnv.autolink.ISBNRegExpFilterClass.prototype.Test
     return toReturn;
 }
 
-libxEnv.autolink.StringFilterClass = function (filter) 
+/*
+ * class: StringFilterClass
+ *
+ * Subclass of FilterClass that implements filters using strings
+ *
+ * parameters:
+ *
+ * filter - string filter
+ *
+ */
+libxEnv.autolink.stringFilterClass = function (filter) 
 {
     this.filterExpression = filter;
 }
-libxEnv.autolink.StringFilterClass.prototype = new libxEnv.autolink.FilterClass();
-libxEnv.autolink.StringFilterClass.constructor = libxEnv.autolink.StringFilterClass;
-libxEnv.autolink.StringFilterClass.prototype.Test
+libxEnv.autolink.stringFilterClass.prototype = new libxEnv.autolink.filterClass();
+libxEnv.autolink.stringFilterClass.constructor = libxEnv.autolink.stringFilterClass;
+
+/*
+ * function: Test
+ *
+ * Runs the string filter on the text
+ *
+ * parameters:
+ *
+ * source - text to run filter on
+ *
+ * precondition:
+ *
+ * filter must be of type string
+ */
+libxEnv.autolink.stringFilterClass.prototype.test
 = function(source)
 {
     if (-1 == this.filterExpression.indexOf(source))
@@ -181,14 +279,24 @@ libxEnv.autolink.StringFilterClass.prototype.Test
         return true;
 }
 
-libxEnv.autolink.StringFilterClass.prototype.GetMatches
+/*
+ * function: GetMatches
+ *
+ * Gets matches from text based on filter
+ *
+ * parameter:
+ *
+ * source - text to run filter on
+ *
+ */
+libxEnv.autolink.stringFilterClass.prototype.getMatches
 = function(source)
 {
     throw new Error("GetMatches not implemented");
     //var matchArray = new Array();
 
     //First test the source to see if it matches at all
-    //var found = this.Test(source);
+    //var found = this.test(source);
     //var startIndex = 0;
     //var index = 0;
 
@@ -225,50 +333,71 @@ libxEnv.autolink.StringFilterClass.prototype.GetMatches
 
 //Implementation of node processing.  Takes input (what matched the
 //filter) and modifies it
-libxEnv.autolink.NodeProcessorClass = function () {}
-libxEnv.autolink.NodeProcessorClass.prototype.ProcessFunction
+/*
+ * class: NodeProcessorClass
+ *
+ * Base class for DOM node processing
+ */
+libxEnv.autolink.nodeProcessorClass = function () {}
+
+/*
+ * function: ProcessFunction
+ *
+ * Takes a DOM node and changes its type (not implemented)
+ */
+libxEnv.autolink.nodeProcessorClass.prototype.processFunction
 = function ()
 {
     throw new Error("Process function not implemented");
 };
 
-/**
- * @constructor Creates an anchor node processor object
+/*
+ * class: AnchorNodeProcessorClass
  *
- * @param {Function} process - a function definition that performs
- * further processing on the matched node.
+ * Creates an anchor node processor object
+ *
+ * parameters:
+ *
+ * process - a function definition that performs further processing on the
+ * matched node.
+ *
  */
-libxEnv.autolink.AnchorNodeProcessorClass = function (process) 
+libxEnv.autolink.anchorNodeProcessorClass = function (process) 
 {
-    this.NodeProcess = process;
+    this.nodeProcess = process;
 
-    this.ProcessFunction 
-        = function (match)
-        {
-            //Invoke the BaseProcessFunction
-            var anchor = this.BaseProcessFunction(match[0]);
-
-            //Now handle further processing
-            anchor = this.NodeProcess(match, anchor);
-
-            return anchor;
-        };
+    //this.processFunction 
+    //    = function (match)
+    //    {
+    //                };
 
     this.currentDoc = null;
 }
 
 //Subclass from NodeProcessor
-libxEnv.autolink.AnchorNodeProcessorClass.prototype = new libxEnv.autolink.NodeProcessorClass();
+libxEnv.autolink.anchorNodeProcessorClass.prototype = new libxEnv.autolink.nodeProcessorClass();
 
 //Set the constructor prototype property to the correct function
-libxEnv.autolink.AnchorNodeProcessorClass.prototype.constructor = libxEnv.autolink.AnchorNodeProcessorClass;
+libxEnv.autolink.anchorNodeProcessorClass.prototype.constructor = libxEnv.autolink.anchorNodeProcessorClass;
+libxEnv.autolink.anchorNodeProcessorClass.prototype.processFunction
+= function (match)
+{
+    //Invoke the BaseProcessFunction
+    var anchor = this.baseProcessFunction(match[0]);
+
+    //Now handle further processing
+    anchor = this.nodeProcess(match, anchor);
+
+    return anchor;
+
+}
 
 /**
  * Creates the anchor element from a given string
  *
  * @param {string} text text contents of anchor node
  */
-libxEnv.autolink.AnchorNodeProcessorClass.prototype.BaseProcessFunction
+libxEnv.autolink.anchorNodeProcessorClass.prototype.baseProcessFunction
 = function(text)
 {
     var anchor = this.currentDoc.createElement("A");
@@ -283,6 +412,8 @@ libxEnv.autolink.AnchorNodeProcessorClass.prototype.BaseProcessFunction
     //Set the class name
     anchor.className = "libx-autolink";
 
+    anchor.title = "libx-autolink";
+
     return anchor;
 };
 
@@ -296,12 +427,12 @@ libxEnv.autolink.AnchorNodeProcessorClass.prototype.BaseProcessFunction
  * @parameter processor - handles processing node
  * @parameter filter - handles filtering node
  */
-libxEnv.autolink.TextTransformerClass = function (filter, processor) 
+libxEnv.autolink.textTransformerClass = function (filter, processor) 
 {
     this.nodeFilter = filter;
     this.nodeProcessor = processor;
 
-    this.SetCurrentDocument
+    this.setCurrentDocument
         = function(currentDoc)
         {
             this.currentDoc = currentDoc;
@@ -320,7 +451,7 @@ libxEnv.autolink.TextTransformerClass = function (filter, processor)
  * @type Array
  * 
  */
-libxEnv.autolink.TextTransformerClass.prototype.ProcessNode
+libxEnv.autolink.textTransformerClass.prototype.processNode
 = function(node)
 {
     processFunctionNullResult = false;
@@ -331,7 +462,7 @@ libxEnv.autolink.TextTransformerClass.prototype.ProcessNode
     var nodeText = node.data;
 
     //Send this text to the filter and see what we get
-    var processedText = this.nodeFilter.GetMatches(nodeText);
+    var processedText = this.nodeFilter.getMatches(nodeText);
 
     //If there are no matches, then just return
     if (0 == processedText.length)
@@ -349,7 +480,7 @@ libxEnv.autolink.TextTransformerClass.prototype.ProcessNode
         //If this is a match, handle further processing of node
         else if (true == processedText[ctr].match)
         {
-            matchedNode = this.nodeProcessor.ProcessFunction(processedText[ctr].results);
+            matchedNode = this.nodeProcessor.processFunction(processedText[ctr].results);
 
             //If the filter returned matches, but the process function rejects the match, then
             //we just return null
@@ -372,7 +503,7 @@ libxEnv.autolink.TextTransformerClass.prototype.ProcessNode
 }
 
 //A list of element names to be skipped by the transformer
-libxEnv.autolink.TextTransformerClass.prototype.skippedElementList 
+libxEnv.autolink.textTransformerClass.prototype.skippedElementList 
    = { a:        true, 
        noscript: true,
        head:     true,
@@ -383,13 +514,13 @@ libxEnv.autolink.TextTransformerClass.prototype.skippedElementList
        select:   true,
        button:   true};
 
-libxEnv.autolink.TextTransformerClass.prototype.nodeFilter
+libxEnv.autolink.textTransformerClass.prototype.nodeFilter
 = function()
 {
     throw new Error("nodeFilter not implemented");
 }
 
-libxEnv.autolink.TextTransformerClass.prototype.nodeProcessor
+libxEnv.autolink.textTransformerClass.prototype.nodeProcessor
 = function()
 {
     throw new Error("nodeProcessor not implemented");
