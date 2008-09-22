@@ -66,28 +66,28 @@ function (doc) {
 
 // rewrite OpenURLs on Google Scholar's page to show cue
 if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
- function rewriteScholarPage(doc, proxy) {
-    var atags = $("a[href]");
+    function rewriteScholarPage(doc, proxy) {
+        var atags = $("a[href]");
     
-    for (var i = 0; i < atags.length; i++) {
-        var link = atags[i];
-        var p = decodeURIComponent(link.href);
-        var m = p.match(/.*\?sid=google(.*)$/);
+        for (var i = 0; i < atags.length; i++) {
+            var link = atags[i];
+            var p = decodeURIComponent(link.href);
+            var m = p.match(/.*\?sid=google(.*)$/);
 
-        // should match scholar viewed through WAM-proxy as well
+            // should match scholar viewed through WAM-proxy as well
 
-        // do not rewrite Refworks link
-        if (m && (m[0].match(/\.refworks\.com/) == null)) {
-            var ourl = libxEnv.openUrlResolver.completeOpenURL(m[1], "0.1");
-            var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), ourl, libxEnv.openUrlResolver);
-            link.parentNode.insertBefore(newlink, link.nextSibling);
-            link.parentNode.insertBefore(doc.createTextNode(" "), 
-                link.nextSibling); 
-            animateCue( newlink );
-            // this would remove the "Get VText" link Scholar places link.parentNode.removeChild(link);
+            // do not rewrite Refworks link
+            if (m && (m[0].match(/\.refworks\.com/) == null)) {
+                var ourl = libxEnv.openUrlResolver.completeOpenURL(m[1], "0.1");
+                var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("openurllookup.label", [libxEnv.openUrlResolver.name]), ourl, libxEnv.openUrlResolver);
+                link.parentNode.insertBefore(newlink, link.nextSibling);
+                link.parentNode.insertBefore(doc.createTextNode(" "), 
+                    link.nextSibling); 
+                animateCue( newlink );
+                // this would remove the "Get VText" link Scholar places link.parentNode.removeChild(link);
+            }
         }
     }
- }
- new libxEnv.doforurls.DoForURL(/scholar\.google\.com(.*)\/scholar\?/, 
-	rewriteScholarPage);
+    new libxEnv.doforurls.DoForURL(/scholar\.google\.com(.*)\/scholar\?/, rewriteScholarPage);
+    new libxEnv.doforurls.DoForURL(/scholar\.google\.co\.uk(.*)\/scholar\?/, rewriteScholarPage);
 }
