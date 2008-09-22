@@ -83,7 +83,6 @@ libxEnv.pubmed = {
         // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082
         var requestUrlPath = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + pubmedid;
         // NCBI returns a content type text/html
-        try {
         libxEnv.getDocument(requestUrlPath,
             function (responsetext) {
                 var xmlResponse = libxEnv.loadXMLString(responsetext);
@@ -100,10 +99,6 @@ libxEnv.pubmed = {
                         completionhandlers.notFound();
                 }
             });
-        }
-        catch (ex) {
-            libxEnv.writeLog("Exception when calling pubmed getDocument " + ex.message);
-        }
     }
 };
 

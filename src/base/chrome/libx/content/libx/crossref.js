@@ -109,12 +109,9 @@ libxEnv.crossref = {
             function (xmlhttp) {
                 var xmlResponse = xmlhttp.responseXML;
                 var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + doi + "']";
-                //var querypath = "//qr:query[@status = 'resolved']";
 
                 var node = libxEnv.xpath.findSingleXML(xmlResponse, querypath, xmlResponse, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
-                // libxEnv.writeLog("Doi " + doi + ": " + new XMLSerializer().serializeToString(xmlResponse));
-
-                // cache result (even if Pubmed ID was not found)
+                // cache result (even if Crossref DOI was not found)
                 doi2metadata[doi] = node;
                 if (node) {
                     libxEnv.crossref.formatDOIMetadataAsText(node, completionhandlers, 'ifFound');
