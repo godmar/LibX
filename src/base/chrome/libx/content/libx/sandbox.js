@@ -56,7 +56,10 @@ libxEnv.sandboxClass = function ()
 			resources : libxEnv.doforurls.resources,
 			libxess : libxEnv.libxess,
             autolink : libxEnv.autolink,
-            buildDate : libxEnv.buildDate
+            buildDate : libxEnv.buildDate,
+            getBoolPref : libxEnv.getBoolPref,
+            getIntPref : libxEnv.getIntPref,
+            getUnicharPref : libxEnv.getUnicharPref
         };
 
         theSandBox.libxConfig = libxConfig;
