@@ -1,13 +1,13 @@
 var amazonAction = 
-new libxEnv.doforurls.DoForURL(/amazon\.com\//, doAmazon);
+new libxEnv.doforurls.DoForURL(/amazon\.com\//, doAmazon, null, "Amazon");
 var amazonUkAction = 
-new libxEnv.doforurls.DoForURL(/amazon\.co\.uk\//, doAmazon);
+new libxEnv.doforurls.DoForURL(/amazon\.co\.uk\//, doAmazon, null, "Amazon United Kingdom");
 var amazonCaAction = 
-new libxEnv.doforurls.DoForURL(/amazon\.ca\//, doAmazon);
+new libxEnv.doforurls.DoForURL(/amazon\.ca\//, doAmazon, null, "Amazon Canada");
 var amazonDeAction = 
-new libxEnv.doforurls.DoForURL(/amazon\.de\//, doAmazon);
+new libxEnv.doforurls.DoForURL(/amazon\.de\//, doAmazon, null, "Amazon Germany");
 var amazonFrAction = 
-new libxEnv.doforurls.DoForURL(/amazon\.fr\//, doAmazon);
+new libxEnv.doforurls.DoForURL(/amazon\.fr\//, doAmazon, null, "Amazon France");
     
 // revised Apr 4, 2007
 function doAmazon(doc, match) {

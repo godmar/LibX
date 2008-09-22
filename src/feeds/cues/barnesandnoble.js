@@ -20,7 +20,7 @@ var bnFunction = function (doc, match) {
 
 // as in http://search.barnesandnoble.com/booksearch/isbnInquiry.asp?z=y&isbn=9780060788704&itm=1
 new libxEnv.doforurls.DoForURL(
-    /\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, bnFunction);
+    /\.barnesandnoble\.com.*(?:EAN|isbn)=(\d{7,12}[\d|X])/i, bnFunction, null, "Barnes & Noble 1");
 // as in http://search.barnesandnoble.com/The-Outlaw-Demon-Wails/Kim-Harrison/e/9780060788704/?itm=1
 new libxEnv.doforurls.DoForURL(
-    /\.barnesandnoble\.com.*\/(\d{10,12}[\d|X])\//i, bnFunction);
+    /\.barnesandnoble\.com.*\/(\d{10,12}[\d|X])\//i, bnFunction, null, "Barnes & Noble 2");

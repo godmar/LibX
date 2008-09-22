@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------------------------------
 // On agricola record pages, add link next to call number
 
-new libxEnv.doforurls.DoForURL(/agricola\.nal\.usda\.gov/, doAgricola);
+new libxEnv.doforurls.DoForURL(/agricola\.nal\.usda\.gov/, doAgricola, null, "agricola");
 
 function doAgricola(doc) {
     // find a <TR> that has a <TH> child whose textContent is equal to 'Call Number:'

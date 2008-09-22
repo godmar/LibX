@@ -21,4 +21,4 @@ new libxEnv.doforurls.DoForURL(/\.alibris\.com\//, function (doc, match) {
             animateCue(isbnLink);
         }
     }
-});
+}, null, "alibris");

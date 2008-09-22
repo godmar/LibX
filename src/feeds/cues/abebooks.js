@@ -18,4 +18,4 @@ new libxEnv.doforurls.DoForURL(/(\/\/|\.)abebooks\.com/, function (doc) {
             animateCue(newlink);
         }
     }
-});
+}, null, "abebooks");

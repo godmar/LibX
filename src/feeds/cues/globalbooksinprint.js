@@ -23,4 +23,4 @@ function(doc) {
         anode.parentNode.insertBefore(hint, anode.nextSibling);
         animateCue(hint);
     }
-});
+}, null, "globalbooksinprint");

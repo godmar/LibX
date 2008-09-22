@@ -28,4 +28,4 @@ new libxEnv.doforurls.DoForURL(/chapters\..*\.ca\//, function (doc) {
         t[0].insertBefore(doc.createTextNode(" "), link);
         animateCue(link);
     } 
-});
+}, null, "chapters");

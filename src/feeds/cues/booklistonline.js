@@ -19,6 +19,6 @@ function (doc) {
             // n[i].parentNode.removeChild(n[i]);
         }
     }
-});
+}, null, "booklistonline");
 
 // vim: ts=4

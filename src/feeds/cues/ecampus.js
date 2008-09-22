@@ -11,4 +11,4 @@ function (doc, match) {
     createXISBNTooltip(link, isbn, libraryCatalog.name);
     origISBNNode.appendChild(link);
     animateCue(link);
-});
+}, null, "ecampus");

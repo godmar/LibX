@@ -24,7 +24,7 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
 
     animateCue(link);
 
-});
+}, null, "Google search");
 
 // link to catalog from google print via ISBN
 new libxEnv.doforurls.DoForURL(/books.\google\.com\/books\?id/, 
@@ -41,7 +41,7 @@ function (doc) {
     cue = n.insertBefore(newlink, ns);
     n.insertBefore(doc.createTextNode(" "), cue);
     animateCue(link);
-});
+}, null, "Google books id");
 
 new libxEnv.doforurls.DoForURL(/books.\google\.com\/books\?q/, 
 function (doc) {
@@ -62,7 +62,7 @@ function (doc) {
             animateCue(link);
         }
     }
-});
+}, null, "Google books q");
 
 // rewrite OpenURLs on Google Scholar's page to show cue
 if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
