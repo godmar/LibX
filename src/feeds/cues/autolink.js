@@ -11,7 +11,7 @@
 libxEnv.autolink.filterProcs
     = [ 
         //PubMed filter and processor
-        { filter : new libxEnv.autolink.RegExpFilterClass(/PMID[^\d]*(\d+)/ig),
+        { filter : new libxEnv.autolink.regExpFilterClass(/PMID[^\d]*(\d+)/ig),
           processor : function (match, anchor)
                       {
                           if (!libxEnv.openUrlResolver)
@@ -40,7 +40,7 @@ libxEnv.autolink.filterProcs
                       }
         },
         //DOI filter and processor
-        { filter : new libxEnv.autolink.RegExpFilterClass(/(10\.\S+\/[^\s,;"'\]\}]+)/ig),
+        { filter : new libxEnv.autolink.regExpFilterClass(/(10\.\S+\/[^\s,;"'\]\}]+)/ig),
           processor : function (match, anchor)
                       {
                           if (!libxEnv.openUrlResolver)
@@ -81,7 +81,7 @@ libxEnv.autolink.filterProcs
         },
 
         //ISBN filter and processor
-        { filter: new libxEnv.autolink.ISBNRegExpFilterClass(/((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig),
+        { filter: new libxEnv.autolink.isbnRegExpFilterClass(/((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig),
           processor: function (match, anchor)
                      {
                          var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);
@@ -115,7 +115,7 @@ libxEnv.autolink.filterProcs
         },
 
         //ISSN filter and processor
-        { filter: new libxEnv.autolink.RegExpFilterClass(/[^0-9](\d{4}-\d{3}[\dx])(?!\d)/ig),
+        { filter: new libxEnv.autolink.regExpFilterClass(/[^0-9](\d{4}-\d{3}[\dx])(?!\d)/ig),
           processor: function (match, anchor)
                      {
                          var issn = isISSN(match[1]);
@@ -191,41 +191,48 @@ autolinkFunc
         return;
     }
 
-    // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
-    // we skip autolink if the page contains any textarea element.
-    // (though the bug purportedly only affects large textarea elements.)
-    //      var n = libxEnv.xpath.findNodesXML(doc, "//textarea");
-    //
-    //      if (0 < n.length)
-    //          return;
-    //
+    var ieRegEx = new RegExp("Microsoft Internet Explorer");
+
+    //Only execute this code if this isn't running under IE
+    if (!ieRegEx.test(window.navigator.appName))
+    {
+        // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
+        // we skip autolink if the page contains any textarea element.
+        // (though the bug purportedly only affects large textarea elements.)
+        var n = libxEnv.xpath.findNodesXML(doc, "//textarea");
+
+        if (0 < n.length)
+            return;
+
+    }
+
     if (libxEnv.options.autolink_active)
     {
         //Define a new TextExplorer object here.  This handles traversing the
         //DOM tree
-        DOMTraverse = new libxEnv.autolink.TextExplorerClass();
+        domTraverse = new libxEnv.autolink.textExplorerClass();
 
         //Create the text transformers using the object array defined above
         for (var ctr = 0; ctr < libxEnv.autolink.filterProcs.length; ++ctr)
         {
             //Create a new AnchorNodeProcessor passing in the process function
-            nodeProcessor = new libxEnv.autolink.AnchorNodeProcessorClass(libxEnv.autolink.filterProcs[ctr].processor);
+            nodeProcessor = new libxEnv.autolink.anchorNodeProcessorClass(libxEnv.autolink.filterProcs[ctr].processor);
 
             //Create a new TextTransformer
-            textTransformer = new libxEnv.autolink.TextTransformerClass(libxEnv.autolink.filterProcs[ctr].filter,
+            textTransformer = new libxEnv.autolink.textTransformerClass(libxEnv.autolink.filterProcs[ctr].filter,
                     nodeProcessor);
 
             //Add the TextTransformer to the TextExplorer
-            DOMTraverse.AddTextTransformer(textTransformer);
+            domTraverse.addTextTransformer(textTransformer);
 
         }
 
         //Set the current window and document objects here
-        DOMTraverse.SetCurrentWindow(window);
-        DOMTraverse.SetCurrentDocument(doc);
+        domTraverse.setCurrentWindow(window);
+        domTraverse.setCurrentDocument(doc);
 
         //Start traversing
-        DOMTraverse.Traverse(doc.body);
+        domTraverse.traverse(doc.body);
 
     }
 };
