@@ -10,13 +10,23 @@
 
 // work-around for non-deterministic cue file execution order
 if (undefined == libxEnv.autolink)
-    libxEnv.autolink =  { filterProcs: [] };
+    libxEnv.autolink =  { textTransformers: [] };
 
 var autolink = libxEnv.autolink;
 
-(function (filters) {
-    for (var i = 0; i < filters.length; i++)
-        autolink.filterProcs.push(filters[i]);
+(function (filterProcs) {
+        //Create the text transformers using the object array defined above
+        for (var ctr = 0; ctr < filterProcs.length; ++ctr)
+        {
+            //Create a new AnchorNodeProcessor passing in the process function
+            var nodeProcessor = new autolink.anchorNodeProcessorClass(filterProcs[ctr].processor);
+
+            //Create a new TextTransformer
+            var textTransformer = new autolink.textTransformerClass(filterProcs[ctr].filter,
+                    nodeProcessor);
+
+            autolink.textTransformers.push(textTransformer);
+        }
 })(
       [ 
         //PubMed filter and processor
@@ -224,19 +234,9 @@ function autolinkFunc (doc, match)
         //DOM tree
         var domTraverse = new autolink.textExplorerClass();
 
-        //Create the text transformers using the object array defined above
-        for (var ctr = 0; ctr < autolink.filterProcs.length; ++ctr)
-        {
-            //Create a new AnchorNodeProcessor passing in the process function
-            nodeProcessor = new autolink.anchorNodeProcessorClass(autolink.filterProcs[ctr].processor);
-
-            //Create a new TextTransformer
-            textTransformer = new autolink.textTransformerClass(autolink.filterProcs[ctr].filter,
-                    nodeProcessor);
-
-            //Add the TextTransformer to the TextExplorer
-            domTraverse.addTextTransformer(textTransformer);
-
+        // install registered text transformers
+        for (var i = 0; i < autolink.textTransformers.length; i++) {
+            domTraverse.addTextTransformer(autolink.textTransformers[i]);
         }
 
         //Set the current window and document objects here

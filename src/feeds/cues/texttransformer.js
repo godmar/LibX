@@ -23,7 +23,7 @@
 
 // work-around for non-deterministic cue file execution order
 if (undefined == libxEnv.autolink)
-    libxEnv.autolink =  { filterProcs: [] };
+    libxEnv.autolink =  { textTransformers: [] };
 
 var autolink = libxEnv.autolink;
 
@@ -517,14 +517,3 @@ autolink.textTransformerClass.prototype.skippedElementList
        select:   true,
        button:   true};
 
-autolink.textTransformerClass.prototype.nodeFilter
-= function()
-{
-    throw new Error("nodeFilter not implemented");
-}
-
-autolink.textTransformerClass.prototype.nodeProcessor
-= function()
-{
-    throw new Error("nodeProcessor not implemented");
-}
