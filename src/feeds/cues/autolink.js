@@ -10,12 +10,15 @@
 
 // work-around for non-deterministic cue file execution order
 if (undefined == libxEnv.autolink)
-    libxEnv.autolink =  { };
+    libxEnv.autolink =  { filterProcs: [] };
 
 var autolink = libxEnv.autolink;
 
-autolink.filterProcs
-    = [ 
+(function (filters) {
+    for (var i = 0; i < filters.length; i++)
+        autolink.filterProcs.push(filters[i]);
+})(
+      [ 
         //PubMed filter and processor
         { filter : new autolink.regExpFilterClass(/PMID[^\d]*(\d+)/ig),
           processor : function (match, anchor)
@@ -185,7 +188,7 @@ autolink.filterProcs
                          return anchor;
                      }
         }
-      ];
+      ]);
 
 
 function autolinkFunc (doc, match)

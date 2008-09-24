@@ -23,7 +23,7 @@
 
 // work-around for non-deterministic cue file execution order
 if (undefined == libxEnv.autolink)
-    libxEnv.autolink =  { };
+    libxEnv.autolink =  { filterProcs: [] };
 
 var autolink = libxEnv.autolink;
 
