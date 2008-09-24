@@ -21,15 +21,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+// work-around for non-deterministic cue file execution order
 if (undefined == libxEnv.autolink)
-    libxEnv.autolink = new Object();
+    libxEnv.autolink =  { };
+
+var autolink = libxEnv.autolink;
 
 /*
  * class: FilterClass
  *
  * A base class for DOM node filters
  */
-libxEnv.autolink.filterClass = function () {};
+autolink.filterClass = function () {};
 
 /*
  * function: Test
@@ -37,7 +40,7 @@ libxEnv.autolink.filterClass = function () {};
  * Tests whether a node matches filter criteria.
  *
  */
-libxEnv.autolink.filterClass.prototype.test 
+autolink.filterClass.prototype.test 
 = function () 
 { 
     throw new Error("Test not implemented"); 
@@ -54,13 +57,13 @@ libxEnv.autolink.filterClass.prototype.test
  * filter - a regular expression filter for this object
  *
  */
-libxEnv.autolink.regExpFilterClass = function (filter) 
+autolink.regExpFilterClass = function (filter) 
 {
     this.filterExpression = filter;
 }
 
-libxEnv.autolink.regExpFilterClass.prototype = new libxEnv.autolink.filterClass();
-libxEnv.autolink.regExpFilterClass.constructor = libxEnv.autolink.regExpFilterClass;
+autolink.regExpFilterClass.prototype = new autolink.filterClass();
+autolink.regExpFilterClass.constructor = autolink.regExpFilterClass;
 
 /*
  * function: Test
@@ -76,7 +79,7 @@ libxEnv.autolink.regExpFilterClass.constructor = libxEnv.autolink.regExpFilterCl
  * filterExpression is of type RegExp
  *
  */
-libxEnv.autolink.regExpFilterClass.prototype.test
+autolink.regExpFilterClass.prototype.test
  = function(source)
 {
     return this.filterExpression.test(source);
@@ -99,7 +102,7 @@ libxEnv.autolink.regExpFilterClass.prototype.test
  * - text  - substring of text
  *
  */
-libxEnv.autolink.regExpFilterClass.prototype.getMatches
+autolink.regExpFilterClass.prototype.getMatches
 = function(source)
 {
     //Set to 0 to start matching at beginning of string
@@ -191,21 +194,21 @@ libxEnv.autolink.regExpFilterClass.prototype.getMatches
  * filter - regular expression used for testing
  *
  */
-libxEnv.autolink.isbnRegExpFilterClass = function (filter) 
+autolink.isbnRegExpFilterClass = function (filter) 
 {
     //Call the base class constructor assigning this object's filterExpression
     //property
-    libxEnv.autolink.regExpFilterClass.call(this, filter);
+    autolink.regExpFilterClass.call(this, filter);
 }
-libxEnv.autolink.isbnRegExpFilterClass.prototype = new libxEnv.autolink.regExpFilterClass();
-libxEnv.autolink.isbnRegExpFilterClass.prototype.constructor = libxEnv.autolink.isbnRegExpFilterClass;
+autolink.isbnRegExpFilterClass.prototype = new autolink.regExpFilterClass();
+autolink.isbnRegExpFilterClass.prototype.constructor = autolink.isbnRegExpFilterClass;
 
 /*
  * function: BaseTest
  *
  * Set to the Test function of the RegExpFilterClass.
  */
-libxEnv.autolink.isbnRegExpFilterClass.prototype.baseTest = libxEnv.autolink.regExpFilterClass.prototype.test;
+autolink.isbnRegExpFilterClass.prototype.baseTest = autolink.regExpFilterClass.prototype.test;
 
 /*
  * function: Test
@@ -222,7 +225,7 @@ libxEnv.autolink.isbnRegExpFilterClass.prototype.baseTest = libxEnv.autolink.reg
  * - false otherwise
  */
 //Override Test so that we can implement a secondary filter
-libxEnv.autolink.isbnRegExpFilterClass.prototype.test
+autolink.isbnRegExpFilterClass.prototype.test
 = function(source)
 {
     var toReturn = this.baseTest(source);
@@ -250,12 +253,12 @@ libxEnv.autolink.isbnRegExpFilterClass.prototype.test
  * filter - string filter
  *
  */
-libxEnv.autolink.stringFilterClass = function (filter) 
+autolink.stringFilterClass = function (filter) 
 {
     this.filterExpression = filter;
 }
-libxEnv.autolink.stringFilterClass.prototype = new libxEnv.autolink.filterClass();
-libxEnv.autolink.stringFilterClass.constructor = libxEnv.autolink.stringFilterClass;
+autolink.stringFilterClass.prototype = new autolink.filterClass();
+autolink.stringFilterClass.constructor = autolink.stringFilterClass;
 
 /*
  * function: Test
@@ -270,7 +273,7 @@ libxEnv.autolink.stringFilterClass.constructor = libxEnv.autolink.stringFilterCl
  *
  * filter must be of type string
  */
-libxEnv.autolink.stringFilterClass.prototype.test
+autolink.stringFilterClass.prototype.test
 = function(source)
 {
     if (-1 == this.filterExpression.indexOf(source))
@@ -289,7 +292,7 @@ libxEnv.autolink.stringFilterClass.prototype.test
  * source - text to run filter on
  *
  */
-libxEnv.autolink.stringFilterClass.prototype.getMatches
+autolink.stringFilterClass.prototype.getMatches
 = function(source)
 {
     throw new Error("GetMatches not implemented");
@@ -338,14 +341,14 @@ libxEnv.autolink.stringFilterClass.prototype.getMatches
  *
  * Base class for DOM node processing
  */
-libxEnv.autolink.nodeProcessorClass = function () {}
+autolink.nodeProcessorClass = function () {}
 
 /*
  * function: ProcessFunction
  *
  * Takes a DOM node and changes its type (not implemented)
  */
-libxEnv.autolink.nodeProcessorClass.prototype.processFunction
+autolink.nodeProcessorClass.prototype.processFunction
 = function ()
 {
     throw new Error("Process function not implemented");
@@ -362,7 +365,7 @@ libxEnv.autolink.nodeProcessorClass.prototype.processFunction
  * matched node.
  *
  */
-libxEnv.autolink.anchorNodeProcessorClass = function (process) 
+autolink.anchorNodeProcessorClass = function (process) 
 {
     this.nodeProcess = process;
 
@@ -375,11 +378,11 @@ libxEnv.autolink.anchorNodeProcessorClass = function (process)
 }
 
 //Subclass from NodeProcessor
-libxEnv.autolink.anchorNodeProcessorClass.prototype = new libxEnv.autolink.nodeProcessorClass();
+autolink.anchorNodeProcessorClass.prototype = new autolink.nodeProcessorClass();
 
 //Set the constructor prototype property to the correct function
-libxEnv.autolink.anchorNodeProcessorClass.prototype.constructor = libxEnv.autolink.anchorNodeProcessorClass;
-libxEnv.autolink.anchorNodeProcessorClass.prototype.processFunction
+autolink.anchorNodeProcessorClass.prototype.constructor = autolink.anchorNodeProcessorClass;
+autolink.anchorNodeProcessorClass.prototype.processFunction
 = function (match)
 {
     //Invoke the BaseProcessFunction
@@ -397,7 +400,7 @@ libxEnv.autolink.anchorNodeProcessorClass.prototype.processFunction
  *
  * @param {string} text text contents of anchor node
  */
-libxEnv.autolink.anchorNodeProcessorClass.prototype.baseProcessFunction
+autolink.anchorNodeProcessorClass.prototype.baseProcessFunction
 = function(text)
 {
     var anchor = this.currentDoc.createElement("A");
@@ -427,7 +430,7 @@ libxEnv.autolink.anchorNodeProcessorClass.prototype.baseProcessFunction
  * @parameter processor - handles processing node
  * @parameter filter - handles filtering node
  */
-libxEnv.autolink.textTransformerClass = function (filter, processor) 
+autolink.textTransformerClass = function (filter, processor) 
 {
     this.nodeFilter = filter;
     this.nodeProcessor = processor;
@@ -451,7 +454,7 @@ libxEnv.autolink.textTransformerClass = function (filter, processor)
  * @type Array
  * 
  */
-libxEnv.autolink.textTransformerClass.prototype.processNode
+autolink.textTransformerClass.prototype.processNode
 = function(node)
 {
     processFunctionNullResult = false;
@@ -503,7 +506,7 @@ libxEnv.autolink.textTransformerClass.prototype.processNode
 }
 
 //A list of element names to be skipped by the transformer
-libxEnv.autolink.textTransformerClass.prototype.skippedElementList 
+autolink.textTransformerClass.prototype.skippedElementList 
    = { a:        true, 
        noscript: true,
        head:     true,
@@ -514,13 +517,13 @@ libxEnv.autolink.textTransformerClass.prototype.skippedElementList
        select:   true,
        button:   true};
 
-libxEnv.autolink.textTransformerClass.prototype.nodeFilter
+autolink.textTransformerClass.prototype.nodeFilter
 = function()
 {
     throw new Error("nodeFilter not implemented");
 }
 
-libxEnv.autolink.textTransformerClass.prototype.nodeProcessor
+autolink.textTransformerClass.prototype.nodeProcessor
 = function()
 {
     throw new Error("nodeProcessor not implemented");

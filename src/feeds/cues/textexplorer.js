@@ -26,8 +26,11 @@
  * ***** END LICENSE BLOCK ***** 
  */
 
+// work-around for non-deterministic cue file execution order
 if (undefined == libxEnv.autolink)
-    libxEnv.autolink = new Object();
+    libxEnv.autolink =  { };
+
+var autolink = libxEnv.autolink;
 
 /*
  * class: TextExplorerClass
@@ -36,7 +39,7 @@ if (undefined == libxEnv.autolink)
  * a list of TextTransformerClass objects that will handle transforming
  * text nodes.
  */
-libxEnv.autolink.textExplorerClass = function ()
+autolink.textExplorerClass = function ()
 {
 
     /*
@@ -234,7 +237,7 @@ libxEnv.autolink.textExplorerClass = function ()
  * transformer - object that handles processing of text node
  *
  */
-libxEnv.autolink.textExplorerClass.prototype.addTextTransformer
+autolink.textExplorerClass.prototype.addTextTransformer
 = function (transformer)
 {
     //TODO: Add code to compute/update intersection set
@@ -257,7 +260,7 @@ libxEnv.autolink.textExplorerClass.prototype.addTextTransformer
  * An array of booleans with the boolean at the corresponding index set to 
  * true
  */
-libxEnv.autolink.textExplorerClass.prototype.enableFilter
+autolink.textExplorerClass.prototype.enableFilter
     = function (index, currentFlag)
       {
           //Make a copy of the array to return
@@ -284,7 +287,7 @@ libxEnv.autolink.textExplorerClass.prototype.enableFilter
  * returns:
  * true if filter is enabled.  false otherwise
  */
-libxEnv.autolink.textExplorerClass.prototype.checkFilter
+autolink.textExplorerClass.prototype.checkFilter
     = function (index, currentFlag)
       {
           if ((this.textTransformerList.length - 1) < index
@@ -308,7 +311,7 @@ libxEnv.autolink.textExplorerClass.prototype.checkFilter
  *
  * An array of booleans with the boolean at the index specified set to false.
  */
-libxEnv.autolink.textExplorerClass.prototype.disableFilter 
+autolink.textExplorerClass.prototype.disableFilter 
     = function (index, currentFlag)
       {
           //Make a copy of the array to return
@@ -328,7 +331,7 @@ libxEnv.autolink.textExplorerClass.prototype.disableFilter
  *
  * Provide symbols for DOM node types
  */
-libxEnv.autolink.textExplorerClass.prototype.nodeType
+autolink.textExplorerClass.prototype.nodeType
     = {
         ELEMENT_NODE: 1,
         ATTRIBUTE_NODE: 2,

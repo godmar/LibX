@@ -8,10 +8,16 @@
 //that adds a cue to the right of each match) could be created and added to the
 //array of objects below
 
-libxEnv.autolink.filterProcs
+// work-around for non-deterministic cue file execution order
+if (undefined == libxEnv.autolink)
+    libxEnv.autolink =  { };
+
+var autolink = libxEnv.autolink;
+
+autolink.filterProcs
     = [ 
         //PubMed filter and processor
-        { filter : new libxEnv.autolink.regExpFilterClass(/PMID[^\d]*(\d+)/ig),
+        { filter : new autolink.regExpFilterClass(/PMID[^\d]*(\d+)/ig),
           processor : function (match, anchor)
                       {
                           if (!libxEnv.openUrlResolver)
@@ -40,7 +46,7 @@ libxEnv.autolink.filterProcs
                       }
         },
         //DOI filter and processor
-        { filter : new libxEnv.autolink.regExpFilterClass(/(10\.\S+\/[^\s,;"'\]\}]+)/ig),
+        { filter : new autolink.regExpFilterClass(/(10\.\S+\/[^\s,;"'\]\}]+)/ig),
           processor : function (match, anchor)
                       {
                           if (!libxEnv.openUrlResolver)
@@ -81,7 +87,7 @@ libxEnv.autolink.filterProcs
         },
 
         //ISBN filter and processor
-        { filter: new libxEnv.autolink.isbnRegExpFilterClass(/((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig),
+        { filter: new autolink.isbnRegExpFilterClass(/((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig),
           processor: function (match, anchor)
                      {
                          var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);
@@ -115,7 +121,7 @@ libxEnv.autolink.filterProcs
         },
 
         //ISSN filter and processor
-        { filter: new libxEnv.autolink.regExpFilterClass(/[^0-9](\d{4}-\d{3}[\dx])(?!\d)/ig),
+        { filter: new autolink.regExpFilterClass(/[^0-9](\d{4}-\d{3}[\dx])(?!\d)/ig),
           processor: function (match, anchor)
                      {
                          var issn = isISSN(match[1]);
@@ -182,16 +188,9 @@ libxEnv.autolink.filterProcs
       ];
 
 
-autolinkFunc 
-= function (doc, match)
+function autolinkFunc (doc, match)
 {
-    // Prevent execution for builds that lack a buildDate property (before 2008/09/22)
-    if (typeof libxEnv.buildDate == "undefined")
-    {
-        if (libxEnv.options.autolink_active)
-            libxRunAutoLink(doc, false);
-        return;
-    }
+    var autolink = libxEnv.autolink;
 
     var ieRegEx = new RegExp("Microsoft Internet Explorer");
 
@@ -208,20 +207,28 @@ autolinkFunc
 
     }
 
+    // Prevent execution for builds that lack a buildDate property (before 2008/09/22)
+    if (typeof libxEnv.buildDate == "undefined")
+    {
+        if (libxEnv.options.autolink_active)
+            libxRunAutoLink(doc, false);
+        return;
+    }
+
     if (libxEnv.getBoolPref('libx.autolink', true ))
     {
         //Define a new TextExplorer object here.  This handles traversing the
         //DOM tree
-        domTraverse = new libxEnv.autolink.textExplorerClass();
+        var domTraverse = new autolink.textExplorerClass();
 
         //Create the text transformers using the object array defined above
-        for (var ctr = 0; ctr < libxEnv.autolink.filterProcs.length; ++ctr)
+        for (var ctr = 0; ctr < autolink.filterProcs.length; ++ctr)
         {
             //Create a new AnchorNodeProcessor passing in the process function
-            nodeProcessor = new libxEnv.autolink.anchorNodeProcessorClass(libxEnv.autolink.filterProcs[ctr].processor);
+            nodeProcessor = new autolink.anchorNodeProcessorClass(autolink.filterProcs[ctr].processor);
 
             //Create a new TextTransformer
-            textTransformer = new libxEnv.autolink.textTransformerClass(libxEnv.autolink.filterProcs[ctr].filter,
+            textTransformer = new autolink.textTransformerClass(autolink.filterProcs[ctr].filter,
                     nodeProcessor);
 
             //Add the TextTransformer to the TextExplorer
@@ -240,8 +247,7 @@ autolinkFunc
 };
 
 //Define a doforurl object
-var autolink 
-= new libxEnv.doforurls.DoForURL(/.*/, autolinkFunc, null, "autolink");
+var autolink = new libxEnv.doforurls.DoForURL(/.*/, autolinkFunc, null, "autolink");
 
 // Add Serials Solution page to list of sites where we don't autolink 
 if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.type == "sersol") 
