@@ -430,16 +430,16 @@ autolink.anchorNodeProcessorClass.prototype.baseProcessFunction
  * @parameter processor - handles processing node
  * @parameter filter - handles filtering node
  */
-autolink.textTransformerClass = function (filter, processor) 
+autolink.textTransformerClass = function (transformer)
 {
-    this.nodeFilter = filter;
-    this.nodeProcessor = processor;
+    this.nodeFilter = transformer.filter;
+    this.nodeProcessor = transformer.processor;
 
     this.setCurrentDocument
         = function(currentDoc)
         {
             this.currentDoc = currentDoc;
-            this.nodeProcessor.currentDoc = currentDoc;
+            this.nodeProcessor.currentDoc = currentDoc; // XXX breaks encapsulation
         }
 }
 
@@ -457,47 +457,48 @@ autolink.textTransformerClass = function (filter, processor)
 autolink.textTransformerClass.prototype.processNode
 = function(node)
 {
-    processFunctionNullResult = false;
-    //Array to store nodes
-    nodeArray = new Array();
-
-    //Get the node text
+    var processFunctionNullResult = false;
+    var nodeArray = new Array();
     var nodeText = node.data;
 
-    //Send this text to the filter and see what we get
+    //returns array of matches [ { match : true | false, 
+    //  text: <if no match...>
+    //  results: <match object if match> } ]
     var processedText = this.nodeFilter.getMatches(nodeText);
 
-    //If there are no matches, then just return
-    if (0 == processedText.length)
+    if (processedText.length == 0)
         return null;
 
-    //Otherwise, handle processing matches and non-matches
-    for (ctr = 0; ctr < processedText.length; ++ctr)
+    //Processing matches and non-matches
+    for (var ctr = 0; ctr < processedText.length; ++ctr)
     {
-        //If this is a non-match, just create a text node
-        if (false == processedText[ctr].match)
-        {
-            unmatchedNode = this.currentDoc.createTextNode(processedText[ctr].text);
-            nodeArray.push(unmatchedNode);
-        }
-        //If this is a match, handle further processing of node
-        else if (true == processedText[ctr].match)
-        {
-            matchedNode = this.nodeProcessor.processFunction(processedText[ctr].results);
+        var nextNode = null;
 
-            //If the filter returned matches, but the process function rejects the match, then
-            //we just return null
-            if (null == matchedNode)
+        //If this is a match, handle further processing of node
+        if (processedText[ctr].match)
+        {
+            nextNode = this.nodeProcessor.processFunction(processedText[ctr].results);
+
+            //If the filter returned matches, but the process function rejects the match, 
+            //then we just return null
+            //XXX Arif - check that?  Why abort if a single match returns null?
+            //others could go ok, no?
+            if (nextNode == null)
             {
                 processFunctionNullResult = true;
                 break;
             }
-
-            nodeArray.push(matchedNode);
         }
+        //If this is a non-match, just create a text node
+        else
+        {
+            nextNode = this.currentDoc.createTextNode(processedText[ctr].text);
+        }
+
+        nodeArray.push(nextNode);
     }
 
-    if (true == processFunctionNullResult)
+    if (processFunctionNullResult)
     {
         //Discard results
         nodeArray = null;

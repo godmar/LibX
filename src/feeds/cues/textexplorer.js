@@ -128,6 +128,11 @@ autolink.textExplorerClass = function ()
             var currentFlag = n.flag;
             var currentNode = n.node;
 
+            //Ignore node that were removed after scheduled for processing in dfsStack
+            if (currentNode.parentNode == null) {
+                continue;
+            }
+
             //Check the node type
             if (instance.nodeType.TEXT_NODE == currentNode.nodeType)
             {
@@ -147,17 +152,14 @@ autolink.textExplorerClass = function ()
 
                         if (null != nodes)
                         {
-                            //We want to replace currentNode with the returned
-                            //nodes
-                            
-                            
+                            //Replace currentNode with the returned nodes
 
                             var currentParent = currentNode.parentNode;
 
                             var currentSibling = currentNode.nextSibling;
 
                             var removedNode = currentParent.removeChild(currentNode);
-                            for (childIdx = 0; childIdx < nodes.length; ++childIdx)
+                            for (var childIdx = 0; childIdx < nodes.length; ++childIdx)
                             {
                                 currentParent.insertBefore(nodes[childIdx], currentSibling);
                             }

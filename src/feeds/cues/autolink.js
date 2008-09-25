@@ -22,8 +22,10 @@ var autolink = libxEnv.autolink;
             var nodeProcessor = new autolink.anchorNodeProcessorClass(filterProcs[ctr].processor);
 
             //Create a new TextTransformer
-            var textTransformer = new autolink.textTransformerClass(filterProcs[ctr].filter,
-                    nodeProcessor);
+            var textTransformer = new autolink.textTransformerClass({
+                    filter: filterProcs[ctr].filter,
+                    processor: nodeProcessor
+            });
 
             autolink.textTransformers.push(textTransformer);
         }
