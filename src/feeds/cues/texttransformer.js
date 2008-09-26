@@ -21,10 +21,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// work-around for non-deterministic cue file execution order
-if (undefined == libxEnv.autolink)
-    libxEnv.autolink =  { textTransformers: [] };
-
 var autolink = libxEnv.autolink;
 
 /*

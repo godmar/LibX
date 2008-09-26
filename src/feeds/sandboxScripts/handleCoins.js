@@ -6,10 +6,10 @@
   * @member libxEnv
   *
   * @param {DOM node} doc document element in HTML DOM.
- * @param {object} openUrlResolver Open url resolver object
- */
-libxEnv.handleCoins = function (doc, openUrlResolver) {
-    var is1_0 = openUrlResolver.version == "1.0";
+  * @param {handlers} array of functions that handle COinS
+  * @param {is1_0} boolean whether OpenURL 0.1 is desired
+  */
+libxEnv.coins.handleCoins = function (doc, handlers, is1_0) {
     var coins = $("span.Z3988", doc);
     for (var i = 0; i < coins.length; i++) {
         try { // the span attribute may be malformed, if so, recover and continue with next
@@ -78,12 +78,9 @@ libxEnv.handleCoins = function (doc, openUrlResolver) {
 
             // handle any coins if 1.0, otherwise do only if book or article
             if (is1_0 || isBookOrArticle) {
-                span.appendChild(libxEnv.makeLink(doc, 
-                                                  libxEnv.getProperty("openurllookup.label", 
-                                                                      [openUrlResolver.name]), 
-                                                  openUrlResolver.completeOpenURL(query),
-                                                  openUrlResolver ),
-                                                  openUrlResolver);
+                for (var j = 0; j < handlers.length; j++) {
+                    handlers[j](doc, span, query);
+                }
             }
         } catch (e) {
             libxEnv.writeLog("Exception during coins processing: " +e);

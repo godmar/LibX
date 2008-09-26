@@ -8,10 +8,6 @@
 //that adds a cue to the right of each match) could be created and added to the
 //array of objects below
 
-// work-around for non-deterministic cue file execution order
-if (undefined == libxEnv.autolink)
-    libxEnv.autolink =  { textTransformers: [] };
-
 var autolink = libxEnv.autolink;
 
 (function (filterProcs) {
