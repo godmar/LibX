@@ -8,4 +8,5 @@
 // that will be visible in the sandbox
 
 libxEnv.coins = libxEnv.autolink.coins;
+libxEnv.getXMLDocument = libxEnv.autolink.getXMLDocument;
 
