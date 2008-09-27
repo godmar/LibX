@@ -54,12 +54,16 @@ libxEnv.autolink =  { textTransformers: [] };
 // handlers_v0_1: backwards-compatible OpenURL 0.1 handlers
 libxEnv.coins = { handlers: [], handlers_v0_1: [] };
 
-// XXX libxEnv.autolink.coins "smuggles" coins object into the sandbox via 
-// libxEnv.autolink, which is in the sandbox.  We need to fix this and provide an 
+// XXX libxEnv.xisbn.smuggle "smuggles" a number of global objects into
+// the sandbox.  sandboxScripts/setup.js extracts them into the sandbox
+// 
+// We need to fix this and provide an 
 // API for cues to provide properties to the sandbox.
-// see also sandboxScripts/setup.js
-libxEnv.autolink.coins = libxEnv.coins;
-libxEnv.autolink.getXMLDocument = libxEnv.getXMLDocument;
+//
+libxEnv.xisbn.smuggle = {
+    coins : libxEnv.coins,
+    getXMLDocument : libxEnv.getXMLDocument
+};
 
 addSandboxScript( sandboxUrl + "setup.js" );
 addSandboxScript( sandboxUrl + "jquery-1.2.3.js" );
