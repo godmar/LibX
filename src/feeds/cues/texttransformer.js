@@ -36,14 +36,13 @@ autolink.filterClass = function () {};
  * Tests whether a node matches filter criteria.
  *
  */
-autolink.filterClass.prototype.test 
-= function () 
+autolink.filterClass.prototype.test = function () 
 { 
     throw new Error("Test not implemented"); 
-}
+};
 
 /*
- * class: RegExpFilterClass
+ * class: regExpFilterClass
  *
  * DOMnode filter that uses regular expressions for filtering. Subclass of
  * FilterClass
@@ -56,15 +55,15 @@ autolink.filterClass.prototype.test
 autolink.regExpFilterClass = function (filter) 
 {
     this.filterExpression = filter;
-}
+};
 
+//Subclass regExpFilterClass from filterClass
 autolink.regExpFilterClass.prototype = new autolink.filterClass();
-autolink.regExpFilterClass.constructor = autolink.regExpFilterClass;
 
 /*
- * function: Test
+ * function: test
  *
- * Tests whether a node matches a regular expressoin filter criteria.
+ * Tests whether a node matches a regular expression filter criteria.
  *
  * parameter:
  *
@@ -75,14 +74,13 @@ autolink.regExpFilterClass.constructor = autolink.regExpFilterClass;
  * filterExpression is of type RegExp
  *
  */
-autolink.regExpFilterClass.prototype.test
- = function(source)
+autolink.regExpFilterClass.prototype.test = function (source)
 {
     return this.filterExpression.test(source);
-}
+};
 
 /*
- * function: GetMatches
+ * function: getMatches
  *
  * Applies the filter and returns an array that represents the segmented
  * string where each segment is associated with a flag that indicates whether
@@ -95,22 +93,28 @@ autolink.regExpFilterClass.prototype.test
  * returns:
  * array of objects
  * - match - boolean value that indicates whether substring is part of match
- * - text  - substring of text
+ * - text  - corresponding substring of text
  *
  */
-autolink.regExpFilterClass.prototype.getMatches
-= function(source)
+autolink.regExpFilterClass.prototype.getMatches = function (source)
 {
     //Set to 0 to start matching at beginning of string
     this.filterExpression.lastIndex = 0;
 
-    var matchArray = new Array();
+    var matchArray = [];
 
     //First test the source to see if it matches at all
     var found = this.test(source);
     this.filterExpression.lastIndex = 0;
 
-    matches = false;
+    var matches = false;
+
+    var lastLastIndex;
+    var match;
+    var previousText;
+    var previousObj;
+    var matchedObj;
+    var subsequentText;
 
     if (found)
     {
@@ -122,14 +126,13 @@ autolink.regExpFilterClass.prototype.getMatches
 
             match = this.filterExpression.exec(source);
 
-            while (null != match)
-            //for (match = null, lastLastIndex = 0; (match = this.filterExpression.exec(source));)
+            while (match !== null)
             {
                 matches = true;
 
                 previousText = source.substring(lastLastIndex, match.index);
 
-                if ("" != previousText)
+                if (previousText !== "")
                 {
                     previousObj = { match : false, text : previousText };
 
@@ -143,8 +146,10 @@ autolink.regExpFilterClass.prototype.getMatches
 
                 lastLastIndex = this.filterExpression.lastIndex;
 
-                if (undefined == lastLastIndex)
+                if (lastLastIndex === undefined)
+                {
                     lastLastIndex = match.index;
+                }
 
                 match = this.filterExpression.exec(source);
             }
@@ -152,9 +157,9 @@ autolink.regExpFilterClass.prototype.getMatches
             if (matches)
             {
                 subsequentText = source.substring(lastLastIndex);
-                if ("" != subsequentText)
+                if (subsequentText !== "")
                 {
-                    subsequentObj = { match: false, text : subsequentText };
+                    var subsequentObj = { match: false, text : subsequentText };
                     matchArray.push(subsequentObj);
                 }
             }
@@ -167,49 +172,53 @@ autolink.regExpFilterClass.prototype.getMatches
 
             subsequentText = source.substring(match.index + match[0].length);
 
-            if ("" != previousText)
-                matchArray.push({ match: false, text: previousText});
+            if (previousText !== "")
+            {
+                matchArray.push({ match : false, text : previousText});
+            }
 
-            matchArray.push({ match: true, text: match[0], results: match});
+            matchArray.push({ match : true, text : match[0], results : match});
 
-            if ("" != subsequentText)
+            if (subsequentText !== "")
+            {
                 matchArray.push({ match: false, text: subsequentText});
+            }
         }
     }
     return matchArray;
-}
+};
 
 /*
- * class: ISBNRegExpFilterClass
+ * class: isbnRegExpFilterClass
  *
- * Subclass of RegExpFilter.  The test function performs an additional RegExp
+ * Subclass of regExpFilter.  The test function performs an additional RegExp
  * test
  *
- * paramters:
+ * parameters:
  *
  * filter - regular expression used for testing
  *
  */
 autolink.isbnRegExpFilterClass = function (filter) 
 {
+    if (!(filter instanceof RegExp))
+    {
+        throw ("filter must be an instance of the RegExp object");
+    }
+
     //Call the base class constructor assigning this object's filterExpression
     //property
     autolink.regExpFilterClass.call(this, filter);
-}
+};
+
+//Subclass isbnRegExpFilterClass from regExpFilterClass
 autolink.isbnRegExpFilterClass.prototype = new autolink.regExpFilterClass();
-autolink.isbnRegExpFilterClass.prototype.constructor = autolink.isbnRegExpFilterClass;
 
 /*
- * function: BaseTest
+ * function: test
  *
- * Set to the Test function of the RegExpFilterClass.
- */
-autolink.isbnRegExpFilterClass.prototype.baseTest = autolink.regExpFilterClass.prototype.test;
-
-/*
- * function: Test
- *
- * Invokes the RegExpFilterClass base class function Test and then runs its own filter on the source text.
+ * Invokes the regExpFilterClass base class function test and then runs its own
+ * filter on the source text.
  *
  * parameters:
  *
@@ -220,11 +229,10 @@ autolink.isbnRegExpFilterClass.prototype.baseTest = autolink.regExpFilterClass.p
  * - true if base filter matches and this filter doesn't
  * - false otherwise
  */
-//Override Test so that we can implement a secondary filter
-autolink.isbnRegExpFilterClass.prototype.test
-= function(source)
+autolink.isbnRegExpFilterClass.prototype.test = function (source)
 {
-    var toReturn = this.baseTest(source);
+    //Call the base class' test function
+    var toReturn = autolink.regExpFilterClass.prototype.test.call(this, source);
 
     //We want to check whether the source matches with a US phone number
     if (toReturn)
@@ -234,10 +242,12 @@ autolink.isbnRegExpFilterClass.prototype.test
         var phoneMatch = phoneRegExp.test(source);
 
         if (phoneMatch)
+        {
             toReturn = false;
+        }
     }
     return toReturn;
-}
+};
 
 /*
  * class: StringFilterClass
@@ -251,10 +261,15 @@ autolink.isbnRegExpFilterClass.prototype.test
  */
 autolink.stringFilterClass = function (filter) 
 {
+    if (typeof filter !== "string" && !(filter instanceof String))
+    {
+        throw ("filter must be an instance of String or of type string");
+    }
+
     this.filterExpression = filter;
-}
+};
+
 autolink.stringFilterClass.prototype = new autolink.filterClass();
-autolink.stringFilterClass.constructor = autolink.stringFilterClass;
 
 /*
  * function: Test
@@ -269,14 +284,17 @@ autolink.stringFilterClass.constructor = autolink.stringFilterClass;
  *
  * filter must be of type string
  */
-autolink.stringFilterClass.prototype.test
-= function(source)
+autolink.stringFilterClass.prototype.test = function (source)
 {
-    if (-1 == this.filterExpression.indexOf(source))
-        return false;
-    else
-        return true;
-}
+    var toReturn = true;
+
+    if (this.filterExpression.indexOf === -1)
+    {
+        toReturn = false;
+    }
+
+    return toReturn;
+};
 
 /*
  * function: GetMatches
@@ -288,8 +306,7 @@ autolink.stringFilterClass.prototype.test
  * source - text to run filter on
  *
  */
-autolink.stringFilterClass.prototype.getMatches
-= function(source)
+autolink.stringFilterClass.prototype.getMatches = function (source)
 {
     throw new Error("GetMatches not implemented");
     //var matchArray = new Array();
@@ -327,77 +344,104 @@ autolink.stringFilterClass.prototype.getMatches
     //        matchArray.push(match : false, text : afterString);
     //    }
     //}
-}
+};
 
-
-//Implementation of node processing.  Takes input (what matched the
-//filter) and modifies it
 /*
  * class: NodeProcessorClass
  *
  * Base class for DOM node processing
  */
-autolink.nodeProcessorClass = function () {}
+autolink.nodeProcessorClass = function () {};
 
 /*
- * function: ProcessFunction
+ * function: processFunction
  *
- * Takes a DOM node and changes its type (not implemented)
+ * abstract method (meant to be implemented in subclasses)
  */
-autolink.nodeProcessorClass.prototype.processFunction
-= function ()
+autolink.nodeProcessorClass.prototype.processFunction = function ()
 {
-    throw new Error("Process function not implemented");
+    throw new Error("nodeProcessorClass.processFunction not implemented");
 };
 
 /*
- * class: AnchorNodeProcessorClass
+ * function: baseProcessFunction
+ *
+ * abstract method (meant to be implemented in subclasses)
+ */
+autolink.nodeProcessorClass.prototype.baseProcessFunction = function ()
+{
+    throw new Error("nodeProcessorClass.baseProcessFunction not implemented");
+};
+
+/*
+ * function: customProcessFunction
+ *
+ * abstract method (meant to be implemented in subclasses)
+ */
+autolink.nodeProcessorClass.prototype.customProcessFunction = function () {};
+
+/*
+ * class: anchorNodeProcessorClass
  *
  * Creates an anchor node processor object
  *
  * parameters:
  *
- * process - a function definition that performs further processing on the
- * matched node.
+ * process - a optional function definition that performs further processing on
+ * the matched node.  See <anchorNodeProcessorClass.baseProcessFunction> for
+ * what's done before <anchorNodeProcessorClass.customProcessFunction> is invoked.
  *
  */
 autolink.anchorNodeProcessorClass = function (process) 
 {
-    this.nodeProcess = process;
-
-    //this.processFunction 
-    //    = function (match)
-    //    {
-    //                };
+    //We don't want to set this.customProcessFunction to undefined
+    if (process !== undefined)
+    {
+        this.customProcessFunction = process;
+    }
 
     this.currentDoc = null;
-}
+};
 
 //Subclass from NodeProcessor
 autolink.anchorNodeProcessorClass.prototype = new autolink.nodeProcessorClass();
 
-//Set the constructor prototype property to the correct function
-autolink.anchorNodeProcessorClass.prototype.constructor = autolink.anchorNodeProcessorClass;
-autolink.anchorNodeProcessorClass.prototype.processFunction
-= function (match)
+/*
+ * function: processFunction
+ *
+ * calls the baseProcessFunction and customProcessFunction for this object
+ * instance
+ *
+ * parameters:
+ * match - string of text to process
+ *
+ * returns:
+ * anchor DOM node
+ *
+ */
+autolink.anchorNodeProcessorClass.prototype.processFunction = function (match)
 {
     //Invoke the BaseProcessFunction
     var anchor = this.baseProcessFunction(match[0]);
 
     //Now handle further processing
-    anchor = this.nodeProcess(match, anchor);
+    anchor = this.customProcessFunction(match, anchor);
 
     return anchor;
+};
 
-}
 
-/**
- * Creates the anchor element from a given string
+/*
+ * function: baseProcessFunction
  *
- * @param {string} text text contents of anchor node
+ * Handles creating an anchor node from text and setting
+ * a few basic attributes to default values
+ *
+ * parameters: 
+ * text - text contents of anchor node
+ *
  */
-autolink.anchorNodeProcessorClass.prototype.baseProcessFunction
-= function(text)
+autolink.anchorNodeProcessorClass.prototype.baseProcessFunction = function (text)
 {
     var anchor = this.currentDoc.createElement("A");
     var anchorText = this.currentDoc.createTextNode(text);
@@ -411,96 +455,90 @@ autolink.anchorNodeProcessorClass.prototype.baseProcessFunction
     //Set the class name
     anchor.className = "libx-autolink";
 
+    //Set the default title
     anchor.title = "libx-autolink";
 
     return anchor;
 };
 
-//=============================================================================
-//=============================================================================
-//=============================================================================
-
 /**
- * @constructor Handles processing of text nodes for purposes such as "autolinking."
+ * class: textTransformerClass
  *
- * @parameter processor - handles processing node
- * @parameter filter - handles filtering node
+ * Handles processing of text nodes for purposes such as "autolinking."
+ *
+ * parameters:
+ * processor - handles processing node
+ * filter    - handles filtering node
  */
 autolink.textTransformerClass = function (transformer)
 {
     this.nodeFilter = transformer.filter;
     this.nodeProcessor = transformer.processor;
 
-    this.setCurrentDocument
-        = function(currentDoc)
-        {
-            this.currentDoc = currentDoc;
-            this.nodeProcessor.currentDoc = currentDoc; // XXX breaks encapsulation
-        }
-}
+    this.setCurrentDocument = function (currentDoc)
+    {
+        this.currentDoc = currentDoc;
+        this.nodeProcessor.currentDoc = currentDoc; // XXX breaks encapsulation
+    };
+};
 
 /**
+ * function: processNode
+ * 
  * Handles text node processing.  Takes a text node and makes
  * modifications.
  *
- * @param {DOMnode} text node to process
+ * parameters:
  *
- * @returns array of nodes or null
- * 
- * @type Array
- * 
+ * node - DOM text node to process
+ *
+ * returns: 
+ *
+ * array of nodes or null
  */
-autolink.textTransformerClass.prototype.processNode
-= function(node)
+autolink.textTransformerClass.prototype.processNode = function (node)
 {
-    var processFunctionNullResult = false;
-    var nodeArray = new Array();
+    var nodeArray = [];
     var nodeText = node.data;
 
     //returns array of matches [ { match : true | false, 
-    //  text: <if no match...>
+    //  text: <if not matched, unmatched text.  if matched, matched text>
     //  results: <match object if match> } ]
-    var processedText = this.nodeFilter.getMatches(nodeText);
+    var processedTextArray = this.nodeFilter.getMatches(nodeText);
 
-    if (processedText.length == 0)
+    if (processedTextArray.length === 0)
+    {
         return null;
+    }
 
     //Processing matches and non-matches
-    for (var ctr = 0; ctr < processedText.length; ++ctr)
+    for (var ctr = 0; ctr < processedTextArray.length; ++ctr)
     {
         var nextNode = null;
 
         //If this is a match, handle further processing of node
-        if (processedText[ctr].match)
+        if (processedTextArray[ctr].match)
         {
-            nextNode = this.nodeProcessor.processFunction(processedText[ctr].results);
+            nextNode = this.nodeProcessor.processFunction(processedTextArray[ctr].results);
 
-            //If the filter returned matches, but the process function rejects the match, 
-            //then we just return null
-            //XXX Arif - check that?  Why abort if a single match returns null?
-            //others could go ok, no?
-            if (nextNode == null)
+            //If the process function rejects this match, we create a text node
+            //and try again with the next match (if any)
+            if (nextNode === null)
             {
-                processFunctionNullResult = true;
-                break;
+                nextNode = this.currentDoc.createTextNode(processedTextArray[ctr].text);
             }
         }
         //If this is a non-match, just create a text node
         else
         {
-            nextNode = this.currentDoc.createTextNode(processedText[ctr].text);
+            nextNode = this.currentDoc.createTextNode(processedTextArray[ctr].text);
         }
 
         nodeArray.push(nextNode);
     }
 
-    if (processFunctionNullResult)
-    {
-        //Discard results
-        nodeArray = null;
-    }
     return nodeArray;
-}
+};
 
 //A list of element names to be skipped by the transformer
 autolink.textTransformerClass.prototype.skippedElementList 
@@ -512,5 +550,5 @@ autolink.textTransformerClass.prototype.skippedElementList
        textarea: true,
        label:    true,
        select:   true,
-       button:   true};
-
+       button:   true
+     };

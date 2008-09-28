@@ -10,7 +10,8 @@
 
 var autolink = libxEnv.autolink;
 
-(function (filterProcs) {
+(function (filterProcs) 
+    {
         //Create the text transformers using the object array defined above
         for (var ctr = 0; ctr < filterProcs.length; ++ctr)
         {
@@ -18,21 +19,24 @@ var autolink = libxEnv.autolink;
             var nodeProcessor = new autolink.anchorNodeProcessorClass(filterProcs[ctr].processor);
 
             //Create a new TextTransformer
-            var textTransformer = new autolink.textTransformerClass({
+            var textTransformer = new autolink.textTransformerClass(
+                {
                     filter: filterProcs[ctr].filter,
                     processor: nodeProcessor
-            });
+                });
 
             autolink.textTransformers.push(textTransformer);
         }
-})(
+    })(
       [ 
         //PubMed filter and processor
         { filter : new autolink.regExpFilterClass(/PMID[^\d]*(\d+)/ig),
           processor : function (match, anchor)
                       {
                           if (!libxEnv.openUrlResolver)
+                          {
                               return null;
+                          }
 
                           var pmid = match[1];
 
@@ -48,8 +52,10 @@ var autolink = libxEnv.autolink;
 
                           var href = libxEnv.openUrlResolver.makeOpenURLForPMID(pmid);
 
-                          if (null == href)
+                          if (href === null)
+                          {
                               return null;
+                          }
 
                           anchor.setAttribute('href', href);
 
@@ -67,7 +73,7 @@ var autolink = libxEnv.autolink;
 
                           var doi = isDOI(match[1]);
 
-                          if (null == doi)
+                          if (doi === null)
                           {
                               return null;
                           }
@@ -85,9 +91,8 @@ var autolink = libxEnv.autolink;
 
                           var href = libxEnv.openUrlResolver.makeOpenURLForDOI(doi);
 
-                          if (null == href)
+                          if (href === null)
                           {
-                              libxEnv.writeLog("Got null for href");
                               return null;
                           }
 
@@ -103,8 +108,10 @@ var autolink = libxEnv.autolink;
                      {
                          var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);
 
-                         if (null == isbn)
+                         if (isbn === null)
+                         {
                              return null;
+                         }
 
                          this.name = libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
                          libxEnv.xisbn.getISBNMetadataAsText(isbn,
@@ -122,8 +129,10 @@ var autolink = libxEnv.autolink;
 
                          var href = libraryCatalog.linkByISBN(isbn);
 
-                         if (null == href)
+                         if (href === null)
+                         {
                              return null;
+                         }
 
                          anchor.setAttribute('href', href);
 
@@ -137,22 +146,26 @@ var autolink = libxEnv.autolink;
                      {
                          var issn = isISSN(match[1]);
 
-                         if (null == issn)
+                         if (issn === null)
+                         {
                              return null;
+                         }
 
                          var split = issn.match(/(\d{4})-(\d{4})/);
 
                          // suppress what are likely year ranges.
-                         if (null != split)
+                         if (split !== null)
                          {
-                             var from = parseInt(split[1]);
-                             var to = parseInt(split[2]);
+                             var from = parseInt(split[1], 10);
+                             var to = parseInt(split[2], 10);
 
                              if (1000 <= from && 2050 > from && 2200 > to && from < to)
+                             {
                                  return null;
+                             }
                          }
 
-                         href = null;
+                         var href = null;
 
                          if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.autolinkissn)
                          {
@@ -189,8 +202,10 @@ var autolink = libxEnv.autolink;
                              href = libraryCatalog.makeSearch('is', issn);
                          }
 
-                         if (null == href)
+                         if (href === null)
+                         {
                              return null;
+                         }
 
                          anchor.setAttribute('href', href);
                          return anchor;
@@ -213,18 +228,24 @@ function autolinkFunc (doc, match)
         // (though the bug purportedly only affects large textarea elements.)
         var n = libxEnv.xpath.findNodesXML(doc, "//textarea");
 
-        if (0 < n.length)
+        if (n.length > 0)
+        {
             return;
+        }
 
     }
+
 
     // Prevent execution for builds that lack a buildDate property (before 2008/09/22)
-    if (typeof libxEnv.buildDate == "undefined")
+    if (typeof libxEnv.buildDate === "undefined")
     {
         if (libxEnv.options.autolink_active)
+        {
             libxRunAutoLink(doc, false);
+        }
         return;
     }
+
 
     if (libxEnv.getBoolPref('libx.autolink', true ))
     {
@@ -233,7 +254,8 @@ function autolinkFunc (doc, match)
         var domTraverse = new autolink.textExplorerClass();
 
         // install registered text transformers
-        for (var i = 0; i < autolink.textTransformers.length; i++) {
+        for (var i = 0; i < autolink.textTransformers.length; i++) 
+        {
             domTraverse.addTextTransformer(autolink.textTransformers[i]);
         }
 
@@ -243,16 +265,17 @@ function autolinkFunc (doc, match)
 
         //Start traversing
         domTraverse.traverse(doc.body);
-
     }
-};
+}
 
 //Define a doforurl object
-var autolink = new libxEnv.doforurls.DoForURL(/.*/, autolinkFunc, null, "autolink");
+var autolinkDoForURL = new libxEnv.doforurls.DoForURL(/.*/, autolinkFunc, null, "autolink");
 
 // Add Serials Solution page to list of sites where we don't autolink 
 if (libxEnv.openUrlResolver && libxEnv.openUrlResolver.type == "sersol") 
 {
-    autolink.exclude = [libxEnv.openUrlResolver.url.replace("http://", "")];
+    autolinkDoForURL.exclude = [libxEnv.openUrlResolver.url.replace("http://", "")];
 }
+
+
 

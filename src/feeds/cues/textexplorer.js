@@ -43,7 +43,7 @@ autolink.textExplorerClass = function ()
      *
      * Stores a list of TextTransformerClass objects
      */
-    this.textTransformerList = new Array();
+    this.textTransformerList = [];
 
     /*
      * array: filterFlag
@@ -51,12 +51,10 @@ autolink.textExplorerClass = function ()
      * An array of booleans indicating whether a particular TextExplorerClass
      * is currently enabled.
      */
-    this.filterFlag = new Array();
+    this.filterFlag = [];
 
     //Allow for prototype access within nested functions
     var instance = this;
-
-    DFSStack = new Array();
 
     /*
      * object: currentWindow
@@ -74,8 +72,7 @@ autolink.textExplorerClass = function ()
      *
      * returns: integer
      */
-    this.getFilterCount
-        = function()
+    this.getFilterCount = function ()
         {
             return this.textTransformerList.length;
         };
@@ -86,8 +83,7 @@ autolink.textExplorerClass = function ()
      * Sets the reference to the window object that this class uses (for
      * calling setTimeout)
      */
-    this.setCurrentWindow 
-        = function(currentWindow)
+    this.setCurrentWindow = function (currentWindow)
     {
         instance.currentWindow = currentWindow;
     };
@@ -98,8 +94,7 @@ autolink.textExplorerClass = function ()
      * Sets the reference to the document object that this class uses 
      */
 
-    this.setCurrentDocument
-        = function(currentDocument)
+    this.setCurrentDocument = function (currentDocument)
         {
             for (var ctr = 0; ctr < this.textTransformerList.length; ++ctr)
             {
@@ -117,7 +112,7 @@ autolink.textExplorerClass = function ()
     {
         var maxcnt = 25;    // do 25 nodes at a time
         var cnt = 0;
-        var q;
+        var ctr;
         while (cnt++ < maxcnt && instance.dfsStack.length > 0) 
         {
             var n = instance.dfsStack.pop();
@@ -125,28 +120,26 @@ autolink.textExplorerClass = function ()
             var currentNode = n.node;
 
             //Ignore node that were removed after scheduled for processing in dfsStack
-            if (currentNode.parentNode == null) {
+            if (currentNode.parentNode === null) 
+            {
                 continue;
             }
 
             //Check the node type
-            if (instance.nodeType.TEXT_NODE == currentNode.nodeType)
+            if (instance.nodeType.TEXT_NODE === currentNode.nodeType)
             {
-                //Check whether this node needs to be skipped by any
-                //of the filters
-
-                //Now run each enabled filter in order
+                //Now run each filter in order
                 for (ctr = 0; ctr < instance.textTransformerList.length; ++ctr)
                 {
                     //Check whether the filter is enabled
-                    if (instance.checkFilter(ctr, currentFlag))
+                    if (instance.isFilterEnabled(ctr, currentFlag))
                     {
                         var nodes = null;
 
                         //Pass the text node to the textTransformer
                         nodes = instance.textTransformerList[ctr].processNode(currentNode);
 
-                        if (null != nodes)
+                        if (nodes !== null)
                         {
                             //Replace currentNode with the returned nodes
 
@@ -154,7 +147,8 @@ autolink.textExplorerClass = function ()
 
                             var currentSibling = currentNode.nextSibling;
 
-                            var removedNode = currentParent.removeChild(currentNode);
+                            currentParent.removeChild(currentNode);
+
                             for (var childIdx = 0; childIdx < nodes.length; ++childIdx)
                             {
                                 currentParent.insertBefore(nodes[childIdx], currentSibling);
@@ -164,7 +158,7 @@ autolink.textExplorerClass = function ()
                             //it'll be processed again.  For efficiency, we
                             //disable the current filter so that it doesn't
                             //run again on the same set of nodes
-                            parentFlag = instance.disableFilter(ctr, currentFlag);
+                            var parentFlag = instance.disableFilter(ctr, currentFlag);
                             instance.dfsStack.push({node: currentParent,
                                                       flag: parentFlag});
 
@@ -178,13 +172,13 @@ autolink.textExplorerClass = function ()
             }
             else 
             {
-                nodeName = currentNode.nodeName.toLowerCase();
+                var nodeName = currentNode.nodeName.toLowerCase();
 
                 //We go through the list of enabled TextTransformer objects
                 //and disable them based on their skipped element property
                 for (ctr = 0; ctr < instance.textTransformerList.length; ++ctr)
                 {
-                    if (instance.checkFilter(ctr, currentFlag))
+                    if (instance.isFilterEnabled(ctr, currentFlag))
                     {
                         //Check to see whether this element is in the skipped
                         //element list
@@ -198,10 +192,10 @@ autolink.textExplorerClass = function ()
 
                 //Now push the children of that node onto the stack along
                 //with the currentFlag
-                for (var ctr = 0; ctr < currentNode.childNodes.length; ++ctr)
+                for (ctr = 0; ctr < currentNode.childNodes.length; ++ctr)
                 {
-                    instance.dfsStack.push( {node: currentNode.childNodes.item(ctr), 
-                                             flag: currentFlag} );
+                    instance.dfsStack.push({node: currentNode.childNodes.item(ctr), 
+                                            flag: currentFlag});
 
                 }
             }
@@ -219,8 +213,8 @@ autolink.textExplorerClass = function ()
         //invoke dfsTraverse
         instance.dfsStack = [ {node: root, flag: instance.filterFlag} ];
         dfsTraverse();
-    }
-}
+    };
+};
 
 
 
@@ -235,13 +229,12 @@ autolink.textExplorerClass = function ()
  * transformer - object that handles processing of text node
  *
  */
-autolink.textExplorerClass.prototype.addTextTransformer
-= function (transformer)
+autolink.textExplorerClass.prototype.addTextTransformer = function (transformer)
 {
     //TODO: Add code to compute/update intersection set
     this.filterFlag.push(true);
     this.textTransformerList.push(transformer);
-}
+};
 
 /*
  * function: enableFilter
@@ -258,23 +251,22 @@ autolink.textExplorerClass.prototype.addTextTransformer
  * An array of booleans with the boolean at the corresponding index set to 
  * true
  */
-autolink.textExplorerClass.prototype.enableFilter
-    = function (index, currentFlag)
-      {
-          //Make a copy of the array to return
-          toReturn = currentFlag.concat();
+autolink.textExplorerClass.prototype.enableFilter = function (index, currentFlag)
+{
+    //Make a copy of the array to return
+    var toReturn = currentFlag.concat();
 
-          //If index out of range
-          if ((this.textTransformerList.length - 1) < index
-                  || 0 > index )
-              return toReturn;
+    //If index in range
+    if (index >= 0 && index <= (this.textTransformerList.length - 1))
+    {
+        toReturn[index] = true;
+    }
 
-          toReturn[index] = true;
-          return toReturn;
-      }
+    return toReturn;
+};
 
 /*
- * function: checkFilter
+ * function: isFilterEnabled 
  *
  * Checks whether a given filter is enabled or not
  *
@@ -285,15 +277,17 @@ autolink.textExplorerClass.prototype.enableFilter
  * returns:
  * true if filter is enabled.  false otherwise
  */
-autolink.textExplorerClass.prototype.checkFilter
-    = function (index, currentFlag)
-      {
-          if ((this.textTransformerList.length - 1) < index
-              || 0 > index )
-              return false;
+autolink.textExplorerClass.prototype.isFilterEnabled = function (index, currentFlag)
+{
+    var toReturn = false;
 
-          return currentFlag[index];
-      }
+    if (index >= 0 && index <= (this.textTransformerList.length - 1))
+    {
+        toReturn = currentFlag[index];
+    }
+
+    return toReturn;
+};
 
 /*
  * function: disableFilter
@@ -309,31 +303,32 @@ autolink.textExplorerClass.prototype.checkFilter
  *
  * An array of booleans with the boolean at the index specified set to false.
  */
-autolink.textExplorerClass.prototype.disableFilter 
-    = function (index, currentFlag)
-      {
-          //Make a copy of the array to return
-          toReturn = currentFlag.concat();
+autolink.textExplorerClass.prototype.disableFilter = function (index, currentFlag)
+{
+    //Make a copy of the array to return
+    var toReturn = currentFlag.concat();
 
-          //If index out of range
-          if ((this.textTransformerList.length - 1) < index
-              || 0 > index )
-              return toReturn;
+    //If index in range
+    if (index >= 0 && index <= (this.textTransformerList.length - 1))
+    {
+        toReturn[index] = false;
+    }
 
-          toReturn[index] = false;
-          return toReturn;
-      }
+    return toReturn;
+};
 
 /*
  * variable: NodeType
  *
  * Provide symbols for DOM node types
  */
-autolink.textExplorerClass.prototype.nodeType
-    = {
-        ELEMENT_NODE: 1,
-        ATTRIBUTE_NODE: 2,
-        TEXT_NODE: 3,
-        COMMENT_NODE: 8,
-        DOCUMENT_NODE: 9
-      };
+autolink.textExplorerClass.prototype.nodeType = 
+{
+    ELEMENT_NODE: 1,
+    ATTRIBUTE_NODE: 2,
+    TEXT_NODE: 3,
+    COMMENT_NODE: 8,
+    DOCUMENT_NODE: 9
+};
+
+
