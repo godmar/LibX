@@ -35,7 +35,7 @@ try {
 
     // Create libxess request
     var libxessRequest = new libxEnv.libxess( "isbn:" + isbn, "isbn", "innopac", "http://addison.vt.edu" );
-    var container = $(holdingSpan).prepend ( "<tr><td><div class='toggler' title='Libxess is looking for holdings...'<ul></ul></div></td></tr>" );
+    var container = $(holdingSpan).prepend ( "<tr><td><div class='toggler' title='LibX is looking for holdings...'<ul></ul></div></td></tr>" );
     $("div.toggler").before(cue);
     animateCue (cue);
     $(document).ready(function() 
@@ -53,7 +53,7 @@ try {
         libxEnv.libxessUtils.getDC();
         libxEnv.libxessUtils.getISO();
         var entries = libxEnv.libxessUtils.getAtomEntries();
-	var holdings = libxEnv.libxessUtils.getAvailability();
+        var holdings = libxEnv.libxessUtils.getAvailability();
         var internalHTML = ""; 
         var availCount = 0;
         for ( var  i = 0; i < holdings.length; i++ )
@@ -63,7 +63,7 @@ try {
             }
             internalHTML += "<li style='color:green'>" + holdings[i].toString() +  "</li>";
         }
-        var label = "  Libxess found " + holdings.length + " holdings ( " + availCount + " available )";
+        var label = "  LibX found " + holdings.length + " holdings ( " + availCount + " available )";
         $("a.toggler").text(label);
         $("div.toggler").attr("title", label);
 

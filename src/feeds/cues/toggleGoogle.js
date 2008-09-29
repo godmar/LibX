@@ -22,7 +22,7 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
 
 
 // Create link for libxess search results;
-    var libxResultsWrapper = "<a class='toggler' title='Libxess is looking for Results' href=''>Libxess is looking for Results</a>";
+    var libxResultsWrapper = "<a class='toggler' title='LibX is looking for Results' href=''>LibX is looking for Results</a>";
     var wrapper = $(n).append(libxResultsWrapper);
 
 	// Show the specified number of children, starting at offset start
@@ -70,7 +70,7 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
             }
             var a = document.createElement ('a');
             $(a).attr('count', i );
-            $(a).text ( i*10 + "-" + end + "  " );
+            $(a).text ( (i*10+1) + "-" + end + "  " );
             $(a).click ( function () {
                 show ( $(this).attr("count") );
             } );
@@ -89,8 +89,8 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
         var wrapper = $("a[@class='toggler']");
 
         var total = entries.length;
-        $(wrapper).text( "Libxess Found " + total + " results" );
-        $(wrapper).attr( 'title', 'Libxess Found ' + total + ' results' );
+        $(wrapper).text( "LibX found " + total + " results" );
+        $(wrapper).attr( 'title', 'LibX found ' + total + ' results' );
 
     }
     libxessRequest.get(this.callback);
