@@ -45,7 +45,10 @@
 
 var cueUrl = "cues/";
 var sandboxUrl = "sandboxScripts/";
-var hotfixUrl = "hotfixes/";
+
+// due to bug in doforurl (convertRelativeURL lacking 2nd param), this 
+// absolute URL is required here --- FIXTHIS
+var hotfixUrl = "http://libx.org/libx/src/feeds/hotfixes/";
 
 // set up autolink handlers
 libxEnv.autolink =  { textTransformers: [] };
@@ -62,26 +65,31 @@ libxEnv.coins = { handlers: [], handlers_v0_1: [] };
 //
 libxEnv.xisbn.smuggle = {
     coins : libxEnv.coins,
-    getXMLDocument : libxEnv.getXMLDocument
+    getXMLDocument : libxEnv.getXMLDocument,
+    getDocument : libxEnv.getDocument
 };
+
+addHotfix (hotfixUrl + "ksufix.js" );
 
 addSandboxScript( sandboxUrl + "setup.js" );
 addSandboxScript( sandboxUrl + "jquery-1.2.3.js" );
 addSandboxScript( sandboxUrl + "handleCoins.js" );
 addSandboxScript( sandboxUrl + "cueAnimation.js" );
 
+addSandboxScript( sandboxUrl + "libxessUtils.js" );
+addSandboxScript( sandboxUrl + "jquery.toggleElements.js" );
+addSandboxScript( sandboxUrl + "jquery.rule-1.0.1.js" );
+
 addCue( cueUrl + "textexplorer.js" );
 addCue( cueUrl + "texttransformer.js" );
 addCue( cueUrl + "agricola.js" );
 addCue( cueUrl + "alibris.js" );
-addCue( cueUrl + "amazon.js" );
 addCue( cueUrl + "autolink.js" );
 addCue( cueUrl + "barnesandnoble.js");
 addCue( cueUrl + "booklistonline.js" );
 addCue( cueUrl + "chapters.js" );
 addCue( cueUrl + "ecampus.js" );
 addCue( cueUrl + "globalbooksinprint.js" );
-addCue( cueUrl + "google.js" );
 addCue( cueUrl + "nytimes.js" );
 addCue( cueUrl + "powells.js" );
 addCue( cueUrl + "serialsolutions.js" );
@@ -89,3 +97,8 @@ addCue( cueUrl + "wam.js" );
 addCue( cueUrl + "yahoo.js" );
 addCue( cueUrl + "coins.js" );
 addCue( cueUrl + "abebooks.js" );
+
+if (! libxEnv.getBoolPref ('libx.bleedingedge', false)) {
+    addCue( cueUrl + "amazon.js" );
+    addCue( cueUrl + "google.js" );
+}

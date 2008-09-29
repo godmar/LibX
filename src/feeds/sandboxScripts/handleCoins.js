@@ -79,7 +79,8 @@ libxEnv.coins.handleCoins = function (doc, handlers, is1_0) {
             // handle any coins if 1.0, otherwise do only if book or article
             if (is1_0 || isBookOrArticle) {
                 for (var j = 0; j < handlers.length; j++) {
-                    handlers[j](doc, span, query);
+                    if (handlers[j](doc, span, query))
+                        break;
                 }
             }
         } catch (e) {
