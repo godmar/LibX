@@ -7,9 +7,10 @@ libxEnv.libxess = function ( query, type, searchtype, catalogurl )
     // This constructs the query string for the libxess php scripts
     // This is currently specific to addison.vt.edu since there are different 
     // rest query formats for the iii's
-    var queryString = 
-        "http://libx.cs.vt.edu/~frostyt/libxess/libxess.php?id=urn:" + type + 
-        ":" + query + "&searchtype=" + searchtype + "&catalogurl=" + catalogurl;
+	var queryString =
+        "http://top.cs.vt.edu/~doylem/libxess/libxess2.php?type=innopac&target=http://addison.vt.edu&query=" 
+        + query + "&format=DC";
+
     var xml;
     
     // Gets the libxess xml as text ( cant get xml bc sandbox )
