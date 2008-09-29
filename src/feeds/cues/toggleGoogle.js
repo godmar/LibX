@@ -25,6 +25,13 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
     var libxResultsWrapper = "<a class='toggler' title='Libxess is looking for Results' href=''>Libxess is looking for Results</a>";
     var wrapper = $(n).append(libxResultsWrapper);
 
+	// Show the specified number of children, starting at offset start
+    function show (  start ) {
+        $(".libxessResult").hide();
+        $(".libxessResult" + start ).show();
+        $(".libxessNavDiv a").css({ color: 'grey', fontWeight: 'normal' }  );
+        $(".libxessNavDiv a[count='" + start + "']" ).css ( { color: 'black', fontWeight: 'bold' }  );
+    }
 
     // Jquery toggle functionality for the results
     $(document).ready(function()
@@ -32,11 +39,15 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
         $('a.toggler').toggle(
         function () {
             $('div.libxessResults').slideDown();
+            $('div.libxessNavDiv').slideDown();
+            show ( 0 );
         },
         function() {
             $('div.libxessResults').slideUp();
+            $('div.libxessNavDiv').slideUp();
         });
     });
+
 
     // create libxess request
     var libxessRequest = new libxEnv.libxess( searchterms, "keyword", "innopac",
@@ -47,24 +58,40 @@ new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
     {
         libxEnv.libxessUtils.loadDocumentFromText( xml );
         var entries = libxEnv.libxessUtils.getAtomEntries();
-        var libxResultsHTML = 
-            "<div class=\"libxessResults\" style=\"display: none;\">"; 
-        // wrap li's in ul 
+        // wrap li's in ul
+        $("div[id='res']").prepend ( "<div class=\"libxessResults\" style=\"display: none;\"></div>" );
+        $("div[id='res']").prepend ( "<div class='libxessNavDiv' style='display:none;'></div>" );
+        
+        // Create one tab link every 10 entries
+        for ( var i = 0; i < entries.length / 10; i++ ) {
+            var end = ( i + 1 ) * 10;
+            if ( end > entries.length ) {
+                 end = entries.length;
+            }
+            var a = document.createElement ('a');
+            $(a).attr('count', i );
+            $(a).text ( i*10 + "-" + end + "  " );
+            $(a).click ( function () {
+                show ( $(this).attr("count") );
+            } );
+            $('div.libxessNavDiv').append(a);
+        }
+
         for ( var i = 0; i < entries.length; i++ )
         {
             libxEnv.libxessUtils.getDLFforEntry( entries[i] );
-            libxEnv.libxessUtils.getMarc();
-            var href = libxEnv.libxessUtils.getDLFID();
-            var title = libxEnv.libxessUtils.getMarcTitleLong();
-            libxResultsHTML += "<li><a href='" + href + "'>" + title + 
-                "</a></li>";
+            libxEnv.libxessUtils.getDC();
+            var href = "http://addison.vt.edu/record=" + libxEnv.libxessUtils.getDLFID();
+            var title = libxEnv.libxessUtils.getDCTitle();
+            $('div.libxessResults').append (  "<li class='libxessResult libxessResult" + parseInt ( i / 10 ) + "'><a href='" + href + "'>" + title +
+                "</a></li>" );
         }
-        libxResultsHTML += "</div>";
         var wrapper = $("a[@class='toggler']");
-        $(n).append( libxResultsHTML );
+
         var total = entries.length;
         $(wrapper).text( "Libxess Found " + total + " results" );
         $(wrapper).attr( 'title', 'Libxess Found ' + total + ' results' );
+
     }
     libxessRequest.get(this.callback);
 
