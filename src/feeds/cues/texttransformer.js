@@ -358,7 +358,7 @@ autolink.nodeProcessorClass = function () {};
  *
  * abstract method (meant to be implemented in subclasses)
  */
-autolink.nodeProcessorClass.prototype.processFunction = function ()
+autolink.nodeProcessorClass.prototype.processFunction = function (currentDoc, match)
 {
     throw new Error("nodeProcessorClass.processFunction not implemented");
 };
@@ -399,8 +399,6 @@ autolink.anchorNodeProcessorClass = function (process)
     {
         this.customProcessFunction = process;
     }
-
-    this.currentDoc = null;
 };
 
 //Subclass from NodeProcessor
@@ -419,10 +417,10 @@ autolink.anchorNodeProcessorClass.prototype = new autolink.nodeProcessorClass();
  * anchor DOM node
  *
  */
-autolink.anchorNodeProcessorClass.prototype.processFunction = function (match)
+autolink.anchorNodeProcessorClass.prototype.processFunction = function (currentDoc, match)
 {
     //Invoke the BaseProcessFunction
-    var anchor = this.baseProcessFunction(match[0]);
+    var anchor = this.baseProcessFunction(currentDoc, match[0]);
 
     //Now handle further processing
     anchor = this.customProcessFunction(match, anchor);
@@ -441,10 +439,10 @@ autolink.anchorNodeProcessorClass.prototype.processFunction = function (match)
  * text - text contents of anchor node
  *
  */
-autolink.anchorNodeProcessorClass.prototype.baseProcessFunction = function (text)
+autolink.anchorNodeProcessorClass.prototype.baseProcessFunction = function (currentDoc, text)
 {
-    var anchor = this.currentDoc.createElement("A");
-    var anchorText = this.currentDoc.createTextNode(text);
+    var anchor = currentDoc.createElement("A");
+    var anchorText = currentDoc.createTextNode(text);
     anchor.appendChild(anchorText);
 
     //Also apply the style
@@ -474,12 +472,6 @@ autolink.textTransformerClass = function (transformer)
 {
     this.nodeFilter = transformer.filter;
     this.nodeProcessor = transformer.processor;
-
-    this.setCurrentDocument = function (currentDoc)
-    {
-        this.currentDoc = currentDoc;
-        this.nodeProcessor.currentDoc = currentDoc; // XXX breaks encapsulation
-    };
 };
 
 /**
@@ -500,6 +492,7 @@ autolink.textTransformerClass.prototype.processNode = function (node)
 {
     var nodeArray = [];
     var nodeText = node.data;
+    var currentDoc = node.ownerDocument;
 
     //returns array of matches [ { match : true | false, 
     //  text: <if not matched, unmatched text.  if matched, matched text>
@@ -519,19 +512,19 @@ autolink.textTransformerClass.prototype.processNode = function (node)
         //If this is a match, handle further processing of node
         if (processedTextArray[ctr].match)
         {
-            nextNode = this.nodeProcessor.processFunction(processedTextArray[ctr].results);
+            nextNode = this.nodeProcessor.processFunction(currentDoc, processedTextArray[ctr].results);
 
             //If the process function rejects this match, we create a text node
             //and try again with the next match (if any)
             if (nextNode === null)
             {
-                nextNode = this.currentDoc.createTextNode(processedTextArray[ctr].text);
+                nextNode = currentDoc.createTextNode(processedTextArray[ctr].text);
             }
         }
         //If this is a non-match, just create a text node
         else
         {
-            nextNode = this.currentDoc.createTextNode(processedTextArray[ctr].text);
+            nextNode = currentDoc.createTextNode(processedTextArray[ctr].text);
         }
 
         nodeArray.push(nextNode);

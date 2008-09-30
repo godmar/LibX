@@ -259,9 +259,8 @@ function autolinkFunc (doc, match)
             domTraverse.addTextTransformer(autolink.textTransformers[i]);
         }
 
-        //Set the current window and document objects here
+        //Set the current window object here
         domTraverse.setCurrentWindow(window);
-        domTraverse.setCurrentDocument(doc);
 
         //Start traversing
         domTraverse.traverse(doc.body);

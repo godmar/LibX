@@ -89,20 +89,6 @@ autolink.textExplorerClass = function ()
     };
 
     /*
-     * function: setCurrentDocument
-     *
-     * Sets the reference to the document object that this class uses 
-     */
-
-    this.setCurrentDocument = function (currentDocument)
-        {
-            for (var ctr = 0; ctr < this.textTransformerList.length; ++ctr)
-            {
-                this.textTransformerList[ctr].setCurrentDocument(currentDocument);
-            }
-        };
-
-    /*
      * function: dfsTraverse
      *
      * Performs a depth first traversal of the DOM tree.  Uses setTimeout
