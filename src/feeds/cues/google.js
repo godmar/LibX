@@ -2,7 +2,7 @@
 // Google results pages
 // link to catalog via keyword
 
-new libxEnv.doforurls.DoForURL(/google\.[a-z]+\/search.*q=/i, function (doc) {
+new libxEnv.doforurls.DoForURL(/google(\.[a-z]+)?\.[a-z]+\/search.*q=/i, function (doc) {
     var nArray = $("div div[id='prs'] b");
     var nArray2 = $("tr td span[id='sd']"); // old, before Aug 2008
 
@@ -89,5 +89,6 @@ if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
         }
     }
     new libxEnv.doforurls.DoForURL(/scholar\.google\.com(.*)\/scholar\?/, rewriteScholarPage);
+    new libxEnv.doforurls.DoForURL(/scholar\.google\.ca(.*)\/scholar\?/, rewriteScholarPage);
     new libxEnv.doforurls.DoForURL(/scholar\.google\.co\.uk(.*)\/scholar\?/, rewriteScholarPage);
 }

@@ -221,11 +221,13 @@ function autolinkFunc (doc, match)
     var ieRegEx = new RegExp("Microsoft Internet Explorer");
 
     //Only execute this code if this isn't running under IE
-    if (!ieRegEx.test(window.navigator.appName))
+    if (!ieRegEx.test(window.navigator.appName)
+        && !window.navigator.userAgent.match(/.*Firefox\/3/))
     {
         // to work around https://bugzilla.mozilla.org/show_bug.cgi?id=315997
         // we skip autolink if the page contains any textarea element.
         // (though the bug purportedly only affects large textarea elements.)
+        // Should no longer be needed in Firefox 3
         var n = libxEnv.xpath.findNodesXML(doc, "//textarea");
 
         if (n.length > 0)

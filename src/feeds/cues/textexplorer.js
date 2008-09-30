@@ -96,7 +96,7 @@ autolink.textExplorerClass = function ()
      */
     function dfsTraverse() 
     {
-        var maxcnt = 25;    // do 25 nodes at a time
+        var maxcnt = 40;    // do 40 nodes at a time
         var cnt = 0;
         var ctr;
         while (cnt++ < maxcnt && instance.dfsStack.length > 0) 
@@ -187,10 +187,10 @@ autolink.textExplorerClass = function ()
             }
         }
 
-        //If there are still nodes on the stack, set a timeout for 20 ms
+        //If there are still nodes on the stack, set a timeout for 15 ms
         if (0 < instance.dfsStack.length)
         {
-            instance.currentWindow.setTimeout(dfsTraverse, 20);
+            instance.currentWindow.setTimeout(dfsTraverse, 15);
         }
     }
 
