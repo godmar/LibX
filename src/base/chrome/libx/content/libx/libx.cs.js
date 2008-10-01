@@ -103,6 +103,9 @@ function libxClientSideCatalogInit(configurl) {
         var xmlCat = xmlCatalogs.childNodes[i];
         var cat;
         switch (xmlCat.nodeName) {
+        case "evergreen":
+            cat = new libxEvergreenOPAC();
+            break;
         case "millenium":
             cat = new MilleniumOPAC();
             break;

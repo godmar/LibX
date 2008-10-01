@@ -133,6 +133,9 @@ function libxServerSideInit(_configdir) {
         var xmlCat = xmlCatalogs.childNodes.item(i);
         var cat;
         switch (String(xmlCat.nodeName.toLowerCase())) {
+        case "evergreen":
+            cat = new libxEvergreenOPAC();
+            break;
         case "millenium":
             cat = new MilleniumOPAC();
             break;

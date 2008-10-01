@@ -83,6 +83,10 @@ function libxInitializeCatalog(doc, node)
 		cat = new MilleniumOPAC();
         break;
 
+    case "evergreen":
+        cat = new libxEvergreenOPAC();
+        break;
+
 	case "horizon":
 	    cat = new HorizonOPAC();
         // some catalogs use ISBNBR+ISSNBR (e.g., JHU)

@@ -71,6 +71,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/web2opac.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/centralsearch.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/custom.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/evergreen.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
