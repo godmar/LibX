@@ -39,6 +39,12 @@ libxEnv.getIntPref = function ( prefName, defValue )
 
 libxEnv.setBoolPref = function ( prefName, value )
 {
+    //Convert string to bool
+    if (typeof value === "string")
+    {
+        value = (value === "true") ? true : false;
+    }
+
     libxInterface.Preferences.setBoolPref(prefName, value);
 }
 
