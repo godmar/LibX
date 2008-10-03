@@ -833,14 +833,21 @@ libxEnv.getProxyPref = function() {
     return libxInterface.getProxyPreference(false);
 };
 
+libxEnv.getDFUPref = function() {
+    return libxInterface.getDFUPreference(true);
+};
+
 libxEnv.getOCLCPref = function() {
     return libxInterface.getOCLCPreference(false);
 };
 
+libxEnv.getDOIPref = function() {
+    return libxInterface.getDOIPreference(true);
+};
 
-libxEnv.getDFUPref = function() {
-    return libxInterface.getDFUPreference(true);
-}
+libxEnv.getPMIDPref = function() {
+    return libxInterface.getPMIDPreference(true);
+};
 
 libxEnv.getAutolinkPref = function() {
     return libxInterface.getAutolinkPreference(false);
