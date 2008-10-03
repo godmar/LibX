@@ -64,7 +64,7 @@ libxEnv.pubmed = {
     /* retrieve info about Pubmed ID - either from cache or from service, and 
        call formatFunc(result, completion_func) */
     getPubmedMetadataAsText: function (pubmedid, completionhandlers) {
-        if (!libxEnv.getBoolPref ('libx.oclc.ajaxpref', 'true'))    // fix me.
+        if (!libxEnv.getBoolPref ('libx.pmid.ajaxpref', 'true'))
             return;
 
         var cached = this.pubmedid2metadata[pubmedid];
