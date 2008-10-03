@@ -90,6 +90,8 @@ function libxSavePreferences() {
     /** Save AJAX Preferences tab options **/
     libxEnv.setBoolPref ('libx.proxy.ajaxlabel', libxEnv.getProxyPref());
     libxEnv.setBoolPref ('libx.oclc.ajaxpref', libxEnv.getOCLCPref());
+    libxEnv.setBoolPref ('libx.pmid.ajaxpref', libxEnv.getPMIDPref());
+    libxEnv.setBoolPref ('libx.doi.ajaxpref', libxEnv.getDOIPref());
 
     libxEnv.setBoolPref ('libx.dfuexec', libxEnv.getDFUPref());
     
