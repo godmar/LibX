@@ -620,6 +620,7 @@ function libxInitializeAutolink()
 // Any other paths should be file names only
 // and will be put in %profile%/libx
 libxEnv.getFilePath = function ( path ) {
+    var file;
     try {
         if ( path.indexOf ( 'chrome' ) >= 0 ) {
             return path;
@@ -877,6 +878,14 @@ libxEnv.initPrefsGUI = function () {
     }
     document.getElementById ( 'libx-oclc-ajax-checkbox')
         .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.oclc.ajaxpref', 'true' ) ? 'true' : 'false' );
+    document.getElementById ( 'libx-doi-ajax-checkbox')
+        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.doi.ajaxpref', 'true' ) ? 'true' : 'false' );
+    document.getElementById ( 'libx-pmid-ajax-checkbox')
+        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.pmid.ajaxpref', 'true' ) ? 'true' : 'false' );
+    
+    
+    
+    
     
     document.getElementById ( 'libx-citeulike-checkbox' )
         .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.urlbar.citeulike', 'true' ) ? 'true' : 'false' );
@@ -912,6 +921,14 @@ libxEnv.getProxyPref = function() {
 
 libxEnv.getOCLCPref = function() {
     return document.getElementById ( 'libx-oclc-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
+};
+
+libxEnv.getDOIPref = function() {
+    return document.getElementById ( 'libx-doi-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
+};
+
+libxEnv.getPMIDPref = function() {
+    return document.getElementById ( 'libx-pmid-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
 };
 
 libxEnv.getDFUPref = function() { return true; } //Doesn't apply to Firefox

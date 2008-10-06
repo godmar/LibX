@@ -242,8 +242,10 @@ window.opener.libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
                          <checkbox id="libx-proxy-ajax-checkbox" label="Contact EZProxy to check whether page could be proxied." />
                      </groupbox>
                     <groupbox orient="vertical" >
-                         <caption label="OCLC AJAX Options" />
+                         <caption label="Metadata AJAX Options" tooltiptext="Contacts online resources for additional information." />
                          <checkbox id="libx-oclc-ajax-checkbox" label="Contact OCLC for metadata about ISBN etc." />
+                         <checkbox id="libx-doi-ajax-checkbox" label="Contact Crossref.org for metadata about DOI's" />
+                         <checkbox id="libx-pmid-ajax-checkbox" label="Contact NCBI for metadata about PubMed ID's" />
                      </groupbox>
                 </tabpanel>
                 <tabpanel id="libx-feed-tab" orient="vertical">
