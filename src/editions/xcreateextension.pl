@@ -228,6 +228,7 @@ foreach my $openurl (@openurls) {
     my $icim = $openurl->getAttribute('includeincontextmenu');
     next if (defined($icim) && $icim eq "false");
 
+    $default->appendChild(makeOpenURLEntry($openurl, 'jt'));
     $issn->appendChild(makeOpenURLEntry($openurl, 'i'));
     $doi->appendChild(makeOpenURLEntry($openurl, 'doi'));
     $pmid->appendChild(makeOpenURLEntry($openurl, 'pmid'));
