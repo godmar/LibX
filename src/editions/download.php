@@ -120,11 +120,16 @@ catalog server. Such information is sent <i>only</i> if you are
 actively using the extension; it is never sent automatically. 
 
 If you wish to avoid this you must turn off the referrer URL by 
-setting <a href="http://www.mozilla.org/quality/networking/docs/netprefs.html">network.http.sendRefererHeader to 0</a> 
+setting <a href="http://kb.mozillazine.org/Network.http.sendRefererHeader">network.http.sendRefererHeader to 0</a> 
 
 in your preferences.</p>
-<p>In addition, you may be sending information such as ISBN numbers to OCLC.
-Use LibX -&gt; Preferences -&gt; AJAX Options to turn this services off if desired.
+<p>In addition, you may be sending information such as ISBN and ISSN numbers to OCLC,
+DOIs to CrossRef's server, and PubMed IDs to the PubMed server in order to retrieve
+metadata information.
+If configured for your edition, you may also send URLs to your library's
+EZProxy to determine whether the current page can be proxied when using the
+right-click context menu.
+Use the LibX -&gt; Preferences panel to turn these services off if desired.
 </p>
 
 <p>For more information about LibX, visit the <a href="http://libx.org">LibX Homepage</a>.
