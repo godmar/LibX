@@ -1,5 +1,5 @@
 <!-- DTD for LibX Edition config files -->
-<!-- $Id: libxconfig.dtd,v 1.31 2008/06/12 15:44:30 godmar Exp $ -->
+<!-- $Id: libxconfig.dtd,v 1.32 2008/10/08 14:40:15 godmar Exp $ -->
 
 <!ELEMENT edition (name,links,catalogs,openurl,proxy,options,searchoptions?,additionalfiles?,localizationfeeds?)>
 <!ATTLIST edition 
@@ -29,7 +29,44 @@
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar|openurlresolver|web2|custom)* >
+<!ELEMENT catalogs (millenium|aleph|sirsi|voyager|horizon|centralsearch|sersol|sfx|bookmarklet|scholar|openurlresolver|web2|custom|evergreen|worldcat|vubis)* >
+
+<!ELEMENT vubis (xisbn)?>
+<!ATTLIST vubis
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED 
+        options         CDATA #REQUIRED
+        path            CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
+        image           CDATA #IMPLIED
+>
+
+<!ELEMENT evergreen (xisbn)?>
+<!ATTLIST evergreen
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED 
+        options         CDATA #REQUIRED
+        locale          CDATA #IMPLIED
+        skin            CDATA #IMPLIED
+        scope           CDATA #IMPLIED
+        sortby          CDATA #IMPLIED
+        sortdirection   CDATA #IMPLIED
+        contextmenuoptions CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'true'
+        image           CDATA #IMPLIED
+>
+
+<!ELEMENT worldcat (xisbn)?>
+<!ATTLIST worldcat
+        name            CDATA #REQUIRED
+        url             CDATA #REQUIRED 
+        options         CDATA #REQUIRED
+        qt              CDATA #REQUIRED
+        contextmenuoptions CDATA #IMPLIED
+        downconvertisbn13 (true|false) 'false'
+        image           CDATA #IMPLIED
+>
 
 <!ELEMENT openurlresolver EMPTY>
 <!ATTLIST openurlresolver
@@ -173,6 +210,7 @@
         contextmenuoptions CDATA #IMPLIED
         advancedsearchforissn CDATA #IMPLIED
         image           CDATA #IMPLIED
+        autoinsertand (true|false) 'false'
         relevanceranking (true|false) 'true'
         downconvertisbn13 (true|false) 'true'
 >
