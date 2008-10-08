@@ -87,6 +87,10 @@ function libxInitializeCatalog(doc, node)
         cat = new libxEvergreenOPAC();
         break;
 
+    case "worldcat":
+        cat = new libxWorldcatOPAC();
+        break;
+
 	case "horizon":
 	    cat = new HorizonOPAC();
         // some catalogs use ISBNBR+ISSNBR (e.g., JHU)

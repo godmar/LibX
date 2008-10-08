@@ -136,6 +136,9 @@ function libxServerSideInit(_configdir) {
         case "evergreen":
             cat = new libxEvergreenOPAC();
             break;
+        case "worldcat":
+            cat = new libxWorldcatOPAC();
+            break;
         case "millenium":
             cat = new MilleniumOPAC();
             break;

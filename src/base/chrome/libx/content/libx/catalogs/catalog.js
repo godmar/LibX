@@ -111,6 +111,24 @@ libxCatalog.prototype = {
             libxEnv.writeLog("Could not construct search");
         }
     },
+    /** Combine search fields of same type, concatenating them with 
+     * an intermediate space.
+     * Returns an unordered hash indexed by type.
+     */
+    combineSameTypedFields: function (fields) {
+        // combine all search fields that share same type
+        var searchField2Term = { };
+        for (var i = 0; i < fields.length; i++) {
+            with (fields[i]) {
+                if (searchType in searchField2Term) {
+                    searchField2Term[searchType] += " " + searchTerms;
+                } else {
+                    searchField2Term[searchType] = searchTerms;
+                }
+            }
+        }
+        return searchField2Term;
+    },
     /* the default implementation looks at the options property
      * to decide which options are supported.
      */
@@ -188,16 +206,7 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         argtemplate = argtemplate.replace(/%term\d+/g, "");
 
         // combine all search fields that share same type
-        var searchField2Term = { };
-        for (var i = 0; i < fields.length; i++) {
-            with (fields[i]) {
-                if (searchType in searchField2Term) {
-                    searchField2Term[searchType] += " " + searchTerms;
-                } else {
-                    searchField2Term[searchType] = searchTerms;
-                }
-            }
-        }
+        var searchField2Term = this.combineSameTypedFields(fields);
 
         /*
          * Process JOIN statement has the form %JOIN{JOINEXPR}{code|VALUE with %code}*

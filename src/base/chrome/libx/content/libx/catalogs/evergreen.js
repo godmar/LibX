@@ -50,16 +50,10 @@ libxAddToPrototype(libxEvergreenOPAC.prototype, {
 	            return "keyword";
 	    }
 	},
-	supportsSearchType: function (stype) {
-	    if (stype == 'at') {
-	        alert(libxGetProperty("articletitle.alert"));
-			return false;
-	    }
-	    return true;
-	},
     baseURL: function () {
         return this.url + "/opac/" + this.locale + "/skin/" + this.skin + "/xml/";
     },
+    // rresult.xml is used for all but Call Number searches
     rresultBaseURL: function () {
         return this.baseURL()
                     + "rresult.xml" + "?"
@@ -89,17 +83,7 @@ libxAddToPrototype(libxEvergreenOPAC.prototype, {
 	},
 	makeAdvancedSearch: function(fields) {
         // combine all search fields that share same type
-        var searchField2Term = { };
-        for (var i = 0; i < fields.length; i++) {
-			var searchTerms = fields[i].searchTerms;
-            with (fields[i]) {
-                if (searchType in searchField2Term) {
-                    searchField2Term[searchType] += " " + searchTerms;
-                } else {
-                    searchField2Term[searchType] = searchTerms;
-                }
-            }
-        }
+        var searchField2Term = this.combineSameTypedFields(fields);
 
         var url = this.rresultBaseURL() + "&rt=multi&tp=multi&adv=&t=";
 

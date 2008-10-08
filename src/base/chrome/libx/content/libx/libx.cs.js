@@ -66,6 +66,9 @@ libxEnv.logTypes = {
     xpath: 'XPath'
 };
 
+// constructor functions for catalog classes, indexed by xml type (e.g. millenium, sirsi, etc.)
+libxEnv.catalogClasses = { };
+
 /* remove this and make it so it can use libxInitializeCatalogs in libx.js ... */
 var catalogs = new Array();
 function libxClientSideCatalogInit(configurl) {
@@ -105,6 +108,9 @@ function libxClientSideCatalogInit(configurl) {
         switch (xmlCat.nodeName) {
         case "evergreen":
             cat = new libxEvergreenOPAC();
+            break;
+        case "worldcat":
+            cat = new libxWorldcatOPAC();
             break;
         case "millenium":
             cat = new MilleniumOPAC();
@@ -148,6 +154,10 @@ function libxClientSideCatalogInit(configurl) {
             cat = new Web2OPAC();
             break;
         default:
+            if (libxEnv.catalogClasses[xmlCat.nodeName] !== undefined) {
+                cat = new libxEnv.catalogClasses[xmlCat.nodeName]();
+                break;
+            }
             continue;
         }
         copyXMLAttributestoJS(xmlCat, cat);
