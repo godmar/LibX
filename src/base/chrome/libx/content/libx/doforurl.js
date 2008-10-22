@@ -330,6 +330,9 @@ libxEnv.doforurlClass = function()
         var doc = win.document;
         if (ev.originalTarget.location == 'about:blank')
                 return;     
+        
+        if ( win.frameElement != null && win.frameElement.style.visibility == "hidden" ) 
+			return;
                 
         var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
 
