@@ -76,10 +76,6 @@ addSandboxScript( sandboxUrl + "jquery-1.2.3.js" );
 addSandboxScript( sandboxUrl + "handleCoins.js" );
 addSandboxScript( sandboxUrl + "cueAnimation.js" );
 
-addSandboxScript( sandboxUrl + "libxessUtils.js" );
-addSandboxScript( sandboxUrl + "jquery.toggleElements.js" );
-addSandboxScript( sandboxUrl + "jquery.rule-1.0.1.js" );
-
 addCue( cueUrl + "textexplorer.js" );
 addCue( cueUrl + "texttransformer.js" );
 addCue( cueUrl + "agricola.js" );
