@@ -21,10 +21,16 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+(function () 
+{
+
 // Support for Voyager OPAC
+// taken in part from http://www.mines.edu/library/catalyst/canned.html
+//
 function VoyagerOPAC() { }
 
-// taken in part from http://www.mines.edu/library/catalyst/canned.html
+libxEnv.catalogClasses["voyager"] = VoyagerOPAC;
+
 VoyagerOPAC.prototype = new libxCatalog();
 
 libxAddToPrototype(VoyagerOPAC.prototype, {
@@ -100,4 +106,5 @@ libxAddToPrototype(VoyagerOPAC.prototype, {
 	}
 });
 
+})();
 // vim: ts=4

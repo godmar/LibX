@@ -38,7 +38,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
     <script type="application/x-javascript" src="chrome://libx/content/io.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	
 	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
@@ -49,6 +48,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
    	<script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	
 	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/isbnutils.js" />
@@ -73,13 +73,14 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/custom.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/evergreen.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/worldcat.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/vubis.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/voyager7.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/openURLCatalog.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/hover.js" />
     <script type="application/x-javascript" src="chrome://libx/content/citeulike-checkurl.js" />
 
 	<script type="application/x-javascript">
@@ -148,7 +149,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 						<textbox 
                             class="libx-textbox"
                             editable="true" tooltiptext="Press Enter to Search, Press Ctrl-Enter to Add Another Search Field!"
-							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { doSearch(event); } else { libxEnv.ff.addSearchField(); document.commandDispatcher.advanceFocus(); }"
+							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { libxEnv.ff.doSearch(event); } else { libxEnv.ff.addSearchField(); document.commandDispatcher.advanceFocus(); }"
 							flex="1" minwidth="100" width="160" />
 					</toolbaritem>
 					<!-- child number 2 -->
@@ -170,7 +171,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         type="menu-button" 
                         class="libx-align-center libx-toolbar-button libx-toolbarbutton-with-menu-button"
                         tooltiptext="Press to search or drag search terms onto this button!"
-						id="libx-search-button" oncommand="doSearch();">
+						id="libx-search-button" oncommand="libxEnv.ff.doSearch();">
 						<menupopup id="libxcatalogs">
                             <!-- catalog choices go here, see libxEnv.initCatalogGUI -->
 						</menupopup>

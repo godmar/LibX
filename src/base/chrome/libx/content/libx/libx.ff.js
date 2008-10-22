@@ -64,7 +64,6 @@ libxEnv.init = function() {
     }, false);
    
     libxEnv.hash = new libxEnv.hashClass();
-    libxEnv.hoverInit();
 
     if ( libxEnv.getBoolPref ( 'libx.firstrun', true ) ) {
        // Set Timeout of 1 to run after firefox has finished initializing
@@ -105,9 +104,7 @@ libxEnv.ff.toggleToolBar = function (toolbarname) {
 /* 
  * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
  */
-libxEnv.convertPostString2PostData = function (dataString) {
-    // var dataString = "name1=data1&name2=data2";
-
+libxEnv.ff.convertPostString2PostData = function (dataString) {
     // POST method requests must wrap the encoded text in a MIME stream
     const Cc = Components.classes;
     const Ci = Components.interfaces;
@@ -135,7 +132,7 @@ libxEnv.openSearchWindow = function (url, pref) {
         var tabarguments = [ url2 ];
         var windowarguments = [ url2 ];
     } else {
-        var postData = libxEnv.convertPostString2PostData(url[1]);
+        var postData = libxEnv.ff.convertPostString2PostData(url[1]);
         var tabarguments = [ url2, null, null, postData ];
         var windowarguments = [ url2, null, postData ];
     }
@@ -276,18 +273,17 @@ libxEnv.addEventHandler = function(obj, event, func, b) {
 
 //Moved here since IE doesn't need this code
 libxEnv.addEventHandler(window, "load", 
-        function () {
+    function () {
         var ac = document.getElementById("appcontent");
         if (ac) {
-        libxEnv.addEventHandler(ac, "DOMContentLoaded", 
-            libxEnv.doforurls.onPageComplete_ff, true);
+            libxEnv.addEventHandler(ac, "DOMContentLoaded", libxEnv.doforurls.onPageComplete_ff, true);
         }
-        },
-        false);
+    },
+    false);
 
 
 // switch the current search type (addison, openurl, etc.)
-libxEnv.SelectCatalog = function(mitem, event) {
+libxEnv.ff.selectCatalog = function(mitem, event) {
     event.stopPropagation();
 
     var sb = document.getElementById("libx-search-button");
@@ -311,7 +307,28 @@ libxEnv.initializeContextMenu = function () {
 
 //this function is called if the user presses the search button, 
 //it performs a search in the catalog which the user previously selected
-function doSearch() {
+libxEnv.ff.doSearch = function(event) {
+
+    // for all catalogs transfer search field contents into 'fields' array
+    // and return this array
+    function extractSearchFields() {
+        var fields = new Array();
+        for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields
+            var f = libxSearchFieldVbox.childNodes.item(i);
+            if (f.firstChild.value == null) f.firstChild.value = "Y";
+            //alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
+            var field = {
+                searchType: f.firstChild.value, 
+                searchTerms: f.firstChild.nextSibling.firstChild.value.replace(/^\s+|\s+$/g, '')
+            };
+            if (field.searchTerms == "")
+                continue;
+
+            fields.push(field);
+        }
+        return fields;
+    }
+
     var fields = extractSearchFields();
     if (!libxSelectedCatalog.search)
         alert("Internal error, invalid catalog object: " + libxSelectedCatalog);
@@ -324,7 +341,7 @@ libxEnv.initCatalogGUI = function () {
     for ( var i = 0; i < searchCatalogs.length; i++ ) {
         var cat = searchCatalogs[i];
         var newbutton = document.createElement("menuitem");
-        newbutton.setAttribute("oncommand", "libxEnv.SelectCatalog(this,event);");
+        newbutton.setAttribute("oncommand", "libxEnv.ff.selectCatalog(this,event);");
         newbutton.setAttribute("value", i );
         newbutton.setAttribute("label", "Search " + cat.name + " " );
         catdropdown.appendChild(newbutton);
@@ -705,31 +722,8 @@ libxEnv.getLocalXML = function ( path ) {
 libxEnv.removeFile = function ( path ) {
     var file = libxEnv.getFile ( path );
     FileIO.unlink ( file );
-
 }
 
-
-/*
-    Copyright Robert Nyman, http://www.robertnyman.com
-    Free to use if this text is included
-*/
-function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttributeValue){
-    var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
-    var arrReturnElements = new Array();
-    var oAttributeValue = (typeof strAttributeValue != "undefined")? new RegExp("(^|\s)" + strAttributeValue + "(\s|$)") : null;
-    var oCurrent;
-    var oAttribute;
-    for(var i=0; i<arrElements.length; i++){
-        oCurrent = arrElements[i];
-        oAttribute = oCurrent.getAttribute && oCurrent.getAttribute(strAttributeName);
-        if(typeof oAttribute == "string" && oAttribute.length > 0){
-            if(typeof strAttributeValue == "undefined" || (oAttributeValue && oAttributeValue.test(oAttribute))){
-                arrReturnElements.push(oCurrent);
-            }
-        }
-    }
-    return arrReturnElements;
-}
 
 libxEnv.getCurrentWindowContent = function() {
     return window._content;
@@ -954,6 +948,28 @@ libxEnv.removeContextMenuPreferencesTab = function (idbase) {
  * @param tree {libxEnv.PrefsTree}  A tree node
  */
 libxEnv.getEnabledNodes = function (tree) {
+    /*
+        Copyright Robert Nyman, http://www.robertnyman.com
+        Free to use if this text is included
+    */
+    function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttributeValue){
+        var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
+        var arrReturnElements = new Array();
+        var oAttributeValue = (typeof strAttributeValue != "undefined")? new RegExp("(^|\s)" + strAttributeValue + "(\s|$)") : null;
+        var oCurrent;
+        var oAttribute;
+        for(var i=0; i<arrElements.length; i++){
+            oCurrent = arrElements[i];
+            oAttribute = oCurrent.getAttribute && oCurrent.getAttribute(strAttributeName);
+            if(typeof oAttribute == "string" && oAttribute.length > 0){
+                if(typeof strAttributeValue == "undefined" || (oAttributeValue && oAttributeValue.test(oAttribute))){
+                    arrReturnElements.push(oCurrent);
+                }
+            }
+        }
+        return arrReturnElements;
+    }
+
     enabledNodes = new Array();
     nodeList = getElementsByAttribute (tree.node, 'treecell', 'properties', 'enabled');
     for(var i = 0; i < nodeList.length; ++i) {

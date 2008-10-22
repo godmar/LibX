@@ -145,15 +145,19 @@ function libxAddToPrototype(prototype, addedmethods)
     }
 }
 
+(function ()    // begin bookmarklet class definition
+{
 /*
  * Support generic "bookmarklet" style searches
  * The id's %t, %jt etc. in the URL are being replaced with the entered terms
  */
-function libxBookmarklet() { }
+function Bookmarklet() { }
 
-libxBookmarklet.prototype = new libxCatalog();
+libxEnv.catalogClasses["bookmarklet"] = Bookmarklet;
 
-libxAddToPrototype(libxBookmarklet.prototype, {
+Bookmarklet.prototype = new libxCatalog();
+
+libxAddToPrototype(Bookmarklet.prototype, {
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },
@@ -254,12 +258,17 @@ libxAddToPrototype(libxBookmarklet.prototype, {
         }
     }
 });
+})();           // end bookmarklet class definition
 
-function libxScholarSearch() { }
+(function ()    // begin scholar class definition
+{
+function ScholarSearch() { }
 
-libxScholarSearch.prototype = new libxCatalog();
+libxEnv.catalogClasses["scholar"] = ScholarSearch;
 
-libxAddToPrototype(libxScholarSearch.prototype, {
+ScholarSearch.prototype = new libxCatalog();
+
+libxAddToPrototype(ScholarSearch.prototype, {
     options: "Y;at;jt;a",
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
@@ -308,3 +317,5 @@ libxAddToPrototype(libxScholarSearch.prototype, {
         return magicSearch(q, t, true);    // true means suppress heuristics
     }
 });
+
+})();   // end of scholar class definition

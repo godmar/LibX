@@ -22,8 +22,12 @@
  * ***** END LICENSE BLOCK ***** */
 
 
+(function () 
+{
 // Support for Serial Solutions' Central Search
 function CentralSearch() { }
+
+libxEnv.catalogClasses["centralsearch"] = CentralSearch;
 
 CentralSearch.prototype = new libxCatalog();
 
@@ -109,5 +113,7 @@ libxAddToPrototype(CentralSearch.prototype, {
 		return url;
 	}
 });
+
+})();
 
 // vim: ts=4

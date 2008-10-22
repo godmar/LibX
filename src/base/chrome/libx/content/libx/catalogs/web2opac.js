@@ -21,8 +21,15 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// Support for Sirsi OPAC
+// contributed by whikloj@cc.umanitoba.ca - 2007-06-20
+//
+(function () 
+{
+
+// Support for Sirsi Web2 OPAC
 function Web2OPAC() { }
+
+libxEnv.catalogClasses["web2"] = Web2OPAC;
 
 Web2OPAC.prototype = new libxCatalog();
 
@@ -105,5 +112,7 @@ libxAddToPrototype(Web2OPAC.prototype, {
 		return url + this.scopeField() + this.sortField();
 	}
 });
+
+})();
 
 // vim: ts=4

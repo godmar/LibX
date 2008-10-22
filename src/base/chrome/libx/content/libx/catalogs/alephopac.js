@@ -22,7 +22,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+(function () 
+{
+
 function AlephOPAC() { }
+
+libxEnv.catalogClasses["aleph"] = AlephOPAC;
 
 AlephOPAC.prototype = new libxCatalog();
 
@@ -138,5 +143,7 @@ libxAddToPrototype(AlephOPAC.prototype, {
 		return url;
 	}
 });
+
+})();
 
 // vim: ts=4

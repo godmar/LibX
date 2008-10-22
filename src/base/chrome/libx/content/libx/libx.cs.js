@@ -105,60 +105,24 @@ function libxClientSideCatalogInit(configurl) {
     for (var i = 0; i < xmlCatalogs.childNodes.length; i++) {
         var xmlCat = xmlCatalogs.childNodes[i];
         var cat;
+
+        // skip whitespace/text nodes
+        if (xmlCat.nodeType != 1)
+            continue;
+
         switch (xmlCat.nodeName) {
-        case "evergreen":
-            cat = new libxEvergreenOPAC();
-            break;
-        case "worldcat":
-            cat = new libxWorldcatOPAC();
-            break;
-        case "millenium":
-            cat = new MilleniumOPAC();
-            break;
-        case "sfx":
-            cat = new SFX();
-            break;
-        case "centralsearch":
-            cat = new CentralSearch();
-            break;
-        case "sersol":
-            cat = new ArticleLinker();
-            break;
-        case "aleph":
-            cat = new AlephOPAC();
-            break;
-        case "voyager":
-            cat = new VoyagerOPAC();
-            break;
-        case "sirsi":
-            cat = new SirsiOPAC();
-            break;
-        case "horizon":
-            cat = new HorizonOPAC();
-            break;
-        case "bookmarklet":
-            cat = new libxBookmarklet();
-            break;
-        case "scholar":
-            cat = new libxScholarSearch();
-            break;
-        case "custom":
-        case "openurlresolver":
-            // cat = new OpenURLCatalog();
-            cat = { xisbn : { },
-                    search: function () { 
-                        alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
-            break;
-        // whikloj@cc.umanitoba.ca - 2007-06-20
-        case "web2": 
-            cat = new Web2OPAC();
-            break;
         default:
             if (libxEnv.catalogClasses[xmlCat.nodeName] !== undefined) {
                 cat = new libxEnv.catalogClasses[xmlCat.nodeName]();
                 break;
             }
-            continue;
+            /* FALL THROUGH */
+        case "custom":
+        case "openurlresolver":
+            cat = { xisbn : { },
+                    search: function () { 
+                        alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
+            break;
         }
         copyXMLAttributestoJS(xmlCat, cat);
 
@@ -206,15 +170,21 @@ function props(x) {
 }
 // -----------------
 
+// run a test search against catalog #catindex
+function libxRunAdvancedTestSearch(catindex, search)
+{
+    try {
+        var u = catalogs[catindex].search(search);
+    } catch (er) {
+        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(catalogs[catindex]));
+    }
+}
+
 function libxTestSearch(catindex, type, term)
 {
     type = document.getElementById(type).value;
     term = document.getElementById(term).value;
-    try {
-        var u = catalogs[catindex].search([{ searchType: type, searchTerms: term }]);
-    } catch (er) {
-        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(catalogs[catindex]));
-    }
+    libxRunAdvancedTestSearch(catindex, [{ searchType: type, searchTerms: term }]);
 }
 
 // adapted from latest version published at

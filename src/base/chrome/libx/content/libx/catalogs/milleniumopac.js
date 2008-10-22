@@ -21,7 +21,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+(function () 
+{
+
 function MilleniumOPAC() { }
+
+libxEnv.catalogClasses["millenium"] = MilleniumOPAC;
 
 MilleniumOPAC.prototype = new libxCatalog();
 
@@ -98,5 +103,7 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
 		return url;
 	}
 });
+
+})();
 
 // vim: ts=4

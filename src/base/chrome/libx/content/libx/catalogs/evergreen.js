@@ -25,12 +25,17 @@
  * with Grant Johnson and Dan Scott
  */
 
+(function () 
+{
+
 // Support for Evergreen OPAC
-function libxEvergreenOPAC() { }
+function EvergreenOPAC() { }
 
-libxEvergreenOPAC.prototype = new libxCatalog();
+libxEnv.catalogClasses["evergreen"] = EvergreenOPAC;
 
-libxAddToPrototype(libxEvergreenOPAC.prototype, {
+EvergreenOPAC.prototype = new libxCatalog();
+
+libxAddToPrototype(EvergreenOPAC.prototype, {
     locale: "en-US",        // default to en-US locale 
     skin: "default",        // default to 'default' skin
     scope: "",              // scope, default to 'empty'
@@ -96,4 +101,5 @@ libxAddToPrototype(libxEvergreenOPAC.prototype, {
 	}
 });
 
+})();
 // vim: ts=4

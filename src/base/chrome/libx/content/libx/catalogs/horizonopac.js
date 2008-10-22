@@ -21,8 +21,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+(function () 
+{
+
 // Support for Horizon OPAC
 function HorizonOPAC() { }
+
+libxEnv.catalogClasses["horizon"] = HorizonOPAC;
 
 HorizonOPAC.prototype = new libxCatalog();
 
@@ -76,5 +81,7 @@ libxAddToPrototype(HorizonOPAC.prototype, {
 		return url;
 	}
 });
+
+})();
 
 // vim: ts=4

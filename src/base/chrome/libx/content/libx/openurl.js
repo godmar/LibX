@@ -298,6 +298,8 @@ function ArticleLinker() { }
 // ArticleLinker.prototype.
 ArticleLinker.prototype = new OpenURL();
 
+libxEnv.catalogClasses["sersol"] = ArticleLinker;
+
 // if used as a search catalog, show only Journal Title + ISBN/ISSN
 ArticleLinker.prototype.options = "jt;i";
 
@@ -324,6 +326,7 @@ ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
 // 
 function SFX() { }
 
+libxEnv.catalogClasses["sfx"] = SFX;
 // make SFX a "subclass" of OpenURL
 SFX.prototype = new OpenURL();
 

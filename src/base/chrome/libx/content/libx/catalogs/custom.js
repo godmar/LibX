@@ -32,11 +32,15 @@
  * jsimplurl is the URL where the configuration is loaded from.
  * Optionally, param0 to param19 may be set.
  */
-function libxCustomCatalog() { }
+(function () 
+{
+function CustomCatalog() { }
 
-libxCustomCatalog.prototype = new libxCatalog();
+libxEnv.catalogClasses["custom"] = CustomCatalog;
 
-libxAddToPrototype(libxCustomCatalog.prototype, {
+CustomCatalog.prototype = new libxCatalog();
+
+libxAddToPrototype(CustomCatalog.prototype, {
 	xisbn: { opacid: "Please set thisCatalog.xisbn.opacid as per http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm" },
     __init: function () {
         var thisCatalog = this;
@@ -53,4 +57,5 @@ libxAddToPrototype(libxCustomCatalog.prototype, {
     }
 });
 
+})();
 // vim: ts=4

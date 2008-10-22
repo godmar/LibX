@@ -133,54 +133,12 @@ function libxServerSideInit(_configdir) {
         var xmlCat = xmlCatalogs.childNodes.item(i);
         var cat;
         switch (String(xmlCat.nodeName.toLowerCase())) {
-        case "evergreen":
-            cat = new libxEvergreenOPAC();
-            break;
-        case "worldcat":
-            cat = new libxWorldcatOPAC();
-            break;
-        case "millenium":
-            cat = new MilleniumOPAC();
-            break;
-        case "sfx":
-            cat = new SFX();
-            break;
-        case "centralsearch":
-            cat = new CentralSearch();
-            break;
-        case "sersol":
-            cat = new ArticleLinker();
-            break;
-        case "aleph":
-            cat = new AlephOPAC();
-            break;
-        case "voyager":
-            cat = new VoyagerOPAC();
-            break;
-        case "sirsi":
-            cat = new SirsiOPAC();
-            break;
-        case "horizon":
-            cat = new HorizonOPAC();
-            break;
-        case "bookmarklet":
-            cat = new libxBookmarklet();
-            break;
-        case "scholar":
-            cat = new libxScholarSearch();
-            break;
-        case "custom":
-        case "openurlresolver":
-            // cat = new OpenURLCatalog();
-            cat = { xisbn : { },
-                    search: function () { 
-                        alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
-            break;
-        // whikloj@cc.umanitoba.ca - 2007-06-20
-        case "web2": 
-            cat = new Web2OPAC();
-            break;
         default:
+            if (libxEnv.catalogClasses[xmlCat.nodeName] !== undefined) {
+                cat = new libxEnv.catalogClasses[xmlCat.nodeName]();
+                break;
+            }
+            /* FALL THROUGH */
             println("catalog not supported: " + xmlCat.nodeName.toLowerCase());
             continue;
         }

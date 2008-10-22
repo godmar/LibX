@@ -869,9 +869,6 @@ libxEnv.initializeGUI = function () {
 libxEnv.initCatalogGUI = function () {
 }
 
-libxEnv.SelectCatalog = function(mitem, event) {
-}
-
 libxEnv.setVisible = function(elemName, hide) {
 }
 

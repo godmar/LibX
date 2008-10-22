@@ -34,21 +34,21 @@ var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an 
                         
 var libxConfig = new Object();   // Global variable to hold configuration items
 
-//var openUrlResolver;    // 
 var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
 
 var libxSelectedCatalog;// currently selected search type
 var libxSearchFieldVbox;    // global variable to hold a reference to vbox with search fields.
 var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
 
-var libxEnv = new Object();
+var libxEnv = { 
+    catalogClasses: []  // maps catalog types to constructors
+};
 
 /* Relies on following methods provided by libxEnv object 
  * 
  * xmlDoc -- return value of getConfigXML();
  * writeLog -- write to whatever log the current platform uses
  * openSearchWindow -- respects config options on how to open a url
- * SelectCatalog -- switch current search type
  * initCatalogGUI -- set up catalog list
  * initializeGUI -- all GUI initialization code (=XUL in ff) moved here
  * initializeContextMenu -- right-click popup init code
@@ -71,71 +71,13 @@ function libxInitializeCatalog(doc, node)
     var cat = null;
     
     switch (node.nodeName) {
-	case "scholar":
-        cat = new libxScholarSearch();
-        break;
-
-	case "bookmarklet":
-        cat = new libxBookmarklet();
-        break;
-
-	case "millenium":
-		cat = new MilleniumOPAC();
-        break;
-
-    case "evergreen":
-        cat = new libxEvergreenOPAC();
-        break;
-
-    case "worldcat":
-        cat = new libxWorldcatOPAC();
-        break;
-
-	case "horizon":
-	    cat = new HorizonOPAC();
-        // some catalogs use ISBNBR+ISSNBR (e.g., JHU)
-        // others have an index ISBNEX that does exact matching 
-        // on both ISSN & ISBN
-          break;
-
-	case "aleph":
-	    cat = new AlephOPAC();
-         break;
-
-	case "voyager":
-	    cat = new VoyagerOPAC();
-        break;
-
-	case "sirsi":
-	    cat = new SirsiOPAC();
-        break;
-
-	case "sersol":
-	    cat = new ArticleLinker();
-        break;
-
-	case "sfx":
-	    cat = new SFX();
-        break;
-
-	case "centralsearch":
-	    cat = new CentralSearch();
-        break;
-
-    case "openurlresolver":
-        cat = new OpenURLCatalog();
-        break;
-
-    case "web2":    // contributed by whikloj@cc.umanitoba.ca - 2007-06-20
-        cat = new Web2OPAC();
-        break;
-
-    case "custom":
-        cat = new libxCustomCatalog();
-        break;
-
     default:
-		libxEnv.writeLog("Catalog type " + cattype + " not supported.");
+        if (libxEnv.catalogClasses[node.nodeName] !== undefined) {
+            cat = new libxEnv.catalogClasses[node.nodeName]();
+            break;
+        }
+		libxEnv.writeLog("Catalog type " + node.nodeName + " not supported.");
+        /* FALL THROUGH */
     case null:
     case "":
         return null;
@@ -365,26 +307,6 @@ function libxAdjustISNSearchType(f)
             f.searchType = 'is';
         }
 	}
-}
-
-// for all catalogs transfer search field contents into 'fields' array
-// and return this array
-function extractSearchFields() {
-	var fields = new Array();
-	for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields
-		var f = libxSearchFieldVbox.childNodes.item(i);
-		if (f.firstChild.value == null) f.firstChild.value = "Y";
-		//alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
-		var field = {
-            searchType: f.firstChild.value, 
-            searchTerms: f.firstChild.nextSibling.firstChild.value.replace(/^\s+|\s+$/g, '')
-        };
-        if (field.searchTerms == "")
-            continue;
-
-		fields.push(field);
-	}
-	return fields;
 }
 
 /*

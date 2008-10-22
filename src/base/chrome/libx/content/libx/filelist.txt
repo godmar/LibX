@@ -28,3 +28,6 @@ iepagecomplete.js
 <catalog>sirsiopac.js
 <catalog>voyageropac.js
 <catalog>web2opac.js
+<catalog>worldcat.js
+<catalog>vubis.js
+<catalog>voyager7.js

@@ -21,8 +21,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+(function () 
+{
+
 // Support for Sirsi OPAC
 function SirsiOPAC() { }
+
+libxEnv.catalogClasses["sirsi"] = SirsiOPAC;
 
 SirsiOPAC.prototype = new libxCatalog();
 
@@ -114,4 +119,5 @@ libxAddToPrototype(SirsiOPAC.prototype, {
 	}
 });
 
+})();
 // vim: ts=4
