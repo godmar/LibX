@@ -159,6 +159,6 @@ if (libxEnv.openUrlResolver && libxEnv.options.rewritescholarpage) {
         }
     }
  }
- new libxEnv.doforurls.DoForURL(/scholar\.google\.com(.*)\/scholar\?/, 
-	rewriteScholarPage);
+ new libxEnv.doforurls.DoForURL(/scholar\.google\.com(.*)\/scholar\?/, rewriteScholarPage);
+ new libxEnv.doforurls.DoForURL(/scholar\.google\.ca(.*)\/scholar\?/, rewriteScholarPage);
 }
