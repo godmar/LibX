@@ -327,9 +327,9 @@ libxEnv.doforurlClass = function()
         if (!ev || !ev.originalTarget || !ev.originalTarget.location) return;
         
         var win = ev.explicitOriginalTarget.defaultView;
-        var doc = win.document;
-        if (ev.originalTarget.location == 'about:blank')
+        if (!win || ev.originalTarget.location == 'about:blank')
                 return;     
+        var doc = win.document;
         
         if ( win.frameElement != null && win.frameElement.style.visibility == "hidden" ) 
 			return;
