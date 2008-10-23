@@ -21,12 +21,16 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+(function () {
+
 // Support for Worldcat OPAC, including various Worldcat Local installs
-function libxWorldcatOPAC() { }
+function WorldcatOPAC() { }
 
-libxWorldcatOPAC.prototype = new libxCatalog();
+libxEnv.catalogClasses["worldcat"] = WorldcatOPAC;
 
-libxAddToPrototype(libxWorldcatOPAC.prototype, {
+WorldcatOPAC.prototype = new libxCatalog();
+
+libxAddToPrototype(WorldcatOPAC.prototype, {
     xisbn: { opacid: "worldcat" },
 
 	convert: function (stype) {
@@ -73,5 +77,7 @@ libxAddToPrototype(libxWorldcatOPAC.prototype, {
 		return url;
 	}
 });
+
+})();
 
 // vim: ts=4
