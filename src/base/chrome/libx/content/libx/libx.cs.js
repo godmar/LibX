@@ -133,6 +133,9 @@ function libxClientSideCatalogInit(configurl) {
                 copyXMLAttributestoJS ( xisbnNode, cat.xisbn );
         }
 
+        if (typeof (cat.__init) == "function") {
+            cat.__init();
+        }
         catalogs.push (cat);
     }
 
