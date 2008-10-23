@@ -844,8 +844,8 @@ libxEnv.initPrefsGUI = function () {
 
     /****** Initialize the default preferences tab *********/
     // Initialize the display preferences radiogroup
-    document.getElementById ( libxEnv.getUnicharPref ( "libx.displaypref", "libx.newtabswitch" ) )
-        .setAttribute ( "selected", true );
+    document.getElementById ( 'libx-display-prefs' ).selectedItem = 
+        document.getElementById ( libxEnv.getUnicharPref ( "libx.displaypref", "libx.newtabswitch" ) );
         
     // Initialize the autolinking checkbox
     document.getElementById ( "libx-autolink-checkbox" )
