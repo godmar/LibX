@@ -39,24 +39,28 @@ libxAddToPrototype(Voyager7Opac.prototype, {
     limitto: "none",
     isbn: "ISBN",
     issn: "ISSN",
+    subject: "SKEY",
+    author: "NKEY",
+    keyword: "GKEY",
+    title: "TKEY",
     xisbn: { opacid: "webvoyager" },
 
 	searchType2Index: function (stype) {
 	    switch (stype) {
-	        case 'd':   return "SKEY";
-	        case 'a':   return "NKEY";
-	        case 't':   return "TKEY";
+	        case 'd':   return this.subject;
+	        case 'a':   return this.author;
+	        case 't':   return this.title;
             case 'is':  return this.issn;
             case 'i':   return this.isbn;
-	        case 'Y':   return "GKEY";
+	        case 'Y':   return this.keyword;
 	        default:
-                return "GKEY";
+                return this.keyword;
 	    }
 	},
 	makeSearch: function(stype, sterm) {
         var url = this.url + this.path + "?";
         url += "searchArg=" + encodeURIComponent(sterm)
-            + "&searchCode=" + this.searchType2Index(stype) + "^"
+            + "&searchCode=" + this.searchType2Index(stype)
             + "&limitTo=" + this.limitto
             + "&recCount=" + this.count
             + "&searchType=1";
