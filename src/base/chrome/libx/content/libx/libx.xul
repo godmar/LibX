@@ -122,26 +122,14 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
             <toolbarseparator style="&toolbar.separator.style;" />
 
-			<vbox id="search-field-vbox" flex="1">
+			<vbox id="libx-search-field-vbox" flex="1">
 				<!-- do not add more children to vbox, the addSearchField function relies on being able to clone vbox.lastChild -->
-				<hbox id="search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
+				<hbox id="libx-search-field-hbox"> <!-- this element is being cloned when user selects the down button -->
 					<!-- child number 0 aka firstChild -->
 					<toolbarbutton class="libx-align-center libx-toolbar-button libx-toolbarbutton-with-menu"
                             label="-" type="menu" tooltiptext="Select Search Field Type" 
                             width="80" crop="end">
 						<menupopup id="libx-dropdown-menupopup">
-							<menuitem value="Y" label="Keyword" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="t" label="Title" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="jt" label="Journal Title" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="at" label="Article Title" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="a" label="Author" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="d" label="Subject" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="m" label="Genre" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="i" label="ISBN/ISSN" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="c" label="&libx.call.number;" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="j" label="Dewey" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="doi" label="DOI" oncommand="libxEnv.ff.setFieldType(this);" />
-							<menuitem value="pmid" label="PubMed ID" oncommand="libxEnv.ff.setFieldType(this);" />
 						</menupopup>
 					</toolbarbutton>
 					<!-- child number 1 -->

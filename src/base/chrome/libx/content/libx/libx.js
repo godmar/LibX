@@ -36,12 +36,25 @@ var libxConfig = new Object();   // Global variable to hold configuration items
 
 var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
 
-var libxSelectedCatalog;// currently selected search type
-var libxSearchFieldVbox;    // global variable to hold a reference to vbox with search fields.
-var libxDropdownOptions = new Object(); // hash for a bunch of XUL menuitems, keyed by search type
-
 var libxEnv = { 
-    catalogClasses: []  // maps catalog types to constructors
+    catalogClasses: [],  // maps catalog types to constructors
+
+    // default map of search options to search labels
+    // newer configuration files store all labels in /edition/searchoptions 
+    searchOptions2Labels: {
+        "Y" : "Keyword",
+        "t" : "Title",
+        "jt" : "Journal Title",
+        "at" : "Article Title",
+        "a" : "Author",
+        "d" : "Subject",
+        "m" : "Genre",
+        "i" : "ISBN/ISSN",
+        "c" : "Call Number",
+        "j" : "Dewey",
+        "doi" : "DOI",
+        "pmid" : "PubMed ID",
+    }
 };
 
 /* Relies on following methods provided by libxEnv object 

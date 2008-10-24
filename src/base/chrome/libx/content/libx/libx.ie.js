@@ -33,13 +33,11 @@
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
  
-//var libxEnv = new Object();
-  
 libxEnv.init = function() {
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
     libxEnv.loadProperties(); 
-    libxEnv.populateDropdownOptions();
+
     //Read in search options and add to libxConfig.searchOptions
     var libxSearchOptions = 
         libxEnv.xpath.findNodesXML(libxGetConfigXML().xml, 
@@ -47,7 +45,6 @@ libxEnv.init = function() {
     for (var option = 0; option < libxSearchOptions.length; option++ ) {
         var mitem = libxSearchOptions[option];
         libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
-        libxDropdownOptions[mitem.value] = mitem;
     }
     
     libraryCatalog = searchCatalogs[0];
@@ -57,28 +54,6 @@ libxEnv.init = function() {
 }
 
 libxEnv.debugInit = function () {}
-
-/*  populateDropdownOptions
- * This function takes the hard-coded search options (in Firefox they are
- * hard-coded into the XUL) and populates the libxDropdownOptions object
- * with them.
- * This has got to be like the third or fourth place these things are
- * hard-coded into the LibX source (mostly as IE hacks, I think).
- */
-libxEnv.populateDropdownOptions = function () {
-    libxDropdownOptions['Y'] = 'Keyword';
-    libxDropdownOptions['t'] = 'Title';
-    libxDropdownOptions['jt'] = 'Journal Title';
-    libxDropdownOptions['at'] = 'Article Title';
-    libxDropdownOptions['a'] = 'Author';
-    libxDropdownOptions['d'] = 'Subject';
-    libxDropdownOptions['m'] = 'Genre';
-    libxDropdownOptions['i'] = 'ISBN/ISSN';
-    libxDropdownOptions['c'] = '&libx.call.number;';
-    libxDropdownOptions['j'] = 'Dewey';
-    libxDropdownOptions['doi'] = 'DOI';
-    libxDropdownOptions['pmid'] = 'PubMed ID';
-}
 
 libxEnv.setObjectVisible = function(obj, show) {
     libxEnv.writeLog("An object is supposed to be either hidden or visible");

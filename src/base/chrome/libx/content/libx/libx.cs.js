@@ -79,25 +79,6 @@ function libxClientSideCatalogInit(configurl) {
         }
     }
 
-    /*
-     * In the original FF, these were read from a XUL element.
-     * See libx.ie.js
-     */
-    libxDropdownOptions = {
-        'Y' : 'Keyword',
-        't' : 'Title',
-        'jt': 'Journal Title',
-        'at': 'Article Title',
-        'a' : 'Author',
-        'd' : 'Subject',
-        'm' : 'Genre',
-        'i' : 'ISBN/ISSN',
-        'c' : 'Call Number',
-        'j' : 'Dewey',
-        'doi': 'DOI',
-        'pmid': 'PubMed ID'
-    };
-
     var xmlhttp = libxGetUrl(configurl, null, false);
     var configXML = xmlhttp.responseXML;
     var xmlCatalogs = configXML.getElementsByTagName("catalogs")[0];
@@ -139,11 +120,11 @@ function libxClientSideCatalogInit(configurl) {
         catalogs.push (cat);
     }
 
-    // override libxDropdownOptions's option with options defined in config
+    // override searchoptions's option with options defined in config
     var xmlSearchOptions = configXML.getElementsByTagName("searchoption");
     for (var i = 0; i < xmlSearchOptions.length; i++) {
         var xmlOption = xmlSearchOptions[i];
-        libxDropdownOptions[xmlOption.getAttribute("value")] = xmlOption.getAttribute("label");
+        libxEnv.searchOptions2Labels[xmlOption.getAttribute("value")] = xmlOption.getAttribute("label");
     }
 }
 

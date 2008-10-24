@@ -97,25 +97,6 @@ function libxServerSideInit(_configdir) {
         }
     }
 
-    /*
-     * In the original FF, these were read from a XUL element.
-     * See libx.ie.js
-     */
-    libxDropdownOptions = {
-        'Y' : 'Keyword',
-        't' : 'Title',
-        'jt': 'Journal Title',
-        'at': 'Article Title',
-        'a' : 'Author',
-        'd' : 'Subject',
-        'm' : 'Genre',
-        'i' : 'ISBN/ISSN',
-        'c' : 'Call Number',
-        'j' : 'Dewey',
-        'doi': 'DOI',
-        'pmid': 'PubMed ID'
-    };
-
     /*DocumentBuilderFactory*/var domFactory = DocumentBuilderFactory.newInstance();
     domFactory.setNamespaceAware(true); // never forget this!
     /*DocumentBuilder*/var builder = domFactory.newDocumentBuilder();
@@ -219,7 +200,7 @@ function libxWriteOpenSearchDescriptions() {
                 shortName: name.getAttribute('short'),
                 longName: name.getAttribute('long'),
                 urlTemplate: encodeEntities(catalogs[i].makeSearch(opt, "{searchTerms}")),
-                catalogName: catalogs[i].name + " by " + libxDropdownOptions[opt],
+                catalogName: catalogs[i].name + " by " + libxEnv.searchOption2Label[opt],
                 iconPath: org.libx.editionbuilder.Config.httpeditionpath + last + "/" + icon,
                 attribution: name.getAttribute('adaptedby')
             });

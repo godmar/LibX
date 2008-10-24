@@ -245,7 +245,7 @@ libxAddToPrototype(Bookmarklet.prototype, {
         }
 
         // clear out other %values if defined
-        for (var option in libxDropdownOptions) {
+        for (var option in libxEnv.searchOptions2Labels) {
             // to allow %is, %i, and %issue require that label be followed by a non-letter
             // XXX not very robust.
             argtemplate = argtemplate.replace(new RegExp("%" + option + "(?![a-zA-Z0-9])"), "", "g");

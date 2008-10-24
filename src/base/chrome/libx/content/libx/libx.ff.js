@@ -92,10 +92,11 @@ libxEnv.ff.toggleToolBar = function (toolbarname) {
     tbar.collapsed = !tbar.collapsed;
     // persist, see chrome://browser/content/browser.js
     tbar.ownerDocument.persist(tbar.id, "collapsed");
+    var ff = this;
 
     if (!tbar.collapsed) {
         setTimeout ( function () { 
-            libxSearchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
+            ff.searchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
         }, 100);
     }
     return !tbar.collapsed;
@@ -288,10 +289,10 @@ libxEnv.ff.selectCatalog = function(mitem, event) {
 
     var sb = document.getElementById("libx-search-button");
     sb.label = mitem.label;
-    libxSelectedCatalog = searchCatalogs[mitem.value];
+    this.selectedCatalog = searchCatalogs[mitem.value];
     libxEnv.setIntPref("libx.selectedcatalognumber", mitem.value);
 
-    libxActivateCatalogOptions(libxSelectedCatalog);
+    this.activateCatalogOptions(this.selectedCatalog);
 }
 
 
@@ -304,35 +305,30 @@ libxEnv.initializeContextMenu = function () {
 
 //GUI-related stuff////////////////////////////////////////////////////
 
-
 //this function is called if the user presses the search button, 
 //it performs a search in the catalog which the user previously selected
 libxEnv.ff.doSearch = function(event) {
 
     // for all catalogs transfer search field contents into 'fields' array
-    // and return this array
-    function extractSearchFields() {
-        var fields = new Array();
-        for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields
-            var f = libxSearchFieldVbox.childNodes.item(i);
-            if (f.firstChild.value == null) f.firstChild.value = "Y";
-            //alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
-            var field = {
-                searchType: f.firstChild.value, 
-                searchTerms: f.firstChild.nextSibling.firstChild.value.replace(/^\s+|\s+$/g, '')
-            };
-            if (field.searchTerms == "")
-                continue;
+    var fields = new Array();
+    for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {// iterate over all search fields
+        var f = this.searchFieldVbox.childNodes.item(i);
+        if (f.firstChild.value == null) f.firstChild.value = "Y";
+        //alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
+        var field = {
+            searchType: f.firstChild.value, 
+            searchTerms: f.firstChild.nextSibling.firstChild.value.replace(/^\s+|\s+$/g, '')
+        };
+        if (field.searchTerms == "")
+            continue;
 
-            fields.push(field);
-        }
-        return fields;
+        fields.push(field);
     }
 
-    var fields = extractSearchFields();
-    if (!libxSelectedCatalog.search)
-        alert("Internal error, invalid catalog object: " + libxSelectedCatalog);
-    libxSelectedCatalog.search(fields);
+    if (!this.selectedCatalog.search)
+        alert("Internal error, invalid catalog object: " + this.selectedCatalog);
+
+    this.selectedCatalog.search(fields);
 }
 
 libxEnv.initCatalogGUI = function () {
@@ -353,8 +349,8 @@ libxEnv.initCatalogGUI = function () {
     if (selectedCatalog >= searchCatalogs.length)
         selectedCatalog = 0;    
 
-    libxSelectedCatalog = searchCatalogs[selectedCatalog];
-    libxActivateCatalogOptions(libxSelectedCatalog);
+    libxEnv.ff.selectedCatalog = searchCatalogs[selectedCatalog];
+    libxEnv.ff.activateCatalogOptions(libxEnv.ff.selectedCatalog);
     libraryCatalog = searchCatalogs[0];
     // copy initial label to toolbarbutton parent from menuitem first child
     catdropdown.parentNode.setAttribute("label", catdropdown.childNodes.item(selectedCatalog).getAttribute("label"));
@@ -369,8 +365,6 @@ libxEnv.initializeGUI = function () {
     // and so on.
     var libxmenu = document.getElementById("libxmenu");
     var libxmenusep = document.getElementById("libxmenu.separator");
-    var label = null;
-    
     
     var libxlinks = 
         libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/links/*");
@@ -386,43 +380,18 @@ libxEnv.initializeGUI = function () {
         libxmenu.insertBefore(mitem, libxmenusep);
     }
 
-    libxSearchFieldVbox = document.getElementById("search-field-vbox");
+    libxEnv.ff.searchFieldVbox = document.getElementById("libx-search-field-vbox");
 
-    /* Initialize search options by storing XUL-defined menuitems into
-     * array for later cloning. */
-    var ddOptions = document.getElementById("libx-dropdown-menupopup");
-    
-    for (var i = 0; i < ddOptions.childNodes.length; i++) {
-        var d = ddOptions.childNodes.item(i);
-        libxDropdownOptions[d.getAttribute("value")] = d;
-    }
-
-    /* If an edition wants to use searchoptions that are not 
-     * already defined (Y, t, etc.), additional options can be 
-     * defined using
-     * libx.searchoption1.value=s
-     * libx.searchoption1.label=QuickSearch
-     * etc.
-     *
-     * It is also possible to override the labels of existing options,
-     * such as
-     * libx.searchoption1.value=jt
-     * libx.searchoption1.label=Periodical Title
-     */ 
-
+    // augment searchOptions2Labels map with entries from configuration file
     var libxSearchOptions = 
         libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/searchoptions/*");
-    for (var option = 0; option < libxSearchOptions.length; option++ )
+    for (var option = 0; option < libxSearchOptions.length; option++)
     {
-        var mitem = document.createElement("menuitem");
         var opt = libxSearchOptions[option];
-        libxEnv.xmlDoc.copyAttributes ( opt, mitem );
-        mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
-        mitem.setAttribute('label', mitem.label );
-        libxDropdownOptions[mitem.value] = mitem;
-        libxConfig.searchOptions[mitem.value] = mitem.label;
+        libxEnv.searchOptions2Labels[opt.value] = opt.label;
+        libxConfig.searchOptions[opt.value] = opt.label;
     }
-    
+
     var scholarbutton = document.getElementById("libx-magic-button");
     
     if (libxEnv.options.disablescholar) {
@@ -434,7 +403,7 @@ libxEnv.initializeGUI = function () {
     // add the selected search as a default target
     var searchbutton = document.getElementById("libx-search-button");
     new TextDropTarget(function (data) {
-        libxSelectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
+        libxEnv.ff.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
     }).attachToElement(searchbutton);
 
     /*
@@ -481,11 +450,11 @@ libxEnv.setGUIAttribute = function(elemName, attrName, attrValue) {
 /*
  * adjust drop-down menus based on catalog.options
  */
-function libxActivateCatalogOptions(catalog, alwaysreset) {
+libxEnv.ff.activateCatalogOptions = function (catalog, alwaysreset) {
     var opt = catalog.options.split(/;/);
     // for each open search field
-    for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {
-        var f = libxSearchFieldVbox.childNodes.item(i);
+    for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {
+        var f = this.searchFieldVbox.childNodes.item(i);
         var tbb = f.firstChild;
         var uservalue = f.firstChild.nextSibling.firstChild.value;
         var oldvalue = tbb.value;   // try to retain old selection
@@ -494,13 +463,18 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
         // clear out the old ones
         while (mpp.childNodes.length > 0)
             mpp.removeChild(mpp.firstChild);
-        // clone in the new ones
+
+        // create new ones
         for (var j = 0; j < opt.length; j++) {
-            var ddo = libxDropdownOptions[opt[j]];
-            var mitem = ddo.cloneNode(true);
-            // cloneNode doesnt clone the attributes !?
-            mitem.value = ddo.value;
-            mitem.label = ddo.label;
+            var option = opt[j];
+
+            var mitem = document.createElement("menuitem");
+            mitem.value = option;
+            mitem.label = libxEnv.searchOptions2Labels[option];
+            mitem.setAttribute('value', mitem.value );
+            mitem.setAttribute('label', mitem.label );
+            mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
+    
             if (oldvalue == mitem.value)
                 newvalue = mitem;
             mpp.appendChild(mitem);
@@ -518,12 +492,12 @@ function libxActivateCatalogOptions(catalog, alwaysreset) {
 // the red "close-field" button, child #3, is enabled for all children except the first
 // these function all depend intimately on the XUL used for the vbox/hbox search field stuff
 libxEnv.ff.addSearchField = function () {
-    var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
+    var lastSearchField = this.searchFieldVbox.lastChild;// get bottom search field
     var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
     // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
     newSearchField.firstChild.value = lastSearchField.firstChild.value;
     lastSearchField.childNodes.item(2).setAttribute("disabled", true);// disable blue "add-field" button in what will be the next-to-last searchfield
-    if (libxSearchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
+    if (this.searchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
         lastSearchField.childNodes.item(3).setAttribute("disabled", false); // OPTIONAL: show close button in first search field
         newSearchField.childNodes.item(3).setAttribute("disabled", false); // if so, the second field must have the close button enabled
     }
@@ -531,7 +505,7 @@ libxEnv.ff.addSearchField = function () {
     // use setAttribute instead of setting property directly to avoid
     // https://bugzilla.mozilla.org/show_bug.cgi?id=433544
     newSearchField.firstChild.nextSibling.firstChild.setAttribute("value", "");
-    libxSearchFieldVbox.appendChild(newSearchField);
+    this.searchFieldVbox.appendChild(newSearchField);
 
     // provide the next option from the list as a default
     var lastSelection = lastSearchField.firstChild.value;
@@ -549,10 +523,10 @@ libxEnv.ff.addSearchField = function () {
 // remove a specific search field
 // user must pass reference to hbox of search field to be removed
 libxEnv.ff.removeSearchField = function (fieldHbox) {
-    libxSearchFieldVbox.removeChild(fieldHbox);
-    var lastSearchField = libxSearchFieldVbox.lastChild;// get bottom search field
+    this.searchFieldVbox.removeChild(fieldHbox);
+    var lastSearchField = this.searchFieldVbox.lastChild;// get bottom search field
     lastSearchField.childNodes.item(2).setAttribute("disabled", false);// enable blue "add-field" button
-    if (libxSearchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
+    if (this.searchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
         lastSearchField.childNodes.item(3).setAttribute("disabled", true);
     }
 }
@@ -566,14 +540,14 @@ libxEnv.ff.setFieldType = function (menuitem) {
 
 libxEnv.ff.clearAllFields = function () {
     // while there are more than one search field left, remove the last one
-    while (libxSearchFieldVbox.childNodes.length > 1) {
-        libxEnv.ff.removeSearchField(libxSearchFieldVbox.lastChild);
+    while (this.searchFieldVbox.childNodes.length > 1) {
+        this.removeSearchField(this.searchFieldVbox.lastChild);
     }
     // finally, clear the content of the only remaining one
-    libxSearchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
+    this.searchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
 
     // set options back to default for currently selected catalog
-    libxActivateCatalogOptions(libxSelectedCatalog, true);
+    this.activateCatalogOptions(this.selectedCatalog, true);
 }
 
 // copy selection into search field - this is called from the nested right-click menu
@@ -586,8 +560,8 @@ function libx___unused___addSearchFieldAs(mitem) {
     var sterm = popuphelper.getSelection();
     
     //XXX investigate if we should pretreat sterm
-    for (var i = 0; i < libxSearchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
-        var tbb = libxSearchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
+    for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
+        var tbb = this.searchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
         if (tbb.nextSibling.firstChild.value == "") {//is this field empty - use it if so
             tbb.value = mitem.value;
             tbb.label = mitem.label;
