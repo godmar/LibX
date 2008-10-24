@@ -29,7 +29,7 @@ function OpenURLCatalog() {
     this.options = libxEnv.openUrlResolver.options;
 }
 
-libxEnv.catalogClasses["openurl"] = OpenURLCatalog;
+libxEnv.catalogClasses["openurlresolver"] = OpenURLCatalog;
 
 OpenURLCatalog.prototype = new libxCatalog();
 
