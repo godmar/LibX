@@ -31,3 +31,4 @@ iepagecomplete.js
 <catalog>worldcat.js
 <catalog>vubis.js
 <catalog>voyager7.js
+<catalog>talisprism.js

@@ -75,6 +75,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/worldcat.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/vubis.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/catalogs/voyager7.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/catalogs/talisprism.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/autolink.user.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
