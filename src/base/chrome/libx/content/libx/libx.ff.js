@@ -388,8 +388,10 @@ libxEnv.initializeGUI = function () {
     for (var option = 0; option < libxSearchOptions.length; option++)
     {
         var opt = libxSearchOptions[option];
-        libxEnv.searchOptions2Labels[opt.value] = opt.label;
-        libxConfig.searchOptions[opt.value] = opt.label;
+        var optLabel = opt.getAttribute("label");
+        var optValue = opt.getAttribute("value");
+        libxEnv.searchOptions2Labels[optValue] = optLabel;
+        libxConfig.searchOptions[optValue] = optLabel;
     }
 
     var scholarbutton = document.getElementById("libx-magic-button");
