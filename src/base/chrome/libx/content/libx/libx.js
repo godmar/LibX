@@ -53,7 +53,7 @@ var libxEnv = {
         "c" : "Call Number",
         "j" : "Dewey",
         "doi" : "DOI",
-        "pmid" : "PubMed ID",
+        "pmid" : "PubMed ID"
     }
 };
 
