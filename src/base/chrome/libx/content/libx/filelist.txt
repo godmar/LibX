@@ -1,6 +1,5 @@
-<catalog>catalog.js
-proxy.js
 libx.js
+proxy.js
 xisbn.js
 libx.ie.js
 prefs.js
@@ -19,6 +18,7 @@ doforurl.js
 crossref.js
 pubmed.js
 iepagecomplete.js
+<catalog>catalog.js
 <catalog>alephopac.js
 <catalog>centralsearch.js
 <catalog>custom.js
