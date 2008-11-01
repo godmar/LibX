@@ -295,7 +295,7 @@ libxEnv.fileCacheClass = function()
      */
     this.saveFileList = function() {
         var the_list = "";
-        for ( i in fileList )
+        for ( var i in fileList )
         {
           the_list += i + " : " + fileList[i] + "\n";
         }
