@@ -21,17 +21,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function () 
-{
-
-// Support for Horizon OPAC
-function HorizonOPAC() { }
-
-libxEnv.catalogClasses["horizon"] = HorizonOPAC;
-
-HorizonOPAC.prototype = new libxCatalog();
-
-libxAddToPrototype(HorizonOPAC.prototype, {
+libx.catalog.factory["horizon"] = libx.core.Class.create(libx.catalog.Catalog, {
     xisbn: { opacid: "ipac" },
     path: "/ipac20/ipac.jsp",
     /* default values for properties - 
@@ -81,7 +71,5 @@ libxAddToPrototype(HorizonOPAC.prototype, {
 		return url;
 	}
 });
-
-})();
 
 // vim: ts=4

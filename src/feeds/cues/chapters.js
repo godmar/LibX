@@ -10,13 +10,13 @@ new libxEnv.doforurls.DoForURL(/chapters\..*\.ca\//, function (doc) {
 
     isbnLabelText = isbnlabel[0].nextSibling.nodeValue;
 
-    var isbn = isISBN(isbnLabelText, libraryCatalog.downconvertisbn13);
+    var isbn = isISBN(isbnLabelText, libx.edition.catalogs.default.downconvertisbn13);
     if (isbn) {
         var link = libxEnv.makeLink(doc,
-                libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]),
-                libraryCatalog.linkByISBN(isbn), libraryCatalog);
+                libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn]),
+                libx.edition.catalogs.default.linkByISBN(isbn), libx.edition.catalogs.default);
 
-        createXISBNTooltip(link, isbn, libraryCatalog.name);
+        createXISBNTooltip(link, isbn, libx.edition.catalogs.default.name);
 
         // place this link prominently by the booktitle
         var t = $("div[id=itemProductHeading] > h1");

@@ -21,17 +21,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function () 
-{
-
 // Support for Sirsi OPAC
-function SirsiOPAC() { }
+libx.catalog.factory["sirsi"] = libx.core.Class.create(libx.catalog.Catalog, {
 
-libxEnv.catalogClasses["sirsi"] = SirsiOPAC;
-
-SirsiOPAC.prototype = new libxCatalog();
-
-libxAddToPrototype(SirsiOPAC.prototype, {
     path: "/uhtbin/cgisirsi/x/0/0/5/",
     searchscope: 1,
     xisbn: { opacid: "sirsi6" },
@@ -119,5 +111,4 @@ libxAddToPrototype(SirsiOPAC.prototype, {
 	}
 });
 
-})();
 // vim: ts=4

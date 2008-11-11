@@ -22,16 +22,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function () 
-{
-
-function AlephOPAC() { }
-
-libxEnv.catalogClasses["aleph"] = AlephOPAC;
-
-AlephOPAC.prototype = new libxCatalog();
-
-libxAddToPrototype(AlephOPAC.prototype, {
+libx.catalog.factory["aleph"] = libx.core.Class.create(libx.catalog.Catalog, {
 	xisbn: { opacid: "aleph" },
     // unless specified otherwise, we use the scan index for 
     // title 't' & call number 'c'
@@ -143,7 +134,5 @@ libxAddToPrototype(AlephOPAC.prototype, {
 		return url;
 	}
 });
-
-})();
 
 // vim: ts=4

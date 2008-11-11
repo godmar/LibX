@@ -35,7 +35,7 @@
     <stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
-
+    <script type="application/x-javascript" src="chrome://libx/content/libxcoreclass.js" />
     <script type="application/x-javascript" src="chrome://libx/content/io.js" />    
     <script type="application/x-javascript" src="chrome://libx/content/libx.js" />
     <script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />

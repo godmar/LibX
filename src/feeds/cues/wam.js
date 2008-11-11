@@ -1,7 +1,7 @@
 // fix up the WAM page that says "The address you are trying to access is invalid."
-if (libxProxy != null && libxProxy.type == "wam") {
+if (libx.edition.proxy.default != null && libx.edition.proxy.default.type == "wam") {
     // this matches on a WAM DNS'ed URL
-    var rexp = new RegExp("\\d+\\-(.*)\\." + libxProxy.url.replace(/\./g, "\\."));
+    var rexp = new RegExp("\\d+\\-(.*)\\." + libx.edition.proxy.default.url.replace(/\./g, "\\."));
     new libxEnv.doforurls.DoForURL(rexp, function(doc, m) {
         var err = libxEnv.xpath.findSingleXML(doc, "//*[contains(text(),'The address you are trying to access is invalid')]");
         if (err) {

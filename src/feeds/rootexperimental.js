@@ -21,7 +21,7 @@ setTimeout(function () {
     var dfu_actions = libxEnv.doforurls.getdfu_actions();
     for (var i = 0; i < dfu_actions.length; i++) {
         if (dfu_actions[i].description == "autolink") {
-            dfu_actions[i].exclude.push(libraryCatalog.url.replace("http://", ""));
+            dfu_actions[i].exclude.push(libx.edition.catalogs.default.url.replace("http://", ""));
         }
     }
 }, 1000);

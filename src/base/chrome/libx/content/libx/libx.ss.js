@@ -115,8 +115,8 @@ function libxServerSideInit(_configdir) {
         var cat;
         switch (String(xmlCat.nodeName.toLowerCase())) {
         default:
-            if (libxEnv.catalogClasses[xmlCat.nodeName] !== undefined) {
-                cat = new libxEnv.catalogClasses[xmlCat.nodeName]();
+            if (libx.catalog.factory[xmlCat.nodeName] !== undefined) {
+                cat = new libx.catalog.factory[xmlCat.nodeName]();
                 break;
             }
             /* FALL THROUGH */

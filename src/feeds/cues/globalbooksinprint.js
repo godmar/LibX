@@ -12,14 +12,14 @@ function(doc) {
 
         var isbn13Text = isbn13[0].nextSibling.nodeValue;
 
-        var isbn = isISBN(isbn13Text, libraryCatalog.downconvertisbn13);
+        var isbn = isISBN(isbn13Text, libx.edition.catalogs.default.downconvertisbn13);
 
         if (isbn == null)
             continue;
         var hint = libxEnv.makeLink(doc, 
-                    libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-                    libraryCatalog.linkByISBN(isbn), libraryCatalog);
-        createXISBNTooltip(hint, isbn, libraryCatalog.name);
+                    libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn]), 
+                    libx.edition.catalogs.default.linkByISBN(isbn), libx.edition.catalogs.default);
+        createXISBNTooltip(hint, isbn, libx.edition.catalogs.default.name);
         anode.parentNode.insertBefore(hint, anode.nextSibling);
         animateCue(hint);
     }

@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------------------------------
 // Link Barnes & Noble pages to catalog via ISBN
 var bnFunction = function (doc, match) {
-    var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);    // grab captured isbn in matched URL
+    var isbn = isISBN(match[1], libx.edition.catalogs.default.downconvertisbn13);    // grab captured isbn in matched URL
     
     // last verified Jul 25, 2008
     var origTitleNodeArray = $("div#product-info").find("h1");
@@ -9,8 +9,8 @@ var bnFunction = function (doc, match) {
     var origTitleNode = origTitleNodeArray[0];
     
     // make link and insert after title
-    var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.linkByISBN(isbn), libraryCatalog);
-    createXISBNTooltip(link, isbn, libraryCatalog.name);
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn]), libx.edition.catalogs.default.linkByISBN(isbn), libx.edition.catalogs.default);
+    createXISBNTooltip(link, isbn, libx.edition.catalogs.default.name);
 
     var parent = $(origTitleNode).contents().eq(0);
     parent.before(doc.createTextNode(" "));

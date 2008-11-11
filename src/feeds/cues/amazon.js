@@ -15,7 +15,7 @@ function doAmazon(doc, match) {
 
     var isbnVal = isbnNodeArray[0].nextSibling.nodeValue;
 
-    var isbn = isISBN(isbnVal, libraryCatalog.downconvertisbn13);
+    var isbn = isISBN(isbnVal, libx.edition.catalogs.default.downconvertisbn13);
     var booktitleNodeArray = $("div.buying > h1.parseasinTitle > span#btAsinTitle");
     if (booktitleNodeArray.length == 0) {
         // amazon.ca uses this
@@ -29,28 +29,28 @@ function doAmazon(doc, match) {
     // some books, say freakonomics, include in the name [ROUGHCUT] and (HardCover), remove those
     booktitle = booktitle.replace(/\(Hardcover\)/i, "").replace(/\[[^\]]*\]/, "").replace(/\s*$/, "").replace(/^\s*/, "");
     // III is known to not handle punctuation chars, such as :
-    if (libraryCatalog.url.toString().indexOf("encore") != -1) {
+    if (libx.edition.catalogs.default.url.toString().indexOf("encore") != -1) {
         booktitle = booktitle.replace(/:/, " ");
     }
 
     // if catalog supports ISBN, link by ISBN
     // else try 'by Title' (t), then 'by Keyword' (Y)
-    var options = ";" + libraryCatalog.options + ";";
+    var options = ";" + libx.edition.catalogs.default.options + ";";
     if (options.indexOf(";i;") != -1) {
-        var targeturl = libraryCatalog.linkByISBN(isbn);
+        var targeturl = libx.edition.catalogs.default.linkByISBN(isbn);
     } else
     if (options.indexOf(";t;") != -1) {
-        var targeturl = libraryCatalog.makeSearch("t", booktitle);
+        var targeturl = libx.edition.catalogs.default.makeSearch("t", booktitle);
     } else
     if (options.indexOf(";Y;") != -1) {
-        var targeturl = libraryCatalog.makeSearch("Y", booktitle);
+        var targeturl = libx.edition.catalogs.default.makeSearch("Y", booktitle);
     }
 
     var cue = libxEnv.makeLink(doc, 
-        libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-        targeturl, libraryCatalog);
+        libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn]), 
+        targeturl, libx.edition.catalogs.default);
 
-    createXISBNTooltip(cue, isbn, libraryCatalog.name);
+    createXISBNTooltip(cue, isbn, libx.edition.catalogs.default.name);
 
     // make link and insert after title
     var div = booktitleNode.parentNode;

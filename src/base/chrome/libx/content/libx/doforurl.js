@@ -68,7 +68,7 @@ libxEnv.doforurlClass = function()
     // list of sandbox files read from root.js
     var sandboxScriptList = new Array();
     // list of hotfix files
-    this.hotfixList = new Array();
+    var hotfixList = this.hotfixList = new Array();
     //the current root to tell cues and such if they should update
     var curroot;
     // Default Root in case no Roots are specified in config.xml
@@ -457,7 +457,7 @@ libxEnv.doforurlClass = function()
     function processDoforurls( updating )
     {
         sandboxScriptList = new Array();
-        this.hotfixList = new Array();
+        hotfixList = new Array();
         dfu_actions = new Array();
         initRoots( updating );
     }

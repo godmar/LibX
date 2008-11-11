@@ -42,7 +42,7 @@ libxEnv.hashClass = function()
         "@mozilla.org/security/hash;1"].createInstance(
         Components.interfaces.nsICryptoHash);
     
-    // converts the toConvert paramater into a hexstring
+    // converts the toConvert parameter into a hexstring
     function toHexString( toConvert ) {
         return ("0" + toConvert.toString(16)).slice(-2);
     }

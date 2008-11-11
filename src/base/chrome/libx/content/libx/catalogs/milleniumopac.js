@@ -21,16 +21,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function () 
-{
+libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog, {
 
-function MilleniumOPAC() { }
-
-libxEnv.catalogClasses["millenium"] = MilleniumOPAC;
-
-MilleniumOPAC.prototype = new libxCatalog();
-
-libxAddToPrototype(MilleniumOPAC.prototype, {
 	xisbn: { opacid: "innovative" },
     // default values for millenium catalogs
     sort: 'R',  //sort by relevance, use 'D' for date
@@ -103,7 +95,5 @@ libxAddToPrototype(MilleniumOPAC.prototype, {
 		return url;
 	}
 });
-
-})();
 
 // vim: ts=4

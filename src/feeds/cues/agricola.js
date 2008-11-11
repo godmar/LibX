@@ -13,7 +13,7 @@ function doAgricola(doc) {
     var cn_a = cn_aNode.contents()[0];
     var cn = cn_a.nodeValue;
 
-    var link = libxEnv.makeLink(doc, libxEnv.getProperty("callnolookup.label", [libraryCatalog.name, cn]), libraryCatalog.makeCallnoSearch(cn), libraryCatalog);
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("callnolookup.label", [libx.edition.catalogs.default.name, cn]), libx.edition.catalogs.default.makeCallnoSearch(cn), libx.edition.catalogs.default);
     // insert cue after <A> element within the containing <TD> element
     cn_a.parentNode.insertBefore(link, cn_a.nextSibling);
     animateCue(link);

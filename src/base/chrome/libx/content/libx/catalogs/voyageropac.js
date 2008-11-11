@@ -173,13 +173,7 @@ function insertAND(s) {
 // Support for Voyager OPAC
 // taken in part from http://www.mines.edu/library/catalyst/canned.html
 //
-function VoyagerOPAC() { }
-
-libxEnv.catalogClasses["voyager"] = VoyagerOPAC;
-
-VoyagerOPAC.prototype = new libxCatalog();
-
-libxAddToPrototype(VoyagerOPAC.prototype, {
+libx.catalog.factory["voyager"] = libx.core.Class.create(libx.catalog.Catalog, {
     keyword: "FT*",     // default keyword index
     count: 25,          // default number of hits returned
     relevanceranking: true,     // by default, use relevance ranking for keyword

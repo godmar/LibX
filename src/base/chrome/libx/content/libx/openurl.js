@@ -21,7 +21,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/* OpenURL Resolver prototype 
+/* 
+ * OpenURL Resolver Support
  * 
  * Author: Annette Bailey <annette.bailey@gmail.com>
  *         Godmar Back <godmar@gmail.com>
@@ -30,18 +31,21 @@
  * a OpenURL query against a resolver.  However, there are peculiarities: some resolvers
  * only support articles, some require certain fields.
  *
- * OpenURL.prototype contains properties that we expect to be common to all OpenURL
- * resolvers.  It is possible to create a usable OpenURL object.
+ * OpenURL implements properties that we expect to be common to all OpenURL
+ * resolvers.  It provides a fully functioning implementation.
  *
  * ArticleLinker and SFX are subclasses that inherit from OpenURL and provide
  * functionality specific to the Serials Solutions's Article Linker product
  * and the SFX product.
  */
 
-function OpenURL() { }
+libx.openurl = { 
+    // maps OpenURL types (generic, sfx, etc.) to classes
+    factory : { }
+};
 
-// Functions shared by all openurl resolvers
-OpenURL.prototype = {
+libx.openurl.factory["webbridge"] =
+libx.openurl.factory["generic"] = libx.core.Class.create({
     makeOpenURLFromFields: function(fields) {
 	    var url = "__char_set=utf8";
 	    this.haveTitleOrIssn = false;
@@ -245,114 +249,63 @@ OpenURL.prototype = {
             libxEnv.openSearchWindow(url);
         }
     }
-}
-
-// Initialize OpenURL support if so configured
-function libxInitializeOpenURL() 
-{
-    libxConfig.resolvers = new Array();
-    libxConfig.numResolvers = 0;
-    var resolvers = libxEnv.xpath.findNodesXML ( libxEnv.xmlDoc.xml, "/edition/openurl/*" );
-    libxEnv.openUrlResolvers = new Object();
-    for ( var i = 0; i < resolvers.length; i++ ) {
-        
-        var pnode = resolvers[i];
-        var ourltype = pnode ? pnode.getAttribute("type") : null;
-       
-        switch (ourltype) {
-        case "sersol":
-            libxEnv.openUrlResolvers[i] = new ArticleLinker();
-            break;
-        case "sfx":
-            libxEnv.openUrlResolvers[i] = new SFX();
-            break;
-        case "oclcgateway":
-            libxEnv.openUrlResolvers[i] = new libxOCLCGateway();
-            break;
-        case "generic":        
-        case "webbridge":
-            libxEnv.openUrlResolvers[i] = new OpenURL();
-            break;
-        default:
-            libxEnv.writeLog("Unsupported OpenURL type: " + ourltype);
-            /* FALLTHROUGH */
-        case "":
-        case null:
-            libxEnv.openUrlResolvers[i] = null;
-            return;
-        }
-        libxConfig.numResolvers++;
-        libxEnv.xmlDoc.copyAttributes(pnode, libxEnv.openUrlResolvers[i]);
-        libxConfig.resolvers[libxEnv.openUrlResolvers[i].name] = libxEnv.openUrlResolvers[i];
-    }
-    libxEnv.openUrlResolver = libxEnv.openUrlResolvers[0];
-}
+});
 
 // ---------------------------------------------------------------------------------
 // Article Finder is a subclass of OpenURL
 // 
-function ArticleLinker() { }
+libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Class.create(libx.openurl.factory["generic"], {
 
-// make ArticleLinker a "subclass" of OpenURL
-// everything that's in OpenURL.prototype shall now be accessible via
-// ArticleLinker.prototype.
-ArticleLinker.prototype = new OpenURL();
+    // if used as a search catalog, show only Journal Title + ISBN/ISSN
+    options : "jt;i",
 
-libxEnv.catalogClasses["sersol"] = ArticleLinker;
-
-// if used as a search catalog, show only Journal Title + ISBN/ISSN
-ArticleLinker.prototype.options = "jt;i";
-
-ArticleLinker.prototype.makeOpenURLSearch = function (fields) {
-    // if the user specifies only the journal title/issn, use sersol's search function
-    if (fields.length == 1) {
-        libxAdjustISNSearchType(fields[0]);
-        var stype = fields[0].searchType;
-        if (stype == 'jt') {
-            // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
-            return this.url + '?V=1.0&S=T_W_A&C=' + encodeURIComponent(fields[0].searchTerms);
+    makeOpenURLSearch : function (fields) {
+        // if the user specifies only the journal title/issn, use sersol's search function
+        if (fields.length == 1) {
+            libxAdjustISNSearchType(fields[0]);
+            var stype = fields[0].searchType;
+            if (stype == 'jt') {
+                // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
+                return this.url + '?V=1.0&S=T_W_A&C=' + encodeURIComponent(fields[0].searchTerms);
+            }
+            if (stype == 'is') {
+                return this.url + '?V=1.0&S=I_M&C=' + encodeURIComponent(fields[0].searchTerms);
+            }
         }
-        if (stype == 'is') {
-            return this.url + '?V=1.0&S=I_M&C=' + encodeURIComponent(fields[0].searchTerms);
-        }
+
+        return this.parent(fields);
     }
-
-    // super.makeOpenURLFromFields()
-    return OpenURL.prototype.makeOpenURLSearch.call(this, fields);
-}
+});
 
 // ---------------------------------------------------------------------------------
 // SFX is a subclass of OpenURL
 // 
-function SFX() { }
+libx.catalog.factory["sfx"] =
+libx.openurl.sfx = libx.core.Class.create(libx.openurl.factory["generic"], {
+    makeOpenURLSearch : function (fields) {
+        var url = this.parent(fields);   
+        if (url == null)
+            return null;
 
-libxEnv.catalogClasses["sfx"] = SFX;
-// make SFX a "subclass" of OpenURL
-SFX.prototype = new OpenURL();
-
-SFX.prototype.makeOpenURLSearch = function (fields) {
-    var url = OpenURL.prototype.makeOpenURLSearch.call(this, fields);   
-    if (url == null)
-        return null;
-
-    /* SFX appears to look at the genre when deciding how to interpret 
-     * the other fields.  This should now be handled correctly in makeOpenURLSearch.
-     *
-     * The other adjustments were found via debugging in 2005; 
-     * do they still apply?
-     */
-    for (var i = 0; i < fields.length; i++) {
-        switch (fields[i].searchType) {
-        case 'jt':
-            url += "&sfx.title_search=contains";
-            /* FALL THROUGH */
-        case 'is':
-            url += "&sfx.ignore_date_threshold=1";
-            break;
+        /* SFX appears to look at the genre when deciding how to interpret 
+         * the other fields.  This should now be handled correctly in makeOpenURLSearch.
+         *
+         * The other adjustments were found via debugging in 2005; 
+         * do they still apply?
+         */
+        for (var i = 0; i < fields.length; i++) {
+            switch (fields[i].searchType) {
+            case 'jt':
+                url += "&sfx.title_search=contains";
+                /* FALL THROUGH */
+            case 'is':
+                url += "&sfx.ignore_date_threshold=1";
+                break;
+            }
         }
+        return url;
     }
-	return url;
-}
+});
 
 // ---------------------------------------------------------------------------------
 // libxOCLCGateway is a subclass of OpenURL
@@ -360,25 +313,22 @@ SFX.prototype.makeOpenURLSearch = function (fields) {
 // Retrieve icon of whichever OpenURL resolver is reported as being accessible for the current IP
 // Actual requests go through the worldcatlibraries URL below.
 //
-function libxOCLCGateway () {
-    var thisOpenURL = this;
-
-    libxEnv.getXMLDocument ( "http://worldcatlibraries.org/registry/lookup?IP=requestor",
-        function ( xmlhttprequest ) {
-            var doc = xmlhttprequest.responseXML;
-            try {
-                var link = doc.getElementsByTagName ( 'linkIcon' )[0].firstChild.nodeValue;
-                thisOpenURL.image = link;
-            } catch (e) { /* ignore */ }
-    } );
-}
-
-libxOCLCGateway.prototype = new OpenURL ();
-
-libxAddToPrototype(libxOCLCGateway.prototype, {
+libx.openurl.OCLCGateway = libx.core.Class.create(libx.openurl.factory["generic"], {
     url : "http://worldcatlibraries.org/registry/gateway",
     name : "OCLC Gateway",
-    sid : "libx:oclcgateway"
+    sid : "libx:oclcgateway",
+    initialize: function () {
+        var thisOpenURL = this;
+
+        libxEnv.getXMLDocument ( "http://worldcatlibraries.org/registry/lookup?IP=requestor",
+            function ( xmlhttprequest ) {
+                var doc = xmlhttprequest.responseXML;
+                try {
+                    var link = doc.getElementsByTagName ( 'linkIcon' )[0].firstChild.nodeValue;
+                    thisOpenURL.image = link;
+                } catch (e) { /* ignore */ }
+        } );
+    }
 });
 
 /*
@@ -421,4 +371,5 @@ libxAddToPrototype(libxOCLCGateway.prototype, {
 </resolverRegistryEntry>
 </records>
 */
+
 // vim: ts=4

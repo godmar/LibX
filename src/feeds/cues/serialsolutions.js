@@ -19,9 +19,9 @@ if (libxEnv.openUrlResolver && libxEnv.options.sersolisbnfix) {
             }
             if (h4 == null)
                 return;
-            var hint = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), libraryCatalog.makeISBNSearch(isbn), libraryCatalog);
+            var hint = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn]), libx.edition.catalogs.default.makeISBNSearch(isbn), libx.edition.catalogs.default);
             var it = doc.createElement("i");
-            it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn])));
+            it.appendChild(doc.createTextNode(" LibX Enhancement: " +  libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn])));
 
             var par = doc.createElement("p");
             par.appendChild(hint);

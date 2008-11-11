@@ -15,7 +15,7 @@ try {
     var isbnNodeArray = $("b:contains('ISBN')");
     var isbnVal = isbnNodeArray[0].nextSibling.nodeValue;
 
-    var isbn = isISBN(isbnVal, libraryCatalog.downconvertisbn13);
+    var isbn = isISBN(isbnVal, libx.edition.catalogs.default.downconvertisbn13);
     var booktitleNodeArray = $(
         "div.buying > h1.parseasinTitle > span#btAsinTitle");
     if (booktitleNodeArray.length == 0) {
@@ -27,9 +27,9 @@ try {
     // make link and insert after title
     var div = booktitleNode.parentNode;
     var cue = libxEnv.makeLink(doc, 
-        libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]), 
-        libraryCatalog.linkByISBN(isbn), libraryCatalog);
-    createXISBNTooltip(cue, isbn, libraryCatalog.name);
+        libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn]), 
+        libx.edition.catalogs.default.linkByISBN(isbn), libx.edition.catalogs.default);
+    createXISBNTooltip(cue, isbn, libx.edition.catalogs.default.name);
     //div.insertBefore(cue, booktitleNode.nextSibling);
 //    animateCue(cue);
 

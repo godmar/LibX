@@ -62,11 +62,9 @@ libxEnv.sandboxClass = function ()
             getDocument : libxEnv.getDocument
         };
 
+        theSandBox.libx = libx;
         theSandBox.libxConfig = libxConfig;
-        theSandBox.libraryCatalog = libraryCatalog;
-        theSandBox.searchCatalogs = searchCatalogs; // not used at all (?)
         theSandBox.isISBN = isISBN;
-        theSandBox.libxProxy = libxProxy;   // used only by wam.js for first configured proxy
 
         // XPCNativeWrapper does not set the prototype chain
         theSandBox.__proto__ = safeWin; 

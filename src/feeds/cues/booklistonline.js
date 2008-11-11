@@ -8,10 +8,10 @@ function (doc) {
         if (isbn) {
             var newlink = libxEnv.makeLink(doc,
                 libxEnv.getProperty("isbnsearch.label",
-                    [libraryCatalog.name, isbn]),
-                libraryCatalog.linkByISBN(isbn));
+                    [libx.edition.catalogs.default.name, isbn]),
+                libx.edition.catalogs.default.linkByISBN(isbn));
 
-            createXISBNTooltip(newlink, isbn, libraryCatalog.name);
+            createXISBNTooltip(newlink, isbn, libx.edition.catalogs.default.name);
 
             n[i].parentNode.insertBefore(newlink, n[i]);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), n[i]);

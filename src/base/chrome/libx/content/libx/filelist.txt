@@ -1,3 +1,4 @@
+libxcoreclass.js
 libx.js
 proxy.js
 xisbn.js

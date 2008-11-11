@@ -165,6 +165,62 @@ function restoreDefault () {
 // Initializes all of the context menu trees
 function libxInitContextMenuTrees() {
     libxTrees = new Array();
+	
+	// TODO: Currently tabs are hard coded, this will need to be changed to accomidate dynamic entries
+	// we need a tab for each group
+	// we need a Category for each type
+	// we need a name for each Catalog/OpenURL/etc
+	// we need an entry for each item
+	
+	// Current Context Menu object
+	
+	var contextMenu = window.opener.libx.browser.contextMenu;
+	var groupListNames = contextMenu.getGroupListNames();
+	for ( var i = 0; i < groupListNames.length; i++ ) {
+		
+		var groupList = contextMenu.getGroupList ( groupListNames[i] );
+		
+		var groupNames = groupList.getGroupNames();
+		for ( var j = 0; j < groupNames.length; j++ ) {
+			// Each group  corresponds to its own tab...
+			var group = groupList.getGroup ( groupNames[j] );
+			var entries = { };
+			var types = new Array();
+			var itemDescriptors = group.getItemDescriptors();
+			for ( var k = 0; k < itemDescriptors.length; k++ ) {
+				var itemDescriptor = itemDescriptors[k];
+				var type = itemDescriptor.type; // Type of item ( ie, catalog, proxy, scholar, etc )
+				var name = itemDescriptor.name; // Name of item ( ie, Addison )
+				var searchType = itemDescriptor.searchType; // Name of item ( ie, Y, t, a, etc )
+				if ( entries[type] == undefined ) {
+					entries[type] = { 
+						label : type,
+						id : group.name + '.' + type,
+						children : { }
+					};
+					types.push ( entries[type] );
+				}
+				if ( entries[type].children[name] == undefined ) {
+					entries[type].children[name] = { };
+				}
+				entries[type].children[name][searchType] = { };
+			}
+			var treeid = "libx-contextmenu-" + group.name + "-prefs-tree";
+			var treeNode = libxEnv.initTree(treeid, types);
+			libxTrees.push(treeNode);
+			// iterate over tye types ( isbn, issn, etc )
+			for ( var k in entries ) {
+				var type = entries[k];
+				var parent = treeNode.getChild(type.id);
+				// iterate over categories within each type, ie catalog, proxy, etc 
+				for ( var x in type.children ) {
+					var catid = type.id + '.' + x;
+					addCatalog ( parent, x, type.children[x], catid );
+				}
+			}
+		}
+	}
+	
     /*  addCatalog
      * Adds a catalog entry to the given tree
      * 
@@ -182,7 +238,7 @@ function libxInitContextMenuTrees() {
      * us "isbn.Addison.xISBN" for the checkbox that determines whether to
      * display the Addison xISBN resolver in the context menu.
      */
-    function addCatalog (parent, name, options, idprefix) {
+    function addEntry (parent, name, options, idprefix) {
         var catalogNode = parent.createChild(name, idprefix + '.' + name);
 
         var open = false;
@@ -210,160 +266,6 @@ function libxInitContextMenuTrees() {
             parent.setExpanded(open);
         }
     }
-    /*
-     * Initializes the preferences tree with a Catalogs and OpenUrlResolvers label
-     * other must specify { type:, name:, id:, options: }
-     */
-    function initPrefsTree ( type, catF, resolverF, proxyF, other ) {
-        //Build the ID strings
-        var tabId = "libx-contextmenu-" + type + "-prefs-tab";
-        var tabPanelId = "libx-" + type + "-tab";
-        var id = "libx-contextmenu-" + type + "-prefs-tree";
-
-        var types = new Array ();
-        var newID;
-        var catID;
-        var resolverID;
-        var proxyID;
-        var otherID;
-
-        if ( catF && libxConfig.numCatalogs > 0 ) {
-            newID = type + ".catalog";
-            types.push ( {label: "Catalogs", id: newID} );
-            catID = newID;
-        }
-
-        if ( resolverF && libxConfig.numResolvers > 0 ) {
-            newID = type + ".openurl";
-            types.push ( {label: "Open Url Resolvers", id: newID} );
-            resolverID = newID;
-        }
-
-        if ( proxyF && libxConfig.numProxy > 0 ) {
-            newID = type + ".proxy";
-            types.push ( {label: "Proxy", id: newID} );
-            proxyID = newID;
-        }
-
-        if ( other ) {
-            newID = other.id;
-            types.push ( {label: other.type, id: other.id} );
-            otherID = other.id;
-        }
-
-        if ( types.length == 0 ) {
-            //Remove the tab and bail (nothing to do)
-            //Note that the tab hasn't even been added yet in IE, but
-            //the function is smart enough to handle that.
-            libxEnv.removeContextMenuPreferencesTab(type);
-            return;
-        }
-
-        var treeNode = libxEnv.initTree(id, types);
-        libxTrees.push(treeNode);
-
-        var catalogChildren = treeNode.getChild(catID);
-        var resolverChildren = treeNode.getChild(resolverID);
-        var proxyChildren = treeNode.getChild(proxyID);
-        var otherChildren = treeNode.getChild(otherID);
-
-        if ( catF ) {
-            for ( var k in libxConfig.catalogs ) {
-                var cat = libxConfig.catalogs[k];
-                var opts = catF ( cat );
-                if ( opts )
-                    addCatalog ( catalogChildren, k, opts, type + ".catalog" );
-            }
-        }
-
-        if ( resolverF ) {
-            for ( var k in libxConfig.resolvers ) {
-                var opts = resolverF ( libxConfig.resolvers[k] );
-                if ( opts )
-                    addCatalog ( resolverChildren, k, opts, type + ".openurl" );
-            }
-        }
-
-        if ( proxyF ) {
-            for ( var k in libxConfig.proxy ) {
-                var opts = proxyF ( libxConfig.proxy[k] );
-                if ( opts )
-                    addCatalog ( proxyChildren, k, opts, type + ".proxy" );
-            }    
-        }
-
-        if ( other ) {
-            addCatalog ( otherChildren, other.name, other.options, other.id );
-        }
-    }
-
-    // Initializes the default preferences tree
-    initPrefsTree ( 'general', 
-    function ( cat ) {
-        var options = cat.options.split ( ';' );
-        var opts = new Array();
-        for ( var k in options ) {
-            if ( options[k] != 'i' )
-                opts.push ( options[k] );
-        }
-        return opts;        
-    },
-    null, 
-    null,
-    { type:"Scholar", name:"Google Scholar", id:"general.scholar", options:["magicsearch"] }
-    );
-
-    // Initializes the ISBN Preference Tree
-    initPrefsTree ( 'isbn', 
-    function ( cat ) {
-        var opts = new Array();
-        
-        if ( cat.options.indexOf ( 'i' ) >= 0 ) {
-            opts.push ( 'i' );
-        }
-        if ( cat.xisbn && ( cat.xisbn.opacid ||  cat.xisbn.oai ) ) {
-            opts.push ( 'xisbn' );
-        }
-        
-        return opts.length > 0 ? opts : null;
-    },
-    function ( resolver ) {
-        return ['i'];
-    });
-    
-    // Initializes the issn preferences tree    
-    initPrefsTree ( 'issn', 
-    function ( cat ) {
-        if ( cat.options.indexOf ( 'i' ) >= 0 )
-            return ['i'];
-        return null;
-    },
-    function ( resolver ) {
-        return ['i'];
-    });
-
-    // Initializes the pmid preferences tree
-    initPrefsTree ( 'pmid', 
-    null,
-    function ( resolver ) {
-        return ['pmid'];
-    });
-
-    // Initializes the DOI preference tree
-    initPrefsTree ( 'doi', 
-    null,
-    function ( resolver ) {
-        return ['doi'];
-    });
-
-    // Initializes the proxy preference tree
-    initPrefsTree ( 'proxy',
-    null,
-    null,
-    function ( proxy ) {
-        return ['enabled'];
-    }
-    );    
 }
 
 

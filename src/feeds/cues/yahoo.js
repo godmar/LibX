@@ -12,7 +12,7 @@ new libxEnv.doforurls.DoForURL(
     var searchtermsArray = $("input[id='yschsp']");
 
     var searchterms = searchtermsArray[0].value;
-    var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog);
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libx.edition.catalogs.default.name, searchterms]), libx.edition.catalogs.default.makeKeywordSearch(searchterms), libx.edition.catalogs.default);
 
     if (alsotry && searchterms) {
         alsotry.appendChild(link);

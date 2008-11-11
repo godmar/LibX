@@ -21,19 +21,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function () 
-{
 // Support for Voyager7 OPAC
-function Voyager7Opac() { }
-;
-libxEnv.catalogClasses["voyager7"] = Voyager7Opac;
-
-Voyager7Opac.prototype = new libxCatalog();
-
-/*
- * Example catalogs:
- */
-libxAddToPrototype(Voyager7Opac.prototype, {
+libx.catalog.factory["voyager7"] = libx.core.Class.create(libx.catalog.Catalog, {
     count: 10,
     path: "/vwebv/search",
     limitto: "none",
@@ -82,7 +71,5 @@ libxAddToPrototype(Voyager7Opac.prototype, {
             + "&searchType=2";
 	}
 });
-
-})();
 
 // vim: ts=4

@@ -106,14 +106,14 @@ var autolink = libxEnv.autolink;
         { filter: new autolink.isbnRegExpFilterClass(/((97[89])?((-)?\d(-)?){9}[\dx])(?!\d)/ig),
           processor: function (match, anchor)
                      {
-                         var isbn = isISBN(match[1], libraryCatalog.downconvertisbn13);
+                         var isbn = isISBN(match[1], libx.edition.catalogs.default.downconvertisbn13);
 
                          if (isbn === null)
                          {
                              return null;
                          }
 
-                         this.name = libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, isbn]);
+                         this.name = libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, isbn]);
                          libxEnv.xisbn.getISBNMetadataAsText(isbn,
                                  {ifFound:
                                  function(text)
@@ -121,13 +121,13 @@ var autolink = libxEnv.autolink;
                                  anchor.title 
                                  = "LibX: " 
                                  + libxEnv.getProperty("catsearch.label", 
-                                     [libraryCatalog.name, 
+                                     [libx.edition.catalogs.default.name, 
                                      text]);
                                  }
                                  });
 
 
-                         var href = libraryCatalog.linkByISBN(isbn);
+                         var href = libx.edition.catalogs.default.linkByISBN(isbn);
 
                          if (href === null)
                          {
@@ -194,12 +194,12 @@ var autolink = libxEnv.autolink;
                                      anchor.title
                                      = "LibX: "
                                      + libxEnv.getProperty("issnsearch.label",
-                                         [libraryCatalog.name,
+                                         [libx.edition.catalogs.default.name,
                                          text]);
                                      }
                                      });
 
-                             href = libraryCatalog.makeSearch('is', issn);
+                             href = libx.edition.catalogs.default.makeSearch('is', issn);
                          }
 
                          if (href === null)

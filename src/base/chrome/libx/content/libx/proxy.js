@@ -21,10 +21,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-function libxEZProxy() {
-}
+libx.proxy = {
+    // maps OpenURL types  (generic, sfx, etc.) to classes
+    factory : { }
+};
 
-libxEZProxy.prototype = {
+libx.proxy.factory["ezproxy"] = libx.core.Class.create({
     canCheck: function () { 
         // XXX check user preference here as well.
         return this.urlcheckpassword != null; 
@@ -71,12 +73,10 @@ libxEZProxy.prototype = {
     rewriteURL: function (url) {
         return this.url.replace(/%S/, url);
     }
-}
+});
 
-function libxWAMProxy() {
-}
 
-libxWAMProxy.prototype = {
+libx.proxy.factory["wam"] = libx.core.Class.create({
     /* WAM does not support checking whether the site would be proxied as of now. */
     canCheck: function () { return false; },
 
@@ -106,6 +106,6 @@ libxWAMProxy.prototype = {
         }
         return url;
     }
-}
+});
 
 // vim: ts=4

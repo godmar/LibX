@@ -21,19 +21,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function () 
-{
 // Support for Talis Prism OPAC
-function TalisPrism() { }
-;
-libxEnv.catalogClasses["talisprism"] = TalisPrism;
+libx.catalog.factory["talisprism"] = libx.core.Class.create(libx.catalog.Catalog, {
 
-TalisPrism.prototype = new libxCatalog();
-
-/*
- * Example catalogs:
- */
-libxAddToPrototype(TalisPrism.prototype, {
     collections: "1",
     location: "talislms",
     sites: "-1",
@@ -75,7 +65,5 @@ libxAddToPrototype(TalisPrism.prototype, {
 		return url;
 	}
 });
-
-})();
 
 // vim: ts=4

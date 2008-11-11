@@ -21,15 +21,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function () 
-{
-// Support for Vubis OPAC
-function VubisOPAC() { }
-
-libxEnv.catalogClasses["vubis"] = VubisOPAC;
-
-VubisOPAC.prototype = new libxCatalog();
-
 /*
  * Michael Vandenburg <mvandenburg@kfpl.ca> contributed the URL format
  * Example catalogs:
@@ -62,7 +53,8 @@ VubisOPAC.prototype = new libxCatalog();
  * rofile=Default&RequestType=ResultSet_DisplayList&SearchTechnique=Find&StartV
  * alue=1&Request=harry%20potter
  */
-libxAddToPrototype(VubisOPAC.prototype, {
+// Support for Vubis OPAC
+libx.catalog.factory["vubis"] = libx.core.Class.create(libx.catalog.Catalog, {
     profile: 'Default',
     opaclanguage: 'eng',
     searchmethod: 'Find_1',
@@ -114,7 +106,5 @@ libxAddToPrototype(VubisOPAC.prototype, {
 	}
     // XXX may have to override makeXISBNRequest to send url+path along to xisbn.worldcat
 });
-
-})();
 
 // vim: ts=4

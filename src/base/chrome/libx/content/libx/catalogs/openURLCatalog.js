@@ -22,23 +22,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-(function() 
-{
+libx.catalog.factory["openurlresolver"] = libx.core.Class.create(libx.catalog.Catalog, {
+    initialize: function () {
+        this.options = libxEnv.openUrlResolver.options;
+    },
 
-function OpenURLCatalog() {
-    this.options = libxEnv.openUrlResolver.options;
-}
-
-libxEnv.catalogClasses["openurlresolver"] = OpenURLCatalog;
-
-OpenURLCatalog.prototype = new libxCatalog();
-
-libxAddToPrototype(OpenURLCatalog.prototype, {
 	search: function (fields) {
 	    return libxEnv.openUrlResolvers[this.resolvernum].search( fields );
 	}
 });
-
-})();
 
 // vim: ts=4

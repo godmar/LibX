@@ -28,154 +28,588 @@
  * Utility Functions for the Context MenuObjects
  *
  */
+libx.ui = { };
  
-// Maps 'labels' to menu object lists
-// Current labels are "libx" and "always"
-// Each property is an array of LibxMenuObject
-var libxLabels2MenuObjectLists;
+libx.ui.ContextMenu = ( function () { 
 
-// Holds all nodes put in the context menu
-// Used for quick removal
-var libxCreatedMenuItems = new Array();
+var ContextMenu = libx.core.Class.create ( {
+	/**
+	 *	Initializes this context menu object
+	 *	Takes a paramater indicating the groupLists and groups to initialize
+	 */
+	initialize : function ( contextMenuObject ) {
+		var groupLists = this.groupLists = new Array();
+		var popuphelper = this.popuphelper = libx.bd.getPopupHelper();
+		this.onShowing = function ( p ) {
+			for ( var i = 0; i < groupLists.length; i++ ) {
+				groupLists[i].onShowing ( popuphelper );
+			}
+		};
+		// onHiding
+		this.onHiding = function () {
+			for ( var i = 0; i < groupLists.length; i++ ) {
+				groupLists[i].onHiding();
+			}
+		};
+		if ( contextMenuObject != null ) {
+			for ( var i in contextMenuObject ) {
+				var glist = this.createGroupList ( i, contextMenuObject[i].type );
+				var groups = contextMenuObject[i].groups;
+				for ( var j in groups ) {
+					var group = glist.createGroup ( j, groups[j] );
+				}
+			}
+		}		
+	},
 
-// Holds preferences for Context Menu
-var libxMenuPrefs;
+	/**
+	 *	Creates a GroupList object, adds it to the ContextMenu and returns it.
+	 *	@param: name - Name of GroupList to create
+	 *	@param: type - Type of group list to create ( ContextMenu.GroupList.types.STOP_AT_FIRST_MATCHING_GROUP or INCLUDE_ALL_GROUPS )
+	 *	@return: newly created GroupList object
+	 */
+	createGroupList : function (name, type) {
+		var gl = new ContextMenu.GroupList( name, type );
+		this.groupLists.push ( gl );
+		return gl;
+	},
+	
+	/**
+	 *	Iterates through the list of all GroupLists, returning the list with the matched name
+	 *	@param name - The name to search for
+	 *	@return GroupList with name = name
+	 */
+	getGroupList : function ( name ) {
+		for ( var i = 0; i < this.groupLists.length; i++ ) {
+			var gl = this.groupLists[i];
+			if ( gl.name == name ) {
+				return gl;
+			}
+		}
+	},
 
-/* Creates a new Context Menu Object
- * type      -- 'type' of the menuitem 
- *              supported types include
- *               - 'isbn', 'issn', 'doi', 'default', 'pmid'
+	/**
+	 *	Returns an array of all the names of registered GroupList's
+	 *	@return Array containing name of every GroupList registered to this ContextMenu object
+	 */
+	getGroupListNames : function () {
+		var names = new Array();
+		for ( var i = 0; i < this.groupLists.length; i++ ) {
+			names.push ( this.groupLists[i].name );
+		}
+		return names;
+	},
+	
+	
+});
+
+
+/**
+ *	GroupList's are designed to hold one or more Group's of ContextMenu.Item objects.
  *
- * label     -- used to determine order of evaluation
- *                 anything with "general" as label will always be evaluated
+ *	When the context menu is shown, the onShowing method is called for each GroupList object,
+ *	which in turn iterates through the Group objects in the list.
  *
- * tmatch    -- function that takes a popuphelper ( see popuphelperutils.js for documentation ) and returns
- *              null - if no match is found and menuObject(s) should not be displayed
- *              otherwise the onmatch function will be called..
+ *	The type attribute determines whether all Groups in a List will be iterated through ('INCLUDE_ALL_GROUPS'), or
+ *	whether the GroupList will stop at the first match
  *
- * onmatch      -- function that is called if a non-null match is found
- *                is given two paramaters 
- *                    s -- the match returned by tmatch function
- *                  menuItems -- an array of the actual menu items that were created from the data given by menuitems param
  */
-function libxRegisterContextMenuObject ( label, type, tmatch, onmatch ) {
-    /*
-     * MenuObject class
-     * Stores all information about a group of related menu items
-     * Has the following fields:
-     * this.menuentries[] -- each menuentry contains
-     *          type     -- catalog or openurlresolver
-     *          name     -- which catalog or openurlresolver
-     *          menuitem -- DOM menuitem it pertains to
-     * this.matchf  -- matching function ( generally a regular expression, that
-     *                 will return a non null result when a match is found )
-     * this.onmatch -- command function to be run when the match is found.
-     *                 this function is passed in the menuitems as well as the
-     *                 result from the matchf
+ContextMenu.GroupList = libx.core.Class.create ( {
+	/**
+	 *	Initializes a GroupList with the provided name and type
      */
-    var menuObject = {
-        menuentries : new Array(),
-        matchf: tmatch,
-        onmatch: onmatch
-    };
-
-    //Using this notation (versus eval) works better with IE  
-    var defined = libxMenuPrefs.contextmenu[type];
-    
-    if ( defined != null && defined != "" ) {
-        for ( var i = 0; i < defined.children.length; i++ ) {
-            var item = defined.children[i];
-
-            //Validate menu item
-            //Sometimes, items that should be dead may come from beyond the
-            //grave in userprefs.xml.
-            switch(item.nodeName.toLowerCase()) {
-                case 'proxy':
-                    if(!libxConfig.proxy[item.attr.name]) {
-                        continue;
+	initialize: function ( name, type ) {
+		this.name = name;
+		this.groups = new Array();
+		this.type = type;
+	},
+	/**
+	 *	Creates, registers, and returns a group with the specified name and match function
+	 *	@param name - name of the Group to create
+	 *	@param matchfunct - match function to register with this group
+	 *		This function should take a single paramater, a popuphelper object
+	 *		This function may return any object on a successful match, but must return null when a match is not found
+	 *	@return newly created group
+	 */
+	createGroup : function ( name, matchfunct ) {
+		var group = new ContextMenu.Group ( name, matchfunct )
+		this.groups.push (  group );
+		return group;
+	},
+	
+	/**
+	 *	This is the function called when the context menu is showing
+	 *	This will iterate through all groups in the list, calling the match function on each of them
+	 *	If the result from match is not null, it passes this object and the popuphelper to the
+	 *	Groups onShowing method
+	 *	@param p - popuphelper object
+	 */
+	onShowing : function (p) {
+		for ( var i = 0; i < this.groups.length; i++ ) {
+			var group = this.groups[i];
+			if (  group.onShowing( p ) > 0 ) {
+				return;
                     }
-                    break;
-                case 'catalog':
-                    if(!libxConfig.catalogs[item.attr.name]) {
-                        continue;
                     }
-                    break;
-                case 'openurl':
-                    if(!libxConfig.resolvers[item.attr.name]) {
-                        continue;
+	
+	},
+	/**
+	 *	This function is called when the context menu is hidden
+	 *	It iterates through all groups, calling onHiding on each
+	 */
+	onHiding : function () {
+		for ( var i = 0; i < this.groups.length; i++ ) {
+			var group = this.groups[i];
+			group.onHiding();
+		}
+	},
+	/**
+	 *	Returns a group with the specified name, or null if
+	 *	such a group does not exist
+	 *	@param name - Name of the group to search for
+	 *	@return Group with matching name, or null if no such group exists
+	 */
+	getGroup : function ( name ) {
+		for ( var i = 0; i < this.groups.length; i++ ) {
+			var group = this.groups[i];
+			if ( group.name == name ) {
+				return group;
                     }
-                    break;
             }
+		return null;
+	},
 
-            var menuEntry = {
-                source: item.nodeName, 
-                name: item.attr.name, 
-                type: item.attr.type 
-            };
+	/**
+	 *	Returns the names of all of the groups in this group list
+	 *	@return Array containing the name of every group in this GroupList
+	 */
+	getGroupNames : function () {
+		var names = new Array();
+		for ( var i = 0; i < this.groups.length; i++ ) {
+			names.push ( this.groups[i].name );
+		}
+		return names;
+	},
 
-            var nativeMenuItem = libxEnv.addMenuObject(menuEntry);
-            libxCreatedMenuItems.push(nativeMenuItem);
-            menuEntry.menuitem = nativeMenuItem;
-            menuObject.menuentries.push(menuEntry);
+	/**
+	 *	createGroupBefore and createGroupAfter based on:
+	 *	insertBefore and insertAfter from
+	 *		http://extjs.com/forum/showthread.php?t=37697
+	 *
+	 *	Creates a group, and adds it before an existing group in the GroupList
+            *	@param name - The name of the group to be created
+            *	@param matchFunct - The match function of the group to be created
+            *	@return Group that was created and inserted
+             */
+    createGroupBefore : function(name, matchFunct, curGroup ){
+		var newGroup = new ContextMenu.Group ( name, matchFunct );
+		var inserted = false;
+        var index = this.groups.indexOf(curGroup);
+        if(index == -1)
+			return null;
+		else {
+			if(index == 0){
+				this.groups.unshift(newGroup)
         }
+			else
+				this.groups.splice(newGroup, index - 1);
+    }
+		return newGroup;
+    },
+    
+	/**
+	 *	Creates a group, and adds it after an existing group in the GroupList
+            *	@param name - The name of the group to be created
+            *	@param matchFunct - The match function of the group to be created
+	 *	@return Group that was created and inserted
+	 */
+    createGroupAfter : function(name, matchFunct, curGroup){
+		var newGroup = new ContextMenu.Group ( name, matchFunct );
+		var inserted = false;
+		var index = this.groups.indexOf(curGroup);
+		if(index == -1)
+			return false;
+		else {
+			if(index == this.groups.length - 1){
+				this.groups.push(newGroup);
+			}
+			else
+				this.groups.splice(newGroup, index + 1);
+		}   
+		return newGroup;
     }
     
-    if ( libxLabels2MenuObjectLists[label] == null)
-        libxLabels2MenuObjectLists[label] = new Array();
+} );
+
+/**
+ *	Enumeration for the different types of support GroupLists
+ *	STOP_AT_FIRST_MATCHING_GROUP - Groups will only be evaluated until one finds a match
+ *	INCLUDE_ALL_GROUPS - All groups in the GroupList will be evaluated
+ */
+ContextMenu.GroupList.types = {
+	STOP_AT_FIRST_MATCHING_GROUP: "STOP_AT_FIRST_MATCHING_GROUP",
+	INCLUDE_ALL_GROUPS: "INCLUDE_ALL_GROUPS"
+};
+
+/**
+ *	This represents a group of ContextMenu Items
+ *	All items in the group are controlled by the groups match function,
+ *	which determines what object will be passed into a Item's onShowing function.
+ */
+ContextMenu.Group = libx.core.Class.create ( {
+	initialize : function ( name, matchFunct ) {
+		this.name = name;
+		this.match = matchFunct;
+		this.items = new Array();
+	},
+	
+	/**
+	 *	Creates an item with the specified type
+	 *	Passes all but first argument to Item Constructor
+	 *	@param type - Type of Item to create
+	 *	@param args - Any additional arguments are passed to the Item's constructor
+	 *	@return Newly created Item
+	 */
+	createItem : function (type, args) {
+		var item = new ContextMenu.Item.factory[type] (args);
+		if ( item != null ) {
+			this.items.push ( item );
+		}
+		return item;
+	},
+	isEnabled : function ( item ) {
+		var libxMenuPrefs = new libxXMLPreferences()
+		var prefs = libxMenuPrefs.contextmenu[this.name];
+    	if ( prefs != null && prefs != "" ) {
+			for ( var i = 0; i < prefs.children.length; i++ ) {
+				var prefItem = prefs.children[i];
+				if ( prefItem.nodeName == item.type 
+					&& prefItem.attr.name == item.name 
+					&& prefItem.attr.type == item.searchType ) {
+					return true;
+				}    
+			}
+		}
+		return false;
+	},
+
+	/**
+	 *	Function called when the context menu is showing, and a match has been found
+	 *	Iterates through all Item's in this group, and calls the onShowing method on them
+	 *	@param popuphelper - popuphelper object to be passed to onShowing method of children
+	 *	@param match - Result from this groups match function
+	 */
+	onShowing : function (popuphelper, match) {
+		var enabledCount = 0;
+		var match = this.match ( popuphelper );
+		if ( match != null ) {
+			for ( var i = 0; i < this.items.length; i++ ) {
+				var item = this.items[i];		
+				
+				if ( this.isEnabled( item ) ) {
+					enabledCount++;
+					var nativeMenuItem = libxEnv.addMenuObject();
+					item.setNativeMenuItem ( nativeMenuItem );
+					item.onShowing(popuphelper, match);
+				}
+			}
+		}
+		return enabledCount;
+	},
+
+	/**
+	 *	Called when the context menu is being hidden
+	 *	Calls onHidden on each Item in this group
+	 */
+	onHiding : function () {
+		for ( var i = 0; i < this.items.length; i++ ) {
+			this.items[i].onHiding();
+		}	
+	},
+
+	/**
+	 *	@return Array of  { type: 'type', name: 'name', searchType: 'searchType' }  objects, one for each Item in this group
+	 */
+	getItemDescriptors : function () {
+		var names = new Array();
+		for ( var i = 0; i < this.items.length; i++ ) {
+			var item = this.items[i];
+			names.push ( { type: item.type, name: item.name, searchType : item.searchType } );
+		}
+		return names;
+	},
     
-    libxLabels2MenuObjectLists[label].push ( menuObject );
-}
+	/**
+	 *	@param type - type of the Item to return
+	 *	@param name - name of the Item to return
+	 *	@return Item with given type and name, or null if there was no match
+	 */
+	getItem : function (itemDescriptor) {
+		for ( var i = 0; i < items.length; i++ ) {
+			var item = items[i];
+			if ( item.type == itemDescriptor.type && 
+				item.name == itemDescriptor.name && 
+				item.searchType == itemDescriptor.searchType ) {
+				return item;
+			}
+		}
+	}
+} );
 
+/**
+ *	Represents a single entry in the context menu
+ *	This class represents the base class from which other
+ *  items will inherit
+ *	
+ *	Items should implement the following functions
+ *
+ *	onShowing (p)
+ *	- Called when this menu item is supposed to be shown
+ *	- p: PoupHelper object
+ *
+ *	initialize (args)
+ *	- Called once to initialize the object
+ *	- Args are up to implementor to define
+ *	
+ *	Additionaly, Items should have the following properties
+ *	type: unique type attribute for all items of this class
+ *	name: unique name attribute for this item
+ */
+ContextMenu.Item = libx.core.Class.create ( {
+	/**
+	 *	The purpose of this function is to ensure complete seperation between the nativeMenuObject
+	 *	and all Item implementations. Also ensures that no calls will reach the native object after
+	 *	the context menu is hidden
+	 *	Called right before an Item's onShowing method is called - sets the functions that deal w/ the 
+	 *	native menu object
+	 */
+	setNativeMenuItem : function ( nativeMenuItem ) {
+		this.setLabel = function ( label ) {
+			nativeMenuItem.setLabel ( label );
+		};
+		this.setIcon = function ( iconurl ) {
+			nativeMenuItem.setIcon ( iconurl );
+		};
+		this.setTooltip = function ( ttip ) {
+			if (typeof menuobj.setTooltip == "function") {
+				nativeMenuItem.setTooltip ( ttip );
+			}
+		};
+		this.setVisible = function ( visible ) {
+			nativeMenuItem.setVisible ( visible );
+		};
+		this.setHandler = function ( handler ) {
+			nativeMenuItem.setHandler ( handler );
+		};
+		this.setActive = function ( active ) {
+			nativeMenuItem.setActive ( active );
+		};
+		this.onHiding = function () {
+			libxEnv.removeMenuObject ( nativeMenuItem );
+			this.onHiding = function () { };
+			this.setLabel = function () { this.writeError ( 'setLabel' ); };
+			this.setIcon = function () { this.writeError ( 'setIcon' );};
+			this.setTooltip = function () { this.writeError ( 'setTooltip' );};
+			this.setVisible = function () { this.writeError ( 'setVisible' ); };
+			this.setHandler = function () { this.writeError ( 'setHandler' );};
+			this.setActive = function () { this.writeError ( 'setActive' ); };
+		};
+	},
+	writeError : function ( functName ) {
+		libxEnv.writeLog ( 'contextMenu', functName + ' called with no native menu item initialized' );
+	},
+	setLabel : function () { 
+		this.writeError ( 'setLabel' ); 
+	},
+	setIcon : function () { 
+		this.writeError ( 'setIcon' );
+	},
+	setTooltip : function () { 
+		this.writeError ( 'setTooltip' );
+	},
+	setVisible : function () {
+		this.writeError ( 'setVisible' ); 
+	},
+	setHandler : function () { 
+		this.writeError ( 'setHandler' );
+	},
+	setActive : function () { 
+		this.writeError ( 'setActive' );
+	},
+	onHiding : function () { },
 
-function libxContextMenuHidden() {
-    while (libxCreatedMenuItems.length > 0)
-        libxEnv.removeMenuObject(libxCreatedMenuItems.pop());
+	/**
+	 *	Function called when the context menu is showing, and a match has been found
+	 *	Sets the visibility, label, and onClick handler for this item
+	 *	@param popuphelper - Popuphelper object
+	 *	@param match - match returned by this groups match function
+	 */
+	onShowing : function () { },
 
-    libxEnv.contextMenuLoaded = false;
-}
+	/**
+	 *	Set of utility functions to be used by the Item's
+	 */
+	util : {
+		/**
+		 *	Shortens a text string if it is to long to display properly in the context menu
+		 *	@param text - the string to shorten
+		 *	@return A shortened text string
+		 */
+		computeDisplayText : function ( text ) {
+			// XXX handle newlines in the text - they can cause weird symbols
+        	return text.length > 25 ? text.substr ( 0, 25 ) + "..." : text;
+		},
+		
+		/**
+		 *	Trim's all spaces from the beginning and end of a string
+		 *	@param s - string to trim
+		 *	@return String with all leading and trailing spaces removed
+		 */
+		trim : function ( s ) {
+			return s.replace(/^\s*/, "").replace(/\s*$/, "");
+		}
+	}
 
-// Function that is run if there is text selected and context menu is requested
-function libxContextMenuShowing() {
-    
-    // guard against invocations resulting from when the user opens a nested menu
-    if ( libxEnv.contextMenuLoaded ) 
-        return;
+} );
 
-    libxEnv.contextMenuLoaded = true;
+// Factory to store all types of Items
+ContextMenu.Item.factory = new Array();
 
-    libxLabels2MenuObjectLists = new Object();
-    libxInitializeMenuObjects();
-
-    // hide menu separator.
-    // it is unhidden in setImage if at least 1 item is displayed
-    libxEnv.setVisible("libx-context-menu-separator", false);
-
-    for (var label in libxLabels2MenuObjectLists) {
-
-        // get the list of menu items for current label
-        var menuObjectList = libxLabels2MenuObjectLists[label];
+/**
+ *	Item implementation for catalog objects
+ */
+ContextMenu.Item.factory['catalog'] = libx.core.Class.create ( 
+	ContextMenu.Item, {
+		type : 'catalog',
+		/**
+		 *	@param name - name of this item
+		 *	@param searchType - searchType to search for this item
+		 */
+		initialize : function ( args ) {
+			this.name = args.name;
+			this.searcher = libx.edition.catalogs.getByName(this.name);
+			this.searchType = args.searchType; 
+		},
+		
+		/**
+		 *	Function called when the context menu is showing, and a match has been found
+		 *	Sets the visibility, label, and onClick handler for this item
+		 *	@param popuphelper - Popuphelper object
+		 *	@param match - match returned by this groups match function
+		 */
+		onShowing : function ( popuphelper, match ) {
+			var searchType = this.searchType;
+			var searcher = this.searcher;
+			this.setVisible ( true );
+			this.setHandler ( function () {
+				searcher.search ( [{ searchType : searchType, searchTerms: match }] );
+			} );
+			var displayText = this.util.computeDisplayText ( match );
+			this.setLabel ("Search " + this.name + " for " 
+                        + libxConfig.searchOptions[this.searchType] 
+                        + " \"" + displayText + "\"" );
         
-        for (var i = 0; i < menuObjectList.length; i++) {
+		}
+	}
+);
 
-            // skip entries with no menu items
-            var menuObj = menuObjectList[i];
+/**
+ *	Implementation of the Item class for openurl objects
+ *	Derived from the factory['catalog'] class
+ */
+ContextMenu.Item.factory['openurl'] = libx.core.Class.create ( 
+	ContextMenu.Item.factory['catalog'], {
+		type : 'openurl',
+		initialize : function ( args ) {
+			this.parent(args);
+			this.searcher = libx.edition.openurl.getByName(this.name);
+		}
+	}
+);
             
-            if ( menuObj.menuentries.length == 0 )
-                continue;
+/**
+ *	Implementation of the Item class for proxy objets
+ */
+ContextMenu.Item.factory['proxy'] = libx.core.Class.extend ( 
+	ContextMenu.Item, {
+		type : 'proxy',
+		searchType : 'enabled',
+		initialize : function (args) {
+			this.name = args.name;
+			this.proxy = libx.edition.proxy.getByName ( this.name );
+		},
+		onShowing : function (popuphelper, match) {
+			this.setVisible ( true );
+			var proxy = this.proxy;
+			var item = this;
+			var util = this.util;
+			function showLabel ( which, url, proxy ) {
+				var p = url;
+	            var m = url.match(/http[s]?:\/\/([^\/:]+)(:(\d+))?\/(.*)$/);
+            	if (m) {
+                	p = m[1];
+            	}
+            	item.setLabel ( libxEnv.getProperty(which, [proxy.name, util.computeDisplayText(p)]));         
+			}
                 
-            // match function checks if entry applies
-            var m = menuObj.matchf( popuphelper );   
+            var urltocheck;
+            if (popuphelper.isOverLink())
+                urltocheck = popuphelper.getNode().href;
+            else
+                urltocheck = libxEnv.getCurrentWindowContent().location.toString();
+
+            if (proxy.canCheck() && libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
+                showLabel("proxy.checking.label", urltocheck, proxy);
+                proxy.checkURL(urltocheck, function (ok, cbdata) {
+                    if (ok) {
+                        showLabel(p.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", 
+                                  cbdata.urltocheck, cbdata.proxy);
+                    } else {
+                        showLabel("proxy.denied.label", cbdata.urltocheck, cbdata.proxy);
+                    }
+                    if (cbdata.proxy.disableIfCheckFails()) {
+                        item.setActive(ok);
+                    }
+                }, { urltocheck : urltocheck, proxy: proxy });
+            } else {
+                showLabel(popuphelper.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", urltocheck, proxy);
+            }
                 
-            if ( m ) {
                     
-                // call onmatch handler that will unhide/set labels/etc
-                menuObj.onmatch( m, menuObj.menuentries );
+			this.setHandler ( function () {
+				if (popuphelper.isOverLink()) {
+            		var href = popuphelper.getNode().href;
+            		libxEnv.openSearchWindow(proxy.rewriteURL(href));
+        		} else {
+            		var _location = libxEnv.getCurrentWindowContent().location.toString();
+            		libxEnv.openSearchWindow(proxy.rewriteURL(_location), "libx.sametab");
+        		}
+			} );
                 
-                // stop once a match is found unless processing "always"
-                if ( label != "always" ) { 
-                    break;
                 }
             }
+);
+
+/**
+ *	Implementation of the Item class for scholar magic search
+ */
+ContextMenu.Item.factory['scholar'] = libx.core.Class.create ( 
+	ContextMenu.Item, {
+		type : 'scholar',
+		name : 'Google Scholar',
+		searchType: 'magicsearch',
+		initialize : function () {	},
+		onShowing : function ( popuphelper, match ) {
+			this.setVisible ( true );
+			var text = this.util.trim ( match );
+			this.setHandler ( function () {
+				magicSearch ( text );
+			} );
+			this.setLabel (libxEnv.getProperty("contextmenu.scholarsearch.label",[this.util.computeDisplayText(text)] ) );
         }
     }        
-}
+);
+
+return ContextMenu;
+
+})();

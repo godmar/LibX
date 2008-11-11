@@ -27,16 +27,15 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
 
-// Base class for all catalogs
-function libxCatalog() { }
+libx.catalog = { 
+    // catalog classes, indexed by xml type (e.g. millenium, sirsi, etc.)
+    factory : { }
+};
 
-libxCatalog.prototype = {
+// Base class for all catalogs
+libx.catalog.Catalog = libx.core.Class.create({
     downconvertisbn13: true,
     xisbn: { },
-    setIf: function (prop, what) {
-        if (what != null)
-            this[prop] = libxNormalizeOption(what);
-    },
     makeSubjectSearch: function(subject) {
         return this.makeSearch("d", subject);
     },
@@ -136,28 +135,13 @@ libxCatalog.prototype = {
         return (";" + this.options + ";").match(";" + stype + ";");
     },
     options: "Y;t;a;d;i;c"
-}
+});
 
-function libxAddToPrototype(prototype, addedmethods) 
-{
-    for (var m in addedmethods) {
-        prototype[m] = addedmethods[m];
-    }
-}
-
-(function ()    // begin bookmarklet class definition
-{
 /*
  * Support generic "bookmarklet" style searches
  * The id's %t, %jt etc. in the URL are being replaced with the entered terms
  */
-function Bookmarklet() { }
-
-libxEnv.catalogClasses["bookmarklet"] = Bookmarklet;
-
-Bookmarklet.prototype = new libxCatalog();
-
-libxAddToPrototype(Bookmarklet.prototype, {
+libx.catalog.factory["bookmarklet"] = libx.core.Class.create(libx.catalog.Catalog, {
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },
@@ -258,17 +242,8 @@ libxAddToPrototype(Bookmarklet.prototype, {
         }
     }
 });
-})();           // end bookmarklet class definition
 
-(function ()    // begin scholar class definition
-{
-function ScholarSearch() { }
-
-libxEnv.catalogClasses["scholar"] = ScholarSearch;
-
-ScholarSearch.prototype = new libxCatalog();
-
-libxAddToPrototype(ScholarSearch.prototype, {
+libx.catalog.factory["scholar"] = libx.core.Class.create(libx.catalog.Catalog, {
     options: "Y;at;jt;a",
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
@@ -317,5 +292,3 @@ libxAddToPrototype(ScholarSearch.prototype, {
         return magicSearch(q, t, true);    // true means suppress heuristics
     }
 });
-
-})();   // end of scholar class definition

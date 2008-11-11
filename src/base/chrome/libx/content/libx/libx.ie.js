@@ -47,7 +47,6 @@ libxEnv.init = function() {
         libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
     }
     
-    libraryCatalog = searchCatalogs[0];
 
     // Listener for the prefs window to catch changes to the roots info
     libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
@@ -538,7 +537,7 @@ libxEnv.loadXMLString = function (xmlstring) {
 
 
 
-libxEnv.getXMLConfig = function () {
+libxEnv.getXMLConfig = function (url) {
     return libxInterface.config;
 }
 

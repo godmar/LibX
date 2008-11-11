@@ -42,11 +42,13 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://global/content/nsUserSettings.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/libxcoreclass.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/droppable.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/popuputils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/doiutils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />
    	<script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	
 	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />

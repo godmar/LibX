@@ -150,7 +150,7 @@ function insertAND(s) {
 }
 
 var editionId = libxEnv.xmlDoc.getAttr("/edition", "id");
-var cat0 = searchCatalogs[0];
+var cat0 = libx.edition.catalogs[0];
 
 if (editionId != "C46EFD6B" || cat0.name != "K-State Libraries Catalog") {
     return;

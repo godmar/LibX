@@ -66,9 +66,6 @@ libxEnv.logTypes = {
     xpath: 'XPath'
 };
 
-// constructor functions for catalog classes, indexed by xml type (e.g. millenium, sirsi, etc.)
-libxEnv.catalogClasses = { };
-
 /* remove this and make it so it can use libxInitializeCatalogs in libx.js ... */
 var catalogs = new Array();
 function libxClientSideCatalogInit(configurl) {
@@ -93,8 +90,8 @@ function libxClientSideCatalogInit(configurl) {
 
         switch (xmlCat.nodeName) {
         default:
-            if (libxEnv.catalogClasses[xmlCat.nodeName] !== undefined) {
-                cat = new libxEnv.catalogClasses[xmlCat.nodeName]();
+            if (libx.catalog.factory[xmlCat.nodeName] !== undefined) {
+                cat = new libx.catalog.factory[xmlCat.nodeName]();
                 break;
             }
             /* FALL THROUGH */

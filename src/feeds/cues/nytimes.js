@@ -46,9 +46,9 @@ function doNyTimes(doc) {
         //Create the link based on the title
         link = libxEnv.makeLink(doc, 
                                 libxEnv.getProperty("catsearch.label", 
-                                                    [libraryCatalog.name, title]), 
-                                libraryCatalog.makeTitleSearch(title), 
-                                libraryCatalog); 
+                                                    [libx.edition.catalogs.default.name, title]), 
+                                libx.edition.catalogs.default.makeTitleSearch(title), 
+                                libx.edition.catalogs.default); 
 
 
         //A little space between the cue and the author string
@@ -89,8 +89,8 @@ function doNyTimes(doc) {
                 var title = nContents[i].nodeValue.toString();
                 var title = title.replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "");
                 var link = libxEnv.makeLink(doc, 
-                                            libxEnv.getProperty("catsearch.label", [libraryCatalog.name, title]), 
-                                            libraryCatalog.makeTitleSearch(title), libraryCatalog);
+                                            libxEnv.getProperty("catsearch.label", [libx.edition.catalogs.default.name, title]), 
+                                            libx.edition.catalogs.default.makeTitleSearch(title), libx.edition.catalogs.default);
 
 
                 //For some reason, nNextContents[i] doesn't work as a node in 

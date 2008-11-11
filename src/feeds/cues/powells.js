@@ -2,7 +2,7 @@
 // http://www.powells.com/biblio/1-0743226712-2
 function powellsComByISBN(doc, m) 
 {
-    var isbn = isISBN(m[2], libraryCatalog.downconvertisbn13);
+    var isbn = isISBN(m[2], libx.edition.catalogs.default.downconvertisbn13);
     if (isbn == null) {
         return;
     }
@@ -19,12 +19,12 @@ function powellsComByISBN(doc, m)
     if (titleLabel) {
         var link = libxEnv.makeLink(doc, 
             libxEnv.getProperty("isbnsearch.label", 
-            [libraryCatalog.name, isbn]), 
-            libraryCatalog.linkByISBN(isbn), libraryCatalog);
+            [libx.edition.catalogs.default.name, isbn]), 
+            libx.edition.catalogs.default.linkByISBN(isbn), libx.edition.catalogs.default);
             // <strong>ISBN:</strong><a suppressautolink>0743226712</a>_SPACE_<CUE>
             //right of title use this: titleLabel.appendChild(link);
             //titleLabel.after( link );
-        createXISBNTooltip(link, isbn, libraryCatalog.name);
+        createXISBNTooltip(link, isbn, libx.edition.catalogs.default.name);
         titleLabel.prepend( link );
         animateCue(link);
     }

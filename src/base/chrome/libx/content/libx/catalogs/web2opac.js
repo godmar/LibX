@@ -23,17 +23,10 @@
 
 // contributed by whikloj@cc.umanitoba.ca - 2007-06-20
 //
-(function () 
-{
 
 // Support for Sirsi Web2 OPAC
-function Web2OPAC() { }
+libx.catalog.factory["web2"] = libx.core.Class.create(libx.catalog.Catalog, {
 
-libxEnv.catalogClasses["web2"] = Web2OPAC;
-
-Web2OPAC.prototype = new libxCatalog();
-
-libxAddToPrototype(Web2OPAC.prototype, {
     path: "/web2/tramp2.exe/do_keyword_search/log_in?guest=guest&",
     searchscope: 1,
     xisbn: { opacid: "sirsi6" },
@@ -112,7 +105,5 @@ libxAddToPrototype(Web2OPAC.prototype, {
 		return url + this.scopeField() + this.sortField();
 	}
 });
-
-})();
 
 // vim: ts=4

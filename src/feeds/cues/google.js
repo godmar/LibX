@@ -18,7 +18,7 @@ new libxEnv.doforurls.DoForURL(/google(\.[a-z]+)?\.[a-z]+\/search.*q=/i, functio
         var searchterms = unsafeWindow.document.gs.q.value;   // LibX FF
     // google stores its search terms there for its own use
 
-    var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libraryCatalog.name, searchterms]), libraryCatalog.makeKeywordSearch(searchterms), libraryCatalog);
+    var link = libxEnv.makeLink(doc, libxEnv.getProperty("catsearch.label", [libx.edition.catalogs.default.name, searchterms]), libx.edition.catalogs.default.makeKeywordSearch(searchterms), libx.edition.catalogs.default);
 
     n.parentNode.appendChild(link);
 
@@ -35,8 +35,8 @@ function (doc) {
     var n = nArray[1];
     var nText = $(n).text();
     var m = nText.match(/(\d{9}[X\d])/i);
-    var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]]), libraryCatalog.linkByISBN(m[1]), libraryCatalog);
-    createXISBNTooltip(newlink, isbn, libraryCatalog.name);
+    var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, m[1]]), libx.edition.catalogs.default.linkByISBN(m[1]), libx.edition.catalogs.default);
+    createXISBNTooltip(newlink, isbn, libx.edition.catalogs.default.name);
     var ns = n.nextSibling;
     cue = n.insertBefore(newlink, ns);
     n.insertBefore(doc.createTextNode(" "), cue);
@@ -53,9 +53,9 @@ function (doc) {
         var ilink = n[i].getAttribute('href');
         var m = ilink.match(/editions:ISBN(\d{10,13})&/);
         if (m) {
-            var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libraryCatalog.name, m[1]], libraryCatalog),
-                    libraryCatalog.linkByISBN(m[1]));
-            createXISBNTooltip(newlink, isbn, libraryCatalog.name);
+            var newlink = libxEnv.makeLink(doc, libxEnv.getProperty("isbnsearch.label", [libx.edition.catalogs.default.name, m[1]], libx.edition.catalogs.default),
+                    libx.edition.catalogs.default.linkByISBN(m[1]));
+            createXISBNTooltip(newlink, isbn, libx.edition.catalogs.default.name);
             var ns = n[i].nextSibling;
             n[i].parentNode.insertBefore(newlink, ns);
             n[i].parentNode.insertBefore(doc.createTextNode(" "), ns);i

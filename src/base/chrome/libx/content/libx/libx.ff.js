@@ -34,6 +34,8 @@
  
 libxEnv.ff = new Object(); /* Holder for FF specific objects */
 
+// New implementation of Browser Specific functions
+libx.bd = { };
 
 /*  init
  * Initialize Firefox-specific parts.
@@ -74,7 +76,7 @@ libxEnv.init = function() {
                    "LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
                    {
                         toolbar: document.getElementById ( 'libx-toolbar' ), 
-                        proxyAjaxable: ( libxProxy != null && libxProxy.canCheck() ) 
+                        proxyAjaxable: ( libx.edition.proxy.default != null && libx.edition.proxy.default.canCheck() ) 
                    }
                    );
            }, 1);
@@ -224,8 +226,10 @@ libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified, c
 }
 
 
-libxEnv.getXMLConfig = function () {
-    return libxEnv.getXMLDocument("chrome://libx/content/config.xml");
+libxEnv.getXMLConfig = function (url) {
+	if ( url == null )
+		url = "chrome://libx/content/config.xml";
+    return libxEnv.getXMLDocument(url);
 }
 
 /*
@@ -289,19 +293,46 @@ libxEnv.ff.selectCatalog = function(mitem, event) {
 
     var sb = document.getElementById("libx-search-button");
     sb.label = mitem.label;
-    this.selectedCatalog = searchCatalogs[mitem.value];
+    this.selectedCatalog = libx.edition.catalogs[mitem.value];
     libxEnv.setIntPref("libx.selectedcatalognumber", mitem.value);
 
     this.activateCatalogOptions(this.selectedCatalog);
 }
 
 
-libxEnv.initializeContextMenu = function () {
+libxEnv.OLD__initializeContextMenu = function () {
     popuphelper = new ContextPopupHelper();
     var menu = document.getElementById("contentAreaContextMenu");
-    menu.addEventListener("popupshowing", libxEnv.contextMenuShowing, false);
-    menu.addEventListener("popuphidden", libxEnv.contextMenuHidden, false );
+    //menu.addEventListener("popupshowing", libxEnv.contextMenuShowing, false);
+    //menu.addEventListener("popuphidden", libxEnv.contextMenuHidden, false );
+    
+    menu.addEventListener("popupshowing", libx.edition.contextMenu.onShowing, false);
+    menu.addEventListener("popuphidden", libx.edition.contextMenu.onHiding, false );
 }
+
+/**
+ *	Returns a popuphelper object
+ */
+libx.bd.getPopupHelper = function () {
+	return new ContextPopupHelper ();
+};
+
+libx.bd.contextmenu = {};
+/**
+ *	Initializes the browsers context menu handlers
+ *	Ensures that libx.browser.contextMenu.onShowing/onHiding functions
+ *	are called as appropriate 
+ *		
+ */
+libx.bd.contextmenu.initialize = function () {
+    var menu = document.getElementById("contentAreaContextMenu");
+    menu.addEventListener("popupshowing", function () {
+        libx.browser.contextMenu.onShowing();   
+    }, false);
+    menu.addEventListener("popuphidden", function () {
+        libx.browser.contextMenu.onHiding();   
+    }, false );
+}; 
 
 //GUI-related stuff////////////////////////////////////////////////////
 
@@ -334,8 +365,8 @@ libxEnv.ff.doSearch = function(event) {
 libxEnv.initCatalogGUI = function () {
     var catdropdown = document.getElementById("libxcatalogs");
     
-    for ( var i = 0; i < searchCatalogs.length; i++ ) {
-        var cat = searchCatalogs[i];
+    for ( var i = 0; i < libx.edition.catalogs.length; i++ ) {
+        var cat = libx.edition.catalogs[i];
         var newbutton = document.createElement("menuitem");
         newbutton.setAttribute("oncommand", "libxEnv.ff.selectCatalog(this,event);");
         newbutton.setAttribute("value", i );
@@ -346,12 +377,11 @@ libxEnv.initCatalogGUI = function () {
     // record initially selected catalog and activate its search options
     var selectedCatalog = libxEnv.getIntPref("libx.selectedcatalognumber", 0);
     // previously selected catalog may no longer be in list
-    if (selectedCatalog >= searchCatalogs.length)
+    if (selectedCatalog >= libx.edition.catalogs.length)
         selectedCatalog = 0;    
 
-    libxEnv.ff.selectedCatalog = searchCatalogs[selectedCatalog];
+    libxEnv.ff.selectedCatalog = libx.edition.catalogs[selectedCatalog];
     libxEnv.ff.activateCatalogOptions(libxEnv.ff.selectedCatalog);
-    libraryCatalog = searchCatalogs[0];
     // copy initial label to toolbarbutton parent from menuitem first child
     catdropdown.parentNode.setAttribute("label", catdropdown.childNodes.item(selectedCatalog).getAttribute("label"));
 }
@@ -427,8 +457,6 @@ libxEnv.initializeGUI = function () {
         .setAttribute("tooltiptext", "LibX - " + 
             libxEnv.xmlDoc.getAttr("/edition/name", "edition" ) );
         
-    // Use user defined preferences if available
-    libxMenuPrefs = new libxXMLPreferences();
 }
 
 libxEnv.setObjectVisible = function(obj, show) {
@@ -581,8 +609,7 @@ function libx___unused___addSearchFieldAs(mitem) {
 // About window is now part of this window.
 libxEnv.ff.openPrefWindow = function () { 
     window.openDialog ( "chrome://libx/content/libxprefs.xul", 
-        "LibX Preferences", " centerscreen, chrome, modal, resizable",
-        { config:libxConfig, updateFunc: libxEnv.doforurls.updateDoforurls } 
+        "LibX Preferences", " centerscreen, chrome, modal, resizable"
     );
 }
 
@@ -799,24 +826,10 @@ libxEnv.initPrefsGUI = function () {
     // Set the title
     var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
     
-    if ( window.arguments )
-    {
-        libxConfig = window.arguments[0].config;
-		libxEnv.updateFunc = window.arguments[0].updateFunc;
-    }
-    else { //Hide all tab panels except 'about'
-        document.getElementById('libxGeneral').setAttribute('hidden', true);
-        document.getElementById('libxContext').setAttribute('hidden', true);
-        document.getElementById('libxAJAX').setAttribute('hidden', true);
-        document.getElementById('libx-prefs-tab').setAttribute('hidden', true);
-        document.getElementById('libx-contextmenu-prefs-tab').setAttribute('hidden', true);
-        document.getElementById('libx-ajax-tab').setAttribute('hidden', true);
-        document.getElementById('libx-feed-tab').setAttribute('hidden', true);
-        document.getElementById('libxFeeds').setAttribute('hidden', true );
-        document.getElementById('libxApply').setAttribute('hidden', true);
-        //OK, we're done
-        return;
-    }
+    libxConfig = window.opener.libxConfig;
+	libx = window.opener.libx;
+	libxEnv.updateFunc = window.opener.libxEnv.doforurls.updateDoforurls;
+    
 
     /****** Initialize the default preferences tab *********/
     // Initialize the display preferences radiogroup
@@ -834,8 +847,8 @@ libxEnv.initPrefsGUI = function () {
     // Figure out whether Proxy checkbox should be grayed out or not
     var ajaxenabled = false;
 
-    for ( var k in libxConfig.proxy ) {
-        if ( libxConfig.proxy[k].urlcheckpassword )
+    for ( var i = 0; i < libx.edition.proxy.length; i++ ) {
+        if ( libx.edition.proxy[i].urlcheckpassword )
             ajaxenabled = true;
     }
     

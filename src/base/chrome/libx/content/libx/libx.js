@@ -28,13 +28,8 @@
  *
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
-var searchCatalogs;     // Array of search catalogs for drop-down search menu
-var libraryCatalog;     // the library catalog object, see MilleniumOPAC for an example
-                        // searchCatalogs[0] is libraryCatalog
                         
 var libxConfig = new Object();   // Global variable to hold configuration items
-
-var libxProxy;          // Proxy object or null if no proxy support, see proxy.js
 
 var libxEnv = { 
     catalogClasses: [],  // maps catalog types to constructors
@@ -74,94 +69,6 @@ var libxEnv = {
  */
 
 
-/**
- * Initializes a catalog from an XML Node
- * Assumes that the node has all of the relevant data needed
- * about that catalog. Returns a fully initialized catalog
- */
-function libxInitializeCatalog(doc, node)
-{
-    var cat = null;
-    
-    switch (node.nodeName) {
-    default:
-        if (libxEnv.catalogClasses[node.nodeName] !== undefined) {
-            cat = new libxEnv.catalogClasses[node.nodeName]();
-            break;
-        }
-		libxEnv.writeLog("Catalog type " + node.nodeName + " not supported.");
-        /* FALL THROUGH */
-    case null:
-    case "":
-        return null;
-    }
-    
-    cat.setIf = libxCatalog.prototype.setIf;
-    
-    doc.copyAttributes( node, cat ); 
-        
-    var xisbnNode = libxEnv.xpath.findSingleXML ( doc.xml, "xisbn", node );
-    if ( xisbnNode ) {
-        /* Most catalogs will inherit the xisbn property from their prototype,
-         * but since the xisbn settings can be overridden on a per catalog basis,
-         * each catalog must have its own xisbn object.
-         * Otherwise, the prototyped object would be aliased and changes propagated.
-         * Therefore, we clone the inherited xisbn object, then override the
-         * inherited xisbn property.
-         */
-        var xisbnCopy = new Object();
-        for (var k in cat.xisbn) {
-            xisbnCopy[k] = cat.xisbn[k];
-        }
-        cat.xisbn = xisbnCopy;
-
-        doc.copyAttributes ( xisbnNode, cat.xisbn );
-    }
-        	
-    cat.urlregexp = new RegExp( cat.urlregexp );
-    if (typeof (cat.__init) == "function") {
-        cat.__init();
-    }
-
-    libxEnv.writeLog("xml registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
-    return cat;
-}
-
-/**
- * Initializes all of the libx catalogs.
- */
-function libxInitializeCatalogs() 
-{
-    searchCatalogs = new Array(); 
-    libxConfig.catalogs = new Object();
-    libxConfig.numCatalogs = 0;
-
-    function addCatalog( node, catnumber ) {
-        try {
-            var cat = libxInitializeCatalog( libxEnv.xmlDoc, node );
-            searchCatalogs.push(cat);
-            libxConfig.catalogs[cat.name] = cat;
-            libxConfig.numCatalogs++;
-        } catch (e) {
-            libxEnv.writeLog("libxInitializeCatalog failed: " + e.message);
-        }
-    }
-
-    /* Build all catalogs into searchCatalogs */
-    var xmlCatalogs = libxEnv.xpath.findNodesXML(libxEnv.xmlDoc.xml, "/edition/catalogs/*");
-    libxEnv.writeLog("Found " + xmlCatalogs.length + " catalogs.");
-    var addcatno;
-    for ( addcatno = 0; 
-         (addcatno < xmlCatalogs.length ); 
-         addcatno++)
-    {
-        addCatalog(xmlCatalogs[addcatno], addcatno);
-    }
-    
-    // Scholar Search is handled through entry in XML file unless disabled
-
-    libxEnv.initCatalogGUI();
-}
 
 // Initialization - this code is executed whenever a new window is opened
 /**
@@ -192,11 +99,16 @@ function libxInit()
     };
 
     libxInitSearchOptions();
+    var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
+    	url: "chrome://libx/content/config.xml",
+    	onload: function (edition) {
+    		libx.edition = edition;
+    		libx.browser.initialize();
+    	}
+    } );
     libxEnv.initializeGUI();
-    libxInitializeOpenURL();
-    libxInitializeCatalogs();
-    libxProxyInit();
-    libxEnv.initializeContextMenu();
+    libxEnv.initCatalogGUI();
+
     // Adds onPageComplete to the eventlistener of DOMContentLoaded
     libxEnv.init();
 
@@ -268,44 +180,6 @@ function libxInitSearchOptions() {
     libxConfig.searchOptions["pmid"] = "PubMed ID"; 
     libxConfig.searchOptions["magicsearch"] = "Magic Search";
     libxConfig.searchOptions["xisbn"] = "xISBN";
-}
-
-/*
- * Initialize proxy support.
- */
-function libxProxyInit() {
-    libxConfig.proxy = new Array();
-    
-    var pnodes = libxEnv.xpath.findNodesXML(libxEnv.xmlDoc.xml, '/edition/proxy/*');
-
-    libxConfig.numProxy = pnodes.length;
-    for ( var i = 0; i < pnodes.length; i++ ) {
-        var proxytype = pnodes[i].nodeName;
-        var proxy;
-        switch ( proxytype ) {
-        case "ezproxy":
-    	    proxy = new libxEZProxy();
-            break;
-        case "wam":
-    	    proxy = new libxWAMProxy();
-            break;
-        default:
-    	    libxEnv.writeLog("Unsupported proxy.type=" + proxytype);
-            /* FALLTHROUGH */
-        case null:
-        case "":
-            proxy = null;
-        }
-        if ( proxy != null ) {
-            proxy.type = proxytype;
-            libxEnv.xmlDoc.copyAttributes( pnodes[i], proxy );
-            libxConfig.proxy[proxy.name] = proxy;
-        }
-        if ( i == 0 ) {
-            libxProxy = proxy;
-        }
-
-    }
 }
 
 /* If the searchType is 'i', examine if user entered an ISSN
