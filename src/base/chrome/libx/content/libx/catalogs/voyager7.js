@@ -22,7 +22,18 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Voyager7 OPAC
-libx.catalog.factory["voyager7"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Voyager7 OPAC Catalog Implementation
+ *
+ *	@name libx.catalog.Voyager7
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["voyager7"] to create a new instance
+ */
+libx.catalog.factory["voyager7"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Voyager7.prototype */
+{
     count: 10,
     path: "/vwebv/search",
     limitto: "none",

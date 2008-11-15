@@ -22,7 +22,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-libx.catalog.factory["openurlresolver"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	OpenURLResolver Catalog Implementation
+ *
+ *	@name libx.catalog.OpenURLResolver
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["openurlresolver"] to create a new instance
+ */
+libx.catalog.factory["openurlresolver"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.OpenURLResolver.prototype */
+{
     initialize: function () {
         this.options = libxEnv.openUrlResolver.options;
     },

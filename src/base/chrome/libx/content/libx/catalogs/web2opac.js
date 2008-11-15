@@ -25,7 +25,18 @@
 //
 
 // Support for Sirsi Web2 OPAC
-libx.catalog.factory["web2"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Sirsi Web2 OPAC Catalog Implementation
+ *
+ *	@name libx.catalog.Web2
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["web2"] to create a new instance
+ */
+libx.catalog.factory["web2"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Web2.prototype */
+{
 
     path: "/web2/tramp2.exe/do_keyword_search/log_in?guest=guest&",
     searchscope: 1,

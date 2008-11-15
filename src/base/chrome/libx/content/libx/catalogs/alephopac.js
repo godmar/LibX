@@ -22,7 +22,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-libx.catalog.factory["aleph"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *  Aleph Catalog Implementation
+ *	@name libx.catalog.Aleph
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["aleph"] to create a new instance
+ */
+libx.catalog.factory["aleph"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Aleph.prototype */
+{
 	xisbn: { opacid: "aleph" },
     // unless specified otherwise, we use the scan index for 
     // title 't' & call number 'c'
@@ -37,10 +47,10 @@ libx.catalog.factory["aleph"] = libx.core.Class.create(libx.catalog.Catalog, {
 	    return true;
 	},
     // escape spaces using + rather than %20
-    escape: function(sterm) {
+    escape: function(/**String*/sterm) {
         return encodeURIComponent(sterm).replace(/%20/g, "+");
     },
-	searchCodeLookup: function(stype) {
+	searchCodeLookup: function(/**String*/stype) {
 		switch(stype) {
 			case 'd':	return this.subject;
 			case 'jt':	return this.journaltitle;

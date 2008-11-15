@@ -1,4 +1,4 @@
-/* 
+/**
  * The global libx object, which forms the root of the libx namespace
  * The following conventions are used.
  * lowercase letters are used as package names, for instance
@@ -9,10 +9,11 @@
  * and metaobjects (such as libx.core.Class)
  *
  * lowercase names represent objects
+ * @namespace
  */
 libx = { };
 
-/*
+/**
  * Embed Alex Arnell's 'inheritance' class in the libx.core
  * namespace.
  * See http://code.google.com/p/inheritance/ 
@@ -21,6 +22,7 @@ libx = { };
  * Following snippet taken from 
  * http://pastie.textmate.org/private/ua9j48n4w0k4wpxktsxdhw
  * This file contains Alex's original code and a name space wrapper.
+ *	@namespace
  */
 libx.core = (function() {
 
@@ -29,11 +31,14 @@ libx.core = (function() {
     Copyright (c) 2006, 2007, 2008, Alex Arnell <alex@twologic.com>
     Licensed under the new BSD License. See end of file for full license terms.
   */
-
+	/**
+	 *	@name libx.core.Class
+	 *	@constructor
+	 */
   var Class = (function() {
     var __extending = {};
 
-    return {
+    return /** @lends libx.core.Class.prototype */ {
       extend: function(parent, def) {
         if (arguments.length == 1) { def = parent; parent = null; }
         var func = function() {

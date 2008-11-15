@@ -23,7 +23,18 @@
 
 
 // Support for Serial Solutions' Central Search
-libx.catalog.factory["centralsearch"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *  Serial Solution's Central Search Catalog Implementation
+ *	@name libx.catalog.CentralSearch
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["centralsearch"] to create a new instance
+ */
+libx.catalog.factory["centralsearch"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.CentralSearch.prototype */
+
+{
 /*
     Search Types:
 <option selected="selected">Title</option>

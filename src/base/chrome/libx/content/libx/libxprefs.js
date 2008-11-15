@@ -214,14 +214,15 @@ function libxInitContextMenuTrees() {
 				var parent = treeNode.getChild(type.id);
 				// iterate over categories within each type, ie catalog, proxy, etc 
 				for ( var x in type.children ) {
-					var catid = type.id + '.' + x;
-					addCatalog ( parent, x, type.children[x], catid );
+					var catid = type.id;
+					addEntry ( parent, x, type.children[x], catid );
 				}
 			}
 		}
 	}
 	
-    /*  addCatalog
+    /**
+     * addEntry
      * Adds a catalog entry to the given tree
      * 
      * @param parent {PrefsTreeNode}  Where to append the new node
@@ -243,7 +244,7 @@ function libxInitContextMenuTrees() {
 
         var open = false;
         for (var k in options) {
-            var opt = options[k];
+            var opt = k;
             var id = idprefix + "." + name + "." + opt;
             var lbl = libxConfig.searchOptions[opt] ?
                 libxConfig.searchOptions[opt] : opt;

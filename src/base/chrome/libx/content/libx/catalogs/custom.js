@@ -22,7 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/*
+/**
+ *	Custom Catalog Implementation
  * A custom catalog is one whose implementation is loaded externally at
  * runtime.  This will impose a load on the server serving it.
  * Use googlepages.com or similar to host your catalogs. 
@@ -31,8 +32,15 @@
  * url, name, options are set. 
  * jsimplurl is the URL where the configuration is loaded from.
  * Optionally, param0 to param19 may be set.
+ *	@name libx.catalog.Custom
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["custom"] to create a new instance
  */
-libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog, {
+libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Custom.prototype */
+{
 	xisbn: { opacid: "Please set thisCatalog.xisbn.opacid as per http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm" },
     __init: function () {
         var thisCatalog = this;

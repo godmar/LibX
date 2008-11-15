@@ -21,8 +21,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// Support for Sirsi OPAC
-libx.catalog.factory["sirsi"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Sirsi OPAC Catalog Implementation
+ *
+ *	@name libx.catalog.Sirsi
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["sirsi"] to create a new instance
+ */
+libx.catalog.factory["sirsi"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Sirsi.prototype */
+{
 
     path: "/uhtbin/cgisirsi/x/0/0/5/",
     searchscope: 1,

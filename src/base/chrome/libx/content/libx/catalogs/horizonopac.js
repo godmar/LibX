@@ -21,7 +21,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-libx.catalog.factory["horizon"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Horizon Catalog Implementation
+ *
+ *	@name libx.catalog.Horizon
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["horizon"] to create a new instance
+ */
+libx.catalog.factory["horizon"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Horizon.prototype */
+{
     xisbn: { opacid: "ipac" },
     path: "/ipac20/ipac.jsp",
     /* default values for properties - 

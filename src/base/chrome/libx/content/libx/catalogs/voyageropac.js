@@ -170,10 +170,20 @@ function insertAND(s) {
     return str;
 }
 
-// Support for Voyager OPAC
-// taken in part from http://www.mines.edu/library/catalyst/canned.html
-//
-libx.catalog.factory["voyager"] = libx.core.Class.create(libx.catalog.Catalog, {
+
+/**
+ *	Voyager OPAC Catalog Implementation
+ *	Based in part on http://www.mines.edu/library/catalyst/canned.html
+ *
+ *	@name libx.catalog.Voyager
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["voyager"] to create a new instance
+ */
+libx.catalog.factory["voyager"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Voyager.prototype */
+{
     keyword: "FT*",     // default keyword index
     count: 25,          // default number of hits returned
     relevanceranking: true,     // by default, use relevance ranking for keyword

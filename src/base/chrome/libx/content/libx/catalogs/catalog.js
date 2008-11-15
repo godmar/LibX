@@ -26,35 +26,81 @@
  *
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
+ 
+ /**
+  *	@fileoverview Implementation of LibX core Catalog classes
+  *	@author Annette Bailey <annette.bailey@gmail.com>
+  *	@author Godmar Back <godmar@gmail.com>
+  */
 
+/** @namespace All catalog class definitions reside in this namespace */
 libx.catalog = { 
-    // catalog classes, indexed by xml type (e.g. millenium, sirsi, etc.)
+    /**
+     *	Used to instantiate the various catalog types
+     *	All catalog types are accessed by there lowercase class names
+     *	@example
+     *		var alephCatalog = new libx.factory["aleph"] ()
+     */
     factory : { }
 };
 
 // Base class for all catalogs
-libx.catalog.Catalog = libx.core.Class.create({
+/**
+ *	@constructor Catalog
+ */
+libx.catalog.Catalog = libx.core.Class.create(
+/** @lends libx.catalog.Catalog.prototype */{
+
+	/**
+	 *	Specifies whether the catalog should down convert ISBN-13
+	 *	@property downconvertisbn13
+	 *	@type Boolean
+	 */
     downconvertisbn13: true,
+    
     xisbn: { },
-    makeSubjectSearch: function(subject) {
+    
+    /**
+     *	Makes a search for provided subject
+     *	@return {String} URL for requested search
+     */
+    makeSubjectSearch: function(/**String*/ subject) {
         return this.makeSearch("d", subject);
     },
-    makeTitleSearch: function(title) {
+    /**
+     *	@return {URL} Search URL
+     */
+    makeTitleSearch: function(/**String*/title) {
         return this.makeSearch("t", title);
     },
-    makeISBNSearch: function(isbn) {
+    /**
+     *	@return {URL} Search URL
+     */
+    makeISBNSearch: function(/**String*/isbn) {
         return this.makeSearch("i", isbn);
     },
-    makeISSNSearch: function(isbn) {
+    /**
+     *	@return {URL} Search URL
+     */
+    makeISSNSearch: function(/**String*/isbn) {
         return this.makeSearch("is", isbn);
     },
-    makeAuthorSearch: function(author) {
+    /**
+     *	@return {URL} Search URL
+     */
+    makeAuthorSearch: function(/**String*/author) {
         return this.makeSearch("a", author);
     },
-    makeCallnoSearch: function(callno) {
+    /**
+     *	@return {URL} Search URL
+     */
+    makeCallnoSearch: function(/**String*/callno) {
         return this.makeSearch("c", callno);
     },
-    makeKeywordSearch: function(keyword) {
+    /**
+     *	@return {URL} Search URL
+     */
+    makeKeywordSearch: function(/**String*/keyword) {
         return this.makeSearch("Y", keyword);
     },
     // Create a url that requests an item by ISBN from the xISBN service,
@@ -128,24 +174,48 @@ libx.catalog.Catalog = libx.core.Class.create({
         }
         return searchField2Term;
     },
-    /* the default implementation looks at the options property
+    /**
+     * the default implementation looks at the options property
      * to decide which options are supported.
      */
     supportsSearchType: function (stype) {
         return (";" + this.options + ";").match(";" + stype + ";");
     },
-    options: "Y;t;a;d;i;c"
+    options: "Y;t;a;d;i;c",
+    
+    /**
+     *	Constructs a search for provided search type and search term
+     *	@abstract
+     *	@return {URL} Search URL	
+     */
+    makeSearch : function (/**String*/stype, /**String*/sterm) { },
+
+    /**
+     *	Constructs a search URL from one or more fields
+     *	@abstract
+     *	@return {URL} Search URL
+     */
+    makeAdvancedSearch : function (fields) { }
 });
 
-/*
- * Support generic "bookmarklet" style searches
- * The id's %t, %jt etc. in the URL are being replaced with the entered terms
+ 
+/**
+ * 	Support generic "bookmarklet" style searches
+ * 	The id's %t, %jt etc. in the URL are being replaced with the entered terms
+ *	@name libx.catalog.Bookmarklet
+ *	@constructor
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@see libx.catalog.factory
  */
-libx.catalog.factory["bookmarklet"] = libx.core.Class.create(libx.catalog.Catalog, {
-    makeSearch: function (stype, sterm) {
+libx.catalog.factory["bookmarklet"] = libx.core.Class.create( libx.catalog.Catalog, 
+	 /** @lends libx.catalog.Bookmarklet.prototype */{
+	 
+    makeSearch: function (/**String*/ stype, /**String*/ sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },
-    makeAdvancedSearch: function (fields) {
+    
+    makeAdvancedSearch: function (/**[{searchType: {String}, searchTerms: {String}}]*/fields) {
         var usePost = this.postdata != null;
         if (usePost) {
             var argtemplate = this.postdata;
@@ -243,8 +313,22 @@ libx.catalog.factory["bookmarklet"] = libx.core.Class.create(libx.catalog.Catalo
     }
 });
 
-libx.catalog.factory["scholar"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ * 	Google Scholar Catalog Implementation
+ *	@name libx.catalog.Scholar
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["scholar"] to create a new instance
+ */
+libx.catalog.factory["scholar"] = libx.core.Class.create( libx.catalog.Catalog, 
+	/** @lends libx.catalog.Scholar.prototype */
+	{
+
     options: "Y;at;jt;a",
+    /**
+     *	Constructs a search URL for Google Scholar
+     */
     makeSearch: function (stype, sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
     },

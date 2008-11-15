@@ -248,6 +248,13 @@ libx.openurl.factory["generic"] = libx.core.Class.create({
         if (url) {
             libxEnv.openSearchWindow(url);
         }
+    },
+    /**
+     * the default implementation looks at the options property
+     * to decide which options are supported.
+     */
+    supportsSearchType: function (stype) {
+        return (";" + this.options + ";").match(";" + stype + ";");
     }
 });
 

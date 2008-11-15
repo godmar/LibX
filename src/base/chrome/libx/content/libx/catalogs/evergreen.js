@@ -21,11 +21,21 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/* Developed during Hackfest 2008 
- * with Grant Johnson and Dan Scott
- */
 
-libx.catalog.factory["evergreen"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Evergreen Catalog Implementation
+ *	Developed during Hackfest 2008
+ *	with Grant Johnson and Dan Scott
+ *
+ *	@name libx.catalog.Evergreen
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["evergreen"] to create a new instance
+ */
+libx.catalog.factory["evergreen"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Evergreen.prototype */
+{
     locale: "en-US",        // default to en-US locale 
     skin: "default",        // default to 'default' skin
     scope: "",              // scope, default to 'empty'

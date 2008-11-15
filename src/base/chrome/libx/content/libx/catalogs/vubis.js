@@ -54,7 +54,19 @@
  * alue=1&Request=harry%20potter
  */
 // Support for Vubis OPAC
-libx.catalog.factory["vubis"] = libx.core.Class.create(libx.catalog.Catalog, {
+
+/**
+ *	Vubis OPAC Catalog Implementation
+ *
+ *	@name libx.catalog.Vubis
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["vubis"] to create a new instance
+ */
+libx.catalog.factory["vubis"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Vubis.prototype */
+{
     profile: 'Default',
     opaclanguage: 'eng',
     searchmethod: 'Find_1',

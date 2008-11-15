@@ -99,11 +99,14 @@ function libxInit()
     };
 
     libxInitSearchOptions();
+    
+    libx.browser.initialize();
+    
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
     	onload: function (edition) {
     		libx.edition = edition;
-    		libx.browser.initialize();
+    		libx.browser.activateConfiguration();
     	}
     } );
     libxEnv.initializeGUI();

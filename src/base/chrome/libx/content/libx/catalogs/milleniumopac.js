@@ -21,7 +21,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Millenium Catalog Implementation
+ *
+ *	@name libx.catalog.Millenium
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["millenium"] to create a new instance
+ */
+libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.Millenium.prototype */
+{
 
 	xisbn: { opacid: "innovative" },
     // default values for millenium catalogs

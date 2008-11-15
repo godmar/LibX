@@ -21,8 +21,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// Support for Talis Prism OPAC
-libx.catalog.factory["talisprism"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Talis Prism OPAC Catalog Implementation
+ *
+ *	@name libx.catalog.TalisPrism
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["talisprism"] to create a new instance
+ */
+libx.catalog.factory["talisprism"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.TalisPrism.prototype */
+{
 
     collections: "1",
     location: "talislms",

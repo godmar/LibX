@@ -22,7 +22,18 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Support for Worldcat OPAC, including various Worldcat Local installs
-libx.catalog.factory["worldcat"] = libx.core.Class.create(libx.catalog.Catalog, {
+/**
+ *	Worldcat OPAC Support, including various WorldCat local installs
+ *	
+ *	@name libx.catalog.WorldCat
+ *	@augments libx.catalog.Catalog
+ *	@private
+ *	@constructor 
+ *	@see Use libx.catalog.factory["worldcat"] to create a new instance
+ */
+libx.catalog.factory["worldcat"] = libx.core.Class.create(libx.catalog.Catalog, 
+/** @lends libx.catalog.WorldCat.prototype */
+{
 
     xisbn: { opacid: "worldcat" },
 
