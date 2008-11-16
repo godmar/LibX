@@ -21,7 +21,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/* 
+/** 
  * OpenURL Resolver Support
  * 
  * Author: Annette Bailey <annette.bailey@gmail.com>
@@ -37,16 +37,33 @@
  * ArticleLinker and SFX are subclasses that inherit from OpenURL and provide
  * functionality specific to the Serials Solutions's Article Linker product
  * and the SFX product.
+ * @namespace
  */
-
 libx.openurl = { 
     // maps OpenURL types (generic, sfx, etc.) to classes
+    /**
+     *	Used to instantiate the various openurl types
+     *	All openurl types are accessed by there lowercase class names
+     *	@example
+     *		var alephCatalog = new libx.factory["webbridge"] ()
+     */
     factory : { }
 };
 
+/**
+ *	Generic Base Class implementation for OpenURL	
+ *	@name libx.openurl.WebBridge
+ *	@private
+ *	@constructor
+ */
 libx.openurl.factory["webbridge"] =
-libx.openurl.factory["generic"] = libx.core.Class.create({
-    makeOpenURLFromFields: function(fields) {
+libx.openurl.factory["generic"] = libx.core.Class.create(
+/**@lends libx.openurl.WebBridge.prototype */
+{
+	/**
+	 *	Constructs an OpenURL from a number of fields
+	 */
+    makeOpenURLFromFields: function(/**Object*/fields) {
 	    var url = "__char_set=utf8";
 	    this.haveTitleOrIssn = false;
         if (this.version == "0.1") {
@@ -146,13 +163,14 @@ libx.openurl.factory["generic"] = libx.core.Class.create({
 	    }//for
         return this.addSid(url);
     },
-    /* Add a sid, using syntax according to version (0.1 or 1.0)
+    /**
+     * Add a sid, using syntax according to version (0.1 or 1.0)
      * If version is not provided, fall back to this.version
      * 
      * Note that some OpenURL 1.0 resolvers need to fall back to 0.1
      * to properly rewrite Google Scholar OpenURLs.  True as of 10/26/07.
      */
-    addSid: function (url, version) {
+    addSid: function (/**String*/url, /**String*/version) {
         if (version == null)
             version = this.version;
 
@@ -261,7 +279,16 @@ libx.openurl.factory["generic"] = libx.core.Class.create({
 // ---------------------------------------------------------------------------------
 // Article Finder is a subclass of OpenURL
 // 
-libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Class.create(libx.openurl.factory["generic"], {
+/**
+ *	@name libx.openurl.Sersol
+ *	@constructor
+ *	@augments libx.openurl.WebBridge
+ *	@private
+ */
+libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Class.create(libx.openurl.factory["generic"], 
+/** @lends libx.openurl.Sersol.prototype */
+{
+
 
     // if used as a search catalog, show only Journal Title + ISBN/ISSN
     options : "jt;i",
@@ -284,11 +311,18 @@ libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Clas
     }
 });
 
-// ---------------------------------------------------------------------------------
-// SFX is a subclass of OpenURL
-// 
+
+/**
+ *	SFX OpenURL Support
+ *	@name libx.openurl.SFX
+ *	@augments libx.openurl.WebBridge
+ *	@private
+ *	@constructor
+ */
 libx.catalog.factory["sfx"] =
-libx.openurl.sfx = libx.core.Class.create(libx.openurl.factory["generic"], {
+libx.openurl.sfx = libx.core.Class.create(libx.openurl.factory["generic"], 
+/** @lends libx.openurl.SFX.prototype */
+{
     makeOpenURLSearch : function (fields) {
         var url = this.parent(fields);   
         if (url == null)
@@ -314,13 +348,21 @@ libx.openurl.sfx = libx.core.Class.create(libx.openurl.factory["generic"], {
     }
 });
 
-// ---------------------------------------------------------------------------------
-// libxOCLCGateway is a subclass of OpenURL
-// 
-// Retrieve icon of whichever OpenURL resolver is reported as being accessible for the current IP
-// Actual requests go through the worldcatlibraries URL below.
-//
-libx.openurl.OCLCGateway = libx.core.Class.create(libx.openurl.factory["generic"], {
+
+/**
+ *	OCLC Gateway support
+ *	
+ *	Includes support to automatically retrieve a personalized icon based
+ *	on the users current location
+ *
+ *	@name libx.openurl.OCLCGateway
+ *	@augments libx.openurl.WebBridge
+ *	@private
+ *	@constructor
+ */
+libx.openurl.OCLCGateway = libx.core.Class.create(libx.openurl.factory["generic"], 
+/** @lends libx.openurl.OCLCGateway */
+{
     url : "http://worldcatlibraries.org/registry/gateway",
     name : "OCLC Gateway",
     sid : "libx:oclcgateway",
