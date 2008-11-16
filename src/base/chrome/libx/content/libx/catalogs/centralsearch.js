@@ -25,14 +25,12 @@
 // Support for Serial Solutions' Central Search
 /**
  *  Serial Solution's Central Search Catalog Implementation
- *	@name libx.catalog.CentralSearch
+ *	@name libx.catalog.factory.centralsearch
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["centralsearch"] to create a new instance
  */
 libx.catalog.factory["centralsearch"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.CentralSearch.prototype */
+/** @lends libx.catalog.factory.centralsearch.prototype */
 
 {
 /*

@@ -58,14 +58,12 @@
 /**
  *	Vubis OPAC Catalog Implementation
  *
- *	@name libx.catalog.Vubis
+ *	@name libx.catalog.factory.vubis
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["vubis"] to create a new instance
  */
 libx.catalog.factory["vubis"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Vubis.prototype */
+/** @lends libx.catalog.factory.vubis.prototype */
 {
     profile: 'Default',
     opaclanguage: 'eng',

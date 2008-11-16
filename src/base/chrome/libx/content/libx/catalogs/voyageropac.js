@@ -175,14 +175,12 @@ function insertAND(s) {
  *	Voyager OPAC Catalog Implementation
  *	Based in part on http://www.mines.edu/library/catalyst/canned.html
  *
- *	@name libx.catalog.Voyager
+ *	@name libx.catalog.factory.voyager
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["voyager"] to create a new instance
  */
 libx.catalog.factory["voyager"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Voyager.prototype */
+/** @lends libx.catalog.factory.voyager.prototype */
 {
     keyword: "FT*",     // default keyword index
     count: 25,          // default number of hits returned

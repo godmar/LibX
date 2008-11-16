@@ -24,14 +24,12 @@
 /**
  *	Millenium Catalog Implementation
  *
- *	@name libx.catalog.Millenium
+ *	@name libx.catalog.factory.millenium
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["millenium"] to create a new instance
  */
 libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Millenium.prototype */
+/** @lends libx.catalog.factory.millenium.prototype */
 {
 
 	xisbn: { opacid: "innovative" },

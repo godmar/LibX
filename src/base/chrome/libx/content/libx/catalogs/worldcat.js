@@ -25,14 +25,12 @@
 /**
  *	Worldcat OPAC Support, including various WorldCat local installs
  *	
- *	@name libx.catalog.WorldCat
+ *	@name libx.catalog.factory.worldcat
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["worldcat"] to create a new instance
  */
 libx.catalog.factory["worldcat"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.WorldCat.prototype */
+/** @lends libx.catalog.factory.worldcat.prototype */
 {
 
     xisbn: { opacid: "worldcat" },

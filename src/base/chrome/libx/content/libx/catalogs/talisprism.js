@@ -24,14 +24,12 @@
 /**
  *	Talis Prism OPAC Catalog Implementation
  *
- *	@name libx.catalog.TalisPrism
+ *	@name libx.catalog.factory.talisprism
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["talisprism"] to create a new instance
  */
 libx.catalog.factory["talisprism"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.TalisPrism.prototype */
+/** @lends libx.catalog.factory.talisprism.prototype */
 {
 
     collections: "1",

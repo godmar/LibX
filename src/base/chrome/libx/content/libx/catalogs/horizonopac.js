@@ -24,14 +24,13 @@
 /**
  *	Horizon Catalog Implementation
  *
- *	@name libx.catalog.Horizon
+ *	@name libx.catalog.factory.horizon
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
  *	@see Use libx.catalog.factory["horizon"] to create a new instance
  */
 libx.catalog.factory["horizon"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Horizon.prototype */
+/** @lends libx.catalog.factory.horizon.prototype */
 {
     xisbn: { opacid: "ipac" },
     path: "/ipac20/ipac.jsp",

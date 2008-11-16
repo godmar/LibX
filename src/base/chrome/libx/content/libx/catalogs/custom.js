@@ -32,14 +32,12 @@
  * url, name, options are set. 
  * jsimplurl is the URL where the configuration is loaded from.
  * Optionally, param0 to param19 may be set.
- *	@name libx.catalog.Custom
+ *	@name libx.catalog.factory.custom
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["custom"] to create a new instance
  */
 libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Custom.prototype */
+/** @lends libx.catalog.factory.custom.prototype */
 {
 	xisbn: { opacid: "Please set thisCatalog.xisbn.opacid as per http://xisbn.worldcat.org/liblook/howtolinkbyopactype.htm" },
     __init: function () {

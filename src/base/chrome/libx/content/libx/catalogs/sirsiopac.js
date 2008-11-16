@@ -24,14 +24,12 @@
 /**
  *	Sirsi OPAC Catalog Implementation
  *
- *	@name libx.catalog.Sirsi
+ *	@name libx.catalog.factory.sirsi
  *	@augments libx.catalog.Catalog
- *	@private
- *	@constructor 
- *	@see Use libx.catalog.factory["sirsi"] to create a new instance
+ *	@constructor
  */
 libx.catalog.factory["sirsi"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Sirsi.prototype */
+/** @lends libx.catalog.factory.sirsi.prototype */
 {
 
     path: "/uhtbin/cgisirsi/x/0/0/5/",

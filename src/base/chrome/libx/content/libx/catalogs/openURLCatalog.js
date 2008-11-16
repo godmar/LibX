@@ -25,14 +25,12 @@
 /**
  *	OpenURLResolver Catalog Implementation
  *
- *	@name libx.catalog.OpenURLResolver
+ *	@name libx.catalog.factory.openurlresolver
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["openurlresolver"] to create a new instance
  */
 libx.catalog.factory["openurlresolver"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.OpenURLResolver.prototype */
+/** @lends libx.catalog.factory.openurlresolver.prototype */
 {
     initialize: function () {
         this.options = libxEnv.openUrlResolver.options;

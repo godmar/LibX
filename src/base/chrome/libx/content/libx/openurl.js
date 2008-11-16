@@ -44,26 +44,33 @@ libx.openurl = {
     /**
      *	Used to instantiate the various openurl types
      *	All openurl types are accessed by there lowercase class names
+     *	@namespace
      *	@example
-     *		var alephCatalog = new libx.factory["webbridge"] ()
+     *		var sersolResolver = new libx.factory["sersol"] ()
      */
     factory : { }
 };
 
 /**
- *	Generic Base Class implementation for OpenURL	
- *	@name libx.openurl.Generic
- *	@private
+ *	WebBridge implementation for OpenURL	
+ *	@name libx.openurl.factory.webbridge
  *	@constructor
+ *	@see libx.openurl.factory.generic
  */
 libx.openurl.factory["webbridge"] =
+/**
+ *	Generic Base Class implementation for OpenURL	
+ *	@name libx.openurl.factory.generic
+ *	@constructor
+ */
 libx.openurl.factory["generic"] = libx.core.Class.create(
-/**@lends libx.openurl.Generic.prototype */
+/**@lends libx.openurl.factory.generic.prototype */
 {
     include: [ libx.catalog.CatalogUtils ],
 
 	/**
 	 *	Constructs an OpenURL from a number of fields
+	 *	@return {String} URL
 	 */
     makeOpenURLFromFields: function(/**Object*/fields) {
 	    var url = "__char_set=utf8";
@@ -282,13 +289,12 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
 // Article Finder is a subclass of OpenURL
 // 
 /**
- *	@name libx.openurl.Sersol
+ *	@name libx.openurl.factory.sersol
  *	@constructor
- *	@augments libx.openurl.Generic
- *	@private
+ *	@augments libx.openurl.factory.generic
  */
 libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Class.create(libx.openurl.factory["generic"], 
-/** @lends libx.openurl.Sersol.prototype */
+/** @lends libx.openurl.factory.sersol.prototype */
 {
 
 
@@ -316,14 +322,19 @@ libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Clas
 
 /**
  *	SFX OpenURL Support
- *	@name libx.openurl.SFX
- *	@augments libx.openurl.Generic
- *	@private
+ *	@name libx.catalog.factory.sfx
+ *	@see libx.openurl.factory.sfx
  *	@constructor
  */
 libx.catalog.factory["sfx"] =
-libx.openurl.sfx = libx.core.Class.create(libx.openurl.factory["generic"], 
-/** @lends libx.openurl.SFX.prototype */
+/**
+ *	SFX OpenURL Support
+ *	@name libx.openurl.factory.sfx
+ *	@augments libx.openurl.factory.generic
+ *	@constructor
+ */
+libx.openurl.factory["sfx"] = libx.core.Class.create(libx.openurl.factory["generic"], 
+/** @lends libx.openurl.factory.sfx.prototype */
 {
     makeOpenURLSearch : function (fields) {
         var url = this.parent(fields);   
@@ -358,8 +369,7 @@ libx.openurl.sfx = libx.core.Class.create(libx.openurl.factory["generic"],
  *	on the users current location
  *
  *	@name libx.openurl.OCLCGateway
- *	@augments libx.openurl.Generic
- *	@private
+ *	@augments libx.openurl.factory.generic
  *	@constructor
  */
 libx.openurl.OCLCGateway = libx.core.Class.create(libx.openurl.factory["generic"], 

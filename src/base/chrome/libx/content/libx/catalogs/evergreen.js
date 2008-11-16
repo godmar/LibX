@@ -27,11 +27,9 @@
  *	Developed during Hackfest 2008
  *	with Grant Johnson and Dan Scott
  *
- *	@name libx.catalog.Evergreen
+ *	@name libx.catalog.factory.evergreen
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["evergreen"] to create a new instance
  */
 libx.catalog.factory["evergreen"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.Evergreen.prototype */

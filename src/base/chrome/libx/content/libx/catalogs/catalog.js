@@ -38,6 +38,7 @@ libx.catalog = {
     /**
      *	Used to instantiate the various catalog types
      *	All catalog types are accessed by there lowercase class names
+     *	@namespace
      *	@example
      *		var alephCatalog = new libx.factory["aleph"] ()
      */
@@ -64,7 +65,7 @@ libx.catalog.CatalogUtils = {
 
 // Base class for all catalogs
 /**
- *	@constructor Catalog
+ *	@constructor
  */
 libx.catalog.Catalog = libx.core.Class.create(
 /** @lends libx.catalog.Catalog.prototype */{
@@ -221,14 +222,12 @@ libx.catalog.Catalog = libx.core.Class.create(
 /**
  * 	Support generic "bookmarklet" style searches
  * 	The id's %t, %jt etc. in the URL are being replaced with the entered terms
- *	@name libx.catalog.Bookmarklet
+ *	@name libx.catalog.factory.bookmarklet
  *	@constructor
  *	@augments libx.catalog.Catalog
- *	@private
- *	@see libx.catalog.factory
  */
 libx.catalog.factory["bookmarklet"] = libx.core.Class.create( libx.catalog.Catalog, 
-	 /** @lends libx.catalog.Bookmarklet.prototype */{
+	 /** @lends libx.catalog.factory.bookmarklet.prototype */{
 	 
     makeSearch: function (/**String*/ stype, /**String*/ sterm) {
         return this.makeAdvancedSearch([{searchType: stype, searchTerms: sterm}]);
@@ -334,14 +333,12 @@ libx.catalog.factory["bookmarklet"] = libx.core.Class.create( libx.catalog.Catal
 
 /**
  * 	Google Scholar Catalog Implementation
- *	@name libx.catalog.Scholar
+ *	@name libx.catalog.factory.scholar
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["scholar"] to create a new instance
  */
 libx.catalog.factory["scholar"] = libx.core.Class.create( libx.catalog.Catalog, 
-	/** @lends libx.catalog.Scholar.prototype */
+	/** @lends libx.catalog.factory.scholar.prototype */
 	{
 
     options: "Y;at;jt;a",

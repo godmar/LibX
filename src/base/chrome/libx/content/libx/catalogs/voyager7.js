@@ -25,14 +25,12 @@
 /**
  *	Voyager7 OPAC Catalog Implementation
  *
- *	@name libx.catalog.Voyager7
+ *	@name libx.catalog.factory.voyager7
  *	@augments libx.catalog.Catalog
- *	@private
  *	@constructor 
- *	@see Use libx.catalog.factory["voyager7"] to create a new instance
  */
 libx.catalog.factory["voyager7"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Voyager7.prototype */
+/** @lends libx.catalog.factory.voyager7.prototype */
 {
     count: 10,
     path: "/vwebv/search",
