@@ -1,0 +1,90 @@
+<div align="center">{+new Link().toFile("index.html").withText("Class Index")+}
+| {+new Link().toFile("files.html").withText("File Index")+}</div>
+<hr />
+
+<h2>Classes</h2>
+<script type="text/javascript" src="jquery/jquery-1.2.6.js"></script>
+<script type="text/javascript" src="jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="jquery/jquery.treeview.js"></script>
+
+<link rel="stylesheet" href="jquery/jquery.treeview.css" type="text/css" />
+<style type="text/css">
+a[selected=true] {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+span a {
+	text-decoration: none;
+	color: blue;
+}
+
+</style>
+
+
+
+<script type="text/javascript">
+$(document).ready ( function () {
+	$('.myClasseList').treeview( );
+	
+	$('a').attr ( 'target', 'classFrame' );
+	$('a').click ( function ( event ) { 
+		// load this href
+		parent.frames[1].location.href = this.getAttribute ( 'href' );
+		// unhighlight others
+		$("*[selected]").attr ( 'selected', 'false' );
+		// highlight this one
+		$(this).attr ( 'selected', 'true' );
+		// prevent the tree from being open/closed
+		return false; 
+	} );
+} );
+
+</script>
+<ul class='myClasseList'>
+	{!
+		var namespaces = {};
+		for ( var k in data ) {
+			var obj = data[k];
+			var parts = obj.alias.split ( '.' );
+			var ns = namespaces;
+			
+			while ( parts.length > 1 ) {
+				var nspart = parts.shift();
+				if ( ns[nspart] == undefined )
+					ns[nspart] = new Object();
+				ns = ns[nspart];
+			}
+			var lastPart = parts.shift();
+			var link = new Link();
+			link.toClass ( obj.alias );
+			link.withText ( lastPart );
+			ns[lastPart] = { 'class' : link };
+		}
+		
+		function outputNS ( ns, ind ) {
+			var tmp = "";
+			for ( var k in ns ) {
+				if ( k != 'class' ) {
+					tmp += ind + "<li>" + "\n";
+					tmp += ind + "	<span>" + "\n";
+					tmp += ind + "		" + ( ns[k]['class'] != undefined ) ? ns[k]['class'] : k + "\n";
+					tmp += ind + "	</span>" + "\n";
+					var outtmp = outputNS ( ns[k], ind + "\t" );
+					if ( outtmp != "" ) {
+						tmp += ind + "	<ul>" + "\n";
+						tmp += ind + "		" + outtmp + "\n";
+						tmp += ind + "	</ul>" + "\n";
+					}
+					tmp += ind + "</li>"  + "\n";
+				} 
+			}
+			return tmp;
+		}
+		var outstr = outputNS ( namespaces, "" );
+		output += outstr;
+	
+	!}
+
+</ul>
+<hr />
