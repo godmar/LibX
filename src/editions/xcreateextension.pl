@@ -352,7 +352,7 @@ foreach my $f (@afiles) {
 
 if ($generateDoc) {
 
-	system ( "java -jar ../jsdoc/jsrun.jar ../jsdoc/app/run.js -a -p -t=../jsdoc/templates/jsdoc -d=$tmpdir/chrome/libx/content/libx/doc ../base/chrome/libx/content/libx/openurl.js" );
+	system ( "java -jar ../jsdoc/jsrun.jar ../jsdoc/app/run.js -a -p -t=../jsdoc/templates/jsdoc -d=$tmpdir/chrome/libx/content/libx/doc ../base/chrome/libx/content/libx/ ../base/chrome/libx/content/libx/catalogs/" );
 }
 
 my $addtoplevelfiles = "install.js install.rdf changelog.txt chrome.manifest";
