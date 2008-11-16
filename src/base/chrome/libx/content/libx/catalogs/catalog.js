@@ -44,6 +44,24 @@ libx.catalog = {
     factory : { }
 };
 
+// mixin used by catalogs and openurl resolvers
+libx.catalog.CatalogUtils = {
+
+    /* If the searchType is 'i', examine if user entered an ISSN
+     * and if so, change searchType to 'is'.  This ensures that 'i' handles
+     * both ISBNs and ISSNs.
+     */
+    adjustISNSearchType : function (f)
+    {
+        // if this is an ISSN, but not a ISBN, change searchType to 'is'
+        if (f.searchType == 'i') {
+            if (!isISBN(f.searchTerms) && isISSN(f.searchTerms)) {
+                f.searchType = 'is';
+            }
+        }
+    }
+};
+
 // Base class for all catalogs
 /**
  *	@constructor Catalog
@@ -51,6 +69,7 @@ libx.catalog = {
 libx.catalog.Catalog = libx.core.Class.create(
 /** @lends libx.catalog.Catalog.prototype */{
 
+    include: [ libx.catalog.CatalogUtils ],
 	/**
 	 *	Specifies whether the catalog should down convert ISBN-13
 	 *	@property downconvertisbn13
@@ -143,7 +162,7 @@ libx.catalog.Catalog = libx.core.Class.create(
                 libxEnv.writeLog(this.name + " does not support search type " + fields[i].searchType);
                 return;
             }
-            libxAdjustISNSearchType(fields[i]);
+            this.adjustISNSearchType(fields[i]);
         }
         if (fields.length == 1) {//single search field
             var url = this.makeSearch(fields[0].searchType, fields[0].searchTerms);

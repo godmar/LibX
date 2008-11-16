@@ -52,14 +52,16 @@ libx.openurl = {
 
 /**
  *	Generic Base Class implementation for OpenURL	
- *	@name libx.openurl.WebBridge
+ *	@name libx.openurl.Generic
  *	@private
  *	@constructor
  */
 libx.openurl.factory["webbridge"] =
 libx.openurl.factory["generic"] = libx.core.Class.create(
-/**@lends libx.openurl.WebBridge.prototype */
+/**@lends libx.openurl.Generic.prototype */
 {
+    include: [ libx.catalog.CatalogUtils ],
+
 	/**
 	 *	Constructs an OpenURL from a number of fields
 	 */
@@ -91,7 +93,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
             this.aufirstprefix = "rft.aufirst=";
         }
 	    for (var i = 0; i < fields.length; i++) {
-            libxAdjustISNSearchType(fields[i]);
+            this.adjustISNSearchType(fields[i]);
             url += "&";
 		    switch (fields[i].searchType) {
 		    case 'doi':
@@ -282,7 +284,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
 /**
  *	@name libx.openurl.Sersol
  *	@constructor
- *	@augments libx.openurl.WebBridge
+ *	@augments libx.openurl.Generic
  *	@private
  */
 libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Class.create(libx.openurl.factory["generic"], 
@@ -296,7 +298,7 @@ libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Clas
     makeOpenURLSearch : function (fields) {
         // if the user specifies only the journal title/issn, use sersol's search function
         if (fields.length == 1) {
-            libxAdjustISNSearchType(fields[0]);
+            this.adjustISNSearchType(fields[0]);
             var stype = fields[0].searchType;
             if (stype == 'jt') {
                 // http://su8bj7jh4j.search.serialssolutions.com/?V=1.0&S=T_W_A&C=business
@@ -315,7 +317,7 @@ libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Clas
 /**
  *	SFX OpenURL Support
  *	@name libx.openurl.SFX
- *	@augments libx.openurl.WebBridge
+ *	@augments libx.openurl.Generic
  *	@private
  *	@constructor
  */
@@ -356,7 +358,7 @@ libx.openurl.sfx = libx.core.Class.create(libx.openurl.factory["generic"],
  *	on the users current location
  *
  *	@name libx.openurl.OCLCGateway
- *	@augments libx.openurl.WebBridge
+ *	@augments libx.openurl.Generic
  *	@private
  *	@constructor
  */

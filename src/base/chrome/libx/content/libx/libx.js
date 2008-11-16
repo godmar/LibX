@@ -185,20 +185,6 @@ function libxInitSearchOptions() {
     libxConfig.searchOptions["xisbn"] = "xISBN";
 }
 
-/* If the searchType is 'i', examine if user entered an ISSN
- * and if so, change searchType to 'is'.  This ensures that 'i' handles
- * both ISBNs and ISSNs.
- */
-function libxAdjustISNSearchType(f)
-{
-    // if this is an ISSN, but not a ISBN, change searchType to 'is'
-	if (f.searchType == 'i') {
-        if (!isISBN(f.searchTerms) && isISSN(f.searchTerms)) {
-            f.searchType = 'is';
-        }
-	}
-}
-
 /*
  * Designed to extended to implement events that we commonly re-use, but are not provided
  * natively ( or to combine multiple events together )
