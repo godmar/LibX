@@ -39,6 +39,8 @@ my $localbuild = "";
 # bundled) or a partial installed (files needed are downloaded)
 my $ieFullInstall = undef;
 
+my $generateDoc = undef;
+
 # process cmdline args
 # this loop courtesy of Pat Tullmann, 1997 
 while ($_ = $ARGV[0]) {
@@ -63,6 +65,12 @@ while ($_ = $ARGV[0]) {
     if (/^-ie_full_installer$/) {
         $ieFullInstall = "true";
         next;
+    }
+    
+    # Generate and package documentation
+    if ( /^-doc$/ ) {
+    	$generateDoc = "true";
+    	next;
     }
     
     ## Unknown -args are fatal
@@ -342,13 +350,18 @@ foreach my $f (@afiles) {
     }
 }
 
+if ($generateDoc) {
+
+	system ( "java -jar ../jsdoc/jsrun.jar ../jsdoc/app/run.js -a -p -t=../jsdoc/templates/jsdoc -d=$tmpdir/chrome/libx/content/libx/doc ../base/chrome/libx/content/libx/openurl.js" );
+}
+
 my $addtoplevelfiles = "install.js install.rdf changelog.txt chrome.manifest";
 my $xpifile = $conf{'xpilocation'};
 $xpifile =~ s/.*\/([^\/]*)/$1/;         # basename
 system("rm $editionpath$xpifile; " .
        "cd $tmpdir; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
-       "zip -r $editionpath/$xpifile ./chrome " . $addtoplevelfiles) == 0 || die "zip failed";
+       "zip -r $editionpath/$xpifile ./chrome ./components " . $addtoplevelfiles) == 0 || die "zip failed";
 
 system("chmod g+w $editionpath/$xpifile") == 0 || die "chmod g+w failed";
 system("touch $editionpath/uses_xml_config") == 0 || die "touch failed";
