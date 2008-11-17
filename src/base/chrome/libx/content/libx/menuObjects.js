@@ -75,7 +75,7 @@ libx.ui.basicContextMenuDescriptor = [
 			{ name: 'issn',
 				REQUIRESTEXTSELECTED: true,
 				match: function (p) { 
-                	return isISSN(p.getSelection());  
+                	return libx.utils.stdnumsupport.isISSN(p.getSelection());  
         		},
 	        	/**
 	        	 *	Creates an item descriptor for every:
@@ -100,7 +100,7 @@ libx.ui.basicContextMenuDescriptor = [
 				REQUIRESTEXTSELECTED : true,
 				match : function (p) {
             	// can't downconvert ISBN 13 here since we don't know if catalog requires it
-                	return isISBN(p.getSelection()); 
+                	return libx.utils.stdnumsupport.isISBN(p.getSelection()); 
         		},
         		/**
 	        	 *	Creates an item descriptor for every:

@@ -200,7 +200,7 @@ function libxWriteOpenSearchDescriptions() {
                 shortName: name.getAttribute('short'),
                 longName: name.getAttribute('long'),
                 urlTemplate: encodeEntities(catalogs[i].makeSearch(opt, "{searchTerms}")),
-                catalogName: catalogs[i].name + " by " + libxEnv.searchOption2Label[opt],
+                catalogName: catalogs[i].name + " by " + libx.edition.searchoptions[opt],
                 iconPath: org.libx.editionbuilder.Config.httpeditionpath + last + "/" + icon,
                 attribution: name.getAttribute('adaptedby')
             });

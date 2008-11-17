@@ -607,8 +607,9 @@ Item.factory['catalog'] = libx.core.Class.create (
 				searcher.search ( [{ searchType : searchType, searchTerms: match }] );
 			} );
 			var displayText = this.util.computeDisplayText ( match );
+            // i18n 
 			this.setLabel ("Search " + this.name + " for " 
-                        + libxConfig.searchOptions[this.searchType] 
+                        + libx.edition.searchoptions[this.searchType] 
                         + " \"" + displayText + "\"" );
         
 		}

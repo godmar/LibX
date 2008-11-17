@@ -89,23 +89,42 @@ libx.config.EditionConfigurationReader = libx.core.Class.create ( {
                     proxy : editionConfigReader.loadProxies ( doc ),
                     options : editionConfigReader.loadOptions ( doc ),
                     links: editionConfigReader.loadLinks ( doc ),
+                    searchoptions: editionConfigReader.loadSearchOptions ( doc ),
                     name: { }
                 };
                 doc.copyAttributes(doc.getNode("/edition/name"), edition.name);
 
-                // XXX to-be-fixed
-                // augment searchOptions2Labels map with entries from configuration file
-                editionConfigReader.makeConfigurationItemArray (doc, "Search Option",
-                    "/edition/searchoptions/*", null, libx.core.EmptyFunction,
-                    function (node, option) {
-                        libxEnv.searchOptions2Labels[option.value] = option.label;
-                        libxConfig.searchOptions[option.value] = option.label;
-                    }
-                );
-
                 invofcc.onload ( edition );
             }
         });
+    },
+    loadSearchOptions: function (doc) {
+        // default map of search options to search labels
+        // newer configuration files store all labels in /edition/searchoptions 
+        var searchoptions = {
+            "Y" : "Keyword",
+            "t" : "Title",
+            "jt" : "Journal Title",
+            "at" : "Article Title",
+            "a" : "Author",
+            "d" : "Subject",
+            "m" : "Genre",
+            "i" : "ISBN/ISSN",
+            "c" : "Call Number",
+            "j" : "Dewey Call Number",
+            "doi" : "DOI",
+            "pmid" : "PubMed ID",
+            "xisbn" : "xISBN",
+            "magicsearch" : "Magic Search"
+        };
+
+        this.makeConfigurationItemArray (doc, "Search Option",
+            "/edition/searchoptions/*", null, libx.core.EmptyFunction,
+            function (node, option) {
+                searchoptions[option.value] = option.label;
+            }
+        );
+        return searchoptions;
     },
     loadLinks: function (doc) {
         return this.makeConfigurationItemArray (doc, "Link", 

@@ -65,6 +65,11 @@ libxEnv.logTypes = {
     magic: 'Magic',
     xpath: 'XPath'
 };
+libxEnv.getXMLConfig = function (invofcc) {
+    libxGetUrl(invofcc.url, function (xhr) { 
+        invofcc.onload(xhr.responseXML); 
+    }, true);
+};
 
 function libxClientSideCatalogInit(configurl) {
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
@@ -124,13 +129,6 @@ function _old_libxClientSideCatalogInit(configurl) {
             cat.__init();
         }
         catalogs.push (cat);
-    }
-
-    // override searchoptions's option with options defined in config
-    var xmlSearchOptions = configXML.getElementsByTagName("searchoption");
-    for (var i = 0; i < xmlSearchOptions.length; i++) {
-        var xmlOption = xmlSearchOptions[i];
-        libxEnv.searchOptions2Labels[xmlOption.getAttribute("value")] = xmlOption.getAttribute("label");
     }
 }
 

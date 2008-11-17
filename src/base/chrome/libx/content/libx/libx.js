@@ -21,33 +21,26 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
- 
 /*
  * LibX toolbar extension
  *
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
                         
-var libxConfig = new Object();   // Global variable to hold configuration items
+/**
+ * @namespace
+ * Utility namespaces
+ */
+libx.utils = { 
+    /**
+     * @namespace libx.utils.stdnumsupport
+     *
+     * Support for standard numbers such as ISBNs
+     */
+    stdnumsupport: { }
+};
 
 var libxEnv = { 
-    // default map of search options to search labels
-    // newer configuration files store all labels in /edition/searchoptions 
-    searchOptions2Labels: {
-        "Y" : "Keyword",
-        "t" : "Title",
-        "jt" : "Journal Title",
-        "at" : "Article Title",
-        "a" : "Author",
-        "d" : "Subject",
-        "m" : "Genre",
-        "i" : "ISBN/ISSN",
-        "c" : "Call Number",
-        "j" : "Dewey",
-        "doi" : "DOI",
-        "pmid" : "PubMed ID"
-    },
 
     //Set up logging types
     logTypes : {
@@ -69,7 +62,6 @@ var libxEnv = {
  * initializeGUI -- all GUI initialization code (=XUL in ff) moved here
  * initializeContextMenu -- right-click popup init code
  * addEventListener -- JavaScript event system
- * options -- previously under libxConfig.options
  * init -- initializes browser-specific stuff
  * openURLResolver -- OpenURL resolver or null if no OpenURL support, see openurl.js
  * addMenuObject/removeMenuObject -- Context menu abstraction layer
@@ -98,8 +90,6 @@ XXX this should be an 'onfail' handler for EditionConfigurationReader
     }
 */
 
-    libxInitSearchOptions();
-    
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
     	onload: function (edition) {
@@ -166,25 +156,6 @@ XXX this should be an 'onfail' handler for EditionConfigurationReader
     } catch (e) {
         libxEnv.writeLog( "Hotfix error " + e.message );
     } 
-}
-
-function libxInitSearchOptions() {
-
-    libxConfig.searchOptions = new Array();
-    libxConfig.searchOptions["Y"]    = "Keyword";
-    libxConfig.searchOptions["t"]    = "Title";
-    libxConfig.searchOptions["jt"]   = "Journal Title";
-    libxConfig.searchOptions["at"]   = "Article Title"; 
-    libxConfig.searchOptions["a"]    = "Author"; 
-    libxConfig.searchOptions["d"]    = "Subject";
-    libxConfig.searchOptions["m"]    = "Genre"; 
-    libxConfig.searchOptions["i"]    = "ISBN/ISSN"; 
-    libxConfig.searchOptions["c"]    = "Call Number"; 
-    libxConfig.searchOptions["j"]    = "Dewey Call Number"; 
-    libxConfig.searchOptions["doi"]  = "DOI"; 
-    libxConfig.searchOptions["pmid"] = "PubMed ID"; 
-    libxConfig.searchOptions["magicsearch"] = "Magic Search";
-    libxConfig.searchOptions["xisbn"] = "xISBN";
 }
 
 /*

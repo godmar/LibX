@@ -28,9 +28,6 @@
  * and prefs.*.js, which actually manage preferences.
  */
 
-// libxConfig, as passed in from main window.
-var libxConfig;
-
 // Preferences, as passed in from main window.
 var libxMenuPrefs;
 
@@ -146,9 +143,7 @@ function libxSaveContextPrefs() {
 
 // Saves all preferences and closes window
 function libxSaveAndQuit() {
-    if(libxConfig) {
-        libxSavePreferences();
-    }
+    libxSavePreferences();
     window.close();
 }
 
@@ -246,8 +241,7 @@ function libxInitContextMenuTrees() {
         for (var k in options) {
             var opt = k;
             var id = idprefix + "." + name + "." + opt;
-            var lbl = libxConfig.searchOptions[opt] ?
-                libxConfig.searchOptions[opt] : opt;
+            var lbl = libx.edition.searchoptions[opt] ? libx.edition.searchoptions[opt] : opt;
             var enabled = isEnabled (id) ? 'enabled' : 'disabled';
             if (enabled == 'enabled') {
                 open = true;

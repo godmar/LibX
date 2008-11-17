@@ -38,16 +38,6 @@ libxEnv.init = function() {
     libxMenuPrefs = new libxXMLPreferences();
     libxEnv.loadProperties(); 
 
-    //Read in search options and add to libxConfig.searchOptions
-    var libxSearchOptions = 
-        libxEnv.xpath.findNodesXML(libxGetConfigXML().xml, 
-        "/edition/searchoptions/*");
-    for (var option = 0; option < libxSearchOptions.length; option++ ) {
-        var mitem = libxSearchOptions[option];
-        libxConfig.searchOptions[mitem.getAttribute('value')] = mitem.getAttribute('label');
-    }
-    
-
     // Listener for the prefs window to catch changes to the roots info
     libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
 }

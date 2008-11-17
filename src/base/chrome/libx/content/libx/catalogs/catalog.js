@@ -56,7 +56,7 @@ libx.catalog.CatalogUtils = {
     {
         // if this is an ISSN, but not a ISBN, change searchType to 'is'
         if (f.searchType == 'i') {
-            if (!isISBN(f.searchTerms) && isISSN(f.searchTerms)) {
+            if (!libx.utils.stdnumsupport.isISBN(f.searchTerms) && libx.utils.stdnumsupport.isISSN(f.searchTerms)) {
                 f.searchType = 'is';
             }
         }
@@ -317,7 +317,7 @@ libx.catalog.factory["bookmarklet"] = libx.core.Class.create( libx.catalog.Catal
         }
 
         // clear out other %values if defined
-        for (var option in libxEnv.searchOptions2Labels) {
+        for (var option in libx.edition.searchoptions) {
             // to allow %is, %i, and %issue require that label be followed by a non-letter
             // XXX not very robust.
             argtemplate = argtemplate.replace(new RegExp("%" + option + "(?![a-zA-Z0-9])"), "", "g");

@@ -482,7 +482,7 @@ libxEnv.ff.activateCatalogOptions = function (catalog, alwaysreset) {
 
             var mitem = document.createElement("menuitem");
             mitem.value = option;
-            mitem.label = libxEnv.searchOptions2Labels[option];
+            mitem.label = libx.edition.searchoptions[option];
             mitem.setAttribute('value', mitem.value );
             mitem.setAttribute('label', mitem.label );
             mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
@@ -808,7 +808,6 @@ libxEnv.initPrefsGUI = function () {
     // Set the title
     var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
     
-    libxConfig = window.opener.libxConfig;
 	libx = window.opener.libx;
 	libxEnv.updateFunc = window.opener.libxEnv.doforurls.updateDoforurls;
     

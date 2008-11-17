@@ -63,8 +63,7 @@ libxEnv.sandboxClass = function ()
         };
 
         theSandBox.libx = libx;
-        theSandBox.libxConfig = libxConfig;
-        theSandBox.isISBN = isISBN;
+        theSandBox.isISBN = libx.utils.stdnumsupport.isISBN;
 
         // XPCNativeWrapper does not set the prototype chain
         theSandBox.__proto__ = safeWin; 

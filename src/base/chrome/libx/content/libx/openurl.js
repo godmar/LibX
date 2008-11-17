@@ -124,7 +124,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
 			    url += this.atitleprefix + encodeURIComponent(fields[i].searchTerms.replace(/\s+/, " "));
 			    break;
 		    case 'i':
-                var pureISN = isISBN(fields[i].searchTerms, this.downconvertisbn13);
+                var pureISN = libx.utils.stdnumsupport.isISBN(fields[i].searchTerms, this.downconvertisbn13);
 			    if (pureISN != null) {
 				    url += this.isbnprefix + pureISN;
 			    } else {
@@ -134,7 +134,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
 			    this.haveTitleOrIssn = true;
 			    break;
 		    case 'is':
-                var pureISN = isISSN(fields[i].searchTerms);
+                var pureISN = libx.utils.stdnumsupport.isISSN(fields[i].searchTerms);
 			    if (pureISN != null) {
 				    url += this.issnprefix + pureISN;
 			    } else {

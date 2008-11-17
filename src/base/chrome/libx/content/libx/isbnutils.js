@@ -21,10 +21,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/*
+/**
  * ISBN/ISSN utility routines
+ * @namespace
  */
-
 (function () {
 
     // compute the Mod 11 check digit, pass in string WITHOUT check digit
@@ -89,14 +89,17 @@
         return null;
     }
 
-/* isISBN
- *  takes a text that may contain a ISBN, possibly include hyphens
- *  if convertEANtoISBN is true, convert EAN to ISBN by 
- *  extracting digits 4-12 and recomputing the checkdigit
- * returns null if no ISBN was found
- * else returns the found ISBN as a string
+/**
+ * isISBN
+ * takes a text that may contain a ISBN or EAN, possibly including hyphens.
+ *
+ * If convertEANtoISBN is true, convert EAN to ISBN by 
+ * extracting digits 4-12 and recomputing the checkdigit
+ *
+ * @return {String} null if string does not an ISBN, else returns
+ *          ISBN (possibly converted)
  */
-isISBN = function (s, convertEANtoISBN) {
+libx.utils.stdnumsupport.isISBN = function (/**String*/s, /**Boolean*/ convertEANtoISBN) {
     var ean = eanChecksum(s, /97[89]\d{10}/, /^ISBN/i);
     if (ean) {
         if (convertEANtoISBN) {
@@ -109,12 +112,15 @@ isISBN = function (s, convertEANtoISBN) {
     return mod11Checksum(s, /\d{9}[\dX]/i, /^ISBN/i);
 }
 
-/* isISSN
- * takes a text that may contain a ISSN, possibly include hyphens
- * returns null if no ISSN was found
- * else returns the found ISSN as 0000-0000
+/**
+ * isISSN
+ * takes a text that may contain a ISSN, possibly including hyphens,
+ * and retrieves the ISSN from it
+ *
+ * @return {String} null if string does not an ISSN, else returns
+ *          ISSN in normal form 0000-0000
  */
-isISSN = function (s) {
+libx.utils.stdnumsupport.isISSN = function (/**String*/ s) {
     var issn = mod11Checksum(s, /\d{7}[\dX]/i, /^ISSN/i);
     if (issn) {
         return issn.substring(0, 4) + "-" + issn.substring(4, 8);
