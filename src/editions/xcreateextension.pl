@@ -39,7 +39,7 @@ my $localbuild = "";
 # bundled) or a partial installed (files needed are downloaded)
 my $ieFullInstall = undef;
 
-my $generateDoc = undef;
+my $docinputdir = undef;
 
 # process cmdline args
 # this loop courtesy of Pat Tullmann, 1997 
@@ -69,7 +69,8 @@ while ($_ = $ARGV[0]) {
     
     # Generate and package documentation
     if ( /^-doc$/ ) {
-    	$generateDoc = "true";
+        ($#ARGV >= 0) || &usage("-doc requires directory to specify location of documentation");
+    	$docinputdir= shift @ARGV;
     	next;
     }
     
@@ -350,9 +351,9 @@ foreach my $f (@afiles) {
     }
 }
 
-if ($generateDoc) {
+if ($docinputdir) {
 
-	system ( "java -jar ../jsdoc/jsrun.jar ../jsdoc/app/run.js -a -p -t=../jsdoc/templates/jsdoc -d=$tmpdir/chrome/libx/content/libx/doc ../base/chrome/libx/content/libx/ ../base/chrome/libx/content/libx/catalogs/" );
+    system ( "cp -R $docinputdir $tmpdir/chrome/libx/content/libx/doc" );
 }
 
 my $addtoplevelfiles = "install.js install.rdf changelog.txt chrome.manifest";
