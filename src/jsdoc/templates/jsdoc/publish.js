@@ -21,7 +21,7 @@ function publish(symbolSet) {
 
 	try {
 		var classTemplate = new JSDOC.JsPlate(publish.conf.templatesDir+"class.tmpl");
-		//var classesTemplate = new JSDOC.JsPlate(publish.conf.templatesDir+"allclasses.tmpl");
+		
 	}
 	catch(e) {
 		print(e.message);
