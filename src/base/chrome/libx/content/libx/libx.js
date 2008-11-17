@@ -32,8 +32,6 @@
 var libxConfig = new Object();   // Global variable to hold configuration items
 
 var libxEnv = { 
-    catalogClasses: [],  // maps catalog types to constructors
-
     // default map of search options to search labels
     // newer configuration files store all labels in /edition/searchoptions 
     searchOptions2Labels: {
@@ -59,7 +57,7 @@ var libxEnv = {
 
     //Store the build date here.  Checking whether this value exists
     //as well as comparison can be used by feed code if needed.
-    buildDate : $builddate$
+    buildDate : "$builddate$"
 };
 
 /* Relies on following methods provided by libxEnv object 
