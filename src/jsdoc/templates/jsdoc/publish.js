@@ -4,7 +4,8 @@ function publish(symbolSet) {
 		outDir: JSDOC.opt.d || SYS.pwd+"../out/jsdoc/",
 		templatesDir: SYS.pwd+"../templates/jsdoc/",
 		symbolsDir: "symbols/",
-		srcDir: "symbols/src/"
+		srcDir: "symbols/src/",
+		urlprefix: JSDOC.opt.chrome ? "chrome://libx/content/doc/" : ""
 	};
 	
 	
