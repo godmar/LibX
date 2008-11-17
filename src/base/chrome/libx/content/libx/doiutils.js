@@ -22,14 +22,18 @@
  * ***** END LICENSE BLOCK ***** */
 
 /*
- * Utilities for dealing with DOIs
+ * @fileoverview Utilities for dealing with DOIs
  */
 
-/*
- * This function checks whether a string is a doi and return the doi if so.
- * It returns null if the string doesn't appear to be a DOI.
+/**
+ * Checks whether a string is a DOI by seeing if it matches 10.(.*)/(.*) followed
+ * by whitespace.
+ *
+ * Ignores doi: prefix
+ *
+ * @return {String} null if the string doesn't appear to be a DOI, else the DOI.
  */
-function isDOI(str) {
+libx.utils.stdnumsupport.isDOI = function (/**String */str) {
     var s = str.replace(/\s*doi:?\s*/i, "");
 
     // If the DOI is encoded as URI, restrictions apply as follows:

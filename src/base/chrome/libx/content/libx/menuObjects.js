@@ -157,10 +157,10 @@ libx.ui.basicContextMenuDescriptor = [
 	        		}
 			        if (p.isOverLink()) {
 			            //does href of hyperlink over which user right-clicked contain a doi?
-			            return isDOI(decodeURI(p.getNode().href));
+			            return libx.utils.stdnumsupport.isDOI(decodeURI(p.getNode().href));
 			        } else 
 			        if (p.isTextSelected()) {
-			            return isDOI(p.getSelection());
+			            return libx.utils.stdnumsupport.isDOI(p.getSelection());
 			        }        
 			        return null;
 		   		},
