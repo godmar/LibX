@@ -153,5 +153,8 @@ libx.core = (function() {
   */
 
   // return whatever new name you want for Class
-  return { 'Class': Class };
+  return { 
+        'Class': Class,
+        'EmptyFunction': function () { },
+    };
 })();

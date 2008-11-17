@@ -48,7 +48,7 @@ libxEnv.sandboxClass = function ()
             writeLog : libxEnv.writeLog,
             makeLink : libxEnv.makeLink,
             getProperty : libxEnv.getProperty,
-            options : libxEnv.options,
+            options : libx.edition.options,
             xpath : libxEnv.xpath,
             xisbn : libxEnv.xisbn,
             openUrlResolver : libxEnv.openUrlResolver,

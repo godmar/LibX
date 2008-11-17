@@ -182,7 +182,7 @@ function libxWriteOpenSearchDescriptions() {
         return result;
     }
 
-    var icon = libxEnv.options['icon'].replace("chrome:\/\/libx\/skin\/", "");
+    var icon = libx.edition.options['icon'].replace("chrome:\/\/libx\/skin\/", "");
     //println("icon is: " + icon);
     var last = String(configdir).replace(/.*editions/, "");
     println("last is: " + last);

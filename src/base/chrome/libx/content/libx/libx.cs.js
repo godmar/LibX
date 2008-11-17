@@ -66,9 +66,18 @@ libxEnv.logTypes = {
     xpath: 'XPath'
 };
 
+function libxClientSideCatalogInit(configurl) {
+    var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
+    	url: configurl,
+    	onload: function (edition) {
+    		libx.edition = edition;
+    	}
+    } );
+}
+
 /* remove this and make it so it can use libxInitializeCatalogs in libx.js ... */
 var catalogs = new Array();
-function libxClientSideCatalogInit(configurl) {
+function _old_libxClientSideCatalogInit(configurl) {
 
     function copyXMLAttributestoJS (fromXML, toJS) {
         for (var j = 0; j < fromXML.attributes.length; j++) {
@@ -155,9 +164,9 @@ function props(x) {
 function libxRunAdvancedTestSearch(catindex, search)
 {
     try {
-        var u = catalogs[catindex].search(search);
+        var u = libx.edition.catalogs[catindex].search(search);
     } catch (er) {
-        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(catalogs[catindex]));
+        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(libx.edition.catalogs[catindex]));
     }
 }
 

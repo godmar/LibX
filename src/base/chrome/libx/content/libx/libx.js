@@ -49,7 +49,17 @@ var libxEnv = {
         "j" : "Dewey",
         "doi" : "DOI",
         "pmid" : "PubMed ID"
-    }
+    },
+
+    //Set up logging types
+    logTypes : {
+      magic: 'Magic',
+      xpath: 'XPath'
+    },
+
+    //Store the build date here.  Checking whether this value exists
+    //as well as comparison can be used by feed code if needed.
+    buildDate : $builddate$
 };
 
 /* Relies on following methods provided by libxEnv object 
@@ -77,46 +87,44 @@ var libxEnv = {
  */
 function libxInit() 
 {
-    //Store the build date here.  Checking whether this value exists
-    //as well as comparison can be used by feed code if needed.
-    libxEnv.buildDate = $builddate$;
-
-
-    libxInitializeProperties();
     libxInitMagicSearch();
+
     /*
      * Config XML must be present to load options
      */
+/*
+XXX this should be an 'onfail' handler for EditionConfigurationReader
     if ( !libxEnv.xmlDoc.xml ) {
         libxEnv.writeLog ( "ERROR: Config XML Not Found" );
         return;
     }
-
-    //Set up logging types
-    libxEnv.logTypes = {
-      magic: 'Magic',
-      xpath: 'XPath'
-    };
+*/
 
     libxInitSearchOptions();
-    
-    libx.browser.initialize();
     
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
     	onload: function (edition) {
     		libx.edition = edition;
+
+            libx.browser.initialize();
     		libx.browser.activateConfiguration();
+            libxEnv.initializeGUI();
+            libxEnv.initCatalogGUI();
+
+            // Adds onPageComplete to the eventlistener of DOMContentLoaded
+            libxEnv.init();
+
+            libxEnv.doforurls.initDoforurls();
+
+            libxEnv.eventDispatcher.init();
+            libxEnv.citeulike();
     	}
-    } );
-    libxEnv.initializeGUI();
-    libxEnv.initCatalogGUI();
+    });
 
-    // Adds onPageComplete to the eventlistener of DOMContentLoaded
-    libxEnv.init();
-
-    libxEnv.doforurls.initDoforurls();
-
+    //
+    // XXX function should end here
+    //
 	/**
 	 * helper function that creates the cue logo to be inserted
 	 * make the equivalent of this html:
@@ -141,20 +149,16 @@ function libxInit()
         if (targetobject && targetobject.image) {
             image.setAttribute('src', targetobject.image);
         } else {
-            if (libxEnv.options.cueicon != null)
-                image.setAttribute('src', libxEnv.options.cueicon);
+            if (libx.edition.options.cueicon != null)
+                image.setAttribute('src', libx.edition.options.cueicon);
             else
-                image.setAttribute('src', libxEnv.options.icon);
+                image.setAttribute('src', libx.edition.options.icon);
         }
         image.setAttribute('border', '0');
         link.appendChild(image);
         return link;
     }
 
-    libxEnv.eventDispatcher.init();
-    libxEnv.citeulike();
-
-    
     try {
         libxEnv.writeLog( "Applying Hotfixes" );
         for ( var i = 0; i < libxEnv.doforurls.hotfixList.length; i++ )

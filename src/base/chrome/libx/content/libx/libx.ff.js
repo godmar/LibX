@@ -225,11 +225,11 @@ libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified, c
     }
 }
 
-
-libxEnv.getXMLConfig = function (url) {
-	if ( url == null )
-		url = "chrome://libx/content/config.xml";
-    return libxEnv.getXMLDocument(url);
+// asynchronous now; still in transition
+libxEnv.getXMLConfig = function (invofcc) {
+    return libxEnv.getXMLDocument(invofcc.url, function (xml) {
+        invofcc.onload(xml);
+    });
 }
 
 /*
@@ -396,37 +396,21 @@ libxEnv.initializeGUI = function () {
     var libxmenu = document.getElementById("libxmenu");
     var libxmenusep = document.getElementById("libxmenu.separator");
     
-    var libxlinks = 
-        libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/links/*");
-    
-    for (var link = 0; link < libxlinks.length; link++ )
+    for (var i = 0; i < libx.edition.links.length; i++ )
     {
+        var link = libx.edition.links[i];
         var mitem = document.createElement("menuitem");
-        libxEnv.xmlDoc.copyAttributes ( libxlinks[link], mitem );
-        mitem.setAttribute ( "label", mitem.label );
-        var url = mitem.href;
-        if (url != null)
-            mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + url + "');");
+        mitem.setAttribute ( "label", link.label );
+        if (link.href != null)
+            mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + link.href + "');");
         libxmenu.insertBefore(mitem, libxmenusep);
     }
 
     libxEnv.ff.searchFieldVbox = document.getElementById("libx-search-field-vbox");
 
-    // augment searchOptions2Labels map with entries from configuration file
-    var libxSearchOptions = 
-        libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/searchoptions/*");
-    for (var option = 0; option < libxSearchOptions.length; option++)
-    {
-        var opt = libxSearchOptions[option];
-        var optLabel = opt.getAttribute("label");
-        var optValue = opt.getAttribute("value");
-        libxEnv.searchOptions2Labels[optValue] = optLabel;
-        libxConfig.searchOptions[optValue] = optLabel;
-    }
-
     var scholarbutton = document.getElementById("libx-magic-button");
     
-    if (libxEnv.options.disablescholar) {
+    if (libx.edition.options.disablescholar) {
         scholarbutton.hidden = true;
     } else {
         new TextDropTarget(magicSearch).attachToElement(scholarbutton);
@@ -454,9 +438,7 @@ libxEnv.initializeGUI = function () {
     }
 
     document.getElementById("libx-menu-toolbarbutton")
-        .setAttribute("tooltiptext", "LibX - " + 
-            libxEnv.xmlDoc.getAttr("/edition/name", "edition" ) );
-        
+        .setAttribute("tooltiptext", "LibX - " + libx.edition.name.edition);
 }
 
 libxEnv.setObjectVisible = function(obj, show) {
@@ -622,7 +604,7 @@ function libxSelectAutolink(value)
 
 function libxInitializeAutolink()
 {
-    if (!libxEnv.options.autolink)
+    if (!libx.edition.options.autolink)
         return;
 
     var hbox = document.getElementById("libx-about");

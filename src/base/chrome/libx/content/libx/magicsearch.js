@@ -57,9 +57,9 @@ function magicSearch(data, inpub, justmakeurl)
     {
         // some editions were built with "scholarmissurl" set to false, 
         // so take that into account.
-        if (libxEnv.options.scholarmissurl != null && typeof(libxEnv.options.scholarmissurl) == 'string') {
+        if (libx.edition.options.scholarmissurl != null && typeof(libx.edition.options.scholarmissurl) == 'string') {
             // if so configured, libx can lead user to this URL on miss
-            var onmissshow = libxEnv.options.scholarmissurl
+            var onmissshow = libx.edition.options.scholarmissurl
                 .replace(/%S/i, encodeURIComponent(data));
 
             libxEnv.openSearchWindow(onmissshow);
@@ -242,7 +242,7 @@ function magicSearch(data, inpub, justmakeurl)
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholars URL
                     var vtu = titleurl; // by default we open the URL Google provides
-                    var display = !libxEnv.options.suppressscholardisplay;
+                    var display = !libx.edition.options.suppressscholardisplay;
                     if (openurl) {
                         var openurlpath = decodeURIComponent(openurl[2]).replace(/^&/, "");
 
@@ -260,7 +260,7 @@ function magicSearch(data, inpub, justmakeurl)
                         // sending the original data in a (non-standard) OpenURL field
                         // allows an OpenURL resolver to offer an option to correct for
                         // wrong positives.  Used for Maryville.
-                        if (libxEnv.options.sendorigdatawithopenurl) { 
+                        if (libx.edition.options.sendorigdatawithopenurl) { 
                             openurlpath += "&origdata=" + encodeURIComponent(data);
                         }
 
@@ -300,7 +300,7 @@ function magicSearch(data, inpub, justmakeurl)
             if (!found)
                 handleMiss(url, originaldata);
 
-            if (libxEnv.options.suppressscholardisplay)
+            if (libx.edition.options.suppressscholardisplay)
                 return null;
 
             // show google scholar page also
@@ -326,7 +326,7 @@ function magicSearch(data, inpub, justmakeurl)
         // we dont know what else to do, just take the user to the google scholar page
         handleMiss(url, originaldata);
 
-        if (!libxEnv.options.suppressscholardisplay)
+        if (!libx.edition.options.suppressscholardisplay)
             libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata));
         return null;
     }
