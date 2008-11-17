@@ -67,7 +67,7 @@ libxEnv.logTypes = {
 };
 libxEnv.getXMLConfig = function (invofcc) {
     libxGetUrl(invofcc.url, function (xhr) { 
-        invofcc.onload(xhr.responseXML); 
+        invofcc.onload(xhr); 
     }, true);
 };
 
