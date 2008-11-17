@@ -1,0 +1,128 @@
+Included in this document:
+
+1. Generating Documentation
+2. Documenting Namespaces
+3. Documenting Classes
+4. Documenting Methods
+
+For detailed information on the tags, as well as JSDoc-Toolkit itself,
+see: http://code.google.com/p/jsdoc-toolkit/w/list
+
+
+1. Generating Documentation
+-----------------------------
+To generate documentation, use the genreateDoc.sh script
+located in the editions directory.
+
+* Must be run from editions directory
+* Defaults to have the -a and -p options enabled, unless
+    the -chrome option is specified.
+
+-chrome
+  Specifies that the documentation should be built for inclusion in the 
+  LibX XPI. This option must be specified if the documentation is to 
+  be viewed via the about:libx URL
+
+-d directory
+  Overrides the default output directory, defaults to 'doc'
+
+-files "file1 file2 file3"
+  Overrides the default source files to document ( defaults to all
+  LibX Source files )
+  
+Example 1: Generate Documentation for viewing outside of XPI
+    
+    generateDoc.sh
+
+Example 2: Generate Documentation for viewing inside the XPI, including
+           all private symbols
+
+    generateDoc.sh -chrome -p
+
+
+Example 3: Generate documentation only from openurl.js and catalog.js
+
+    generateDoc.sh -files "../base/chrome/libx/content/libx/openurl.js ../base/chrome/libx/content/libx/catalogs/catalog.js"
+
+
+
+2. Documenting Namespaces
+-----------------------------
+Use the @namespace tag
+
+Example:
+/** 
+  *    @namespace 
+  *    All catalog class definitions reside in this namespace 
+  */
+libx.catalog
+
+
+
+
+3. Documenting Classes
+-----------------------------
+
+- Any text without a tag is part of the description
+
+@name name
+- Required if the name is not obvious 
+- ( ie, libx.catalog.factory["aleph"] is not currently parsable by
+         the jsdoc engine )
+
+
+@class [description]
+- Tells it that this is a class ( uses either next identifier in code, or the @name attribute if it is set )
+- Description is optional
+
+@lends name.prototype
+- Tells it that everything within the next { } lends to the named object
+- Using .prototype tells it that it is member of a class, not static methods
+
+@constructs
+- Identifies the constructor for this class ( Put this on the initialize methods )
+
+
+Other useful tags
+@abstract
+- Custom tag
+- Currently just adds the <abstract> tag to method documentation
+
+@see other.class.or.namespace.name
+- Links to the named symbol ( if it can be resolved )
+ie, @see libx.catalog.Catalog would be resolved as a link to libx.catalog.Catalog
+
+@example
+- All text after this is part of an example that shows up in the documentation
+
+Example:
+
+/**
+ *  Support generic "bookmarklet" style searches
+ *  The id's %t, %jt etc. in the URL are being replaced with the entered terms
+ *  @name libx.catalog.factory.bookmarklet
+ *  @class
+ *  @augments libx.catalog.Catalog
+ */
+libx.catalog.factory["bookmarklet"] = libx.core.Class.create( libx.catalog.Catalog, 
+     /** @lends libx.catalog.factory.bookmarklet.prototype */{
+
+     
+4. Documenting Methods
+-----------------------------
+- Put a description for the function ( no tag needed )
+- Paramters can be documented in two ways:
+/**
+ * This is method foo
+ * @param {String} a
+ * @param {Object} b
+ * @return {Object} someobject
+ */
+
+or
+
+function foo ( /** String */ a, /** Object */ b );
+
+@return {type} description
+- Documents the return value
+
