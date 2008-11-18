@@ -26,49 +26,51 @@
  * Client-side implementation of libxEnv
  */
 
-libxEnv.getBoolPref = function (pref, defvalue) {
-    return defvalue;
-}
-libxEnv.getIntPref = function (pref, defvalue) {
-    return defvalue;
-}
-libxEnv.openSearchWindow = function (url) {
-    if (typeof url == "string") {
-        /* GET */
-        window.open(url);
-    } else {
-        /* POST - create a hidden POST form, populate and submit it. */
-        var target = url[0];
-        var postdata = url[1];
-        var form = document.createElement("form");
-        form.setAttribute("method", "POST");
-        form.setAttribute("action", url[0]);
-        form.style.display = 'none';
-        var arg = url[1].split(/&/);
-        for (var i = 0; i < arg.length; i++) {
-            var field = document.createElement("input");
-            var namevalue = arg[i].split("=");
-            field.setAttribute("name", namevalue[0]);
-            field.setAttribute("value", namevalue[1]);
-            form.appendChild(field);
+libxEnv = {
+    getBoolPref : function (pref, defvalue) {
+        return defvalue;
+    },
+    getIntPref : function (pref, defvalue) {
+        return defvalue;
+    },
+    openSearchWindow : function (url) {
+        if (typeof url == "string") {
+            /* GET */
+            window.open(url);
+        } else {
+            /* POST - create a hidden POST form, populate and submit it. */
+            var target = url[0];
+            var postdata = url[1];
+            var form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            form.setAttribute("action", url[0]);
+            form.style.display = 'none';
+            var arg = url[1].split(/&/);
+            for (var i = 0; i < arg.length; i++) {
+                var field = document.createElement("input");
+                var namevalue = arg[i].split("=");
+                field.setAttribute("name", namevalue[0]);
+                field.setAttribute("value", namevalue[1]);
+                form.appendChild(field);
+            }
+            document.body.appendChild(form);    // needed?
+            form.submit();
         }
-        document.body.appendChild(form);    // needed?
-        form.submit();
+    },
+    writeLog : function (msg, type) {
+        if (type !== undefined)
+                return;
+    // alert("writeLog: " + msg);
+    },
+    logTypes : {
+        magic: 'Magic',
+        xpath: 'XPath'
+    },
+    getXMLConfig : function (invofcc) {
+        libxGetUrl(invofcc.url, function (xhr) { 
+            invofcc.onload(xhr); 
+        }, true);
     }
-}
-libxEnv.writeLog = function (msg, type) {
-    if (type !== undefined)
-            return;
-    alert("writeLog: " + msg);
-}
-libxEnv.logTypes = {
-    magic: 'Magic',
-    xpath: 'XPath'
-};
-libxEnv.getXMLConfig = function (invofcc) {
-    libxGetUrl(invofcc.url, function (xhr) { 
-        invofcc.onload(xhr); 
-    }, true);
 };
 
 function libxClientSideCatalogInit(configurl) {
@@ -80,56 +82,21 @@ function libxClientSideCatalogInit(configurl) {
     } );
 }
 
-/* remove this and make it so it can use libxInitializeCatalogs in libx.js ... */
-var catalogs = new Array();
-function _old_libxClientSideCatalogInit(configurl) {
-
-    function copyXMLAttributestoJS (fromXML, toJS) {
-        for (var j = 0; j < fromXML.attributes.length; j++) {
-            toJS[fromXML.attributes[j].nodeName] = fromXML.attributes[j].nodeValue;
-        }
+// run a test search against catalog #catindex
+function libxRunAdvancedTestSearch(catindex, search)
+{
+    try {
+        var u = libx.edition.catalogs[catindex].search(search);
+    } catch (er) {
+        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(libx.edition.catalogs[catindex]));
     }
+}
 
-    var xmlhttp = libxGetUrl(configurl, null, false);
-    var configXML = xmlhttp.responseXML;
-    var xmlCatalogs = configXML.getElementsByTagName("catalogs")[0];
-
-    for (var i = 0; i < xmlCatalogs.childNodes.length; i++) {
-        var xmlCat = xmlCatalogs.childNodes[i];
-        var cat;
-
-        // skip whitespace/text nodes
-        if (xmlCat.nodeType != 1)
-            continue;
-
-        switch (xmlCat.nodeName) {
-        default:
-            if (libx.catalog.factory[xmlCat.nodeName] !== undefined) {
-                cat = new libx.catalog.factory[xmlCat.nodeName]();
-                break;
-            }
-            /* FALL THROUGH */
-        case "custom":
-        case "openurlresolver":
-            cat = { xisbn : { },
-                    search: function () { 
-                        alert('this catalog is not yet implemented for online testing, but it should work in your build'); } }
-            break;
-        }
-        copyXMLAttributestoJS(xmlCat, cat);
-
-        /* find xisbn child (should be first child in current DTD) */
-        for (var k = 0; k < xmlCat.childNodes.length; k++) {
-            var xisbnNode = xmlCat.childNodes[k];
-            if (xisbnNode.nodeName == "xisbn")
-                copyXMLAttributestoJS ( xisbnNode, cat.xisbn );
-        }
-
-        if (typeof (cat.__init) == "function") {
-            cat.__init();
-        }
-        catalogs.push (cat);
-    }
+function libxTestSearch(catindex, type, term)
+{
+    type = document.getElementById(type).value;
+    term = document.getElementById(term).value;
+    libxRunAdvancedTestSearch(catindex, [{ searchType: type, searchTerms: term }]);
 }
 
 // -----------------
@@ -157,23 +124,6 @@ function props(x) {
     return s;
 }
 // -----------------
-
-// run a test search against catalog #catindex
-function libxRunAdvancedTestSearch(catindex, search)
-{
-    try {
-        var u = libx.edition.catalogs[catindex].search(search);
-    } catch (er) {
-        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(libx.edition.catalogs[catindex]));
-    }
-}
-
-function libxTestSearch(catindex, type, term)
-{
-    type = document.getElementById(type).value;
-    term = document.getElementById(term).value;
-    libxRunAdvancedTestSearch(catindex, [{ searchType: type, searchTerms: term }]);
-}
 
 // adapted from latest version published at
 // http://jibbering.com/2002/4/httprequest.html
