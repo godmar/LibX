@@ -36,6 +36,107 @@
 libx.bd = libx.ff = { };
 
 /**
+ * @namespace
+ * Utility classes and functions for LibX Firefox
+ */
+libx.ff.utils = { };
+
+/**
+ * Support for context menu.  
+ * @class
+ *
+ * Requires
+ *  chrome://global/content/nsDragAndDrop.js
+ *  chrome://global/content/nsTransferable.js
+ */
+libx.ff.utils.ContextPopupHelper = libx.core.Class.create(
+    /** @lends libx.ff.utils.ContextPopupHelper.prototype */{
+    /**
+     * Determine if popup was opened over element of kind 'tagname'
+     * @return true if so
+     */
+    isTag: function(/** String */ tagname) {
+        // see if current node is a descendant of a node of given type
+        var p = this.lastPopupNode = document.popupNode;
+        while (p && p.tagName != tagname) {
+            p = p.parentNode;
+        }
+        if (!p)
+            return false;
+        this.lastPopupNode = p;
+        return true;
+    },
+
+    /**
+     * @return true if popup was opened over hyperlink? 
+     */
+    isOverLink: function() {
+		// must be over A tag and have a good href (not a name)
+        return this.isTag('A') && this.lastPopupNode.href != "";
+    },
+
+    /**
+     * @return {String} selection, if any, else null
+     */
+    getSelection: function() {
+        // alternatively, we could use gContextMenu.searchSelected(charlen as int)
+        var focusedWindow = document.commandDispatcher.focusedWindow;
+        var s = focusedWindow.getSelection();
+        return s == null ? "" : s.toString();
+    },
+
+    /**
+     * Determine is user selectec text
+     * @return {Boolean} true if text is selected
+     */
+    isTextSelected: function() {
+        return gContextMenu.isTextSelected;
+    },
+
+    /**
+     * Get DOM node over which popup was opened
+     * @return {DOMNode} over which popup was opened
+     */
+    getNode: function() {
+        return this.lastPopupNode;
+    }
+});
+
+/**
+ * Support for drag'n'drop
+ * @class
+ *
+ * Requires
+ *  chrome://global/content/nsDragAndDrop.js
+ *  chrome://global/content/nsTransferable.js
+ */
+libx.ff.utils.TextDropTarget = libx.core.Class.create(
+    /** @lends libx.ff.utils.TextDropTarget.prototype */{
+    initialize: function (func) {
+        this.callback = func;
+    },
+    onDrop: function (evt,dropdata,session) {
+        var d = dropdata.data;
+        if (d != "") {
+            d = d.replace(/\s+/g, " ");
+            // d = d.replace(/[^\040-\177]/g, "");
+            this.callback(d);
+        } 
+    },
+    onDragOver: function (evt,flavour,session){},
+    getSupportedFlavours : function () {
+        var flavours = new FlavourSet();
+        flavours.appendFlavour("text/unicode");
+        return flavours;
+    },
+    attachToElement: function (el) {
+        var self = this;
+        el.addEventListener("dragdrop", function(e) { nsDragAndDrop.drop(e, self); }, false);
+        el.addEventListener("dragover", function(e) { nsDragAndDrop.dragOver(e, self); }, false);
+    }
+});
+
+/**
  * Firefox toolbar instance
  *
  * libx.ff.toolbar is a singleton
@@ -138,7 +239,7 @@ libx.ff.toolbar = {
                 mitem.label = libx.edition.searchoptions[option];
                 mitem.setAttribute('value', mitem.value );
                 mitem.setAttribute('label', mitem.label );
-                mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
+                mitem.setAttribute('oncommand', 'libx.ff.toolbar.setFieldType(this);');
         
                 if (oldvalue == mitem.value)
                     newvalue = mitem;
@@ -254,13 +355,13 @@ libx.ff.toolbar = {
         if (edition.options.disablescholar) {
             scholarbutton.hidden = true;
         } else {
-            new TextDropTarget(magicSearch).attachToElement(scholarbutton);
+            new libx.ff.utils.TextDropTarget(magicSearch).attachToElement(scholarbutton);
         }
 
         // add the selected search as a default target
         var searchbutton = document.getElementById("libx-search-button");
-        new TextDropTarget(function (data) {
-            libxEnv.ff.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
+        new libx.ff.utils.TextDropTarget(function (data) {
+            libx.ff.toolbar.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
         }).attachToElement(searchbutton);
 
         /*
@@ -550,7 +651,7 @@ libxEnv.addEventHandler(window, "load",
  *	Returns a popuphelper object
  */
 libx.ff.getPopupHelper = function () {
-	return new ContextPopupHelper ();
+	return new libx.ff.utils.ContextPopupHelper ();
 };
 
 libx.ff.contextmenu = {};
