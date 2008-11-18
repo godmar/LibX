@@ -29,11 +29,21 @@
  */ 
   
  
+/**
+ * @namespace
+ */
+libx.ie = { };
+
+/**
+ * @namespace
+ */
+libx.bd = libx.ie;
+
  /*
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
  
-libxEnv.init = function() {
+libx.ie.initialize = function() {
     // Use user defined preferences if available
     libxMenuPrefs = new libxXMLPreferences();
     libxEnv.loadProperties(); 
@@ -827,12 +837,6 @@ libxEnv.getCiteulikePref = function () {
  * GUI functions are not used in the IE version, as the GUI is not controlled
  * by JavaScript.
  */
-libxEnv.initializeGUI = function () {
-}
-
-libxEnv.initCatalogGUI = function () {
-}
-
 libxEnv.setVisible = function(elemName, hide) {
 }
 

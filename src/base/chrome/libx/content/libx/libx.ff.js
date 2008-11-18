@@ -29,18 +29,302 @@
  */ 
  
  /*
-  * Designed to hold Firefox-specific code for the Libx extension
+  * @fileoverview Firefox-specific code for the Libx extension
   */
  
-libxEnv.ff = new Object(); /* Holder for FF specific objects */
-
 // New implementation of Browser Specific functions
-libx.bd = { };
+libx.bd = libx.ff = { };
 
-/*  init
+/**
+ * Firefox toolbar instance
+ *
+ * libx.ff.toolbar is a singleton
+ */
+libx.ff.toolbar = {
+    initialize: function (toolbarname) {
+        this.toolbarname = toolbarname;
+        this.xulToolbar = document.getElementById(this.toolbarname);
+        this.searchFieldVbox = document.getElementById("libx-search-field-vbox");
+
+        /* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
+        menu = document.getElementById ( 'libx-statusbar-popup' );
+        menu.addEventListener('popupshowing', function () {
+            var mitem = document.getElementById('libx-statusbar-togglebar-item');
+            mitem.setAttribute('checked', !this.xulToolbar.collapsed);
+        }, false);
+    },
+    /** 
+     * Invoked when hotkey for visibility is pressed. 
+     * Returns true if toolbar is not collapsed.
+     */
+    toggle : function () {
+        /*
+         * We must use 'collapsed' here instead of 'hidden' since collapsed is persistent and 
+         * since the toolbox's View menu as well as View -> Toolbar use collapsed.
+         */
+        this.xulToolbar.collapsed = !this.xulToolbar.collapsed;
+
+        // persist, see chrome://browser/content/browser.js
+        this.xulToolbar.ownerDocument.persist(this.xulToolbar.id, "collapsed");
+        var ff = this;
+
+        if (!this.xulToolbar.collapsed) {
+            setTimeout ( function () { 
+                ff.searchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
+            }, 100);
+        }
+        return !this.xulToolbar.collapsed;
+    },
+    /** switch the current search type (addison, openurl, etc.) */
+    selectCatalog : function (mitem, event) {
+        event.stopPropagation();
+
+        var sb = document.getElementById("libx-search-button");
+        sb.label = mitem.label;
+        this.selectedCatalog = libx.edition.catalogs[mitem.value];
+        libxEnv.setIntPref("libx.selectedcatalognumber", mitem.value);
+
+        this.activateCatalogOptions(this.selectedCatalog);
+    },
+    /**
+     * The user presses the search button, 
+     * perform a search in the catalog which the user previously selected
+     */
+    doSearch : function(event) {
+        // for all catalogs transfer search field contents into 'fields' array
+        var fields = new Array();
+        for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {// iterate over all search fields
+            var f = this.searchFieldVbox.childNodes.item(i);
+            if (f.firstChild.value == null) f.firstChild.value = "Y";
+            //alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
+            var field = {
+                searchType: f.firstChild.value, 
+                searchTerms: f.firstChild.nextSibling.firstChild.value.replace(/^\s+|\s+$/g, '')
+            };
+            if (field.searchTerms == "")
+                continue;
+
+            fields.push(field);
+        }
+
+        if (!this.selectedCatalog.search)
+            alert("Internal error, invalid catalog object: " + this.selectedCatalog);
+
+        this.selectedCatalog.search(fields);
+    },
+    /**
+     * adjust drop-down menus based on catalog.options
+     */
+    activateCatalogOptions : function (catalog, alwaysreset) {
+        var opt = catalog.options.split(/;/);
+        // for each open search field
+        for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {
+            var f = this.searchFieldVbox.childNodes.item(i);
+            var tbb = f.firstChild;
+            var uservalue = f.firstChild.nextSibling.firstChild.value;
+            var oldvalue = tbb.value;   // try to retain old selection
+            var newvalue = null;
+            var mpp = tbb.firstChild;
+            // clear out the old ones
+            while (mpp.childNodes.length > 0)
+                mpp.removeChild(mpp.firstChild);
+
+            // create new ones
+            for (var j = 0; j < opt.length; j++) {
+                var option = opt[j];
+
+                var mitem = document.createElement("menuitem");
+                mitem.value = option;
+                mitem.label = libx.edition.searchoptions[option];
+                mitem.setAttribute('value', mitem.value );
+                mitem.setAttribute('label', mitem.label );
+                mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
+        
+                if (oldvalue == mitem.value)
+                    newvalue = mitem;
+                mpp.appendChild(mitem);
+            }
+            if (newvalue == null || alwaysreset || uservalue == "")
+                this.setFieldType(mpp.firstChild);   // pick first entry the default
+            else
+                this.setFieldType(newvalue);         // recreate prior selection
+        }
+    },
+
+    /** 
+     * Add search field.
+     * we do this by cloning or removing the last search field child
+     * the blue "add-field" button, child #2, is disabled for all children except the last
+     * the red "close-field" button, child #3, is enabled for all children except the first
+     * these function all depend intimately on the XUL used for the vbox/hbox search field stuff
+     */
+    addSearchField : function () {
+        var lastSearchField = this.searchFieldVbox.lastChild;// get bottom search field
+        var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
+        // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
+        newSearchField.firstChild.value = lastSearchField.firstChild.value;
+        // disable blue "add-field" button in what will be the next-to-last searchfield
+        lastSearchField.childNodes.item(2).setAttribute("disabled", true);
+        if (this.searchFieldVbox.childNodes.length == 1) {
+            // show close button in first search field
+            lastSearchField.childNodes.item(3).setAttribute("disabled", false); 
+            // if so, the second field must have the close button enabled
+            newSearchField.childNodes.item(3).setAttribute("disabled", false); 
+        }
+
+        // use setAttribute instead of setting property directly to avoid
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=433544
+        newSearchField.firstChild.nextSibling.firstChild.setAttribute("value", "");
+        this.searchFieldVbox.appendChild(newSearchField);
+
+        // provide the next option from the list as a default
+        var lastSelection = lastSearchField.firstChild.value;
+        var ddMenu = newSearchField.firstChild.firstChild;
+        for (var i = 0; i < ddMenu.childNodes.length - 1; i++) {
+            if (ddMenu.childNodes.item(i).value == lastSelection) {
+                this.setFieldType(ddMenu.childNodes.item(i+1));
+                break;
+            }
+        }
+        // return reference to new textbox so caller can move focus there
+        return newSearchField.firstChild.nextSibling.firstChild;
+    },
+
+    /** 
+     * remove a specific search field
+     * expects hbox of search field to be removed
+     */
+    removeSearchField : function (/** Hbox */fieldHbox) {
+        this.searchFieldVbox.removeChild(fieldHbox);
+        var lastSearchField = this.searchFieldVbox.lastChild;// get bottom search field
+        lastSearchField.childNodes.item(2).setAttribute("disabled", false);// enable blue "add-field" button
+        if (this.searchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
+            lastSearchField.childNodes.item(3).setAttribute("disabled", true);
+        }
+    },
+
+    /**
+     * Set a new search type 
+     */
+    setFieldType : function (menuitem) {
+        //propagate label and value of menuitem to grandparent (toolbarbutton)
+        menuitem.parentNode.parentNode.label = menuitem.getAttribute("label");
+        menuitem.parentNode.parentNode.value = menuitem.getAttribute("value");
+    },
+
+    /**
+     * Clear all input fields and reset toolbar to just 1 entry
+     */
+    clearAllFields : function () {
+        // while there are more than one search field left, remove the last one
+        while (this.searchFieldVbox.childNodes.length > 1) {
+            this.removeSearchField(this.searchFieldVbox.lastChild);
+        }
+        // finally, clear the content of the only remaining one
+        this.searchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
+
+        // set options back to default for currently selected catalog
+        this.activateCatalogOptions(this.selectedCatalog, true);
+    },
+
+    /**
+     * Activate a new configuration.
+     */
+    activateConfiguration: function (edition) { 
+        // initialize menu at top left of toolbar
+        var libxmenu = document.getElementById("libxmenu");
+        var libxmenusep = document.getElementById("libxmenu-separator");
+        
+        // clear out existing menu entries until separator is first child
+        while (libxmenu.firstChild != libxmenusep)
+            libxmenu.removeChild(libxmenu.firstChild);
+
+        for (var i = 0; i < edition.links.length; i++ )
+        {
+            var link = edition.links[i];
+            var mitem = document.createElement("menuitem");
+            mitem.setAttribute ( "label", link.label );
+            if (link.href != null)
+                mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + link.href + "');");
+            libxmenu.insertBefore(mitem, libxmenusep);
+        }
+
+        var scholarbutton = document.getElementById("libx-magic-button");
+        
+        if (edition.options.disablescholar) {
+            scholarbutton.hidden = true;
+        } else {
+            new TextDropTarget(magicSearch).attachToElement(scholarbutton);
+        }
+
+        // add the selected search as a default target
+        var searchbutton = document.getElementById("libx-search-button");
+        new TextDropTarget(function (data) {
+            libxEnv.ff.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
+        }).attachToElement(searchbutton);
+
+        /*
+         * Adjust styles to achieve aligned layouts.
+         */
+        if (navigator.userAgent.match(/.*Macintosh.*Firefox\/2/)) {
+            searchbutton.style.marginTop = "-2px";
+            document.getElementById("libx-menu-toolbarbutton").style.marginTop = "2px";
+            document.styleSheets[0].insertRule('.libx-textbox { padding-top: 3px; padding-bottom: -1px; }',0);
+            document.styleSheets[0].insertRule('.libx-toolbarbutton-with-menu { margin-top: 1px; }',0);
+        }
+
+        if (navigator.userAgent.match(/.*Macintosh.*Firefox\/3/)) {
+            searchbutton.style.marginTop = "-1px";
+            document.getElementById("libx-menu-toolbarbutton").style.marginTop = "2px";
+        }
+
+        document.getElementById("libx-menu-toolbarbutton")
+            .setAttribute("tooltiptext", "LibX - " + edition.name.edition);
+
+        var catdropdown = document.getElementById("libxcatalogs");
+        while (catdropdown.hasChildNodes())
+            catdropdown.removeChild(catdropdown.firstChild);
+        
+        for ( var i = 0; i < libx.edition.catalogs.length; i++ ) {
+            var cat = libx.edition.catalogs[i];
+            var newbutton = document.createElement("menuitem");
+            newbutton.setAttribute("oncommand", "libx.ff.toolbar.selectCatalog(this,event);");
+            newbutton.setAttribute("value", i );
+            newbutton.setAttribute("label", "Search " + cat.name + " " );
+            catdropdown.appendChild(newbutton);
+        }
+        
+        // record initially selected catalog and activate its search options
+        var selectedCatalog = libxEnv.getIntPref("libx.selectedcatalognumber", 0);
+        // previously selected catalog may no longer be in list; choose #0 in this case
+        if (selectedCatalog >= edition.catalogs.length)
+            selectedCatalog = 0;    
+
+        this.selectedCatalog = edition.catalogs[selectedCatalog];
+        this.activateCatalogOptions(this.selectedCatalog);
+        // copy initial label to toolbarbutton parent from menuitem first child
+        catdropdown.parentNode.setAttribute("label", catdropdown.childNodes.item(selectedCatalog).getAttribute("label"));
+
+        var autolinkcbox = document.getElementById("libx-autolink-checkbox");
+        if (edition.options.autolink) {
+            autolinkcbox.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
+            autolinkcbox.setAttribute('oncommand', "libx.ff.toolbar.setAutolinkPreference(this.getAttribute('checked') == 'true');");
+            autolinkcbox.setAttribute('hidden', false);
+        } else {
+            autolinkcbox.setAttribute('hidden', true);
+        }
+    },
+
+    setAutolinkPreference : function (value)
+    {
+        libxEnv.setBoolPref("libx.autolink", value);
+    }
+};
+
+/**
  * Initialize Firefox-specific parts.
  */
-libxEnv.init = function() {
+libx.ff.initialize = function() {
 
     libxChromeWindow = window;
 
@@ -48,62 +332,38 @@ libxEnv.init = function() {
     // we must wait until here before calling document.getElementById
     libxProps = document.getElementById("libx-string-bundle");
 
-    libxEnv.ff.toolbar = document.getElementById('libx-toolbar');
-    libxInitializeAutolink();
+    libx.ff.toolbar.initialize('libx-toolbar');
 
+    // bottom-right status bar menu
     var menu = document.getElementById ( 'libxmenu' );
     menu.addEventListener ( 'popupshowing', 
         function () {
             var m = document.getElementById ( 'libx-autolink-checkbox' );
             m.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
         }, false );
-        
-    /* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
-    menu = document.getElementById ( 'libx-statusbar-popup' );
-    menu.addEventListener('popupshowing', function () {
-        var mitem = document.getElementById('libx-statusbar-togglebar-item');
-        mitem.setAttribute('checked', !libxEnv.ff.toolbar.collapsed);
-    }, false);
-   
+
     libxEnv.hash = new libxEnv.hashClass();
 
     if ( libxEnv.getBoolPref ( 'libx.firstrun', true ) ) {
-       // Set Timeout of 1 to run after firefox has finished initializing
-       // * Same approach as Google Toolbar
-       setTimeout (
-           function () {
-                           window.openDialog ( "chrome://libx/content/firstrun.xul",
-                   "LibX Initial Configuration", " centerscreen, chrome, modal, resizable",
-                   {
-                        toolbar: document.getElementById ( 'libx-toolbar' ), 
-                        proxyAjaxable: ( libx.edition.proxy.default != null && libx.edition.proxy.default.canCheck() ) 
-                   }
-                   );
-           }, 1);
-       libxEnv.setBoolPref ( 'libx.firstrun', false );
+        // i18n
+        window.openDialog ( "chrome://libx/content/firstrun.xul",
+                        "LibX Initial Configuration", 
+                        "centerscreen, chrome, modal, resizable",
+                        {
+                            toolbar: toolbar.xulToolbar
+                        });
+        libxEnv.setBoolPref ( 'libx.firstrun', false );
     }
 }
 
-/* Invoked when hotkey for visibility is pressed. 
- * Returns true if toolbar is not collapsed.
- * We use 'collapsed' here instead of 'hidden' since collapsed is persistent and since the
- * toolbox's View menu as well as View -> Toolbar use collapsed.
+/**
+ * Activate a new configuration
  */
-libxEnv.ff.toggleToolBar = function (toolbarname) {
-    var tbar = document.getElementById(toolbarname);
-    tbar.collapsed = !tbar.collapsed;
-    // persist, see chrome://browser/content/browser.js
-    tbar.ownerDocument.persist(tbar.id, "collapsed");
-    var ff = this;
-
-    if (!tbar.collapsed) {
-        setTimeout ( function () { 
-            ff.searchFieldVbox.childNodes.item(0).firstChild.nextSibling.firstChild.focus(); 
-        }, 100);
-    }
-    return !tbar.collapsed;
+libx.ff.activateConfiguration = function (edition) {
+    this.toolbar.activateConfiguration(edition);
 }
-  
+
+libxEnv.ff = { };
 /* 
  * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
  */
@@ -286,45 +546,21 @@ libxEnv.addEventHandler(window, "load",
     },
     false);
 
-
-// switch the current search type (addison, openurl, etc.)
-libxEnv.ff.selectCatalog = function(mitem, event) {
-    event.stopPropagation();
-
-    var sb = document.getElementById("libx-search-button");
-    sb.label = mitem.label;
-    this.selectedCatalog = libx.edition.catalogs[mitem.value];
-    libxEnv.setIntPref("libx.selectedcatalognumber", mitem.value);
-
-    this.activateCatalogOptions(this.selectedCatalog);
-}
-
-
-libxEnv.OLD__initializeContextMenu = function () {
-    popuphelper = new ContextPopupHelper();
-    var menu = document.getElementById("contentAreaContextMenu");
-    //menu.addEventListener("popupshowing", libxEnv.contextMenuShowing, false);
-    //menu.addEventListener("popuphidden", libxEnv.contextMenuHidden, false );
-    
-    menu.addEventListener("popupshowing", libx.edition.contextMenu.onShowing, false);
-    menu.addEventListener("popuphidden", libx.edition.contextMenu.onHiding, false );
-}
-
 /**
  *	Returns a popuphelper object
  */
-libx.bd.getPopupHelper = function () {
+libx.ff.getPopupHelper = function () {
 	return new ContextPopupHelper ();
 };
 
-libx.bd.contextmenu = {};
+libx.ff.contextmenu = {};
 /**
  *	Initializes the browsers context menu handlers
  *	Ensures that libx.browser.contextMenu.onShowing/onHiding functions
  *	are called as appropriate 
  *		
  */
-libx.bd.contextmenu.initialize = function () {
+libx.ff.contextmenu.initialize = function () {
     var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", function () {
         libx.browser.contextMenu.onShowing();   
@@ -333,113 +569,6 @@ libx.bd.contextmenu.initialize = function () {
         libx.browser.contextMenu.onHiding();   
     }, false );
 }; 
-
-//GUI-related stuff////////////////////////////////////////////////////
-
-//this function is called if the user presses the search button, 
-//it performs a search in the catalog which the user previously selected
-libxEnv.ff.doSearch = function(event) {
-
-    // for all catalogs transfer search field contents into 'fields' array
-    var fields = new Array();
-    for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {// iterate over all search fields
-        var f = this.searchFieldVbox.childNodes.item(i);
-        if (f.firstChild.value == null) f.firstChild.value = "Y";
-        //alert(f.firstChild.value + " " + f.firstChild.label + " " + f.firstChild.nextSibling.firstChild.value);
-        var field = {
-            searchType: f.firstChild.value, 
-            searchTerms: f.firstChild.nextSibling.firstChild.value.replace(/^\s+|\s+$/g, '')
-        };
-        if (field.searchTerms == "")
-            continue;
-
-        fields.push(field);
-    }
-
-    if (!this.selectedCatalog.search)
-        alert("Internal error, invalid catalog object: " + this.selectedCatalog);
-
-    this.selectedCatalog.search(fields);
-}
-
-libxEnv.initCatalogGUI = function () {
-    var catdropdown = document.getElementById("libxcatalogs");
-    
-    for ( var i = 0; i < libx.edition.catalogs.length; i++ ) {
-        var cat = libx.edition.catalogs[i];
-        var newbutton = document.createElement("menuitem");
-        newbutton.setAttribute("oncommand", "libxEnv.ff.selectCatalog(this,event);");
-        newbutton.setAttribute("value", i );
-        newbutton.setAttribute("label", "Search " + cat.name + " " );
-        catdropdown.appendChild(newbutton);
-    }
-    
-    // record initially selected catalog and activate its search options
-    var selectedCatalog = libxEnv.getIntPref("libx.selectedcatalognumber", 0);
-    // previously selected catalog may no longer be in list
-    if (selectedCatalog >= libx.edition.catalogs.length)
-        selectedCatalog = 0;    
-
-    libxEnv.ff.selectedCatalog = libx.edition.catalogs[selectedCatalog];
-    libxEnv.ff.activateCatalogOptions(libxEnv.ff.selectedCatalog);
-    // copy initial label to toolbarbutton parent from menuitem first child
-    catdropdown.parentNode.setAttribute("label", catdropdown.childNodes.item(selectedCatalog).getAttribute("label"));
-}
-
-libxEnv.initializeGUI = function () {
-    
-    // initialize menu at top left of toolbar
-    // these are now additional properties:
-    // link1.label=...
-    // link1.url=...
-    // and so on.
-    var libxmenu = document.getElementById("libxmenu");
-    var libxmenusep = document.getElementById("libxmenu.separator");
-    
-    for (var i = 0; i < libx.edition.links.length; i++ )
-    {
-        var link = libx.edition.links[i];
-        var mitem = document.createElement("menuitem");
-        mitem.setAttribute ( "label", link.label );
-        if (link.href != null)
-            mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + link.href + "');");
-        libxmenu.insertBefore(mitem, libxmenusep);
-    }
-
-    libxEnv.ff.searchFieldVbox = document.getElementById("libx-search-field-vbox");
-
-    var scholarbutton = document.getElementById("libx-magic-button");
-    
-    if (libx.edition.options.disablescholar) {
-        scholarbutton.hidden = true;
-    } else {
-        new TextDropTarget(magicSearch).attachToElement(scholarbutton);
-    }
-
-    // add the selected search as a default target
-    var searchbutton = document.getElementById("libx-search-button");
-    new TextDropTarget(function (data) {
-        libxEnv.ff.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
-    }).attachToElement(searchbutton);
-
-    /*
-     * Adjust styles to achieve aligned layouts.
-     */
-    if (navigator.userAgent.match(/.*Macintosh.*Firefox\/2/)) {
-        searchbutton.style.marginTop = "-2px";
-        document.getElementById("libx-menu-toolbarbutton").style.marginTop = "2px";
-        document.styleSheets[0].insertRule('.libx-textbox { padding-top: 3px; padding-bottom: -1px; }',0);
-        document.styleSheets[0].insertRule('.libx-toolbarbutton-with-menu { margin-top: 1px; }',0);
-    }
-
-    if (navigator.userAgent.match(/.*Macintosh.*Firefox\/3/)) {
-        searchbutton.style.marginTop = "-1px";
-        document.getElementById("libx-menu-toolbarbutton").style.marginTop = "2px";
-    }
-
-    document.getElementById("libx-menu-toolbarbutton")
-        .setAttribute("tooltiptext", "LibX - " + libx.edition.name.edition);
-}
 
 libxEnv.setObjectVisible = function(obj, show) {
     obj.hidden = !show;
@@ -459,162 +588,12 @@ libxEnv.setGUIAttribute = function(elemName, attrName, attrValue) {
     }
 }
 
-/*
- * adjust drop-down menus based on catalog.options
- */
-libxEnv.ff.activateCatalogOptions = function (catalog, alwaysreset) {
-    var opt = catalog.options.split(/;/);
-    // for each open search field
-    for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {
-        var f = this.searchFieldVbox.childNodes.item(i);
-        var tbb = f.firstChild;
-        var uservalue = f.firstChild.nextSibling.firstChild.value;
-        var oldvalue = tbb.value;   // try to retain old selection
-        var newvalue = null;
-        var mpp = tbb.firstChild;
-        // clear out the old ones
-        while (mpp.childNodes.length > 0)
-            mpp.removeChild(mpp.firstChild);
-
-        // create new ones
-        for (var j = 0; j < opt.length; j++) {
-            var option = opt[j];
-
-            var mitem = document.createElement("menuitem");
-            mitem.value = option;
-            mitem.label = libx.edition.searchoptions[option];
-            mitem.setAttribute('value', mitem.value );
-            mitem.setAttribute('label', mitem.label );
-            mitem.setAttribute('oncommand', 'libxEnv.ff.setFieldType(this);');
-    
-            if (oldvalue == mitem.value)
-                newvalue = mitem;
-            mpp.appendChild(mitem);
-        }
-        if (newvalue == null || alwaysreset || uservalue == "")
-            libxEnv.ff.setFieldType(mpp.firstChild);   // pick first entry the default
-        else
-            libxEnv.ff.setFieldType(newvalue);         // recreate prior selection
-    }
-}
-
-// add and remove search fields.
-// we do this by cloning or removing the last search field child
-// the blue "add-field" button, child #2, is disabled for all children except the last
-// the red "close-field" button, child #3, is enabled for all children except the first
-// these function all depend intimately on the XUL used for the vbox/hbox search field stuff
-libxEnv.ff.addSearchField = function () {
-    var lastSearchField = this.searchFieldVbox.lastChild;// get bottom search field
-    var newSearchField = lastSearchField.cloneNode(true);// clone last search field and all its descendants
-    // cloneNode, for reasons we don't understand, does not clone certain properties, such as "value"
-    newSearchField.firstChild.value = lastSearchField.firstChild.value;
-    lastSearchField.childNodes.item(2).setAttribute("disabled", true);// disable blue "add-field" button in what will be the next-to-last searchfield
-    if (this.searchFieldVbox.childNodes.length == 1) { // tests if only one search field is currently visible
-        lastSearchField.childNodes.item(3).setAttribute("disabled", false); // OPTIONAL: show close button in first search field
-        newSearchField.childNodes.item(3).setAttribute("disabled", false); // if so, the second field must have the close button enabled
-    }
-
-    // use setAttribute instead of setting property directly to avoid
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=433544
-    newSearchField.firstChild.nextSibling.firstChild.setAttribute("value", "");
-    this.searchFieldVbox.appendChild(newSearchField);
-
-    // provide the next option from the list as a default
-    var lastSelection = lastSearchField.firstChild.value;
-    var ddMenu = newSearchField.firstChild.firstChild;
-    for (var i = 0; i < ddMenu.childNodes.length - 1; i++) {
-        if (ddMenu.childNodes.item(i).value == lastSelection) {
-            libxEnv.ff.setFieldType(ddMenu.childNodes.item(i+1));
-            break;
-        }
-    }
-    // return reference to new textbox so caller can move focus there
-    return newSearchField.firstChild.nextSibling.firstChild;
-}
-
-// remove a specific search field
-// user must pass reference to hbox of search field to be removed
-libxEnv.ff.removeSearchField = function (fieldHbox) {
-    this.searchFieldVbox.removeChild(fieldHbox);
-    var lastSearchField = this.searchFieldVbox.lastChild;// get bottom search field
-    lastSearchField.childNodes.item(2).setAttribute("disabled", false);// enable blue "add-field" button
-    if (this.searchFieldVbox.childNodes.length == 1) { // disable close button if only one search field 
-        lastSearchField.childNodes.item(3).setAttribute("disabled", true);
-    }
-}
-
-// this function is called when the user switches the search field type for a given search field
-libxEnv.ff.setFieldType = function (menuitem) {
-    //propagate label and value of menuitem to grandparent (toolbarbutton)
-    menuitem.parentNode.parentNode.label = menuitem.getAttribute("label");
-    menuitem.parentNode.parentNode.value = menuitem.getAttribute("value");
-}
-
-libxEnv.ff.clearAllFields = function () {
-    // while there are more than one search field left, remove the last one
-    while (this.searchFieldVbox.childNodes.length > 1) {
-        this.removeSearchField(this.searchFieldVbox.lastChild);
-    }
-    // finally, clear the content of the only remaining one
-    this.searchFieldVbox.firstChild.firstChild.nextSibling.firstChild.value = "";
-
-    // set options back to default for currently selected catalog
-    this.activateCatalogOptions(this.selectedCatalog, true);
-}
-
-// copy selection into search field - this is called from the nested right-click menu
-// This is currently unused
-function libx___unused___addSearchFieldAs(mitem) {
-    if (!popuphelper.isTextSelected()) {
-        alert(libxEnv.getProperty("selectterm.alert"));
-        return;
-    }
-    var sterm = popuphelper.getSelection();
-    
-    //XXX investigate if we should pretreat sterm
-    for (var i = 0; i < this.searchFieldVbox.childNodes.length; i++) {// iterate over all search fields and find and use the first empty one
-        var tbb = this.searchFieldVbox.childNodes.item(i).firstChild;//toolbarbutton in hbox of search field
-        if (tbb.nextSibling.firstChild.value == "") {//is this field empty - use it if so
-            tbb.value = mitem.value;
-            tbb.label = mitem.label;
-            tbb.nextSibling.firstChild.value = sterm;
-            return;
-        }
-    }
-    //have found no empty field, must add one
-    libxEnv.ff.addSearchField();
-    //try again - this time around there should be an empty field
-    addSearchFieldAs(mitem);
-}
-
 // Opens the LibX Preferences window
 // About window is now part of this window.
 libxEnv.ff.openPrefWindow = function () { 
     window.openDialog ( "chrome://libx/content/libxprefs.xul", 
         "LibX Preferences", " centerscreen, chrome, modal, resizable"
     );
-}
-
-//Autolink-related stuff//////////////////////////////////////////////////////
-
-function libxSelectAutolink(value)
-{
-    libxEnv.setBoolPref("libx.autolink", value);
-}
-
-function libxInitializeAutolink()
-{
-    if (!libx.edition.options.autolink)
-        return;
-
-    var hbox = document.getElementById("libx-about");
-    var m = document.createElement("menuitem");
-    m.setAttribute('type', 'checkbox');
-    m.setAttribute('label', 'Autolink Pages');
-    m.setAttribute('id', 'libx-autolink-checkbox' );
-    m.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
-    m.setAttribute('oncommand', "libxSelectAutolink(this.getAttribute('checked') == 'true');");
-    hbox.parentNode.insertBefore(m, hbox);
 }
 
 // Returns the full file path for given path
@@ -781,26 +760,6 @@ libxEnv.addMenuObject = function (menuEntry) {
 libxEnv.removeMenuObject = function (menuitem) {
     var contMenu = document.getElementById("contentAreaContextMenu");  
     contMenu.removeChild ( menuitem );
-}
-
-/*
- * Event handler called when context menu is hidden
- */
-libxEnv.contextMenuHidden = function (e) {
-    if (e.target.id != 'contentAreaContextMenu') 
-        return;
-
-    libxContextMenuHidden();
-}
-
-/*
- * Event handler called right before context menu is shown.
- */
-libxEnv.contextMenuShowing = function (e) {
-    if (e.target.id != 'contentAreaContextMenu')
-        return;
-
-    libxContextMenuShowing ();
 }
 
 /////// Preferences dialog functions

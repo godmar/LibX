@@ -98,7 +98,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
     </script>
 
     <commandset id="mainCommandSet">
-        <command id="cmd_toggleLibX" oncommand="libxEnv.ff.toggleToolBar('libx-toolbar')"/>
+        <command id="cmd_toggleLibX" oncommand="libx.ff.toolbar.toggle()"/>
     </commandset>
     <keyset id="mainKeyset">
         <key keycode="VK_F9" command="cmd_toggleLibX"/>
@@ -115,7 +115,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         image="&libx.image;" 
                         id="libx-menu-toolbarbutton">
 						<menupopup id="libxmenu">
-                            <menuseparator id="libxmenu.separator"/>
+                            <menuseparator id="libxmenu-separator"/>
+                            <menuitem type="checkbox" hidden="true" label="Autolink Pages"
+                                      id="libx-autolink-checkbox" />
 							<menuitem id="libx-about" label="LibX Preferences" oncommand="libxEnv.ff.openPrefWindow()" />
 						</menupopup>
 					</toolbarbutton>
@@ -139,19 +141,19 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 						<textbox 
                             class="libx-textbox"
                             editable="true" tooltiptext="Press Enter to Search, Press Ctrl-Enter to Add Another Search Field!"
-							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { libxEnv.ff.doSearch(event); } else { libxEnv.ff.addSearchField(); document.commandDispatcher.advanceFocus(); }"
+							onkeypress="if (event.keyCode == 13) if (!event.ctrlKey) { libx.ff.toolbar.doSearch(event); } else { libx.ff.toolbar.addSearchField(); document.commandDispatcher.advanceFocus(); }"
 							flex="1" minwidth="100" width="160" />
 					</toolbaritem>
 					<!-- child number 2 -->
 					<toolbarbutton tooltiptext="Create New Search Field" 
                                     class="down-button libx-toolbar-button libx-toolbarbutton-with-image"
                                     disabled="false" 
-                                    oncommand="libxEnv.ff.addSearchField();" />
+                                    oncommand="libx.ff.toolbar.addSearchField();" />
 					<!-- child number 3 -->
 					<toolbarbutton tooltiptext="Close Search Field" 
                                     class="close-button libx-toolbar-button libx-toolbarbutton-with-image"
                                     disabled="true" 
-                                    oncommand="libxEnv.ff.removeSearchField(this.parentNode);" />
+                                    oncommand="libx.ff.toolbar.removeSearchField(this.parentNode);" />
 				</hbox>
 				<!-- do not add anything here -->
 			</vbox>
@@ -161,7 +163,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         type="menu-button" 
                         class="libx-align-center libx-toolbar-button libx-toolbarbutton-with-menu-button"
                         tooltiptext="Press to search or drag search terms onto this button!"
-						id="libx-search-button" oncommand="libxEnv.ff.doSearch();">
+						id="libx-search-button" oncommand="libx.ff.toolbar.doSearch();">
 						<menupopup id="libxcatalogs">
                             <!-- catalog choices go here, see libxEnv.initCatalogGUI -->
 						</menupopup>
@@ -171,7 +173,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 					<toolbarbutton 
                                 class="libx-toolbar-button libx-align-center"
                                 label=" Clear " tooltiptext="Clear All Search Fields" 
-                                oncommand="libxEnv.ff.clearAllFields();" />
+                                oncommand="libx.ff.toolbar.clearAllFields();" />
 
                 <!-- Scholar button is (no longer) clickable - that is why we use
                      a toolbaritem/hbox combo here instead of a toolbarbutton.
@@ -211,7 +213,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                 <menuseparator/>
                 <menuitem label="Show Preferences" oncommand="libxEnv.ff.openPrefWindow();" />
                 <menuitem label="Show Toolbar" type="checkbox" id="libx-statusbar-togglebar-item" 
-                    oncommand="this.setAttribute('checked', libxEnv.ff.toggleToolBar('libx-toolbar'));" />
+                    oncommand="this.setAttribute('checked', libx.ff.toolbar.toggle('libx-toolbar'));" />
             </menupopup>
         </statusbarpanel>
     </statusbar>

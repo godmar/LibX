@@ -89,19 +89,19 @@ XXX this should be an 'onfail' handler for EditionConfigurationReader
         return;
     }
 */
+    // Adds onPageComplete to the eventlistener of DOMContentLoaded (what does that mean?)
+    libx.bd.initialize();
 
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
     	onload: function (edition) {
     		libx.edition = edition;
 
-            libx.browser.initialize();
+            libx.browser.initialize();  // should go out of 'onload' function
     		libx.browser.activateConfiguration();
-            libxEnv.initializeGUI();
-            libxEnv.initCatalogGUI();
 
-            // Adds onPageComplete to the eventlistener of DOMContentLoaded
-            libxEnv.init();
+            // or call from libx.browser.activateConfiguration ?
+    		libx.bd.activateConfiguration(edition);
 
             libxEnv.doforurls.initDoforurls();
 

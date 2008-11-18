@@ -81,9 +81,11 @@ window.addEventListener ( "load",
 			function () { setToolbarCollapse(true); }, false);
 			
 		// Hide AJAX proxy checkbox if no proxies are enabled, or proxy cannot check URLS
+/* this will go
 		if ( !window.arguments[0].proxyAjaxable ) {
 			document.getElementById ( 'libx-proxy-ajax-checkbox' ).hidden = 'true';
 		}
+*/
 	}, false );
 	
 ]]>
