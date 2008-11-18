@@ -390,29 +390,21 @@ libxEnv.doforurlClass = function()
     // update the roots
     function initRoots( updating )
     {
-        if ( libxEnv.xmlDoc.xml )
+        var count = 0;
+        var feeds = libx.edition.localizationfeeds;
+
+        if ( feeds != null )
         {
-            var rootsInXML = libxEnv.xpath.findNodesXML( libxEnv.xmlDoc.xml,
-                "/edition/localizationfeeds/feed" );
-            var count = 0;
-            if ( rootsInXML )
-            {
-                for (var i = 0; i < rootsInXML.length; i++ )
-                {
-                    addRoot(rootsInXML[i].getAttribute( "url" ), updating );
-                    count++;
-                }
-            }
-            else
-            {
-                dfu_log( "Did not find any roots specified in config.xml " + 
-                    "switching to default" );
+            for (var i = 0; i < feeds.length; i++ ) {
+                addRoot(feeds[i].url, updating );
+                count++;
             }
         }
         else
         {   
-            dfu_log( "Could not access libxEnv.xmlDoc.xml!" );
+            dfu_log( "Did not find localization feeds in libx.edition.localizationfeeds" );
         }
+
         if ( count == 0 ) 
         {
             addRoot( defaultRoot, updating );
@@ -423,22 +415,18 @@ libxEnv.doforurlClass = function()
     this.getRootInfo = function()
     {
         var rootInfo = new Array();
-        if ( libxEnv.xmlDoc.xml )
+        var feeds = libx.edition.localizationfeeds;
+        if ( feeds != null )
         {
-            var rootsInXML = libxEnv.xpath.findNodesXML( libxEnv.xmlDoc.xml, 
-                "/edition/localizationfeeds/feed" );
-            if ( rootsInXML )
+            for ( var i = 0; i < feeds.length; i++ )
             {
-                for ( var i = 0; i < rootsInXML.length; i++ )
+                var url = feeds[i].url;
+                rootInfo.push(
                 {
-                    var url = rootsInXML[i].getAttribute( "url" );
-                    rootInfo.push(
-                    {
-                        url : url,
-                        desc: rootsInXML[i].getAttribute( "description" ),
-                        lastMod: libxEnv.fileCache.getLastModifiedDate( url )
-                    } );
-                }
+                    url : url,
+                    desc: feeds[i].description,
+                    lastMod: libxEnv.fileCache.getLastModifiedDate( url )
+                } );
             }
         }
         if ( rootInfo.length == 0 )

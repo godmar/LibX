@@ -68,14 +68,16 @@ libx.config.NameableItemArray = {
     }
 };
 
-/*
+/**
+ * @fileoverview
  * This file contains functionality that works in all browsers
  * related to configuration, properties, and localization.
+ *
+ * @class
  */
-
-libx.config.EditionConfigurationReader = libx.core.Class.create ( {
+libx.config.EditionConfigurationReader = libx.core.Class.create ( 
+    /** @lends libx.config.EditionConfigurationReader.prototype */{
     initialize: function ( invofcc ) {
-        var edition = new Object();
         var editionConfigReader = this;
 
         libxEnv.getXMLConfig({
@@ -90,6 +92,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create ( {
                     options : editionConfigReader.loadOptions ( doc ),
                     links: editionConfigReader.loadLinks ( doc ),
                     searchoptions: editionConfigReader.loadSearchOptions ( doc ),
+                    localizationfeeds: editionConfigReader.loadLocalizationFeeds ( doc ),
                     name: { }
                 };
                 doc.copyAttributes(doc.getNode("/edition/name"), edition.name);
@@ -98,54 +101,10 @@ libx.config.EditionConfigurationReader = libx.core.Class.create ( {
             }
         });
     },
-    loadSearchOptions: function (doc) {
-        // default map of search options to search labels
-        // newer configuration files store all labels in /edition/searchoptions 
-        var searchoptions = {
-            "Y" : "Keyword",
-            "t" : "Title",
-            "jt" : "Journal Title",
-            "at" : "Article Title",
-            "a" : "Author",
-            "d" : "Subject",
-            "m" : "Genre",
-            "i" : "ISBN/ISSN",
-            "c" : "Call Number",
-            "j" : "Dewey Call Number",
-            "doi" : "DOI",
-            "pmid" : "PubMed ID",
-            "xisbn" : "xISBN",
-            "magicsearch" : "Magic Search"
-        };
 
-        this.makeConfigurationItemArray (doc, "Search Option",
-            "/edition/searchoptions/*", null, libx.core.EmptyFunction,
-            function (node, option) {
-                searchoptions[option.value] = option.label;
-            }
-        );
-        return searchoptions;
-    },
-    loadLinks: function (doc) {
-        return this.makeConfigurationItemArray (doc, "Link", 
-            "/edition/links/*", null, libx.core.EmptyFunction,
-            libx.core.EmptyFunction);
-    },
-    loadOptions: function (doc) {
-        var opts =  {
-            // default options
-            autolinkstyle : "1px dotted"
-        };
-
-        var options = libxEnv.xpath.findNodesXML(doc.xml, "/edition/options/option");
-        for (var i = 0; i < options.length; i++) {
-            opts[options[i].getAttribute('key')] = 
-                libxNormalizeOption(options[i].getAttribute('value'));
-        }
-        return opts;
-    },
     /**
-     *
+     * Iterates over nodes given by an xpath Expression and turn them into
+     * a NameableItemArray.
      */
     makeConfigurationItemArray : function ( doc, itemType, xpathExpr, 
                                             factory, getFactoryKey, postAddFunc ) {
@@ -177,6 +136,74 @@ libx.config.EditionConfigurationReader = libx.core.Class.create ( {
         items.default = items[0];
         return items;
     },
+
+    loadLocalizationFeeds: function (doc) {
+        var localizationfeeds = new Array();
+        this.makeConfigurationItemArray (doc, "Feeds", 
+            "/edition/localizationfeeds/*", null, libx.core.EmptyFunction,
+            function (node, feedorwhitelist) {
+                switch (node.nodeName) {
+                case "whitelist":
+                    localizationfeeds.whitelist = feedorwhitelist;
+                    break;
+                case "feed":
+                    localizationfeeds.push(feedorwhitelist);
+                    break;
+                }
+            });
+        localizationfeeds.default = localizationfeeds[0];
+        return localizationfeeds;
+    },
+
+    loadSearchOptions: function (doc) {
+        // default map of search options to search labels
+        // newer configuration files store all labels in /edition/searchoptions 
+        var searchoptions = {
+            "Y" : "Keyword",
+            "t" : "Title",
+            "jt" : "Journal Title",
+            "at" : "Article Title",
+            "a" : "Author",
+            "d" : "Subject",
+            "m" : "Genre",
+            "i" : "ISBN/ISSN",
+            "c" : "Call Number",
+            "j" : "Dewey Call Number",
+            "doi" : "DOI",
+            "pmid" : "PubMed ID",
+            "xisbn" : "xISBN",
+            "magicsearch" : "Magic Search"
+        };
+
+        this.makeConfigurationItemArray (doc, "Search Option",
+            "/edition/searchoptions/*", null, libx.core.EmptyFunction,
+            function (node, option) {
+                searchoptions[option.value] = option.label;
+            }
+        );
+        return searchoptions;
+    },
+
+    loadLinks: function (doc) {
+        return this.makeConfigurationItemArray (doc, "Link", 
+            "/edition/links/*", null, libx.core.EmptyFunction,
+            libx.core.EmptyFunction);
+    },
+
+    loadOptions: function (doc) {
+        var opts =  {
+            // default options
+            autolinkstyle : "1px dotted"
+        };
+
+        var options = libxEnv.xpath.findNodesXML(doc.xml, "/edition/options/option");
+        for (var i = 0; i < options.length; i++) {
+            opts[options[i].getAttribute('key')] = 
+                libxNormalizeOption(options[i].getAttribute('value'));
+        }
+        return opts;
+    },
+
     loadCatalogs : function ( doc ) {
         return this.makeConfigurationItemArray (doc, "Catalog", 
             "/edition/catalogs/*", libx.catalog.factory, 
@@ -210,6 +237,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create ( {
                 libxEnv.writeLog("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
             });
     },
+
     loadResolvers : function ( doc ) {
         return this.makeConfigurationItemArray (doc, "OpenURL", 
             "/edition/openurl/*", libx.openurl.factory, 
@@ -221,6 +249,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create ( {
                     + " (type=" + node.getAttribute('type') + ")");
             });
     },
+
     loadProxies : function ( doc ) {
         return this.makeConfigurationItemArray (doc, "Proxy", 
             "/edition/proxy/*", libx.proxy.factory, 
