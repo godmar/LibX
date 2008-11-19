@@ -72,6 +72,9 @@ libx.config.NameableItemArray = {
  * @fileoverview
  * This file contains functionality that works in all browsers
  * related to configuration, properties, and localization.
+ */
+ 
+/**
  *
  * @class
  */
