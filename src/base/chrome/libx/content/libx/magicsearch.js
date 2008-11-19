@@ -39,19 +39,23 @@
  *      -> if sum of the two is greater than threshold2, rewrite openurl and display -> done
  * We will also open the original Google Scholar result in a separate tab in any case.
  */
-var threshold1;
-var threshold2;
 
-function libxInitMagicSearch()
+(function () {
+var threshold1 = null;
+var threshold2 = null;
+
+function initThresholds()
 {
-    threshold1 = libxEnv.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
-    threshold2 = libxEnv.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
+    if (threshold1 == null)
+        threshold1 = libxEnv.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
+    if (threshold2 == null)
+        threshold2 = libxEnv.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
 }
 
 /*
  * XXX rewrite this horrible junk piece of code as catalog object.
  */
-function magicSearch(data, inpub, justmakeurl) 
+magicSearch = function (data, inpub, justmakeurl) 
 {
     function handleMiss(url, data)
     {
@@ -111,6 +115,7 @@ function magicSearch(data, inpub, justmakeurl)
         */
         return commonterms / Math.sqrt(str1terms * str2terms);
     }
+
     function magicNormalize(t) {
         t = t.replace(/^\s+/, "");    // remove leading whitespace
         t = t.replace(/\s+$/, "");    // remove trailing whitespace
@@ -118,6 +123,8 @@ function magicSearch(data, inpub, justmakeurl)
         t = t.replace(/\./g, " ");    // switch all periods to spaces
         return t.toLowerCase();
     }
+
+    initThresholds();
 
     var maxattempts = 5;
 
@@ -332,5 +339,6 @@ function magicSearch(data, inpub, justmakeurl)
     }
     return null;
 }
+})();
 
 // vim: ts=4

@@ -53,32 +53,12 @@ var libxEnv = {
     buildDate : "$builddate$"
 };
 
-/* Relies on following methods provided by libxEnv object 
- * 
- * xmlDoc -- return value of getConfigXML();
- * writeLog -- write to whatever log the current platform uses
- * openSearchWindow -- respects config options on how to open a url
- * initCatalogGUI -- set up catalog list
- * initializeGUI -- all GUI initialization code (=XUL in ff) moved here
- * initializeContextMenu -- right-click popup init code
- * addEventListener -- JavaScript event system
- * init -- initializes browser-specific stuff
- * openURLResolver -- OpenURL resolver or null if no OpenURL support, see openurl.js
- * addMenuObject/removeMenuObject -- Context menu abstraction layer
- * initNode + PrefsTreeNode -- Preferences tree view abstraction layer
- */
-
-
-
-// Initialization - this code is executed whenever a new window is opened
 /**
  * Initialization
  * This code is executed whenever a new window is opened
  */
 function libxInit() 
 {
-    libxInitMagicSearch();
-
     /*
      * Config XML must be present to load options
      */
