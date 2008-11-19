@@ -453,6 +453,8 @@ libx.ff.initialize = function() {
                         });
         libxEnv.setBoolPref ( 'libx.firstrun', false );
     }
+    
+    libx.ff.contextmenu.initialize();
 }
 
 /**
@@ -655,17 +657,17 @@ libx.ff.getPopupHelper = function () {
 libx.ff.contextmenu = {};
 /**
  *	Initializes the browsers context menu handlers
- *	Ensures that libx.browser.contextMenu.onShowing/onHiding functions
+ *	Ensures that libx.browser.contextMenu.onshowing/onhiding functions
  *	are called as appropriate 
  *		
  */
 libx.ff.contextmenu.initialize = function () {
     var menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", function () {
-        libx.browser.contextMenu.onShowing();   
+        libx.browser.contextMenu.onshowing();   
     }, false);
     menu.addEventListener("popuphidden", function () {
-        libx.browser.contextMenu.onHiding();   
+        libx.browser.contextMenu.onhiding();   
     }, false );
 }; 
 

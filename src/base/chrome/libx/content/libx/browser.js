@@ -24,7 +24,7 @@ var browser =
 	 *	In order to activate a new configuration, reload should be used instead
 	 */
 	initialize : function () {		
-		libx.bd.contextmenu.initialize();
+		libx.bd.initialize();
 		
 		// To implement:  this.toolbar = new Toolbar();
 	},
@@ -32,8 +32,11 @@ var browser =
 	/**
 	 *	
 	 */
-	activateConfiguration : function () {
-		contextMenu = this.contextMenu = new libx.ui.ContextMenu (libx.ui.basicContextMenuDescriptor);
+	activateConfiguration : function (edition) {
+        libx.bd.activateConfiguration (edition);
+		contextMenu = this.contextMenu = 
+            new libx.ui.ContextMenu 
+                (libx.ui.basicContextMenuDescriptor, edition);
 	}
 };
 

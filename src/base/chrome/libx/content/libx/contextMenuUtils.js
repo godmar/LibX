@@ -47,7 +47,8 @@ var ContextMenu = libx.core.Class.create (
 	 *	@constructs
 	 *	@see menuobjects.js for an example contextMenuObject
 	 */
-	initialize : function ( /** ContextMenuObject */ contextMenuObject ) {
+	initialize : function ( /** ContextMenuObject */ contextMenuObject,
+                            /** Edition */ edition     ) {
 		var groupLists = this.groupLists = new Array();
 		var popuphelper = this.popuphelper = libx.bd.getPopupHelper();
 		
@@ -55,9 +56,9 @@ var ContextMenu = libx.core.Class.create (
 		 *	Function called when ContextMenu is being shown
 		 *	@private
 		 */
-		this.onShowing = function ( p ) {
+		this.onshowing = function ( p ) {
 			for ( var i = 0; i < groupLists.length; i++ ) {
-				groupLists[i].onShowing ( popuphelper );
+				groupLists[i].onshowing ( popuphelper );
 			}
 		};
 		
@@ -65,9 +66,9 @@ var ContextMenu = libx.core.Class.create (
 		 *	Function called when ContextMenu is being hidden
 		 *	@private
 		 */
-		this.onHiding = function () {
+		this.onhiding = function () {
 			for ( var i = 0; i < groupLists.length; i++ ) {
-				groupLists[i].onHiding();
+				groupLists[i].onhiding();
 			}
 		};
 		
@@ -80,7 +81,7 @@ var ContextMenu = libx.core.Class.create (
 					var groupObj = groupsObj[j];
 					var group = glist.createGroup ( groupObj.name, groupObj.match );
 					group.REQUIRESTEXTSELECTED = groupObj.REQUIRESTEXTSELECTED;
-					var itemsObj = groupObj.createItemDescriptors(libx.edition);
+					var itemsObj = groupObj.createItemDescriptors(edition);
 					for ( var k = 0; k < itemsObj.length; k++ ) {
 						var itemObj = itemsObj[k];
 						group.createItem ( itemObj.type, itemObj.args );
@@ -136,13 +137,13 @@ var ContextMenu = libx.core.Class.create (
  *
  *	GroupList's are designed to hold one or more Group's of Item objects.
  *
- *	When the context menu is shown, the onShowing method is called for each GroupList object,
+ *	When the context menu is shown, the onshowing method is called for each GroupList object,
  *	which in turn iterates through the Group objects in the list.
  *
  *	The type attribute determines whether all Groups in a List will be iterated through ('INCLUDE_ALL_GROUPS'), or
  *	whether the GroupList will stop at the first match
  */
-GroupList = libx.core.Class.create ( 
+var GroupList = libx.core.Class.create ( 
 /** @lends libx.ui.ContextMenu.GroupList.prototype */
 {
 	/**
@@ -175,13 +176,13 @@ GroupList = libx.core.Class.create (
 	 *	This is the function called when the context menu is showing
 	 *	This will iterate through all groups in the list, calling the match function on each of them
 	 *	If the result from match is not null, it passes this object and the popuphelper to the
-	 *	Groups onShowing method
+	 *	Groups onshowing method
 	 *	@param {PopupHelper} p 
 	 */
-	onShowing : function (p) {
+	onshowing : function (p) {
 		for ( var i = 0; i < this.groups.length; i++ ) {
 			var group = this.groups[i];
-			if (  group.onShowing( p ) > 0 ) {
+			if (  group.onshowing( p ) > 0 ) {
 				return;
         	}
 		}
@@ -189,12 +190,12 @@ GroupList = libx.core.Class.create (
 	},
 	/**
 	 *	This function is called when the context menu is hidden
-	 *	It iterates through all groups, calling onHiding on each
+	 *	It iterates through all groups, calling onhiding on each
 	 */
-	onHiding : function () {
+	onhiding : function () {
 		for ( var i = 0; i < this.groups.length; i++ ) {
 			var group = this.groups[i];
-			group.onHiding();
+			group.onhiding();
 		}
 	},
 	/**
@@ -292,7 +293,7 @@ ContextMenu.GroupList = { type : GroupList.type };
 /**
  *	This represents a group of Items
  *	All items in the group are controlled by the groups match function,
- *	which determines what object will be passed into a Item's onShowing function.
+ *	which determines what object will be passed into a Item's onshowing function.
  */
 var Group = libx.core.Class.create ( 
 /** @lends libx.ui.ContextMenu.Group.prototype */
@@ -300,7 +301,7 @@ var Group = libx.core.Class.create (
 	/**
 	 *	Initializes a Group Object
 	 *	@param {String} name
-	 *	@param {Function} matchFunction This function will be called in the onShowing
+	 *	@param {Function} matchFunction This function will be called in the onshowing
 	 *				event to determine if there is a suitable match found
 	 *	@private
 	 *	@constructs
@@ -344,11 +345,11 @@ var Group = libx.core.Class.create (
 
 	/**
 	 *	Function called when the context menu is showing, and a match has been found
-	 *	Iterates through all Item's in this group, and calls the onShowing method on them
-	 *	@param popuphelper - popuphelper object to be passed to onShowing method of children
+	 *	Iterates through all Item's in this group, and calls the onshowing method on them
+	 *	@param popuphelper - popuphelper object to be passed to onshowing method of children
 	 *	@param match - Result from this groups match function
 	 */
-	onShowing : function (popuphelper, match) {
+	onshowing : function (popuphelper, match) {
 		var enabledCount = 0;
 		if ( this.REQUIRESTEXTSELECTED && !popuphelper.isTextSelected() ) {
 			return 0;
@@ -362,7 +363,7 @@ var Group = libx.core.Class.create (
 					enabledCount++;
 					var nativeMenuItem = libxEnv.addMenuObject();
 					item.setNativeMenuItem ( nativeMenuItem );
-					item.onShowing(popuphelper, match);
+					item.onshowing(popuphelper, match);
 				}
 			}
 		}
@@ -373,9 +374,9 @@ var Group = libx.core.Class.create (
 	 *	Called when the context menu is being hidden
 	 *	Calls onHidden on each Item in this group
 	 */
-	onHiding : function () {
+	onhiding : function () {
 		for ( var i = 0; i < this.items.length; i++ ) {
-			this.items[i].onHiding();
+			this.items[i].onhiding();
 		}	
 	},
 
@@ -415,7 +416,7 @@ var Group = libx.core.Class.create (
  *	
  *	Items should implement the following functions
  *
- *	onShowing (p)
+ *	onshowing (p)
  *	- Called when this menu item is supposed to be shown
  *	- p: PoupHelper object
  *
@@ -441,7 +442,7 @@ var Item = libx.core.Class.create (
 	 *	The purpose of this function is to ensure complete seperation between the nativeMenuObject
 	 *	and all Item implementations. Also ensures that no calls will reach the native object after
 	 *	the context menu is hidden
-	 *	Called right before an Item's onShowing method is called - sets the functions that deal w/ the 
+	 *	Called right before an Item's onshowing method is called - sets the functions that deal w/ the 
 	 *	native menu object
 	 */
 	setNativeMenuItem : function ( nativeMenuItem ) {
@@ -465,9 +466,9 @@ var Item = libx.core.Class.create (
 		this.setActive = function ( active ) {
 			nativeMenuItem.setActive ( active );
 		};
-		this.onHiding = function () {
+		this.onhiding = function () {
 			libxEnv.removeMenuObject ( nativeMenuItem );
-			this.onHiding = function () { };
+			this.onhiding = function () { };
 			this.setLabel = function () { this.writeError ( 'setLabel' ); };
 			this.setIcon = function () { this.writeError ( 'setIcon' );};
 			this.setTooltip = function () { this.writeError ( 'setTooltip' );};
@@ -526,7 +527,7 @@ var Item = libx.core.Class.create (
 	 *	Called when the ContxtMenu being hidden
 	 *	@private
 	 */
-	onHiding : function () { },
+	onhiding : function () { },
 
 	/**
 	 *	Function called when the context menu is showing, and a match has been found
@@ -535,7 +536,7 @@ var Item = libx.core.Class.create (
 	 *	@param {Object} match Return value from the match function of the Group that
 	 *		this item is a part of
 	 */
-	onShowing : function () { },
+	onshowing : function () { },
 
 	/**
 	 *	Set of utility functions to be used by the Item's
@@ -599,7 +600,7 @@ Item.factory['catalog'] = libx.core.Class.create (
 		 *	@param {PopupHelper} p
 		 *	@param {Object} Match returned by this groups match function
 		 */
-		onShowing : function ( popuphelper, match ) {
+		onshowing : function ( popuphelper, match ) {
 			var searchType = this.searchType;
 			var searcher = this.searcher;
 			this.setVisible ( true );
@@ -661,7 +662,7 @@ Item.factory['proxy'] = libx.core.Class.extend (
 			this.name = args.name;
 			this.proxy = libx.edition.proxy.getByName ( this.name );
 		},
-		onShowing : function (popuphelper, match) {
+		onshowing : function (popuphelper, match) {
 			this.setVisible ( true );
 			var proxy = this.proxy;
 			var item = this;
@@ -730,7 +731,7 @@ Item.factory['scholar'] = libx.core.Class.create (
 		 *	@see libx.ui.ContextMenu.Group.createItem
 		 */
 		initialize : function () {	},
-		onShowing : function ( popuphelper, match ) {
+		onshowing : function ( popuphelper, match ) {
 			this.setVisible ( true );
 			var text = this.util.trim ( match );
 			this.setHandler ( function () {

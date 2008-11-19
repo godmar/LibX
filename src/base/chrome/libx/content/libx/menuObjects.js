@@ -22,8 +22,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// Add flags ( ie, REQUIRESTEXTSELECTED )
-// Use array instead of object
 
 (function () {
 
