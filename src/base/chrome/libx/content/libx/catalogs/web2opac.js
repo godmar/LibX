@@ -30,7 +30,7 @@
  *
  *	@name libx.catalog.factory.web2
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  */
 libx.catalog.factory["web2"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.web2.prototype */

@@ -26,7 +26,7 @@
  *
  *	@name libx.catalog.factory.millenium
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *  @class 
  */
 libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.millenium.prototype */

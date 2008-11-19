@@ -27,11 +27,12 @@
  *
  *	@name libx.catalog.factory.openurlresolver
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  */
 libx.catalog.factory["openurlresolver"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.openurlresolver.prototype */
 {
+    /** @constructs */
     initialize: function () {
         this.options = libxEnv.openUrlResolver.options;
     },

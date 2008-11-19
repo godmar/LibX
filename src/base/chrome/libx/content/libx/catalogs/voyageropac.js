@@ -177,7 +177,7 @@ function insertAND(s) {
  *
  *	@name libx.catalog.factory.voyager
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  */
 libx.catalog.factory["voyager"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.voyager.prototype */

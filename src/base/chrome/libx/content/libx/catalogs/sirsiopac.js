@@ -26,7 +26,7 @@
  *
  *	@name libx.catalog.factory.sirsi
  *	@augments libx.catalog.Catalog
- *	@constructor
+ *	@class
  */
 libx.catalog.factory["sirsi"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.sirsi.prototype */

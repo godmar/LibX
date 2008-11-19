@@ -60,7 +60,7 @@
  *
  *	@name libx.catalog.factory.vubis
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  */
 libx.catalog.factory["vubis"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.vubis.prototype */

@@ -26,7 +26,7 @@
  *
  *	@name libx.catalog.factory.talisprism
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  */
 libx.catalog.factory["talisprism"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.talisprism.prototype */

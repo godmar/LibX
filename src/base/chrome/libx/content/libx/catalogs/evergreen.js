@@ -29,10 +29,10 @@
  *
  *	@name libx.catalog.factory.evergreen
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  */
 libx.catalog.factory["evergreen"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.Evergreen.prototype */
+/** @lends libx.catalog.factory.evergreen.prototype */
 {
     locale: "en-US",        // default to en-US locale 
     skin: "default",        // default to 'default' skin

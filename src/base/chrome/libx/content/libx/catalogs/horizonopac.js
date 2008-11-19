@@ -26,7 +26,7 @@
  *
  *	@name libx.catalog.factory.horizon
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  *	@see Use libx.catalog.factory["horizon"] to create a new instance
  */
 libx.catalog.factory["horizon"] = libx.core.Class.create(libx.catalog.Catalog, 

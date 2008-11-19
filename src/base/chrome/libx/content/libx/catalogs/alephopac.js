@@ -26,7 +26,7 @@
  *  Aleph Catalog Implementation
  *	@name libx.catalog.factory.aleph
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *  @class
  */
 libx.catalog.factory["aleph"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.Aleph.prototype */

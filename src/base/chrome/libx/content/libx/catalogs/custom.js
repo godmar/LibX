@@ -34,7 +34,7 @@
  * Optionally, param0 to param19 may be set.
  *	@name libx.catalog.factory.custom
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *  @class
  */
 libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.custom.prototype */

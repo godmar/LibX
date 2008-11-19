@@ -27,7 +27,7 @@
  *	
  *	@name libx.catalog.factory.worldcat
  *	@augments libx.catalog.Catalog
- *	@constructor 
+ *	@class 
  */
 libx.catalog.factory["worldcat"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.worldcat.prototype */

@@ -29,6 +29,7 @@
  
  /**
   *	@fileoverview Implementation of LibX core Catalog classes
+  *		Implements Catalog, bookmarklet, and scholar
   *	@author Annette Bailey <annette.bailey@gmail.com>
   *	@author Godmar Back <godmar@gmail.com>
   */
@@ -45,7 +46,10 @@ libx.catalog = {
     factory : { }
 };
 
-// mixin used by catalogs and openurl resolvers
+/**
+ *	Mixin used by catalogs and openurl resolvers
+ * @class
+ */
 libx.catalog.CatalogUtils = {
 
     /* If the searchType is 'i', examine if user entered an ISSN
@@ -63,13 +67,13 @@ libx.catalog.CatalogUtils = {
     }
 };
 
-// Base class for all catalogs
 /**
- *	@constructor
+ *	Base class for all catalogs
+ *	@class
  */
 libx.catalog.Catalog = libx.core.Class.create(
 /** @lends libx.catalog.Catalog.prototype */{
-
+	/** @augments libx.catalog.CatalogUtils */
     include: [ libx.catalog.CatalogUtils ],
 	/**
 	 *	Specifies whether the catalog should down convert ISBN-13
