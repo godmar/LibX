@@ -20,69 +20,97 @@
  * Contributor(s): 
  * Nathan Baker (nathanb@vt.edu)
  * ***** END LICENSE BLOCK ***** */
+
 /*
- * Some utilities to help with xpath expressions
+ * @fileoverview
+ * Some utilities to help with xpath expressions for Firefox
  */
 
-// assert libxEnv has already been created.
-libxEnv.xpath = new Object();
+libx.ff.xpath = {
+    /* See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
+     * and http://www.xulplanet.com/references/objref/XPathResult.html
+     *
+     * var xpathResult = document.evaluate(xpathExpression, contextNode, namespaceResolver, resultType, result);
+     *
+     * Note: namespaceResolver is required if examined XML uses namespaces.
+     * namespaceResolver is a function that returns a name space based on a prefix.
+     */
 
-// See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
-// and http://www.xulplanet.com/references/objref/XPathResult.html
-//
-// var xpathResult = document.evaluate(xpathExpression, contextNode, namespaceResolver, resultType, result);
-//
-// Note: namespaceResolver is required if examined XML uses namespaces.
-// namespaceResolver is a function that returns a name space based on a prefix.
+    /**
+     *
+     */
+    findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
+        return this.findSingle(doc, xpathexpr, root, namespaceresolver);
+    },
 
-libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root, namespaceresolver) {
-    return libxEnv.xpath.findSingle(doc, xpathexpr, root, namespaceresolver);
-}
-
-libxEnv.xpath.findSingle = function (doc, xpathexpr, root, namespaceresolver) {
-
-    var r = doc.evaluate(xpathexpr, root?root:doc, 
-            function (prefix) { return namespaceresolver[prefix]; }, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-    if (r) return r.singleNodeValue;
-    return null;
-}
-
-libxEnv.xpath.findNodesXML = function (doc, xpathexpr, root, namespaceresolver) {
-    return libxEnv.xpath.findNodes(doc, xpathexpr, root, namespaceresolver);
-}
-
-libxEnv.xpath.findNodes = function (doc, xpathexpr, root, namespaceresolver) {
-    var r = doc.evaluate(xpathexpr, root?root:doc, function (prefix) { return namespaceresolver[prefix]; }, XPathResult.ANY_TYPE, null);
-    if (r == null) return null;
-
-    switch (r.resultType) {
-    case XPathResult.BOOLEAN_TYPE:
-        return r.booleanValue;
-    case XPathResult.STRING_TYPE:
-        return r.stringValue;
-    case XPathResult.NUMBER_TYPE:
-        return r.numberValue;
-    case XPathResult.UNORDERED_NODE_ITERATOR_TYPE:
-        var rr = new Array();
-        var n;
-        while ((n = r.iterateNext()) != null)
-            rr.push(n);
-        return rr;
-    default:
-        libxEnv.writeLog("unknown resultType: " + r.resultType, libxEnv.logTypes.xpath);
+    /**
+     *
+     */
+    findSingle : function (doc, xpathexpr, root, namespaceresolver) {
+        var r = doc.evaluate(xpathexpr, root ? root : doc, 
+                function (prefix) { 
+                    return namespaceresolver[prefix]; 
+                }, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        if (r) 
+            return r.singleNodeValue;
         return null;
+    },
+
+    /**
+     *
+     */
+    findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
+        return this.findNodes(doc, xpathexpr, root, namespaceresolver);
+    },
+
+    /**
+     *
+     */
+    findNodes : function (doc, xpathexpr, root, namespaceresolver) {
+        var r = doc.evaluate(xpathexpr, root ? root : doc, 
+                            function (prefix) { 
+                                return namespaceresolver[prefix]; 
+                            }, XPathResult.ANY_TYPE, null);
+        if (r == null) return null;
+
+        switch (r.resultType) {
+        case XPathResult.BOOLEAN_TYPE:
+            return r.booleanValue;
+        case XPathResult.STRING_TYPE:
+            return r.stringValue;
+        case XPathResult.NUMBER_TYPE:
+            return r.numberValue;
+        case XPathResult.UNORDERED_NODE_ITERATOR_TYPE:
+            var rr = new Array();
+            var n;
+            while ((n = r.iterateNext()) != null)
+                rr.push(n);
+            return rr;
+        default:
+            libxEnv.writeLog("unknown resultType: " + r.resultType, libxEnv.logTypes.xpath);
+            return null;
+        }
+    },
+
+    /**
+     *
+     */
+    findSnapshot : function (doc, xpathexpr, root, namespaceresolver) {
+        var r = doc.evaluate(xpathexpr, root?root:doc, 
+                            function (prefix) { 
+                                return namespaceresolver[prefix]; 
+                            }, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        if (r == null) return null;
+
+        var rr = new Array();
+        for (var i = 0; i < r.snapshotLength; i++) {
+            rr.push(r.snapshotItem(i));
+        }
+        return rr;
     }
 }
 
-libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
-    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    if (r == null) return null;
-
-    var rr = new Array();
-    for (var i = 0; i < r.snapshotLength; i++) {
-        rr.push(r.snapshotItem(i));
-    }
-    return rr;
-}
+// XXX remove this eventually
+libxEnv.xpath = libx.ff.xpath;
 
 // vim: ts=4
