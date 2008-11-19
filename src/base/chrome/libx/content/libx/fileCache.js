@@ -77,7 +77,7 @@ libxEnv.fileCacheClass = function()
     // calculates the sha1 path associated with the url (without file ending)
     function calculateHashedPath( url ) 
     {
-        var unprocessedPath = libxEnv.hash.hashString( url );
+        var unprocessedPath = libx.bd.hash.hashString( url );
         var path = unprocessedPath.substring( 0 , firstSlashPos );
         path += "/" + unprocessedPath.substring( firstSlashPos, 
             secondSlashPos-1);

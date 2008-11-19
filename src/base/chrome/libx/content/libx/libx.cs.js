@@ -25,6 +25,7 @@
 /*
  * Client-side implementation of libxEnv
  */
+libx.ff = { };
 
 libxEnv = {
     getBoolPref : function (pref, defvalue) {

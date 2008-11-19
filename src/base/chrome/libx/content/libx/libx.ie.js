@@ -873,14 +873,12 @@ libxEnv.eventDispatcher.init = function  () {
     //
 }
 
-libxEnv.hash = new Object();
-
-libxEnv.hash.hashString = function ( text )
-{
-    var temp = libxInterface.hashString( text );
-    ////window.alert( temp );
-    return temp;
-}
+libx.ie.hash = {
+    hashString : function ( text )
+    {
+        return libxInterface.hashString( text );
+    }
+};
 
 libxEnv.displayLastUpdateDate = function()
 {

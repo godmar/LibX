@@ -32,23 +32,32 @@
 // FF only
 //
 
-libxEnv.hashClass = function()
-{
-    var unicodeConverter = 
-        Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
-        createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-    unicodeConverter.charset = "UTF-8";
-    var sha1Hasher = Components.classes[
-        "@mozilla.org/security/hash;1"].createInstance(
-        Components.interfaces.nsICryptoHash);
-    
-    // converts the toConvert parameter into a hexstring
-    function toHexString( toConvert ) {
-        return ("0" + toConvert.toString(16)).slice(-2);
-    }
-    
-    // hashes the given text into a sha1 hashing
-    this.hashString = function ( text )
+/**
+ * @namespace 
+ * Support for cryptographic hashes
+ */
+libx.ff.hash = (function() {
+
+var unicodeConverter = 
+    Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+    createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+unicodeConverter.charset = "UTF-8";
+
+var sha1Hasher = Components.classes[
+    "@mozilla.org/security/hash;1"].createInstance(
+    Components.interfaces.nsICryptoHash);
+
+// converts the toConvert parameter into a hexstring
+function toHexString( toConvert ) {
+    return ("0" + toConvert.toString(16)).slice(-2);
+}
+
+return {
+    /**
+     * hashes the given text into a sha1 hashing
+     * @name libx.ff.hash.hashString
+     */
+    hashString : function ( text )
     {
         var result = {};
         var data = unicodeConverter.convertToByteArray(
@@ -63,6 +72,7 @@ libxEnv.hashClass = function()
         }
         return tmp_array.join("");
     }
-}
+};
 
-libxEnv.hash = new libxEnv.hashClass();
+})();
+

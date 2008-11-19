@@ -443,8 +443,6 @@ libx.ff.initialize = function() {
             m.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
         }, false );
 
-    libxEnv.hash = new libxEnv.hashClass();
-
     if ( libxEnv.getBoolPref ( 'libx.firstrun', true ) ) {
         // i18n
         window.openDialog ( "chrome://libx/content/firstrun.xul",
