@@ -29,10 +29,32 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
 
+/**
+ * @fileoverview
+ *
+ * This file contains functionality that works in all browsers
+ * related to configuration, properties, and localization.
+ */
+ 
+/**
+ * Support for reading LibX configurations.
+ *
+ * See http://libx.org/xml/libxconfig.dtd for a DTD describing the 
+ * configuration options.  
+ *
+ * @namespace
+ */
 libx.config = { };
 
-/* Wrap an XML document */
-libx.config.XMLConfigWrapper = libx.core.Class.create({
+/**
+ * Wrap an XML document containing a configuration XML document
+ * and provide support for extracting attributes and copying them
+ * into JS objects from it.
+ *
+ * @class
+ */
+libx.config.XMLConfigWrapper = libx.core.Class.create(
+    /** @lends libx.config.XMLConfigWrapper */{
     initialize: function (xmlDocument) {
         this.xml = xmlDocument;
     },
@@ -55,8 +77,10 @@ libx.config.XMLConfigWrapper = libx.core.Class.create({
     }
 });
 
-/* A convenience mixin that provides a 'getByName' function to
- * find items by name
+/**
+ * A convenience mixin that provides a 'getByName' function to
+ * find items by name.  Used for libx.editions.catalogs, openurl, and proxy
+ * to find catalogs, openurls, and proxy by their name (where necessary).
  */
 libx.config.NameableItemArray = {
     getByName : function ( name ) {
@@ -69,13 +93,7 @@ libx.config.NameableItemArray = {
 };
 
 /**
- * @fileoverview
- * This file contains functionality that works in all browsers
- * related to configuration, properties, and localization.
- */
- 
-/**
- *
+ * Read an edition's configuration from a config.xml file.
  * @class
  */
 libx.config.EditionConfigurationReader = libx.core.Class.create ( 
@@ -108,8 +126,13 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     /**
      * Iterates over nodes given by an xpath Expression and turn them into
      * a NameableItemArray.
+     * @param {XMLConfigWrapper} doc configuration document
+     * @param {String} xpathExpr XPath expression describing nodes to be added
+     * @param {Factory} factory Factory - a map of keys to constructors
+     * @param {Function} getFactoryKey Function to obtain the key used for the factory from the node
+     * @param {Function} postAddFunc Function called after item has been constructed 
      */
-    makeConfigurationItemArray : function ( doc, itemType, xpathExpr, 
+    makeConfigurationItemArray : function ( doc, xpathExpr, 
                                             factory, getFactoryKey, postAddFunc ) {
         var items = new Array();
         libx.core.Class.mixin(items, libx.config.NameableItemArray);
@@ -123,7 +146,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
               var factoryKey = getFactoryKey(node);
 
               if (typeof (factory[factoryKey]) != "function") {
-                  libxEnv.writeLog(itemType + " Type " + factoryKey + " not supported.");
+                  libxEnv.writeLog("Factory key " + factoryKey + " not supported.");
                   continue;
               }
 
@@ -178,7 +201,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             "magicsearch" : "Magic Search"
         };
 
-        this.makeConfigurationItemArray (doc, "Search Option",
+        this.makeConfigurationItemArray (doc,
             "/edition/searchoptions/*", null, libx.core.EmptyFunction,
             function (node, option) {
                 searchoptions[option.value] = option.label;
@@ -188,7 +211,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     },
 
     loadLinks: function (doc) {
-        return this.makeConfigurationItemArray (doc, "Link", 
+        return this.makeConfigurationItemArray (doc,
             "/edition/links/*", null, libx.core.EmptyFunction,
             libx.core.EmptyFunction);
     },
@@ -208,7 +231,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     },
 
     loadCatalogs : function ( doc ) {
-        return this.makeConfigurationItemArray (doc, "Catalog", 
+        return this.makeConfigurationItemArray (doc,
             "/edition/catalogs/*", libx.catalog.factory, 
             function (node) {
                 return node.nodeName;
@@ -242,7 +265,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     },
 
     loadResolvers : function ( doc ) {
-        return this.makeConfigurationItemArray (doc, "OpenURL", 
+        return this.makeConfigurationItemArray (doc,
             "/edition/openurl/*", libx.openurl.factory, 
             function (node) {
                 return node.getAttribute("type");
@@ -254,7 +277,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     },
 
     loadProxies : function ( doc ) {
-        return this.makeConfigurationItemArray (doc, "Proxy", 
+        return this.makeConfigurationItemArray (doc,
             "/edition/proxy/*", libx.proxy.factory, 
             function (node) {
                 return node.nodeName;

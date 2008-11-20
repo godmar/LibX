@@ -32,8 +32,21 @@
   * @fileoverview Firefox-specific code for the Libx extension
   */
  
-// New implementation of Browser Specific functions
-libx.bd = libx.ff = { };
+/**
+ * Firefox-specific functionality
+ * @namespace
+ */
+libx.ff = { };
+
+/**
+ * Browser-dependent layer.
+ * libx.bd is an alias for libx.ff or libx.ie.
+ *
+ * @see libx.ie 
+ * @see libx.ff
+ * @namespace
+ */
+libx.bd = libx.ff;
 
 /**
  * @namespace

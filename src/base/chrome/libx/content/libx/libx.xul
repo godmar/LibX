@@ -90,7 +90,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         // delay LibX initialization until after all other handlers have executed
         // improves startup speed and avoids triggering bugs in Firefox proper on MacOS
         // suggested by Fritz Anderson (fritza@uchicago.edu)
-        window.setTimeout(libxInit, 0); 
+        window.setTimeout(libx.initialize, 0); 
       }, false);
     ]]>
     </script>

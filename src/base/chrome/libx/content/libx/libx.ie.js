@@ -30,13 +30,10 @@
   
  
 /**
+ * IE-specific functionality
  * @namespace
  */
 libx.ie = { };
-
-/**
- * @namespace
- */
 libx.bd = libx.ie;
 
  /*

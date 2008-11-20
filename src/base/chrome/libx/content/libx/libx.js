@@ -46,29 +46,26 @@ var libxEnv = {
     logTypes : {
       magic: 'Magic',
       xpath: 'XPath'
-    },
-
-    //Store the build date here.  Checking whether this value exists
-    //as well as comparison can be used by feed code if needed.
-    buildDate : "$builddate$"
+    }
 };
 
 /**
- * Initialization
- * This code is executed whenever a new window is opened
+ * Store the build date here.  Checking whether this value exists
+ * as well as comparison can be used by feed code if needed.
  */
-function libxInit() 
+libx.buildDate = "$builddate$";
+
+/**
+ * Initialize LibX
+ *
+ * In Firefox, this code is called once per new window. It is called
+ * after libx.xul has been loaded.
+ */
+libx.initialize = function () 
 {
     /*
      * Config XML must be present to load options
      */
-/*
-XXX this should be an 'onfail' handler for EditionConfigurationReader
-    if ( !libxEnv.xmlDoc.xml ) {
-        libxEnv.writeLog ( "ERROR: Config XML Not Found" );
-        return;
-    }
-*/
     // Adds onPageComplete to the eventlistener of DOMContentLoaded (what does that mean?)
     libx.browser.initialize();
     
@@ -83,6 +80,12 @@ XXX this should be an 'onfail' handler for EditionConfigurationReader
             libxEnv.eventDispatcher.init();
             libxEnv.citeulike();
     	}
+/* XXX
+        onerror: function () {
+            libxEnv.writeLog ( "ERROR: Config XML Not Found" );
+            return;
+        }
+*/
     });
 
     //

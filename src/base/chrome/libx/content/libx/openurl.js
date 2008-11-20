@@ -285,15 +285,19 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
     }
 });
 
-// ---------------------------------------------------------------------------------
-// Article Finder is a subclass of OpenURL
-// 
+/**
+ *	@name libx.catalog.factory.sersol
+ *	@constructor
+ *	@augments libx.openurl.factory.generic
+ */
+libx.catalog.factory["sersol"] = 
 /**
  *	@name libx.openurl.factory.sersol
  *	@constructor
  *	@augments libx.openurl.factory.generic
  */
-libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Class.create(libx.openurl.factory["generic"], 
+libx.openurl.factory["sersol"] = 
+libx.core.Class.create(libx.openurl.factory["generic"], 
 /** @lends libx.openurl.factory.sersol.prototype */
 {
 
@@ -321,14 +325,16 @@ libx.openurl.factory["sersol"] = libx.catalog.factory["sersol"] = libx.core.Clas
 
 
 /**
- *	SFX OpenURL Support
+ *	SFX OpenURL Support as a catalog
+ *
  *	@name libx.catalog.factory.sfx
  *	@see libx.openurl.factory.sfx
  *	@constructor
  */
 libx.catalog.factory["sfx"] =
 /**
- *	SFX OpenURL Support
+ *	SFX OpenURL Support as a OpenURL resolver
+ *
  *	@name libx.openurl.factory.sfx
  *	@augments libx.openurl.factory.generic
  *	@constructor
@@ -364,16 +370,19 @@ libx.openurl.factory["sfx"] = libx.core.Class.create(libx.openurl.factory["gener
 
 /**
  *	OCLC Gateway support
- *	
+ *
+ *	The OCLC Gateway is an OpenURL resolver that redirects requests based on the
+ *	user's current IP address to an resolver registered for that IP address
+ *	in the OCLC registry.
  *	Includes support to automatically retrieve a personalized icon based
  *	on the users current location
  *
- *	@name libx.openurl.OCLCGateway
+ *	@name libx.openurl.factory.oclcgateway
  *	@augments libx.openurl.factory.generic
  *	@constructor
  */
-libx.openurl.OCLCGateway = libx.core.Class.create(libx.openurl.factory["generic"], 
-/** @lends libx.openurl.OCLCGateway */
+libx.openurl.factory["oclcgateway"] = libx.core.Class.create(libx.openurl.factory["generic"], 
+/** @lends libx.openurl.factory.oclcgateway */
 {
     url : "http://worldcatlibraries.org/registry/gateway",
     name : "OCLC Gateway",
