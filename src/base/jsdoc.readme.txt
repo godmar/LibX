@@ -11,7 +11,7 @@ see: http://code.google.com/p/jsdoc-toolkit/w/list
 
 1. Generating Documentation
 -----------------------------
-To generate documentation, use the genreateDoc.sh script
+To generate documentation, use the generateDoc.sh script
 located in the editions directory.
 
 * Must be run from editions directory
