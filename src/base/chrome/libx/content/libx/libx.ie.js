@@ -109,370 +109,117 @@ libxEnv.getCurrentWindowContent = function() {
 
 //XPath functions/////////////////////////////////////////////////////////////
 
-libxEnv.xpath = new Object();
-libxEnv.xpath.shadowToOrigDOMMap = new Array();
-libxEnv.xpath.queue = new Array();
-libxEnv.xpath.headIdx = 0;
-libxEnv.xpath.tailIdx = 0;
-libxEnv.xpath.shadowDOM = new Object();
+//XXX: We should create a new file to contain this object (xpathutils.ie.js)
+libx.ie.xpath = {
 
-//This function shadows the DOM tree of the original document (starting at the
-//document.body node) and make a well formed shadowDOM.  This allows XPath
-//queries to be executed in IE.  This method performs a breadth-first traversal
-//of the DOM tree.
-libxEnv.xpath.init = function (docRoot, nodeSet, attributeSet) {
-    //Reset values
-    libxEnv.xpath.shadowToOrigDOMMap = new Array();
-    libxEnv.xpath.queue = new Array();
-    libxEnv.xpath.headIdx = 0;
-    libxEnv.xpath.tailIdx = 0;
+    /**
+     * Evaluates an XPath expression and returns a single DOM node or null
+     *
+     * Note: This will only work on a well formed XML/XHTML document
+     *
+     * @param {DOM Tree} doc               document (used if root is undefined)
+     * @param {String}   xpathexpr         XPath expression
+     * @param {DOM Tree} root              root of DOM to execute search (used
+     *                                     instead of doc if defined)
+     * @param {Object}   namespaceresolver Object keys are namespace prefixes,
+     *                                     values are corresponding URIs
+     *
+     * @returns DOM node or null if not found
+     *
+     */
+    findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
 
-    libxEnv.xpath.shadowDOM = new ActiveXObject("Msxml2.DOMDocument");
-    libxEnv.xpath.shadowDOM.async = false;
-    libxEnv.xpath.shadowDOM.resolveExternals = false;
-    libxEnv.xpath.shadowDOM.setProperty("SelectionLanguage", "XPath");
+        if (namespaceresolver !== undefined) {
+            var currentPrefix = "";
 
-    shadowRoot = undefined;
-    var allNodes = false;
-    var allAttributes = false;
+            //Iterate through the namespaceresolver object to get
+            //the prefixes
+            for (var prefix in namespaceresolver) {
+                if ("" != currentPrefix)
+                    currentPrefix += " ";
 
-    if (undefined == nodeSet)
-        allNodes = true;
+                currentPrefix 
+                    += "xmlns:" 
+                    + prefix 
+                    + "='" 
+                    + namespaceresolver[prefix] 
+                    + "'";
+            }
+            doc.setProperty("SelectionNamespaces", currentPrefix);
+        }
 
-    if (undefined == attributeSet)
-        allAttributes = true;
+        var result;
 
-    //We need to handle the root element of the document here for the iterative
-    //shadowing method
-    if (-1 == docRoot.nodeName.search("\/")
-        && docRoot.nodeName.search("#")) {
-        var shadowRoot 
-            = libxEnv.xpath.shadowDOM.createElement(docRoot.nodeName.toLowerCase());
-
-        //We only shadow attributes for nodes we're concerned with. Also, only
-        //attributes that we're concerned with are shadowed.  For example, if
-        //the XPath expression was //div[@id='whatever'], then we only shadow
-        //attributes for div elements, and we only shadow the id attribute of
-        //those elements.  This, hopefully, significantly decreases the amount
-        //of time required to generate the shadowDOM.  Of course, this requires
-        //that that arrays containing the element names and attribute names
-        //be passed into this function.
-        if (allNodes && allAttributes) {
-            for (var ctr = 0; ctr < docRoot.attributes.length; ++ ctr) {
-                var attribute = docRoot.attributes[ctr];
-                var attributeValue = attribute.nodeValue;
-                if (attributeValue && attribute.specified) {
-                    var shadowAttribute = libxEnv.xpath.shadowDOM.createAttribute(attribute.nodeName);
-                    shadowAttribute.value = attributeValue;
-                    shadowRoot.setAttributeNode(shadowAttribute);
-                } //end if
-            } //end for
-        } //end if (allNodes && allAttributes)
-        else {
-            var docRootNameMatch = false;
-            if (!allNodes) {
-                for (var elem = 0; elem < nodeSet.length; ++elem) {
-                    if (nodeSet[elem] == docRoot.nodeName) {
-                        docRootNameMatch = true;
-                        break;
-                    } //end if
-                } //end for
-            } //end if (!allNodes)
-            else
-                docRootNameMatch = true;
-
-            //We only shadow attributes for root if it was found in the list
-            //of element names, or if we're shadowing attributes for all
-            //elements
-            if (docRootNameMatch) {
-                if (!allAttributes) {
-                    for (var attr = 0; attr < attributeSet.length; ++attr) {
-                        var attributeName = attributeSet[attr];
-                        if (docRoot[attributeName]
-                            || ("class" == attributeName
-                               && docRoot.className)) {
-                            if ("class" == attributeName)
-                                var attributeValue = docRoot.className;
-                        } // end if
-                        else
-                            var attributeValue = docRoot[attributeName];
-                        var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
-                        shadowDOMAttr.value = attributeValue;
-                        shadowRoot.setAttributeNode(shadowAttribute);
-                    } //end for
-                } //end if (!allAttributes)
-                //otherwise shadow all attributes
-                else {
-                    for (var ctr = 0; ctr < docRoot.attributes.length; ++ ctr) {
-                        var attribute = docRoot.attributes[ctr];
-                        var attributeName = attribute.nodeName;
-                        var attributeValue = attribute.nodeValue;
-                        if (attributeValue && attribute.specified) {
-                            var shadowAttribute = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
-                            shadowAttribute.value = attributeValue;
-                            shadowRoot.setAttributeNode(shadowAttribute);
-                        } //end if
-                    } //end for
-                } //end else (allAttributes == true)
-            } //end if (docRootNameMatch)
-        } //end else (!(allNodes && allAttributes))
-
-        var uniqueID = docRoot.uniqueID;
-        shadowRoot.setAttribute("id", uniqueID);
-        libxEnv.xpath.shadowToOrigDOMMap[uniqueID] = docRoot;
-
-        libxEnv.xpath.shadowDOM.appendChild(shadowRoot);
-    }
-
-    libxEnv.xpath.queue.push({original: docRoot, shadow: shadowRoot});
-    ++libxEnv.xpath.tailIdx;
-    libxEnv.xpath.loadDocument(libxEnv.xpath.shadowDOM, docRoot, nodeSet, attributeSet);
-}
-
-libxEnv.xpath.loadDocument = function (dom, docRoot, nodeSet, attributeSet) {
-    libxEnv.writeLog("in load document");
-
-    var allNodes = false;
-    var allAttributes = false;
-
-    if (undefined == nodeSet)
-        allNodes = true;
-
-    if (undefined == attributeSet)
-        allAttributes = true;
-
-    //return libxEnv.xpath.loadNode(dom, dom, docRoot.body);
-    //return libxEnv.xpath.loadNode(dom, dom, docRoot);
-
-    while (libxEnv.xpath.headIdx < libxEnv.xpath.tailIdx) {
-        //Get node from queue
-        //var nodePair = libxEnv.xpath.queue.shift();
-        var nodePair = libxEnv.xpath.queue[libxEnv.xpath.headIdx];
-        ++libxEnv.xpath.headIdx;
-        var origNode = nodePair.original;
-        var shadowNode = nodePair.shadow;
-
-        if (undefined == shadowNode)
-            libxEnv.writeLog("shadowNode is undefined");
-
-        var length = origNode.childNodes.length;
-
-        //Get all children of that node and add to queue
-        //To do this, we need to create corresponding shadow nodes
-        for (var ctr = 0; ctr < length; ++ ctr) {
-            if (3 == origNode.childNodes[ctr].nodeType) {
-                //For text nodes, we simply create a text node and add it as
-                //a child node to its shadow parent node.  We don't have to
-                //worry about this node's attributes since it has none.
-                var shadowChildNode 
-                    = libxEnv.xpath.shadowDOM.createTextNode(origNode.childNodes[ctr].nodeValue);
-
-                shadowNode.appendChild(shadowChildNode);
-            } //end if node is textNode
+        try {
+            if (undefined == root) {
+                return doc.selectSingleNode(xpathexpr);
+            }
             else {
-                //Check to see whether elements are valid (since IE doesn't do
-                //this itself)
-                if (-1 == origNode.childNodes[ctr].nodeName.search("\/")
-                    && -1 == origNode.childNodes[ctr].nodeName.search("#")) {
-                    //Create the child node
-                    var shadowChildNode 
-                        = libxEnv.xpath.shadowDOM.createElement(origNode.childNodes[ctr].nodeName.toLowerCase());
-
-                    //Now give this element a unique id
-                    var uniqueID = origNode.childNodes[ctr].uniqueID;
-                    shadowChildNode.setAttribute("id", uniqueID);
-
-                    //Map the shadowChild node to the corresponding origNode.childNodes[ctr]
-                    libxEnv.xpath.shadowToOrigDOMMap[uniqueID] = origNode.childNodes[ctr];
-
-                    shadowNode.appendChild(shadowChildNode);
-
-                    //Handle attibutes.  See documentation in libxEnv.xpath.init()
-                    if (allNodes && allAttributes) {
-                        for (var attr = 0; attr < origNode.childNodes[ctr].attributes.length; ++ attr) {
-                            var attribute = origNode.childNodes[ctr].attributes[attr];
-                            var attributeName = attribute.nodeName;
-                            var attributeValue = attribute.nodeValue;
-                            if (attributeValue && attribute.specified) {
-                                var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
-                                shadowDOMAttr.value = attributeValue;
-                                shadowChildNode.setAttributeNode(shadowDOMAttr);
-                            } //end if (attributeValue && attribute.specified)
-                        } //end for
-                    } //end if(allNodes && allAttributes)
-                    else {
-                        var nodeNameMatch = false;
-                        if (!allNodes) {
-                            for (var elem = 0; elem < nodeSet.length; ++elem) {
-                                if (nodeSet[elem] == origNode.childNodes[ctr].nodeName) {
-                                    nodeNameMatch = true;
-                                    break;
-                                } //end if
-                            } //end for
-                        } //end if (!allNodes)
-                        else
-                            nodeNameMatch = true;
-
-                        if (nodeNameMatch) {
-                            if (!allAttributes) {
-                                for (var attr = 0; attr < attributeSet.length; ++attr) {
-                                    var attributeName = attributeSet[attr];
-                                    if (origNode.childNodes[ctr][attributeName]
-                                        || ("class" == attributeName
-                                            && origNode.childNodes[ctr].className)) {
-                                        if ("class" == attributeName)
-                                            var attributeValue = origNode.childNodes[ctr].className;
-                                        else
-                                            var attributeValue = origNode.childNodes[ctr][attributeName];
-                                        var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
-                                        shadowDOMAttr.value = attributeValue;
-                                        shadowChildNode.setAttributeNode(shadowDOMAttr);
-                                    } //end if
-                                } //end for
-                            } //end if (!allAttributes)
-                            else {
-                                for (var attr = 0; attr < origNode.childNodes[ctr].attributes.length; ++ attr) {
-                                    var attribute = origNode.childNodes[ctr].attributes[attr];
-                                    var attributeName = attribute.nodeName;
-                                    var attributeValue = attribute.nodeValue;
-                                    if (attributeValue && attribute.specified) {
-                                        var shadowDOMAttr = libxEnv.xpath.shadowDOM.createAttribute(attributeName);
-                                        shadowDOMAttr.value = attributeValue;
-                                        shadowChildNode.setAttributeNode(shadowDOMAttr);
-                                    } //end if
-                                } //end for
-                            } //end else (allAttributes)
-                        } //end if (nodeNameMatch)
-                    } //end else (!(allNodes && allAttributes))
-                } //end if (node is valid)
-            } //end else (nodeType is element)
-            //Now we need to add the children to the queue
-            libxEnv.xpath.queue.push({original: origNode.childNodes[ctr], shadow: shadowChildNode});
-            ++libxEnv.xpath.tailIdx;
-        } //end for (loop for handling children)
-    } //end while (queue not empty)
-} //end libxEnv.xpath.loadDocument
-
-libxEnv.xpath.findSingleXML = function (doc, xpathexpr, root, namespaceresolver) {
-
-    if (undefined != namespaceresolver) {
-
-        currentPrefix = "";
-
-        //Iterate through the namespaceresolver object to get
-        //the prefixes
-        for (prefix in namespaceresolver) {
-            if ("" != currentPrefix)
-                currentPrefix += " ";
-
-            currentPrefix 
-                += "xmlns:" 
-                + prefix 
-                + "='" 
-                + namespaceresolver[prefix] 
-                + "'";
+                return root.selectSingleNode(xpathexpr);
+            }
         }
-        doc.setProperty("SelectionNamespaces", currentPrefix);
-    }
-    if (undefined == root) {
-        return doc.selectSingleNode(xpathexpr);
-    }
-    else {
-        return root.selectSingleNode(xpathexpr);
-    }
-}
-
-libxEnv.xpath.findSingle = function (doc, xpathexpr, root) {
-    //Requires XPath parser code in javascript-xpath.js
-    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-    if (r) return r.singleNodeValue;
-    return null;
-
-    //Code that uses shadowDOM.  Obviously there has to be a shadow DOM for
-    //this to work
-    var origNode = null;
-    var shadowNode = libxEnv.xpath.shadowDOM.selectSingleNode(xpathexpr);
-
-    if (null != shadowNode) {
-        var shadowAttribute = shadowNode.getAttribute("id");
-        var origNode = libxEnv.xpath.shadowToOrigDOMMap[shadowAttribute];
-    }
-    return origNode;
-}
-
-libxEnv.xpath.findNodesXML = function (doc, xpathexpr, root, namespaceresolver) {
-
-    if (undefined != namespaceresolver) {
-
-        currentPrefix = "";
-
-        //Iterate through the namespaceresolver object to get
-        //the prefixes
-        for (prefix in namespaceresolver) {
-            if ("" != currentPrefix)
-                currentPrefix += " ";
-
-            currentPrefix 
-                += "xmlns:" 
-                + prefix 
-                + "='" 
-                + namespaceresolver[prefix] 
-                + "'";
-        }
-        doc.setProperty("SelectionNamespaces", currentPrefix);
-    }
-
-    if (undefined == root)
-        return doc.selectNodes(xpathexpr);
-    else
-        return root.selectNodes(xpathexpr);
-}
-
-libxEnv.xpath.findNodes = function (doc, xpathexpr, root) {
-
-    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ANY_TYPE, null);
-    if (r == null) return null;
-
-    switch (r.resultType) {
-        case XPathResult.BOOLEAN_TYPE:
-            return r.booleanValue;
-        case XPathResult.STRING_TYPE:
-            return r.stringValue;
-        case XPathResult.NUMBER_TYPE:
-            return r.numberValue;
-        case XPathResult.UNORDERED_NODE_ITERATOR_TYPE:
-            var rr = new Array();
-            var n;
-            while ((n = r.iterateNext()) != null)
-                rr.push(n);
-            return rr;
-        default:
-            libxEnv.writeLog("unknown resultType: " + r.resultType, libxEnv.logTypes.xpath);
+        catch (e) {
+            libxEnv.writeLog("In findSingleXML: XPath expression " + xpathexpr + " does not return a node");
             return null;
-    }
-    
-    //Code that uses shadowDOM.
-    var shadowNodes = libxEnv.xpath.shadowDOM.selectNodes(xpathexpr);
-    var origNodes = new Array();
+        }
+    },
 
-    for (var ctr = 0; ctr < shadowNodes.length; ++ ctr) {
-        var shadowAttribute = shadowNodes[ctr].getAttribute("id");
-        var origNode = libxEnv.xpath.shadowToOrigDOMMap[shadowAttribute];
-        origNodes.push(origNode);
-    }
-    return origNodes;
-}
+    /**
+     * Evaluates an XPath expression and returns a set of DOM nodes or null
+     *
+     * Note: This will only work on a well formed XML/XHTML document
+     *
+     * @param {DOM Tree} doc               document (used if root is undefined)
+     * @param {String}   xpathexpr         XPath expression
+     * @param {DOM Tree} root              root of DOM to execute search (used
+     *                                     instead of doc if defined)
+     * @param {Object}   namespaceresolver Object keys are namespace prefixes,
+     *                                     values are corresponding URIs
+     *
+     * @returns array of DOM nodes or null if not found
+     *
+     */
+    findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
 
-libxEnv.xpath.findSnapshot = function (doc, xpathexpr, root) {
-    var r = doc.evaluate(xpathexpr, root?root:doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    if (r == null) return null;
+        if (namespaceresolver !== undefined) {
 
-    var rr = new Array();
-    for (var i = 0; i < r.snapshotLength; i++) {
-        rr.push(r.snapshotItem(i));
+            var currentPrefix = "";
+
+            //Iterate through the namespaceresolver object to get
+            //the prefixes
+            for (var prefix in namespaceresolver) {
+                if ("" != currentPrefix)
+                    currentPrefix += " ";
+
+                currentPrefix 
+                    += "xmlns:" 
+                    + prefix 
+                    + "='" 
+                    + namespaceresolver[prefix] 
+                    + "'";
+            }
+            doc.setProperty("SelectionNamespaces", currentPrefix);
+        }
+
+        try {
+            if (undefined == root)
+                return doc.selectNodes(xpathexpr);
+            else
+                return root.selectNodes(xpathexpr);
+        }
+        catch (e) {
+            libxEnv.writeLog("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
+        }
+    },
+
+    findSnapshot : function (doc, xpathexpr, root) {
+        return null;
     }
-    return rr;
-}
+
+};
+
+// XXX remove this eventually
+libxEnv.xpath = libx.ie.xpath;
 
 //Get remote text functions///////////////////////////////////////////////////
 
@@ -529,10 +276,6 @@ libxEnv.loadXMLString = function (xmlstring) {
 
     return xmlDoc;
 }
-
-
-
-
 
 libxEnv.getXMLConfig = function (url) {
     return libxInterface.config;
