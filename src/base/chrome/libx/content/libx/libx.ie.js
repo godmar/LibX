@@ -51,10 +51,6 @@ libx.ie.initialize = function() {
 
 libxEnv.debugInit = function () {}
 
-libxEnv.setObjectVisible = function(obj, show) {
-    libxEnv.writeLog("An object is supposed to be either hidden or visible");
-}
-
 //Window functions////////////////////////////////////////////////////////////
 
 /*  openSearchWindow
@@ -569,18 +565,6 @@ libxEnv.getAutolinkPref = function() {
 
 libxEnv.getCiteulikePref = function () {
     return false;
-}
-
-
-//GUI functions///////////////////////////////////////////////////////////////
-/*
- * GUI functions are not used in the IE version, as the GUI is not controlled
- * by JavaScript.
- */
-libxEnv.setVisible = function(elemName, hide) {
-}
-
-libxEnv.setGUIAttribute = function(elemName, attrName, attrVal) {
 }
 
 //Autolink functions//////////////////////////////////////////////////////////

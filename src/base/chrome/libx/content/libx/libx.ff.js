@@ -684,24 +684,6 @@ libx.ff.contextmenu.initialize = function () {
     }, false );
 }; 
 
-libxEnv.setObjectVisible = function(obj, show) {
-    obj.hidden = !show;
-}
-
-libxEnv.setVisible = function(elemName, visible) {
-    elem = document.getElementById(elemName);
-    if (elem != null) {
-        elem.hidden = !visible;
-    }
-}
-
-libxEnv.setGUIAttribute = function(elemName, attrName, attrValue) {
-    elem = document.getElementById(elemName);
-    if (elem != null) {
-        elem.setAttribute(attrName, attrValue);
-    }
-}
-
 // Opens the LibX Preferences window
 // About window is now part of this window.
 libxEnv.ff.openPrefWindow = function () { 
