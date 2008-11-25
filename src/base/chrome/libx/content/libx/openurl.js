@@ -40,13 +40,13 @@
  * @namespace
  */
 libx.openurl = { 
-    // maps OpenURL types (generic, sfx, etc.) to classes
     /**
-     *	Used to instantiate the various openurl types
-     *	All openurl types are accessed by there lowercase class names
+     *	Factory used to instantiate the various openurl types
+     *	All openurl types are accessed by their lowercase class names
+     *  such as generic, sfx, webbridge, etc.
      *	@namespace
      *	@example
-     *		var sersolResolver = new libx.factory["sersol"] ()
+     *		var sersolResolver = new libx.openurl.factory["sersol"] ()
      */
     factory : { }
 };

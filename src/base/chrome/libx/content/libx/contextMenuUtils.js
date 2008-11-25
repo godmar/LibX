@@ -682,21 +682,25 @@ Item.factory['proxy'] = libx.core.Class.extend (
             else
                 urltocheck = libxEnv.getCurrentWindowContent().location.toString();
 
+            var onsuccesslabel = popuphelper.isOverLink() ? "proxy.follow.label" : "proxy.reload.label";
             if (proxy.canCheck() && libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
                 showLabel("proxy.checking.label", urltocheck, proxy);
-                proxy.checkURL(urltocheck, function (ok, cbdata) {
-                    if (ok) {
-                        showLabel(popuphelper.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", 
-                                  cbdata.urltocheck, cbdata.proxy);
-                    } else {
-                        showLabel("proxy.denied.label", cbdata.urltocheck, cbdata.proxy);
+
+                proxy.checkURL({
+                    url: urltocheck,
+                    onsuccess: function () {
+                        showLabel(onsuccesslabel, urltocheck, proxy);
+                        if (proxy.disableIfCheckFails())
+                            item.setActive(true);
+                    },
+                    onfailure: function () {
+                        showLabel("proxy.denied.label", urltocheck, proxy);
+                        if (proxy.disableIfCheckFails())
+                            item.setActive(false);
                     }
-                    if (cbdata.proxy.disableIfCheckFails()) {
-                        item.setActive(ok);
-                    }
-                }, { urltocheck : urltocheck, proxy: proxy });
+                });
             } else {
-                showLabel(popuphelper.isOverLink() ? "proxy.follow.label" : "proxy.reload.label", urltocheck, proxy);
+                showLabel(onsuccesslabel, urltocheck, proxy);
             }
                 
                     

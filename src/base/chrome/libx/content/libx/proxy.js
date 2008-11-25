@@ -21,33 +21,67 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+/**
+ * Support for proxies.  Currently, LibX support EZProxy and III's WAM
+ *
+ * @namespace
+ */
 libx.proxy = {
-    // maps OpenURL types  (generic, sfx, etc.) to classes
+    /**
+     *	Factory used to instantiate the various proxy types
+     *	@namespace
+     *	@example
+     *		var ezproxy = new libx.proxy.factory["ezproxy"] ()
+     */
     factory : { }
 };
 
-libx.proxy.factory["ezproxy"] = libx.core.Class.create({
+/**
+ *	EZProxy implementation of a proxy	
+ *	@name libx.proxy.factory.ezproxy
+ *	@constructor
+ */
+libx.proxy.factory["ezproxy"] = libx.core.Class.create(
+/**@lends libx.proxy.factory.ezproxy.prototype */
+{
+    /**
+     * Can this proxy check whether a URL could be proxied
+     * @return true if urlcheckpassword is configured
+     */
     canCheck: function () { 
-        // XXX check user preference here as well.
+        // TBD: we should check the user's preference here as well.
         return this.urlcheckpassword != null; 
     },
 
-    checkURL: function (pageurl, okcallback, cbdata) {
+    /**
+     * Check if a given URL could be proxied.
+     *
+     * See http://blog.ryaneby.com/archives/ezproxy-url-webservice/
+     *
+     * @param {Object} opt  Object describing requested check, must contain:
+     * <pre>
+     *          .url - URL to be checked
+     *          .onsuccess - method to be called if URL can be proxied
+     *          .onfailure - method to be called if URL cannot be proxied or 
+     *                       if result couldn't be obtained.
+     * </pre>
+     */
+    checkURL: function (opt) {
         var m = this.url.match(/(https?:\/\/[^\/]+)\/(.*)$/);
         if (!m) {
             libxEnv.writeLog("internal failure parsing proxy url: " + this.url + "...");
-            okcallback(false, cbdata);
+            opt.onsuccess();
             return;
         }
+
         /* Chris Zagar points out that ezproxy logs all requests, but no POST data,
          * so posting the URL to be queried reduces log size and slightly increases
          * privacy.
-         * Interface documented at http://blog.ryaneby.com/archives/ezproxy-url-webservice/
          */
         var purl = m[1] + "/proxy_url";
         var postdata = "xml=" + encodeURIComponent('<?xml version="1.0"?>' 
                 + '<proxy_url_request password="' + this.urlcheckpassword + '"><urls>'
-                + '<url>' + pageurl + '</url>'
+                + '<url>' + opt.url + '</url>'
                 + '</urls></proxy_url_request>'
             );
         libxEnv.getXMLDocument(purl, function (xmlhttp) {
@@ -55,43 +89,67 @@ libx.proxy.factory["ezproxy"] = libx.core.Class.create({
                 var resp = libxEnv.xpath.findSingleXML(xmlhttp.responseXML, 
                                                     "/proxy_url_response/proxy_urls/url[1]");
                 if (resp != null && libxNormalizeOption(resp.getAttribute("proxy"))) {
-                    okcallback(true, cbdata);
+                    opt.onsuccess();
                     return;
                 }
             }
-            okcallback(false, cbdata);
+            opt.onfailure();
         }, postdata);
     },
 
-    // as suggested by Matthias Liffers, provide an option to outright disable
-    // proxyings if the urlcheck above fails.
+    /**
+     * Should the option to proxy a URL be disabled if checkURL fails?
+     * suggested by Matthias Liffers.
+     *
+     * @return true if edition maintainer configured disableifcheckfails
+     */
     disableIfCheckFails: function() {
         return this.disableifcheckfails == true;
     },
 
-    /* Rewriting URLs for EZProxy is eazy. */
+    /**
+     * Rewrite a URL to access it via this proxy.
+     * @param {String} url URL to be proxied
+     */
     rewriteURL: function (url) {
+        /* Rewriting URLs for EZProxy is eazy. */
         return this.url.replace(/%S/, url);
     }
 });
 
-
-libx.proxy.factory["wam"] = libx.core.Class.create({
-    /* WAM does not support checking whether the site would be proxied as of now. */
+/**
+ *	WAM implementation of a proxy	
+ *	@name libx.proxy.factory.wam
+ *	@constructor
+ */
+libx.proxy.factory["wam"] = libx.core.Class.create(
+/**@lends libx.proxy.factory.wam.prototype */
+{
+    /**
+     * Check if this URL could be proxied.
+     * WAM does not support checking whether the site would be proxied as of now. 
+     * @return false
+     */
     canCheck: function () { return false; },
 
-    /* From the III documentation:
-
-      http://<port>-<target server>.<Innovative server>/<rest of URL>
-      <port> The port number of the resource. 
-             If the port number is 80, substitute 0 (zero) for the port number.
-      <target server> The address for the target resource.
-      <Innovative server> The address of your Innovative server.
-      <rest of URL> The rest of the URL for the target resource.
-
-          http://search.epnet.com:5670/a/acp/name/db/bgmi/search
-          http://5670-search.epnet.com.my.lib.edu/a/acp/name/db/bgmi/search
-    */
+    /**
+     * Rewrite a URL to access it via this proxy.
+     *
+     * @param {String} url URL to be proxied
+     *
+     *From the III documentation:
+     *<pre>
+     *http://<port>-<target server>.<Innovative server>/<rest of URL>
+     *<port> The port number of the resource. 
+     *       If the port number is 80, substitute 0 (zero) for the port number.
+     *<target server> The address for the target resource.
+     *<Innovative server> The address of your Innovative server.
+     *<rest of URL> The rest of the URL for the target resource.
+     *
+     *    http://search.epnet.com:5670/a/acp/name/db/bgmi/search
+     *    http://5670-search.epnet.com.my.lib.edu/a/acp/name/db/bgmi/search
+     *</pre>
+     */
     rewriteURL: function (url) {
         var proxybase = this.url;
         var m = url.match(/http:\/\/([^\/:]+)(:(\d+))?\/(.*)$/);

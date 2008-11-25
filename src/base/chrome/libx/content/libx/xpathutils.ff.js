@@ -82,7 +82,7 @@ libx.ff.xpath = {
      * @param {Object}   namespaceresolver Object keys are namespace prefixes,
      *                                     values are corresponding URIs
      *
-     * @returns array of nodes or null
+     * @returns array of nodes, possibly empty
      */
 
     findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
@@ -96,15 +96,13 @@ libx.ff.xpath = {
         catch (e) {
             //XXX: Need to use a more specific log type
             libxEnv.writeLog("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
-            return null;
+            return null;    // XXX should you rethrow here?
         }
 
         var rr = new Array();
         var n;
         while ((n = r.iterateNext()) != null)
             rr.push(n);
-
-        if (rr.length == 0) return null;
 
         return rr;
     },
@@ -135,14 +133,13 @@ libx.ff.xpath = {
         catch (e) {
             //XXX: Need to use a more specific log type
             libxEnv.writeLog("In findSnapshot: XPath expression " + xpathexpr + " does not return a set of nodes");
-            return null;
+            return null;    // XXX should you rethrow here?
         }
 
         var rr = new Array();
         for (var i = 0; i < r.snapshotLength; i++) {
             rr.push(r.snapshotItem(i));
         }
-        if (rr.length == 0) return null;
 
         return rr;
     }
