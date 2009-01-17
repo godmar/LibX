@@ -28,11 +28,10 @@
  * Intended to be IE-compatible
  */
 libxEnv.pubmed = {
-    /* cache retrieved meta data to reduce load on service; 
-     * maps Pubmed Id to DOM Node '/eSummaryResult/DocSum' in results.
-     * Caches both successes and failures.
-     */
-    pubmedid2metadata: new Object(),
+
+    // Used to issue requests and cache results
+    // XXX : What's a reasonable size for the cache? (defaults to 50)
+    pubmedcache : new libx.ajax.DocumentRequest(),
 
     /* docsum is a XML document node at /eSummaryResult/DocSum */
     formatPubmedMetadataAsText: function (docsum, oncompletionobj, oncompletionfunc) {
@@ -64,43 +63,46 @@ libxEnv.pubmed = {
     /* retrieve info about Pubmed ID - either from cache or from service, and 
        call formatFunc(result, completion_func) */
     getPubmedMetadataAsText: function (pubmedid, completionhandlers) {
-        if (!libxEnv.getBoolPref ('libx.pmid.ajaxpref', 'true'))
-            return;
-
-        var cached = this.pubmedid2metadata[pubmedid];
-        if (cached !== undefined) {
-            if (cached != null) {
-                this.formatPubmedMetadataAsText(cached, completionhandlers, 'ifFound');
-            } else {
-                if (completionhandlers.notFound)
-                    completionhandlers.notFound();
-            }
-            return;
-        }
-
-        var pubmedid2metadata = this.pubmedid2metadata;
+        alert("In getPubmedMetadataAsText");
+        //if (!libxEnv.getBoolPref ('libx.pmid.ajaxpref', 'true'))
+        //    return;
 
         // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082
         var requestUrlPath = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + pubmedid;
-        // NCBI returns a content type text/html
-        libxEnv.getDocument(requestUrlPath,
-            function (responsetext) {
+
+        //Create the parameter object.  This will be used to issue the xml http
+        //request.  See documentrequestcache.js for documentation.  Since,
+        //regardless of what pubmedid is used, the page will be found (http
+        //status 200), only the success and complete functions will be used.
+        var xmlParam = {
+            dataType : "text",
+            type     : "POST",
+            url      : requestUrlPath,
+
+            // NCBI returns a content type text/html
+            success  : function (responsetext) {
+                alert("Invoked success function with responsetext " + responsetext);
                 var xmlResponse = libxEnv.loadXMLString(responsetext);
                 var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + pubmedid + ']';
                 var node = libxEnv.xpath.findSingleXML(
                         xmlResponse, docsumxpath, xmlResponse);
 
-                // cache result (even if Pubmed ID was not found)
-                pubmedid2metadata[pubmedid] = node;
                 if (node) {
                     libxEnv.pubmed.formatPubmedMetadataAsText(node, completionhandlers, 'ifFound');
-                } else {
-                    if (completionhandlers.notFound)
-                        completionhandlers.notFound();
+                } 
+                else {
+                    if (completionhandlers.notFound) {
+                        completionhandlers.notFound(this);
+                    }
                 }
-            });
+            }
+        }
+
+        //Send the request
+        this.pubmedcache.getRequest(xmlParam);
     }
 };
 
 
 // vim: ts=4
+

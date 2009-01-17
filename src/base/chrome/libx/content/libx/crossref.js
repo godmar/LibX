@@ -28,11 +28,10 @@
  * Intended to be IE-compatible
  */
 libxEnv.crossref = {
-    /* cache retrieved meta data to reduce load on service; 
-     * maps DOI to DOM Node '//query' in results.
-     * Caches both successes and failures.
-     */
-    doi2metadata: new Object(),
+
+    // Used to issue requests and cache results
+    // XXX : What's a reasonable size for the cache? (defaults to 50)
+    doicache : new libx.ajax.DocumentRequest(),
 
     /* query is a XML document node at //query */
     formatDOIMetadataAsText: function (query, oncompletionobj, oncompletionfunc) {
@@ -84,44 +83,43 @@ libxEnv.crossref = {
     /* retrieve info about DOI - either from cache or from service, and 
        call formatFunc(result, completion_func) */
     getDOIMetadataAsText: function (doi, completionhandlers) {
-        if (!libxEnv.getBoolPref ('libx.doi.ajaxpref', 'true'))
-            return;
-
-        var cached = this.doi2metadata[doi];
-        if (cached !== undefined) {
-            if (cached != null) {
-                this.formatDOIMetadataAsText(cached, completionhandlers, 'ifFound');
-            } else {
-                if (completionhandlers.notFound)
-                    completionhandlers.notFound();
-            }
-            return;
-        }
-
-        var doi2metadata = this.doi2metadata;
+        //if (!libxEnv.getBoolPref ('libx.doi.ajaxpref', 'true'))
+        //    return;
 
         // see for example 
         // http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/10.1145/268998.266642
         // http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/10.1038/nature00967
         var requestUrlPath = "http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/" + encodeURIComponent(doi);
 
-        libxEnv.getXMLDocument(requestUrlPath,
-            function (xmlhttp) {
-                var xmlResponse = xmlhttp.responseXML;
+        //Create the parameter object.  This will be used to issue the xml http
+        //request.  See documentrequestcache.js for documentation.  Since,
+        //regardless of what doi id is used, the page will be found (http
+        //status 200), only the success and complete functions will be used.
+
+        var xmlParam = {
+            dataType : "xml",
+            type     : "POST",
+            url      : requestUrlPath,
+
+            success  : function (xmlhttp) {
                 var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + doi + "']";
 
-                var node = libxEnv.xpath.findSingleXML(xmlResponse, querypath, xmlResponse, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
-                // cache result (even if Crossref DOI was not found)
-                doi2metadata[doi] = node;
+                var node = libxEnv.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
+
                 if (node) {
                     libxEnv.crossref.formatDOIMetadataAsText(node, completionhandlers, 'ifFound');
                 } else {
                     if (completionhandlers.notFound)
-                        completionhandlers.notFound();
+                        completionhandlers.notFound(this);
                 }
-            });
+            }
+        }
+
+        //Send the request
+        this.doicache.getRequest(xmlParam);
     }
 };
 
 
 // vim: ts=4
+

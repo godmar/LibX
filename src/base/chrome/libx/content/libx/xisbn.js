@@ -32,7 +32,9 @@ libxEnv.xisbn = {
      * maps ISBN to DOM Node '/rsp/isbn' in results.
      * Caches both successes and failures.
      */
-    isbn2metadata: new Object(),
+    // Used to issue requests and cache results
+    // XXX : What's a reasonable size for the cache? (defaults to 50)
+    xisbncache : new libx.ajax.DocumentRequest(),
 
     /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
     formatISBNMetadataAsText: function (xisbnrspisbn, oncompletionobj, oncompletionfunc) {
@@ -125,46 +127,37 @@ libxEnv.xisbn = {
     /* retrieve info about ISBN or ISSN from xISBN - either from cache or from service, and 
        call formatFunc(result, completion_func) */
     process: function (isbn, requestUrlPath, xpathResponseOk, xmlnsResponse, formatFunc, completionhandlers) {
-        if (!libxEnv.getBoolPref ('libx.oclc.ajaxpref', 'true'))
-            return;
+        //if (!libxEnv.getBoolPref ('libx.oclc.ajaxpref', 'true'))
+        //    return;
 
-        var cached = this.isbn2metadata[isbn];
-        if (cached !== undefined) {
-            if (cached != null) {
-                formatFunc(cached, completionhandlers, 'ifFound');
-            } else {
-                if (completionhandlers.notFound)
-                    completionhandlers.notFound();
-            }
-            return;
-        }
+        var xmlParam = {
+            dataType : "xml",
+            type     : "POST",
+            url      : requestUrlPath,
 
-        var isbn2metadata = this.isbn2metadata;
-
-        // see http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
-        libxEnv.getXMLDocument(requestUrlPath,
-            function (xmlhttp) {
-                //Get the namespace prefix
-                var match = /http:\/\/(.*?)\./.exec(requestUrlPath);
-                var prefix = match[1];
+            // see http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
+            success  : function (xmlhttp) {
                 var node = libxEnv.xpath.findSingleXML(
-                        xmlhttp.responseXML, 
+                        xmlhttp, 
                         xpathResponseOk,
-                        xmlhttp.responseXML, 
+                        xmlhttp, 
                         { 'xissn' : 'http://worldcat.org/xid/issn/',
                           'xisbn' : 'http://worldcat.org/xid/isbn/' });
 
-                // cache result (even if ISBN was not found)
-                isbn2metadata[isbn] = node;
                 if (node) {
                     formatFunc(node, completionhandlers, 'ifFound');
                 } else {
                     if (completionhandlers.notFound)
-                        completionhandlers.notFound();
+                        completionhandlers.notFound(this);
                 }
-            });
+            }
+        }
+
+        //Send request
+        this.xisbncache.getRequest(xmlParam);
     }
 };
 
 
 // vim: ts=4
+
