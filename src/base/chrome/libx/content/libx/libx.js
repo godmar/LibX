@@ -68,7 +68,11 @@ libx.initialize = function ()
      */
     // Adds onPageComplete to the eventlistener of DOMContentLoaded (what does that mean?)
     libx.browser.initialize();
-    
+
+    //Define a DocumentRequest object here that can be used
+    //when the cache functionality isn't required
+    libx.ajax.docrequest = new libx.ajax.DocumentRequest();
+
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
     	onload: function (edition) {
@@ -193,60 +197,5 @@ libxEnv.citeulike = function  ()  {
     }, { icon: this.icon } );
 	
 }
-
-
-/*
- * Retrieve a XML document from a URL.
- * 'callback' is optional.
- * If omitted, retrieval is synchronous.
- * Returns document on success, and (probably) null on failure.
- *
- * If given, retrieval is asynchronous.
- * Return value is undefined in this case.
- *
- * If postdata is given, a POST request is sent instead.
- * Does not support synchronous POST.
- *
- * If lastModified is specified a LastModified header will be set and sent with the request
- *
- * If contentType is given it overrides the default mimetype (used to request images)
- */
-libxEnv.getXMLDocument = function ( url, callback, postdata, lastModified, contentType )
-{
-    var returnV = libxEnv.getDocumentRequest( url, callback, postdata,
-        lastModified, contentType );
-    if (callback === undefined && returnV != null)
-        return returnV.responseXML;     // synchronous
-    else
-        return null;
-}
-
-/*
- * Retrieve a document from a URL.
- * 'callback' is optional.
- * If omitted, retrieval is synchronous.
- * Returns document on success, and (probably) null on failure.
- *
- * If given, retrieval is asynchronous.
- * Return value is undefined in this case.
- *
- * If postdata is given, a POST request is sent instead.
- * Does not support synchronous POST.
- *
- * If lastModified is specified a LastModified header will be set and sent with the request
- *
- * If contentType is given it overrides the default mimetype (used to request images)
- */
-libxEnv.getDocument = function (url, callback, postdata, lastModified, contentType )
-{
-    var returnV = libxEnv.getDocumentRequest( url,
-        ( callback === undefined ) ? undefined : function (xml) { callback(xml.responseText) },
-        postdata, lastModified );
-    if (callback === undefined && returnV != null)
-        return returnV.responseText;        // synchronous
-    else
-        return null;                        // asynchronous, avoid accessing xmlhttprequest obj
-}
-
 
 // vim: ts=4

@@ -50,7 +50,7 @@ var DocumentRequest = libx.core.Class.create ( {
          *
          * String delimited by commas (,)
          */
-        BuildKeyString : function () {
+        buildKeyString : function () {
             var toReturn = "";
 
             //Add the url
@@ -73,7 +73,7 @@ var DocumentRequest = libx.core.Class.create ( {
          *
          * @throws description of error
          */
-         ValidateParameter : function(paramObj) {
+         validateParameter : function(paramObj) {
 
             this.requestParams = { };
 
@@ -133,23 +133,18 @@ var DocumentRequest = libx.core.Class.create ( {
          * @see getRequest for documentation of paramObj
          */
         removeFromCache : function ( paramObj ) {
-            //alert("Invoked removeFromCache");
             //Validate paramObj
-            if (!this.ValidateParameter( paramObj))
+            if (!this.validateParameter( paramObj))
                 return;
 
-            //alert("Validated parameter");
 
-            var key = this.BuildKeyString();
+            var key = this.buildKeyString();
             var cachedNode = this.xhrCache.findNode(key);
 
             if (cachedNode !== undefined) {
-                alert("found cached node in removeFromCache " + cachedNode.data.key);
                 //Remove it from the cache
                 this.xhrCache.removeFromCache(cachedNode);
             }
-            //else
-            //    alert("did not find cached node");
         },
 
         /**
@@ -204,32 +199,28 @@ var DocumentRequest = libx.core.Class.create ( {
          *                                            cache and always send
          *                                            request if set to true
          *                                            (defaults to false).
+         *
+         * @return {Object} xml http request (only when the result is cached
+         *                                    or synchronous)
          */
         getRequest : function ( paramObj ) {
 
             //Validate paramObj
-            if (!this.ValidateParameter( paramObj))
+            if (!this.validateParameter( paramObj))
                 return;
 
-            var key = this.BuildKeyString();
+            var key = this.buildKeyString();
             var result = "";
             var cachedNode = this.xhrCache.findNode(key);
 
-            //if (cachedNode !== undefined)
-            //    alert("Node is cached");
-            //else
-            //    alert("Node isn't cached");
-
             //First check whether the cache contains the information we need
             if (!this.requestParams.bypassCache && cachedNode !== undefined) {
-                //alert("Node is cached, invoking handlers");
 
                 //First check whether the readystate property of the
                 //xmlhttprequest object is complete
                 var xhr = cachedNode.data.xhr;
 
                 if (xhr.readyState == 4) {
-                    //alert("Ready state complete, invoking handlers");
 
                     result = cachedNode.result;
 
@@ -238,17 +229,17 @@ var DocumentRequest = libx.core.Class.create ( {
 
                     if (stat == 200) {
                         if (typeof this.requestParams.success == "function") {
-                            this.requestParams.success(result, stat);
+                            this.requestParams.success(result, stat, xhr);
                         }
                     }
                     else {
                         if (typeof this.requestParams.error == "function") {
-                            this.requestParams.error(result, stat);
+                            this.requestParams.error(result, stat, xhr);
                         }
                     }
 
                     if (typeof this.requestParams.complete == "function") {
-                        this.requestParams.complete(result, stat);
+                        this.requestParams.complete(result, stat, xhr);
                     }
 
                     //Move the corresponding cached node to the front of the list
@@ -257,7 +248,6 @@ var DocumentRequest = libx.core.Class.create ( {
                 } //end if ready state complete
 
                 else {
-                    //alert("Ready state not complete, adding handlers to queue");
 
                     //Request not completed, so add the handler functions
                     //to the queue
@@ -265,16 +255,17 @@ var DocumentRequest = libx.core.Class.create ( {
 
                 } //end if ready state not complete
 
-                return result;
+                return xhr;
 
             } //end if request already sent
 
             else {
-                //alert("Sending request to server for " + key);
                 //Need to send the request to the server
-                var xmlHttpReq = libx.bd.GetXMLHttpReqObj();
+                var xmlHttpReq = libx.bd.getXMLHttpReqObj();
 
                     xmlHttpReq.open(this.requestParams.type, this.requestParams.url, this.requestParams.async);
+
+                    //Used in onreadystate change function (captured through closure)
                     var params = this.requestParams;
                     var cache = this.xhrCache; 
 
@@ -289,46 +280,55 @@ var DocumentRequest = libx.core.Class.create ( {
                                     result = xmlHttpReq.responseXML;
                                 }
 
+                                if (!params.bypassCache) {
 
-                                //Store result in cache
-                                cachedNode = cache.findNode(key);
+                                    //Store result in cache
+                                    cachedNode = cache.findNode(key);
 
-                                cachedNode.result = result;
+                                    cachedNode.result = result;
 
-                                handlerArray = cachedNode.data.handlers;
-                                //alert("xmlHttpReq.status " + xmlHttpReq.status)
+                                    handlerArray = cachedNode.data.handlers;
 
-                                if (xmlHttpReq.status == 200) {
-                                    //Invoke the list of success callbacks
+                                        if (xmlHttpReq.status == 200) {
+                                            //Invoke the list of success callbacks
+                                            for (var i = 0; i < handlerArray.length; ++i) {
+                                                if (typeof handlerArray[i].requestParams.success == "function") {
+                                                    handlerArray[i].requestParams.success(result, xmlHttpReq.status, xmlHttpReq);
+                                                }
+                                            }
+                                        } //end if status ok
+
+                                        else {
+                                            //Invoke the list of failure callbacks
+                                            for (var i = 0; i < handlerArray.length; ++i) {
+                                                if (typeof handlerArray[i].requestParams.error == "function") {
+                                                    handlerArray[i].requestParams.error(result, xmlHttpReq.status, xmlHttpReq);
+                                                }
+                                            }
+                                        } // end if status not ok
+
+                                    //Invoke the list of  complete callbacks
                                     for (var i = 0; i < handlerArray.length; ++i) {
-                                        //alert("Invoking success callback " + handlerArray[i].requestParams.success);
-                                        if (typeof handlerArray[i].requestParams.success == "function") {
-                                            handlerArray[i].requestParams.success(result, xmlHttpReq.status);
-                                        }
+                                        if (typeof handlerArray[i].requestParams.complete == "function") {
+                                            handlerArray[i].requestParams.complete(result, xmlHttpReq.status, xmlHttpReq);
+                                        } // end if complete callback defined
                                     }
-                                } //end if status ok
-
-                                else {
-                                    //Invoke the list of failure callbacks
-                                    for (var i = 0; i < handlerArray.length; ++i) {
-                                        //alert("Invoking error callback " + handlerArray[i].requestParams.error);
-                                        if (typeof handlerArray[i].requestParams.error == "function") {
-                                            handlerArray[i].requestParams.error(result, xmlHttpReq.status);
-                                        }
-                                    }
-                                } // end if status not ok
-
-                                //Invoke the list of  complete callbacks
-                                for (var i = 0; i < handlerArray.length; ++i) {
-                                    //alert("Invoking complete callback " + handlerArray[i].requestParams.complete);
-                                    if (typeof handlerArray[i].requestParams.complete == "function") {
-                                        handlerArray[i].requestParams.complete(result, xmlHttpReq.status);
-                                    } // end if complete callback defined
                                 }
+                                else {
+                                    //Just invoke the handler functions
+                                    if (xmlHttpReq.status == 200) {
+                                        if (typeof params.success == "function")
+                                            params.success(result, xmlHttpReq.status, xmlHttpReq);
+                                    }
+                                    else {
+                                        if (typeof params.error == "function")
+                                            params.error(result, xmlHttpReq.status, xmlHttpReq);
+                                    }
 
-                                //Return the result
-                                return result;
-
+                                    if (typeof params.complete == "function") {
+                                        params.complete(result, xmlHttpReq.status, xmlHttpReq);
+                                    }
+                                }
                             } // end if readyState complete
                         } // end onreadystatechange function
                     } // end if asynchronous
@@ -347,9 +347,28 @@ var DocumentRequest = libx.core.Class.create ( {
                     }
 
                     //Store the xmlHttpRequest object in the cache
-                    cache.addToCache(key, xmlHttpReq, this.requestParams);
+                    if (!this.requestParams.bypassCache) {
+                        cache.addToCache(key, xmlHttpReq, this.requestParams);
+                    }
 
                     xmlHttpReq.send(this.requestParams.data);
+
+                    if (!this.requestParams.async) {
+                        if (this.requestParams.dataType == "text")
+                            result = xmlHttpReq.responseText;
+                        else if (this.requestParams.dataType == "xml")
+                            result = xmlHttpReq.responseXML;
+
+                        //Store the result in the cache
+                        if (!this.requestParams.bypassCache) {
+                            //Store the result in the cache
+                            cachedNode = cache.findNode(key);
+                            cachedNode.result = result;
+                        }
+                    }
+
+                    return xmlHttpReq;
+                    
             } // end if result not in cache
         }
 });
@@ -427,7 +446,6 @@ libx.ajax.DocumentCache = libx.core.Class.create ( {
 
         //We found the node.  Add the handlers to the list
         if (node !== undefined) {
-            //alert("Adding handlers to existing node");
 
             node.data.handlers.push( { requestParams : param } );
 
@@ -446,11 +464,9 @@ libx.ajax.DocumentCache = libx.core.Class.create ( {
         //Since we didn't find a node with the particular key, create a new one
         //and add it to the beginning of the list
         else {
-            //alert("Creating new node and adding handlers");
 
             //Check whether the cache is full
             if (this.cacheLength >= this.maxSize) {
-                //alert("Cache full, ready to evict");
                 //Start from the least recently accessed node and find the first
                 //node whose xhr's state is complete
 
@@ -459,7 +475,6 @@ libx.ajax.DocumentCache = libx.core.Class.create ( {
                 while (node !== this.cacheList.begin) {
 
                     if (node.data.xhr.readyState == 4) {
-                        //alert("Evicting " + node.data.key);
                         //Remove this node from the list
                         node.previous.next = node.next;
                         node.next.previous = node.previous;
@@ -494,7 +509,6 @@ libx.ajax.DocumentCache = libx.core.Class.create ( {
 
             //Add a reference to this new node in the cacheTable
             this.cacheTable[keyContents] = newNode;
-            //alert("Added " + newNode.data.key);
 
             ++this.cacheLength;
         }
@@ -554,5 +568,6 @@ libx.ajax.DocumentCache = libx.core.Class.create ( {
 return DocumentRequest;
 
 })();
+
 
 

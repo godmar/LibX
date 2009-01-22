@@ -159,8 +159,16 @@ magicSearch = function (data, inpub, justmakeurl)
 
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
         libxEnv.writeLog("Attempt #" + _attempt + ": " + url, libxEnv.logTypes.magic);
-
-        var r = libxEnv.getDocument(url);
+        var xhrParams = {
+            url         : url,
+            type        : "GET",
+            dataType    : "text",
+            async       : false,
+            bypassCache : true
+        };
+        
+        var request = libx.ajax.docrequest.getRequest(xhrParams);
+        var r = request.responseText;
 
         // see if the query was bungled b/c of searchterms clutched together
         // Let us see if scholar says that we should drop some search terms
@@ -342,3 +350,5 @@ magicSearch = function (data, inpub, justmakeurl)
 })();
 
 // vim: ts=4
+
+

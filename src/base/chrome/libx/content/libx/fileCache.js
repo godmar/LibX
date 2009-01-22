@@ -27,9 +27,11 @@
  // This class manages the downloading and storing of the doforurl files
  //******************************************
 
-libxEnv.fileCacheClass = function()
-{
-    var that = this;
+libx.cache = { };
+libx.cache.FileCache = ( function () {
+
+    //These variables will be captured through closure by the class functions
+
     // List of files maintaned for debuging purposes
     var fileList = new Object();
     var jsFileEnding = ".js";
@@ -39,15 +41,24 @@ libxEnv.fileCacheClass = function()
     var secondSlashPos = pathPattern.lastIndexOf("/");
     var segmentLength = (pathPattern.length - 2)/3;
 
-    // Logging function for errors within this class
-    function storage_log( msg )
+    /**
+     * Logging function for this class
+     *
+     * @param {String} message to log
+     */
+    function storageLog ( msg )
     {
         libxEnv.writeLog(msg, 'fileStorage');
-    }
+    };
 	
-	// Returns the hashed path of the .js file that is associated with the 
-    // given url and ending in the given file ending
-	function getHashedPath( url, ext )
+    /**
+     * Returns the hashed part of the .js file that is associated with the
+     * given url and ending in the given file ending
+     *
+     * @param {String} url path to the file
+     * @param {String} extension of the file (e.g., js)
+     */
+	function getHashedPath ( url, ext )
 	{
 		var path;
 		if ( fileList[url] === undefined )
@@ -64,18 +75,26 @@ libxEnv.fileCacheClass = function()
 		else
 			path += ext;
 		return path;
-	}
+	};
     
-    // Returns the hashed path of the options file associated with the given 
-    // url
-    function getHashedOptionPath( url )
+    /**
+     * Returns the hashed path of the options file associated with the given
+     * url
+     *
+     * @param {String} url path to the file
+     */
+    function getHashedOptionPath ( url )
     {
         var temp = getHashedPath( url, optionFileEnding );
 		return temp;
-    }
+    };
 
-    // calculates the sha1 path associated with the url (without file ending)
-    function calculateHashedPath( url ) 
+    /**
+     * calculates the sha1 path associated with the url (without file ending)
+     *
+     * @param {String} url path to the file
+     */
+    function calculateHashedPath ( url ) 
     {
         var unprocessedPath = libx.bd.hash.hashString( url );
         var path = unprocessedPath.substring( 0 , firstSlashPos );
@@ -84,101 +103,143 @@ libxEnv.fileCacheClass = function()
         path += "/" + unprocessedPath.substring( secondSlashPos-1, 
             pathPattern.length-2 );
         return path;
-    }
+    };
 
-    // reads the file from the hdd and returns the content
-    function readFile( finfo ) 
+    /**
+     * reads the file from the hdd and returns the content
+     *
+     * @param {Object} finfo object with the following properties
+     * @param {String} finfo.url path to file
+     * @param {String} finfo.ext extension of file
+     */
+    function readFile ( finfo ) 
     {
 		var path = getHashedPath( finfo.url, finfo.ext );
         return libxEnv.getFileText( path );
-    }
+    };
     
-    // reads the option file from the hdd and returns the content
-    function readOptionsFile( url )
+    /** 
+     * reads the option file from the hdd and returns the content
+     *
+     * @param {String} url path to file
+     */
+    function readOptionsFile ( url )
     {
         return libxEnv.getFileText( getHashedOptionPath( url ) );
-    }
+    };
     
-    // writes text to the file
-    function writeFile( finfo, text ) 
+    /** 
+     * writes text to the file
+     *
+     * @param {Object} finfo object with the following properties
+     * @param {String} finfo.url path to file
+     * @param {String} finfo.ext extension of file
+     *
+     * @param {String} text text to write to file
+     */
+    function writeFile ( finfo, text ) 
     {
         var path = getHashedPath( finfo.url, finfo.ext );
         var dirPath = path.substring(0, secondSlashPos);
         libxEnv.writeToFile( path, text, true, dirPath );
-    }
+    };
     
-    // writes text to the options file
-    function writeOptionsFile( url, text ) 
+    /** 
+     * writes text to the options file
+     *
+     * @param {String} url path to file
+     * @param {String} text text to write to file
+     */
+    function writeOptionsFile ( url, text ) 
     {
         var path = getHashedOptionPath(url);
         var dirPath = path.substring(0, secondSlashPos);
         libxEnv.writeToFile( path, text, true, dirPath );
-    }
-	
-    // gets and returns the last modified date found in the options file 
-    // associated with url
-    this.getLastModifiedDate = function ( url )
+    };
+
+    /**
+     * writes the last modified date in lastMod to the options file 
+     * assoicated with url
+     *
+     * @param {String} url path to file
+     * @param {String} date to write to file
+     */
+    function setLastModifiedDate ( url, lastMod )
+    {
+        lastMod = "lastMod = '" + lastMod + "';";
+        writeOptionsFile( url, lastMod );
+    };
+    
+	/**
+     * Sets the last update date in the about:config so it can be displayed 
+     * in the prefs menu later
+     *
+     * @param {String} string containing date
+     */
+    function setLastUpdateDate ( dateString )
+    {
+        libxEnv.setUnicharPref( "libx.lastupdate", dateString );
+    };
+
+    /**
+     * Returns last modified date
+     *
+     * @param {String}   url path to file
+     * @returns {String} date that file was last modified
+     */
+    function privGetLastModifiedFileDate ( url )
     {
         var lastMod = "";
         eval(readOptionsFile(url));
         return lastMod;
-    }
-
-    // writes the last modified date in lastMod to the options file 
-    // assoicated with url
-    function setLastModifiedDate( url, lastMod )
-    {
-        lastMod = "lastMod = '" + lastMod + "';";
-        writeOptionsFile( url, lastMod );
-    }
-    
-	/**
-     *   Sets the last update date in the about:config so it can be displayed 
-     *   in the prefs menu later
-     */
-    function setLastUpdateDate( dateString )
-    {
-        libxEnv.setUnicharPref( "libx.lastupdate", dateString );
-    }
+    };
 
     
     /**
-     *Downloads the file at url, if force is true it will always pull the 
+     * Downloads the file at url, if force is true it will always pull the 
      * file no matter when it was last modified, if force is false or omitted 
      * then we send a last-modified header to make sure we only get the file
      * if it has been updated. If the file has not been updated then we 
-     *simply return the version we still have on the hdd
+     * simply return the version we still have on the hdd
+     *
+     * @param {Object}  finfo object that contains the following information
+     * @param {String}  finfo.url         path to file
+     * @param {String}  finfo.contentType MIME content type of file
+     * @param {String}  finfo.type        root, cue, hotfix, or sandboxscript
+     * @param {Boolean} finfo.updating    updating file
      */
-    function downloadFile( finfo ) 
+    function downloadFile ( finfo ) 
     {
-        // Internal function designed to handle the callback from the 
-        // documentRequest
-        function downloadFileCallback( docRequest )
+        var xhrParams = 
         {
-            if ( docRequest.status == "200" )
+            dataType : "text",
+            type     : "POST",
+            url      : finfo.url,
+            success  : function (result, stat, xhr) 
             {
                 // We did download the file
-                setLastModifiedDate( finfo.url, docRequest.getResponseHeader( 
-                    "Last-Modified" ) );
-                var text = docRequest.responseText;
-				if ( finfo.contentType !== undefined 
-                    && docRequest.responseBody !== undefined )
-				{
-					text = docRequest.responseBody;
-				}
+                setLastModifiedDate( finfo.url, xhr.getResponseHeader( 
+                            "Last-Modified" ) );
+                var text = result;
+                if ( finfo.contentType !== undefined 
+                     && xhr.responseBody !== undefined )
+                {
+                    text = xhr.responseBody;
+                }
                 writeFile( finfo, text );
                 if ( finfo.type == "root" )
                     setLastUpdateDate( new Date() );
                 getFileCallback( finfo, text );
-            }
-            else
+            },
+
+            error  : function (result, stat, xhr) 
             {
                 // We didn't download the file because ....
-                if ( docRequest.status == "304" )
+                if ( stat == "304" )
                 {
                     // .... it hasn't been updated since we last downloaded it
-                    storage_log( "File with url: " + finfo.url  
-                        + "\n has not been updated on server, status: 304" );
+                    storageLog( "File with url: " + finfo.url  
+                            + "\n has not been updated on server, status: 304" );
                     if ( finfo.type == "root" )
                     {
                         setLastUpdateDate( new Date() );
@@ -187,8 +248,8 @@ libxEnv.fileCacheClass = function()
                 else
                 {
                     // ..... we couldn't get it print error and continue
-                    storage_log( "Could not read or retrieve file with url: " + 
-                        finfo.url + " status=" + docRequest.status);
+                    storageLog( "Could not read or retrieve file with url: " + 
+                            finfo.url + " status=" + docRequest.status);
                 }
                 // we printed the messages stating why we didn't get the file 
                 // from online now we decide if we should get it from file or 
@@ -202,106 +263,135 @@ libxEnv.fileCacheClass = function()
                     text = readFile( finfo );
                     if ( !text || text == "" )
                     {
-                        storage_log( "!!!File with url " + finfo.url + 
-                            " could not be read from file either." );
+                        storageLog( "!!!File with url " + finfo.url + 
+                                " could not be read from file either." );
                         return;
                     }
                     getFileCallback( finfo, text );
                 }
                 else
                 {
-                    storage_log( "Could not open or download file with url: " + 
-                        finfo.url );
+                    storageLog( "Could not open or download file with url: " + 
+                            finfo.url );
                 }
-            }
-        }
+            },
+
+            bypassCache: true
+        };
         
-        if ( finfo.forceDL )
-            libxEnv.getDocumentRequest( finfo.url, downloadFileCallback,
-				undefined, undefined, finfo.contentType);
-        else
-            libxEnv.getDocumentRequest( finfo.url, downloadFileCallback, 
-                undefined, that.getLastModifiedDate( finfo.url ), 
-				finfo.contentType );
-    }
-    
-    /**
-     *  Manages the retrieval of a file either from hdd or from online
-     *  finfo object has following properties:
-     *  updating    bool if true we update (optional - defaults to: false)
-     *  url       string webaddress of the file we wish to retrieve (required)
-     *  forceDL    bool forces the download even if there isn't a new version 
-     *            (optional - defaults to: false / sometimes set by method)
-     *  callback       function is called after text is retrieved (optional)
-     *  type       string the type of file we are retrieving (required)
-     *  text       text of the file (text is set by the method)
-     *  ext	file extension as string to save it in the correct format ( default: .js )
-     * dir	the directory (chrome url ) to save the file in (defaults to /libx in the profile folder)
-     */
-    this.getFile = function ( finfo )
-    {
-        if ( finfo.updating )
+        if ( !finfo.forceDL ) 
         {
-            storage_log( "Updating file " + finfo.url );
-            var text = downloadFile( finfo );
+            //Add some additional properties to xhrParams
+            xhrParams.contentType = finfo.contentType + "; charset=x-user-defined";
+
+            xhrParams.header = { };
+            xhrParams.header["If-Modified-Since"] = privGetLastModifiedDate( finfo.url );
         }
-        else
-        {
-            storage_log( "Loading stored file " + finfo.url );
-            var text = readFile( finfo );
-            if ( text == null || text == "" || text == false ) 
-            {
-                storage_log( "Stored file " + finfo.url + 
-                    "could not be read, downloading it" );
-                finfo.forceDL = true;
-                downloadFile( finfo );
-                return;
-            }
-            finfo.text = text;
-            if ( finfo.callback !== undefined )
-            {
-                finfo.callback();
-            }
-        }
-    }
-    
-	/**
-	 *  Method to lookup the file path of a finfo object. Returns the hashed 
-	 *  path + containing dir if given
-	 */
-	this.getFilePath = function ( finfo )
-	{
-		return getHashedPath( finfo.url, finfo.ext );;
-	}
-	
-	
+
+        libx.ajax.docrequest.getRequest(xhrParams);
+    };
+
     /**
      *  Asynchronous part of the get File method that is called after a file 
      *  is retrieved from online.
+     *
+     *  @param {Object}   finfo object that contains the following information
+     *  @param {String}   finfo.text set by second parameter
+     *  @param {Function} finfo.callback function to invoke
+     *  @param {String}   text contents of file (used to set text member of finfo)
      */
-    function getFileCallback( finfo, text )
+    function getFileCallback ( finfo, text )
     {
         finfo.text = text;
         if ( finfo.callback !== undefined )
             finfo.callback();
         return;
-    }
-    
-	/**
-     * Saves the urls and corresponding hashings to a file called index.txt
-     * This is intended to make it easier to find a file in the hashed 
-     * directory structure. (The file is not actually needed by the extension 
-     * its only for People)
-     */
-    this.saveFileList = function() {
-        var the_list = "";
-        for ( var i in fileList )
-        {
-          the_list += i + " : " + fileList[i] + "\n";
-        }
-        libxEnv.writeToFile( "index.txt", the_list );
-    }
-    return this;
-}
+    };
 
-libxEnv.fileCache = new libxEnv.fileCacheClass();
+    /**
+     *  Manages the retrieval of a file either from hdd or from online
+     *
+     *  finfo object has following properties:
+     *  updating    bool if true we update (optional - defaults to: false)
+     *  url         string webaddress of the file we wish to retrieve (required)
+     *  forceDL     bool forces the download even if there isn't a new version 
+     *              (optional - defaults to: false / sometimes set by method)
+     *  callback    function is called after text is retrieved (optional)
+     *  type        string the type of file we are retrieving (required)
+     *  text        text of the file (text is set by the method)
+     *  ext	        file extension as string to save it in the correct format (
+     *              default: .js )
+     *  dir	        the directory (chrome url ) to save the file in (defaults
+     *              to /libx in the profile folder)
+     */
+
+    var fileCacheClass = libx.core.Class.create ( 
+    {
+        /**
+         * Retrieves file from either hdd or from the network resource
+         * (depending on state of finfo.updating). Sets text member of
+         * finfo and then invokes the callback function if defined
+         *
+         * @param {Object} finfo see the class documentation for information
+         *                       concerning this object
+         */
+        getFile : function ( finfo )
+        {
+            if ( finfo.updating )
+            {
+                storageLog( "Updating file " + finfo.url );
+                var text = downloadFile( finfo );
+            }
+            else
+            {
+                storageLog( "Loading stored file " + finfo.url );
+                var text = readFile( finfo );
+                if ( text == null || text == "" || text == false ) 
+                {
+                    storageLog( "Stored file " + finfo.url + 
+                        "could not be read, downloading it" );
+                    finfo.forceDL = true;
+                    downloadFile( finfo );
+                    return;
+                }
+                finfo.text = text;
+                if ( finfo.callback !== undefined )
+                {
+                    finfo.callback();
+                }
+            }
+        },
+        
+        /**
+         *  Method to lookup the file path of a finfo object. Returns the hashed 
+         *  path + containing dir if given
+         *
+         *  @param {Object} finfo see class documentation for information about
+         *                        the finfo object
+         */
+        getFilePath : function ( finfo )
+        {
+            return getHashedPath( finfo.url, finfo.ext );;
+        },
+        
+        /**
+         * Saves the urls and corresponding hashings to a file called index.txt
+         * This is intended to make it easier to find a file in the hashed 
+         * directory structure. (The file is not actually needed by the extension 
+         * its only for People)
+         *
+         */
+        saveFileList : function() {
+            var the_list = "";
+            for ( var i in fileList )
+            {
+              the_list += i + " : " + fileList[i] + "\n";
+            }
+            libxEnv.writeToFile( "index.txt", the_list );
+        }
+    });
+
+return fileCacheClass;
+})();
+
+libxEnv.fileCache = new libx.cache.FileCache();

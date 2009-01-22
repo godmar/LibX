@@ -58,8 +58,7 @@ libxEnv.sandboxClass = function ()
             buildDate : libxEnv.buildDate,
             getBoolPref : libxEnv.getBoolPref,
             getIntPref : libxEnv.getIntPref,
-            getUnicharPref : libxEnv.getUnicharPref,
-            getDocument : libxEnv.getDocument
+            getUnicharPref : libxEnv.getUnicharPref
         };
 
         theSandBox.libx = libx;

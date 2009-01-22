@@ -389,15 +389,20 @@ libx.openurl.factory["oclcgateway"] = libx.core.Class.create(libx.openurl.factor
     sid : "libx:oclcgateway",
     initialize: function () {
         var thisOpenURL = this;
-
-        libxEnv.getXMLDocument ( "http://worldcatlibraries.org/registry/lookup?IP=requestor",
-            function ( xmlhttprequest ) {
-                var doc = xmlhttprequest.responseXML;
+        var xhrParams = {
+            url : this.url,
+            dataType : "xml",
+            type     : "GET",
+            bypassCache : true,
+            complete : function ( doc ) {
                 try {
                     var link = doc.getElementsByTagName ( 'linkIcon' )[0].firstChild.nodeValue;
                     thisOpenURL.image = link;
                 } catch (e) { /* ignore */ }
-        } );
+            }
+        };
+
+        libx.ajax.docrequest.getRequest(xhrParams);
     }
 });
 
@@ -443,3 +448,5 @@ libx.openurl.factory["oclcgateway"] = libx.core.Class.create(libx.openurl.factor
 */
 
 // vim: ts=4
+
+

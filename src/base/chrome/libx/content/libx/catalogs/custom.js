@@ -44,15 +44,26 @@ libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog,
         var thisCatalog = this;
 
         libxEnv.writeLog("Loading external catalog implementation from: " + thisCatalog.jsimplurl);
-        libxEnv.getDocument(this.jsimplurl, function (code) {
-            try {
-                eval(code);
-            } catch (er) {
-                libxEnv.writeLog("Error loading external catalog from " 
-                    + thisCatalog.jsimplurl + ". I received: " + code);
-            }
-        });
+
+        var xhrParams = {
+            dataType : "text",
+            type     : "GET",
+            url      : thisCatalog.jsimplurl,
+            complete : function (code) {
+                try { 
+                    eval(code);
+                } catch (er) {
+                    libxEnv.writeLog("Error loading external catalog from "
+                        + thisCatalog.jsimplurl + ". I received: " + code);
+                }
+            },
+            bypassCache : true
+        };
+        libx.ajax.docrequest.getRequest(xhrParams);
     }
 });
 
 // vim: ts=4
+
+
+

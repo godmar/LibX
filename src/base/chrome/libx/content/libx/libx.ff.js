@@ -477,6 +477,11 @@ libx.ff.activateConfiguration = function (edition) {
     this.toolbar.activateConfiguration(edition);
 }
 
+libx.ff.getXMLHttpReqObj = function () {
+    var xmlhttp = new XMLHttpRequest();
+    return xmlhttp;
+};
+
 libxEnv.ff = { };
 /* 
  * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
@@ -552,66 +557,26 @@ libxEnv.openSearchWindow = function (url, pref) {
 }
 
 
-/*
- *  Retrieves a Document from the given url and returns the xmlHTTPRequest object
- *   If callback is specified the request is asynchronous if not synchronous
- *   If postdata is specified then we do a POST request instead,
- *  Does not support synchronous POST.
- *  If lastModified is specified it is set as a requestHeader.
- *  contentType is used to override the mimetype for images (optional)
- *
- *   !!! This method returns the xmlHTTPRequest object not the text or xml. 
- *  ( if you want text/xml use getDocument/getXMLDocument ) 
- */
-libxEnv.getDocumentRequest = function ( url, callback, postdata, lastModified, contentType )
-{
-    try {
-        var httprequest = (postdata !== undefined) ? 'POST' : 'GET';
-        var xmlhttp = new XMLHttpRequest();
-        if ( callback === undefined || callback == null ) 
-        { // if callback is 'null' or omitted
-            // synchronous
-            xmlhttp.open('GET', url, false);
-        } else {
-            xmlhttp.onreadystatechange =  function () {
-                if ( xmlhttp.readyState == 4 ) {
-                    callback( xmlhttp );
-                }
-            };
-            //asynchronous
-            xmlhttp.open(httprequest, url, true);
-        }
-		// sets the lastModified Header if lastModified parameter is given
-        if ( lastModified != null && lastModified !== undefined )
-        {
-            xmlhttp.setRequestHeader( "If-Modified-Since", lastModified );
-        }
-		// this is used mostly for images since they break if requested as text
-		if ( contentType !== undefined )
-		{	
-			xmlhttp.overrideMimeType(contentType + "; charset=x-user-defined");
-		}
-        xmlhttp.send(postdata);
-        return xmlhttp;
-    }
-    catch (e) {
-        return null;
-    }
-}
-
 // asynchronous now; still in transition
 libxEnv.getXMLConfig = function (invofcc) {
-    return libxEnv.getXMLDocument(invofcc.url, function (xml) {
-        invofcc.onload(xml);
-    });
-}
+    var xhrParams = {
+        url : invofcc.url,
+        dataType : "xml",
+        type     : "GET",
+
+        complete : function (xml, stat, xhr) {
+            invofcc.onload(xhr);
+        },
+
+        bypassCache : true 
+    };
+
+    return libx.ajax.docrequest.getRequest(xhrParams);
+};
 
 /*
  * Load XML String into a XMLDocument
  *
- * Arif, please see 
- * http://www.webreference.com/programming/javascript/domwrapper/2.html
- * and provide an IE implementation, then remove this comment
  */
 libxEnv.loadXMLString = function (xmlstring) {
     parser = new DOMParser();
@@ -775,7 +740,14 @@ libxEnv.getFileText = function (path) {
 
 // Used to get the defaultprefs.xml and userprefs.xml files
 libxEnv.getLocalXML = function ( path ) {
-    return libxEnv.getXMLDocument ( libxEnv.getFilePath ( path ) );
+    var urlpath = libxEnv.getFilePath(path);
+    var xhrParams = {
+        url         : urlpath,
+        type        : "GET",
+        dataType    : "xml",
+        bypassCache : true
+    };
+    return libx.ajax.docrequest.getRequest(xhrParams);
 }
 
 // Used to remove userprefs.xml
@@ -1228,3 +1200,5 @@ libxEnv.eventDispatcher.init = function  () {
 
 
 // vim: ts=4
+
+

@@ -219,39 +219,8 @@ libxEnv.xpath = libx.ie.xpath;
 
 //Get remote text functions///////////////////////////////////////////////////
 
-libxEnv.getDocumentRequest = function( url, callback, postdata, lastMod, 
-    contentType )
-{
-    //Get the request object
+libx.ie.getXMLHttpReqObj = function () {
     var req = libxInterface.getXMLHTTPRequest();
-
-    if(!req) {
-        libxEnv.writeLog("Could not get request object for url " + url);
-        return null;
-    }
-
-    if( callback !== undefined || callback != null) 
-    {
-        var synch = false;    
-        //We're asynchronous, so set a callback
-        req.onreadystatechange = function() {
-            //Make sure we're ready for processing
-            if (req.readyState == 4) {
-                callback(req);
-            }
-        }
-    }
-    else
-        var synch = true;
-
-    req.open(postdata ? 'POST' : 'GET', url, !synch);
-    if ( lastMod !== undefined && lastMod != null)
-    {
-        req.setRequestHeader( "If-Modified-Since", lastMod );
-    }
-    
-    //Do the request
-    req.send(postdata);
     return req;
 }
 

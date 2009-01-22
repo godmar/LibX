@@ -84,17 +84,23 @@ libx.proxy.factory["ezproxy"] = libx.core.Class.create(
                 + '<url>' + opt.url + '</url>'
                 + '</urls></proxy_url_request>'
             );
-        libxEnv.getXMLDocument(purl, function (xmlhttp) {
-            if (xmlhttp.status == 200) {
-                var resp = libxEnv.xpath.findSingleXML(xmlhttp.responseXML, 
-                                                    "/proxy_url_response/proxy_urls/url[1]");
-                if (resp != null && libxNormalizeOption(resp.getAttribute("proxy"))) {
-                    opt.onsuccess();
-                    return;
+        var xhrParams = {
+            url         : purl,
+            dataType    : "xml",
+            type        : "POST",
+            data        : postdata,
+            bypassCache : true,
+            success     : function (xmlhttp) {
+                var resp = libxEnv.xpath.findSingleXML(xmlhttp, 
+                                                       "/proxy_url_response/proxy_urls/url[1]");
+                    if (resp != null && libxNormalizeOption(resp.getAttribute("proxy"))) {
+                        opt.onsuccess();
+                        return;
+                    }
+                    opt.onfailure();
                 }
-            }
-            opt.onfailure();
-        }, postdata);
+        };
+        libx.ajax.docrequest.getRequest(xhrParams);
     },
 
     /**
@@ -167,3 +173,5 @@ libx.proxy.factory["wam"] = libx.core.Class.create(
 });
 
 // vim: ts=4
+
+
