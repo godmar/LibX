@@ -18,10 +18,11 @@ var browser =
 /** @lends libx.browser */
 { 
 	/**
-	 *	This is the function called once, after the initial configuration has
-	 *	been loaded, to initialize the GUI elements of the interface.
+	 *	Initialize the browser-specific GUI elements, if needed.
+	 *	Called once.
 	 *
-	 *	In order to activate a new configuration, reload should be used instead
+	 *	This function does not read and activate a LibX configuration; this
+	 *	is done by activateConfiguration
 	 */
 	initialize : function () {		
 		libx.bd.initialize();
@@ -30,7 +31,9 @@ var browser =
 	},
 	
 	/**
-	 *	
+	 * Activate a given configuration.
+	 *
+	 * @param edition edition configuration object
 	 */
 	activateConfiguration : function (edition) {
         libx.bd.activateConfiguration (edition);
