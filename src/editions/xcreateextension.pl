@@ -15,7 +15,9 @@ my $libxiedllurl="http://libx.org/libx/src/editions/LibXIE";
 
 # local path to directory containing LibXIE dll files
 my $libxiedllpath="./LibXIE";
--d $libxiedllpath || die "DLL directory $libxiedllpath does not exist";
+-d $libxiedllpath || die "DLL directory $libxiedllpath does not exist - needed for LibX IE";
+
+my $addtoplevelfiles = "install.js install.rdf changelog.txt chrome.manifest";
 
 # directory that contains key3.db
 my $keydirectory = "/home/www/libxprivatekey";
@@ -351,12 +353,12 @@ foreach my $f (@afiles) {
     }
 }
 
-if ($docinputdir) {
-
-    system ( "cp -R $docinputdir $tmpdir/chrome/libx/content/libx/doc" );
+if (defined($docinputdir)) {
+    # cmd below assumes that $tmpdir is a relative path
+    system ( "(CWD=`pwd`; cd $docinputdir; zip -r \$CWD/$tmpdir/documentation.jar .)" ) == 0 || die "copy of documentation failed";
+    $addtoplevelfiles .= " documentation.jar";
 }
 
-my $addtoplevelfiles = "install.js install.rdf changelog.txt chrome.manifest";
 my $xpifile = $conf{'xpilocation'};
 $xpifile =~ s/.*\/([^\/]*)/$1/;         # basename
 system("rm $editionpath$xpifile; " .
