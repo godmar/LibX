@@ -52,22 +52,6 @@ libxEnv.setIntPref = function ( prefName, value )
     libxInterface.Preferences.setNumericPref(prefName, value);
 }
 
-/*
- * 	initializePreferences
- * This function, like recordPreference, is rendered unnecessary in IE. This
- * is because the toolbar manages the preferences (rather than the
- * javascript), so there is no reason to explicitly tell the toolbar about
- * preferences it needs to know about.
- */
-libxEnv.libxInitializePreferences = function (property)
-{
-}
-
 libxEnv.getLocalXML = function ( path ) {
     return libxInterface.getXMLPrefFile(path);
 }
-
-/** another duplicate 
-libxEnv.writeToFile = function ( path, str ) {
-    return libxInterface.writeToFile(path, str);
-} **/
