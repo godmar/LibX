@@ -5,7 +5,7 @@ function publish(symbolSet) {
 		templatesDir: SYS.pwd+"../templates/jsdoc/",
 		symbolsDir: "symbols/",
 		srcDir: "symbols/src/",
-		urlprefix: JSDOC.opt.chrome ? "chrome://libx/content/doc/" : ""
+		urlprefix: JSDOC.opt.chrome || ""
 	};
 	
 	
