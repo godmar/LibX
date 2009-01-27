@@ -10,3 +10,8 @@ content libxresource chrome/../../../libx/xpcnativewrappers=no contentaccessible
 skin	libx	classic/1.0	chrome/libx/skin/libx/
 
 locale	libx	en-US	chrome/libx/locale/en-US/libx/
+
+# LibX documentation, if included, will be accessible at 
+# chrome://libxdoc/content/index.html
+content libxdoc jar:documentation.jar!/
+
