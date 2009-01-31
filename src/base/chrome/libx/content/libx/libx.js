@@ -69,9 +69,13 @@ libx.initialize = function ()
     // Adds onPageComplete to the eventlistener of DOMContentLoaded (what does that mean?)
     libx.browser.initialize();
 
-    //Define a DocumentRequest object here that can be used
-    //when the cache functionality isn't required
-    libx.ajax.docrequest = new libx.ajax.DocumentRequest();
+    var myLibXComponent = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject;
+
+    //Define a DocumentRequest object here
+    //libx.ajax.docrequest = myLibXComponent.getCache();
+    libx.cache = { };
+    libx.cache.memorycache = myLibXComponent.getMemoryCache();
+
 
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
