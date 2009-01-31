@@ -571,7 +571,7 @@ libxEnv.getXMLConfig = function (invofcc) {
         bypassCache : true 
     };
 
-    return libx.ajax.docrequest.getRequest(xhrParams);
+    return libx.cache.memorycache.getRequest(xhrParams);
 };
 
 /*
@@ -747,7 +747,8 @@ libxEnv.getLocalXML = function ( path ) {
         dataType    : "xml",
         bypassCache : true
     };
-    return libx.ajax.docrequest.getRequest(xhrParams);
+    return libx.cache.memorycache.getRequest(xhrParams);
+    //return libxEnv.getXMLDocument ( libxEnv.getFilePath ( path ) );
 }
 
 // Used to remove userprefs.xml
