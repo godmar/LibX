@@ -167,7 +167,7 @@ magicSearch = function (data, inpub, justmakeurl)
             bypassCache : true
         };
         
-        var request = libx.ajax.docrequest.getRequest(xhrParams);
+        var request = libx.cache.memorycache.getRequest(xhrParams);
         var r = request.responseText;
 
         // see if the query was bungled b/c of searchterms clutched together

@@ -30,7 +30,8 @@
 libx.cache = { };
 libx.cache.FileCache = ( function () {
 
-    //These variables will be captured through closure by the class functions
+    //These local variables and functions will be captured through closure by
+    //the class functions
 
     // List of files maintaned for debuging purposes
     var fileList = new Object();
@@ -111,6 +112,8 @@ libx.cache.FileCache = ( function () {
      * @param {Object} finfo object with the following properties
      * @param {String} finfo.url path to file
      * @param {String} finfo.ext extension of file
+     *
+     * @see libx.cache.FileCache
      */
     function readFile ( finfo ) 
     {
@@ -136,6 +139,8 @@ libx.cache.FileCache = ( function () {
      * @param {String} finfo.ext extension of file
      *
      * @param {String} text text to write to file
+     *
+     * @see libx.cache.FileCache 
      */
     function writeFile ( finfo, text ) 
     {
@@ -205,8 +210,10 @@ libx.cache.FileCache = ( function () {
      * @param {Object}  finfo object that contains the following information
      * @param {String}  finfo.url         path to file
      * @param {String}  finfo.contentType MIME content type of file
-     * @param {String}  finfo.type        root, cue, hotfix, or sandboxscript
+     * @param {String}  finfo.type        root, cue, hotfix, or sandbox
      * @param {Boolean} finfo.updating    updating file
+     *
+     * @see libx.cache.FileCache
      */
     function downloadFile ( finfo ) 
     {
@@ -288,7 +295,7 @@ libx.cache.FileCache = ( function () {
             xhrParams.header["If-Modified-Since"] = privGetLastModifiedDate( finfo.url );
         }
 
-        libx.ajax.docrequest.getRequest(xhrParams);
+        libx.cache.memorycache.getRequest(xhrParams);
     };
 
     /**
@@ -312,17 +319,22 @@ libx.cache.FileCache = ( function () {
      *  Manages the retrieval of a file either from hdd or from online
      *
      *  finfo object has following properties:
-     *  updating    bool if true we update (optional - defaults to: false)
-     *  url         string webaddress of the file we wish to retrieve (required)
-     *  forceDL     bool forces the download even if there isn't a new version 
-     *              (optional - defaults to: false / sometimes set by method)
+     *  updating    boolean  if true we update (optional - defaults to: false)
+     *  url         string   webaddress of the file we wish to retrieve
+     *                       (required)
+     *  forceDL     boolean  forces the download even if there isn't a new
+     *                       version (optional - defaults to: false / sometimes
+     *                       set by method)
      *  callback    function is called after text is retrieved (optional)
-     *  type        string the type of file we are retrieving (required)
-     *  text        text of the file (text is set by the method)
-     *  ext	        file extension as string to save it in the correct format (
-     *              default: .js )
-     *  dir	        the directory (chrome url ) to save the file in (defaults
-     *              to /libx in the profile folder)
+     *  type        string   the type of file we are retrieving (required)
+     *  text        string   contents of the file (text is set by the method)
+     *  ext	        string   extension as string to save it in the correct
+     *                       format ( default: .js )
+     *  dir	        string   the directory (chrome url ) to save the file in
+     *                       (defaults to /libx in the profile folder)
+     *
+     *  @name libx.cache.FileCache
+     *  @class
      */
 
     var fileCacheClass = libx.core.Class.create ( 

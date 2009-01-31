@@ -100,7 +100,7 @@ libx.proxy.factory["ezproxy"] = libx.core.Class.create(
                     opt.onfailure();
                 }
         };
-        libx.ajax.docrequest.getRequest(xhrParams);
+        libx.cache.memorycache.getRequest(xhrParams);
     },
 
     /**
