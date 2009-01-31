@@ -24,24 +24,53 @@
 //Test implementation of new framework for XMLHttpRequest
 //objects along with cached results
 
-//Object to handle AJAX related functionality
-libx.ajax = { };
+/**
+ * Cache related classes
+ *
+ * @namespace
+ */
+libx.cache = { };
 
-libx.ajax.DocumentRequest = ( function () {
+/**
+ * Deals with maintaining a in memory cache of document requests
+ *
+ * @namespace
+ */
+libx.cache.memorycache = { };
 
-var DocumentRequest = libx.core.Class.create ( {
+/**
+ * This handles sending XML HTTP Requests and optionally caching their results
+ * for later use
+ */
+libx.cache.memorycache.MemoryCache = ( function () {
+
+
+
+var memoryCache = libx.core.Class.create ( {
+    /** @lends libx.cache.memorycache.prototype */
 
         /**
-         * Constructor
+         * Initializes this MemoryCache object
          *
-         * @param cacheCapacity Sets the capacity of the cache used to store
-         *                      xmlhttprequests.  Default value of 50 is used.
+         * @constructs
+         *
+         * @param {Integer} cacheCapacity Sets the capacity of the cache used to store
+         *                                xmlhttprequests.  Default value of 50 is used.
          */
         initialize : function (cacheCapacity) {
             if (cacheCapacity !== undefined && cacheCapacity !== null)
-                this.xhrCache = new libx.ajax.DocumentCache(cacheCapacity);
+                this.xhrCache = new internalCache(cacheCapacity);
             else
-                this.xhrCache = new libx.ajax.DocumentCache(50);
+                this.xhrCache = new internalCache(50);
+        },
+
+        /**
+         * Returns the XML http request object
+         *
+         * TODO: Pass this function in as a parameter
+         */
+        getXMLHttpReqObj : function () {
+           return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
         },
 
 
@@ -69,6 +98,8 @@ var DocumentRequest = libx.core.Class.create ( {
         },
 
         /**
+         * @private
+         *
          * Checks whether we have a valid object parameter
          *
          * @throws description of error
@@ -79,18 +110,18 @@ var DocumentRequest = libx.core.Class.create ( {
 
             //Check whether we have the required information
             if (paramObj === undefined || paramObj === null || typeof paramObj != "object") {
-                throw "DocumentRequest class parameter must be of type object";
+                throw "MemoryCache class parameter must be of type object";
             }
 
 
             //Check mandatory parameters (url, dataType)
             if (paramObj.url === undefined) {
-                libxEnv.writeLog("In DocumentRequest: param.url must be set");
-                throw "In DocumentRequest: Need to provide url to document request";
+                libxEnv.writeLog("In MemoryCache: param.url must be set");
+                throw "In MemoryCache: Need to provide url to document request";
             }
 
             if (paramObj.dataType === undefined) {
-                throw "In DocumentRequest: Need to specify data type of returned data from server";
+                throw "In MemoryCache: Need to specify data type of returned data from server";
             }
 
             //We default to GET
@@ -99,7 +130,7 @@ var DocumentRequest = libx.core.Class.create ( {
 
             if (paramObj.type != "GET"
                     && paramObj.type != "POST") {
-                throw "In DocumentRequest: Invalid request type";
+                throw "In MemoryCache: Invalid request type";
             }
 
             //if (paramObj.type == "POST") {
@@ -200,8 +231,7 @@ var DocumentRequest = libx.core.Class.create ( {
          *                                            request if set to true
          *                                            (defaults to false).
          *
-         * @return {Object} xml http request (only when the result is cached
-         *                                    or synchronous)
+         * @return {Object} XML HTTP request 
          */
         getRequest : function ( paramObj ) {
 
@@ -261,7 +291,7 @@ var DocumentRequest = libx.core.Class.create ( {
 
             else {
                 //Need to send the request to the server
-                var xmlHttpReq = libx.bd.getXMLHttpReqObj();
+                var xmlHttpReq = this.getXMLHttpReqObj();
 
                     xmlHttpReq.open(this.requestParams.type, this.requestParams.url, this.requestParams.async);
 
@@ -353,6 +383,7 @@ var DocumentRequest = libx.core.Class.create ( {
 
                     xmlHttpReq.send(this.requestParams.data);
 
+                    //if we're not sending an asynchronous request, we retrieve the result
                     if (!this.requestParams.async) {
                         if (this.requestParams.dataType == "text")
                             result = xmlHttpReq.responseText;
@@ -372,11 +403,10 @@ var DocumentRequest = libx.core.Class.create ( {
             } // end if result not in cache
         }
 });
-
 /**
- * Serves as cache
+ * Serves as private cache
  */
-libx.ajax.DocumentCache = libx.core.Class.create ( {
+var internalCache = libx.core.Class.create ( {
 
     /**
      * Constructor
@@ -564,8 +594,7 @@ libx.ajax.DocumentCache = libx.core.Class.create ( {
         this.moveToFront(node);
     }
 });
-
-return DocumentRequest;
+return memoryCache;
 
 })();
 
