@@ -29,10 +29,6 @@
  */
 libxEnv.pubmed = {
 
-    // Used to issue requests and cache results
-    // XXX : What's a reasonable size for the cache? (defaults to 50)
-    pubmedcache : new libx.ajax.DocumentRequest(),
-
     /* docsum is a XML document node at /eSummaryResult/DocSum */
     formatPubmedMetadataAsText: function (docsum, oncompletionobj, oncompletionfunc) {
         var text = '';
@@ -99,7 +95,7 @@ libxEnv.pubmed = {
         }
 
         //Send the request
-        this.pubmedcache.getRequest(xmlParam);
+        libx.cache.memorycache.getRequest(xmlParam);
     }
 };
 

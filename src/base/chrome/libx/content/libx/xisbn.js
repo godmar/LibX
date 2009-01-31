@@ -28,13 +28,6 @@
  * Intended to be IE-compatible
  */
 libxEnv.xisbn = {
-    /* cache retrieved meta data to reduce load on xISBN service; 
-     * maps ISBN to DOM Node '/rsp/isbn' in results.
-     * Caches both successes and failures.
-     */
-    // Used to issue requests and cache results
-    // XXX : What's a reasonable size for the cache? (defaults to 50)
-    xisbncache : new libx.ajax.DocumentRequest(),
 
     /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
     formatISBNMetadataAsText: function (xisbnrspisbn, oncompletionobj, oncompletionfunc) {
@@ -154,7 +147,7 @@ libxEnv.xisbn = {
         }
 
         //Send request
-        this.xisbncache.getRequest(xmlParam);
+        libx.cache.memorycache.getRequest(xmlParam);
     }
 };
 

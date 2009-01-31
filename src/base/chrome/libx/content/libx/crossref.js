@@ -29,10 +29,6 @@
  */
 libxEnv.crossref = {
 
-    // Used to issue requests and cache results
-    // XXX : What's a reasonable size for the cache? (defaults to 50)
-    doicache : new libx.ajax.DocumentRequest(),
-
     /* query is a XML document node at //query */
     formatDOIMetadataAsText: function (query, oncompletionobj, oncompletionfunc) {
         var text = '';
@@ -116,7 +112,7 @@ libxEnv.crossref = {
         }
 
         //Send the request
-        this.doicache.getRequest(xmlParam);
+        libx.cache.memorycache.getRequest(xmlParam);
     }
 };
 
