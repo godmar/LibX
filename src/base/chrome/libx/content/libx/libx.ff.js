@@ -482,29 +482,28 @@ libx.ff.getXMLHttpReqObj = function () {
     return xmlhttp;
 };
 
-libxEnv.ff = { };
-/* 
- * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
- */
-libxEnv.ff.convertPostString2PostData = function (dataString) {
-    // POST method requests must wrap the encoded text in a MIME stream
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
-    var stringStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
-    if ("data" in stringStream) // Gecko 1.9 or newer
-        stringStream.data = dataString;
-    else // 1.8 or older
-        stringStream.setData(dataString, dataString.length);
-
-    var postData = Cc["@mozilla.org/network/mime-input-stream;1"].createInstance(Ci.nsIMIMEInputStream);
-    postData.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    postData.addContentLength = true;
-    postData.setData(stringStream);
-    return postData;
-}
-
 // open search results, according to user preferences
 libxEnv.openSearchWindow = function (url, pref) {
+    /* 
+     * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
+     */
+    function convertPostString2PostData (dataString) {
+        // POST method requests must wrap the encoded text in a MIME stream
+        const Cc = Components.classes;
+        const Ci = Components.interfaces;
+        var stringStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+        if ("data" in stringStream) // Gecko 1.9 or newer
+            stringStream.data = dataString;
+        else // 1.8 or older
+            stringStream.setData(dataString, dataString.length);
+
+        var postData = Cc["@mozilla.org/network/mime-input-stream;1"].createInstance(Ci.nsIMIMEInputStream);
+        postData.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        postData.addContentLength = true;
+        postData.setData(stringStream);
+        return postData;
+    }
+
     var what = pref ? pref : libx.utils.browserprefs.getStringPref("libx.displaypref", "libx.newtabswitch");
 
     var isGet = typeof (url) == "string";
@@ -514,7 +513,7 @@ libxEnv.openSearchWindow = function (url, pref) {
         var tabarguments = [ url2 ];
         var windowarguments = [ url2 ];
     } else {
-        var postData = libxEnv.ff.convertPostString2PostData(url[1]);
+        var postData = convertPostString2PostData(url[1]);
         var tabarguments = [ url2, null, null, postData ];
         var windowarguments = [ url2, null, postData ];
     }
@@ -644,14 +643,6 @@ libx.ff.contextmenu.initialize = function () {
         libx.browser.contextMenu.onhiding();   
     }, false );
 }; 
-
-// Opens the LibX Preferences window
-// About window is now part of this window.
-libxEnv.ff.openPrefWindow = function () { 
-    window.openDialog ( "chrome://libx/content/libxprefs.xul", 
-        "LibX Preferences", " centerscreen, chrome, modal, resizable"
-    );
-}
 
 // Returns the full file path for given path
 // Chrome paths are left unchanged
