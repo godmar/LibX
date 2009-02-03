@@ -41,10 +41,14 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/libxcoreclass.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/libx.js" />
+    <script type="application/x-javascript">
+        <![CDATA[
+        /* Get global libx object */
+        libx = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject.libx;
+        libxEnv = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject.libxEnv;
+        ]]>
+    </script>
 	<script type="application/x-javascript" src="chrome://libx/content/log.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/documentrequestcache.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/citeulike.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />

@@ -402,7 +402,7 @@ libx.openurl.factory["oclcgateway"] = libx.core.Class.create(libx.openurl.factor
             }
         };
 
-        libx.cache.memorycache.getRequest(xhrParams);
+        libx.cache.globalMemoryCache.get(xhrParams);
     }
 });
 

@@ -147,7 +147,7 @@ libxEnv.xisbn = {
         }
 
         //Send request
-        libx.cache.memorycache.getRequest(xmlParam);
+        libx.cache.globalMemoryCache.get(xmlParam);
     }
 };
 

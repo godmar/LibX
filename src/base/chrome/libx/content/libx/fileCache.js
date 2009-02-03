@@ -27,7 +27,6 @@
  // This class manages the downloading and storing of the doforurl files
  //******************************************
 
-libx.cache = { };
 libx.cache.FileCache = ( function () {
 
     //These local variables and functions will be captured through closure by
@@ -295,7 +294,7 @@ libx.cache.FileCache = ( function () {
             xhrParams.header["If-Modified-Since"] = privGetLastModifiedDate( finfo.url );
         }
 
-        libx.cache.memorycache.getRequest(xhrParams);
+        libx.cache.globalMemoryCache.get(xhrParams);
     };
 
     /**

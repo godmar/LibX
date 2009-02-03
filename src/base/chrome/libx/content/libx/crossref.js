@@ -112,7 +112,7 @@ libxEnv.crossref = {
         }
 
         //Send the request
-        libx.cache.memorycache.getRequest(xmlParam);
+        libx.cache.globalMemoryCache.get(xmlParam);
     }
 };
 

@@ -32,22 +32,17 @@
 libx.cache = { };
 
 /**
- * Deals with maintaining a in memory cache of document requests
+ * This handles sending XML HTTP Requests and optionally caching their results
+ * for later use
  *
  * @namespace
  */
-libx.cache.memorycache = { };
-
-/**
- * This handles sending XML HTTP Requests and optionally caching their results
- * for later use
- */
-libx.cache.memorycache.MemoryCache = ( function () {
+libx.cache.MemoryCache = ( function () {
 
 
 
 var memoryCache = libx.core.Class.create ( {
-    /** @lends libx.cache.memorycache.prototype */
+    /** @lends libx.cache.MemoryCache.prototype */
 
         /**
          * Initializes this MemoryCache object
@@ -161,7 +156,7 @@ var memoryCache = libx.core.Class.create ( {
          *
          * @param paramObj parameters used to create key
          *
-         * @see getRequest for documentation of paramObj
+         * @see get for documentation of paramObj
          */
         removeFromCache : function ( paramObj ) {
             //Validate paramObj
@@ -233,7 +228,7 @@ var memoryCache = libx.core.Class.create ( {
          *
          * @return {Object} XML HTTP request 
          */
-        getRequest : function ( paramObj ) {
+        get : function ( paramObj ) {
 
             //Validate paramObj
             if (!this.validateParameter( paramObj))
@@ -597,6 +592,8 @@ var internalCache = libx.core.Class.create ( {
 return memoryCache;
 
 })();
+
+libx.cache.globalMemoryCache = new libx.cache.MemoryCache();
 
 
 

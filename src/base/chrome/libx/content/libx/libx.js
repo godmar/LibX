@@ -111,11 +111,6 @@ libx.initialize = function ()
 
     var myLibXComponent = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject;
 
-    //Define a DocumentRequest object here
-    //libx.ajax.docrequest = myLibXComponent.getCache();
-    libx.cache = { };
-    libx.cache.memorycache = myLibXComponent.getMemoryCache();
-
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
     	onload: function (edition) {

@@ -95,7 +95,7 @@ libxEnv.pubmed = {
         }
 
         //Send the request
-        libx.cache.memorycache.getRequest(xmlParam);
+        libx.cache.globalMemoryCache.get(xmlParam);
     }
 };
 
