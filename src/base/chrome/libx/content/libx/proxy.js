@@ -93,7 +93,7 @@ libx.proxy.factory["ezproxy"] = libx.core.Class.create(
             success     : function (xmlhttp) {
                 var resp = libxEnv.xpath.findSingleXML(xmlhttp, 
                                                        "/proxy_url_response/proxy_urls/url[1]");
-                    if (resp != null && libxNormalizeOption(resp.getAttribute("proxy"))) {
+                    if (resp != null && libx.utils.types.normalize(resp.getAttribute("proxy"))) {
                         opt.onsuccess();
                         return;
                     }

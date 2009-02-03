@@ -51,6 +51,46 @@ libx.utils = {
      * user preferences.
      */
     browserprefs: { },
+
+    /**
+     * @namespace libx.utils.types
+     *
+     * Convenience methods for dealing with JavaScript types.
+     */
+    types: { 
+        /**
+         * Turns (string) "true" -> true
+         *       (string) "false" -> false
+         *       (string) "" -> null
+         * Otherwise, returns input.
+         *
+         * @param {String} value - input string
+         * @return {String|Boolean|null} - converted input
+         */ 
+        normalize : function (value) {
+            if (value == "false")
+                return false;
+            if (value == "true")
+                return true;
+            if (value == "")
+                return null;
+            return value;
+        },
+        
+        /**
+         * Compute a string representing all fields of an object.
+         *
+         * @param {String} prefix - if given, prefix is prepended to string
+         * @param {Object} obj - object to be dumped
+         * @return {String} string representation.
+         */
+        dumpObject : function (obj, prefix) {
+            prefix = prefix || "";
+            for (var k in obj)
+                prefix += k + "=" + obj[k] + " (" + typeof obj[k] + "), ";
+            return prefix;
+        }
+    }
 };
 
 /**
@@ -85,7 +125,7 @@ libx.initialize = function ()
 
             libxEnv.doforurls.initDoforurls();  // XXX
             libxEnv.eventDispatcher.init(); // XXX
-            libxEnv.citeulike();    // XXX
+            libx.citeulike.initialize();
     	}
 /* XXX
         onerror: function () {
@@ -168,40 +208,5 @@ libxEnv.eventDispatcher = {
             this[libxtype] = new Array();    
         this[libxtype].push({funct: listener, args: args});
     }
-};
-
-/*
- * Creates a URL Bar icon and hides/shows based on whether or not posting to CiteULike is supported
- * from a given website
- */
-libxEnv.citeulike = function  ()  {
-    this.icon = new libxEnv.urlBarIcon();
-    this.icon.setHidden ( true );
-    this.icon.setImage ( "chrome://libx/skin/citeulike.ico" );
-    this.icon.setOnclick ( function  (e) {
-        var contentWindow = libxEnv.getCurrentWindowContent();
-        var url = contentWindow.location.href;
-        var title = contentWindow.document.title;
-        libxEnv.openSearchWindow("http://www.citeulike.org/posturl?url=" 
-            + encodeURIComponent(url) 
-            + "&title=" + encodeURIComponent(title), 
-            /* do not uri encode */true, "libx.sametab");
-    } );
-    this.icon.setTooltipText ( libxEnv.getProperty ( "citeulike.tooltiptext" ) );
-
-    libxEnv.eventDispatcher.addEventListener( "onContentChange", function ( e, args ) {
-        var contentWindow = libxEnv.getCurrentWindowContent();
-        var url = contentWindow.location.href;
-        var icon = args.icon;
-            citeulike.canpost(url, function ( url, reg ) {
-            libx.log.write ( "Enabled: " + url, "citeulike" );
-            icon.setHidden ( libx.utils.browserprefs.getBoolPref ( 'libx.urlbar.citeulike', true ) ? 'false' : 'true' );    
-        }, function ( url ) {
-            libx.log.write ( "Disabled: " + url, "citeulike" );
-            icon.setHidden ( 'true' );
-        });
-    }, { icon: this.icon } );
-	
-}
-
+}; 
 // vim: ts=4

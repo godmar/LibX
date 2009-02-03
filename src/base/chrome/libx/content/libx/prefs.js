@@ -128,7 +128,7 @@ libxXMLPreferences.prototype = {
         object.nodeName = node.nodeName;
         for (var i = 0; node.attributes && i < node.attributes.length; i++) {
             var attr = node.attributes[i];
-            object.attr[attr.nodeName] = libxNormalizeOption(attr.nodeValue);
+            object.attr[attr.nodeName] = libx.utils.types.normalize(attr.nodeValue);
         }
     },
     save: function () {

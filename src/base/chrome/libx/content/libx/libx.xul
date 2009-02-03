@@ -46,6 +46,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/log.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/documentrequestcache.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/citeulike.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />
    	<script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	

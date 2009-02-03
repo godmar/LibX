@@ -69,7 +69,7 @@ libx.config.XMLConfigWrapper = libx.core.Class.create(
     copyAttributes : function(xnode, obj) {
         for (var i = 0; i < xnode.attributes.length; i++) {
             var attr = xnode.attributes[i];
-            var opt = libxNormalizeOption(attr.nodeValue);
+            var opt = libx.utils.types.normalize(attr.nodeValue);
             if (opt != null)
                 obj[attr.nodeName] = opt;
             // else preserve default.
@@ -225,7 +225,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
         var options = libxEnv.xpath.findNodesXML(doc.xml, "/edition/options/option");
         for (var i = 0; i < options.length; i++) {
             opts[options[i].getAttribute('key')] = 
-                libxNormalizeOption(options[i].getAttribute('value'));
+                libx.utils.types.normalize(options[i].getAttribute('value'));
         }
         return opts;
     },
@@ -287,29 +287,5 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             });
     }
 } );
-
-/*
- * Turn an option into a more suitable type.
- * Turns (string) "true" -> (boolean) true
- *       (string) "false" -> (boolean) false
- *       (string) "" -> null
- */ 
-function libxNormalizeOption(value) 
-{
-    if (value == "false")
-        return false;
-    if (value == "true")
-        return true;
-    if (value == "")
-        return null;
-    return value;
-}
-
-function libxShowObject(s, obj)
-{
-    for (var k in obj)
-        s += k + "=" + obj[k] + " (" + typeof obj[k] + "), ";
-    alert(s);
-}
 
 // vim: ts=4

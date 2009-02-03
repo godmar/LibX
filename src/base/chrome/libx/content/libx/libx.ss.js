@@ -140,7 +140,7 @@ function libxServerSideInit(_configdir) {
     libxEnv.xmlDoc.copyAttributes = function(xnode, obj) {
         for (var i = 0; i < xnode.attributes.length; i++) {
             var attr = xnode.attributes.item(i);
-            obj[attr.nodeName] = libxNormalizeOption(attr.nodeValue);
+            obj[attr.nodeName] = libx.utils.types.normalize(attr.nodeValue);
         }
     };
 
