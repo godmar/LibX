@@ -138,40 +138,6 @@ libx.initialize = function ()
     //
     // XXX function should end here
     //
-	/**
-	 * helper function that creates the cue logo to be inserted
-	 * make the equivalent of this html:
-	 * <a title="[title]" href="[url]"><img src="chrome://libx/skin/virginiatech.ico" border="0"/></a>
-	 *
-	 * targetobject is either the catalog or openurl object used.
-	 * if it has an '.image' property, use that for the cue.
-     *
-     * @member libxEnv
-     *
-     * @param {DOM node} doc document node in HTML DOM
-     * @param {String} title title attribute for link
-     * @param {String} url href attribute for link
-     * @param {Object} either a catalog or openurl resolver
-	 *
-	 */
-    libxEnv.makeLink = function (doc, title, url, targetobject) {
-        var link = doc.createElement('a');
-        link.setAttribute('title', title);
-        link.setAttribute('href', url);
-        var image = doc.createElement('img');
-        if (targetobject && targetobject.image) {
-            image.setAttribute('src', targetobject.image);
-        } else {
-            if (libx.edition.options.cueicon != null)
-                image.setAttribute('src', libx.edition.options.cueicon);
-            else
-                image.setAttribute('src', libx.edition.options.icon);
-        }
-        image.setAttribute('border', '0');
-        link.appendChild(image);
-        return link;
-    }
-
     try {
         libx.log.write( "Applying Hotfixes" );
         for ( var i = 0; i < libxEnv.doforurls.hotfixList.length; i++ )
