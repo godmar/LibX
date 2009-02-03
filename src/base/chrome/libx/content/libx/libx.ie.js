@@ -557,11 +557,6 @@ libxEnv.urlBarIcon.prototype = {
     setTooltipText : function ( text ) { }
 }
 
-libxEnv.eventDispatcher.init = function  () {
-    // Int for onContentChange
-    //
-}
-
 libx.ie.hash = {
     hashString : function ( text )
     {

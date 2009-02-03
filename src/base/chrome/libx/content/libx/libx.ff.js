@@ -468,6 +468,20 @@ libx.ff.initialize = function() {
     }
     
     libx.ff.contextmenu.initialize();
+
+    // fire LibX 'onContentChange' event for various FF-events related to tabs
+    var tabHandlers = [
+        { target: gBrowser.tabContainer, event: "TabOpen"},
+        { target: gBrowser.tabContainer, event: "TabSelect"},
+        { target: document.getElementById("appcontent"), event: "pageshow" },
+    ];
+    for (var i = 0; i < tabHandlers.length; i++) {
+        var h = tabHandlers[i];
+        h.target.addEventListener(h.event, function (nativeEvent) {
+            var ev = new libx.events.Event("ContentChange");
+            ev.notify(nativeEvent);
+        }, false);
+    }
 }
 
 /**
@@ -1157,34 +1171,7 @@ libxEnv.urlBarIcon.prototype = {
     setTooltipText : function ( text ) {
         this.img.setAttribute ( 'tooltiptext', text );
     }
-}
-
-
-
-// Initializes the event dispatcher
-libxEnv.eventDispatcher.init = function  () {
-
-    // Helper function to add an eventDispatcher of the given type to the eventDispatcher object
-    // This registers the notify function as the result of an event of eventType on targetObj
-    // @param libxtype -- type of event to register with
-    // @param targetObj -- object to register event handler with
-    // @param eventType -- type of event to watch for
-    function registerEventDispatcher ( libxtype, targetObj, eventType ) {
-        libxEnv.addEventHandler ( targetObj, eventType, function ( e ) {
-            libxEnv.eventDispatcher.notify(libxtype, e);
-        } );
-    }
-    
-    
-    // Init for onContentChange
-    var container = gBrowser.tabContainer;
-    registerEventDispatcher ( "onContentChange", container, "TabOpen" );
-    registerEventDispatcher ( "onContentChange", container, "TabSelect" );
-    var appcontent = document.getElementById ( 'appcontent' );
-    registerEventDispatcher ( "onContentChange", appcontent, "pageshow" );
-    //-------------------------
-} 
-
+};
 
 // vim: ts=4
 

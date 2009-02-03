@@ -32,13 +32,21 @@ libx.core = (function() {
     Licensed under the new BSD License. See end of file for full license terms.
   */
 	/**
-	 *	@name libx.core.Class
-	 *	@constructor
+	 * @name libx.core.Class
 	 */
   var Class = (function() {
     var __extending = {};
 
-    return /** @lends libx.core.Class.prototype */ {
+    return {
+      /**
+       * Create a new class that extends parent with more
+       * definitions.
+       *
+       * @member libx.core.Class
+       * @param {Constructor} parent
+       * @param {Object} definitions of methods and fields
+       * @return {Constructor} new class constructor.
+       */
       extend: function(parent, def) {
         if (arguments.length == 1) { def = parent; parent = null; }
         var func = function() {

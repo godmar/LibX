@@ -40,10 +40,10 @@ libx.citeulike = {
      * or not posting to CiteULike is supported from a given website
      */
     initialize: function () {
-        this.icon = new libxEnv.urlBarIcon();   // FF only right now, returns XUL.
-        this.icon.setHidden ( true );
-        this.icon.setImage ( "chrome://libx/skin/citeulike.ico" );
-        this.icon.setOnclick ( function  (e) {
+        var icon = new libxEnv.urlBarIcon();   // FF only right now, returns XUL icon.
+        icon.setHidden ( true );
+        icon.setImage ( "chrome://libx/skin/citeulike.ico" );
+        icon.setOnclick ( function  (e) {
             var contentWindow = libxEnv.getCurrentWindowContent();
             var url = contentWindow.location.href;
             var title = contentWindow.document.title;
@@ -52,20 +52,20 @@ libx.citeulike = {
                 + "&title=" + encodeURIComponent(title), 
                 /* do not uri encode */true, "libx.sametab");
         } );
-        this.icon.setTooltipText ( libxEnv.getProperty ( "citeulike.tooltiptext" ) );
+        icon.setTooltipText ( libxEnv.getProperty ( "citeulike.tooltiptext" ) );
 
-        libxEnv.eventDispatcher.addEventListener( "onContentChange", function ( e, args ) {
-            var contentWindow = libxEnv.getCurrentWindowContent();
-            var url = contentWindow.location.href;
-            var icon = args.icon;
+        libx.events.addListener("ContentChange", {
+            onContentChange: function ( e, args ) {
+                var contentWindow = libxEnv.getCurrentWindowContent();
+                var url = contentWindow.location.href;
                 citeulike.canpost(url, function ( url, reg ) {
-                libx.log.write ( "Enabled: " + url, "citeulike" );
-                icon.setHidden ( libx.utils.browserprefs.getBoolPref ( 'libx.urlbar.citeulike', true ) ? 'false' : 'true' );    
-            }, function ( url ) {
-                libx.log.write ( "Disabled: " + url, "citeulike" );
-                icon.setHidden ( 'true' );
-            });
-        }, { icon: this.icon } );
-        
+                    libx.log.write ( "Enabled: " + url, "citeulike" );
+                    icon.setHidden (!libx.utils.browserprefs.getBoolPref('libx.urlbar.citeulike', true));
+                }, function ( url ) {
+                    libx.log.write ( "Disabled: " + url, "citeulike" );
+                    icon.setHidden ( 'true' );
+                });
+            }
+        });
     }
 }

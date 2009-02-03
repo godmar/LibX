@@ -119,7 +119,6 @@ libx.initialize = function ()
     		libx.browser.activateConfiguration(edition);
 
             libxEnv.doforurls.initDoforurls();  // XXX
-            libxEnv.eventDispatcher.init(); // XXX
             libx.citeulike.initialize();
     	}
 /* XXX
@@ -154,20 +153,5 @@ var libxEnv = { };
  * - onContentChange -- events fired when the content of the website changes, either by switching tabs
  *                      or navigating to another website
  */
-libxEnv.eventDispatcher = {
-    // Notifies all listeners waiting for a given type
-    notify: function ( libxtype, e ) {
-        var listeners = libxEnv.eventDispatcher[libxtype];
-        if ( listeners )
-            for ( var i = 0; i < listeners.length; i++ ) {
-                listeners[i].funct(e, listeners[i].args);
-            }
-    },
-    // Adds a function to be executed when an event of the given type is triggered
-    addEventListener: function ( libxtype, listener, args ) {
-        if ( this[libxtype] == null )
-            this[libxtype] = new Array();    
-        this[libxtype].push({funct: listener, args: args});
-    }
-}; 
+
 // vim: ts=4
