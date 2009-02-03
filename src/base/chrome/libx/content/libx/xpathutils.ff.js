@@ -64,7 +64,7 @@ libx.ff.xpath = {
         }
         catch (e) {
             //XXX: Need to use a more specific log type
-            libxEnv.writeLog("In findSingleXML: XPath expression " + xpathexpr + " does not return a node");
+            libx.log.write("In findSingleXML: XPath expression " + xpathexpr + " does not return a node");
             return null;
         }
 
@@ -95,7 +95,7 @@ libx.ff.xpath = {
         }
         catch (e) {
             //XXX: Need to use a more specific log type
-            libxEnv.writeLog("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
+            libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
             return null;    // XXX should you rethrow here?
         }
 
@@ -132,7 +132,7 @@ libx.ff.xpath = {
         }
         catch (e) {
             //XXX: Need to use a more specific log type
-            libxEnv.writeLog("In findSnapshot: XPath expression " + xpathexpr + " does not return a set of nodes");
+            libx.log.write("In findSnapshot: XPath expression " + xpathexpr + " does not return a set of nodes");
             return null;    // XXX should you rethrow here?
         }
 

@@ -206,7 +206,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
         try {
             sid = sid.replace(/%hostname%/, libxEnv.getCurrentWindowContent().location.hostname);
         } catch (er) {
-            libxEnv.writeLog(er + ": exception occurred attempting to replace %hostname%", 'openurl');
+            libx.log.write(er + ": exception occurred attempting to replace %hostname%", 'openurl');
         }
         url += encodeURIComponent(sid);
         return url;

@@ -79,7 +79,7 @@ libxEnv.crossref = {
     /* retrieve info about DOI - either from cache or from service, and 
        call formatFunc(result, completion_func) */
     getDOIMetadataAsText: function (doi, completionhandlers) {
-        //if (!libxEnv.getBoolPref ('libx.doi.ajaxpref', 'true'))
+        //if (!libx.utils.browserprefs.getBoolPref ('libx.doi.ajaxpref', 'true'))
         //    return;
 
         // see for example 

@@ -78,21 +78,21 @@ function libxFindTreeNode(id) {
 // Saves all of the preferences
 function libxSavePreferences() {
     /**** Saves all of the default preferences **************/
-    libxEnv.setUnicharPref ('libx.displaypref',  libxEnv.getDisplayPref());
+    libx.utils.browserprefs.setStringPref ('libx.displaypref',  libxEnv.getDisplayPref());
     libxSelectAutolink(libxEnv.getAutolinkPref());
 
     /**** Saves all of the context menu preferences *********/
     libxSaveContextPrefs();
 
     /** Save AJAX Preferences tab options **/
-    libxEnv.setBoolPref ('libx.proxy.ajaxlabel', libxEnv.getProxyPref());
-    libxEnv.setBoolPref ('libx.oclc.ajaxpref', libxEnv.getOCLCPref());
-    libxEnv.setBoolPref ('libx.pmid.ajaxpref', libxEnv.getPMIDPref());
-    libxEnv.setBoolPref ('libx.doi.ajaxpref', libxEnv.getDOIPref());
+    libx.utils.browserprefs.setBoolPref ('libx.proxy.ajaxlabel', libxEnv.getProxyPref());
+    libx.utils.browserprefs.setBoolPref ('libx.oclc.ajaxpref', libxEnv.getOCLCPref());
+    libx.utils.browserprefs.setBoolPref ('libx.pmid.ajaxpref', libxEnv.getPMIDPref());
+    libx.utils.browserprefs.setBoolPref ('libx.doi.ajaxpref', libxEnv.getDOIPref());
 
-    libxEnv.setBoolPref ('libx.dfuexec', libxEnv.getDFUPref());
+    libx.utils.browserprefs.setBoolPref ('libx.dfuexec', libxEnv.getDFUPref());
     
-    libxEnv.setBoolPref ( 'libx.urlbar.citeulike', libxEnv.getCiteulikePref() );
+    libx.utils.browserprefs.setBoolPref ( 'libx.urlbar.citeulike', libxEnv.getCiteulikePref() );
 }
 
 function libxSaveContextPrefs() {
@@ -111,7 +111,7 @@ function libxSaveContextPrefs() {
             var cells = libxEnv.getEnabledNodes( tree );
         }
         catch ( e ) { // if tree is not found
-            libxEnv.writeLog("Tree not found when trying to save preferences.");
+            libx.log.write("Tree not found when trying to save preferences.");
             return;
         }
 

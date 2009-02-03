@@ -45,7 +45,7 @@ libxEnv.sandboxClass = function ()
             theSandBox.url = url;
 
         theSandBox.libxEnv = {
-            writeLog : libxEnv.writeLog,
+            writeLog : libx.log.write,
             makeLink : libxEnv.makeLink,
             getProperty : libxEnv.getProperty,
             options : libx.edition.options,
@@ -56,9 +56,9 @@ libxEnv.sandboxClass = function ()
 			resources : libxEnv.doforurls.resources,
             autolink : libxEnv.autolink,
             buildDate : libxEnv.buildDate,
-            getBoolPref : libxEnv.getBoolPref,
-            getIntPref : libxEnv.getIntPref,
-            getUnicharPref : libxEnv.getUnicharPref
+            getBoolPref : libx.utils.browserprefs.getBoolPref,
+            getIntPref : libx.utils.browserprefs.getIntPref,
+            getUnicharPref : libx.utils.browserprefs.getStringPref
         };
 
         theSandBox.libx = libx;

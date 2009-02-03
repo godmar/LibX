@@ -83,7 +83,7 @@ function setVersion() {
 libxEnv.displayLastUpdateDate = function()
 {
     document.getElementById("last-update-date").setAttribute("value",
-        new Date(libxEnv.getUnicharPref( "libx.lastupdate" )) );
+        new Date(libx.utils.browserprefs.getStringPref( "libx.lastupdate" )) );
 }
 
 

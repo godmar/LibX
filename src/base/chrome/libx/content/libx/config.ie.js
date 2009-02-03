@@ -62,11 +62,11 @@ libxEnv.getProperty = function(key, args) {
             }
         }
         else {
-            libxEnv.writeLog("Property " + key + " doesn't exist.");
+            libx.log.write("Property " + key + " doesn't exist.");
         }
     }
     catch (e) {
-        libxEnv.writeLog("Config error " + e.name + ": " + e.message);
+        libx.log.write("Config error " + e.name + ": " + e.message);
     }
     return null;
 };
@@ -84,7 +84,7 @@ libxEnv.formatString = function(str, args) {
                 //(because this code definitely doesn't...)
                 var idx = str.substr(i+1, 1) * 1; //Goofy JS str-to-number
                 if(isNaN(idx)) {
-                    libxEnv.writeLog("Bogus format string: " + str);
+                    libx.log.write("Bogus format string: " + str);
                     return null;
                 }
                 else {

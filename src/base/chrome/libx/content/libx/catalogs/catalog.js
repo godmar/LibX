@@ -164,7 +164,7 @@ libx.catalog.Catalog = libx.core.Class.create(
         }
         for (var i = 0; i < fields.length; i++) {
             if (!this.supportsSearchType(fields[i].searchType)) {
-                libxEnv.writeLog(this.name + " does not support search type " + fields[i].searchType);
+                libx.log.write(this.name + " does not support search type " + fields[i].searchType);
                 return;
             }
             this.adjustISNSearchType(fields[i]);
@@ -177,7 +177,7 @@ libx.catalog.Catalog = libx.core.Class.create(
         if (url != null) {
             libxEnv.openSearchWindow(url);
         } else {
-            libxEnv.writeLog("Could not construct search");
+            libx.log.write("Could not construct search");
         }
     },
     /** Combine search fields of same type, concatenating them with 
@@ -265,7 +265,7 @@ libx.catalog.factory["bookmarklet"] = libx.core.Class.create( libx.catalog.Catal
                     if (m[1] <= fields.length)
                         switch_arg = fields[m[1] - 1].searchTerms;
                 } else
-                    libxEnv.writeLog("invalid switch_arg '" + s + "', must be %termX or %typeX");
+                    libx.log.write("invalid switch_arg '" + s + "', must be %termX or %typeX");
             }
             for (var i = 0; switch_arg != null && i < caseargs.length; i++) {
                 var re = new RegExp("^" + switch_arg + ":(\\S*)$");

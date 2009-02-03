@@ -89,7 +89,7 @@ function libxRunAdvancedTestSearch(catindex, search)
     try {
         var u = libx.edition.catalogs[catindex].search(search);
     } catch (er) {
-        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(libx.edition.catalogs[catindex]));
+        libx.log.write(er + "\ncatalog #" + catindex + " is: " + props(libx.edition.catalogs[catindex]));
     }
 }
 

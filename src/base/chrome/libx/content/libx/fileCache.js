@@ -49,7 +49,7 @@ libx.cache.FileCache = ( function () {
      */
     function storageLog ( msg )
     {
-        libxEnv.writeLog(msg, 'fileStorage');
+        libx.log.write(msg, 'fileStorage');
     };
 	
     /**
@@ -183,7 +183,7 @@ libx.cache.FileCache = ( function () {
      */
     function setLastUpdateDate ( dateString )
     {
-        libxEnv.setUnicharPref( "libx.lastupdate", dateString );
+        libx.utils.browserprefs.setStringPref( "libx.lastupdate", dateString );
     };
 
     /**

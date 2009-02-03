@@ -47,9 +47,9 @@ var threshold2 = null;
 function initThresholds()
 {
     if (threshold1 == null)
-        threshold1 = libxEnv.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
+        threshold1 = libx.utils.browserprefs.getIntPref("libx.magic.threshold1", 50)/100.0;   // for author+title together
     if (threshold2 == null)
-        threshold2 = libxEnv.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
+        threshold2 = libx.utils.browserprefs.getIntPref("libx.magic.threshold2", 60)/100.0;   // for author+title separately
 }
 
 /*
@@ -111,7 +111,7 @@ magicSearch = function (data, inpub, justmakeurl)
         /*
         var s = "";
         for (var k in uniq) { s += " " + k; }
-        libxEnv.writeLog(commonterms + " " + str1terms + " " + str2terms + " " + s, libxEnv.logTypes.magic);
+        libx.log.write(commonterms + " " + str1terms + " " + str2terms + " " + s, "Magic");
         */
         return commonterms / Math.sqrt(str1terms * str2terms);
     }
@@ -128,9 +128,9 @@ magicSearch = function (data, inpub, justmakeurl)
 
     var maxattempts = 5;
 
-    libxEnv.writeLog("Searching for: \"" + data + "\"" +
+    libx.log.write("Searching for: \"" + data + "\"" +
                      (inpub ? " inpub: " + inpub : " - no publication given"),
-                     libxEnv.logTypes.magic);
+                     "Magic");
     var originaldata = data;
     data = magicNormalize(data);
     var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
@@ -158,7 +158,7 @@ magicSearch = function (data, inpub, justmakeurl)
     var triedexact = false; // have we already tried the exact search (with a preceding '')
 
     for (var _attempt = 0; _attempt < maxattempts; _attempt++) {
-        libxEnv.writeLog("Attempt #" + _attempt + ": " + url, libxEnv.logTypes.magic);
+        libx.log.write("Attempt #" + _attempt + ": " + url, "Magic");
         var xhrParams = {
             url         : url,
             type        : "GET",
@@ -229,9 +229,9 @@ magicSearch = function (data, inpub, justmakeurl)
 
                     titleplusauthor += title[1];
                     titlesim = getcosine(title[1]);
-                    libxEnv.writeLog("CosineSimilarity w/ titleline=" + titlesim + " \""
+                    libx.log.write("CosineSimilarity w/ titleline=" + titlesim + " \""
                                      + title[1].replace(/<.*?>/g, "") + "\"",
-                                     libxEnv.logTypes.magic);
+                                     "Magic");
                 }
 
                 var auline = hits[h].replace(/&hellip;/, " ").match(/<span class=\"a\">([\s\S]*?)<\/span>/);
@@ -239,20 +239,20 @@ magicSearch = function (data, inpub, justmakeurl)
                 if (auline != null) {
                     titleplusauthor += " " + auline[1];
                     ausim = getcosine(auline[1]);
-                    libxEnv.writeLog("CosineSimilarity w/ authorline=" + ausim
+                    libx.log.write("CosineSimilarity w/ authorline=" + ausim
                                      + " " + auline[1].replace(/<.*?>/g, ""),
-                                     libxEnv.logTypes.magic);
+                                     "Magic");
                 }
                 if (titleplusauthor != "") {
                     var tplusauthsim = getcosine(titleplusauthor);
-                    libxEnv.writeLog("CosineSimilarity w/ title+authorline="
-                                     + tplusauthsim, libxEnv.logTypes.magic);
+                    libx.log.write("CosineSimilarity w/ title+authorline="
+                                     + tplusauthsim, "Magic");
                 }
 
                 if (tplusauthsim > threshold1 || ((titlesim + ausim) > threshold2)) {
                     if (!(openurl || titleurl)) {
-                        libxEnv.writeLog("Above threshold, but found neither title nor OpenURL; title[1] was="
-                                             + title[1], libxEnv.logTypes.magic);
+                        libx.log.write("Above threshold, but found neither title nor OpenURL; title[1] was="
+                                             + title[1], "Magic");
                         continue;       // match, but no link
                     }
                     // we prefer to show the OpenURL, if any, but otherwise we go straight to Scholars URL
@@ -281,10 +281,10 @@ magicSearch = function (data, inpub, justmakeurl)
 
                         vtu = libxEnv.openUrlResolver.completeOpenURL(openurlpath, "0.1");
                         display = true;
-                        libxEnv.writeLog('OpenURL: ' + vtu, libxEnv.logTypes.magic);
+                        libx.log.write('OpenURL: ' + vtu, "Magic");
                     } else {
                         vtu = decodeURIComponent(vtu);
-                        libxEnv.writeLog('DirectURL: ' + vtu, libxEnv.logTypes.magic);
+                        libx.log.write('DirectURL: ' + vtu, "Magic");
                     }
                     if (display) {
                         libxEnv.openSearchWindow(vtu);
@@ -292,15 +292,15 @@ magicSearch = function (data, inpub, justmakeurl)
                     }
                     break;
                 } else {
-                    libxEnv.writeLog("rejected because below threshold, thresholds are " 
-                        + threshold1 + " and " + threshold2, libxEnv.logTypes.magic);
+                    libx.log.write("rejected because below threshold, thresholds are " 
+                        + threshold1 + " and " + threshold2, "Magic");
                 }
             }
 
             if (h == hits.length) {
-                libxEnv.writeLog("I received " + hits.length +
+                libx.log.write("I received " + hits.length +
                                  " hits in Scholar, but no matches were found",
-                                 libxEnv.logTypes.magic);
+                                 "Magic");
             }
 
             // in some cases, Scholar finds it only when searched as an exact match
@@ -326,8 +326,8 @@ magicSearch = function (data, inpub, justmakeurl)
             }
             return null;
         } else {
-            libxEnv.writeLog("couldn't find result <div> in this scholar result: "
-                             + r, libxEnv.logTypes.magic);
+            libx.log.write("couldn't find result <div> in this scholar result: "
+                             + r, "Magic");
         }
 
         // scholar did not find anything.  Let us see if they have a "Did you mean" on their page 

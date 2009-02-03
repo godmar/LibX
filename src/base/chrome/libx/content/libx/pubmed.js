@@ -60,7 +60,7 @@ libxEnv.pubmed = {
        call formatFunc(result, completion_func) */
     getPubmedMetadataAsText: function (pubmedid, completionhandlers) {
         alert("In getPubmedMetadataAsText");
-        //if (!libxEnv.getBoolPref ('libx.pmid.ajaxpref', 'true'))
+        //if (!libx.utils.browserprefs.getBoolPref ('libx.pmid.ajaxpref', 'true'))
         //    return;
 
         // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082

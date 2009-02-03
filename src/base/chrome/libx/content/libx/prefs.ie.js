@@ -22,32 +22,32 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-libxEnv.getBoolPref = function ( prefName, defValue )
+libx.utils.browserprefs.getBoolPref = function ( prefName, defValue )
 {
     return libxInterface.Preferences.getBoolPref(prefName, defValue);
 }
 
-libxEnv.getUnicharPref = function ( prefName, defValue )
+libx.utils.browserprefs.getStringPref = function ( prefName, defValue )
 {
     return libxInterface.Preferences.getUnicharPref(prefName, defValue);
 }
 
-libxEnv.getIntPref = function ( prefName, defValue )
+libx.utils.browserprefs.getIntPref = function ( prefName, defValue )
 {
     return libxInterface.Preferences.getNumericPref(prefName, defValue);
 }
 
-libxEnv.setBoolPref = function ( prefName, value )
+libx.utils.browserprefs.setBoolPref = function ( prefName, value )
 {
     libxInterface.Preferences.setBoolPref(prefName, value);
 }
 
-libxEnv.setUnicharPref = function ( prefName, value )
+libx.utils.browserprefs.setStringPref = function ( prefName, value )
 {
     libxInterface.Preferences.setUnicharPref(prefName, value);
 }
 
-libxEnv.setIntPref = function ( prefName, value )
+libx.utils.browserprefs.setIntPref = function ( prefName, value )
 {
     libxInterface.Preferences.setNumericPref(prefName, value);
 }

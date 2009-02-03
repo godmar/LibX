@@ -146,7 +146,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
               var factoryKey = getFactoryKey(node);
 
               if (typeof (factory[factoryKey]) != "function") {
-                  libxEnv.writeLog("Factory key " + factoryKey + " not supported.");
+                  libx.log.write("Factory key " + factoryKey + " not supported.");
                   continue;
               }
 
@@ -260,7 +260,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                     cat.__init();
                 }
             
-                libxEnv.writeLog("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
+                libx.log.write("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
             });
     },
 
@@ -271,7 +271,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 return node.getAttribute("type");
             },
             function (node, resolver) {
-                libxEnv.writeLog("registered OpenURL resolver " + resolver.name 
+                libx.log.write("registered OpenURL resolver " + resolver.name 
                     + " (type=" + node.getAttribute('type') + ")");
             });
     },

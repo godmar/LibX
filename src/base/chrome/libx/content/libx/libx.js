@@ -37,16 +37,20 @@ libx.utils = {
      *
      * Support for standard numbers such as ISBNs
      */
-    stdnumsupport: { }
-};
+    stdnumsupport: { },
 
-var libxEnv = { 
-
-    //Set up logging types
-    logTypes : {
-      magic: 'Magic',
-      xpath: 'XPath'
-    }
+    /**
+     * @namespace libx.utils.browserprefs
+     *
+     * Support for manipulating preferences.
+     *
+     * These are reachable in Firefox via about:config and
+     * in IE by editing a prefs.txt file.
+     *
+     * Previous versions of LibX used this preference store for
+     * user preferences.
+     */
+    browserprefs: { },
 };
 
 /**
@@ -63,10 +67,6 @@ libx.buildDate = "$builddate$";
  */
 libx.initialize = function () 
 {
-    /*
-     * Config XML must be present to load options
-     */
-    // Adds onPageComplete to the eventlistener of DOMContentLoaded (what does that mean?)
     libx.browser.initialize();
 
     var myLibXComponent = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject;
@@ -76,7 +76,6 @@ libx.initialize = function ()
     libx.cache = { };
     libx.cache.memorycache = myLibXComponent.getMemoryCache();
 
-
     var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     	url: "chrome://libx/content/config.xml",
     	onload: function (edition) {
@@ -84,13 +83,13 @@ libx.initialize = function ()
 
     		libx.browser.activateConfiguration(edition);
 
-            libxEnv.doforurls.initDoforurls();
-            libxEnv.eventDispatcher.init();
-            libxEnv.citeulike();
+            libxEnv.doforurls.initDoforurls();  // XXX
+            libxEnv.eventDispatcher.init(); // XXX
+            libxEnv.citeulike();    // XXX
     	}
 /* XXX
         onerror: function () {
-            libxEnv.writeLog ( "ERROR: Config XML Not Found" );
+            libx.log.write ( "ERROR: Config XML Not Found" );
             return;
         }
 */
@@ -134,15 +133,18 @@ libx.initialize = function ()
     }
 
     try {
-        libxEnv.writeLog( "Applying Hotfixes" );
+        libx.log.write( "Applying Hotfixes" );
         for ( var i = 0; i < libxEnv.doforurls.hotfixList.length; i++ )
         {
             eval( libxEnv.doforurls.hotfixList[i].text );
         }
     } catch (e) {
-        libxEnv.writeLog( "Hotfix error " + e.message );
+        libx.log.write( "Hotfix error " + e.message );
     } 
 }
+
+// XXX to-be-removed
+var libxEnv = { };
 
 /*
  * Designed to extended to implement events that we commonly re-use, but are not provided
@@ -192,10 +194,10 @@ libxEnv.citeulike = function  ()  {
         var url = contentWindow.location.href;
         var icon = args.icon;
             citeulike.canpost(url, function ( url, reg ) {
-            libxEnv.writeLog ( "Enabled: " + url, "citeulike" );
-            icon.setHidden ( libxEnv.getBoolPref ( 'libx.urlbar.citeulike', true ) ? 'false' : 'true' );    
+            libx.log.write ( "Enabled: " + url, "citeulike" );
+            icon.setHidden ( libx.utils.browserprefs.getBoolPref ( 'libx.urlbar.citeulike', true ) ? 'false' : 'true' );    
         }, function ( url ) {
-            libxEnv.writeLog ( "Disabled: " + url, "citeulike" );
+            libx.log.write ( "Disabled: " + url, "citeulike" );
             icon.setHidden ( 'true' );
         });
     }, { icon: this.icon } );

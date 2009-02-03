@@ -120,7 +120,7 @@ libxEnv.xisbn = {
     /* retrieve info about ISBN or ISSN from xISBN - either from cache or from service, and 
        call formatFunc(result, completion_func) */
     process: function (isbn, requestUrlPath, xpathResponseOk, xmlnsResponse, formatFunc, completionhandlers) {
-        //if (!libxEnv.getBoolPref ('libx.oclc.ajaxpref', 'true'))
+        //if (!libx.utils.browserprefs.getBoolPref ('libx.oclc.ajaxpref', 'true'))
         //    return;
 
         var xmlParam = {

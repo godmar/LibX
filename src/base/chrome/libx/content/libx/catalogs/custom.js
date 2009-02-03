@@ -43,7 +43,7 @@ libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog,
     __init: function () {
         var thisCatalog = this;
 
-        libxEnv.writeLog("Loading external catalog implementation from: " + thisCatalog.jsimplurl);
+        libx.log.write("Loading external catalog implementation from: " + thisCatalog.jsimplurl);
 
         var xhrParams = {
             dataType : "text",
@@ -53,7 +53,7 @@ libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog,
                 try { 
                     eval(code);
                 } catch (er) {
-                    libxEnv.writeLog("Error loading external catalog from "
+                    libx.log.write("Error loading external catalog from "
                         + thisCatalog.jsimplurl + ". I received: " + code);
                 }
             },

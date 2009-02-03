@@ -196,7 +196,7 @@ libx.ff.toolbar = {
         var sb = document.getElementById("libx-search-button");
         sb.label = mitem.label;
         this.selectedCatalog = libx.edition.catalogs[mitem.value];
-        libxEnv.setIntPref("libx.selectedcatalognumber", mitem.value);
+        libx.utils.browserprefs.setIntPref("libx.selectedcatalognumber", mitem.value);
 
         this.activateCatalogOptions(this.selectedCatalog);
     },
@@ -409,7 +409,7 @@ libx.ff.toolbar = {
         }
         
         // record initially selected catalog and activate its search options
-        var selectedCatalog = libxEnv.getIntPref("libx.selectedcatalognumber", 0);
+        var selectedCatalog = libx.utils.browserprefs.getIntPref("libx.selectedcatalognumber", 0);
         // previously selected catalog may no longer be in list; choose #0 in this case
         if (selectedCatalog >= edition.catalogs.length)
             selectedCatalog = 0;    
@@ -421,7 +421,7 @@ libx.ff.toolbar = {
 
         var autolinkcbox = document.getElementById("libx-autolink-checkbox");
         if (edition.options.autolink) {
-            autolinkcbox.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
+            autolinkcbox.setAttribute('checked', libx.utils.browserprefs.getBoolPref("libx.autolink", true));
             autolinkcbox.setAttribute('oncommand', "libx.ff.toolbar.setAutolinkPreference(this.getAttribute('checked') == 'true');");
             autolinkcbox.setAttribute('hidden', false);
         } else {
@@ -431,7 +431,7 @@ libx.ff.toolbar = {
 
     setAutolinkPreference : function (value)
     {
-        libxEnv.setBoolPref("libx.autolink", value);
+        libx.utils.browserprefs.setBoolPref("libx.autolink", value);
     }
 };
 
@@ -453,10 +453,10 @@ libx.ff.initialize = function() {
     menu.addEventListener ( 'popupshowing', 
         function () {
             var m = document.getElementById ( 'libx-autolink-checkbox' );
-            m.setAttribute('checked', libxEnv.getBoolPref("libx.autolink", true));
+            m.setAttribute('checked', libx.utils.browserprefs.getBoolPref("libx.autolink", true));
         }, false );
 
-    if ( libxEnv.getBoolPref ( 'libx.firstrun', true ) ) {
+    if ( libx.utils.browserprefs.getBoolPref ( 'libx.firstrun', true ) ) {
         // i18n
         window.openDialog ( "chrome://libx/content/firstrun.xul",
                         "LibX Initial Configuration", 
@@ -464,7 +464,7 @@ libx.ff.initialize = function() {
                         {
                             toolbar: toolbar.xulToolbar
                         });
-        libxEnv.setBoolPref ( 'libx.firstrun', false );
+        libx.utils.browserprefs.setBoolPref ( 'libx.firstrun', false );
     }
     
     libx.ff.contextmenu.initialize();
@@ -505,7 +505,7 @@ libxEnv.ff.convertPostString2PostData = function (dataString) {
 
 // open search results, according to user preferences
 libxEnv.openSearchWindow = function (url, pref) {
-    var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
+    var what = pref ? pref : libx.utils.browserprefs.getStringPref("libx.displaypref", "libx.newtabswitch");
 
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
@@ -583,20 +583,16 @@ libxEnv.loadXMLString = function (xmlstring) {
     return parser.parseFromString(xmlstring,"text/xml");
 }
   
-// output a message to the JS console
-libxEnv.writeLog = function (msg, type) {
-    if(!type) {
-        type = 'LibX';
+libx.ff.log = {
+    /**
+     * Write a message to the JS console
+     * @param {String} msg message to write
+     */
+    write : function (msg) {
+        var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
+            .getService(Components.interfaces.nsIConsoleService);
+        consoleService.logStringMessage(msg);
     }
-    else {
-        var prefString = 'libx.' + type.toLowerCase() + '.debug';
-        if(!libxEnv.getBoolPref(prefString, false)) {
-            return;
-        }
-    }
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-        .getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage(type + ": " + msg);
 }
 
 //Just use the mozilla event listener function
@@ -843,11 +839,11 @@ libxEnv.initPrefsGUI = function () {
     /****** Initialize the default preferences tab *********/
     // Initialize the display preferences radiogroup
     document.getElementById ( 'libx-display-prefs' ).selectedItem = 
-        document.getElementById ( libxEnv.getUnicharPref ( "libx.displaypref", "libx.newtabswitch" ) );
+        document.getElementById ( libx.utils.browserprefs.getStringPref ( "libx.displaypref", "libx.newtabswitch" ) );
         
     // Initialize the autolinking checkbox
     document.getElementById ( "libx-autolink-checkbox" )
-        .setAttribute ( "checked", libxEnv.getBoolPref ( "libx.autolink", true ) );
+        .setAttribute ( "checked", libx.utils.browserprefs.getBoolPref ( "libx.autolink", true ) );
     
     /****** Initialize the context menu preferences tab *****/
     libxInitContextMenuTrees();
@@ -863,24 +859,24 @@ libxEnv.initPrefsGUI = function () {
     
     if ( ajaxenabled ) {
         document.getElementById ( 'libx-proxy-ajax-checkbox')
-            .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', 'true' ) ? 'true' : 'false' );
+            .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.proxy.ajaxlabel', 'true' ) ? 'true' : 'false' );
     } else {
         document.getElementById ( 'libx-proxy-ajax-checkbox' )
             .setAttribute ( 'disabled', 'true' );
     }
     document.getElementById ( 'libx-oclc-ajax-checkbox')
-        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.oclc.ajaxpref', 'true' ) ? 'true' : 'false' );
+        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.oclc.ajaxpref', 'true' ) ? 'true' : 'false' );
     document.getElementById ( 'libx-doi-ajax-checkbox')
-        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.doi.ajaxpref', 'true' ) ? 'true' : 'false' );
+        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.doi.ajaxpref', 'true' ) ? 'true' : 'false' );
     document.getElementById ( 'libx-pmid-ajax-checkbox')
-        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.pmid.ajaxpref', 'true' ) ? 'true' : 'false' );
+        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.pmid.ajaxpref', 'true' ) ? 'true' : 'false' );
     
     
     
     
     
     document.getElementById ( 'libx-citeulike-checkbox' )
-        .setAttribute ( 'checked', libxEnv.getBoolPref ( 'libx.urlbar.citeulike', 'true' ) ? 'true' : 'false' );
+        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.urlbar.citeulike', 'true' ) ? 'true' : 'false' );
 }
 
 libxEnv.resetToDefaultPrefs = function() {
@@ -1088,10 +1084,10 @@ libxEnv.PrefsTreeNode.prototype.setExpanded = function (expanded) {
 
 libxEnv.PrefsTreeNode.prototype.isEnabled = function() {
     if(this.node.hasAttribute('properties')) {
-        libxEnv.writeLog("====" + this.id + " has properties attribute " + this.node.getAttribute('properties'));
+        libx.log.write("====" + this.id + " has properties attribute " + this.node.getAttribute('properties'));
         return this.node.getAttribute('properties').toLocaleLowerCase() == 'enabled';
     }
-    libxEnv.writeLog("====" + this.id + " has no properties attribute");
+    libx.log.write("====" + this.id + " has no properties attribute");
     return false;
 }
 

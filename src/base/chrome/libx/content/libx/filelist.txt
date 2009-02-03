@@ -1,5 +1,6 @@
 libxcoreclass.js
 libx.js
+log.js
 proxy.js
 xisbn.js
 libx.ie.js

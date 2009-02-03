@@ -69,7 +69,7 @@ libx.proxy.factory["ezproxy"] = libx.core.Class.create(
     checkURL: function (opt) {
         var m = this.url.match(/(https?:\/\/[^\/]+)\/(.*)$/);
         if (!m) {
-            libxEnv.writeLog("internal failure parsing proxy url: " + this.url + "...");
+            libx.log.write("internal failure parsing proxy url: " + this.url + "...");
             opt.onsuccess();
             return;
         }

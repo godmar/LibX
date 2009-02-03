@@ -52,7 +52,7 @@ libxEnv.doforurlClass = function()
 {
     //  logging functions for errors within this class
     function dfu_log( msg ) {
-        libxEnv.writeLog( msg, 'doforurl');
+        libx.log.write( msg, 'doforurl');
     }
     
     // variables for the update functions
@@ -547,26 +547,26 @@ libxEnv.doforurlClass = function()
     // sets the preference in about:config for next update
     function setNextUpdatePref( value )
     {
-        libxEnv.setUnicharPref( "libx.nextupdate" , value );
+        libx.utils.browserprefs.setStringPref( "libx.nextupdate" , value );
     }
     
     // gets the about:config value of next update
     function getNextUpdatePref()
     {
-        var temp = libxEnv.getUnicharPref( "libx.nextupdate" );
+        var temp = libx.utils.browserprefs.getStringPref( "libx.nextupdate" );
         return parseFloat( temp );
     }
     
     // sets the about:config prefs value for the timeout
     function setTimeoutPref( value )
     {
-        libxEnv.setUnicharPref( "libx.timeout" , value );
+        libx.utils.browserprefs.setStringPref( "libx.timeout" , value );
     }
     
     //gets the about:config prefs value for the timeout
     function getTimeoutPref()
     {
-        var temp = libxEnv.getUnicharPref( "libx.timeout" );
+        var temp = libx.utils.browserprefs.getStringPref( "libx.timeout" );
         return parseFloat( temp );
     }
     

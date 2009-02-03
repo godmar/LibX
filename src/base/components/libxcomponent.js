@@ -36,17 +36,12 @@ LibXComponent.prototype = {
 
     parseChrome      : function () {
 
-        Cc["@mozilla.org/moz/jssubscript-loader;1"]
-            .getService(Ci.mozIJSSubScriptLoader)
-            .loadSubScript("chrome://libx/content/libxcoreclass.js");
-
-        Cc["@mozilla.org/moz/jssubscript-loader;1"]
-            .getService(Ci.mozIJSSubScriptLoader)
-            .loadSubScript("chrome://libx/content/libx.js");
-
-        Cc["@mozilla.org/moz/jssubscript-loader;1"]
-            .getService(Ci.mozIJSSubScriptLoader)
-            .loadSubScript("chrome://libx/content/documentrequestcache.js");
+        var jsSubScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
+                                .getService(Ci.mozIJSSubScriptLoader);
+        jsSubScriptLoader.loadSubScript("chrome://libx/content/libxcoreclass.js");
+        jsSubScriptLoader.loadSubScript("chrome://libx/content/libx.js");
+        jsSubScriptLoader.loadSubScript("chrome://libx/content/log.js");
+        jsSubScriptLoader.loadSubScript("chrome://libx/content/documentrequestcache.js");
     },
 
     //This will instantiate the DocumentRequest only one time (per application start)

@@ -116,7 +116,7 @@ var memoryCache = libx.core.Class.create ( {
 
             //Check mandatory parameters (url, dataType)
             if (paramObj.url === undefined) {
-                libxEnv.writeLog("In MemoryCache: param.url must be set");
+                libx.log.write("In MemoryCache: param.url must be set");
                 throw "In MemoryCache: Need to provide url to document request";
             }
 

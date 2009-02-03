@@ -53,18 +53,18 @@ window.addEventListener ( "load",
 		// Proxy ajax checkbox
 		var ajaxCheckbox = document.getElementById ( 'libx-proxy-ajax-checkbox' );
 		ajaxCheckbox.setAttribute ( 'checked',
-			libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', true ) );
+			libx.utils.browserprefs.getBoolPref ( 'libx.proxy.ajaxlabel', true ) );
 		ajaxCheckbox.addEventListener ( 'click', function () {
-			libxEnv.setBoolPref(
+			libx.utils.browserprefs.setBoolPref(
 				'libx.proxy.ajaxlabel',
 				this.getAttribute('checked') == 'true' );
 			}, false );
 		// OCLC ajax checkbox
 		var oclcCheckbox = document.getElementById ( 'libx-oclc-ajax-checkbox' )
 		oclcCheckbox.setAttribute ( 'checked',
-			libxEnv.getBoolPref ( 'libx.oclc.ajaxpref', true ) );
+			libx.utils.browserprefs.getBoolPref ( 'libx.oclc.ajaxpref', true ) );
 		oclcCheckbox.addEventListener ( 'click', function () {
-			libxEnv.setBoolPref(
+			libx.utils.browserprefs.setBoolPref(
 				'libx.oclc.ajaxpref',
 				this.getAttribute('checked') == 'true' );
 			}, false );

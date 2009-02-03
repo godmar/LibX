@@ -61,7 +61,7 @@ libxEnv.debugInit = function () {}
  * Assumes that the preferences are either libx.newtabswitch or libx.sametab
  */
 libxEnv.openSearchWindow = function (url, pref) {
-    var what = pref ? pref : libxEnv.getUnicharPref("libx.displaypref", "libx.newtabswitch");
+    var what = pref ? pref : libx.utils.browserprefs.getStringPref("libx.displaypref", "libx.newtabswitch");
     
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
@@ -155,7 +155,7 @@ libx.ie.xpath = {
             }
         }
         catch (e) {
-            libxEnv.writeLog("In findSingleXML: XPath expression " + xpathexpr + " does not return a node");
+            libx.log.write("In findSingleXML: XPath expression " + xpathexpr + " does not return a node");
             return null;
         }
     },
@@ -204,7 +204,7 @@ libx.ie.xpath = {
                 return root.selectNodes(xpathexpr);
         }
         catch (e) {
-            libxEnv.writeLog("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
+            libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
         }
     },
 
@@ -249,7 +249,7 @@ libxEnv.getXMLConfig = function (url) {
 //File IO functions///////////////////////////////////////////////////////////
 
 libxEnv.writeToFile = function(path, str, create, dirPath) {
-    libxEnv.writeLog("167: writeToFile " + path);
+    libx.log.write("167: writeToFile " + path);
     if ( create )
     {
         libxInterface.createAllDirsInPath( dirPath );
@@ -267,18 +267,14 @@ libxEnv.removeFile = function(path) {
 
 //Logging functions///////////////////////////////////////////////////////////
 
-//Writes to the log, prepending the string 'LibX: '
-libxEnv.writeLog = function (msg, type) {
-    if(!type) {
-        type = 'LibX';
+libx.ie.log = {
+    /**
+     * Write a message to the JS console
+     * @param {String} msg message to write
+     */
+    write : function (msg) {
+        libxInterface.writeLog(msg);
     }
-    else {
-        var prefString = 'libx.' + type.toLowerCase() + '.debug';
-        if(!libxEnv.getBoolPref(prefString, false)) {
-            return;
-        }
-    }
-    libxInterface.writeLog(type + ': ' + msg);
 }
 
 libxEnv.addEventHandler = function(obj, event, func) {
@@ -327,7 +323,7 @@ libxEnv.cmLabels = {
  */
 libxEnv.addContextMenuPreferencesTab = function (id) {
     if(libxEnv.cmLabels[id] === undefined) {
-        libxEnv.writeLog(id + " is not known as a valid id");
+        libx.log.write(id + " is not known as a valid id");
         return null;
     }
     return libxInterface.addTab(libxEnv.cmLabels[id].label,
@@ -546,7 +542,7 @@ libxEnv.getCiteulikePref = function () {
 function libxSelectAutolink(value)
 {
     value = (/true/i.test(value)) ? true : false;   // convert string to bool
-    libxEnv.setBoolPref("libx.autolink", value);
+    libx.utils.browserprefs.setBoolPref("libx.autolink", value);
 }
 
 libxEnv.urlBarIcon = function () { }
@@ -575,7 +571,7 @@ libx.ie.hash = {
 
 libxEnv.displayLastUpdateDate = function()
 {
-    var text = libxEnv.getUnicharPref("libx.lastupdate");
+    var text = libx.utils.browserprefs.getStringPref("libx.lastupdate");
     libxInterface.updateLastUpdateDate( text );
 }
 

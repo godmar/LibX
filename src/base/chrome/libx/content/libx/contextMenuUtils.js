@@ -478,7 +478,7 @@ var Item = libx.core.Class.create (
 		};
 	},
 	writeError : function ( functName ) {
-		libxEnv.writeLog ( 'contextMenu', functName + ' called with no native menu item initialized' );
+		libx.log.write ( 'contextMenu', functName + ' called with no native menu item initialized' );
 	},
 	/**
 	 *	Sets the label of the context menu item
@@ -683,7 +683,7 @@ Item.factory['proxy'] = libx.core.Class.extend (
                 urltocheck = libxEnv.getCurrentWindowContent().location.toString();
 
             var onsuccesslabel = popuphelper.isOverLink() ? "proxy.follow.label" : "proxy.reload.label";
-            if (proxy.canCheck() && libxEnv.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
+            if (proxy.canCheck() && libx.utils.browserprefs.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
                 showLabel("proxy.checking.label", urltocheck, proxy);
 
                 proxy.checkURL({

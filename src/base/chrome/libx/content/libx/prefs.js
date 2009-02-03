@@ -78,7 +78,7 @@ libxXMLPreferences.prototype = {
             }
             else {
                 // OK, I guess it's time to fail
-                libxEnv.writeLog ("Context menu file at " + this.path + " not found (and could not fall back).");
+                libx.log.write ("Context menu file at " + this.path + " not found (and could not fall back).");
             }
         }
     },

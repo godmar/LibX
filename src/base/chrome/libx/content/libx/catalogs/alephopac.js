@@ -72,7 +72,7 @@ libx.catalog.factory["aleph"] = libx.core.Class.create(libx.catalog.Catalog,
             if (libxEnv.getCurrentWindowContent().setCcl)
                 libxEnv.getCurrentWindowContent().setCcl(ccl);
         } catch (er) {
-            libxEnv.writeLog("exception while setting aleph cookie: " + er, 'aleph');
+            libx.log.write("exception while setting aleph cookie: " + er, 'aleph');
         }
     },
 	makeSearch: function(stype, query) {

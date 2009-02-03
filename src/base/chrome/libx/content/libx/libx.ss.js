@@ -250,7 +250,7 @@ function libxTestSearch(catindex, type, term)
     try {
         var u = catalogs[catindex].search([{ searchType: type, searchTerms: term }]);
     } catch (er) {
-        libxEnv.writeLog(er + "\ncatalog #" + catindex + " is: " + props(catalogs[catindex]));
+        libx.log.write(er + "\ncatalog #" + catindex + " is: " + props(catalogs[catindex]));
     }
 }
 

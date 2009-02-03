@@ -22,32 +22,75 @@
  *
  * ***** END LICENSE BLOCK ***** */
  
-libxEnv.getBoolPref = function ( prefName, defValue )
-{
-    return nsPreferences.getBoolPref ( prefName, defValue );
-}
+(function () {
+    /* Load nsUserSettings.js, which defines nsPreferences, 
+     *  a convenience wrapper around nsIPrefService. */
+    var tmp_scope = {};
+    var jsLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+                             .getService(Components.interfaces.mozIJSSubScriptLoader);
+    jsLoader.loadSubScript("chrome://global/content/nsUserSettings.js", tmp_scope);
+    var nsPreferences = tmp_scope.nsPreferences;
 
-libxEnv.getUnicharPref = function ( prefName, defValue )
-{
-    return nsPreferences.getLocalizedUnicharPref ( prefName, defValue );
-}
+    /*
+     *	@augments libx.utils.browserprefs
+     */
+    libx.core.Class.mixin(libx.utils.browserprefs, {
+        /**
+         * Retrieve a boolean preference
+         * @param {String} prefName - name of the preference
+         * @param {Boolean} defValue - value to be substituted if not found
+         * @return {Boolean} value of preference
+         */
+        getBoolPref : function ( prefName, defValue ) {
+            return nsPreferences.getBoolPref ( prefName, defValue );
+        },
 
-libxEnv.getIntPref = function ( prefName, defValue )
-{
-    return nsPreferences.getIntPref ( prefName, defValue );
-}
+        /**
+         * Retrieve a string preference
+         * @param {String} prefName - name of the preference
+         * @param {String} defValue - value to be substituted if not found
+         * @return {String} value of preference
+         */
+        getStringPref : function ( prefName, defValue ) {
+            return nsPreferences.getLocalizedUnicharPref ( prefName, defValue );
+        },
 
-libxEnv.setBoolPref = function ( prefName, value )
-{
-    return nsPreferences.setBoolPref ( prefName, value );
-}
+        /**
+         * Retrieve an integer preference
+         * @param {String} prefName - name of the preference
+         * @param {Number} defValue - value to be substituted if not found
+         * @return {Number} value of preference
+         */
+        getIntPref : function ( prefName, defValue ) {
+            return nsPreferences.getIntPref ( prefName, defValue );
+        },
 
-libxEnv.setUnicharPref = function ( prefName, value )
-{
-    return nsPreferences.setUnicharPref ( prefName, value );
-}
+        /**
+         * Set a boolean preference
+         * @param {String} prefName - name of the preference
+         * @param {Boolean} value - new value
+         */
+        setBoolPref : function ( prefName, value ) {
+            return nsPreferences.setBoolPref ( prefName, value );
+        },
 
-libxEnv.setIntPref = function ( prefName, value )
-{
-    return nsPreferences.setIntPref ( prefName, value );
-}
+        /**
+         * Set a string preference
+         * @param {String} prefName - name of the preference
+         * @param {String} value - new value
+         */
+        setStringPref : function ( prefName, value ) {
+            return nsPreferences.setUnicharPref ( prefName, value );
+        },
+
+        /**
+         * Set an integer preference
+         * @param {String} prefName - name of the preference
+         * @param {Number} value - new value
+         */
+        setIntPref : function ( prefName, value ) {
+            return nsPreferences.setIntPref ( prefName, value );
+        }
+    });
+})();
+
