@@ -4,7 +4,25 @@
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
+function log(msg) {
+    var consoleService = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+    consoleService.logStringMessage("libxcomponent: " + msg);
+}
+
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+//Parse chrome JavaScript here
+Cc["@mozilla.org/moz/jssubscript-loader;1"]
+    .getService(Ci.mozIJSSubScriptLoader)
+    .loadSubScript("chrome://libx/content/libxcoreclass.js");
+                                                                     
+Cc["@mozilla.org/moz/jssubscript-loader;1"]
+    .getService(Ci.mozIJSSubScriptLoader)
+    .loadSubScript("chrome://libx/content/libx.js");
+                                                                     
+Cc["@mozilla.org/moz/jssubscript-loader;1"]
+    .getService(Ci.mozIJSSubScriptLoader)
+    .loadSubScript("chrome://libx/content/documentrequestcache.js");
 
 function LibXComponent() {
     //This allows access only from JavaScript
@@ -16,51 +34,13 @@ LibXComponent.prototype = {
     classID          : Components.ID("{2b9e2ab0-83db-4b19-a7e0-3371a2c79619}"),
     contractID       : "@libx.org/libxcomponent;1",
 
-    _xpcom_categories : [ {
-            category : "app-startup"
-        }
-    ],
+    QueryInterface   : XPCOMUtils.generateQI([]),
 
-    //Implement nsIObserver
-    QueryInterface   : XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
-
-    //This should invoke parseChrome when Firefox starts
-    observe : function(aSubject, aTopic, aData) {
-        if (aTopic == "app-startup")
-            this.parseChrome();
-    },
-
-    xmlreq : null,
-
-    instanceCount    : 0,
-
-    parseChrome      : function () {
-
-        var jsSubScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
-                                .getService(Ci.mozIJSSubScriptLoader);
-        jsSubScriptLoader.loadSubScript("chrome://libx/content/libxcoreclass.js");
-        jsSubScriptLoader.loadSubScript("chrome://libx/content/libx.js");
-        jsSubScriptLoader.loadSubScript("chrome://libx/content/log.js");
-        jsSubScriptLoader.loadSubScript("chrome://libx/content/documentrequestcache.js");
-    },
-
-    //This will instantiate the DocumentRequest only one time (per application start)
-    getMemoryCache   : function () { 
-        if (libx.cache.MemoryCacheInstance === undefined) {
-            libx.cache.MemoryCacheInstance = new libx.cache.memorycache.MemoryCache();
-        }
-        
-        return libx.cache.MemoryCacheInstance;
-    },
-
-    getDiskCache     :  function () { },
-
+    //Allow retrieval of per process libx and libxEnv from chrome
+    libx             : libx,
+    libxEnv          : libxEnv
 };
 
-var components = [LibXComponent];
-
 function NSGetModule(compMgr, fileSpec) {
-    return XPCOMUtils.generateModule(components);
+    return XPCOMUtils.generateModule([LibXComponent]);
 }
-
-
