@@ -375,8 +375,14 @@ var memoryCache = libx.core.Class.create ( {
                     if (!this.requestParams.bypassCache) {
                         cache.addToCache(key, xmlHttpReq, this.requestParams);
                     }
-
-                    xmlHttpReq.send(this.requestParams.data);
+					
+					try {
+                    	xmlHttpReq.send(this.requestParams.data);
+                    } catch ( e ) {
+                    	if ( typeof ( this.requestParams.error ) == "function" ) {
+	                    	this.requestParams.error ( null, xmlHttpReq.status, xmlHttpReq );
+	                    }
+                    }
 
                     //if we're not sending an asynchronous request, we retrieve the result
                     if (!this.requestParams.async) {
