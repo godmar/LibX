@@ -58,7 +58,7 @@ logTypes: {
       magic: 'Magic',
       xpath: 'XPath'
     },
-//libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
+//libx.bd.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/options/option");
 xpath: {
         // returns javascript array of nodes
         findNodes: function (doc, xpathexpr) {
@@ -186,7 +186,7 @@ function libxWriteOpenSearchDescriptions() {
     //println("icon is: " + icon);
     var last = String(configdir).replace(/.*editions/, "");
     println("last is: " + last);
-    var name = libxEnv.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/name")[0];
+    var name = libx.bd.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/name")[0];
     //println("name.short is: " + name.getAttribute("short"));
     for (var i = 0; i < (catalogs.length < 1 ? 0 : 1); i++) {
         var opts = catalogs[i].options.split(";");

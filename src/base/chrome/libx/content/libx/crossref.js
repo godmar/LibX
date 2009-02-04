@@ -43,7 +43,7 @@ libxEnv.crossref = {
         }
 
         function get(xpath) {
-            var node = libxEnv.xpath.findSingleXML(query.ownerDocument, xpath, query, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
+            var node = libx.bd.xpath.findSingleXML(query.ownerDocument, xpath, query, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
                     
             return node ? node.nodeValue : null;
         }
@@ -100,7 +100,7 @@ libxEnv.crossref = {
             success  : function (xmlhttp) {
                 var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + doi + "']";
 
-                var node = libxEnv.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
+                var node = libx.bd.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
 
                 if (node) {
                     libxEnv.crossref.formatDOIMetadataAsText(node, completionhandlers, 'ifFound');

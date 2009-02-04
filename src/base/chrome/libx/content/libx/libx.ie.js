@@ -214,9 +214,6 @@ libx.ie.xpath = {
 
 };
 
-// XXX remove this eventually
-libxEnv.xpath = libx.ie.xpath;
-
 //Get remote text functions///////////////////////////////////////////////////
 
 libx.ie.getXMLHttpReqObj = function () {

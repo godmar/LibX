@@ -145,7 +145,4 @@ libx.ff.xpath = {
     }
 };
 
-// XXX remove this eventually
-libxEnv.xpath = libx.ff.xpath;
-
 // vim: ts=4

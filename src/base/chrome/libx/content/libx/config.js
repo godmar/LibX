@@ -59,7 +59,7 @@ libx.config.XMLConfigWrapper = libx.core.Class.create(
         this.xml = xmlDocument;
     },
     getNode : function (xpathExpr) {
-        return libxEnv.xpath.findSingleXML(this.xml, xpathExpr);
+        return libx.bd.xpath.findSingleXML(this.xml, xpathExpr);
     },
     getAttr : function (xpath, attr) {
         var n = this.getNode(xpath);
@@ -137,7 +137,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
         var items = new Array();
         libx.core.Class.mixin(items, libx.config.NameableItemArray);
 
-        var xmlItems = libxEnv.xpath.findNodesXML(doc.xml, xpathExpr);
+        var xmlItems = libx.bd.xpath.findNodesXML(doc.xml, xpathExpr);
         for ( var i = 0; i < xmlItems.length; i++) {
             var node = xmlItems[i];
             var item = { };
@@ -222,7 +222,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             autolinkstyle : "1px dotted"
         };
 
-        var options = libxEnv.xpath.findNodesXML(doc.xml, "/edition/options/option");
+        var options = libx.bd.xpath.findNodesXML(doc.xml, "/edition/options/option");
         for (var i = 0; i < options.length; i++) {
             opts[options[i].getAttribute('key')] = 
                 libx.utils.types.normalize(options[i].getAttribute('value'));
@@ -237,7 +237,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 return node.nodeName;
             },
             function (node, cat) {
-                var xisbnNode = libxEnv.xpath.findSingleXML ( doc.xml, "xisbn", node );
+                var xisbnNode = libx.bd.xpath.findSingleXML ( doc.xml, "xisbn", node );
                 if ( xisbnNode ) {
                     /* Most catalogs will inherit the xisbn property from their prototype,
                      * but since the xisbn settings can be overridden on a per catalog basis,

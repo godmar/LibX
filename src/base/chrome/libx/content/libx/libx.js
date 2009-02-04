@@ -29,6 +29,12 @@
                         
 /**
  * @namespace
+ * Services namespaces
+ */
+libx.services = { }
+
+/**
+ * @namespace
  * Utility namespaces
  */
 libx.utils = { 

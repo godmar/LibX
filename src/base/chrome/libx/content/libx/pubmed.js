@@ -43,7 +43,7 @@ libxEnv.pubmed = {
         }
 
         function get(xpath) {
-            var node = libxEnv.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
+            var node = libx.bd.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
             return node ? node.nodeValue : null;
         }
 
@@ -80,7 +80,7 @@ libxEnv.pubmed = {
                 alert("Invoked success function with responsetext " + responsetext);
                 var xmlResponse = libxEnv.loadXMLString(responsetext);
                 var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + pubmedid + ']';
-                var node = libxEnv.xpath.findSingleXML(
+                var node = libx.bd.xpath.findSingleXML(
                         xmlResponse, docsumxpath, xmlResponse);
 
                 if (node) {

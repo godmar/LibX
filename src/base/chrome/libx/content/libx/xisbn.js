@@ -21,136 +21,173 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/*
- * Initial draft of better xISBN support
+(function () {
+
+/* namespaces used in xISBN responses */
+var xisbnNSResolver = { 
+    'xissn' : 'http://worldcat.org/xid/issn/',
+    'xisbn' : 'http://worldcat.org/xid/isbn/' 
+};
+
+/* Helper:
+ * retrieve info about ISBN or ISSN from xISBN - either from cache or from service, and 
+   call formatFunc(result, invofcc) */
+function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
+    var xmlParam = {
+        dataType : "xml",
+        type     : "POST",
+        url      : requestUrlPath,
+
+        // see http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
+        success  : function (xmlhttp) {
+            var node = libx.bd.xpath.findSingleXML(
+                    xmlhttp, 
+                    xpathResponseOk,
+                    xmlhttp, 
+                    xisbnNSResolver);
+
+            if (node) {
+                invofcc.ifFound(formatFunc(node));
+            } else {
+                if (invofcc.notFound)
+                    invofcc.notFound(xmlhttp);
+            }
+        }
+    }
+
+    //Send request
+    libx.cache.globalMemoryCache.get(xmlParam);
+}
+
+/**
+ * @namespace libx.services.xisbn
  *
- * Tested in FF
- * Intended to be IE-compatible
+ * Support for OCLC's xISBN/xISSN services
  */
-libxEnv.xisbn = {
+libx.services.xisbn = {
 
-    /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
-    formatISBNMetadataAsText: function (xisbnrspisbn, oncompletionobj, oncompletionfunc) {
-        var text = '';
-        function addIfPresent(before, attr, after) {
-            var s = "";
-            if (attr != null) {
-                s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-                if (after !== undefined)
-                    s += after;
-            }
-            return s;
-        }
-        // has: lccn form year lang ed title author publisher city
-        text += addIfPresent('"', xisbnrspisbn.getAttribute('title'), '"');
-        text += addIfPresent(" ", xisbnrspisbn.getAttribute('author'));
-        text += addIfPresent(", ", xisbnrspisbn.getAttribute('year'));
-        text += addIfPresent(", ", xisbnrspisbn.getAttribute('publisher'));
-        text += addIfPresent(", ", xisbnrspisbn.getAttribute('city'));
-        oncompletionobj[oncompletionfunc](text);
-    },
-
-    // see http://xissn.worldcat.org/xissnadmin/doc/api.htm
-    //
-    // * title: Title
-    // * publisher: Publisher
-    // * rawcoverage: Human-readable Coverage
-    // * peerreview: Peerreview, 'Y' if the ISSN is peer-reviewed, 
-    //                           'N' if the ISSN is not peer-reviewed.
-    // * form: Each ISSN has a production form, indicated by an ONIX production form code. 
-    // Current supported values include: JB ( Printed serial ), 
-    // JC ( Serial distributed electronically by carrier ),
-    // JD ( Electronic serial distributed online ), 
-    // MA ( Microform )
-    //
-    /* xissnrsp is a XML document node returned by xisbn.worldcat.org */
-    formatISSNMetadataAsText: function (xissnrsp, oncompletionobj, oncompletionfunc) {
-        var text = '';
-        function addIfPresent(before, attr, after) {
-            var s = "";
-            if (attr != null) {
-                s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-                if (after !== undefined)
-                    s += after;
-            }
-            return s;
-        }
-
-        text += addIfPresent('"', xissnrsp.getAttribute('title'), '"');
-        text += addIfPresent(", ", xissnrsp.getAttribute('publisher'));
-        text += addIfPresent(" ", 
-            xissnrsp.getAttribute('peerreview') == 'Y' ? "(peer-reviewed)" : "(non-peer-reviewed)");
-        switch (xissnrsp.getAttribute('form')) {
-        case "JB": 
-            var form = "Printed serial"; break;
-        case "JC": 
-            var form = "Serial distributed electronically by carrier"; break;
-        case "JD": 
-            var form = "Electronic serial distributed online"; break;
-        case "MA": 
-            var form = "Microform"; break;
-        }
-        text += addIfPresent(", ", form);
-        oncompletionobj[oncompletionfunc](text);
-    },
-
-    /* retrieve info about ISBN from xISBN and format as text */
-    getISBNMetadataAsText: function (isbn, completionhandlers) {
-        this.process(isbn, 
-                    "http://xisbn.worldcat.org/webservices/xid/isbn/" 
-                        + isbn + "?method=getMetadata&format=xml&fl=*",
-                    "//xisbn:rsp[@stat='ok']/xisbn:isbn", 
-                    "http://worldcat.org/xid/isbn/",
-                    this.formatISBNMetadataAsText, completionhandlers);
-    },
-
-    /* retrieve info about ISSN from xISSN and format as text */
-    // NB: libx.org is the LibX affiliate account; these are limited to 100 requests a day.
-    // either arrange for unlimited use with OCLC or ask that edition maintainers
-    // enter an affiliate id via edition builder
-    getISSNMetadataAsText: function (issn, completionhandlers) {
-        this.process(issn, 
-                    "http://xissn.worldcat.org/webservices/xid/issn/" 
-                        + issn + "?method=getMetadata&format=xml&fl=*&ai=libx.org",
-                    "//xissn:rsp[@stat='ok']//xissn:issn", 
-                    "http://worldcat.org/xid/issn/",
-                    this.formatISSNMetadataAsText, completionhandlers);
-    },
-
-    /* retrieve info about ISBN or ISSN from xISBN - either from cache or from service, and 
-       call formatFunc(result, completion_func) */
-    process: function (isbn, requestUrlPath, xpathResponseOk, xmlnsResponse, formatFunc, completionhandlers) {
-        //if (!libx.utils.browserprefs.getBoolPref ('libx.oclc.ajaxpref', 'true'))
-        //    return;
-
-        var xmlParam = {
-            dataType : "xml",
-            type     : "POST",
-            url      : requestUrlPath,
-
-            // see http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
-            success  : function (xmlhttp) {
-                var node = libxEnv.xpath.findSingleXML(
-                        xmlhttp, 
-                        xpathResponseOk,
-                        xmlhttp, 
-                        { 'xissn' : 'http://worldcat.org/xid/issn/',
-                          'xisbn' : 'http://worldcat.org/xid/isbn/' });
-
-                if (node) {
-                    formatFunc(node, completionhandlers, 'ifFound');
-                } else {
-                    if (completionhandlers.notFound)
-                        completionhandlers.notFound(this);
+    /** 
+     * Retrieve information about ISBN from xISBN and format as text 
+     *
+     * @param {Function} invofcc.ifFound(text) function to be called on success.
+     * @param {Function} invofcc.notFound (optional) function to be called on failure.
+     */ 
+    getISBNMetadataAsText: function (invofcc) {
+        /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
+        function formatISBNMetadataAsText(xisbnrspisbn, invofcc) {
+            var text = '';
+            function addIfPresent(before, attr, after) {
+                var s = "";
+                if (attr != null) {
+                    s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                    if (after !== undefined)
+                        s += after;
                 }
+                return s;
             }
+            // has: lccn form year lang ed title author publisher city
+            text += addIfPresent('"', xisbnrspisbn.getAttribute('title'), '"');
+            text += addIfPresent(" ", xisbnrspisbn.getAttribute('author'));
+            text += addIfPresent(", ", xisbnrspisbn.getAttribute('year'));
+            text += addIfPresent(", ", xisbnrspisbn.getAttribute('publisher'));
+            text += addIfPresent(", ", xisbnrspisbn.getAttribute('city'));
+            return text;
         }
 
-        //Send request
-        libx.cache.globalMemoryCache.get(xmlParam);
+        retrieve("http://xisbn.worldcat.org/webservices/xid/isbn/" 
+                        + invofcc.isbn + "?method=getMetadata&format=xml&fl=*",
+                 "//xisbn:rsp[@stat='ok']/xisbn:isbn", 
+                 formatISBNMetadataAsText, invofcc);
+    },
+
+    /** 
+     * Retrieve information about ISSN from xISSN and format as text 
+     *
+     * @param {Function} invofcc.ifFound(text) function to be called on success.
+     * @param {Function} invofcc.notFound (optional) function to be called on failure.
+     */ 
+    getISSNMetadataAsText: function (invofcc) {
+        // NB: libx.org is the LibX affiliate account; these are limited to 100 requests a day.
+        // either arrange for unlimited use with OCLC or ask that edition maintainers
+        // enter an affiliate id via edition builder.
+
+        // see http://xissn.worldcat.org/xissnadmin/doc/api.htm
+        //
+        // * title: Title
+        // * publisher: Publisher
+        // * rawcoverage: Human-readable Coverage
+        // * peerreview: Peerreview, 'Y' if the ISSN is peer-reviewed, 
+        //                           'N' if the ISSN is not peer-reviewed.
+        // * form: Each ISSN has a production form, indicated by an ONIX production form code. 
+        // Current supported values include: JB ( Printed serial ), 
+        // JC ( Serial distributed electronically by carrier ),
+        // JD ( Electronic serial distributed online ), 
+        // MA ( Microform )
+        //
+        /* xissnrsp is a XML document node returned by xisbn.worldcat.org */
+        function formatISSNMetadataAsText(xissnrsp) {
+            var text = '';
+            function addIfPresent(before, attr, after) {
+                var s = "";
+                if (attr != null) {
+                    s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                    if (after !== undefined)
+                        s += after;
+                }
+                return s;
+            }
+
+            text += addIfPresent('"', xissnrsp.getAttribute('title'), '"');
+            text += addIfPresent(", ", xissnrsp.getAttribute('publisher'));
+            text += addIfPresent(" ", 
+                xissnrsp.getAttribute('peerreview') == 'Y' ? "(peer-reviewed)" : "(non-peer-reviewed)");
+            switch (xissnrsp.getAttribute('form')) {
+            case "JB": 
+                var form = "Printed serial"; break;
+            case "JC": 
+                var form = "Serial distributed electronically by carrier"; break;
+            case "JD": 
+                var form = "Electronic serial distributed online"; break;
+            case "MA": 
+                var form = "Microform"; break;
+            }
+            text += addIfPresent(", ", form);
+            return text;
+        }
+
+        retrieve("http://xissn.worldcat.org/webservices/xid/issn/" 
+                  + invofcc.issn + "?method=getMetadata&format=xml&fl=*&ai=libx.org",
+                 "//xissn:rsp[@stat='ok']//xissn:issn", 
+                 formatISSNMetadataAsText, invofcc);
+    },
+
+    unittests: function (out) {
+        this.getISSNMetadataAsText({
+            issn: "1940-5758",
+            ifFound: function (text) {
+                out.write(this.issn + " -> " + text);
+            }
+        });
+
+        this.getISBNMetadataAsText({
+            isbn: "0060731338",
+            ifFound: function (text) {
+                out.write(this.isbn + " -> " + text);
+            }
+        });
+
+        this.getISBNMetadataAsText({
+            isbn: "9780060731335",
+            ifFound: function (text) {
+                out.write(this.isbn + " -> " + text);
+            }
+        });
     }
 };
 
+// temporary:
+// libx.services.xisbn.unittests(libx.log);
+
+})();
 
 // vim: ts=4
-
