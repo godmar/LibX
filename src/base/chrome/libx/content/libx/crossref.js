@@ -21,101 +21,115 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/*
- * Support CrossRef Metadata Retrieval
+/**
+ * @namespace
  *
- * Tested in FF
- * Intended to be IE-compatible
+ * Support CrossRef Metadata Retrieval
  */
-libxEnv.crossref = {
+libx.services.crossref = {
 
-    /* query is a XML document node at //query */
-    formatDOIMetadataAsText: function (query, oncompletionobj, oncompletionfunc) {
-        var text = '';
-        function addIfPresent(before, attr, after) {
-            var s = "";
-            if (attr != null) {
-                s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-                if (after !== undefined)
-                    s += after;
+    /**
+     * Retrieve info about CrossRef ID.
+     *
+     * @param {String} invofcc.doi called with information
+     * @param {Function} invofcc.ifFound(text, xml) called with information from CrossRef.
+     *          text is a brief description.  xml is full XML response.
+     * @param {Function} invofcc.notFound (optional) function to be called on failure.
+     */
+    getDOIMetadata: function (invofcc) {
+        if (!libx.utils.browserprefs.getBoolPref ('libx.doi.ajaxpref', true))
+            return;
+
+        var crossrefNSResolver = { 'qr' : 'http://www.crossref.org/qrschema/2.0' };
+
+        /* query is a XML document node at //query */
+        function formatDOIMetadataAsText (query) {
+            var text = '';
+            function addIfPresent(before, attr, after) {
+                var s = "";
+                if (attr != null) {
+                    s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                    if (after !== undefined)
+                        s += after;
+                }
+                return s;
             }
-            return s;
+
+            function get(xpath) {
+                var node = libx.bd.xpath.findSingleXML(query.ownerDocument, xpath, query, crossrefNSResolver);
+                return node ? node.nodeValue : null;
+            }
+
+            // create an ad-hoc reference format here.
+            var atitle = get("./qr:article_title/text()");
+            var vtitle = get("./qr:volume_title/text()");
+            var stitle = get("./qr:series_title/text()");
+            var jtitle = get("./qr:journal_title/text()");
+            if (atitle) {
+                text += addIfPresent('"', atitle, '",');
+            }
+
+            // schema says choice of author/contributors
+            var author = get("./qr:author/text()");
+            if (author == null) {
+                var author = get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:surname/text()");
+                author += addIfPresent(", ", get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:given_name/text()"));
+            }
+            text += addIfPresent(" ", author);
+
+            text += addIfPresent("; ", vtitle);
+            text += addIfPresent("; ", jtitle);
+            text += addIfPresent("; ", stitle);
+            text += addIfPresent(" ", get("./qr:volume/text()"));
+            text += addIfPresent("(", get("./qr:issue/text()"), ")");
+            text += addIfPresent(":", get("./qr:first_page/text()"), "-");
+            text += addIfPresent(" (", get("./qr:year/text()"), ")");
+
+            return text;
         }
 
-        function get(xpath) {
-            var node = libx.bd.xpath.findSingleXML(query.ownerDocument, xpath, query, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
-                    
-            return node ? node.nodeValue : null;
-        }
+        var requestUrlPath = "http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/" + encodeURIComponent(invofcc.doi);
 
-        // create an ad-hoc reference format here.
-        var atitle = get("./qr:article_title/text()");
-        var vtitle = get("./qr:volume_title/text()");
-        var stitle = get("./qr:series_title/text()");
-        var jtitle = get("./qr:journal_title/text()");
-        if (atitle) {
-            text += addIfPresent('"', atitle, '",');
-        }
-
-        // schema says choice of author/contributors
-        var author = get("./qr:author/text()");
-        if (author == null) {
-            var author = get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:surname/text()");
-            author += addIfPresent(", ", get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:given_name/text()"));
-        }
-        text += addIfPresent(" ", author);
-
-        text += addIfPresent("; ", vtitle);
-        text += addIfPresent("; ", jtitle);
-        text += addIfPresent("; ", stitle);
-        text += addIfPresent(" ", get("./qr:volume/text()"));
-        text += addIfPresent("(", get("./qr:issue/text()"), ")");
-        text += addIfPresent(":", get("./qr:first_page/text()"), "-");
-        text += addIfPresent(" (", get("./qr:year/text()"), ")");
-
-        oncompletionobj[oncompletionfunc](text);
-    },
-
-    /* retrieve info about DOI - either from cache or from service, and 
-       call formatFunc(result, completion_func) */
-    getDOIMetadataAsText: function (doi, completionhandlers) {
-        //if (!libx.utils.browserprefs.getBoolPref ('libx.doi.ajaxpref', 'true'))
-        //    return;
-
-        // see for example 
-        // http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/10.1145/268998.266642
-        // http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/10.1038/nature00967
-        var requestUrlPath = "http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/" + encodeURIComponent(doi);
-
-        //Create the parameter object.  This will be used to issue the xml http
-        //request.  See documentrequestcache.js for documentation.  Since,
-        //regardless of what doi id is used, the page will be found (http
-        //status 200), only the success and complete functions will be used.
-
+        // xmlParam.error is not implemented since CrossRef returns 200 OK
+        // even for DOI that are not known to it.
         var xmlParam = {
             dataType : "xml",
             type     : "POST",
             url      : requestUrlPath,
 
             success  : function (xmlhttp) {
-                var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + doi + "']";
+                var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + invofcc.doi + "']";
 
-                var node = libx.bd.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, { 'qr' : 'http://www.crossref.org/qrschema/2.0' });
-
+                var node = libx.bd.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, crossrefNSResolver);
                 if (node) {
-                    libxEnv.crossref.formatDOIMetadataAsText(node, completionhandlers, 'ifFound');
+                    invofcc.ifFound(formatDOIMetadataAsText(node), xmlhttp);
                 } else {
-                    if (completionhandlers.notFound)
-                        completionhandlers.notFound(this);
+                    if (invofcc.notFound)
+                        invofcc.notFound(xmlhttp);
                 }
             }
         }
 
         //Send the request
         libx.cache.globalMemoryCache.get(xmlParam);
+    },
+
+    /** @private */
+    unittests: function (out) {
+        var dois = [ "10.1145/268998.266642", "10.1038/nature00967", "10.1145/1075382.1075383" ];
+
+        for (var i = 0; i < dois.length; i++) {
+            this.getDOIMetadata({
+                doi: dois[i],
+                ifFound: function (text) {
+                    out.write(this.doi + " -> " + text);
+                }
+            });
+        }
     }
 };
 
+if (libx.utils.browserprefs.getBoolPref ('libx.run.unittests', false))
+    libx.services.crossref.unittests(libx.log);
 
 // vim: ts=4
-

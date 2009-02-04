@@ -149,7 +149,10 @@ libx.initialize = function ()
     } 
 }
 
-// XXX to-be-removed
+/**
+ * @namespace
+ * XXX to-be-removed
+ */
 var libxEnv = { };
 
 /*

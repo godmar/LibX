@@ -42,6 +42,11 @@ var handlerMap = { };
  * nor in FF XUL).
  */
 libx.events = { 
+    /**
+     * Event represents an LibX internal event.
+     *
+     * @class
+     */
     Event : libx.core.Class.create(
         /** @lends libx.events.Event.prototype */{
         initialize : function (eventName) {

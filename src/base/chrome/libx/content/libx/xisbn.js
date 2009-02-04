@@ -47,7 +47,7 @@ function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
                     xisbnNSResolver);
 
             if (node) {
-                invofcc.ifFound(formatFunc(node));
+                invofcc.ifFound(formatFunc(node), xmlhttp);
             } else {
                 if (invofcc.notFound)
                     invofcc.notFound(xmlhttp);
@@ -69,10 +69,12 @@ libx.services.xisbn = {
     /** 
      * Retrieve information about ISBN from xISBN and format as text 
      *
-     * @param {Function} invofcc.ifFound(text) function to be called on success.
+     * @param {String} invofcc.isbn ISBN
+     * @param {Function} invofcc.ifFound(text, xml) function to be called on success.
+     *          text is a brief description.  xml is full XML response.
      * @param {Function} invofcc.notFound (optional) function to be called on failure.
      */ 
-    getISBNMetadataAsText: function (invofcc) {
+    getISBNMetadata: function (invofcc) {
         /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
         function formatISBNMetadataAsText(xisbnrspisbn, invofcc) {
             var text = '';
@@ -103,7 +105,9 @@ libx.services.xisbn = {
     /** 
      * Retrieve information about ISSN from xISSN and format as text 
      *
-     * @param {Function} invofcc.ifFound(text) function to be called on success.
+     * @param {String} invofcc.issn ISSN
+     * @param {Function} invofcc.ifFound(text, xml) function to be called on success.
+     *          text is a brief description.  xml is full XML response.
      * @param {Function} invofcc.notFound (optional) function to be called on failure.
      */ 
     getISSNMetadataAsText: function (invofcc) {
@@ -161,6 +165,7 @@ libx.services.xisbn = {
                  formatISSNMetadataAsText, invofcc);
     },
 
+    /** @private */
     unittests: function (out) {
         this.getISSNMetadataAsText({
             issn: "1940-5758",
@@ -169,14 +174,14 @@ libx.services.xisbn = {
             }
         });
 
-        this.getISBNMetadataAsText({
+        this.getISBNMetadata({
             isbn: "0060731338",
             ifFound: function (text) {
                 out.write(this.isbn + " -> " + text);
             }
         });
 
-        this.getISBNMetadataAsText({
+        this.getISBNMetadata({
             isbn: "9780060731335",
             ifFound: function (text) {
                 out.write(this.isbn + " -> " + text);
@@ -185,8 +190,8 @@ libx.services.xisbn = {
     }
 };
 
-// temporary:
-// libx.services.xisbn.unittests(libx.log);
+if (libx.utils.browserprefs.getBoolPref ('libx.run.unittests', false))
+    libx.services.xisbn.unittests(libx.log);
 
 })();
 

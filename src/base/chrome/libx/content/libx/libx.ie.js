@@ -36,6 +36,12 @@
 libx.ie = { };
 libx.bd = libx.ie;
 
+/**
+ * @namespace
+ * Utility classes and functions for LibX IE
+ */
+libx.ie.utils = { };
+
  /*
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */
@@ -49,7 +55,7 @@ libx.ie.initialize = function() {
     libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
 }
 
-libxEnv.debugInit = function () {}
+libxEnv.debugInit = function () {}  // XXX needed?
 
 //Window functions////////////////////////////////////////////////////////////
 
@@ -221,16 +227,23 @@ libx.ie.getXMLHttpReqObj = function () {
     return req;
 }
 
-/*
- * Load XML String into a XMLDocument
+/**
+ * Load XML Document from String
+ *
+ * @param {String} xmlstring
+ * @return {DOMDocument} parsed document
  */
-libxEnv.loadXMLString = function (xmlstring) {
+libx.ie.utils.loadXMLDocumentFromString = function (xmlstring) {
 
     //We ideally want to Msxml2.DOMDocument.6.0 instead of
     //Msxml2.DOMDocument.3.0, but that leads to certain problems
     //1. With PubMed, the 6.0 parser claims that an element
     //   in the XML document doesn't exist in the DTD.  This
     //   isn't an issue when using the 3.0 version.
+    //
+    //   gback -- sounds like 6.0 does DTD validation, and PubMed does
+    //   not produce XML that validates according to its own DTD.
+    //   TBD: Check whether we can turn validation off.
     var xmlDoc  = new ActiveXObject('Msxml2.DOMDocument.3.0');
     xmlDoc.setProperty("SelectionLanguage","XPath");
 
@@ -272,10 +285,6 @@ libx.ie.log = {
     write : function (msg) {
         libxInterface.writeLog(msg);
     }
-}
-
-libxEnv.addEventHandler = function(obj, event, func) {
-    return document.attachEvent(event, func);
 }
 
 //Context menu functions//////////////////////////////////////////////////////
@@ -542,17 +551,32 @@ function libxSelectAutolink(value)
     libx.utils.browserprefs.setBoolPref("libx.autolink", value);
 }
 
-libxEnv.urlBarIcon = function () { }
-libxEnv.urlBarIcon.prototype = {
-    // modifies the hidden property of the icon
-    setHidden : function ( hidden ) {   },
-    // sets the image src of the icon
-    setImage : function ( img ) {   },
-    // sets the onclick function of the icon
-    setOnclick : function ( onclick ) { },
-    // sets the tooltip text
-    setTooltipText : function ( text ) { }
-}
+/**
+ * Creates a URL Bar Icon
+ * @class
+ *
+ * Not implemented.
+ */
+libx.ie.utils.UrlBarIcon = libx.core.Class.create(
+    /** lends libx.ie.utils.UrlBarIcon.prototype */ {
+    /**
+     * @constructs
+     */
+    initialize:  function () {
+    },
+    //* modifies the hidden attribute of the icon
+    setHidden : function ( hidden ) {
+    },
+    //* sets the image src of the icon
+    setImage : function ( img ) {
+    },
+    //* sets the onclick function of the icon
+    setOnclick : function ( onclick ) {
+    },
+    //* sets tooltip text
+    setTooltipText : function ( text ) {
+    }
+});
 
 libx.ie.hash = {
     hashString : function ( text )

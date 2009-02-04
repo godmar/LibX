@@ -40,7 +40,7 @@ libx.citeulike = {
      * or not posting to CiteULike is supported from a given website
      */
     initialize: function () {
-        var icon = new libxEnv.urlBarIcon();   // FF only right now, returns XUL icon.
+        var icon = new libx.bd.utils.UrlBarIcon();
         icon.setHidden ( true );
         icon.setImage ( "chrome://libx/skin/citeulike.ico" );
         icon.setOnclick ( function  (e) {

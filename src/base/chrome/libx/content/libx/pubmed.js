@@ -21,74 +21,71 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/*
- * Support PubMed Metadata Retrieval
+/**
+ * @namespace
  *
- * Tested in FF
- * Intended to be IE-compatible
+ * Support PubMed Metadata Retrieval
  */
-libxEnv.pubmed = {
+libx.services.pubmed = {
 
-    /* docsum is a XML document node at /eSummaryResult/DocSum */
-    formatPubmedMetadataAsText: function (docsum, oncompletionobj, oncompletionfunc) {
-        var text = '';
-        function addIfPresent(before, attr, after) {
-            var s = "";
-            if (attr != null) {
-                s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-                if (after !== undefined)
-                    s += after;
+    /**
+     * Retrieve info about Pubmed ID.
+     *
+     * @param {String} invofcc.pubmedid called with information
+     * @param {Function} invofcc.ifFound(text, xml) called with information from NCBI.
+     *          text is a brief description.  xml is full XML response.
+     * @param {Function} invofcc.notFound (optional) function to be called on failure.
+     */
+    getPubmedMetadata: function (invofcc) {
+        /* docsum is a XML document node at /eSummaryResult/DocSum */
+        function formatPubmedMetadataAsText(docsum) {
+            var text = '';
+            function addIfPresent(before, attr, after) {
+                var s = "";
+                if (attr != null) {
+                    s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                    if (after !== undefined)
+                        s += after;
+                }
+                return s;
             }
-            return s;
+
+            function get(xpath) {
+                var node = libx.bd.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
+                return node ? node.nodeValue : null;
+            }
+
+            text += addIfPresent('"', get("./Item[@Name = 'Title']/text()"), '"');
+            text += addIfPresent(', ', get("./Item[@Name = 'AuthorList']/Item[position() = 1 and @Name = 'Author']/text()"));
+            if (get("./Item[@Name = 'AuthorList']/Item[position() = 2 and @Name = 'Author']/text()"))
+                text += " et al.";
+            text += addIfPresent(', ', get("./Item[@Name = 'FullJournalName']/text()"));
+            text += addIfPresent(', ', get("./Item[@Name = 'SO']/text()"));
+            return text;
         }
 
-        function get(xpath) {
-            var node = libx.bd.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
-            return node ? node.nodeValue : null;
-        }
+        if (!libx.utils.browserprefs.getBoolPref ('libx.pmid.ajaxpref', true))
+            return;
 
-        text += addIfPresent('"', get("./Item[@Name = 'Title']/text()"), '"');
-        text += addIfPresent(', ', get("./Item[@Name = 'AuthorList']/Item[position() = 1 and @Name = 'Author']/text()"));
-        if (get("./Item[@Name = 'AuthorList']/Item[position() = 2 and @Name = 'Author']/text()"))
-            text += " et al.";
-        text += addIfPresent(', ', get("./Item[@Name = 'FullJournalName']/text()"));
-        text += addIfPresent(', ', get("./Item[@Name = 'SO']/text()"));
-        oncompletionobj[oncompletionfunc](text);
-    },
-
-    /* retrieve info about Pubmed ID - either from cache or from service, and 
-       call formatFunc(result, completion_func) */
-    getPubmedMetadataAsText: function (pubmedid, completionhandlers) {
-        alert("In getPubmedMetadataAsText");
-        //if (!libx.utils.browserprefs.getBoolPref ('libx.pmid.ajaxpref', 'true'))
-        //    return;
-
-        // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082
-        var requestUrlPath = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + pubmedid;
-
-        //Create the parameter object.  This will be used to issue the xml http
-        //request.  See documentrequestcache.js for documentation.  Since,
-        //regardless of what pubmedid is used, the page will be found (http
-        //status 200), only the success and complete functions will be used.
+        // xmlParam.error is not implemented since NCBI always returns 200 OK
         var xmlParam = {
             dataType : "text",
             type     : "POST",
-            url      : requestUrlPath,
+            // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082
+            url      : "http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + invofcc.pubmedid,
 
             // NCBI returns a content type text/html
             success  : function (responsetext) {
-                alert("Invoked success function with responsetext " + responsetext);
-                var xmlResponse = libxEnv.loadXMLString(responsetext);
-                var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + pubmedid + ']';
+                var xmlResponse = libx.bd.utils.loadXMLDocumentFromString(responsetext);
+                var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + invofcc.pubmedid + ']';
                 var node = libx.bd.xpath.findSingleXML(
                         xmlResponse, docsumxpath, xmlResponse);
 
                 if (node) {
-                    libxEnv.pubmed.formatPubmedMetadataAsText(node, completionhandlers, 'ifFound');
-                } 
-                else {
-                    if (completionhandlers.notFound) {
-                        completionhandlers.notFound(this);
+                    invofcc.ifFound(formatPubmedMetadataAsText(node), xmlResponse);
+                } else {
+                    if (invofcc.notFound) {
+                        invofcc.notFound(responsetext);
                     }
                 }
             }
@@ -96,9 +93,21 @@ libxEnv.pubmed = {
 
         //Send the request
         libx.cache.globalMemoryCache.get(xmlParam);
+    },
+
+    /** @private */
+    unittests: function (out) {
+        this.getPubmedMetadata({
+            pubmedid: "16646082",
+            ifFound: function (text) {
+                out.write(this.pubmedid + " -> " + text);
+            }
+        });
     }
 };
 
+if (libx.utils.browserprefs.getBoolPref ('libx.run.unittests', false))
+    libx.services.pubmed.unittests(libx.log);
 
 // vim: ts=4
 

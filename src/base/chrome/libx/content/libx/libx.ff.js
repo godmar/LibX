@@ -482,6 +482,9 @@ libx.ff.initialize = function() {
             ev.notify(nativeEvent);
         }, false);
     }
+
+    var ac = document.getElementById("appcontent");
+    ac.addEventListener("DOMContentLoaded", libxEnv.doforurls.onPageComplete_ff, true);
 }
 
 /**
@@ -587,15 +590,22 @@ libxEnv.getXMLConfig = function (invofcc) {
     return libx.cache.globalMemoryCache.get(xhrParams);
 };
 
-/*
- * Load XML String into a XMLDocument
+/**
+ * Load XML Document from String
  *
+ * @param {String} xmlstring
+ * @return {DOMDocument} parsed document
  */
-libxEnv.loadXMLString = function (xmlstring) {
+libx.ff.utils.loadXMLDocumentFromString = function (xmlstring) {
     parser = new DOMParser();
-    return parser.parseFromString(xmlstring,"text/xml");
+    return parser.parseFromString(xmlstring, "text/xml");
 }
   
+/**
+ * @namespace
+ *
+ * FF-specific implementation of logging.
+ */
 libx.ff.log = {
     /**
      * Write a message to the JS console
@@ -607,32 +617,6 @@ libx.ff.log = {
         consoleService.logStringMessage(msg);
     }
 }
-
-//Just use the mozilla event listener function
-/* NB: addEventListener always adds the listener; if the same listener is
- * already registered, it will be registered twice.
- */
-libxEnv.addEventHandler = function(obj, event, func, b) {
-    if(!obj) obj = window;
-    if(!b) b = false;
-    try {
-        return obj.addEventListener(event, func, b);
-    }
-    catch (e)
-    {
-        alert ( "failing function called from " + arguments.caller );
-    }
-}
-
-//Moved here since IE doesn't need this code
-libxEnv.addEventHandler(window, "load", 
-    function () {
-        var ac = document.getElementById("appcontent");
-        if (ac) {
-            libxEnv.addEventHandler(ac, "DOMContentLoaded", libxEnv.doforurls.onPageComplete_ff, true);
-        }
-    },
-    false);
 
 /**
  *	Returns a popuphelper object
@@ -1144,35 +1128,43 @@ libxEnv.initTree = function(treeID, items) {
     return root;
 };
 
-
-// Initializes a URL Bar Icon with the setters defined below
-libxEnv.urlBarIcon = function () {
-    var hbox = document.getElementById ( "urlbar-icons" );
-    var img = this.img = document.createElement ( "image" );
-    hbox.appendChild ( img );
-}
-
-libxEnv.urlBarIcon.prototype = {
-    // modifies the hidden property of the icon
+/**
+ * Creates a URL Bar Icon
+ * @class
+ *
+ * Currently used for FF+CiteULike.
+ * Revisit namespace choice later.
+ */
+libx.ff.utils.UrlBarIcon = libx.core.Class.create(
+    /** lends libx.ff.utils.UrlBarIcon.prototype */ {
+    /**
+     * @constructs
+     */
+    initialize:  function () {
+        var hbox = document.getElementById ( "urlbar-icons" );
+        var img = this.img = document.createElement ( "image" );
+        hbox.appendChild ( img );
+    },
+    //* modifies the hidden attribute of the icon
     setHidden : function ( hidden ) {
-        if ( hidden == 'true' || hidden == null || hidden == true )
+        if ( hidden )
             this.img.setAttribute ( "hidden", 'true' );
         else
             this.img.setAttribute ( "hidden", 'false' );
     },
-    // sets the image src of the icon
+    //* sets the image src of the icon
     setImage : function ( img ) {
         this.img.setAttribute ( "src", img );
     },
-    // sets the onclick function of the icon
+    //* sets the onclick function of the icon
     setOnclick : function ( onclick ) {
-        libxEnv.addEventHandler ( this.img, "click", onclick );
+        this.img.addEventListener ( "click", onclick, false );
     },
+    //* sets tooltip text
     setTooltipText : function ( text ) {
         this.img.setAttribute ( 'tooltiptext', text );
     }
-};
+});
 
 // vim: ts=4
-
 
