@@ -1,0 +1,41 @@
+{!
+    /**
+     * libx.prefs template
+     *    This is the top level template that produces tabs for each category, as well as an about tab
+     *
+     * Expected input: 
+     *        data: an object representing a category object
+     * Requires: 
+     *    libx.getLocalizedString
+    */
+    
+    /** Generates a unique identifier for each tab, based on the child's _id attributeb */
+    function tabID ( id ) {
+        return id + '-tab';
+    } 
+!}
+
+<div>
+    <ul class="tabs-ul">
+        <for each="child" in="data._children">            
+            <li>
+                <a href="#{+ tabID ( child._id ) +}">
+                    <span>{+ libx.stringbundle.getLocalizedString ( child._idstr + "-tabname", child._name ) +}</span>
+                </a>
+            </li>
+        </for>
+        <li>
+            <a href="#about-libx-tab">
+                <span>About</span>
+            </a>
+        </li>
+    </ul>
+    <for each="child" in="data._children">
+            <div id="{+ tabID ( child._id ) +}">
+                {P child P}
+            </div>
+    </for>
+    <div id="about-libx-tab">
+        {P null, "aboutlibx" P}
+    </div>
+</div>

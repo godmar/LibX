@@ -1,0 +1,38 @@
+{!
+    /**
+     * libx.prefs.contextmenu template
+     * 
+     * Expected input: 
+     *        data: an object representing a category object
+     * Requires: 
+     *    libx.getLocalizedString
+    */
+    
+    /** Generates a unique identifier for each tab, based on the child's _id attributeb */
+    function tabID ( id ) {
+        return id + '-tab';
+    }
+!}
+<!-- libx.prefs.contextmenu : 3253c2cf8aacdd001c26d289eeb8f9652d5c6e17.tmpl -->
+<div>
+    <!-- Tab Headers -->
+    <ul class="tabs-ul">
+        <for each="child" in="data._children">            
+            <li>
+                <a href="#{+ tabID ( child._id ) +}">
+                    <span style="font-size:.7em">{L child._idstr + "-tabname", child._name L}</span>
+                </a>
+            </li>
+        </for>
+    </ul>
+    
+    <!-- Tab Bodies -->
+    <for each="child" in="data._children">
+            <div id="{+ tabID ( child._id ) +}">
+                <p>{L child._idstr + "-description", child._name L}</p>
+                <div style="overflow:auto;height:50%;">
+                    {P child, "contextmenutree" P}
+                </div>
+            </div>
+    </for>
+</div>

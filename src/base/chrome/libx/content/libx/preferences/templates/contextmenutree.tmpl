@@ -1,0 +1,30 @@
+{!
+    /**
+     *     Tree Template used by context menu
+     *    We need access to the current preference, as well as its fullname
+     */
+    function getLabel ( name ) {
+        
+        var label = libx.edition.searchoptions[name];
+        if ( label == null ) {
+            label = name;
+        }
+        return label;
+    } 
+!}
+<!-- contextmenutree.tmpl -->
+<ul class="tree">
+    <for each="child" in="data._children">
+        <li>
+            <if test="(child._nodeType == 'category')">
+                <input type="checkbox" />
+                <label>{+ libx.stringbundle.getLocalizedString ( "libx.contextmenu." + child._name, child._name ) +}</label>
+                {+ process ( child, "contextmenutree" ) +}
+            </if>
+            <if test="(child._nodeType == 'preference')">
+                <input type="checkbox" name="{+child._id+}" class="preference-checkbox" <if test="child._value">checked="checked"</if> />
+                <label>{+ getLabel(child._name)  +}</label>
+            </if>
+        </li>
+    </for>
+</ul>

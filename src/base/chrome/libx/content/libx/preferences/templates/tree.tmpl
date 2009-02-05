@@ -1,0 +1,22 @@
+{!
+    /**
+     *     Default Tree Template
+     *    We need access to the current preference, as well as its fullname
+     */
+     
+!}
+<!-- tree.tmpl -->
+<ul class="tree">
+    <for each="child" in="data._children">
+        <li>
+            <if test="(child._nodeType == 'category')">
+                <input type="checkbox" />
+                <label>{+ libx.stringbundle.getLocalizedString ( child._idstr + "-label", child._name ) +}</label>
+                {+ process ( child ) +}
+            </if>
+            <if test="(child._nodeType == 'preference')">
+                {+ process ( child ) +}
+            </if>
+        </li>
+    </for>
+</ul>
