@@ -19,3 +19,12 @@ libx.log.bd = {
     }
 }
 
+libx.cache.bd = {
+    /**
+     * Create XHR object
+     */
+    getXMLHttpReqObj : function () {
+       return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
+                .createInstance(Components.interfaces.nsIXMLHttpRequest);
+    }
+}
