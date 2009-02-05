@@ -21,9 +21,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-//Test implementation of new framework for XMLHttpRequest
-//objects along with cached results
-
 /**
  * Cache related classes
  *
@@ -32,16 +29,47 @@
 libx.cache = { };
 
 /**
- * This handles sending XML HTTP Requests and optionally caching their results
- * for later use
+ * An in-memory cache implementation for documents.
  *
- * @namespace
+ * Interface is compatible with $._ajax described here:
+ * http://docs.jquery.com/Ajax/jQuery.ajax#options
+ *
+ * Supports multiple pending requests for the same document
+ * simultaneously.
  */
 libx.cache.MemoryCache = ( function () {
 
+/**
+ * Helper:
+ * Invoke success/complete/error callbacks on an array of requests
+ */
+function invokeCallbacks(xmlHttpReq, requests, result) {
 
+    if (xmlHttpReq.status == 200) {
+        // 200 OK
+        for (var i = 0; i < requests.length; ++i) {
+            if (typeof requests[i].success == "function") {
+                requests[i].success(result, xmlHttpReq.status, xmlHttpReq);
+            }
+        }
+    } else {
+        // not OK
+        for (var i = 0; i < requests.length; ++i) {
+            if (typeof requests[i].error == "function") {
+                requests[i].error(result, xmlHttpReq.status, xmlHttpReq);
+            }
+        }
+    }
 
-var memoryCache = libx.core.Class.create ( {
+    //Invoke the list of  complete callbacks
+    for (var i = 0; i < requests.length; ++i) {
+        if (typeof requests[i].complete == "function") {
+            requests[i].complete(result, xmlHttpReq.status, xmlHttpReq);
+        }
+    }
+}
+
+var memoryCacheClass = libx.core.Class.create ( {
     /** @lends libx.cache.MemoryCache.prototype */
 
         /**
@@ -53,41 +81,31 @@ var memoryCache = libx.core.Class.create ( {
          *                                xmlhttprequests.  Default value of 50 is used.
          */
         initialize : function (cacheCapacity) {
-            if (cacheCapacity !== undefined && cacheCapacity !== null)
-                this.xhrCache = new internalCache(cacheCapacity);
-            else
-                this.xhrCache = new internalCache(50);
-        },
+            if (cacheCapacity == null)
+                cacheCapacity = 50;
 
-        /**
-         * Returns the XML http request object
-         *
-         * TODO: Pass this function in as a parameter
-         */
-        getXMLHttpReqObj : function () {
-           return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+            this.xhrCache = new InternalCache(cacheCapacity);
         },
-
 
         /**
          * Builds the string that serves as the key to the cache
          *
          * String delimited by commas (,)
          */
-        buildKeyString : function () {
+        buildKeyString : function (request) {
             var toReturn = "";
 
             //Add the url
-            toReturn += this.requestParams.url;
+            toReturn += request.url;
 
-            if (this.requestParams.header !== undefined) {
-                for (var headerName in this.reqParams.header) {
-                    toReturn += "," + headerName + "=" + reqParams.header;
+            if (request.header !== undefined) {
+                for (var headerName in request.header) {
+                    toReturn += "," + headerName + "=" + request.header[headerName];
                 }
             }
 
-            if (this.requestParams.serverMIMEType !== undefined)
-                toReturn += "," + "MIMEType=" + this.requestParams.serverMIMEType;
+            if (request.serverMIMEType !== undefined)
+                toReturn += "," + "MIMEType=" + request.serverMIMEType;
 
             return toReturn;
         },
@@ -101,74 +119,50 @@ var memoryCache = libx.core.Class.create ( {
          */
          validateParameter : function(paramObj) {
 
-            this.requestParams = { };
-
-            //Check whether we have the required information
-            if (paramObj === undefined || paramObj === null || typeof paramObj != "object") {
-                throw "MemoryCache class parameter must be of type object";
-            }
-
-
-            //Check mandatory parameters (url, dataType)
-            if (paramObj.url === undefined) {
-                libx.log.write("In MemoryCache: param.url must be set");
-                throw "In MemoryCache: Need to provide url to document request";
-            }
-
+            //Mismatch with jQuery, which says:
+            //If none is specified, jQuery will intelligently pass either responseXML 
+            //or responseText to your success callback, based on the MIME type of the response.
+            //See http://docs.jquery.com/Ajax/jQuery.ajax#options
             if (paramObj.dataType === undefined) {
                 throw "In MemoryCache: Need to specify data type of returned data from server";
             }
 
-            //We default to GET
-            if (paramObj.type === undefined)
-                paramObj.type = "GET";
+            var defaults = {
+                type : "GET",
+                async : true,
+                data : null,
+                bypassCache : false
+            };
 
-            if (paramObj.type != "GET"
-                    && paramObj.type != "POST") {
-                throw "In MemoryCache: Invalid request type";
+            for (var property in defaults) {
+                if (paramObj[property] === undefined)
+                    paramObj[property] = defaults[property];
+            }
+
+            if (paramObj.type != "GET" && paramObj.type != "POST") {
+                throw "In MemoryCache: Invalid request type: " + paramObj.type;
             }
 
             //if (paramObj.type == "POST") {
             //    if (paramObj.data === undefined)
             //        throw "In DocumentRequest: Must specify data for post request";
             //}
-
-
-            //We default to asynchronous
-            if (paramObj.async === undefined)
-                paramObj.async = true;
-
-            if (paramObj.data === undefined) {
-                paramObj.data = null;
-            }
-
-            //We default to using the cache
-            if (paramObj.bypassCache === undefined)
-                paramObj.bypassCache = false;
-
-            this.requestParams = paramObj;
-
-            return true;
         },
 
         /**
-         * Removes a given item from the cache
+         * Removes a given request from the cache
          *
-         * @param paramObj parameters used to create key
+         * @param request
          *
-         * @see get for documentation of paramObj
+         * @see get for documentation of request
          */
-        removeFromCache : function ( paramObj ) {
-            //Validate paramObj
-            if (!this.validateParameter( paramObj))
-                return;
+        removeFromCache : function ( request ) {
+            this.validateParameter(request);
 
-
-            var key = this.buildKeyString();
+            var key = this.buildKeyString(request);
             var cachedNode = this.xhrCache.findNode(key);
 
             if (cachedNode !== undefined) {
-                //Remove it from the cache
                 this.xhrCache.removeFromCache(cachedNode);
             }
         },
@@ -228,18 +222,16 @@ var memoryCache = libx.core.Class.create ( {
          *
          * @return {Object} XML HTTP request 
          */
-        get : function ( paramObj ) {
+        get : function ( request ) {
 
-            //Validate paramObj
-            if (!this.validateParameter( paramObj))
-                return;
+            this.validateParameter(request);
 
-            var key = this.buildKeyString();
+            var key = this.buildKeyString(request);
             var result = "";
             var cachedNode = this.xhrCache.findNode(key);
 
             //First check whether the cache contains the information we need
-            if (!this.requestParams.bypassCache && cachedNode !== undefined) {
+            if (!request.bypassCache && cachedNode !== undefined) {
 
                 //First check whether the readystate property of the
                 //xmlhttprequest object is complete
@@ -247,25 +239,7 @@ var memoryCache = libx.core.Class.create ( {
 
                 if (xhr.readyState == 4) {
 
-                    result = cachedNode.result;
-
-                    //Invoke the callbacks
-                    var stat = cachedNode.data.xhr.status;
-
-                    if (stat == 200) {
-                        if (typeof this.requestParams.success == "function") {
-                            this.requestParams.success(result, stat, xhr);
-                        }
-                    }
-                    else {
-                        if (typeof this.requestParams.error == "function") {
-                            this.requestParams.error(result, stat, xhr);
-                        }
-                    }
-
-                    if (typeof this.requestParams.complete == "function") {
-                        this.requestParams.complete(result, stat, xhr);
-                    }
+                    invokeCallbacks(xhr, [ request ], cachedNode.result);
 
                     //Move the corresponding cached node to the front of the list
                     this.xhrCache.moveToFront(cachedNode);
@@ -274,9 +248,7 @@ var memoryCache = libx.core.Class.create ( {
 
                 else {
 
-                    //Request not completed, so add the handler functions
-                    //to the queue
-                    this.xhrCache.addHandlers(cachedNode, this.requestParams);
+                    this.xhrCache.addRequest(cachedNode, request);
 
                 } //end if ready state not complete
 
@@ -286,128 +258,73 @@ var memoryCache = libx.core.Class.create ( {
 
             else {
                 //Need to send the request to the server
-                var xmlHttpReq = this.getXMLHttpReqObj();
+                var xmlHttpReq = libx.cache.bd.getXMLHttpReqObj();
 
-                    xmlHttpReq.open(this.requestParams.type, this.requestParams.url, this.requestParams.async);
+                xmlHttpReq.open(request.type, request.url, request.async);
 
-                    //Used in onreadystate change function (captured through closure)
-                    var params = this.requestParams;
-                    var cache = this.xhrCache; 
+                //Used in onreadystate change function (captured through closure)
+                var cache = this.xhrCache; 
 
-                    if (this.requestParams.async) {
-                        xmlHttpReq.onreadystatechange = function () {
-                            if (xmlHttpReq.readyState == 4) {
+                xmlHttpReq.onreadystatechange = function () {
+                    if (xmlHttpReq.readyState == 4) {
 
-                                if (params.dataType == "text") {
-                                    result = xmlHttpReq.responseText;
-                                }
-                                else if (params.dataType == "xml") {
-                                    result = xmlHttpReq.responseXML;
-                                }
-
-                                if (!params.bypassCache) {
-
-                                    //Store result in cache
-                                    cachedNode = cache.findNode(key);
-
-                                    cachedNode.result = result;
-
-                                    handlerArray = cachedNode.data.handlers;
-
-                                        if (xmlHttpReq.status == 200) {
-                                            //Invoke the list of success callbacks
-                                            for (var i = 0; i < handlerArray.length; ++i) {
-                                                if (typeof handlerArray[i].requestParams.success == "function") {
-                                                    handlerArray[i].requestParams.success(result, xmlHttpReq.status, xmlHttpReq);
-                                                }
-                                            }
-                                        } //end if status ok
-
-                                        else {
-                                            //Invoke the list of failure callbacks
-                                            for (var i = 0; i < handlerArray.length; ++i) {
-                                                if (typeof handlerArray[i].requestParams.error == "function") {
-                                                    handlerArray[i].requestParams.error(result, xmlHttpReq.status, xmlHttpReq);
-                                                }
-                                            }
-                                        } // end if status not ok
-
-                                    //Invoke the list of  complete callbacks
-                                    for (var i = 0; i < handlerArray.length; ++i) {
-                                        if (typeof handlerArray[i].requestParams.complete == "function") {
-                                            handlerArray[i].requestParams.complete(result, xmlHttpReq.status, xmlHttpReq);
-                                        } // end if complete callback defined
-                                    }
-                                }
-                                else {
-                                    //Just invoke the handler functions
-                                    if (xmlHttpReq.status == 200) {
-                                        if (typeof params.success == "function")
-                                            params.success(result, xmlHttpReq.status, xmlHttpReq);
-                                    }
-                                    else {
-                                        if (typeof params.error == "function")
-                                            params.error(result, xmlHttpReq.status, xmlHttpReq);
-                                    }
-
-                                    if (typeof params.complete == "function") {
-                                        params.complete(result, xmlHttpReq.status, xmlHttpReq);
-                                    }
-                                }
-                            } // end if readyState complete
-                        } // end onreadystatechange function
-                    } // end if asynchronous
-
-                    //Set additional headers
-                    if (this.requestParams.header !== undefined) {
-                        for (headerName in requestParams.header) {
-                            xmlHttpReq.setRequestHeader( headerName, this.requestParams.header[headerName]);
-                        }
-                    }
-
-                    //Set content type if defined
-                    //TODO: Handle this case in Internet Explorer
-                    if (this.requestParams.serverMIMEType !== undefined) {
-                        xmlHttpReq.overrideMimeType(this.requestParams.contentType);
-                    }
-
-                    //Store the xmlHttpRequest object in the cache
-                    if (!this.requestParams.bypassCache) {
-                        cache.addToCache(key, xmlHttpReq, this.requestParams);
-                    }
-					
-					try {
-                    	xmlHttpReq.send(this.requestParams.data);
-                    } catch ( e ) {
-                    	if ( typeof ( this.requestParams.error ) == "function" ) {
-	                    	this.requestParams.error ( null, xmlHttpReq.status, xmlHttpReq );
-	                    }
-                    }
-
-                    //if we're not sending an asynchronous request, we retrieve the result
-                    if (!this.requestParams.async) {
-                        if (this.requestParams.dataType == "text")
+                        if (request.dataType == "text") {
                             result = xmlHttpReq.responseText;
-                        else if (this.requestParams.dataType == "xml")
-                            result = xmlHttpReq.responseXML;
-
-                        //Store the result in the cache
-                        if (!this.requestParams.bypassCache) {
-                            //Store the result in the cache
-                            cachedNode = cache.findNode(key);
-                            cachedNode.result = result;
                         }
-                    }
+                        else if (request.dataType == "xml") {
+                            result = xmlHttpReq.responseXML;
+                        }
 
-                    return xmlHttpReq;
-                    
+                        if (!request.bypassCache) {
+
+                            //Store result in cache
+                            cachedNode = cache.findNode(key);
+
+                            cachedNode.result = result;
+
+                            invokeCallbacks(xmlHttpReq, cachedNode.data.requests, result);
+                        }
+                        else {
+                            invokeCallbacks(xmlHttpReq, [ request ], result);
+                        }
+                    } // end if readyState complete
+                } // end onreadystatechange function
+
+                //Set additional headers
+                if (request.header !== undefined) {
+                    for (headerName in request.header) {
+                        xmlHttpReq.setRequestHeader( headerName, request.header[headerName]);
+                    }
+                }
+
+                //Set content type if defined
+                //TODO: Handle this case in Internet Explorer
+                if (request.serverMIMEType !== undefined) {
+                    xmlHttpReq.overrideMimeType(request.contentType);
+                }
+
+                //Store the xmlHttpRequest object in the cache
+                if (!request.bypassCache) {
+                    cache.addToCache(key, xmlHttpReq, request);
+                }
+                
+                try {
+                    xmlHttpReq.send(request.data);
+                } catch ( e ) {
+                    if ( typeof ( request.error ) == "function" ) {
+                        request.error ( e.toString(), xmlHttpReq.status, xmlHttpReq );
+                    }
+                }
+
+                return xmlHttpReq;
+                
             } // end if result not in cache
         }
 });
 /**
  * Serves as private cache
  */
-var internalCache = libx.core.Class.create ( {
+var InternalCache = libx.core.Class.create ( {
 
     /**
      * Constructor
@@ -416,16 +333,9 @@ var internalCache = libx.core.Class.create ( {
      */
     initialize : function (maxSize) {
         this.maxSize = maxSize;
-        this.cacheList = { };
-        this.cacheList.begin = { };
-        this.cacheList.end = { };
-
-        this.cacheList.begin.next = this.cacheList.end;
-        this.cacheList.end.previous = this.cacheList.begin;
+        this.cacheList = new libx.utils.collections.LinkedList();
 
         this.cacheTable = { };
-
-
         this.cacheLength = 0;
     },
 
@@ -435,8 +345,7 @@ var internalCache = libx.core.Class.create ( {
     */
     removeFromCache : function (node) {
 
-        node.previous.next = node.next;
-        node.next.previous = node.previous;
+        this.cacheList.remove(node);
 
         //Remove from the hash table
         delete this.cacheTable[node.data.key];
@@ -452,44 +361,37 @@ var internalCache = libx.core.Class.create ( {
      *
      * @param keyContents  key for cache element
      * @param xhr          xmlhttprequest object
-     * @param param        parameters for xmlhttprequest
+     * @param request      request object
      *
-     * @returns true if insertion was successful, false otherwise.
+     * @returns node associated with that key
      */
-    addToCache : function (keyContents, xhr, param) {
+    addToCache : function (keyContents, xhr, request) {
 
         //Node has the following structure
-        //next     : points to next node
-        //previous : points to previous node
         //data     : contents of node
+        //next, prev: used by LinkedList
         //
         //data has the following structure
         //xhr      : xml http request object
         //key      : unique key for each xhr
-        //handlers : array of objects
+        //requests : array of request objects
         //
-        //Each handler object contains a reference to the requestParams object.
-        //That object contains three functions--two of which are invoked once the
+        //Request objects may contain three methods--two of which are invoked once the
         //request completes
 
         //First try to find if the cache contains the element
         var node = this.cacheTable[keyContents];
 
-        //We found the node.  Add the handlers to the list
         if (node !== undefined) {
 
-            node.data.handlers.push( { requestParams : param } );
+            //We found the node.  Add the request to the list
+            node.data.requests.push( request );
 
             //Move this node to the beginning of list
-            node.previous.next = node.next;
-            node.next.previous = node.previous;
+            this.cacheList.remove(node);
+            this.cacheList.pushFront(node);
 
-            node.next = this.cacheList.begin.next;
-            node.previous = this.cacheList.begin;
-
-            this.cacheList.begin.next.previous = node;
-            this.cacheList.begin.next = node;
-
+            return node;
         }
 
         //Since we didn't find a node with the particular key, create a new one
@@ -501,47 +403,35 @@ var internalCache = libx.core.Class.create ( {
                 //Start from the least recently accessed node and find the first
                 //node whose xhr's state is complete
 
-                var node = this.cacheList.end.previous;
+                var node = this.cacheList.rbegin();
 
-                while (node !== this.cacheList.begin) {
+                while (node !== this.cacheList.rend()) {
 
                     if (node.data.xhr.readyState == 4) {
-                        //Remove this node from the list
-                        node.previous.next = node.next;
-                        node.next.previous = node.previous;
-
-                        //Remove from the hash table
-                        delete this.cacheTable[node.data.key];
-
-                        --this.cacheLength;
-
+                        this.removeFromCache (node);
                         break;
                     }
-                    node = node.previous;
+                    node = node.prev;
                 }
             }
             
-            //We need to add this to the cache
-            var newNode = { };
-            newNode.data = { };
+            //Add new node to beginning of the list
+            var newNode = { 
+                data: {
+                    xhr: xhr,
+                    key: keyContents,
+                    requests: [ request ]
+                },
+            };
 
-            newNode.data.xhr = xhr;
-            newNode.data.key = keyContents;
-
-            newNode.data.handlers = [ { requestParams : param } ];
-
-
-            //Add the new node to the beginning of the list
-            newNode.next = this.cacheList.begin.next;
-            this.cacheList.begin.next.previous = newNode;
-
-            newNode.previous = this.cacheList.begin;
-            this.cacheList.begin.next = newNode;
+            this.cacheList.pushFront(newNode);
 
             //Add a reference to this new node in the cacheTable
             this.cacheTable[keyContents] = newNode;
 
             ++this.cacheLength;
+
+            return newNode;
         }
     },
 
@@ -553,15 +443,8 @@ var internalCache = libx.core.Class.create ( {
      * @returns node or undefined if not found
      */
     findNode : function (keyValue) {
-        
-        var toReturn;
-
-        if (this.cacheTable[keyValue] !== undefined)
-            toReturn = this.cacheTable[keyValue];
-
-        return toReturn;
+        return this.cacheTable[keyValue];
     },
-
     
     /**
      * Moves given node to front of list
@@ -569,37 +452,26 @@ var internalCache = libx.core.Class.create ( {
      * @param {Object} node node to move to front of list
      */
     moveToFront : function (node) {
-
-        //Move this node to the beginning of list
-        node.previous.next = node.next;
-        node.next.previous = node.previous;
-
-        node.next = this.cacheList.begin.next;
-        node.previous = this.cacheList.begin;
-
-        this.cacheList.begin.next.previous = node;
-        this.cacheList.begin.next = node;
+        this.cacheList.remove(node);
+        this.cacheList.pushFront(node);
     },
 
     /**
-     * Adds handler functions to an existing node in the cache
+     * Add request to cache
      *
-     * @param {Object} node node to add handlers to
-     * @param {Object} param contains handlers
+     * @param {Object} node node to which to add this request
+     * @param {Object} request to be added
      */
-    addHandlers : function (node, param) {
+    addRequest : function (node, request) {
 
-        node.data.handlers.push( { requestParams : param } );
+        node.data.requests.push( request );
 
-        //Move node to front of list
         this.moveToFront(node);
     }
 });
-return memoryCache;
+return memoryCacheClass;
 
 })();
 
 libx.cache.globalMemoryCache = new libx.cache.MemoryCache();
-
-
 
