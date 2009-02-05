@@ -1,4 +1,6 @@
 /**
+ * @fileoverview
+ *
  * The global libx object, which forms the root of the libx namespace
  * The following conventions are used.
  * lowercase letters are used as package names, for instance
@@ -8,7 +10,8 @@
  * CamelCase names represent classes (to which 'new' can be applied)
  * and metaobjects (such as libx.core.Class)
  *
- * lowercase names represent objects
+ * Lowercase names represent objects
+ *
  * @namespace
  */
 libx = { };
@@ -22,7 +25,10 @@ libx = { };
  * Following snippet taken from 
  * http://pastie.textmate.org/private/ua9j48n4w0k4wpxktsxdhw
  * This file contains Alex's original code and a name space wrapper.
+ *
  *	@namespace
+ *
+ *	This property is global.
  */
 libx.core = (function() {
 

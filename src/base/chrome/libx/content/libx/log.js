@@ -31,6 +31,8 @@
  * @namespace libx.log
  *
  * Support for logging
+ *
+ * This namespace is global.
  */
 libx.log = { 
     /**
