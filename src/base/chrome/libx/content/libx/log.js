@@ -55,6 +55,6 @@ libx.log = {
             }
         }
 
-        libx.bd.log.write(prefix + ": " + msg);
+        libx.log.bd.write(prefix + ": " + msg);
     }
 }

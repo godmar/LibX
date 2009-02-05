@@ -63,7 +63,7 @@ libx.citeulike = {
                     icon.setHidden (!libx.utils.browserprefs.getBoolPref('libx.urlbar.citeulike', true));
                 }, function ( url ) {
                     libx.log.write ( "Disabled: " + url, "citeulike" );
-                    icon.setHidden ( 'true' );
+                    icon.setHidden ( true );
                 });
             }
         });

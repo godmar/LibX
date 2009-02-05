@@ -277,7 +277,7 @@ libxEnv.removeFile = function(path) {
 
 //Logging functions///////////////////////////////////////////////////////////
 
-libx.ie.log = {
+libx.log.bd = {
     /**
      * Write a message to the JS console
      * @param {String} msg message to write

@@ -51,7 +51,7 @@ libx.services.pubmed = {
             }
 
             function get(xpath) {
-                var node = libx.bd.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
+                var node = libx.utils.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
                 return node ? node.nodeValue : null;
             }
 
@@ -78,7 +78,7 @@ libx.services.pubmed = {
             success  : function (responsetext) {
                 var xmlResponse = libx.bd.utils.loadXMLDocumentFromString(responsetext);
                 var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + invofcc.pubmedid + ']';
-                var node = libx.bd.xpath.findSingleXML(
+                var node = libx.utils.xpath.findSingleXML(
                         xmlResponse, docsumxpath, xmlResponse);
 
                 if (node) {

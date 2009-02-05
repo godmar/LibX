@@ -572,24 +572,6 @@ libxEnv.openSearchWindow = function (url, pref) {
     }
 }
 
-
-// asynchronous now; still in transition
-libxEnv.getXMLConfig = function (invofcc) {
-    var xhrParams = {
-        url : invofcc.url,
-        dataType : "xml",
-        type     : "GET",
-
-        complete : function (xml, stat, xhr) {
-            invofcc.onload(xhr);
-        },
-
-        bypassCache : true 
-    };
-
-    return libx.cache.globalMemoryCache.get(xhrParams);
-};
-
 /**
  * Load XML Document from String
  *
@@ -601,23 +583,6 @@ libx.ff.utils.loadXMLDocumentFromString = function (xmlstring) {
     return parser.parseFromString(xmlstring, "text/xml");
 }
   
-/**
- * @namespace
- *
- * FF-specific implementation of logging.
- */
-libx.ff.log = {
-    /**
-     * Write a message to the JS console
-     * @param {String} msg message to write
-     */
-    write : function (msg) {
-        var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-            .getService(Components.interfaces.nsIConsoleService);
-        consoleService.logStringMessage(msg);
-    }
-}
-
 /**
  *	Returns a popuphelper object
  */

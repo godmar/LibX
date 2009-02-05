@@ -96,7 +96,7 @@ libx.cache.FileCache = ( function () {
      */
     function calculateHashedPath ( url ) 
     {
-        var unprocessedPath = libx.bd.hash.hashString( url );
+        var unprocessedPath = libx.utils.hash.hashString( url );
         var path = unprocessedPath.substring( 0 , firstSlashPos );
         path += "/" + unprocessedPath.substring( firstSlashPos, 
             secondSlashPos-1);

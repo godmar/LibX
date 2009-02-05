@@ -26,7 +26,9 @@
  * Some utilities to help with xpath expressions for Firefox
  */
 
-libx.ff.xpath = {
+const XPathResult = Components.interfaces.nsIDOMXPathResult;
+
+libx.utils.xpath = {
     /* See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
      * and http://www.xulplanet.com/references/objref/XPathResult.html
      *
@@ -95,7 +97,7 @@ libx.ff.xpath = {
         }
         catch (e) {
             //XXX: Need to use a more specific log type
-            libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
+            libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes: " + e);
             return null;    // XXX should you rethrow here?
         }
 

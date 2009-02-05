@@ -40,7 +40,7 @@ function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
 
         // see http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
         success  : function (xmlhttp) {
-            var node = libx.bd.xpath.findSingleXML(
+            var node = libx.utils.xpath.findSingleXML(
                     xmlhttp, 
                     xpathResponseOk,
                     xmlhttp, 

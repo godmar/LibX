@@ -36,7 +36,7 @@
  * @namespace 
  * Support for cryptographic hashes
  */
-libx.ff.hash = (function() {
+libx.utils.hash = (function() {
 
 var unicodeConverter = 
     Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
@@ -55,7 +55,7 @@ function toHexString( toConvert ) {
 return {
     /**
      * hashes the given text into a sha1 hashing
-     * @name libx.ff.hash.hashString
+     * @name libx.utils.hash.hashString
      */
     hashString : function ( text )
     {

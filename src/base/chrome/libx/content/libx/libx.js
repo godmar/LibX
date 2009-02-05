@@ -108,52 +108,11 @@ libx.buildDate = "$builddate$";
 /**
  * Initialize LibX
  *
- * In Firefox, this code is called once per new window. It is called
- * after libx.xul has been loaded.
  */
 libx.initialize = function () 
 {
-    libx.browser.initialize();
-
-    var myLibXComponent = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject;
-
-    var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
-    	url: "chrome://libx/content/config.xml",
-    	onload: function (edition) {
-    		libx.edition = edition;
-
-    		libx.browser.activateConfiguration(edition);
-
-            libxEnv.doforurls.initDoforurls();  // XXX
-            libx.citeulike.initialize();
-    	}
-/* XXX
-        onerror: function () {
-            libx.log.write ( "ERROR: Config XML Not Found" );
-            return;
-        }
-*/
-    });
-
-    //
-    // XXX function should end here
-    //
-    try {
-        libx.log.write( "Applying Hotfixes" );
-        for ( var i = 0; i < libxEnv.doforurls.hotfixList.length; i++ )
-        {
-            eval( libxEnv.doforurls.hotfixList[i].text );
-        }
-    } catch (e) {
-        libx.log.write( "Hotfix error " + e.message );
-    } 
+    // nothing right now .... 
 }
-
-/**
- * @namespace
- * XXX to-be-removed
- */
-var libxEnv = { };
 
 /*
  * Designed to extended to implement events that we commonly re-use, but are not provided

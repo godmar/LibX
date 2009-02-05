@@ -56,7 +56,7 @@ libx.services.crossref = {
             }
 
             function get(xpath) {
-                var node = libx.bd.xpath.findSingleXML(query.ownerDocument, xpath, query, crossrefNSResolver);
+                var node = libx.utils.xpath.findSingleXML(query.ownerDocument, xpath, query, crossrefNSResolver);
                 return node ? node.nodeValue : null;
             }
 
@@ -100,7 +100,7 @@ libx.services.crossref = {
             success  : function (xmlhttp) {
                 var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + invofcc.doi + "']";
 
-                var node = libx.bd.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, crossrefNSResolver);
+                var node = libx.utils.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, crossrefNSResolver);
                 if (node) {
                     invofcc.ifFound(formatDOIMetadataAsText(node), xmlhttp);
                 } else {

@@ -49,7 +49,7 @@ libxEnv.sandboxClass = function ()
             makeLink : libxEnv.makeLink,
             getProperty : libxEnv.getProperty,
             options : libx.edition.options,
-            xpath : libx.bd.xpath,
+            xpath : libx.utils.xpath,
             xisbn : libx.services.xisbn,
             openUrlResolver : libxEnv.openUrlResolver,
             openUrlResolvers : libxEnv.openUrlResolvers,

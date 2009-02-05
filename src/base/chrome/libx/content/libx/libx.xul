@@ -43,52 +43,27 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
     <script type="application/x-javascript">
         <![CDATA[
-        /* Get global libx object */
-        libx = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject.libx;
-        libxEnv = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject.libxEnv;
+        /* Inherit properties of global libx object */
+        (function () {
+            var gLibx = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject.libx;
+            libx = { };
+            gLibx.core.Class.mixin(libx, gLibx, true);
+        })();
+
+        libxEnv = { };  // XXX
         ]]>
     </script>
-	<script type="application/x-javascript" src="chrome://libx/content/log.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/events.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/citeulike.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />
-   	<script type="application/x-javascript" src="chrome://libx/content/prefs.ff.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/catalogs/catalog.js" />	
-	<script type="application/x-javascript" src="chrome://libx/content/openurl.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/doiutils.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/isbnutils.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/xpathutils.ff.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/xisbn.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/pubmed.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/crossref.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/config.js" />
     <script type="application/x-javascript" src="chrome://libx/content/config.ff.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/hash.js" />
     <script type="application/x-javascript" src="chrome://libx/content/fileCache.js" />
     <script type="application/x-javascript" src="chrome://libx/content/sandbox.js" />
     <script type="application/x-javascript" src="chrome://libx/content/doforurl.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/libxess.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/milleniumopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/horizonopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/voyageropac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/alephopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/sirsiopac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/web2opac.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/centralsearch.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/custom.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/evergreen.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/worldcat.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/vubis.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/voyager7.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/talisprism.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/proxy.js" />
     <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/catalogs/openURLCatalog.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/citeulike-checkurl.js" />
 
 	<script type="application/x-javascript">
 	<![CDATA[
@@ -97,7 +72,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         // delay LibX initialization until after all other handlers have executed
         // improves startup speed and avoids triggering bugs in Firefox proper on MacOS
         // suggested by Fritz Anderson (fritza@uchicago.edu)
-        window.setTimeout(libx.initialize, 0); 
+        window.setTimeout(libx.browser.initialize, 0); 
       }, false);
     ]]>
     </script>

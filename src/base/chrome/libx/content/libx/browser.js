@@ -19,15 +19,43 @@ var browser =
 { 
 	/**
 	 *	Initialize the browser-specific GUI elements, if needed.
-	 *	Called once.
-	 *
-	 *	This function does not read and activate a LibX configuration; this
-	 *	is done by activateConfiguration
+     *  In Firefox, this code is called once per new window. 
+     *  It is called after libx.xul has been loaded.
 	 */
 	initialize : function () {		
 		libx.bd.initialize();
 		
 		// To implement:  this.toolbar = new Toolbar();
+        var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
+            url: "chrome://libx/content/config.xml",
+            onload: function (edition) {
+                libx.edition = edition;
+
+                libx.browser.activateConfiguration(edition);
+
+                libxEnv.doforurls.initDoforurls();  // XXX
+                libx.citeulike.initialize();
+            }
+    /* XXX
+            onerror: function () {
+                libx.log.write ( "ERROR: Config XML Not Found" );
+                return;
+            }
+    */
+        });
+
+        //
+        // XXX function should end here
+        //
+        try {
+            libx.log.write( "Applying Hotfixes" );
+            for ( var i = 0; i < libxEnv.doforurls.hotfixList.length; i++ )
+            {
+                eval( libxEnv.doforurls.hotfixList[i].text );
+            }
+        } catch (e) {
+            libx.log.write( "Hotfix error " + e.message );
+        } 
 	},
 	
 	/**
