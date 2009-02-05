@@ -30,12 +30,16 @@
 /**
  * @namespace
  * Services namespaces
+ *
+ * This namespace is global.
  */
 libx.services = { }
 
 /**
  * @namespace
  * Utility namespaces
+ *
+ * This namespace is global.
  */
 libx.utils = { 
     /**
@@ -96,6 +100,112 @@ libx.utils = {
                 prefix += k + "=" + obj[k] + " (" + typeof obj[k] + "), ";
             return prefix;
         }
+    },
+
+    /**
+     * @namespace libx.utils.collections
+     *
+     * Convenience methods for dealing with collections
+     */
+    collections: {
+        /**
+         * @class
+         *
+         * A standard-style doubly-linked list
+         */
+        LinkedList: libx.core.Class.create(
+            /** @lends libx.utils.collections.LinkedList */{
+            initialize: function () {
+                this.head = { prev: null };
+                this.tail = { next: null };
+                this.head.next = this.tail;
+                this.tail.prev = this.head;
+            },
+            insert : function (before, node) {
+                node.prev = before.prev;
+                node.next = before;
+                before.prev.next = node;
+                before.prev = node;
+            },
+            remove : function (node) {
+                node.prev.next = node.next;
+                node.next.prev = node.prev;
+            },
+            front: function () {
+                return this.head.next;
+            },
+            back: function () {
+                return this.tail.prev;
+            },
+            pushFront : function (node) {
+                this.insert(this.front(), node);
+            },
+            pushBack : function (node) {
+                this.insert(this.tail, node);
+            },
+            popFront : function (node) {
+                var front = this.front();
+                this.remove(front);
+                return front;
+            },
+            popBack : function (node) {
+                var back = this.back();
+                this.remove(back);
+                return back;
+            },
+            begin: function () {
+                return this.front();
+            },
+            end: function () {
+                return this.tail;
+            },
+            rbegin: function () {
+                return this.back();
+            },
+            rend: function () {
+                return this.head;
+            },
+            /** iteration */
+            map : function (operator) {
+                for (var node = this.begin(); node != this.end(); node = node.next) {
+                    operator(node);
+                }
+            },
+            toString : function () {
+                var s = "[";
+                this.map(function (node) { 
+                    s += node + ", "; 
+                });
+                return s + "]";
+            }
+        }),
+
+        unittests : function (out) {
+            out.write("Running unit tests for linked list\n");
+            var ll = new libx.utils.collections.LinkedList();
+            var ObjectWrapper = new libx.core.Class.create({
+                initialize : function (value) { this.value = value; },
+                toString: function () { return "" + this.value; }
+            });
+            ll.pushFront(new ObjectWrapper("C"));
+            ll.pushFront(new ObjectWrapper("B"));
+            ll.pushFront(new ObjectWrapper("A"));
+            out.write(ll + "\n");  // A, B, C
+            ll.pushFront(ll.popBack());
+            out.write(ll + "\n");  // C, A, B
+            ll.pushBack(ll.popFront());
+            out.write(ll + "\n");  // A, B, C
+            var b = ll.front().next;
+            ll.remove(b);
+            out.write(ll + "\n");  // A, C
+            ll.pushFront(b);
+            out.write(ll + "\n");  // B, A, C
+            // reverse iteration
+            for (var n = ll.rbegin(); n != ll.rend(); n = n.prev) {
+                out.write(n + ", ");    // C, A, B
+            }
+            out.write("\n"); 
+        }
     }
 };
 
@@ -113,13 +223,5 @@ libx.initialize = function ()
 {
     // nothing right now .... 
 }
-
-/*
- * Designed to extended to implement events that we commonly re-use, but are not provided
- * natively ( or to combine multiple events together )
- * 
- * - onContentChange -- events fired when the content of the website changes, either by switching tabs
- *                      or navigating to another website
- */
 
 // vim: ts=4
