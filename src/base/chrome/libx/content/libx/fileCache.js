@@ -117,7 +117,7 @@ libx.cache.FileCache = ( function () {
     function readFile ( finfo ) 
     {
 		var path = getHashedPath( finfo.url, finfo.ext );
-        return libxEnv.getFileText( path );
+        return libx.io.getFileText( path );
     };
     
     /** 
@@ -127,7 +127,7 @@ libx.cache.FileCache = ( function () {
      */
     function readOptionsFile ( url )
     {
-        return libxEnv.getFileText( getHashedOptionPath( url ) );
+        return libx.io.getFileText( getHashedOptionPath( url ) );
     };
     
     /** 
@@ -145,7 +145,7 @@ libx.cache.FileCache = ( function () {
     {
         var path = getHashedPath( finfo.url, finfo.ext );
         var dirPath = path.substring(0, secondSlashPos);
-        libxEnv.writeToFile( path, text, true, dirPath );
+        libx.io.writeToFile( path, text, true, dirPath );
     };
     
     /** 
@@ -158,7 +158,7 @@ libx.cache.FileCache = ( function () {
     {
         var path = getHashedOptionPath(url);
         var dirPath = path.substring(0, secondSlashPos);
-        libxEnv.writeToFile( path, text, true, dirPath );
+        libx.io.writeToFile( path, text, true, dirPath );
     };
 
     /**
@@ -398,7 +398,7 @@ libx.cache.FileCache = ( function () {
             {
               the_list += i + " : " + fileList[i] + "\n";
             }
-            libxEnv.writeToFile( "index.txt", the_list );
+            libx.io.writeToFile( "index.txt", the_list );
         }
     });
 
