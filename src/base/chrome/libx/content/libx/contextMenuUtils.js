@@ -49,6 +49,13 @@ var ContextMenu = libx.core.Class.create (
 	 */
 	initialize : function ( /** ContextMenuObject */ contextMenuObject,
                             /** Edition */ edition     ) {
+		// Load Preferences
+        libx.preferences.load ( {
+            filename : "chrome://libx/content/contextmenu.prefs.xml",
+            overwrite : false,
+            base : "libx.prefs"
+        } );
+		
 		var groupLists = this.groupLists = new Array();
 		var popuphelper = this.popuphelper = libx.bd.getPopupHelper();
 		
@@ -89,6 +96,7 @@ var ContextMenu = libx.core.Class.create (
 				}
 			}
 		}		
+		libx.ui.bd.initializeContextMenu ( this );
 	},
 
 	/**
@@ -327,19 +335,16 @@ var Group = libx.core.Class.create (
 		}
 		return item;
 	},
+	
 	isEnabled : function ( item ) {
-		var libxMenuPrefs = new libxXMLPreferences()
-		var prefs = libxMenuPrefs.contextmenu[this.name];
-    	if ( prefs != null && prefs != "" ) {
-			for ( var i = 0; i < prefs.children.length; i++ ) {
-				var prefItem = prefs.children[i];
-				if ( prefItem.nodeName == item.type 
-					&& prefItem.attr.name == item.name 
-					&& prefItem.attr.type == item.searchType ) {
-					return true;
-				}    
-			}
+		var name = "libx.prefs.contextmenu." + this.name + "." + item.toString();
+		var pref = libx.preferences.get ( name );
+		libx.log.write ( "ContextMenu: " + name );
+		libx.log.write ( "pref is: " + pref );
+		if ( pref ) {
+			return pref._value;
 		}
+		
 		return false;
 	},
 
@@ -560,6 +565,13 @@ var Item = libx.core.Class.create (
 		trim : function ( s ) {
 			return s.replace(/^\s*/, "").replace(/\s*$/, "");
 		}
+	},
+	
+	/**
+	 *	Returns the items value as a string
+	 */
+	toString : function () {
+		return this.type + "." + this.name + "." + this.searchType;	
 	}
 
 } );

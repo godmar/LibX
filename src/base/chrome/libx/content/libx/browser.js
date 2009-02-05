@@ -22,7 +22,14 @@ var browser =
      *  In Firefox, this code is called once per new window. 
      *  It is called after libx.xul has been loaded.
 	 */
-	initialize : function () {		
+	initialize : function () {	
+		// Initialize the browser preferences
+        libx.preferences.load ( {
+            filename : "chrome://libx/content/browser.prefs.xml",
+            overwrite : false,
+            base : "libx.prefs"
+        } );  
+          
 		libx.bd.initialize();
 		
 		// To implement:  this.toolbar = new Toolbar();
