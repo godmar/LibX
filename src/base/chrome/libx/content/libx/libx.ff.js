@@ -634,6 +634,17 @@ libxEnv.getFilePath = function ( path ) {
     }
 }
 
+/**
+ * Returns whether a file referenced by chrome path exists or not
+ *
+ * @param {String} path chrome url location of file
+ */
+libxEnv.isFile = function ( path ) {
+
+    var file = FileIO.openChrome( path );
+    return file.exists();
+}
+
 // Assumes /libx directory off of profile if an absolute chrome path is
 // not specified
 // modified: can now create the file if 3rd param is passed as true
