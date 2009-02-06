@@ -492,11 +492,6 @@ libx.ff.activateConfiguration = function (edition) {
     this.toolbar.activateConfiguration(edition);
 }
 
-libx.ff.getXMLHttpReqObj = function () {
-    var xmlhttp = new XMLHttpRequest();
-    return xmlhttp;
-};
-
 // open search results, according to user preferences
 libxEnv.openSearchWindow = function (url, pref) {
     /* 
@@ -568,17 +563,6 @@ libxEnv.openSearchWindow = function (url, pref) {
         getBrowser().selectedTab = tab;
         break;
     }
-}
-
-/**
- * Load XML Document from String
- *
- * @param {String} xmlstring
- * @return {DOMDocument} parsed document
- */
-libx.ff.utils.loadXMLDocumentFromString = function (xmlstring) {
-    parser = new DOMParser();
-    return parser.parseFromString(xmlstring, "text/xml");
 }
   
 /**

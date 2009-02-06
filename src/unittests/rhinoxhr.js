@@ -83,7 +83,7 @@ XMLHttpRequest.prototype = {
                 
                 if ( self.responseText.match(/^\s*</) ) {
                     try { 
-                        self.responseXML = libx.bd.utils.loadXMLDocumentFromString(self.responseText);
+                        self.responseXML = libx.utils.xml.loadXMLDocumentFromString(self.responseText);
                     } catch(e) { println("exception parsing XML: " + e); }
                 }
             }

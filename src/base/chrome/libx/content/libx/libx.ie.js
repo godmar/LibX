@@ -222,9 +222,11 @@ libx.ie.xpath = {
 
 //Get remote text functions///////////////////////////////////////////////////
 
-libx.ie.getXMLHttpReqObj = function () {
-    var req = libxInterface.getXMLHTTPRequest();
-    return req;
+libx.cache.bd = {
+    getXMLHttpReqObj : function () {
+        var req = libxInterface.getXMLHTTPRequest();
+        return req;
+    }
 }
 
 /**
@@ -233,8 +235,7 @@ libx.ie.getXMLHttpReqObj = function () {
  * @param {String} xmlstring
  * @return {DOMDocument} parsed document
  */
-libx.ie.utils.loadXMLDocumentFromString = function (xmlstring) {
-
+libx.utils.xml.loadXMLDocumentFromString = function (xmlstring) {
     //We ideally want to Msxml2.DOMDocument.6.0 instead of
     //Msxml2.DOMDocument.3.0, but that leads to certain problems
     //1. With PubMed, the 6.0 parser claims that an element

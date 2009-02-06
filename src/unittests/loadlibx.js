@@ -29,8 +29,7 @@ loadScript(libxscripts1);
 
 var Lock = java.util.concurrent.locks.ReentrantLock;
 
-libx.bd = { }
-libx.bd.utils = {
+libx.utils.xml = {
     saxParserLock : new Lock(),
     loadXMLDocumentFromString : function (input) {
         try {
@@ -48,7 +47,7 @@ libx.bd.utils = {
             this.saxParserLock.unlock();
         }
     }
-}
+};
 
 // XMLHttpRequest
 load("rhinoxhr.js");
@@ -80,14 +79,19 @@ libx.utils.xpath = {
                     class java.lang.String replace(char,char)
                     class java.lang.String replace(java.lang.CharSequence,java.lang.CharSequence)
 
-            to work around this, we return a dummy node whose nodeValue is a JavaScript string, 
-            rather than a java.lang.String
-        */
+            to work around this, we could return a dummy node whose nodeValue is a JavaScript string, 
+            rather than a java.lang.String; 
+
+            The problem with this is that such a node cannot be used as a text node.
+
+            Instead, we require that the client perform a cast to a JavaScript string 
+            via the String( ) operator.
 
         case Node.TEXT_NODE:
             return { nodeValue: String(nodes[0].nodeValue),
                      nodeType: Node.TEXT_NODE
                    };
+        */
         default:
             return nodes[0];
         }

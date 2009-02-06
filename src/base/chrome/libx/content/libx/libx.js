@@ -63,6 +63,13 @@ libx.utils = {
     browserprefs: { },
 
     /**
+     * XML utilities
+     *
+     * @namespace libx.utils.xml
+     */
+    xml: { },
+
+    /**
      * @namespace libx.utils.types
      *
      * Convenience methods for dealing with JavaScript types.

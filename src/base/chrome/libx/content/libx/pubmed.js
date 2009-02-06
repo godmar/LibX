@@ -43,7 +43,7 @@ libx.services.pubmed = {
             function addIfPresent(before, attr, after) {
                 var s = "";
                 if (attr != null) {
-                    s = before + attr.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                    s = before + String(attr).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
                     if (after !== undefined)
                         s += after;
                 }
@@ -76,7 +76,7 @@ libx.services.pubmed = {
 
             // NCBI returns a content type text/html
             success  : function (responsetext) {
-                var xmlResponse = libx.bd.utils.loadXMLDocumentFromString(responsetext);
+                var xmlResponse = libx.utils.xml.loadXMLDocumentFromString(responsetext);
                 var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + invofcc.pubmedid + ']';
                 var node = libx.utils.xpath.findSingleXML(
                         xmlResponse, docsumxpath, xmlResponse);

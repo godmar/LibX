@@ -41,3 +41,14 @@ libx.utils.timer.setTimeout = function ( timeout, callback ) {
         .initWithCallback({notify: callback}, timeout,
                 Components.interfaces.nsITimer.TYPE_ONE_SHOT );
 };
+
+/**
+ * Load XML Document from String
+ *
+ * @param {String} xmlstring
+ * @return {DOMDocument} parsed document
+ */
+libx.utils.xml.loadXMLDocumentFromString = function (xmlstring) {
+    parser = new DOMParser();
+    return parser.parseFromString(xmlstring, "text/xml");
+}
