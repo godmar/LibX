@@ -170,21 +170,21 @@ libx.services.xisbn = {
         this.getISSNMetadataAsText({
             issn: "1940-5758",
             ifFound: function (text) {
-                out.write(this.issn + " -> " + text);
+                out.write(this.issn + " -> " + text + "\n");
             }
         });
 
         this.getISBNMetadata({
             isbn: "0060731338",
             ifFound: function (text) {
-                out.write(this.isbn + " -> " + text);
+                out.write(this.isbn + " -> " + text + "\n");
             }
         });
 
         this.getISBNMetadata({
             isbn: "9780060731335",
             ifFound: function (text) {
-                out.write(this.isbn + " -> " + text);
+                out.write(this.isbn + " -> " + text + "\n");
             }
         });
     }

@@ -100,7 +100,7 @@ libx.services.pubmed = {
         this.getPubmedMetadata({
             pubmedid: "16646082",
             ifFound: function (text) {
-                out.write(this.pubmedid + " -> " + text);
+                out.write(this.pubmedid + " -> " + text + "\n");
             }
         });
     }

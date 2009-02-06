@@ -122,7 +122,7 @@ libx.services.crossref = {
             this.getDOIMetadata({
                 doi: dois[i],
                 ifFound: function (text) {
-                    out.write(this.doi + " -> " + text);
+                    out.write(this.doi + " -> " + text + "\n");
                 }
             });
         }
