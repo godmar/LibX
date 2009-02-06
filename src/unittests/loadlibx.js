@@ -2,8 +2,12 @@
  * Run unit tests in Rhino
  */
 
-importClass(Packages.nu.xom.Builder);
-importClass(Packages.nu.xom.XPathContext);
+// see http://java.sun.com/javase/6/docs/technotes/guides/scripting/programmer_guide/index.html#jsimport
+importPackage(org.w3c.dom);
+importPackage(javax.xml.xpath);
+importPackage(javax.xml.parsers);
+importPackage(javax.xml.namespace);
+importClass(org.xml.sax.SAXException);
 
 var libxbase = "../base/chrome/libx/content/libx/";
 var libxscripts1 = [
@@ -28,12 +32,17 @@ var Lock = java.util.concurrent.locks.ReentrantLock;
 libx.bd = { }
 libx.bd.utils = {
     saxParserLock : new Lock(),
-    loadXMLDocumentFromString : function (text) {
+    loadXMLDocumentFromString : function (input) {
         try {
             this.saxParserLock.lock();
-            saxparser = org.xml.sax.helpers.XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-            parser = new Builder(saxparser);
-            doc = parser.build(new java.io.ByteArrayInputStream((new java.lang.String(text)).getBytes("UTF8")));
+
+            // println("parsing: " + input);
+            input = new java.io.ByteArrayInputStream((new java.lang.String(input)).getBytes("UTF8"));
+
+            /*DocumentBuilderFactory*/var domFactory = DocumentBuilderFactory.newInstance();
+            domFactory.setNamespaceAware(true);
+            /*DocumentBuilder*/var builder = domFactory.newDocumentBuilder();
+            /*Document*/var doc = builder.parse(input);
             return doc;
         } finally {
             this.saxParserLock.unlock();
@@ -55,48 +64,61 @@ libx.cache.bd = {
 var returnDefault = function (pref, defvalue) { return defvalue; }
 libx.utils.browserprefs.getBoolPref = returnDefault;
 
-// 
-// a wrapper class that acts somewhat like the JavaScript DOMNodes
-// we return from XPath queries
-//
-// XXX complete this implementation to fully implement DOM Level 2
-// or, don't use nu.xom's XML nodes and XPath (?)
-// see http://www.xom.nu/apidocs/nu/xom/converters/DOMConverter.html
-//
-var DOMFromXOM = new libx.core.Class.create({
-    initialize : function(xomNode) {
-        this.xomNode = xomNode;
-        this.ownerDocument = xomNode.getDocument();
-        this.nodeValue = String(xomNode.getValue());
-    },
-    getAttribute : function(attrName) {
-        var attr = this.xomNode.getAttribute(attrName);
-        return attr == null ? null : String(this.xomNode.getAttribute(attrName).getValue());
-    }
-    /* emulation is incomplete, iterating over children will not work */
-});
-
 libx.utils.xpath = {
     findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
         var nodes = this.findNodesXML(doc, xpathexpr, root, namespaceresolver);
-        return nodes[0];
+        if (nodes == null)
+            return null;
+
+        switch (nodes[0].nodeType) {
+        /* 'nodeValue' is function that returns a java.lang.String object, not a JavaScript string
+         * this causes ambiguities when 'replace' is called, like so:
+
+            sun.org.mozilla.javascript.internal.EvaluatorException: 
+                The choice of Java constructor replace matching JavaScript argument types (function,string) 
+                is ambiguous; candidate constructors are: 
+                    class java.lang.String replace(char,char)
+                    class java.lang.String replace(java.lang.CharSequence,java.lang.CharSequence)
+
+            to work around this, we return a dummy node whose nodeValue is a JavaScript string, 
+            rather than a java.lang.String
+        */
+
+        case Node.TEXT_NODE:
+            return { nodeValue: String(nodes[0].nodeValue),
+                     nodeType: Node.TEXT_NODE
+                   };
+        default:
+            return nodes[0];
+        }
     },
     findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
-        ctxt = new XPathContext();
-        for (var prefix in namespaceresolver)
-            ctxt.addNamespace(prefix, namespaceresolver[prefix]);
+        try {
+            /*XPathFactory*/var factory = XPathFactory.newInstance();
+            /*XPath*/ var xpath = factory.newXPath();
+            xpath.setNamespaceContext(NamespaceContext({
+                getNamespaceURI : function (prefix) {
+                    return prefix in namespaceresolver ? namespaceresolver[prefix] : javax.xml.XMLConstants.NULL_NS_URI;
+                }
+            }));
+            /*XPathExpression*/ var expr = xpath.compile(xpathexpr);
+            /*NodeList*/var nodes = expr.evaluate(root || doc, XPathConstants.NODESET);
+        } catch (er) {
+            println("Error in xpath: " + er.javaException);
+            if ('getUndeclaredThrowable' in er.javaException) 
+                println(er.javaException.getUndeclaredThrowable());
 
-        if (root == null) root = doc.getRootElement();
-        // if 'root' was a DOMFromXOM node, extract the XOM node
-        // XXX
-        if ('xomNode' in root)
-            root = root.xomNode;
+            throw er;
+        }
 
-        var xomNodes = root.query(xpathexpr, ctxt);
-        var xpathNodes = [ ];
-        for (var i = 0; i < xomNodes.size(); i++)
-            xpathNodes.push(new DOMFromXOM(xomNodes.get(i)));
-        return xpathNodes;
+        if (nodes.getLength() == 0)
+            return null;
+
+        var r = new Array();
+        for (var i = 0; i < nodes.getLength(); i++) {
+            r.push(nodes.item(i)); 
+        }
+        return r;
     }
 }
 

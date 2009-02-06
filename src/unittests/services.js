@@ -4,5 +4,5 @@ libx.services.xisbn.unittests(logger);
 libx.services.pubmed.unittests(logger);
 
 logger.write("waiting 4 sec for services tests to complete\n");
-java.lang.Thread.sleep(2000);
+java.lang.Thread.sleep(4000);
 
