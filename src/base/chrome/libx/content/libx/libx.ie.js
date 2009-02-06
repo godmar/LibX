@@ -67,7 +67,7 @@ libxEnv.debugInit = function () {}  // XXX needed?
  * Assumes that the preferences are either libx.newtabswitch or libx.sametab
  */
 libxEnv.openSearchWindow = function (url, pref) {
-    var what = pref ? pref : libx.utils.browserprefs.getStringPref("libx.displaypref", "libx.newtabswitch");
+    var what = pref ? pref : libx.prefs.browser.displaypref;
     
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
@@ -257,23 +257,31 @@ libxEnv.getXMLConfig = function (url) {
 }
 
 //File IO functions///////////////////////////////////////////////////////////
-
-libxEnv.writeToFile = function(path, str, create, dirPath) {
-    libx.log.write("167: writeToFile " + path);
-    if ( create )
-    {
-        libxInterface.createAllDirsInPath( dirPath );
+libx.io = {
+    writeToFile : function(path, str, create, dirPath) {
+        libx.log.write("167: writeToFile " + path);
+        if ( create )
+        {
+            libxInterface.createAllDirsInPath( dirPath );
+        }
+        libxInterface.writeToFile(path, str);
+    },
+    getFileText : function(path) {
+        return libxInterface.readFileText(path);
+    },
+    // XXX: Taken from getLocalXML in prefs.ie.js, not tested
+    getFileXML : function (path){
+        return libxInterface.getXMLPrefFile(path);
+    },
+    removeFile : function(path) {
+        libxInterface.removeFile(path);
+    },
+    // XXX: Untested
+    fileExists : function ( path ) {
+        var text = this.getFileText ( path );
+        return ( text != null && text != "" && text != false ); 
     }
-    libxInterface.writeToFile(path, str);
-}
-
-libxEnv.getFileText = function(path) {
-    return libxInterface.readFileText(path);
-}
-
-libxEnv.removeFile = function(path) {
-    libxInterface.removeFile(path);
-}
+};
 
 //Logging functions///////////////////////////////////////////////////////////
 
@@ -298,244 +306,6 @@ libxEnv.addMenuObject = function(menuentry) {
 
 libxEnv.removeMenuObject = function(menuentry) {
     return libxInterface.removeMenuEntry(menuentry);
-}
-
-//Context menu preferences functions//////////////////////////////////////////
-
-/*
- * This object contains strings and labels needed for the preferences UI.
- * This is necessary because C# currently cannot load the xul file (because
- * the DTD is using a chrome URL, which of course MSXML6 cannot resolve).
- *
- * If it ever becomes possible to load and parse the xul file, this object
- * should be populated from that.
- */
-libxEnv.cmLabels = {
-    'libx-contextmenu-isbn-prefs-tree':{label:'ISBN', text:'Right-click context menu items that are displayed when an ISBN is selected.'},
-    'libx-contextmenu-issn-prefs-tree':{label:'ISSN', text:'Right-click context menu items that are displayed when an ISSN is selected.'},
-    'libx-contextmenu-pmid-prefs-tree':{label:'PMID', text:'Right-click context menu items that are displayed when a PubMed ID is selected.'},
-     'libx-contextmenu-doi-prefs-tree':{label:'DOI', text:'Right-click context menu items that are displayed when a DOI (Digital Object Identifier) is selected.'},
- 'libx-contextmenu-general-prefs-tree':{label:'General', text:'Right-click context menu items that are displayed when text other than an ISBN/ISSN/PubMed ID/DOI is selected.'},
-   'libx-contextmenu-proxy-prefs-tree':{label:'Proxy', text:'Enable/Disable proxy right-click menu item.'}
-};
-
-/*
- * Adds a tab to the context menu preferences page. This function is not
- * necessary in Firefox because the tabs are hard-coded in XUL.
- *
- * What *is* hard-coded here is the id => label/text mappings (given above).
- * @param id {string}   The ID of the new tab
- * @returns {LibXTree}  The C# tree object for the new tab
- */
-libxEnv.addContextMenuPreferencesTab = function (id) {
-    if(libxEnv.cmLabels[id] === undefined) {
-        libx.log.write(id + " is not known as a valid id");
-        return null;
-    }
-    return libxInterface.addTab(libxEnv.cmLabels[id].label,
-                                id,
-                                libxEnv.cmLabels[id].text
-                               );
-}
-
-/*
- * Removes a tab from the context menu preferences page. If no tab exists
- * with the given ID, we do nothing.
- *
- * @param idbase {string}  The string used to form the ID for the tab
- */
-libxEnv.removeContextMenuPreferencesTab = function (idbase) {
-    var tabId = "libx-contextmenu-" + idbase + "-prefs-tab";
-    libxInterface.removeTab(tabId);
-}
-
-/*
- * Initializes a tree and inserts the top-level nodes.
- * @param treeID {string}    The node id of the tree to initialize
- * @param items {array}      Labels & ids to create entries for
- * @returns {PrefsTreeNode}  Node containing the children, or null if no items
- *
- * The 'items' array is used to create top-level nodes for the tree. So if,
- * for example, we wanted to have two top-level nodes (Catalogs and
- * OpenURL Resolvers), items would have two elements.
- *
- * Each element is an object with at least the label and id properties set.
- * Any additional properties are added as attributes to the node.
- */
-libxEnv.initTree = function(treeID, items) {
-    if(items.length == 0) {
-        return null;
-    }
-
-    //Create the root for the tree
-    var tree = libxEnv.addContextMenuPreferencesTab(treeID);
-    if(tree == null) {
-        return null;
-    }
-    var root = new libxEnv.PrefsTreeRoot(tree, treeID);
-
-    //Create the initial items
-    for (var i in items) {
-        root.createChild(items[i].label, items[i].id);
-    }
-    return root;
-};
-
-/* Returns all nodes which are checked
- * @param tree {libxEnv.PrefsTree}  A tree node
- */
-libxEnv.getEnabledNodes = function (tree) {
-    var enabledNodes = new Array();
-
-    //Check self
-    if(tree.isEnabled()) {
-        enabledNodes.push(tree);
-    }
-
-    //Check the children
-    for(var i = 0; i < tree.children.length; ++i) {
-        enabledNodes = enabledNodes.concat(libxEnv.getEnabledNodes(tree.children[i]));
-    }
-    return enabledNodes;
-}
-
-/*  PrefsTreeRoot object
- * Object representing a tree root.
- * 
- * @param treeNode {LibXTree}  A C# LibXTree object
- *
- * This object is a non-visible container of PrefsTreeNode objects.
- */
-libxEnv.PrefsTreeRoot = function(treeNode, id)
-{
-    this.node = treeNode;
-    this.children = new Array();
-    this.id = id;
-}
-
-/*  getChild
- * Locates the child with the given ID.
- *
- * @param id {string}        The ID of the child to locate
- * 
- * @returns {PrefsTreeNode}  The located child node, or null if not found
- */
-libxEnv.PrefsTreeRoot.prototype.getChild = function (id) {
-    for(var i = 0; i < this.children.length; ++i) {
-        if(this.children[i].id == id) {
-            return this.children[i];
-        }
-    }
-    return null;
-}
-
-libxEnv.PrefsTreeRoot.prototype.isEnabled = function() {
-    return false;
-}
-
-/*  createChild
- * Creates a child node (PrefsTreeNode) and appends it.
- * 
- * @param label {string}     The label of the node (visible to user)
- * @param id {string}        A unique node identifier
- * @param attrs {object}     Name, value pairs used to set node attributes
- *
- * @returns {PrefsTreeNode}  The new child node
- */
-libxEnv.PrefsTreeRoot.prototype.createChild = function (label, id, attrs) {
-    //Create the node object.
-    var child = new libxEnv.PrefsTreeNode(this.node, label, id, attrs);
-    this.children.push(child);
-
-    return child;
-};
-
-/*  PrefsTreeNode object
- * Object representing a tree node.
- * 
- * @param parent {LibXTreeNode}  The tree or tree node that contains this node
- * @param label {string}         The label of the node (visible to user)
- * @param id {string}            A unique node identifier
- * @param attrs {object}         Name, value pairs used to set node attributes
- */
-libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
-    //Create the C# node (easier than Firefox, for once)
-    var titem = parent.createChild(label, id);
-
-    //Are we checked?
-    if(attrs && attrs.properties) {
-        if(attrs.properties == 'enabled') {
-            titem.isChecked = true;
-        }
-    }
-    //Populate the JavaScript fields
-    this.node = titem;
-    this.children = new Array();
-    this.id = id;
-};
-
-/*  setExpanded
- * Sets the expanded state of the node.
- *
- * @param expanded {bool}   The desired state. true=expanded, false=collapsed.
- */
-libxEnv.PrefsTreeNode.prototype.setExpanded = function (expanded) {
-    this.node.setExpanded(expanded);
-}
-
-libxEnv.PrefsTreeNode.prototype.isEnabled = function() {
-    return this.node.isChecked;
-}
-
-libxEnv.PrefsTreeNode.prototype.getChild = libxEnv.PrefsTreeRoot.prototype.getChild;
-
-libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.createChild;
-
-//Preferences UI functions////////////////////////////////////////////////////
-/*
- * These functions interface with the preferences UI developed in C#. They are
- * distinct from the context menu preferences above in that they handle the
- * other types of preferences exposed through this UI.
- */
-
-libxEnv.resetToDefaultPrefs = function () {
-    libxInterface.resetTabs();
-}
-
-libxEnv.initPrefsGUI = function() {
-    //This is just a dummy for Firefox compatability.
-}
-
-libxEnv.getDisplayPref = function() {
-    return libxInterface.getDisplayPreference("libx.newtabswitch");
-};
-
-libxEnv.getProxyPref = function() {
-    return libxInterface.getProxyPreference(false);
-};
-
-libxEnv.getDFUPref = function() {
-    return libxInterface.getDFUPreference(true);
-};
-
-libxEnv.getOCLCPref = function() {
-    return libxInterface.getOCLCPreference(false);
-};
-
-libxEnv.getDOIPref = function() {
-    return libxInterface.getDOIPreference(true);
-};
-
-libxEnv.getPMIDPref = function() {
-    return libxInterface.getPMIDPreference(true);
-};
-
-libxEnv.getAutolinkPref = function() {
-    return libxInterface.getAutolinkPreference(false);
-};
-
-libxEnv.getCiteulikePref = function () {
-    return false;
 }
 
 //Autolink functions//////////////////////////////////////////////////////////
