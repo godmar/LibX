@@ -34,8 +34,8 @@ chomp ($makensis);
 
 # Change this to build, say "libx-experimental-<edition>.xpi"
 # If set to non-empty, will suppress creation of update.rdf file
-# my $localbuild = "experimental-";
-my $localbuild = "";
+my $localbuild = "restructuring-";
+# my $localbuild = "";
 
 # "Boolean" that determines whether setup.nsi will be a full install (all files
 # bundled) or a partial installed (files needed are downloaded)
@@ -149,40 +149,43 @@ for my $o ($options_node->getChildrenByTagName('option')) {
 # catalogs.
 #
 my $pref = XML::LibXML::Document->new();
+# see http://search.cpan.org/dist/XML-LibXML/lib/XML/LibXML/Document.pod#createInternalSubset
+$pref->createInternalSubset("category", undef, "http://libx.org/xml/libxprefs.dtd");
 
-# Step 0.  Create <preferences><contextmenu></contextmenu><preferences>
+# create <elemtype key1=value1 key2=value2 ... > entry
+sub makeElement {
+    my ($elemtype, %attr) = @_;
+    my $elem = $pref->createElement($elemtype);
+    foreach my $key (keys(%attr)) {
+        $elem->setAttribute($key, $attr{$key});
+    }
+    return $elem;
+}
 
-my $prefroot = $pref->createElement('preferences');
-$pref->setDocumentElement($prefroot);
-my $prefcmenu = $pref->createElement('contextmenu');
-$prefroot->appendChild($prefcmenu);
+sub makeTreeCategory {
+    my ($name) = @_;
+    return makeElement('category', ( 'name' => $name, 'layout' => 'tree' ));
+}
 
-# does this catalog support option X?
+sub makeBoolPref {
+    my ($name, $boolvalue) = @_;
+    return makeElement('preference', 
+        ( 'name' => $name, 'type' => 'boolean', 'value' => $boolvalue ? "true" : "false"));
+}
+
+# does option X exist in this catalog?
 sub hasOption {
     my ($cat0, $type) = @_;
     my $opt = $cat0->getAttribute('options');
     return (";" . $opt . ";") =~ m/;$type;/;
 }
 
-# create <elemtype name=@name type=@type> entry
-sub makeElementNameType {
-    my ($elemtype, $name, $type) = @_;
-    my $elem = $pref->createElement($elemtype);
-    $elem->setAttribute('name', $name);
-    $elem->setAttribute('type', $type);
-    return $elem;
-}
-
-# create <catalog name=@name type=@type> entry
-sub makeCatalogEntry {
+# is option X enabled in this catalog?
+sub isOptionEnabled {
     my ($cat0, $type) = @_;
-    return makeElementNameType('catalog', $cat0->getAttribute('name'), $type);
-}
-
-# create <openurl name=@name type=@type> entry
-sub makeOpenURLEntry {
-    my ($openurl0, $type) = @_;
-    return makeElementNameType('openurl', $openurl0->getAttribute('name'), $type);
+    my $opt = $cat0->getAttribute('contextmenuoptions');
+    return "" if (!(defined($opt)));
+    return (";" . $opt . ";") =~ m/;$type;/;
 }
 
 # retrieve configuration
@@ -193,91 +196,188 @@ my @magicsearchoption = $root->findnodes('//option[@key=\'magicsearchincontextme
 
 my $cat0 = $catalogs[0];
 
-# Step 1.  Create <general>
-my $default = $pref->createElement('general');
-$prefcmenu->appendChild($default);
+# Step 0. Create root element.
+#
+my $prefroot = makeElement('category', ( 'name' => 'contextmenu', 'layout' => 'tabpanel' ));
+$pref->setDocumentElement($prefroot);
+
+# Step 1.  Create general category
+my $general = makeTreeCategory('general');
+$prefroot->appendChild($general);
+
+my $catalogparent = makeTreeCategory('catalog');
+$general->appendChild($catalogparent);
 
 foreach my $catalog (@catalogs) {
-    my $ctxtoptions = $catalog->getAttribute("contextmenuoptions");
-    next if !(defined($ctxtoptions));
-    foreach my $copt (split(/;/, $ctxtoptions)) {
+    my $catalognode = makeTreeCategory($catalog->getAttribute('name'));
+    $catalogparent->appendChild($catalognode);
+
+    my $coptions = $catalog->getAttribute('options');
+    foreach my $copt (split(/;/, $catalog->getAttribute('options'))) {
         # exclude ISBN
-        $default->appendChild(makeCatalogEntry($catalog, $copt)) if ($copt ne "i" && hasOption($catalog, $copt));
+        my $enabled = $copt ne "i" && isOptionEnabled($catalog, $copt);
+        $catalognode->appendChild(makeBoolPref($copt, $enabled));
     }
 }
 
-# fallback
-if (!$default->hasChildNodes() && $cat0) {
-    # enable Keyword, Title, Author by default for general
-    $default->appendChild(makeCatalogEntry($cat0, 'Y')) if (hasOption($cat0, 'Y'));
-    $default->appendChild(makeCatalogEntry($cat0, 't')) if (hasOption($cat0, 't'));
-    $default->appendChild(makeCatalogEntry($cat0, 'a')) if (hasOption($cat0, 'a'));
-    if (!$default->hasChildNodes()) {
-        # catalog has neither Y, t, or a - take the first option in this case
-        my @opts = split(/;/, $cat0->getAttribute('options'));
-        $default->appendChild(makeCatalogEntry($cat0, $opts[0]));
+# make sure that catalog 0 has some options enabled, even if 
+# (for older config.xml) contextmenuoptions was not present
+# and even if 'Y', 't', and 'a' may not exist.
+if ($cat0) {
+    my $firstcat = ($catalogparent->childNodes)[0];
+    if (!defined($cat0->getAttribute('contextmenuoptions'))) {
+        my $haveAtLeastOne = 0;
+        my %defoptions = ( 'Y' => 1, 't' => 1, 'a' => 1 );
+
+        foreach my $pn ($firstcat->childNodes) {
+            if (defined($defoptions{$pn->getAttribute('name')})) {
+                $pn->setAttribute('value', "true");
+                $haveAtLeastOne = 1;
+            }
+        }
+        # default to activating the first one
+        if (!$haveAtLeastOne) {
+            ($firstcat->childNodes)[0]->setAttribute('value', "true");
+        }
     }
 }
 
-# enable magic button unless turned off
-if (!(@magicsearchoption) || $magicsearchoption[0]->getAttribute('value') eq "true") {
-    $default->appendChild(makeElementNameType('scholar', 'Google Scholar', 'magicsearch'));
-}
-
-# Step 2.  Create <isbn>, <issn>, <pmid>, and <doi> together
-my $isbn = $pref->createElement('isbn');
-$prefcmenu->appendChild($isbn);
-my $issn = $pref->createElement('issn');
-$prefcmenu->appendChild($issn);
-my $doi = $pref->createElement('doi');
-$prefcmenu->appendChild($doi);
-my $pmid = $pref->createElement('pmid');
-$prefcmenu->appendChild($pmid);
-
-# all openurl resolvers appear in ISSN, DOI, and PMID preferences
+# add options for Journal Title search for all OpenURL resolvers
+my $rparent = makeTreeCategory('resolver');
 foreach my $openurl (@openurls) {
     my $icim = $openurl->getAttribute('includeincontextmenu');
-    next if (defined($icim) && $icim eq "false");
+    my $rEnabled = !defined($icim) || $icim eq "true";
 
-    $default->appendChild(makeOpenURLEntry($openurl, 'jt'));
-    $issn->appendChild(makeOpenURLEntry($openurl, 'i'));
-    $doi->appendChild(makeOpenURLEntry($openurl, 'doi'));
-    $pmid->appendChild(makeOpenURLEntry($openurl, 'pmid'));
+    my $rnode = makeTreeCategory($openurl->getAttribute('name'));
+    $rparent->appendChild($rnode);
+    $rnode->appendChild(makeBoolPref('jt', $rEnabled));
+}
+$general->appendChild($rparent) if ($rparent->hasChildNodes());
+
+# enable magic button unless turned off
+my $magicenabled = !(@magicsearchoption) || $magicsearchoption[0]->getAttribute('value') eq "true";
+my $scholarcat = makeTreeCategory('Google Scholar');
+$scholarcat->appendChild(makeBoolPref('magicsearch', $magicenabled));
+my $scholarparent = makeTreeCategory('scholar');
+$scholarparent->appendChild($scholarcat);
+$general->appendChild($scholarparent);
+
+# ---
+
+# Step 2.  For each of isbn, issn, pmid, and doi: iterate over all
+#          catalogs, then resolvers.
+
+sub handleSpecialPref {
+    my ($type, $includeisbn, $includexisbn, $resolveroption) = @_;
+
+    my $specialpref = makeTreeCategory($type);
+    $prefroot->appendChild($specialpref);
+
+    my $pcatalogs = makeTreeCategory('catalog');
+    foreach my $catalog (@catalogs) {
+        my $catalognode = makeTreeCategory($catalog->getAttribute('name'));
+        # include ISBN/ISSN
+        if ($includeisbn && hasOption($catalog, 'i')) {
+            $catalognode->appendChild(makeBoolPref('i', isOptionEnabled($catalog, 'i')));
+        }
+
+        if ($includexisbn && $catalog->findnodes('xisbn')) {
+            my $xEnabled = !$catalog->findnodes('xisbn[@includeincontextmenu = "false"]');
+            $catalognode->appendChild(makeBoolPref('xisbn', $xEnabled));
+        }
+        $pcatalogs->appendChild($catalognode) if ($catalognode->hasChildNodes());
+    }
+    $specialpref->appendChild($pcatalogs) if ($pcatalogs->hasChildNodes());
+
+    my $presolvers = makeTreeCategory('resolver');
+    foreach my $openurl (@openurls) {
+        my $icim = $openurl->getAttribute('includeincontextmenu');
+        my $rEnabled = !defined($icim) || $icim eq "true";
+
+        my $rnode = makeTreeCategory($openurl->getAttribute('name'));
+        $presolvers->appendChild($rnode);
+
+        if ($includeisbn) {
+            $rnode->appendChild(makeBoolPref('i', $rEnabled));
+        }
+        if ($resolveroption ne "") {
+            $rnode->appendChild(makeBoolPref($resolveroption, $rEnabled));
+        }
+    }
+    $specialpref->appendChild($presolvers) if ($presolvers->hasChildNodes());
 }
 
-# all catalogs with 'i' appear in ISBN + ISSN
-# if xisbn child does not have includeincontextmenu set to false also include all children
-foreach my $catalog (@catalogs) {
-    my $ctxtoptions = $catalog->getAttribute("contextmenuoptions");
-    if (hasOption($catalog, 'i') && (!defined($ctxtoptions) || ";$ctxtoptions;" =~ m/;i;/)) {
-        $isbn->appendChild(makeCatalogEntry($catalog, 'i'));
-        $issn->appendChild(makeCatalogEntry($catalog, 'i'));
-    }
+handleSpecialPref('isbn', 1, 1, "");
+handleSpecialPref('issn', 1, 0, "");
+handleSpecialPref('doi',  0, 0, "doi");
+handleSpecialPref('pmid', 0, 0, "pmid");
 
-    if ($catalog->findnodes('xisbn') && !$catalog->findnodes('xisbn[@includeincontextmenu = "false"]')) {
-        $isbn->appendChild(makeCatalogEntry($catalog, 'xisbn'));
-    }
-}
+# Step 3.  Generate always category
+#
+# create 'always' category
+my $palways = makeTreeCategory('always');
 
-# Step 3.  Create <proxy>
-my $proxycat = $pref->createElement('proxy');
-$prefcmenu->appendChild($proxycat);
-
+# add entries for each proxy
+my $pproxies = makeTreeCategory('proxy');
 foreach my $proxy (@proxies) {
     my $icim = $proxy->getAttribute('includeincontextmenu');
-    next if (defined($icim) && $icim eq "false");
+    my $pEnabled = !defined($icim) || $icim eq "true";
 
-    $proxycat->appendChild(makeElementNameType('proxy', $proxy->getAttribute('name'), 'enabled'));
+    my $pproxy = makeTreeCategory($proxy->getAttribute('name'));
+    $pproxy->appendChild(makeBoolPref('enabled', $pEnabled));
+    $pproxies->appendChild($pproxy);
 }
+
+$palways->appendChild($pproxies) if ($pproxies->hasChildNodes());
+$prefroot->appendChild($palways) if ($palways->hasChildNodes());
+
+# write preferences to file
+my $defaultspreffile = $editionpath . "contextmenu.prefs.xml";
+open (DEFPREF, ">$defaultspreffile") || die "Could not write " . $defaultspreffile; 
+print DEFPREF $pref->toString(1);
+close (DEFPREF);
+
+#
+# Browser prefs.
+# In the future, these will be create and maintained by the edition builder.
+# For now, use this template and adjust options as needed
+#
+my $browserprefs = <<END_OF_STRING;
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE category SYSTEM "http://libx.org/xml/libxprefs.dtd">
+<category name="browser" layout="groups" >
+    <preference name="displaypref" type="choice">
+		<item type="string" value="newtabswitch" selected="true"/>
+		<item type="string" value="newtab"/>
+		<item type="string" value="sametab"/>
+		<item type="string" value="newwindow"/>
+	</preference>
+	<preference name="autolinking" type="boolean" value="true" />
+	<preference name="citeulike" type="boolean" value="true" />
+</category>
+END_OF_STRING
+
+
+my $xmlParser = XML::LibXML->new();
+$xmlParser->keep_blanks(0);
+$pref = $xmlParser->parse_string($browserprefs);
+
+# copy setting from config.xml to browserprefs
+my $autolinkpref = ($pref->findnodes('//preference[@name=\'autolinking\']'))[0];
+my $autolinkoption = ($root->findnodes('//option[@key=\'autolink\']'))[0];
+$autolinkpref->setAttribute('value', $autolinkoption->getAttribute('value'));
+
 # for testing
 #print $pref->toString(1);
 #exit;
 
-# write preferences to file
-my $defaultspreffile = $editionpath . "defaultprefs.xml";
-open (DEFPREF, ">$defaultspreffile") || die "Could not write " . $defaultspreffile; 
-print DEFPREF $pref->toString(1);
-close (DEFPREF);
+# write browser preferences only if file does not exist
+$defaultspreffile = $editionpath . "browser.prefs.xml";
+if (! (-r $defaultspreffile)) {
+    open (DEFPREF, ">$defaultspreffile") || die "Could not write " . $defaultspreffile; 
+    print DEFPREF $pref->toString(1);
+    close (DEFPREF);
+}
 
 #
 #
@@ -351,6 +451,15 @@ foreach my $f (@afiles) {
     } else {
         system("cp \"$editionpath/$file\" \"$tmpdir/$dir/$file\"") == 0 || die "Cannot copy $editionpath/$file $tmpdir/$dir/$file";
     }
+}
+
+# Temporary hack: Editionbuilder does not know about these files,
+# so copy them in addition to /additionalfiles
+# add contextmenu.prefs.xml and browser.prefs.xml
+foreach my $file ("contextmenu.prefs.xml", "browser.prefs.xml") {
+    my $dir = "chrome/libx/content/libx";
+    system("cp \"$editionpath/$file\" \"$tmpdir/$dir/$file\"") == 0 || 
+        die "Cannot copy $editionpath/$file $tmpdir/$dir/$file";
 }
 
 if (defined($docinputdir)) {
@@ -626,7 +735,7 @@ open (NSIS, ">$editionpath" . "setup.nsi") || die "Could not upen $editionpath" 
 print NSIS $nsisText;
 close (NSIS);
 
-if (0) {
+if (1) {
     print "LibX IE is currently not being built.\n";
 } 
 elsif (-x $makensis) {
