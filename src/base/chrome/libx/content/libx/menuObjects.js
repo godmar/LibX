@@ -211,7 +211,7 @@ libx.ui.basicContextMenuDescriptor = [
 	{ name : 'always',
 		type : libx.ui.ContextMenu.GroupList.type.INCLUDE_ALL_GROUPS,
 		groups : [
-			{ name : 'proxy',
+			{ name : 'always',
 				match : function isProxyActive( p ) {
 			        if (libx.edition.proxy.default)
 			            return p;
