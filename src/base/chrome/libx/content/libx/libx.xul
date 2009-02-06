@@ -37,7 +37,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
         <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
     </stringbundleset>
-    <script type="application/x-javascript" src="chrome://libx/content/io.js" />
 	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
@@ -54,6 +53,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         ]]>
     </script>
 	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/citeulike.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
@@ -61,9 +62,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
     <script type="application/x-javascript" src="chrome://libx/content/fileCache.js" />
     <script type="application/x-javascript" src="chrome://libx/content/sandbox.js" />
     <script type="application/x-javascript" src="chrome://libx/content/doforurl.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/prefs.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />
+	
 
 	<script type="application/x-javascript">
 	<![CDATA[
@@ -98,7 +97,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                             <menuseparator id="libxmenu-separator"/>
                             <menuitem type="checkbox" hidden="true" label="Autolink Pages"
                                       id="libx-autolink-checkbox" />
-							<menuitem id="libx-about" label="LibX Preferences" oncommand="libxEnv.ff.openPrefWindow()" />
+							<menuitem id="libx-about" label="LibX Preferences" oncommand="libxEnv.openSearchWindow('chrome://libx/content/preferences/pref.xhtml')" />
 						</menupopup>
 					</toolbarbutton>
 				</hbox>
@@ -183,7 +182,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<menuitem hidden="true" id="libx-endholder"/>
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
-		<menuitem label="$emnameshort$" oncommand="libxEnv.ff.openPrefWindow();" />
+		<menuitem label="$emnameshort$" oncommand="libxEnv.openSearchWindow('chrome://libx/content/preferences/pref.xhtml');" />
 	</menupopup>
 	<statusbar id="status-bar">
         <statusbarpanel id="libx-status-bar" insertbefore="statusbar-updates"
@@ -191,7 +190,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             <menupopup id="libx-statusbar-popup">
                 <menuitem label="$emnameshort$"/>
                 <menuseparator/>
-                <menuitem label="Show Preferences" oncommand="libxEnv.ff.openPrefWindow();" />
+                <menuitem label="Show Preferences" oncommand="libxEnv.openSearchWindow('chrome://libx/content/preferences/pref.xhtml');" />
                 <menuitem label="Show Toolbar" type="checkbox" id="libx-statusbar-togglebar-item" 
                     oncommand="this.setAttribute('checked', libx.ff.toolbar.toggle('libx-toolbar'));" />
             </menupopup>
