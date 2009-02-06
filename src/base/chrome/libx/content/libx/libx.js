@@ -206,7 +206,11 @@ libx.utils = {
             }
             out.write("\n"); 
         }
-    }
+    },
+    /**
+     *	Provides timer related functionality to component code
+     */
+    timer : { }
 };
 
 /**
@@ -221,7 +225,8 @@ libx.buildDate = "$builddate$";
  */
 libx.initialize = function () 
 {
-    // nothing right now .... 
+    // Load Preferences
+    libx.preferences.initialize();
 }
 
 // vim: ts=4
