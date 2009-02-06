@@ -1,11 +1,11 @@
 
 Run all tests with
 
-jrunscript -f rununittests.js
+jrunscript -J-Djava.ext.dirs=lib -f rununittests.js
 
 Run some tests with
 
-jrunscript -f loadlibx.js -f collections.js
+jrunscript -J-Djava.ext.dirs=lib -f loadlibx.js -f collections.js
 
-jrunscript -f loadlibx.js -f memcache.js
+jrunscript -J-Djava.ext.dirs=lib -f loadlibx.js -f memcache.js
 

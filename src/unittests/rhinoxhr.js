@@ -82,12 +82,9 @@ XMLHttpRequest.prototype = {
                 self.responseXML = null;
                 
                 if ( self.responseText.match(/^\s*</) ) {
-                    try {
-                        self.responseXML = new DOMDocument(
-                            new java.io.ByteArrayInputStream(
-                                (new java.lang.String(
-                                    self.responseText)).getBytes("UTF8")));
-                    } catch(e) {}
+                    try { 
+                        self.responseXML = libx.bd.utils.loadXMLDocumentFromString(self.responseText);
+                    } catch(e) { println("exception parsing XML: " + e); }
                 }
             }
             
