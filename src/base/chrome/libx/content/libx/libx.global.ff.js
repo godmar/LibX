@@ -28,3 +28,16 @@ libx.cache.bd = {
                 .createInstance(Components.interfaces.nsIXMLHttpRequest);
     }
 }
+
+/**
+ *	Initiates a timeout that will trigger the callback function exactly once
+ *	after the specified timeout
+ *	@param {Integer} Timeout ( in milliseconds )
+ *	@param {Function} Callback function 
+ */
+libx.utils.timer.setTimeout = function ( timeout, callback ) {
+	Components.classes['@mozilla.org/timer;1']
+    	.createInstance(Components.interfaces.nsITimer)
+        .initWithCallback({notify: callback}, timeout,
+                Components.interfaces.nsITimer.TYPE_ONE_SHOT );
+};
