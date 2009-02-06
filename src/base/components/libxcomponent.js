@@ -19,6 +19,8 @@ var globalScripts = [
     "chrome://libx/content/libxcoreclass.js",
     "chrome://libx/content/libx.js",
     "chrome://libx/content/log.js",
+    "chrome://libx/content/io.js",
+    "chrome://libx/content/preferences.js",
     "chrome://libx/content/documentrequestcache.js",
 	"chrome://libx/content/config.js",
     "chrome://libx/content/events.js",
