@@ -466,8 +466,6 @@ libx.ff.initialize = function() {
                         });
         libx.utils.browserprefs.setBoolPref ( 'libx.firstrun', false );
     }
-    
-    libx.ff.contextmenu.initialize();
 
     // fire LibX 'onContentChange' event for various FF-events related to tabs
     var tabHandlers = [
@@ -521,7 +519,7 @@ libxEnv.openSearchWindow = function (url, pref) {
         return postData;
     }
 
-    var what = pref ? pref : libx.utils.browserprefs.getStringPref("libx.displaypref", "libx.newtabswitch");
+    var what = pref ? pref : libx.prefs.browser.displaypref;
 
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
@@ -590,132 +588,26 @@ libx.ff.getPopupHelper = function () {
 	return new libx.ff.utils.ContextPopupHelper ();
 };
 
-libx.ff.contextmenu = {};
+
 /**
  *	Initializes the browsers context menu handlers
  *	Ensures that libx.browser.contextMenu.onshowing/onhiding functions
  *	are called as appropriate 
  *		
  */
-libx.ff.contextmenu.initialize = function () {
-    var menu = document.getElementById("contentAreaContextMenu");
-    menu.addEventListener("popupshowing", function () {
-        libx.browser.contextMenu.onshowing();   
-    }, false);
-    menu.addEventListener("popuphidden", function () {
-        libx.browser.contextMenu.onhiding();   
-    }, false );
-}; 
+libx.ui.bd = {
+	initializeContextMenu : function (contextmenu) {
+	    var menu = document.getElementById("contentAreaContextMenu");
+	    menu.addEventListener("popupshowing", function () {
+	    	libx.log.write ( "popupshowing w/ contextmenu: " + contextmenu );
+	        contextmenu.onshowing();   
+	    }, false);
+	    menu.addEventListener("popuphidden", function () {
+	        contextmenu.onhiding();   
+	    }, false );
+	}
+};
 
-// Returns the full file path for given path
-// Chrome paths are left unchanged
-// Any other paths should be file names only
-// and will be put in %profile%/libx
-libxEnv.getFilePath = function ( path ) {
-    var file;
-    try {
-        if ( path.indexOf ( 'chrome' ) >= 0 ) {
-            return path;
-        }
-        else {
-           file = DirIO.get ( 'ProfD' );
-            file.append ( 'libx' );
-            
-            if ( !file.exists() ) {
-                file = DirIO.create(file);
-            }
-            
-            file.append ( path );
-            return FileIO.path ( file );
-        }
-    }
-    catch ( e ) {
-        return null;
-    }
-}
-
-/**
- * Returns whether a file referenced by chrome path exists or not
- *
- * @param {String} path chrome url location of file
- */
-libxEnv.isFile = function ( path ) {
-
-    var file = FileIO.openChrome( path );
-    return file.exists();
-}
-
-// Assumes /libx directory off of profile if an absolute chrome path is
-// not specified
-// modified: can now create the file if 3rd param is passed as true
-libxEnv.writeToFile = function ( path, str, create ) {
-    var file;
-    if ( create == true )
-        file = libxEnv.getFile( path, true );
-    else
-        file = libxEnv.getFile ( path );
-    if ( !FileIO.write ( file, str ) )
-        return;
-        //alert( "Write didnt happen" );
-}
-
-
-// Returns file for given path
-// modified: now able to take path with folders and will create the folders if
-// not there if second param is passed as true
-libxEnv.getFile = function ( path, create ) {
-    var file;
-    if ( path.indexOf ( 'chrome' ) == 0 )
-        file = FileIO.openChrome( path );
-    else {
-        file = DirIO.get ( 'ProfD' );
-        file.append ( 'libx' );
-        
-        if ( !file.exists() ) {
-            DirIO.create(file);
-        }
-        
-        var patharray = path.split( "/" );
-        for (var i = 0; i < (patharray.length - 1); i++ )
-        {
-            file.append( patharray[i] );
-            if ( !file.exists() && create ) {
-                DirIO.create(file);
-            }
-        }
-        file.append( patharray[patharray.length-1] );
-        if ( !file.exists() && create ) {
-            FileIO.create(file);
-        }
-    }
-    return file;
-}
-
-
-//Gets the text of a file.
-libxEnv.getFileText = function (path) {
-    var file = libxEnv.getFile(path);
-    //Note that FileIO.read closes the file, so we're not leaking a handle
-    return FileIO.read(file);
-}
-
-// Used to get the defaultprefs.xml and userprefs.xml files
-libxEnv.getLocalXML = function ( path ) {
-    var urlpath = libxEnv.getFilePath(path);
-    var xhrParams = {
-        url         : urlpath,
-        type        : "GET",
-        dataType    : "xml",
-        bypassCache : true
-    };
-    return libx.cache.globalMemoryCache.get(xhrParams);
-}
-
-// Used to remove userprefs.xml
-libxEnv.removeFile = function ( path ) {
-    var file = libxEnv.getFile ( path );
-    FileIO.unlink ( file );
-}
 
 
 libxEnv.getCurrentWindowContent = function() {
@@ -790,319 +682,6 @@ libxEnv.removeMenuObject = function (menuitem) {
     var contMenu = document.getElementById("contentAreaContextMenu");  
     contMenu.removeChild ( menuitem );
 }
-
-/////// Preferences dialog functions
-libxEnv.initPrefsGUI = function () {
-    // Set the title
-    var edition = libxEnv.xmlDoc.getAttr("/edition/name", "edition");
-    
-	libx = window.opener.libx;
-	libxEnv.updateFunc = window.opener.libxEnv.doforurls.updateDoforurls;
-    
-
-    /****** Initialize the default preferences tab *********/
-    // Initialize the display preferences radiogroup
-    document.getElementById ( 'libx-display-prefs' ).selectedItem = 
-        document.getElementById ( libx.utils.browserprefs.getStringPref ( "libx.displaypref", "libx.newtabswitch" ) );
-        
-    // Initialize the autolinking checkbox
-    document.getElementById ( "libx-autolink-checkbox" )
-        .setAttribute ( "checked", libx.utils.browserprefs.getBoolPref ( "libx.autolink", true ) );
-    
-    /****** Initialize the context menu preferences tab *****/
-    libxInitContextMenuTrees();
-    
-    /***** Initialize the AJAX tab ****/
-    // Figure out whether Proxy checkbox should be grayed out or not
-    var ajaxenabled = false;
-
-    for ( var i = 0; i < libx.edition.proxy.length; i++ ) {
-        if ( libx.edition.proxy[i].urlcheckpassword )
-            ajaxenabled = true;
-    }
-    
-    if ( ajaxenabled ) {
-        document.getElementById ( 'libx-proxy-ajax-checkbox')
-            .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.proxy.ajaxlabel', 'true' ) ? 'true' : 'false' );
-    } else {
-        document.getElementById ( 'libx-proxy-ajax-checkbox' )
-            .setAttribute ( 'disabled', 'true' );
-    }
-    document.getElementById ( 'libx-oclc-ajax-checkbox')
-        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.oclc.ajaxpref', 'true' ) ? 'true' : 'false' );
-    document.getElementById ( 'libx-doi-ajax-checkbox')
-        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.doi.ajaxpref', 'true' ) ? 'true' : 'false' );
-    document.getElementById ( 'libx-pmid-ajax-checkbox')
-        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.pmid.ajaxpref', 'true' ) ? 'true' : 'false' );
-    
-    
-    
-    
-    
-    document.getElementById ( 'libx-citeulike-checkbox' )
-        .setAttribute ( 'checked', libx.utils.browserprefs.getBoolPref ( 'libx.urlbar.citeulike', 'true' ) ? 'true' : 'false' );
-}
-
-libxEnv.resetToDefaultPrefs = function() {
-    // Re-set prefs to default
-    var nodes = document.getElementsByTagName ( 'treecell' );
-    for ( var i = 0; i < nodes.length; i++ ) {
-        var node = nodes[i];
-        if ( node.getAttribute ( 'value' ) ) {
-            if(isEnabled ( node.getAttribute ( 'id' ) )) {
-                node.setAttribute ( 'properties', 'enabled' );
-            }
-            else {
-                node.setAttribute ( 'properties', 'disabled' );
-            }
-        }
-    }
-}
-
-libxEnv.getDisplayPref = function() {
-    return document.getElementById ( "libx-display-prefs" ).selectedItem.id;
-};
-
-libxEnv.getAutolinkPref = function() {
-    return document.getElementById ( "libx-autolink-checkbox" ).getAttribute ( "checked" ) == 'true';
-};
-
-libxEnv.getProxyPref = function() {
-    return document.getElementById ( 'libx-proxy-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
-};
-
-libxEnv.getOCLCPref = function() {
-    return document.getElementById ( 'libx-oclc-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
-};
-
-libxEnv.getDOIPref = function() {
-    return document.getElementById ( 'libx-doi-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
-};
-
-libxEnv.getPMIDPref = function() {
-    return document.getElementById ( 'libx-pmid-ajax-checkbox' ).getAttribute ( 'checked' ) == 'true';
-};
-
-libxEnv.getDFUPref = function() { return true; } //Doesn't apply to Firefox
-
-libxEnv.getCiteulikePref = function () {
-    return document.getElementById ( 'libx-citeulike-checkbox' ).getAttribute ( 'checked' ) == 'true';
-}
-
-libxEnv.removeContextMenuPreferencesTab = function (idbase) {
-    var tabId = "libx-contextmenu-" + idbase + "-prefs-tab";
-    var tabPanelId = "libx-" + idbase + "-tab";
-    var id = "libx-contextmenu-" + idbase + "-prefs-tree";
-        
-    var tab = document.getElementById ( tabId );
-    var tabPanel = document.getElementById ( tabPanelId );
-    var tabPanels = tabPanel.parentNode;
-    
-    tab.parentNode.removeChild ( tab );
-    tabPanel.parentNode.removeChild ( tabPanel );
-}
-
-/* Returns all nodes which are checked
- * @param tree {libxEnv.PrefsTree}  A tree node
- */
-libxEnv.getEnabledNodes = function (tree) {
-    /*
-        Copyright Robert Nyman, http://www.robertnyman.com
-        Free to use if this text is included
-    */
-    function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttributeValue){
-        var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
-        var arrReturnElements = new Array();
-        var oAttributeValue = (typeof strAttributeValue != "undefined")? new RegExp("(^|\s)" + strAttributeValue + "(\s|$)") : null;
-        var oCurrent;
-        var oAttribute;
-        for(var i=0; i<arrElements.length; i++){
-            oCurrent = arrElements[i];
-            oAttribute = oCurrent.getAttribute && oCurrent.getAttribute(strAttributeName);
-            if(typeof oAttribute == "string" && oAttribute.length > 0){
-                if(typeof strAttributeValue == "undefined" || (oAttributeValue && oAttributeValue.test(oAttribute))){
-                    arrReturnElements.push(oCurrent);
-                }
-            }
-        }
-        return arrReturnElements;
-    }
-
-    enabledNodes = new Array();
-    nodeList = getElementsByAttribute (tree.node, 'treecell', 'properties', 'enabled');
-    for(var i = 0; i < nodeList.length; ++i) {
-        var n = libxFindInTree(nodeList[i].id, tree);
-        if(n) {
-            enabledNodes.push(n);
-        }
-    }
-    return enabledNodes;
-}
-
-/*  PrefsTreeRoot object
- * Object representing a tree root.
- * 
- * @param treeNode {DOMElement}  A <tree> element
- *
- * This object is a non-visible container of PrefsTreeNode objects.
- */
-libxEnv.PrefsTreeRoot = function(treeNode, id)
-{
-    this.node = treeNode;
-    this.children = new Array();
-    this.id = id;
-}
-
-/*  getChild
- * Locates the child with the given ID.
- *
- * @param id {string}        The ID of the child to locate
- * 
- * @returns {PrefsTreeNode}  The located child node, or null if not found
- */
-libxEnv.PrefsTreeRoot.prototype.getChild = function (id) {
-    for(var i = 0; i < this.children.length; ++i) {
-        if(this.children[i].id == id) {
-            return this.children[i];
-        }
-    }
-    return null;
-}
-
-/*  createChild
- * Creates a child node (PrefsTreeNode) and appends it.
- * 
- * @param label {string}     The label of the node (visible to user)
- * @param id {string}        A unique node identifier
- * @param attrs {object}     Name, value pairs used to set node attributes
- *
- * @returns {PrefsTreeNode}  The new child node
- */
-libxEnv.PrefsTreeRoot.prototype.createChild = function (label, id, attrs) {
-    //Create the node object.
-    var child = new libxEnv.PrefsTreeNode(this.node, label, id, attrs);
-    this.children.push(child);
-
-    return child;
-};
-
-libxEnv.PrefsTreeRoot.prototype.isEnabled = function() {
-    return false;
-}
-
-/*  PrefsTreeNode object
- * Object representing a tree node.
- * 
- * @param parent {DOMElement}  A <tree> or <treeitem> element
- * @param label {string}       The label of the node (visible to user)
- * @param id {string}          A unique node identifier
- * @param attrs {object}       Name, value pairs used to set node attributes
- */
-libxEnv.PrefsTreeNode = function (parent, label, id, attrs) {
-    var tchildren = null;
-    var createAsSibling = false;
-
-    //Attempt to get an existing treechildren node (there should only be one)
-    for(var i = 0; i < parent.childNodes.length; ++i) {
-        if(parent.childNodes[i].nodeName.toLowerCase() == 'treechildren') {
-            tchildren = parent.childNodes[i];
-            createAsSibling = true;
-            break;
-        }
-    }
-
-    if(!createAsSibling) { //We need to make a treechildren node
-        //Configure the parent
-        parent.setAttribute('container', true);
-        //Create a treechildren node to form a nested list
-        tchildren = document.createElement('treechildren');
-        parent.appendChild(tchildren);
-    }
-
-    //Create the child node and append to parent
-    var titem = document.createElement('treeitem');
-    var trow = document.createElement('treerow');
-    var tcell = document.createElement('treecell');
-    trow.appendChild(tcell);
-    titem.appendChild(trow);
-    tchildren.appendChild(titem);
-
-    //Configure child node
-    for(var a in attrs) {
-        tcell.setAttribute(a, attrs[a]);
-    }
-    //Set the node label
-    tcell.setAttribute('label', label);
-    titem.setAttribute('onclick', 'toggleImage(this.children[0].children[0])');
-
-    this.node = titem;
-    this.children = new Array();
-    this.id = id;
-};
-
-libxEnv.PrefsTreeNode.prototype.setExpanded = function (expanded) {
-    if (expanded) {
-        this.node.setAttribute ( 'open', 'true' );
-    }
-}
-
-libxEnv.PrefsTreeNode.prototype.isEnabled = function() {
-    if(this.node.hasAttribute('properties')) {
-        libx.log.write("====" + this.id + " has properties attribute " + this.node.getAttribute('properties'));
-        return this.node.getAttribute('properties').toLocaleLowerCase() == 'enabled';
-    }
-    libx.log.write("====" + this.id + " has no properties attribute");
-    return false;
-}
-
-libxEnv.PrefsTreeNode.prototype.toggleEnabled = function() {
-    if(this.node.getAttribute ('properties') == 'enabled') {
-        this.node.setAttribute ( 'properties', 'disabled' )
-    }
-    else {
-        this.node.setAttribute ( 'properties', 'enabled' );
-    }
-}
-
-libxEnv.PrefsTreeNode.prototype.getChild = libxEnv.PrefsTreeRoot.prototype.getChild;
-
-libxEnv.PrefsTreeNode.prototype.createChild = libxEnv.PrefsTreeRoot.prototype.createChild;
-
-/*
- * Initializes a tree and inserts the top-level nodes.
- * @param treeID {string}    The node id of the tree to initialize
- * @param items {array}      Labels & ids to create entries for
- * @returns {PrefsTreeNode}  Node containing the children, or null if no items
- *
- * The 'items' array is used to create top-level nodes for the tree. So if,
- * for example, we wanted to have two top-level nodes (Catalogs and
- * OpenURL Resolvers), items would have two elements.
- *
- * Each element is an object with at least the label and id properties set.
- * Any additional properties are added as attributes to the node.
- */
-libxEnv.initTree = function(treeID, items) {
-    if(items.length == 0) {
-        return null;
-    }
-    var tree = document.getElementById(treeID);
-    
-    //Configure the tree
-    tree.setAttribute('width', '250');
-    tree.setAttribute('height', '150');
-    tree.setAttribute('onclick', 'treeEventHandler(event, this);');
-    tree.setAttribute('flex', '1');
-    tree.setAttribute('container', true);
-
-    //Create the root for the tree
-    var root = new libxEnv.PrefsTreeRoot(tree, treeID);
-
-    //Create the initial items
-    for (var i in items) {
-        root.createChild(items[i].label, items[i].id, items[i]);
-    }
-    return root;
-};
 
 /**
  * Creates a URL Bar Icon
