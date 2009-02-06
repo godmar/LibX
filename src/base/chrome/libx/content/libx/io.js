@@ -7,6 +7,8 @@
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 
+libx.io = (function () {
+
 /*
  * Code originally taken from 
  *     http://kb.mozillazine.org/Io.js
@@ -231,8 +233,6 @@ if (typeof(JSIO) != 'boolean') {
 
     var DirIO = {
 
-        sep        : '/',
-
         dirservCID : '@mozilla.org/file/directory_service;1',
     
         propsIID   : Components.interfaces.nsIProperties,
@@ -333,22 +333,143 @@ if (typeof(JSIO) != 'boolean') {
                                         join : '');
             }
             return str;
-        },
-
-        join   : function(str, split) {
-            var arr = str.split(split), i;
-            str = new String();
-            for (i = 0; i < arr.length; ++i) {
-                str += arr[i] + ((i != arr.length - 1) ? 
-                                        this.sep : '');
-            }
-            return str;
         }
     
     }
 
-    if (navigator.platform.toLowerCase().indexOf('win') > -1) {
-        DirIO.sep = '\\';
-    }
+    
+    /**
+     *  Helper function for libx.io
+     *    Returns file for given path
+     *    Creates folders alogn path if they dont exist if the second param is true
+     *    @param {String} path of the file to retrieve
+     *    @param {boolean} whether or not to create the directory/file
+     */
+    function getFile ( path, create ) {
+        var file;
+        if ( path.indexOf ( 'chrome' ) == 0 ) {
+            file = FileIO.openChrome( path );
+        } else {
+            file = DirIO.get ( 'ProfD' );
+            file.append ( 'libx' );
+            
+            if ( !file.exists() ) {
+                DirIO.create(file);
+            }
+            
+            // Adds support for passing in full file pathname of profile directory
+            if ( path.indexOf ( FileIO.path ( file ) ) == 0 ) {
+                path = path.substr ( FileIO.path ( file ).length );
+            }
 
+            var patharray = path.split( "/" );
+            for (var i = 0; i < (patharray.length - 1); i++ )
+            {
+                file.append( patharray[i] );
+                if ( !file.exists() && create ) {
+                    DirIO.create(file);
+                }
+            }
+            file.append( patharray[patharray.length-1] );
+            if ( !file.exists() && create ) {
+                FileIO.create(file);
+            }
+        }
+        return file;
+    }
+    
+    /**
+     *    Helper function for libx.io
+     *    Returns the full file path for given path
+     *    Chrome paths are left unchanged
+     *    Any other paths should be file names only
+     *    and will be put in %profile%/libx
+     *    @param {String} the filepath to find full path of
+     */
+    function getFilePath ( path ) {
+        var file;
+        try {
+            if ( path.indexOf ( 'chrome' ) >= 0 ) {
+                return path;
+            }
+            else {
+               file = DirIO.get ( 'ProfD' );
+                file.append ( 'libx' );
+                
+                if ( !file.exists() ) {
+                    file = DirIO.create(file);
+                }
+                
+                file.append ( path );
+                return FileIO.path ( file );
+            }
+        }
+        catch ( e ) {
+            return null;
+        }
+    }
 }
+
+
+return /** @lends libx.io */ {
+    /**
+     * Returns whether a file referenced by chrome path exists or not
+     *
+     * @param {String} path chrome url location of file
+     */
+    fileExists : function ( path ) {
+        return getFile ( path, false ).exists();
+    },
+    
+    /**
+     *    Assumes /libx directory off of profile if an absolute chrome path is
+     *  not specified
+     *    @param {String} path of the file to write to
+     *    @param {String} text to write to file
+     *    @param {boolean} if true, will create the file if it doesnt exist
+     */
+    writeToFile : function ( path, str, create ) {
+        var file;
+        if ( create == true )
+            file = getFile( path, true );
+        else
+            file = getFile ( path );
+        return FileIO.write ( file, str );
+            
+    },
+
+    
+    /**
+     *    Gets the text of a file.
+     *    @param {String} path of the file to retrieve contents of
+     */
+    getFileText : function (path) {
+        var file = getFile(path);
+        //Note that FileIO.read closes the file, so we're not leaking a handle
+        return FileIO.read(file);
+    },
+    
+    /**
+     *    Retrieves a local XML file
+     */
+    getFileXML : function ( path ) {
+        var fullPath = getFilePath ( path );
+        return libx.cache.globalMemoryCache.get ( {
+            url : fullPath,
+            dataType : "xml",
+            type     : "GET",
+            bypassCache : true,
+            async : false 
+        } ).responseXML;
+    },
+    
+    /**
+     *    Deletes the file
+     *    @param {String} path of file to delete
+     */
+    removeFile : function ( path ) {
+        var file = getFile ( path );
+        FileIO.unlink ( file );
+    }
+};
+} )();
