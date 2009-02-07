@@ -26,7 +26,17 @@ libx.cache.bd = {
     getXMLHttpReqObj : function () {
        return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
                 .createInstance(Components.interfaces.nsIXMLHttpRequest);
-    }
+    },
+
+    /**
+     * Does XHR fire a onreadystatechange on a synchronous request?
+     *
+     * Firefox does not, see:
+     * https://developer.mozilla.org/en/XMLHttpRequest 
+     * contrary to W3C spec:
+     * http://www.w3.org/TR/XMLHttpRequest/
+     */
+    doesNotFireReadyStateChangeOnSynchronous : true
 }
 
 /**

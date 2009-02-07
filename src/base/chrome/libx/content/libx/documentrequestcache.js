@@ -316,6 +316,9 @@ var memoryCacheClass = libx.core.Class.create ( {
                     }
                 }
 
+                if (!request.async && libx.cache.bd.doesNotFireReadyStateChangeOnSynchronous)
+                    xmlHttpReq.onreadystatechange();
+
                 return xmlHttpReq;
                 
             } // end if result not in cache
