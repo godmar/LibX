@@ -28,11 +28,11 @@
  */
 
 /**
- * @namespace libx.citeulike
+ * @namespace libx.citeulike.notificationicon
  *
  * Support for CiteULike
  */
-libx.citeulike = { 
+libx.citeulike.notificationicon = { 
     /**
      * Initialize CiteULike support
      *
@@ -44,10 +44,10 @@ libx.citeulike = {
         icon.setHidden ( true );
         icon.setImage ( "chrome://libx/skin/citeulike.ico" );
         icon.setOnclick ( function  (e) {
-            var contentWindow = libxEnv.getCurrentWindowContent();
+            var contentWindow = libx.ui.getCurrentWindowContent();
             var url = contentWindow.location.href;
             var title = contentWindow.document.title;
-            libxEnv.openSearchWindow("http://www.citeulike.org/posturl?url=" 
+            libx.ui.openSearchWindow("http://www.citeulike.org/posturl?url=" 
                 + encodeURIComponent(url) 
                 + "&title=" + encodeURIComponent(title), 
                 /* do not uri encode */true, "libx.sametab");
@@ -56,9 +56,9 @@ libx.citeulike = {
 
         libx.events.addListener("ContentChange", {
             onContentChange: function ( e, args ) {
-                var contentWindow = libxEnv.getCurrentWindowContent();
+                var contentWindow = libx.ui.getCurrentWindowContent();
                 var url = contentWindow.location.href;
-                citeulike.canpost(url, function ( url, reg ) {
+                libx.citeulike.canpost(url, function ( url, reg ) {
                     libx.log.write ( "Enabled: " + url, "citeulike" );
                     icon.setHidden (!libx.utils.browserprefs.getBoolPref('libx.urlbar.citeulike', true));
                 }, function ( url ) {
@@ -66,6 +66,6 @@ libx.citeulike = {
                     icon.setHidden ( true );
                 });
             }
-        });
+        }, window);
     }
 }

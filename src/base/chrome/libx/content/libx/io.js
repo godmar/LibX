@@ -454,13 +454,18 @@ return /** @lends libx.io */ {
      */
     getFileXML : function ( path ) {
         var fullPath = getFilePath ( path );
-        return libx.cache.globalMemoryCache.get ( {
+        var responseXML = null;
+        libx.cache.globalMemoryCache.get ({
             url : fullPath,
             dataType : "xml",
             type     : "GET",
             bypassCache : true,
-            async : false 
-        } ).responseXML;
+            async : false,
+            success : function (xml) {
+                responseXML = xml;
+            }
+        });
+        return responseXML;
     },
     
     /**

@@ -66,7 +66,7 @@ libxEnv.debugInit = function () {}  // XXX needed?
  *
  * Assumes that the preferences are either libx.newtabswitch or libx.sametab
  */
-libxEnv.openSearchWindow = function (url, pref) {
+libx.ui.openSearchWindow = function (url, pref) {
     var what = pref ? pref : libx.prefs.browser.displaypref;
     
     var isGet = typeof (url) == "string";
@@ -86,7 +86,7 @@ libxEnv.openSearchWindow = function (url, pref) {
          * Use window.navigate in this case.
          */
         if (target == "_self" && isGet) {
-            libxEnv.getCurrentWindowContent().navigate(url2);
+            libx.ui.getCurrentWindowContent().navigate(url2);
             return;
         }
 
@@ -96,7 +96,7 @@ libxEnv.openSearchWindow = function (url, pref) {
 }
 
 /*  getCurrentWindowContent
- * In Firefox, there is a window._content property because of the way XUL
+ * In Firefox, there is a window.content property because of the way XUL
  * creates windows. In IE, Opera, etc. this is unnecessary. This function
  * is designed to abstract this (of course, if it were possible to treat
  * inserted C# objects like JavaScript objects we could just say
@@ -105,7 +105,7 @@ libxEnv.openSearchWindow = function (url, pref) {
  * In IE, we store the current window in a C# object which can then be
  * used in JavaScript
  */
-libxEnv.getCurrentWindowContent = function() {
+libx.ui.getCurrentWindowContent = function() {
     return libxChromeWindow.CurrentWindow;
 }
 

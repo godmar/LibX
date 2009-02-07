@@ -68,7 +68,7 @@ libx.config.XMLConfigWrapper = libx.core.Class.create(
     // copy attributes from xnode to obj
     copyAttributes : function(xnode, obj) {
         for (var i = 0; i < xnode.attributes.length; i++) {
-            var attr = xnode.attributes[i];
+            var attr = xnode.attributes.item(i);
             var opt = libx.utils.types.normalize(attr.nodeValue);
             if (opt != null)
                 obj[attr.nodeName] = opt;
@@ -106,6 +106,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             type     : "GET",
             url      : invofcc.url,
 
+            // should be 'success', but 'success' currently is not fired correctly
             complete : function (xml, stat, xhr) {
                 var doc = new libx.config.XMLConfigWrapper(xhr.responseXML);
 
@@ -122,6 +123,13 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 doc.copyAttributes(doc.getNode("/edition/name"), edition.name);
 
                 invofcc.onload ( edition );
+            },
+
+            error : function (xml, stat, xhr) {
+            /* error is currently fired erroneously FIXME
+                if (invofcc.onerror)
+                    invofcc.onerror ( stat );
+            */
             }
         });
     },
@@ -160,15 +168,13 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             items.push(item);
         }
 
-        // http://support.aptana.com/asap/browse/STU-1908 claims that ECMAScript only
-        // allows identifiers as properties, but 'default' is a keyword in JavaScript
-        items.default = items[0];
+        items.primary = items[0];
         return items;
     },
 
     loadLocalizationFeeds: function (doc) {
         var localizationfeeds = new Array();
-        this.makeConfigurationItemArray (doc, "Feeds", 
+        this.makeConfigurationItemArray (doc,
             "/edition/localizationfeeds/*", null, libx.core.EmptyFunction,
             function (node, feedorwhitelist) {
                 switch (node.nodeName) {
@@ -180,7 +186,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                     break;
                 }
             });
-        localizationfeeds.default = localizationfeeds[0];
+        localizationfeeds.primary = localizationfeeds[0];
         return localizationfeeds;
     },
 

@@ -54,8 +54,10 @@ function initThresholds()
 
 /*
  * XXX rewrite this horrible junk piece of code as catalog object.
+ *
+ * @param {String} data - some piece of text we're trying to find
  */
-magicSearch = function (data, inpub, justmakeurl) 
+libx.ui.magicSearch = function (data) 
 {
     function handleMiss(url, data)
     {
@@ -66,7 +68,7 @@ magicSearch = function (data, inpub, justmakeurl)
             var onmissshow = libx.edition.options.scholarmissurl
                 .replace(/%S/i, encodeURIComponent(data));
 
-            libxEnv.openSearchWindow(onmissshow);
+            libx.ui.openSearchWindow(onmissshow);
         }
     }
 
@@ -128,30 +130,21 @@ magicSearch = function (data, inpub, justmakeurl)
 
     var maxattempts = 5;
 
-    libx.log.write("Searching for: \"" + data + "\"" +
-                     (inpub ? " inpub: " + inpub : " - no publication given"),
-                     "Magic");
+    libx.log.write("Searching for: \"" + data + "\"", "Magic");
     var originaldata = data;
     data = magicNormalize(data);
     var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
-    if (inpub) {
-        baseurl += '&as_publication=' + encodeURIComponent(inpub);
-    }
     baseurl += '&q=';
 
     var url = baseurl + encodeURIComponent(data);
     
-    // if justmakeurl is set, return URL
-    if (justmakeurl)
-        return url;
-
     // XXX: revisit this decision - right now, it would crash below if we assumed
     // openUrlResolver != null, but we should really open hits in any event.
     // if there is no OpenURL support, then there is no point in trying 
     // to read Google Scholar pages simply open the scholar page for the 
     // user to see.
-    if (!libxEnv.openUrlResolver) { 
-        libxEnv.openSearchWindow(url);
+    if (libx.edition.openurl.primary == null) {
+        libx.ui.openSearchWindow(url);
         return null;
     }
 
@@ -279,7 +272,7 @@ magicSearch = function (data, inpub, justmakeurl)
                             openurlpath += "&origdata=" + encodeURIComponent(data);
                         }
 
-                        vtu = libxEnv.openUrlResolver.completeOpenURL(openurlpath, "0.1");
+                        vtu = libx.edition.openurl.primary.completeOpenURL(openurlpath, "0.1");
                         display = true;
                         libx.log.write('OpenURL: ' + vtu, "Magic");
                     } else {
@@ -287,7 +280,7 @@ magicSearch = function (data, inpub, justmakeurl)
                         libx.log.write('DirectURL: ' + vtu, "Magic");
                     }
                     if (display) {
-                        libxEnv.openSearchWindow(vtu);
+                        libx.ui.openSearchWindow(vtu);
                         found = true;
                     }
                     break;
@@ -320,9 +313,9 @@ magicSearch = function (data, inpub, justmakeurl)
 
             // show google scholar page also
             if (found) {
-                libxEnv.openSearchWindow(url, "libx.newtab" );       // in second tab if we got a hit
+                libx.ui.openSearchWindow(url, "libx.newtab" );       // in second tab if we got a hit
             } else {
-                libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata));  // as primary window if not
+                libx.ui.openSearchWindow(baseurl + encodeURIComponent(originaldata));  // as primary window if not
             }
             return null;
         } else {
@@ -342,7 +335,7 @@ magicSearch = function (data, inpub, justmakeurl)
         handleMiss(url, originaldata);
 
         if (!libx.edition.options.suppressscholardisplay)
-            libxEnv.openSearchWindow(baseurl + encodeURIComponent(originaldata));
+            libx.ui.openSearchWindow(baseurl + encodeURIComponent(originaldata));
         return null;
     }
     return null;

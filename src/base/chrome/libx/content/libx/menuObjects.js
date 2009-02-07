@@ -213,7 +213,7 @@ libx.ui.basicContextMenuDescriptor = [
 		groups : [
 			{ name : 'always',
 				match : function isProxyActive( p ) {
-			        if (libx.edition.proxy.default)
+			        if (libx.edition.proxy.primary)
 			            return p;
 			        else
 			            return null;

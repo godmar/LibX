@@ -41,14 +41,12 @@ var browser =
                 libx.browser.activateConfiguration(edition);
 
                 libxEnv.doforurls.initDoforurls();  // XXX
-                libx.citeulike.initialize();
-            }
-    /* XXX
+                libx.citeulike.notificationicon.initialize();
+            },
             onerror: function () {
                 libx.log.write ( "ERROR: Config XML Not Found" );
                 return;
             }
-    */
         });
 
         //

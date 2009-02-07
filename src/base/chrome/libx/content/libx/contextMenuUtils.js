@@ -555,15 +555,6 @@ var Item = libx.core.Class.create (
 		computeDisplayText : function ( text ) {
 			// XXX handle newlines in the text - they can cause weird symbols
         	return text.length > 25 ? text.substr ( 0, 25 ) + "..." : text;
-		},
-		
-		/**
-		 *	Trim's all spaces from the beginning and end of a string
-		 *	@param s - string to trim
-		 *	@return String with all leading and trailing spaces removed
-		 */
-		trim : function ( s ) {
-			return s.replace(/^\s*/, "").replace(/\s*$/, "");
 		}
 	},
 	
@@ -692,7 +683,7 @@ Item.factory['proxy'] = libx.core.Class.extend (
             if (popuphelper.isOverLink())
                 urltocheck = popuphelper.getNode().href;
             else
-                urltocheck = libxEnv.getCurrentWindowContent().location.toString();
+                urltocheck = libx.ui.getCurrentWindowContent().location.toString();
 
             var onsuccesslabel = popuphelper.isOverLink() ? "proxy.follow.label" : "proxy.reload.label";
             if (proxy.canCheck() && libx.utils.browserprefs.getBoolPref ( 'libx.proxy.ajaxlabel', true ) ) {
@@ -719,10 +710,10 @@ Item.factory['proxy'] = libx.core.Class.extend (
 			this.setHandler ( function () {
 				if (popuphelper.isOverLink()) {
             		var href = popuphelper.getNode().href;
-            		libxEnv.openSearchWindow(proxy.rewriteURL(href));
+            		libx.ui.openSearchWindow(proxy.rewriteURL(href));
         		} else {
-            		var _location = libxEnv.getCurrentWindowContent().location.toString();
-            		libxEnv.openSearchWindow(proxy.rewriteURL(_location), "libx.sametab");
+            		var _location = libx.ui.getCurrentWindowContent().location.toString();
+            		libx.ui.openSearchWindow(proxy.rewriteURL(_location), "libx.sametab");
         		}
 			} );
                 
@@ -749,9 +740,9 @@ Item.factory['scholar'] = libx.core.Class.create (
 		initialize : function () {	},
 		onshowing : function ( popuphelper, match ) {
 			this.setVisible ( true );
-			var text = this.util.trim ( match );
+			var text = libx.utils.string.trim ( match );
 			this.setHandler ( function () {
-				magicSearch ( text );
+				libx.ui.magicSearch ( text );
 			} );
 			this.setLabel (libxEnv.getProperty("contextmenu.scholarsearch.label",[this.util.computeDisplayText(text)] ) );
         }

@@ -486,14 +486,16 @@ return /** @lends libx.preferences */ {
     initialize : function () {
         libx.prefs = new prefFactory["category"]({ _name: "prefs" }, "libx");
         
-        this.loadXML ( 
-            libx.io.getFileXML ( USER_PREFS ), 
-            {
-                filename : USER_PREFS,
-                overwrite: true,
-                base : "libx"
-            } );
-        
+        var userPrefsDoc = libx.io.getFileXML ( USER_PREFS );
+
+        if (userPrefsDoc != null)
+            this.loadXML (
+                userPrefsDoc,
+                {
+                    filename : USER_PREFS,
+                    overwrite: true,
+                    base : "libx"
+                } );
     },
     
     /**

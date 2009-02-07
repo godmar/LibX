@@ -97,7 +97,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                             <menuseparator id="libxmenu-separator"/>
                             <menuitem type="checkbox" hidden="true" label="Autolink Pages"
                                       id="libx-autolink-checkbox" />
-							<menuitem id="libx-about" label="LibX Preferences" oncommand="libxEnv.openSearchWindow('chrome://libx/content/preferences/pref.xhtml')" />
+							<menuitem id="libx-about" label="LibX Preferences" oncommand="libx.ui.openSearchWindow('chrome://libx/content/preferences/pref.xhtml')" />
 						</menupopup>
 					</toolbarbutton>
 				</hbox>
@@ -182,7 +182,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 		<menuitem hidden="true" id="libx-endholder"/>
 	</menupopup>
 	<menupopup id="menu_ToolsPopup">
-		<menuitem label="$emnameshort$" oncommand="libxEnv.openSearchWindow('chrome://libx/content/preferences/pref.xhtml');" />
+		<menuitem label="$emnameshort$" oncommand="libx.ui.openSearchWindow('chrome://libx/content/preferences/pref.xhtml');" />
 	</menupopup>
 	<statusbar id="status-bar">
         <statusbarpanel id="libx-status-bar" insertbefore="statusbar-updates"
@@ -190,7 +190,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             <menupopup id="libx-statusbar-popup">
                 <menuitem label="$emnameshort$"/>
                 <menuseparator/>
-                <menuitem label="Show Preferences" oncommand="libxEnv.openSearchWindow('chrome://libx/content/preferences/pref.xhtml');" />
+                <menuitem label="Show Preferences" oncommand="libx.ui.openSearchWindow('chrome://libx/content/preferences/pref.xhtml');" />
                 <menuitem label="Show Toolbar" type="checkbox" id="libx-statusbar-togglebar-item" 
                     oncommand="this.setAttribute('checked', libx.ff.toolbar.toggle('libx-toolbar'));" />
             </menupopup>

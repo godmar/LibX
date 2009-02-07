@@ -69,8 +69,8 @@ libx.catalog.factory["aleph"] = libx.core.Class.create(libx.catalog.Catalog,
            the user used.
          */
         try {
-            if (libxEnv.getCurrentWindowContent().setCcl)
-                libxEnv.getCurrentWindowContent().setCcl(ccl);
+            if (libx.ui.getCurrentWindowContent().setCcl)
+                libx.ui.getCurrentWindowContent().setCcl(ccl);
         } catch (er) {
             libx.log.write("exception while setting aleph cookie: " + er, 'aleph');
         }

@@ -14,6 +14,13 @@
  *
  * Godmar Back godmar@gmail.com, 2008
  */
+/**
+ * @namespace libx.citeulike
+ *
+ * Support for CiteULike
+ */
+libx.citeulike = (function(){
+
 var citeulike = {
     regexps : new Array(),
     /* check 10 regexps every 50 ms until done */
@@ -112,3 +119,7 @@ citeulike.regexps.push(/(http:\/\/(www.)?springerlink(\.metapress)?\.com([^\/]*)
 citeulike.regexps.push(/^http:\/\/papers\.ssrn\.com\/sol3\/papers.cfm\?abstract_id=[0-9]+$/);
 citeulike.regexps.push(/^http:\/\/www\.usenix\.org\/(events\/|publications\/library\/proceedings\/)([^\/]+\/)*([a-z]+\.html)$/);
 citeulike.regexps.push(/interscience.wiley.com\/cgi-bin\/abstract\/[0-9]*\/ABSTRACT/);
+
+return citeulike;
+
+})();

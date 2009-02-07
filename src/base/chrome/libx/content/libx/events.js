@@ -25,11 +25,15 @@
  * @fileoverview
  *
  * This file contains functionality related to support for LibX events.
+ *
+ * This file is global.
  */
 
 (function () {
 
 // maps eventName to array of observers
+// an observer is an object { handler: obj, window: win }
+// window may be null if the event is not tied to a window
 var handlerMap = { };
 
 /**
@@ -49,14 +53,27 @@ libx.events = {
      */
     Event : libx.core.Class.create(
         /** @lends libx.events.Event.prototype */{
-        initialize : function (eventName) {
+        /**
+         * @constructs
+         * @param {String} eventName name of event, can be freely chosen
+         * @param {Window} eventWindow window (optional)
+         */
+        initialize : function (eventName, eventWindow) {
             this.eventName = eventName;
+            this.eventWindow = eventWindow;
         },
-        /** notify any observers */ 
+        /**
+         * @constructs
+         *
+         * Notify any observers.  If the event was created with a
+         * window, only observers that specified the same window
+         * will be notified.
+         */
         notify : function () {
             var observers = handlerMap[this.eventName] || [];
             for (var i = 0; i < observers.length; i++)
-                observers[i]["on" + this.eventName].apply(observers[i], [this].concat(arguments));
+                if (this.eventWindow == observers[i].window)
+                    observers[i].handler["on" + this.eventName].apply(observers[i].handler, [this].concat(arguments));
         }
     }),
 
@@ -64,12 +81,14 @@ libx.events = {
      * Add a listener for a given event
      * @param {String} eventName - name of event, say "load"
      * @param {Object} observer - must have oneventName method, e.g., "onload"
+     * @param {Window} window (optional) - only listen to events 
+     *                                     associated with this window
      */
-    addListener : function (eventName, observer) {
+    addListener : function (eventName, observer, observerWindow) {
         if (handlerMap[eventName] == undefined)
             handlerMap[eventName] = [ ];
 
-        handlerMap[eventName].push(observer);
+        handlerMap[eventName].push({ handler : observer, window: observerWindow });
     }
 
     /* XXX to be done removeListener */

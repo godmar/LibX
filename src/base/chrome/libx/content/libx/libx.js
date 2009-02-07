@@ -70,6 +70,22 @@ libx.utils = {
     xml: { },
 
     /**
+     * String utilities
+     *
+     * @namespace libx.utils.string
+     */
+    string: { 
+		/**
+		 *	Trim's all spaces from the beginning and end of a string
+		 *	@param s - string to trim
+		 *	@return String with all leading and trailing spaces removed
+		 */
+		trim : function ( s ) {
+			return s.replace(/^\s*/, "").replace(/\s*$/, "");
+		}
+    },
+
+    /**
      * @namespace libx.utils.types
      *
      * Convenience methods for dealing with JavaScript types.
@@ -91,7 +107,7 @@ libx.utils = {
                 return true;
             if (value == "")
                 return null;
-            return value;
+            return String(value);
         },
         
         /**

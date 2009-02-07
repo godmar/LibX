@@ -224,7 +224,8 @@ libx.ff.toolbar = {
         if (!this.selectedCatalog.search)
             alert("Internal error, invalid catalog object: " + this.selectedCatalog);
 
-        this.selectedCatalog.search(fields);
+        var url = this.selectedCatalog.search(fields);
+        libx.ui.openSearchWindow(url);
     },
     /**
      * adjust drop-down menus based on catalog.options
@@ -359,7 +360,7 @@ libx.ff.toolbar = {
             var mitem = document.createElement("menuitem");
             mitem.setAttribute ( "label", link.label );
             if (link.href != null)
-                mitem.setAttribute("oncommand", "libxEnv.openSearchWindow('" + link.href + "');");
+                mitem.setAttribute("oncommand", "libx.ui.openSearchWindow('" + link.href + "');");
             libxmenu.insertBefore(mitem, libxmenusep);
         }
 
@@ -368,13 +369,14 @@ libx.ff.toolbar = {
         if (edition.options.disablescholar) {
             scholarbutton.hidden = true;
         } else {
-            new libx.ff.utils.TextDropTarget(magicSearch).attachToElement(scholarbutton);
+            new libx.ff.utils.TextDropTarget(libx.ui.magicSearch).attachToElement(scholarbutton);
         }
 
         // add the selected search as a default target
         var searchbutton = document.getElementById("libx-search-button");
         new libx.ff.utils.TextDropTarget(function (data) {
-            libx.ff.toolbar.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
+            var url = libx.ff.toolbar.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
+            libx.ui.openSearchWindow(url);
         }).attachToElement(searchbutton);
 
         /*
@@ -476,7 +478,7 @@ libx.ff.initialize = function() {
     for (var i = 0; i < tabHandlers.length; i++) {
         var h = tabHandlers[i];
         h.target.addEventListener(h.event, function (nativeEvent) {
-            var ev = new libx.events.Event("ContentChange");
+            var ev = new libx.events.Event("ContentChange", window);
             ev.notify(nativeEvent);
         }, false);
     }
@@ -493,7 +495,7 @@ libx.ff.activateConfiguration = function (edition) {
 }
 
 // open search results, according to user preferences
-libxEnv.openSearchWindow = function (url, pref) {
+libx.ui.openSearchWindow = function (url, pref) {
     /* 
      * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
      */
@@ -592,10 +594,14 @@ libx.ui.bd = {
 	}
 };
 
-
-
-libxEnv.getCurrentWindowContent = function() {
-    return window._content;
+/**
+ * Returns a Window object for the primary content window.
+ * See https://developer.mozilla.org/en/DOM/window.content
+ *
+ * @return Window object for content window
+ */
+libx.ui.getCurrentWindowContent = function() {
+    return window.content;
 }
 
 /*

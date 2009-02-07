@@ -204,7 +204,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
         }
 
         try {
-            sid = sid.replace(/%hostname%/, libxEnv.getCurrentWindowContent().location.hostname);
+            sid = sid.replace(/%hostname%/, libx.ui.getCurrentWindowContent().location.hostname);
         } catch (er) {
             libx.log.write(er + ": exception occurred attempting to replace %hostname%", 'openurl');
         }
@@ -271,10 +271,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
     // implement searchable catalog functionality
     options: "jt",  // if used as a search catalog, show only Journal Title by default
     search: function (fields) {
-        var url = this.makeOpenURLSearch(fields);
-        if (url) {
-            libxEnv.openSearchWindow(url);
-        }
+        return this.makeOpenURLSearch(fields);
     },
     /**
      * the default implementation looks at the options property

@@ -265,7 +265,7 @@ var memoryCacheClass = libx.core.Class.create ( {
                 //Used in onreadystate change function (captured through closure)
                 var cache = this.xhrCache; 
 
-                xmlHttpReq.onreadystatechange = function () {
+                var onreadystatechange = function () {
                     if (xmlHttpReq.readyState == 4) {
 
                         if (request.dataType == "text") {
@@ -308,6 +308,9 @@ var memoryCacheClass = libx.core.Class.create ( {
                     cache.addToCache(key, xmlHttpReq, request);
                 }
                 
+                if (request.async)
+                    xmlHttpReq.onreadystatechange = onreadystatechange;
+
                 try {
                     xmlHttpReq.send(request.data);
                 } catch ( e ) {
@@ -316,8 +319,8 @@ var memoryCacheClass = libx.core.Class.create ( {
                     }
                 }
 
-                if (!request.async && libx.cache.bd.doesNotFireReadyStateChangeOnSynchronous)
-                    xmlHttpReq.onreadystatechange();
+                if (!request.async)
+                    onreadystatechange();
 
                 return xmlHttpReq;
                 

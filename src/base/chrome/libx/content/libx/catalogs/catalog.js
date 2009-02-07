@@ -174,11 +174,10 @@ libx.catalog.Catalog = libx.core.Class.create(
         } else {// user requested multiple search fields, do advanced search
             var url = this.makeAdvancedSearch(fields);
         }
-        if (url != null) {
-            libxEnv.openSearchWindow(url);
-        } else {
+        if (url == null) {
             libx.log.write("Could not construct search");
         }
+        return url;
     },
     /** Combine search fields of same type, concatenating them with 
      * an intermediate space.
@@ -361,38 +360,43 @@ libx.catalog.factory["scholar"] = libx.core.Class.create( libx.catalog.Catalog,
      * when user presses the Scholar button.
      */
     libxScholarSearch: function (fields) {
-        var a = "";     // authors
-        var k = "";     // keywords
-        var at = "";    // article title
-        var t = "";     // title (of journal)
+        var author = "";     // authors
+        var keyword = "";     // keywords
+        var atitle = "";    // article title
+        var journaltitle = "";     // title (of journal)
         for (var i = 0; i < fields.length; i++) {
             switch (fields[i].searchType) {
             case 'a':
-                a += fields[i].searchTerms + " ";
+                author += fields[i].searchTerms + " ";
                 break;
             case 'at':
-                at += fields[i].searchTerms + " ";
+                atitle += fields[i].searchTerms + " ";
                 break;
             case 'Y':
             case 'i':
-                k += fields[i].searchTerms + " ";
+                keyword += fields[i].searchTerms + " ";
                 break;
             case 't':
             case 'jt':
-                t += fields[i].searchTerms;
+                journaltitle += fields[i].searchTerms;
                 break;
             }
         }
-        var q = "";
-        if (k == "" && at != "") {
+        var query = "";
+        if (keyword == "" && atitle != "") {
             // we cannot use allintitle: when keywords are given also
-            q = "allintitle: " + at;
+            query = "allintitle: " + atitle;
         } else {
-            q = k + " " + at;
+            query = keyword + " " + atitle;
         }
-        if (a != "") {
-            q += " author:" + a;
+        if (author != "") {
+            query += " author:" + author;
         }
-        return magicSearch(q, t, true);    // true means suppress heuristics
+
+        var baseurl = 'http://scholar.google.com/scholar?hl=en&lr=';
+        if (journaltitle) {
+            baseurl += '&as_publication=' + encodeURIComponent(journaltitle);
+        }
+        return baseurl + '&q=' + encodeURIComponent(libx.utils.string.trim(query));
     }
 });
