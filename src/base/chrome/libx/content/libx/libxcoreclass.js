@@ -11,7 +11,9 @@
  * and metaobjects (such as libx.core.Class)
  *
  * Lowercase names represent objects
- *
+ */
+ 
+ /**
  * @namespace
  */
 libx = { };
