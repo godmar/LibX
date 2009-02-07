@@ -248,6 +248,7 @@ libx.buildDate = "$builddate$";
  */
 libx.initialize = function () 
 {
+	libx.locale.initialize();
     // Load Preferences
     libx.preferences.initialize();
 }

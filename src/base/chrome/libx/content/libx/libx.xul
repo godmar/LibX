@@ -34,9 +34,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 <!DOCTYPE overlay SYSTEM "chrome://libx/locale/definitions.dtd">
 
 <overlay orient="vertical" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	<stringbundleset id="stringbundleset"><!-- must have id or stringbundle is not found -->
-        <stringbundle id="libx-string-bundle" src="chrome://libx/locale/definitions.properties"/>
-    </stringbundleset>
 	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
 	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
@@ -58,7 +55,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/citeulike.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/config.ff.js" />
     <script type="application/x-javascript" src="chrome://libx/content/fileCache.js" />
     <script type="application/x-javascript" src="chrome://libx/content/sandbox.js" />
     <script type="application/x-javascript" src="chrome://libx/content/doforurl.js" />

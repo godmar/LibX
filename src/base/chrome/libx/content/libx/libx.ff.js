@@ -444,10 +444,6 @@ libx.ff.initialize = function() {
 
     libxChromeWindow = window;
 
-    // this function is called after the entire overlay has been built
-    // we must wait until here before calling document.getElementById
-    libxProps = document.getElementById("libx-string-bundle");
-
     libx.ff.toolbar.initialize('libx-toolbar');
 
     // bottom-right status bar menu
