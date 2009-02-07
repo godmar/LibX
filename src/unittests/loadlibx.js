@@ -14,6 +14,27 @@ var libxscripts1 = [
     "libxcoreclass.js",
     "libx.js",
     "documentrequestcache.js",
+    "config.js",
+    "events.js",
+    "catalogs/catalog.js",
+	"catalogs/milleniumopac.js",
+	"catalogs/horizonopac.js",
+	"catalogs/voyageropac.js",
+	"catalogs/alephopac.js",
+	"catalogs/sirsiopac.js",
+	"catalogs/web2opac.js",
+	"catalogs/centralsearch.js",
+	"catalogs/custom.js",
+	"catalogs/evergreen.js",
+	"catalogs/worldcat.js",
+	"catalogs/vubis.js",
+	"catalogs/voyager7.js",
+	"catalogs/talisprism.js",
+	"catalogs/openURLCatalog.js",
+    "citeulike-checkurl.js",
+	"proxy.js",
+	"openurl.js",
+	"isbnutils.js",
 ];
 
 function loadScript(libxscripts) {
@@ -62,6 +83,7 @@ libx.cache.bd = {
 // libx.utils.browserprefs
 var returnDefault = function (pref, defvalue) { return defvalue; }
 libx.utils.browserprefs.getBoolPref = returnDefault;
+libx.utils.browserprefs.getIntPref = returnDefault;
 
 libx.utils.xpath = {
     findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
@@ -126,14 +148,20 @@ libx.utils.xpath = {
     }
 }
 
+libx.ui = { }
+
 logger = {
     write : function (what) { print (what); }
+};
+libx.log = {
+    write : function (what) { println (what); }
 };
 
 var libxscripts2 = [
     "crossref.js",
     "pubmed.js",
     "xisbn.js",
+    "magicsearch.js",
 ];
 
 loadScript(libxscripts2);

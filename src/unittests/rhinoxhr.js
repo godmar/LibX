@@ -70,7 +70,10 @@ XMLHttpRequest.prototype = {
             
             function handleResponse(){
                 self.readyState = 4;
-                self.status = parseInt(connection.responseCode) || undefined;
+                if ( url.getProtocol() == "file" )  // handle file not found case
+                    self.status = 200;
+                else
+                    self.status = parseInt(connection.responseCode) || undefined;
                 self.statusText = connection.responseMessage || "";
                 
                 var stream = new java.io.InputStreamReader(connection.getInputStream()),

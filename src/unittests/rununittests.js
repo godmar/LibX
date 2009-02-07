@@ -3,3 +3,5 @@ load("collections.js");
 load("memcache.js");
 
 load("services.js");
+
+load("loadedition.js");
