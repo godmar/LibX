@@ -625,74 +625,83 @@ libx.ui.getCurrentWindowContent = function() {
     return window.content;
 }
 
-/*
- * Adds a object to the context menu
- * and returns a reference to that object
+/**
+ * Represents a browser-dependant Context Menu Item
  */
-libxEnv.addMenuObject = function (menuEntry) {
-    var contMenu = document.getElementById("contentAreaContextMenu");  
-    var m = document.createElement ( "menuitem" );
-    m.menuentry = menuEntry;
-    contMenu.insertBefore ( m, 
+libx.ui.bd.ContextMenuItem = libx.core.Class.create ( {
+	initialize : function () {
+		var contMenu = document.getElementById ( "contentAreaContextMenu" );
+		var m = document.createElement ( "menuitem" );
+		this.menuEntry = m;
+		contMenu.insertBefore ( m, 
             document.getElementById ( "libx-endholder" ) );
-
-    m.docommand = function () { 
-        alert("LibX bug: menu handler not set!");
-    }
-    m.setAttribute ( 'oncommand', "this.docommand(this.menuentry);" );
-
-    /*
-     * Sets the label of an item
+        var cmo = this;
+            
+        m.addEventListener ( 'click', function() { cmo.doCommand ( cmo.menuentry ) }, true );
+        
+		// Hide by default 
+        this.setVisible ( false );
+	},
+	
+	doCommand : function () {
+		libx.log.write ( "Error: Event handler is not set for menu item" );
+	},
+	
+	/**
+     *  Sets the label of an item
+     *  @param {String} Label text
      */
-    m.setLabel = function ( text ) {
-        this.setAttribute ( 'label', text );
-    }
-    
-    /*
-     * Sets the tooltip title of an item
+	setLabel : function ( text ) {
+		this.menuEntry.setAttribute ( 'label', text );
+	},
+	
+	/**
+     *	Sets the tooltip title of an item
+     *	@param {String} Tooltip text
      */
-    m.setTooltip = function ( text ) {
-        this.setAttribute ( 'tooltiptext', text );
-    }
-
-    /*
+	setTooltip : function ( text ) {
+		this.menuEntry.setAttribute ( 'tooltiptext', text );
+	},
+	
+	/**
      * Sets the event function for the menuitem
+     *	@param {Function} handler function to be called when this item is clicked
      */
-    m.setHandler = function ( handlerfunc ) {
-        this.docommand = handlerfunc;
-    }
-    
-    /*
+	setHandler : function ( handlerFunct ) {
+		this.doCommand = handlerFunct;
+	},
+	
+	/**
      * Sets the image for a menu object
+     *	@param {String} url of the icon
      */
-    m.setImage = function () {
-        this.setAttribute ( 'image', 
-                    document.getElementById ( 'toolbarFieldsMenu' ).
-                    getAttribute ( 'image' ) );
-        this.setAttribute ( 'class', 'menuitem-iconic' );
+    setIcon : function (iconurl) {
+        this.menuEntry.setAttribute ( 'image', iconurl );
+        this.menuEntry.setAttribute ( 'class', 'menuitem-iconic' );
 
         // crude work-around alert.
         // if setImage is called, at least one 1 item is displayed,
         // so make the menu separator visible
-        libxEnv.setVisible("libx-context-menu-separator", true);
+        document.getElementById("libx-context-menu-separator").setAttribute("hidden", "false");
+    },
+	
+	/**
+	 *	Sets whether this item is visible
+	 *	@param {boolean} true if visible
+	 */
+	setVisible : function( visible ) {
+        this.menuEntry.setAttribute ( "hidden", !visible );
+    },
+	
+	/**
+	 *	Sets whether this item is active ( able to be clicked )
+	 *	@param {boolean} true if it is clickable
+	 */
+    setActive : function ( active ) {
+        this.menuEntry.setAttribute ( "disabled", !active );
     }
-    
-    m.setVisible = function( visible ) {
-        this.setAttribute ( "hidden", !visible );
-    }
+} );
 
-    m.setActive = function ( active ) {
-        this.setAttribute ( "disabled", !active );
-    }
-
-    m.setVisible (false);
-    return m;
-}
-
-libxEnv.removeMenuObject = function (menuitem) {
-    var contMenu = document.getElementById("contentAreaContextMenu");  
-    contMenu.removeChild ( menuitem );
-}
 
 /**
  * Creates a URL Bar Icon

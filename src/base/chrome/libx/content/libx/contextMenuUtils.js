@@ -366,8 +366,7 @@ var Group = libx.core.Class.create (
 				
 				if ( this.isEnabled( item ) ) {
 					enabledCount++;
-					var nativeMenuItem = libxEnv.addMenuObject();
-					item.setNativeMenuItem ( nativeMenuItem );
+
 					item.onshowing(popuphelper, match);
 				}
 			}
@@ -441,98 +440,70 @@ var Item = libx.core.Class.create (
 	 *	@constructs
 	 *	@see libx.ui.ContextMenu.Group.createItem
 	 */
-	initialize : function ( args ) { },
+	initialize : function ( args ) { 
+		this.contextMenuItem = new libx.ui.bd.ContextMenuItem();
+	},
 	
 	/**
-	 *	The purpose of this function is to ensure complete seperation between the nativeMenuObject
-	 *	and all Item implementations. Also ensures that no calls will reach the native object after
-	 *	the context menu is hidden
-	 *	Called right before an Item's onshowing method is called - sets the functions that deal w/ the 
-	 *	native menu object
+     *  Sets the label of an item
+     *  @param {String} Label text
+     */ 
+	setLabel : function ( label ) {
+		this.contextMenuItem.setLabel ( label );
+	}, 
+	
+	/**
+     * Sets the image for a menu object
+     *	@param {String} the url of the icon to set
+     */
+	setIcon : function ( iconurl ) {
+		this.contextMenuItem.setIcon ( iconurl );
+	},
+	
+	/**
+     *	Sets the tooltip title of an item
+     *	@param {String} Tooltip text
+     */
+	setTooltip : function ( ttip ) {
+		if (typeof this.contextMenuItem.setTooltip == "function") {
+			this.contextMenuItem.setTooltip ( ttip );
+		}
+	},
+	
+	/**
+	 *	Sets whether this item is visible
+	 *	@param {boolean} true if visible
 	 */
-	setNativeMenuItem : function ( nativeMenuItem ) {
-		this.setLabel = function ( label ) {
-			nativeMenuItem.setLabel ( label );
-		};
-		this.setIcon = function ( iconurl ) {
-			nativeMenuItem.setIcon ( iconurl );
-		};
-		this.setTooltip = function ( ttip ) {
-			if (typeof menuobj.setTooltip == "function") {
-				nativeMenuItem.setTooltip ( ttip );
-			}
-		};
-		this.setVisible = function ( visible ) {
-			nativeMenuItem.setVisible ( visible );
-		};
-		this.setHandler = function ( handler ) {
-			nativeMenuItem.setHandler ( handler );
-		};
-		this.setActive = function ( active ) {
-			nativeMenuItem.setActive ( active );
-		};
-		this.onhiding = function () {
-			libxEnv.removeMenuObject ( nativeMenuItem );
-			this.onhiding = function () { };
-			this.setLabel = function () { this.writeError ( 'setLabel' ); };
-			this.setIcon = function () { this.writeError ( 'setIcon' );};
-			this.setTooltip = function () { this.writeError ( 'setTooltip' );};
-			this.setVisible = function () { this.writeError ( 'setVisible' ); };
-			this.setHandler = function () { this.writeError ( 'setHandler' );};
-			this.setActive = function () { this.writeError ( 'setActive' ); };
-		};
+	setVisible : function ( visible ) {
+		this.contextMenuItem.setVisible ( visible );
+	},
+	
+	/**
+     * Sets the event function for the menuitem
+     *	@param {Function} handler function to be called when this item is clicked
+     */
+	setHandler : function ( handler ) {
+		this.contextMenuItem.setHandler ( handler );
+	},
+	
+	/**
+	 *	Sets whether this item is active ( able to be clicked )
+	 *	@param {boolean} true if it is clickable
+	 */
+	setActive : function ( active ) {
+		this.contextMenuItem.setActive ( active );
 	},
 	writeError : function ( functName ) {
 		libx.log.write ( 'contextMenu', functName + ' called with no native menu item initialized' );
-	},
-	/**
-	 *	Sets the label of the context menu item
-	 */
-	setLabel : function (/** String */ label) { 
-		this.writeError ( 'setLabel' ); 
-	},
-	
-	/**
-	 *	Sets the icon for this item
-	 */
-	setIcon : function ( /** URL */ iconURL ) { 
-		this.writeError ( 'setIcon' );
-	},
-	
-	/**
-	 *	Sets the tooltip text
-	 */
-	setTooltip : function ( /** String */ tooltipText ) { 
-		this.writeError ( 'setTooltip' );
-	},
-	
-	/**
-	 *	Sets the visibility
-	 */
-	setVisible : function ( /** Boolean */ visible ) {
-		this.writeError ( 'setVisible' ); 
-	},
-	
-	/**
-	 *	Sets the function to be called when the Item is clicked
-	 */
-	setHandler : function ( /** Function */ handler ) { 
-		this.writeError ( 'setHandler' );
-	},
-	
-	/**
-	 *	Sets the active state of the Item. An item that is not
-	 *	active will not trigger the event handler when clicked	
-	 */
-	setActive : function ( /** Boolean */ active) { 
-		this.writeError ( 'setActive' );
 	},
 	
 	/**
 	 *	Called when the ContxtMenu being hidden
 	 *	@private
 	 */
-	onhiding : function () { },
+	onhiding : function () { 
+		this.setVisible ( false );
+	},
 
 	/**
 	 *	Function called when the context menu is showing, and a match has been found
@@ -592,6 +563,7 @@ Item.factory['catalog'] = libx.core.Class.create (
 		 *	@param {String} args.searchType  Search Type for this item
 		 */
 		initialize : function ( args ) {
+			this.parent ( args );
 			this.name = args.name;
 			this.searcher = libx.edition.catalogs.getByName(this.name);
 			this.searchType = args.searchType; 
@@ -661,6 +633,7 @@ Item.factory['proxy'] = libx.core.Class.extend (
 		 *	@param {String} args.name Name of this object
 		 */
 		initialize : function (args) {
+			this.parent ( args );
 			this.name = args.name;
 			this.proxy = libx.edition.proxy.getByName ( this.name );
 		},
@@ -736,7 +709,7 @@ Item.factory['scholar'] = libx.core.Class.create (
 		 *	@private
 		 *	@see libx.ui.ContextMenu.Group.createItem
 		 */
-		initialize : function () {	},
+		initialize : function () {this.parent(null);},
 		onshowing : function ( popuphelper, match ) {
 			this.setVisible ( true );
 			var text = libx.utils.string.trim ( match );
