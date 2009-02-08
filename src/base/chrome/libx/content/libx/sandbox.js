@@ -22,41 +22,59 @@
  *
  * ***** END LICENSE BLOCK ***** */
  
-// *******************************************************
-// sandbox class
-// This class creates our sandbox to evaluate our doforurls in
-// *******************************************************
- 
-libxEnv.sandboxClass = function ()
-{
-    // creates the sandbox with all the functions we need for our doforurls
-    // window is the window object, url is the url of the current pages,
-    // and m containes the matched part of the url which some doforurls need
-    this.createSandbox = function( window, url )
-    {
-        var safeWin = new XPCNativeWrapper(window);
-        var theSandBox = new Components.utils.Sandbox( safeWin );
-        theSandBox.safeWindow = safeWin;
-        theSandBox.window = safeWin;
-        theSandBox.unsafeWindow = window;
-        theSandBox.document = theSandBox.window.document;
+/**
+ * Support for creating a sandbox.
+ *
+ * Evaluates in global FF context.
+ *
+ * @see libx.libapp.createSandbox
+ *
+ * @class
+ */
+libx.libapp.Sandbox = libx.core.Class.create(
+    /** @lends libx.libapp.Sandbox.prototype */{
+    /** 
+     * Creates a sandbox.
+     * 
+     * The environment will contain an wrapped version of the 
+     * passed-in window.  The wrapper will not propagate assignments
+     * to the underlying window in order to avoid interfering with
+     * the loaded page's scope.
+     *
+     * 'unsafeWindow' may be used to access the actual window object.
+     *
+     * @param {Window} win - window to be wrapped
+     * @param {Object} globalproperties - properties to be included in global scope
+     */
+    initialize : function ( win, globalproperties ) {
+        var safeWin = new XPCNativeWrapper(win);
 
-        if ( url )
-            theSandBox.url = url;
+        this.sandBox = new Components.utils.Sandbox( safeWin );
+        this.sandBox.unsafeWindow = win;
 
-        theSandBox.libx = { };
-        libx.core.Class.mixin(theSandBox.libx, libx);
+        this.sandBox.window = safeWin;
+        this.sandBox.document = safeWin.document;
+
+        for (var prop in globalproperties) {
+            this.sandBox[prop] = { };
+            libx.core.Class.mixin(this.sandBox[prop], globalproperties[prop], true);
+        }
 
         // XPCNativeWrapper does not set the prototype chain
-        theSandBox.__proto__ = safeWin; 
-        return theSandBox;
-    }
+        this.sandBox.__proto__ = safeWin; 
+    },
     
-    // evaluates the given function in the sandbox
-    this.evaluateInSandbox = function ( func, sandBox )
-    {
-        Components.utils.evalInSandbox( func, sandBox );
+    /**
+     * Evaluate a given piece of JavaScript
+     *
+     * @param {String} code to be evaluated
+     */
+    evaluate : function ( code ) {
+        try {
+            Components.utils.evalInSandbox( code, this.sandBox );
+        } catch (er) {
+            libx.log.write("Error in Sandbox.evaluate: " + er);
+        }
     }
-}
+});
 
-libxEnv.sandbox = new libxEnv.sandboxClass();

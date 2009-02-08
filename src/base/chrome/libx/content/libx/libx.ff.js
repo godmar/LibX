@@ -442,8 +442,6 @@ libx.ff.toolbar = {
  */
 libx.ff.initialize = function() {
 
-    libxChromeWindow = window;
-
     libx.ff.toolbar.initialize('libx-toolbar');
 
     // bottom-right status bar menu
@@ -480,7 +478,34 @@ libx.ff.initialize = function() {
     }
 
     var ac = document.getElementById("appcontent");
-    ac.addEventListener("DOMContentLoaded", libxEnv.doforurls.onPageComplete_ff, true);
+    ac.addEventListener("DOMContentLoaded", function (nativeFFEvent) {
+        // examine event and decide whether to fire ContentLoaded
+        var ev = nativeFFEvent;
+
+        if (!ev || !ev.originalTarget || !ev.originalTarget.location) return;
+        
+        var win = ev.explicitOriginalTarget.defaultView;
+        if (!win)
+            return;     
+
+        if (ev.originalTarget.location == 'about:blank')
+            return;     
+
+        // don't run anything in hidden frames - some are used for Comet-style communication
+        // they examine 'textContent' on the entire document; any change will lead to
+        // application failure
+        if ( win.frameElement != null && win.frameElement.style.visibility == "hidden" ) 
+			return;
+
+        // wrap information in ContentLoaded Event and fire it
+        var libxEvent = new libx.events.Event("ContentLoaded", window);
+        libx.core.Class.mixin(libxEvent, {
+            url : ev.originalTarget.location.href,
+            window : win,
+            nativeEvent : nativeFFEvent
+        }, true);
+        libxEvent.notify();
+    }, true);
 }
 
 /**

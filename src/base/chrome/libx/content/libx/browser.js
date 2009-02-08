@@ -40,7 +40,6 @@ var browser =
 
                 libx.browser.activateConfiguration(edition);
 
-                libxEnv.doforurls.initDoforurls();  // XXX
                 libx.citeulike.notificationicon.initialize();
             },
             onerror: function () {

@@ -70,10 +70,12 @@ libx.events = {
          * will be notified.
          */
         notify : function () {
+            // see http://www.mennovanslooten.nl/blog/post/59
+            var argsAsArray = [].splice.call(arguments, 0);
             var observers = handlerMap[this.eventName] || [];
             for (var i = 0; i < observers.length; i++)
                 if (this.eventWindow == observers[i].window)
-                    observers[i].handler["on" + this.eventName].apply(observers[i].handler, [this].concat(arguments));
+                    observers[i].handler["on" + this.eventName].apply(observers[i].handler, [this].concat(argsAsArray));
         }
     }),
 

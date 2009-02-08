@@ -29,11 +29,21 @@
                         
 /**
  * @namespace
- * Services namespaces
+ * Support for built-in access to services such 
+ * as xISBN, Pubmed, CrossRef
  *
  * This namespace is global.
  */
 libx.services = { }
+
+/**
+ * @namespace
+ *
+ * Support for the execution of libapps.
+ *
+ * This namespace is global.
+ */
+libx.libapp = { }
 
 /**
  * @namespace
