@@ -32,13 +32,12 @@
 libx.catalog.factory["openurlresolver"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.openurlresolver.prototype */
 {
-    /** @constructs */
-    initialize: function () {
-        this.options = libxEnv.openUrlResolver.options;
+    __init: function () {
+        this.options = libx.edition.openurl[this.resolvernum].options;
     },
 
 	search: function (fields) {
-	    return libxEnv.openUrlResolvers[this.resolvernum].search( fields );
+        return libx.edition.openurl[this.resolvernum].search(fields);
 	}
 });
 

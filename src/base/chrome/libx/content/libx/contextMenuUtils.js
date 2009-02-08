@@ -611,10 +611,9 @@ Item.factory['catalog'] = libx.core.Class.create (
 				searcher.search ( [{ searchType : searchType, searchTerms: match }] );
 			} );
 			var displayText = this.util.computeDisplayText ( match );
-            // i18n 
-			this.setLabel ("Search " + this.name + " for " 
-                        + libx.edition.searchoptions[this.searchType] 
-                        + " \"" + displayText + "\"" );
+            this.setLabel (libx.locale.getProperty("catalog.contextmenu.search.label", this.name,
+                           libx.edition.searchoptions[this.searchType] + " \"" 
+                            + displayText + "\"" ));
         
 		}
 	}
@@ -676,7 +675,7 @@ Item.factory['proxy'] = libx.core.Class.extend (
             	if (m) {
                 	p = m[1];
             	}
-            	item.setLabel ( libxEnv.getProperty(which, [proxy.name, util.computeDisplayText(p)]));         
+            	item.setLabel ( libx.locale.getProperty(which, proxy.name, util.computeDisplayText(p)));
 			}
                 
             var urltocheck;
@@ -744,7 +743,7 @@ Item.factory['scholar'] = libx.core.Class.create (
 			this.setHandler ( function () {
 				libx.ui.magicSearch ( text );
 			} );
-			this.setLabel (libxEnv.getProperty("contextmenu.scholarsearch.label",[this.util.computeDisplayText(text)] ) );
+			this.setLabel (libx.locale.getProperty("contextmenu.scholarsearch.label", this.util.computeDisplayText(text) ) );
         }
     }        
 );

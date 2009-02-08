@@ -22,9 +22,14 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-/** @namespace */
+/** 
+ * @namespace 
+ *
+ * Support for internationalization.
+ */
 libx.locale = ( function () { 
 
+var DEFAULT_PROPERTIES = "chrome://libx/locale/definitions.properties";
 var libxbundle = null;
 
 return /** @lends libx.locale */ {
@@ -33,15 +38,17 @@ return /** @lends libx.locale */ {
 	 *	Initializes the libx.locale namespace, loading the LibX properties
 	 */
 	initialize : function () {
-		libxbundle = new libx.locale.StringBundle ( "chrome://libx/locale/definition.properties" );
+		libxbundle = new libx.locale.StringBundle ( DEFAULT_PROPERTIES );
 	},
 	
 	/**
 	 *	Returns a LibX property with specified name 
+	 *	@param {String} name of property
+	 *	@param {Objects} variable number of arguments
 	 */	
-	getProperty : function ( name, args ) {
+	getProperty : function ( name /*, arg0, arg1, arg2, .... */) {
 		if ( libxbundle != null ) {
-			return libxbundle.getProperty ( name, args );
+			return libxbundle.getProperty.apply ( libxbundle, arguments );
 		} else {
 			libx.log.write ( "Error: libx bundle was not initialized" );
 			return null;
@@ -58,8 +65,9 @@ return /** @lends libx.locale */ {
 		 *	Initializes a StringBundle
 		 *	@constructs
 		 */
-		initialize : function ( filename ) {
-			this.bundle = new libx.locale.bd.StringBundle ( filename );	
+		initialize : function ( url ) {
+            this.url = url;
+			this.bundle = new libx.locale.bd.StringBundle ( url );	
 		},
 		
 		/**
@@ -75,12 +83,18 @@ return /** @lends libx.locale */ {
 		    
 			try {
 		        if (args.length > 0) {
-		            return this.bundle.getFormattedString(prop, args);
+		            var formatted = this.bundle.getFormattedString(name, args);
 		        } else {
-		            return this.bundle.getString(prop);
+		            var formatted = this.bundle.getString(name);
 		        }
+                if (formatted == null) {
+                    libx.log.write("Property '" + name + "' not found in '" + this.url + "'");
+                    return "<" + name + ">";
+                }
+                return formatted;
 		    } catch (e) {
-		        return null;
+                libx.log.write("Error retrieving property '" + name + "' from '" + this.url + "': " + e);
+		        return "<" + name + ">";
 		    }
 		}
 	} )	

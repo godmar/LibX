@@ -40,7 +40,7 @@ var citeulike = {
             startidx++;
         }
         if (startidx < this.regexps.length)
-            setTimeout(function () { 
+            libx.utils.timer.setTimeout(function () { 
                 citeulike.canpost(url, onsuccess, onfailure, startidx); 
             }, this.timerperiod);
         else

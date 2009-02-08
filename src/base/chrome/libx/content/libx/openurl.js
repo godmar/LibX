@@ -128,7 +128,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
 			    if (pureISN != null) {
 				    url += this.isbnprefix + pureISN;
 			    } else {
-				    alert(libxEnv.getProperty("openurlissn.alert", [fields[i].searchTerms]));
+				    alert(libx.locale.getProperty("openurlissn.alert", fields[i].searchTerms));
 				    return null;
 			    }
 			    this.haveTitleOrIssn = true;
@@ -138,7 +138,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
 			    if (pureISN != null) {
 				    url += this.issnprefix + pureISN;
 			    } else {
-				    alert(libxEnv.getProperty("openurlissn.alert", [fields[i].searchTerms]));
+				    alert(libx.locale.getProperty("openurlissn.alert", fields[i].searchTerms));
 				    return null;
 			    }
 			    this.haveTitleOrIssn = true;
@@ -165,8 +165,7 @@ libx.openurl.factory["generic"] = libx.core.Class.create(
 			    }
 			    break;
 		    case 'Y':
-			    alert(libxEnv.getProperty("openurlarticlekeyword.alert", 
-                                    [this.name]));
+			    alert(libx.locale.getProperty("openurlarticlekeyword.alert", this.name));
 			    return null;
 			}//switch
 	    }//for

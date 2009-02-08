@@ -32,13 +32,21 @@ libx.cache.bd = {
 /**
  *	Initiates a timeout that will trigger the callback function exactly once
  *	after the specified timeout
+ *
+ *	Intended to be compatible with window.setTimeout
+ *
+ *	@param {Function|String} Callback function or statement
  *	@param {Integer} Timeout ( in milliseconds )
- *	@param {Function} Callback function 
  */
-libx.utils.timer.setTimeout = function ( timeout, callback ) {
+libx.utils.timer.setTimeout = function ( callback, timeout ) {
 	Components.classes['@mozilla.org/timer;1']
     	.createInstance(Components.interfaces.nsITimer)
-        .initWithCallback({notify: callback}, timeout,
+        .initWithCallback({notify: function () {
+                    if (typeof callback == "string")
+                        eval (callback);
+                    else
+                        callback ();
+                }}, timeout,
                 Components.interfaces.nsITimer.TYPE_ONE_SHOT );
 };
 
@@ -65,18 +73,18 @@ libx.locale.bd.StringBundle = libx.core.Class.create (
 	/**
 	 *	Returns a string with specified name
 	 *	@param {String} name of property
-	 *	@return {String} property
+	 *	@param {String[]} additional arguments
+	 *	@return {String} Formatted property
 	 */
 	getFormattedString : function ( name, args ) {
-		return bundle.formatStringFromName ( name, args );
+		return this.bundle.formatStringFromName ( name, args, args.length );
 	},
 	/**
 	 *	Returns a formatted property string
 	 *	@param {String} name of property
-	 *	@param {String[]} additional arguments
-	 *	@return {String} Formatted property
+	 *	@return {String} property
 	 */
 	getString : function ( name ) {
-		return bundle.GetStringFromName ( name );
+		return this.bundle.GetStringFromName ( name );
 	}
 } );

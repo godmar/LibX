@@ -44,7 +44,7 @@ var libxProps;    //An associative array that holds the key=value pairs
  * Gets a property from the localized definitions.properties file (as loaded
  * into libxProps). Returns null on error or if property not found.
  */
-libxEnv.getProperty = function(key, args) {
+libx.locale.getProperty = function(key, args) {
     //Make sure we've been properly initialized
     if(libxProps == null) {
         libxEnv.loadProperties();

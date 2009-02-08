@@ -52,7 +52,7 @@ libx.citeulike.notificationicon = {
                 + "&title=" + encodeURIComponent(title), 
                 /* do not uri encode */true, "libx.sametab");
         } );
-        icon.setTooltipText ( libxEnv.getProperty ( "citeulike.tooltiptext" ) );
+        icon.setTooltipText ( libx.locale.getProperty ( "citeulike.tooltiptext" ) );
 
         libx.events.addListener("ContentChange", {
             onContentChange: function ( e, args ) {

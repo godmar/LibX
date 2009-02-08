@@ -193,6 +193,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     loadSearchOptions: function (doc) {
         // default map of search options to search labels
         // newer configuration files store all labels in /edition/searchoptions 
+        // i18n
         var searchoptions = {
             "Y" : "Keyword",
             "t" : "Title",
@@ -245,6 +246,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             function (node) {
                 return node.nodeName;
             },
+            /* add xISBN-related attributes post construction */
             function (node, cat) {
                 var xisbnNode = libx.utils.xpath.findSingleXML ( doc.xml, "xisbn", node );
                 if ( xisbnNode ) {

@@ -44,25 +44,8 @@ libxEnv.sandboxClass = function ()
         if ( url )
             theSandBox.url = url;
 
-        theSandBox.libxEnv = {
-            writeLog : libx.log.write,
-            makeLink : libxEnv.makeLink,
-            getProperty : libxEnv.getProperty,
-            options : libx.edition.options,
-            xpath : libx.utils.xpath,
-            xisbn : libx.services.xisbn,
-            openUrlResolver : libxEnv.openUrlResolver,
-            openUrlResolvers : libxEnv.openUrlResolvers,
-			resources : libxEnv.doforurls.resources,
-            autolink : libxEnv.autolink,
-            buildDate : libxEnv.buildDate,
-            getBoolPref : libx.utils.browserprefs.getBoolPref,
-            getIntPref : libx.utils.browserprefs.getIntPref,
-            getUnicharPref : libx.utils.browserprefs.getStringPref
-        };
-
-        theSandBox.libx = libx;
-        theSandBox.isISBN = libx.utils.stdnumsupport.isISBN;
+        theSandBox.libx = { };
+        libx.core.Class.mixin(theSandBox.libx, libx);
 
         // XPCNativeWrapper does not set the prototype chain
         theSandBox.__proto__ = safeWin; 
