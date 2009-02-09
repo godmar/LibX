@@ -33,46 +33,41 @@
  * users get for free.
  *
  * It should be included after libx.js and libx.ie.js.
+ *
+ * Untested after refactoring.
  */
 
 var libx_version = "$libxversion$";
 
-var libxProps;    //An associative array that holds the key=value pairs
+(function () {
 
+var libxProps = null;    //An associative array that holds the key=value pairs
 
-/*  getProperty
- * Gets a property from the localized definitions.properties file (as loaded
- * into libxProps). Returns null on error or if property not found.
+/*  loadProperties
+ * Loads properties from the defintions.properties file into an associative
+ * array. This means that this file is not dynamic: changes to the file are
+ * not reflected in LibX until the next IE restart. I don't know how Firefox
+ * handles it, but making it dynamic would require a lot more work.
  */
-libx.locale.getProperty = function(key, args) {
-    //Make sure we've been properly initialized
-    if(libxProps == null) {
-        libxEnv.loadProperties();
-    }
-    try {
-        //Get the property
-        var prop = libxProps[key];
-        if(prop){
-            //See if we need to format it
-            if(args) {
-                return libxEnv.formatString(prop, args);
-            }
-            else {
-                return prop;
-            }
+function loadProperties () {
+    libxProps = new Object();
+    strProps = libxInterface.getLocaleStrings();
+    var m = strProps.match(/([^=\r\n]+)=(.+)$/gm);
+    for(var i = 0; i < m.length; ++i) {
+        var mi = m[i];
+        if(mi.charAt(0) == '#') {
+            continue;
         }
-        else {
-            libx.log.write("Property " + key + " doesn't exist.");
-        }
+        var kvmatch = mi.match(/([^=]+)=(.+)$/);
+        libxProps[kvmatch[1]] = kvmatch[2];
     }
-    catch (e) {
-        libx.log.write("Config error " + e.name + ": " + e.message);
-    }
-    return null;
 };
 
-libxEnv.formatString = function(str, args) {
+function formatString (str, args) {
     //I could hack it up with string.replace and a nasty regex, but who wants that?
+    //
+    // XXX this function looks like it would break if a %X were in a property where X != S
+    // should only replace %S and %S$1 etc. --- gback
     var argPtr = 0;
     for(var i = 0; i < str.length - 1; ++i) {
         if(str.charAt(i) == '%') {
@@ -97,22 +92,30 @@ libxEnv.formatString = function(str, args) {
     return str;
 };
 
-/*  loadProperties
- * Loads properties from the defintions.properties file into an associative
- * array. This means that this file is not dynamic: changes to the file are
- * not reflected in LibX until the next IE restart. I don't know how Firefox
- * handles it, but making it dynamic would require a lot more work.
+/*  getProperty
+ * Gets a property from the localized definitions.properties file (as loaded
+ * into libxProps). Returns null on error or if property not found.
  */
-libxEnv.loadProperties = function() {
-    libxProps = new Object();
-    strProps = libxInterface.getLocaleStrings();
-    var m = strProps.match(/([^=\r\n]+)=(.+)$/gm);
-    for(var i = 0; i < m.length; ++i) {
-        var mi = m[i];
-        if(mi.charAt(0) == '#') {
-            continue;
-        }
-        var kvmatch = mi.match(/([^=]+)=(.+)$/);
-        libxProps[kvmatch[1]] = kvmatch[2];
+libx.locale.getProperty = function(key, args) {
+
+
+    //Make sure we've been properly initialized
+    if(libxProps == null) {
+        loadProperties();
     }
+    try {
+        //Get the property
+        var prop = libxProps[key];
+        if (prop) {
+            return formatString(prop, [].splice(arguments, 1));
+        } else {
+            libx.log.write("Property " + key + " doesn't exist.");
+        }
+    }
+    catch (e) {
+        libx.log.write("Config error " + e.name + ": " + e.message);
+    }
+    return null;
 };
+
+}) ();
