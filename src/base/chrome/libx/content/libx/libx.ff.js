@@ -537,7 +537,7 @@ libx.ui.openSearchWindow = function (url, pref) {
         return postData;
     }
 
-    var what = pref ? pref : libx.prefs.browser.displaypref;
+    var what = pref ? pref : libx.prefs.browser.displaypref._value;
 
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
@@ -551,7 +551,7 @@ libx.ui.openSearchWindow = function (url, pref) {
         var windowarguments = [ url2, null, postData ];
     }
     switch (what) {
-    case "libx.newwindow":
+    case "newwindow":
         if (isGet) {
             window.open(url);
         } else {
@@ -568,7 +568,7 @@ libx.ui.openSearchWindow = function (url, pref) {
 
         break;
 
-    case "libx.sametab":
+    case "sametab":
         if (isGet) {
             _content.location.href = url;
         } else {
@@ -576,12 +576,12 @@ libx.ui.openSearchWindow = function (url, pref) {
         }
         break;
 
-    case "libx.newtab":
+    case "newtab":
     default:
         getBrowser().addTab.apply(getBrowser(), tabarguments);
         break;
 
-    case "libx.newtabswitch":
+    case "newtabswitch":
         var tab = getBrowser().addTab.apply(getBrowser(), tabarguments);
         getBrowser().selectedTab = tab;
         break;

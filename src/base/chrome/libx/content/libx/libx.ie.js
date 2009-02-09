@@ -67,7 +67,7 @@ libxEnv.debugInit = function () {}  // XXX needed?
  * Assumes that the preferences are either libx.newtabswitch or libx.sametab
  */
 libx.ui.openSearchWindow = function (url, pref) {
-    var what = pref ? pref : libx.prefs.browser.displaypref;
+    var what = pref ? pref : libx.prefs.browser.displaypref._value;
     
     var isGet = typeof (url) == "string";
     var url2 = isGet ? url : url[0];
@@ -77,7 +77,7 @@ libx.ui.openSearchWindow = function (url, pref) {
      * The only choice we have is between _blank and _self
      */
     var target = "_blank";
-    if (what == "libx.sametab")
+    if (what == "sametab")
         target = "_self";
         
         /* When invoked from context menu doProxify, libxInterface.openNewWindow

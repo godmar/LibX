@@ -114,7 +114,7 @@ prefFactory["category"] = libx.core.Class.create ( prefFactory.XMLPreferenceObje
      *    @see libx.preferences.Preference constructor for a description of the descriptor
      */
     _addPreference : function ( descriptor ) {
-        this._addChild ( descriptor, "preference" );
+        return this._addChild ( descriptor, "preference" );
     },
     
     /**
@@ -123,7 +123,7 @@ prefFactory["category"] = libx.core.Class.create ( prefFactory.XMLPreferenceObje
      *    @see libx.preferences.Catalog constructor for a description of the descriptor
      */    
     _addCategory : function ( descriptor ) {
-        this._addChild ( descriptor, "category" );
+        return this._addChild ( descriptor, "category" );
     },
     
     /**
@@ -138,9 +138,12 @@ prefFactory["category"] = libx.core.Class.create ( prefFactory.XMLPreferenceObje
         if ( type == null ) {
             type = descriptor._nodeType;
         }
+        // Dont add a child if it already exists
+        if ( descriptor && this[descriptor._name] != null ) { return this[descriptor._name]; }
         var child = new prefFactory[type](descriptor,this._idstr, node)
         this[child._name] = child;
         this._children.push ( child );
+        return child;
     }
 } );
 

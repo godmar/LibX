@@ -580,7 +580,11 @@ Item.factory['catalog'] = libx.core.Class.create (
 			var searcher = this.searcher;
 			this.setVisible ( true );
 			this.setHandler ( function () {
-				searcher.search ( [{ searchType : searchType, searchTerms: match }] );
+				libx.ui.openSearchWindow ( 
+					searcher.search ( 
+						[{ searchType : searchType, searchTerms: match }] 
+					) 
+				);
 			} );
 			var displayText = this.util.computeDisplayText ( match );
             this.setLabel (libx.locale.getProperty("catalog.contextmenu.search.label", this.name,
