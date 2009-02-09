@@ -20,6 +20,7 @@ var globalScripts = [
     "chrome://libx/content/libx.js",
     "chrome://libx/content/log.js",
     "chrome://libx/content/io.js",
+	"chrome://libx/content/locale.js",
     "chrome://libx/content/preferences.js",
     "chrome://libx/content/documentrequestcache.js",
     "chrome://libx/content/locale.js",
@@ -52,6 +53,7 @@ var globalScripts = [
 	"chrome://libx/content/xisbn.js",
 	"chrome://libx/content/pubmed.js",
 	"chrome://libx/content/crossref.js",
+	"chrome://libx/content/sandbox.js",
 ];
 
 for (var i = 0; i < globalScripts.length; i++) {
