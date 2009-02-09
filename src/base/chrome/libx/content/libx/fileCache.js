@@ -405,4 +405,5 @@ libx.cache.FileCache = ( function () {
 return fileCacheClass;
 })();
 
-libxEnv.fileCache = new libx.cache.FileCache();
+libx.cache.globalFileCache = new libx.cache.FileCache();
+

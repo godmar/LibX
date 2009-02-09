@@ -22,7 +22,10 @@
  * ***** END LICENSE BLOCK ***** */
 
 /*
- * Server-side implementation of libxEnv
+ * Server-side implementation of libx - for Rhino
+ *
+ * XXX move this to rhino/ subdir
+ *
  */
 
 // see http://java.sun.com/javase/6/docs/technotes/guides/scripting/programmer_guide/index.html#jsimport
@@ -70,7 +73,7 @@ function libxWriteOpenSearchDescriptions() {
     //println("icon is: " + icon);
     var last = String(configdir).replace(/.*editions/, "");
     println("last is: " + last);
-    var name = libx.utils.xpath.findNodes(libxEnv.xmlDoc.xml, "/edition/name")[0];
+    var name = libx.edition.name['short'];  // short is future reserved word, Rhino respects that
     //println("name.short is: " + name.getAttribute("short"));
     for (var i = 0; i < (catalogs.length < 1 ? 0 : 1); i++) {
         var opts = catalogs[i].options.split(";");

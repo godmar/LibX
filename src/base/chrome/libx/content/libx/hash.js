@@ -23,18 +23,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-//=============================================================================
-// libxEnv.hash
-// function set used to create hashings for urls that later get transformed into 
-// file paths. Using Sha1 hash
-//=============================================================================
-//
-// FF only
-//
-
 /**
  * @namespace 
- * Support for cryptographic hashes
+ * Support for cryptographic hashes - SHA1
  */
 libx.utils.hash = (function() {
 

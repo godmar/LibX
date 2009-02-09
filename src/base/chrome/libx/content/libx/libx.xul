@@ -45,8 +45,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             libx = { };
             gLibx.core.Class.mixin(libx, gLibx, true);
         })();
-
-        libxEnv = { };  // XXX
         ]]>
     </script>
 	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />
@@ -138,7 +136,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                         tooltiptext="Press to search or drag search terms onto this button!"
 						id="libx-search-button" oncommand="libx.ff.toolbar.doSearch();">
 						<menupopup id="libxcatalogs">
-                            <!-- catalog choices go here, see libxEnv.initCatalogGUI -->
+                            <!-- catalog choices go here, see libx.ff.activateConfiguration -->
 						</menupopup>
 					</toolbarbutton>
 
