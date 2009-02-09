@@ -2,4 +2,11 @@
     /** Default Category Template */
 !}
 <!-- category.tmpl -->
-<label>{+ libx.stringbundle.getLocalizedString ( data._idstr + "-label", data._name ) +}</label>
+<div>
+    <label>{L data._idstr + "-description", data._name L}</label>
+    <for each="child" in="data._children">
+        <div>
+            {P child P}
+        </div>
+    </for>
+</div>
