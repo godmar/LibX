@@ -26,7 +26,8 @@
  * Some utilities to help with xpath expressions for Firefox
  */
 
-const XPathResult = Components.interfaces.nsIDOMXPathResult;
+if (XPathResult == null)
+    var XPathResult = Components.interfaces.nsIDOMXPathResult;
 
 libx.utils.xpath = {
     /* See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript

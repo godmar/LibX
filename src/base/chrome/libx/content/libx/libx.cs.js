@@ -25,52 +25,47 @@
 /*
  * Client-side implementation of libxEnv
  */
-libx.ff = { };
+libx.ui = { };
 
-libxEnv = {
+libx.utils.browserprefs = {
     getBoolPref : function (pref, defvalue) {
         return defvalue;
     },
     getIntPref : function (pref, defvalue) {
         return defvalue;
-    },
-    openSearchWindow : function (url) {
-        if (typeof url == "string") {
-            /* GET */
-            window.open(url);
-        } else {
-            /* POST - create a hidden POST form, populate and submit it. */
-            var target = url[0];
-            var postdata = url[1];
-            var form = document.createElement("form");
-            form.setAttribute("method", "POST");
-            form.setAttribute("action", url[0]);
-            form.style.display = 'none';
-            var arg = url[1].split(/&/);
-            for (var i = 0; i < arg.length; i++) {
-                var field = document.createElement("input");
-                var namevalue = arg[i].split("=");
-                field.setAttribute("name", namevalue[0]);
-                field.setAttribute("value", namevalue[1]);
-                form.appendChild(field);
-            }
-            document.body.appendChild(form);    // needed?
-            form.submit();
+    }
+};
+
+libx.ui.openSearchWindow = function (url) {
+    if (typeof url == "string") {
+        /* GET */
+        window.open(url);
+    } else {
+        /* POST - create a hidden POST form, populate and submit it. */
+        var target = url[0];
+        var postdata = url[1];
+        var form = document.createElement("form");
+        form.setAttribute("method", "POST");
+        form.setAttribute("action", url[0]);
+        form.style.display = 'none';
+        var arg = url[1].split(/&/);
+        for (var i = 0; i < arg.length; i++) {
+            var field = document.createElement("input");
+            var namevalue = arg[i].split("=");
+            field.setAttribute("name", namevalue[0]);
+            field.setAttribute("value", namevalue[1]);
+            form.appendChild(field);
         }
-    },
-    writeLog : function (msg, type) {
+        document.body.appendChild(form);    // needed?
+        form.submit();
+    }
+};
+
+libx.log = {
+    write : function (msg, type) {
         if (type !== undefined)
                 return;
-    // alert("writeLog: " + msg);
-    },
-    logTypes : {
-        magic: 'Magic',
-        xpath: 'XPath'
-    },
-    getXMLConfig : function (invofcc) {
-        libxGetUrl(invofcc.url, function (xhr) { 
-            invofcc.onload(xhr); 
-        }, true);
+        // alert("writeLog: " + msg);
     }
 };
 
@@ -87,8 +82,8 @@ function libxClientSideCatalogInit(configurl) {
 function libxRunAdvancedTestSearch(catindex, search)
 {
     try {
-        var u = libx.edition.catalogs[catindex].search(search);
-        libxEnv.openSearchWindow(u);
+        var url = libx.edition.catalogs[catindex].search(search);
+        libx.ui.openSearchWindow(url);
     } catch (er) {
         libx.log.write(er + "\ncatalog #" + catindex + " is: " + props(libx.edition.catalogs[catindex]));
     }
@@ -127,9 +122,10 @@ function props(x) {
 }
 // -----------------
 
+libx.cache.bd = { };
+libx.cache.bd.getXMLHttpReqObj = (function () {
 // adapted from latest version published at
 // http://jibbering.com/2002/4/httprequest.html
-function libxGetUrl(url, cb, sync) {
     function getXHR() {
         var xmlhttp=false;
         /*@cc_on @*/
@@ -163,15 +159,6 @@ function libxGetUrl(url, cb, sync) {
         return xmlhttp;
     }
 
-    var xmlhttp = getXHR();
-    xmlhttp.open("GET", url, sync);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if (cb != null)
-                cb(xmlhttp);
-        }
-    }
-    xmlhttp.send(null);
-    return xmlhttp;
-}
+    return getXHR;
+})();
 
