@@ -12,12 +12,11 @@ const Ci = Components.interfaces;
 function AboutLibX() { }
 
 AboutLibX.prototype = {
-    newChannel : function(aURI) {
+    newChannel : function(aURI) {   
         if(!aURI.spec == "about:libx") return;
         var ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-        var channel = ios.newChannel("chrome://libx/content/doc/index.html", null, null);
-        channel.originalURI = aURI;
-		
+        var channel = ios.newChannel("chrome://libxdoc/content/index.html", null, null);
+        channel.originalURI = aURI;	
         return channel;
     },
     getURIFlags: function(aURI) {
