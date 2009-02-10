@@ -27,12 +27,12 @@ libx.cache.bd = {
        return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
                 .createInstance(Components.interfaces.nsIXMLHttpRequest);
     }
-}
+};
 
 (function () {
 
 function setTimer(callback, timeout, nsITimer_TYPE) {
-	return Components.classes['@mozilla.org/timer;1']
+	Components.classes['@mozilla.org/timer;1']
     	.createInstance(Components.interfaces.nsITimer)
         .initWithCallback({notify: function () {
                     if (typeof callback == "string")
@@ -53,7 +53,7 @@ function setTimer(callback, timeout, nsITimer_TYPE) {
  */
 libx.utils.timer.setInterval = function ( callback, timeout ) {
     setTimer(callback, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-};
+}
 
 /**
  *	Initiates a timeout that will trigger the callback function exactly once
@@ -66,7 +66,7 @@ libx.utils.timer.setInterval = function ( callback, timeout ) {
  */
 libx.utils.timer.setTimeout = function ( callback, timeout ) {
     setTimer(callback, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-};
+}
 
 }) ();
 
