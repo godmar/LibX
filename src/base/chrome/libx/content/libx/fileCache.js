@@ -326,7 +326,7 @@ libx.cache.FileCache = ( function () {
                     writeUpdateToFile(newUpdate);
 
                     //Set the timeout
-                    libxChromeWindow.setTimeout(this.updateTimeout, timeToResetUpdate);
+                    setTimeout(this.updateTimeout, timeToResetUpdate);
                 }
                 else
                 {
@@ -337,7 +337,7 @@ libx.cache.FileCache = ( function () {
                     writeUpdateToFile(newUpdateDate);
 
                     //Set the timeout
-                    libxChromeWindow.setTimeout(this.updateTimeout, timeLeft);
+                    setTimeout(this.updateTimeout, timeLeft);
                 }
             }
             else
@@ -501,8 +501,6 @@ libx.cache.FileCache = ( function () {
 
                     success : function (result, stat, xhr) 
                     {
-                        libx.log.write("In success function for " + this.url);
-
                         //Write the updated file to the local file system
                         writeFile(this.url, result);
                     }, 
@@ -546,7 +544,7 @@ libx.cache.FileCache = ( function () {
             writeUpdateToFile(updateDate);
 
             //Set the timeout
-            libxChromeWindow.setTimeout(this.updateTimeout, update);
+            setTimeout(this.updateTimeout, update);
         },
         
         /**
