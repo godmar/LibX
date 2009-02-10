@@ -9,10 +9,10 @@ var Request = new libx.core.Class.create({
     dataType : "text",
     async : true,
     success : function (result, status, xhr) {
-        if (result == "success!!!" && status == 200)
+        if (libx.utils.string.trim(result) == "success!!!" && status == 200)
             passes++;
         else
-            logger.write("FAIL: " + result + "\n");
+            logger.write("FAIL: status=" + typeof status + " result='" + result + "' (" + typeof result + ")\n");
     },
     error : function (result, status, xhr) {
         logger.write("error: " + status + " result=" + result + " xhr=" + xhr + "\n");
@@ -55,7 +55,7 @@ logger.write("waiting 2 sec for XHR request to complete\n");
 java.lang.Thread.sleep(2000);
 
 if (passes != 10 + CACHESIZE) {
-    logger.write("Fail, only got " + passes + "\n");
+    logger.write("Fail, only got " + passes + ", expected " + (10 + CACHESIZE) + "\n");
 } else {
     logger.write("memcache unit tests passed\n");
 }

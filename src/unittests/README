@@ -1,14 +1,15 @@
 
 Run all tests with
 
-jrunscript -f rununittests.js
+jrunscript -cp . -f rununittests.js
 
 Run some tests with
 
-jrunscript -f loadlibx.js -f collections.js
+jrunscript -cp . -f loadlibx.js -f collections.js
 
-jrunscript -f loadlibx.js -f memcache.js
+jrunscript -cp . -f loadlibx.js -f memcache.js
 
-jrunscript -f loadlibx.js -f atompub.js
+jrunscript -cp . -f loadlibx.js -f atompub.js
 
 
+(-cp . is needed to pick up org.libx.utils.*)

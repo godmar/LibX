@@ -76,12 +76,15 @@ XMLHttpRequest.prototype = {
                     self.status = parseInt(connection.responseCode) || undefined;
                 self.statusText = connection.responseMessage || "";
                 
-                var stream = new java.io.InputStreamReader(connection.getInputStream()),
-                    buffer = new java.io.BufferedReader(stream), line;
-                
-                while ((line = buffer.readLine()) != null)
-                    self.responseText += line;
-                    
+                // be careful to preserve binary content
+                var stream = connection.getInputStream();   // bytewise
+                var c;
+                var sb = new java.lang.StringBuilder();
+                while ((c = stream.read()) != -1)
+                    sb.append(new java.lang.Character(c));
+
+                self.responseBody = String(sb.toString());
+                self.responseText = self.responseBody;
                 self.responseXML = null;
                 
                 if ( self.responseText.match(/^\s*</) ) {
@@ -109,7 +112,8 @@ XMLHttpRequest.prototype = {
         else {
             var returnedHeaders = [];
             for (var rHeader in this.responseHeaders) {
-                if (rHeader.match(new Regexp(header, "i")))
+                // but see http://mguillem.wordpress.com/2007/08/02/improve-rhino%E2%80%99s-regexp-using-java%E2%80%99s-javautilregex/
+                if (rHeader.match(new RegExp(header, "i")))
                     returnedHeaders.push(this.responseHeaders[rHeader]);
             }
         

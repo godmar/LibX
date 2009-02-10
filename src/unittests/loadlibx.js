@@ -7,6 +7,7 @@ importPackage(org.w3c.dom);
 importPackage(javax.xml.xpath);
 importPackage(javax.xml.parsers);
 importPackage(javax.xml.namespace);
+importClass(java.util.TimerTask);
 importClass(org.xml.sax.SAXException);
 
 var libxbase = "../base/chrome/libx/content/libx/";
@@ -16,6 +17,7 @@ var libxscripts1 = [
     "documentrequestcache.js",
     "config.js",
     "events.js",
+    "json2.js",
     "catalogs/catalog.js",
 	"catalogs/milleniumopac.js",
 	"catalogs/horizonopac.js",
@@ -150,6 +152,92 @@ libx.utils.xpath = {
 
 libx.ui = { }
 
+importPackage(org.libx.utils);
+libx.utils.hash = {
+    hashString: function (input) {
+        var sha1 = new SHA1();
+        input = new java.lang.String(input).getBytes("UTF8");
+        sha1.engineUpdate(input, 0, input.length);
+        var dig = sha1.engineDigest();
+        var r = "";
+        for (var i = 0; i < dig.length; i++) {
+            r += java.lang.String.format("%02X", [ new java.lang.Byte(dig[i]) ]);
+        }
+        return r;
+    }
+}
+
+libx.io = { }
+var iodir = "libx";
+function getPath(fname, createDirs) {
+    var f = new File(fname);
+    if (f.isAbsolute())
+        throw "Absolute path " + fname + " not allowed";
+
+    var path = new File(iodir + File.separator + f.getParentFile());
+    if (createDirs)
+        path.mkdirs();
+    return new File(path, f.getName());
+}
+
+libx.io.fileExists = function (fname) {
+    return getPath(fname, false).exists();
+}
+
+libx.io.writeToFile = function (fname, data, create, append) {
+    // println("writeToFile: fname=" + fname + " create=" + create + " append=" + append + " data.length=" + data.length);
+    if (append)
+        throw "Append not supported";
+
+    var file = getPath(fname, true);
+    try {
+        var out = new java.io.FileOutputStream(file);
+        for (var i = 0; i < data.length; i++) {
+            out.write(data.charCodeAt(i));
+        }
+    } finally {
+        out.close();
+    }
+}
+
+libx.io.getFileText = function (fname) {
+    // println("getFileText: path=" + fname);
+    var file = getPath(fname, false);
+    try {
+        var stream = new java.io.FileInputStream(file);
+        var c;
+        var sb = new java.lang.StringBuilder();
+        while ((c = stream.read()) != -1)
+            sb.append(new java.lang.Character(c));
+
+        return String(sb.toString());
+    } finally {
+        stream.close();
+    }
+    return "could not read data";
+}
+
+var javaTimer = java.util.Timer("libx-timer", true);
+libx.utils.timer = {
+    setTimeout: function (func, timeout) {
+        // TimerTaskAdapter is needed since we cannot implement abstract base classes
+        // such as java.util.TimerTask, see 
+        // http://blogs.sun.com/sundararajan/entry/implementing_java_interfaces_in_javascript
+        javaTimer.schedule(new org.libx.utils.TimerTaskAdapter(java.lang.Runnable({
+            run: function () {
+                func();
+            }
+        })), timeout);
+    },
+    setInterval: function (func, timeout) {
+        javaTimer.schedule(new org.libx.utils.TimerTaskAdapter(java.lang.Runnable({
+            run: function () {
+                func();
+            }
+        })), timeout, timeout);
+    }
+};
+
 logger = {
     write : function (what) { print (what); }
 };
@@ -158,6 +246,7 @@ libx.log = {
 };
 
 var libxscripts2 = [
+    "objectcache.js",
     "crossref.js",
     "pubmed.js",
     "xisbn.js",
