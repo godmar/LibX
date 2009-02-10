@@ -274,7 +274,7 @@ var memoryCacheClass = libx.core.Class.create ( {
                         if (request.dataType == "text") {
                             result = xmlHttpReq.responseText;
                         } else {
-                            result = xmlHttpReq.responseBody;
+                            result = xmlHttpReq.responseBody || xmlHttpReq.responseText;
                         }
 
                         if (!request.bypassCache) {
