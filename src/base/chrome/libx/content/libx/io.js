@@ -427,14 +427,20 @@ return /** @lends libx.io */ {
      *    @param {String} path of the file to write to
      *    @param {String} text to write to file
      *    @param {boolean} if true, will create the file if it doesnt exist
+     *    @param {boolean} if true, will append to rather than overwrite file
      */
-    writeToFile : function ( path, str, create ) {
+    writeToFile : function ( path, str, create, append ) {
         var file;
+        var appendStr;
         if ( create == true )
             file = getFile( path, true );
         else
             file = getFile ( path );
-        return FileIO.write ( file, str );
+
+        if (append)
+            appendStr = 'a';
+
+        return FileIO.write ( file, str, appendStr );
             
     },
 
