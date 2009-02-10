@@ -1,7 +1,7 @@
 (function () {
 
+var updateInterval = 3 * 1000; // 3 sec
 var updateInterval = 24 * 60 * 60 * 1000;    // 24 hours
-var updateInterval = 3 * 1000; // 1 sec
 var fileinfoExt = ".fileinfo.json";
 
 /**
@@ -122,6 +122,7 @@ function retrieveRequest(request, retrievalType) {
             var ext = request.ext || computeExtensionFromContentType(contentType);
             var baseLocalPath = calculateHashedPath (request.url);
             var localPath = baseLocalPath + ext;
+            // XXX store 'expires' date on disk
             var metadata = {
                 lastModified : xhr.getResponseHeader('Last-Modified'),
                 mimeType : xhr.getResponseHeader('Content-Type'),
@@ -142,7 +143,12 @@ function handleRequest(request) {
     var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
     if (libx.io.fileExists(metadataFile)) {
         request._metadata = libx.utils.json.parse(libx.io.getFileText(metadataFile));
+        // XXX: if now < request.expires then flagSuccess, 
         flagSuccess (request);
+        // else {
+        // request.lastModified = request._metadata.lastModified;
+        // retrieveRequest(request, RetrievalType.ONLYIFMODIFIED);
+        // }
     } else {
         retrieveRequest(request, RetrievalType.UNCONDITIONAL);
     }
@@ -229,7 +235,14 @@ libx.cache.ObjectCache = libx.core.Class.create(
     /**
      * List of cached request that must be kept up to date.
      */
-    cachedRequests: new Array()
+    cachedRequests: new Array(),
+
+    /**
+     * Update all requests that have the 'keepUpdated' flag set.
+     */
+    updateRequests : function () {
+        updateRequests(this.cachedRequests);
+    }
 });
 
 libx.cache.defaultObjectCache = new libx.cache.ObjectCache();
