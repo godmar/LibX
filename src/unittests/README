@@ -1,15 +1,20 @@
 
-Run all tests with
+1. Compile utils classes
 
-jrunscript -cp . -f rununittests.js
+    javac org/libx/utils/*.java
 
-Run some tests with
+2.  Run all tests with
 
-jrunscript -cp . -f loadlibx.js -f collections.js
+    jrunscript -cp . -f rununittests.js
 
-jrunscript -cp . -f loadlibx.js -f memcache.js
+3. Run some tests with
 
-jrunscript -cp . -f loadlibx.js -f atompub.js
+    jrunscript -cp . -f loadlibx.js -f collections.js
 
+    jrunscript -cp . -f loadlibx.js -f memcache.js
 
-(-cp . is needed to pick up org.libx.utils.*)
+    jrunscript -cp . -f loadlibx.js -f atompub.js
+
+    jrunscript -cp . -f loadlibx.js -f testatom.js
+
+    (-cp . is needed to pick up org.libx.utils.*)
