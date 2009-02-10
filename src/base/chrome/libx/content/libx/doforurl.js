@@ -48,10 +48,13 @@
 // This class initializes all our doforurls and then executes them when a 
 // new page is loaded.
 // ********************************************************************** 
-libxEnv.doforurlClass = function()
-{
+
+libx.scripts = { };
+libx.scripts.DoForUrl = ( function () {
+
     //  logging functions for errors within this class
-    function dfu_log( msg ) {
+    function dfuLog( msg ) 
+    {
         libx.log.write( msg, 'doforurl');
     }
     
@@ -61,33 +64,34 @@ libxEnv.doforurlClass = function()
     var hour = 60*minute;
     var day = 24*hour;
     
-    // reference to this 
-    var that = this;
-    // list of doforurl actions
-    var dfu_actions = new Array();
-    // list of sandbox files read from root.js
-    var sandboxScriptList = new Array();
-    // list of hotfix files
-    var hotfixList = this.hotfixList = new Array();
-    //the current root to tell cues and such if they should update
-    var curroot;
+    var that = this;                        // reference to this 
+    var dfuActions = new Array();          // list of doforurl actions 
+    var sandboxScriptList = new Array();    // list of sandbox files read from
+                                            // root.js
+    
+    var curroot;                            // the current root to tell cues and
+                                            // such if they should update
+    
     // Default Root in case no Roots are specified in config.xml
+    //var defaultRoot = "http://top.cs.vt.edu/~aikhokar/feeds/root.js";
     var defaultRoot = "http://libx.org/libx/src/feeds/root.js";
-    // Empty onRootUpdate function so that we don't get an is not a 
-    // function error
-    this.onRootUpdate = function () { };   
 
-    // resource internal class
-    // used for requesting and storing resources
-    function resourceClass()
-    {
-        this.resourceList = new Array();
-        var that = this;
+    //currently not used.  Not working due to fileCache refactoring
+    var resourceClass = ( function () {
 
-        // internal helper for getting resource text
-        function getResourceText(url)
+        /** 
+         * internal helper for getting resource text
+         *
+         * @param {Object} thisObj reference to class object that invokes this
+         *                         function
+         * @param {String} url     location of resource
+         *
+         * @returns {String | Object } contents of the resource if it exists,
+         *                             otherwise null
+         */
+        function getResourceText(thisObj, url)
         {
-            var resource = resourceExists( url );
+            var resource = resourceExists( thisObj, url );
             if ( resource != false )
             {
                 return resource.text;
@@ -95,61 +99,104 @@ libxEnv.doforurlClass = function()
             return null;
         }
 
-        // internal helper to determine if resource exists
-		// returns the resource object if it does
-		// false if not
-		function resourceExists( url )
+        /** 
+         * internal helper to determine if resource exists returns the resource
+         * object if it does false if not
+         *
+         * @param {Object} thisObj reference to class object that invokes this
+         *                         function
+         * @param {String} url     location of resource
+         *
+         * @returns {String | Object } contents of the resource if it exists,
+         *                             otherwise null
+         */
+		function resourceExists( thisObj, url )
 		{
-			for ( var i = 0; i < that.resourceList.length; i++ )
+			for ( var i = 0; i < thisObj.resourceList.length; i++ )
 			{
-				if ( that.resourceList[i].url == url )
+				if ( thisObj.resourceList[i].url == url )
 				{
-					return that.resourceList[i];
+					return thisObj.resourceList[i];
 				}
 			}
 			return false;
 		}
-		
-		// internal helper for getting a resources chrome url
-		function getResourceChrome(url)
+
+        /** 
+         * internal helper for getting a resources chrome url
+         *
+         * @param {Object} thisObj reference to class object that invokes this
+         *                         function
+         * @param {String} url     location of resource
+         *
+         * @returns {String | Object } contents of the resource if it exists,
+         *                             otherwise null
+         */
+		function getResourceChrome(thisObj, url)
 		{
-			var resource = resourceExists(url);
+			var resource = resourceExists(thisObj, url);
 			if ( resource != false )
 			{
 				var path = "chrome://libxresource/content/";
-				path += libxEnv.fileCache.getFilePath( resource );
+                //TODO: fix this
+				//path += libx.cache.fileCache.getFilePath( resource );
 				return path;
 			}
 		}
-		
-		// Accessor method to a resource
-		// method can either be:
-		// text	- gets the text content of the resource (for images this might be garbage)
-		// chrome	- gets the chrome url of the resouces (can be included in html to get resource)
-		this.getResource = function ( url, method )
-		{
-			if ( !method )
-				method = "default";
-			switch ( method )
-			{
-			case "text":
-				return getResourceText(url);
-			case "chrome":
-				return getResourceChrome(url);
-			default:
-				return getResourceText(url);
-			}
-		}
 
-    } // End of resources internal class
+        /**
+         * Internal class to manage requesting and storing resources
+         */
+        var internalResourceClass = libx.core.Class.create( {
 
-    // Sets a listener that is called if the root is updated
-    this.setRootUpdateListener = function ( func )
-    {
-        this.onRootUpdate = func;
-    }
+            /**
+             * Sets up resource array
+             */
+            initialize : function ()
+            {
+                this.resourceList = new Array();
+            },
 
-    // converts a relative url into a absolute url
+            /** 
+             *  Accessor method to a resource
+             *
+             *  @param {String} url    location of resource
+             *  @param {String} method either chrome or text 
+             *
+             *                         text will get the text content of the
+             *                         resource (for images, this might be
+             *                         garbage)
+             *
+             *                         chrome will get the chrome url of the
+             *                         resource (can be included in html to get
+             *                         resource)
+             */
+            getResource : function ( url, method )
+            {
+                if ( !method )
+                    method = "default";
+                switch ( method )
+                {
+                case "text":
+                    return getResourceText(this, url);
+                case "chrome":
+                    return getResourceChrome(this, url);
+                default:
+                    return getResourceText(this, url);
+                }
+            } 
+        } );
+
+        return internalResourceClass;
+
+    } )(); // End of resources internal class
+
+    /** 
+     * converts a relative url into a absolute url
+     *
+     * @param {String} url url to convert
+     * @param {String} baseURL protcol?
+     */
     function convertRelativeURL( url, baseURL )
     {
         if ( url.match(/^http/) )
@@ -159,7 +206,13 @@ libxEnv.doforurlClass = function()
         return url = baseURL + url;
     }
 
-    // Adds a resource to the list and makes it available to cues for use
+    /**
+     * NOT WORKING.
+     * Adds a resource to the list and makes it available to cues for use
+     *
+     * @param {String} url location of resource
+     * @param {String} ext file extension of resource
+     */
 	function addResource ( url, ext )
 	{
 		url = convertRelativeURL ( url, curroot.baseURL );
@@ -173,223 +226,142 @@ libxEnv.doforurlClass = function()
 			contentType: contentType,
 			updating: curroot.updating
 		};
-		libxEnv.fileCache.getFile( c );
-		libxEnv.doforurls.resources.resourceList.push( c );
+		//libxEnv.fileCache.getFile( c );
+		//libxEnv.doforurls.resources.resourceList.push( c );
+		//libx.scripts.doforurls.resources.resourceList.push( fileParam );
 	}
-    
-    //Accessor functions
-    //This allows IE to access properties and functions that are "private"
-    //in this class.  See the iepagecomplete.js file.
 
-    this.getdfu_log = function ()
-    {
-        return dfu_log;
-    }
-    this.getdfu_actions = function ()
-    {
-        return dfu_actions;
-    }
-
-    this.getsandboxScriptList = function ()
-    {
-        return sandboxScriptList;
-    }
-
-    this.gethotfixList = function ()
-    {
-        return gethotfixList;
-    }
-
-    this.getcurroot = function ()
-    {
-        return curroot;
-    }
-    
-    this.getdefaultRoot = function()
-    {
-        return defaultRoot;
-    }
-
-    function convertRelativeURL( url, baseURL )
-    {
-        if ( url.match(/^http/) )
-        {
-            return url;
-        }
-        return url = baseURL + url;
-    }
-    
-    // Adds a cue to the list
+    /**
+     * Adds a cue to the list
+     *
+     * @param {String} url location of code
+     */
     function addCue( url )
     {
         url = convertRelativeURL ( url, curroot.baseURL );  
-        var c = {
-            url:  url,
-            type: "cue",
-            root: curroot,
-            ext: ".js",
-            updating: curroot.updating,
-            callback: function () { 
-                try {
-                    eval( c.text );
-                }
-                catch ( e )
-                {
-                    dfu_log( "Error from cue " + c.url + " of type " + c.type +
-                        "\n error: " + e );
-                }
-            }
+
+        var fileParam = {
+            url : url,
+            success : function (path) {
+                //libx.log.write("success: doforurl cue status for url " + this.url);
+                var text = libx.io.getFileText(path);
+
+                //Eval text here (since cues don't work, leaving statment commented out)
+                //eval(text);
+            },
+            error : function (url, stat) {
+                libx.log.write("error: doforurl cue status for url " + this.url);
+            },
+            dataType : "text"
         };
-        libxEnv.fileCache.getFile( c );
+        libx.cache.fileCache.get(fileParam);
     }
-    
-    // Adds a sandbox script to the list
+
+    /**
+     * Adds a sandbox script to the list
+     *
+     * @param {String} url location of code
+     */
     function addSandboxScript( url )
     {
         url = convertRelativeURL ( url, curroot.baseURL );
-        var c = {
-            url: url,
-            type: "sandbox",
-            root: curroot,
-            ext: ".js",
-            updating: curroot.updating
+
+        //Create a new file cache object here:
+        var fileParam = {
+            url : url,
+            success : function (path) {
+                var text = libx.io.getFileText(path);
+
+                //Commented out for now
+                //eval(text);
+            },
+            error   : function (url, stat) {
+                libx.log.write("sandbox script: did not find url " + url + ", status " + stat);
+            },
+            dataType : "text"
         };
-        sandboxScriptList.push( c );
-        libxEnv.fileCache.getFile( c );
+
+        libx.cache.fileCache.get(fileParam);
+
+        sandboxScriptList.push( fileParam );
     }
     
-    // Adds a hotfix to the list
+    /**
+     * Adds a hotfix to the list
+     *
+     * @param {String} url location of code
+     */
     function addHotfix( url )
     {
         url = convertRelativeURL( url );
         
-        var c = { 
-            url: url,
-            type: "hotfix",
-            root: curroot,
-            ext: ".js",
-            updating: curroot.updating
+        var fileParam = {
+            url : url,
+            success : function (path) {
+                var text = libx.io.getFileText(path);
+
+                //Commented out for now
+                //eval(text);
+            },
+            error : function (url, stat) {
+                libx.log.write("hotfix: did not find url " + url + ", status " + stat);
+            },
+            dataType : "text"
         };
-        that.hotfixList.push( c );
-        libxEnv.fileCache.getFile( c );
+
+        //The hotfix list needs to be available to chrome code, so we use
+        //the DoForUrls class to hold the list and invoke addToHotfixList to
+        //add hotfixes from feed code
+
+        //TODO: change libxEnv.doforurls to libx.scripts.doforurl
+        //libx.scripts.doforurl.addToHotfixList(fileParam);
+
+        libx.scripts.doforurls.addToHotfixList( c );
+        libx.cache.fileCache.get(fileParam);
     }
     
-    // Adds a root to the list and processes its content
+    /**
+     * Adds a root to the list and processes its content
+     *
+     * @param {String} url       location of code
+     * @param {Boolean} updating whether to update root
+     */
     function addRoot( url, updating )
     {
-        var c = {
-            url: url,
-            type: "root",
-            baseURL: url.substring(0, url.lastIndexOf("/")+1),
-            ext: ".js",
-            updating: updating,
-            callback: function () {
-                try 
-                {
-                    libxEnv.doforurls.onRootUpdate();
-                    curroot = c;
-                    eval( c.text );
-                }
-                catch ( e )
-                {
-                    dfu_log( "Error from cue " + c.url + " of type " + c.type + 
-                        "\n error: " + e );
-                }
-            }
-        };
-        libxEnv.fileCache.getFile( c );
-    }
-    
-    // DoForUrl function to create the doforurls and automatically add them to 
-    // the dfu_actions list
-    // urlpattern ( a reqex )
-    // what ( function )
-    // exclude ( array<regex> )
-    // description ( string )
-    this.DoForURL = function (urlpattern, what, exclude, description)
-    {
-        this.pattern = urlpattern;
-        this.action = what;
+        var fileParam {
+            url : url,
+            success : function (path) {
+                var text = libx.io.getFileText(path);
 
-        //This is a string version of action (and can be used in an eval call)
-        this.actionText = "(" + what + ")";
-
-        this.exclude = exclude;
-        this.description = 
-            description ? description : "No description available";
-        this.aidx = dfu_actions.push(this);
-    }
-    
-    // runs through all the doforurls once a new page is loaded (FF version)
-    // For IE, see the file iepagecomplete.js
-    this.onPageComplete_ff = function(ev)
-    {
-        if (!ev || !ev.originalTarget || !ev.originalTarget.location) return;
-        
-        var win = ev.explicitOriginalTarget.defaultView;
-        if (!win || ev.originalTarget.location == 'about:blank')
-                return;     
-        var doc = win.document;
-        
-        if ( win.frameElement != null && win.frameElement.style.visibility == "hidden" ) 
-			return;
-                
-        var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
-
-        for ( var l = 0; l < sandboxScriptList.length; l++ )
-        {
-            try {
-                libxEnv.sandbox.evaluateInSandbox( 
-                    sandboxScriptList[l].text, sandbox );
-            }
-            catch(f)
-            {
-                dfu_log(" sandboxScript " +sandboxScriptList[l].url + " " + f );
-            }
-        }
-                
-    outer:
-        for (var i = 0; i < dfu_actions.length; i++) {
-            var dfu = dfu_actions[i];
-            var match;
-            if (match = ev.originalTarget.location.href.match(dfu.pattern)) {
-                var exclude = dfu.exclude;
-                if (exclude) {
-                    for (var j = 0; j < exclude.length; j++)
-                        if (ev.originalTarget.location.href.match(exclude[j]))
-                            continue outer;
-                }
-
+                //Execute root file
                 try {
-    /* NB: dfu.action is already defined in chrome space.  We'd like to do:
-     * sandbox.action = function () {
-     *   dfu.action(this.document, match);
-     * }
-     * and then evaluate 'this.action()'.  However, evaluating
-     * a chrome function within the sandbox switches the global object to 
-     * the chrome global object, hiding all properties added by the
-     * (untrusted) sandbox code (such as jQuery's $ included earlier.)
-     *
-     * Therefore, we must convert the function back to a string and
-     * evaluate that string in the box, as shown below.
-     */
-                    sandbox.match = match;
-                    var func = "(" + dfu.action + 
-                        ")(this.document, this.match);";              
-                    libxEnv.sandbox.evaluateInSandbox( func , sandbox);
-                } catch (e) { 
-                    dfu_log(" action: " + dfu.description + " caused error " +
-                        e.message);
+                eval(text);
                 }
-            }
-        }
+                catch (e) {
+                    dfuLog("Error when evaluating feeds " + e);
+                }
+            },
+            error : function (url, stat) {
+                libx.log.write("root: did not find url " + url + ", status " + stat);
+            },
+            dataType : "text"
+        };
+
+        //TODO: change libxEnv.fileCache to libx.cache.FileCache
+        //libxEnv.fileCache.getFile( c );
+        libx.cache.fileCache.get( fileParam );
     }
 
-    // loads and initializes the roots 
-    // if updating parameter is specified instead of initializing we attempt to 
-    // update the roots
+    /**
+     * loads and initializes the roots if updating parameter is specified
+     * instead of initializing we attempt to update the roots
+     *
+     * @param {Boolean} updating whether to update rather than initialize the
+     *                           root
+     */
     function initRoots( updating )
     {
+        //XXX: feeds info is not being read from config.xml
         var count = 0;
         var feeds = libx.edition.localizationfeeds;
 
@@ -402,7 +374,7 @@ libxEnv.doforurlClass = function()
         }
         else
         {   
-            dfu_log( "Did not find localization feeds in libx.edition.localizationfeeds" );
+            dfuLog( "Did not find localization feeds in libx.edition.localizationfeeds" );
         }
 
         if ( count == 0 ) 
@@ -410,73 +382,29 @@ libxEnv.doforurlClass = function()
             addRoot( defaultRoot, updating );
         }
     }
-    
-    // Retrieves the information of the roots for the prefs menu
-    this.getRootInfo = function()
-    {
-        var rootInfo = new Array();
-        var feeds = libx.edition.localizationfeeds;
-        if ( feeds != null )
-        {
-            for ( var i = 0; i < feeds.length; i++ )
-            {
-                var url = feeds[i].url;
-                rootInfo.push(
-                {
-                    url : url,
-                    desc: feeds[i].description,
-                    lastMod: libxEnv.fileCache.getLastModifiedDate( url )
-                } );
-            }
-        }
-        if ( rootInfo.length == 0 )
-        { 
-            rootInfo.push(
-            {
-                url: defaultRoot,
-                desc: "Default Root",
-                lastMod: libxEnv.fileCache.getLastModifiedDate( defaultRoot )
-            });
-        }
-        return rootInfo;
-    }
-    
-    // Helper function for init and updateDoforurls
+
+    /**
+     * Helper function for init and updateDoforurls
+     *
+     * @param {Boolean} updating whether to update rather than initialize the
+     *                           roots
+     */
     function processDoforurls( updating )
     {
         sandboxScriptList = new Array();
         hotfixList = new Array();
-        dfu_actions = new Array();
+        dfuActions = new Array();
         initRoots( updating );
     }
 
-    
-    // initializes the doforurls by reading them from file and adding them to 
-    // the cueList.
-    this.initDoforurls = function () 
-    {
-        this.resources = new resourceClass();
-        processDoforurls( false );
-        libxEnv.fileCache.saveFileList();
-        that.setUpdateTimeOut( false );
-    }
-    
-    
-    // updates all the doforurls with the most current version found online
-    this.updateDoforurls = function () 
-    {   
-        dfu_log( "Updating Cues" );
-        var curdate = Date();
-        updating = true;
-        setNextUpdatePref( Date.parse(curdate) + 24*hour);
-        processDoforurls( true );
-        dfu_log( "Done Updating Cues" );
-    }
-
-    
-    // This function is called by the timeout we set and is used to revive the 
-    // update process
-    function reviveUpdate()
+    /**
+     * This function is called by the timeout we set and is used to revive the 
+     * update process
+     *
+     * @param {Object} thisObj reference to class object that calls this
+     *                         function
+     */
+    function reviveUpdate( thisObj )
     {
         var curdate  = Date();
         var timeout = getTimeoutPref();
@@ -487,10 +415,12 @@ libxEnv.doforurlClass = function()
             if ( timeDifference < hour )
             { // we woke up around the right time
             
-                dfu_log( "Updating NOW!" );
+                dfuLog( "Updating NOW!" );
                 
-                that.updateDoforurls();
-                that.setUpdateTimeOut( true );
+                //that.updateDoforurls();
+                //that.setUpdateTimeOut( true );
+                libx.scripts.doforurls.updateDoforurls();
+                libx.scripts.doforurls.setUpdateTimeOut( true );
             }
             else
             {   //we missed by a lot setting a new random update in the future
@@ -504,7 +434,7 @@ libxEnv.doforurlClass = function()
                         Math.random()*2*hour );
                 }
                 
-                dfu_log( "Update: timeout is set for : " + timeToResetUpdate );
+                dfuLog( "Update: timeout is set for : " + timeToResetUpdate );
                 //    makeUpdateTimeString( timeToResetUpdate ));
                 
                 setTimeoutPref( Date.parse(curdate) + timeToResetUpdate );
@@ -512,10 +442,16 @@ libxEnv.doforurlClass = function()
             }
         }
     }
-    
-    // Converts the updateTime into a nice string that we can print out for 
-    // debugging
-    var makeUpdateTimeString = function( updateTime )
+
+    /** 
+     * Converts the updateTime into a nice string that we can print out for 
+     * debugging
+     *
+     * @param {Number} updateTime
+     *
+     * @returns {String} formatted time string
+     */
+    function makeUpdateTimeString ( updateTime )
     {
         var result = "";
         var tdays = Math.floor(updateTime/day);
@@ -544,101 +480,445 @@ libxEnv.doforurlClass = function()
         return result;
     }
     
-    // sets the preference in about:config for next update
+    /**
+     * sets the preference in about:config for next update
+     *
+     * @param {String} value value for next update time
+     */
     function setNextUpdatePref( value )
     {
-        libx.utils.browserprefs.setStringPref( "libx.nextupdate" , value );
+        //libxEnv.setUnicharPref( "libx.nextupdate" , value );
     }
     
-    // gets the about:config value of next update
+    /**
+     * gets the about:config value of next update
+     */
     function getNextUpdatePref()
     {
-        var temp = libx.utils.browserprefs.getStringPref( "libx.nextupdate" );
-        return parseFloat( temp );
+        //var temp = libxEnv.getUnicharPref( "libx.nextupdate" );
+        //return parseFloat( temp );
     }
     
-    // sets the about:config prefs value for the timeout
+    /** 
+     * sets the about:config prefs value for the timeout
+     *
+     * @param {String} value value for timeout
+     */
     function setTimeoutPref( value )
     {
-        libx.utils.browserprefs.setStringPref( "libx.timeout" , value );
+        //libxEnv.setUnicharPref( "libx.timeout" , value );
     }
     
-    //gets the about:config prefs value for the timeout
+    /** 
+     * gets the about:config prefs value for the timeout
+     */
     function getTimeoutPref()
     {
-        var temp = libx.utils.browserprefs.getStringPref( "libx.timeout" );
-        return parseFloat( temp );
+        //var temp = libxEnv.getUnicharPref( "libx.timeout" );
+        //return parseFloat( temp );
     }
     
-    // Sets the timeout for the update and if needed the nextUpdate preference
-    //  in about:config
-    this.setUpdateTimeOut = function ( setNew )
+
+    /**
+     * Class that handles parsing feed code.  It deals with hotfixes (that
+     * modify core code prior to execution, sandbox scripts (scripts that run
+     * in a limited privilege environment, and cues (scripts that run on
+     * certain pages)
+     *
+     * @name libx.scripts.DoForUrl
+     * @class
+     */
+    var doForUrlClass = libx.core.Class.create (
     {
-        var nextUpdate = getNextUpdatePref();
-        if ( !nextUpdate || setNew )
+        /**
+         * Sets up hotfixList
+         */
+        initialize : function ()
         {
-            dfu_log( "Update: Next Update has not been set, setting it now " );
-            var curdate = Date();
-            var update = Math.floor( Math.random()*day );
-            
-            dfu_log( "Update: current date is " + curdate + 
-                " setting update for " + new Date(
-                Date.parse(curdate) + update) );            
-            setNextUpdatePref( Date.parse(curdate) + update );
-            var x = getNextUpdatePref();
-                
-            dfu_log( "Update: timeout is set for : " + 
-                makeUpdateTimeString( update ));
-            
-            setTimeoutPref( Date.parse(curdate) + update );
-            libxChromeWindow.setTimeout ( reviveUpdate, update );
-        }
-        else
+            this.hotfixList = new Array();
+            this.onRootUpdate = function () { };
+        },
+
+        /** 
+         * Retrieves the information of the roots for the prefs menu
+         * TODO: determine where this function should reside
+         */
+        //getRootInfo : function()
+        //{
+        //    var rootInfo = new Array();
+        //    var feeds = libx.edition.localizationfeeds;
+        //    if ( feeds != null )
+        //    {
+        //        for ( var i = 0; i < feeds.length; i++ )
+        //        {
+        //            var url = feeds[i].url;
+        //            rootInfo.push(
+        //            {
+        //                url : url,
+        //                desc: feeds[i].description,
+        //                lastMod: libx.cache.fileCache.getLastModifiedDate( url )
+        //            } );
+        //        }
+        //    }
+        //    if ( rootInfo.length == 0 )
+        //    { 
+        //        rootInfo.push(
+        //        {
+        //            url: defaultRoot,
+        //            desc: "Default Root",
+        //            lastMod: libxEnv.fileCache.getLastModifiedDate( defaultRoot )
+        //        });
+        //    }
+        //    return rootInfo;
+        //},
+        
+        /** 
+         * initializes the doforurls by reading them from file and adding them
+         * to the cueList.
+         */
+        initDoforurls : function () 
         {
-            var curdate = Date.parse(Date());
-            
-            dfu_log( "Update: current date " + new Date(curdate) );
-            dfu_log( "Update: next update will be " + new Date( nextUpdate ));
-            
-            if ( curdate > nextUpdate )
-            {   // set timeout missed its update somehow reseting
-                var timeSinceUpdateTarget = curdate - nextUpdate;
-                
-                var timeToResetUpdate = Math.floor((
-                    6*hour/timeSinceUpdateTarget)*hour*Math.random());
-                if ( timeToResetUpdate > 6*hour )
-                {
-                    timeToResetUpdate = 4*hour + Math.floor( 
-                        Math.random()*2*hour );
-                }
-                
-                dfu_log( "Update: timeout is set for : " + 
-                    makeUpdateTimeString( timeToResetUpdate ));
-                
-                setTimeoutPref( curdate + timeToResetUpdate );
-                
-                libxChromeWindow.setTimeout( reviveUpdate, timeToResetUpdate );
-            }
-            else
-            {   // timeout is in the future so we just set it for that date
-                var timeLeft = nextUpdate - curdate;
-                
-                dfu_log( "Update: update is still good and will occur at " + 
-                    new Date(nextUpdate) );
-                dfu_log( "Update: timeout is set for : " + 
-                    makeUpdateTimeString( timeLeft ));
-                    
-                setTimeoutPref( curdate + timeLeft );
-                
-                libxChromeWindow.setTimeout( reviveUpdate, timeLeft );
-            }
+            this.resources = new resourceClass();
+            processDoforurls( false );
+            libx.cache.fileCache.saveFileList();
+            //that.setUpdateTimeOut( false );
+            //this.setUpdateTimeOut( false );
+        },
+        
+        /** 
+         * updates all the doforurls with the most current version found online
+         * XXX: moved to file cache
+         */
+        //updateDoforurls : function () 
+        //{   
+        //    dfuLog( "Updating Cues" );
+        //    var curdate = Date();
+        //    updating = true;
+        //    //setNextUpdatePref( Date.parse(curdate) + 24*hour);
+        //    processDoforurls( true );
+        //    dfuLog( "Done Updating Cues" );
+        //},
+
+        /** 
+         * Sets the timeout for the update and if needed the nextUpdate
+         * preference in about:config
+         *
+         * @param {Boolean} setNew  used to set a new update time immediately
+         *
+         * XXX : moved to file cache
+         */
+        //setUpdateTimeOut : function ( setNew )
+        //{
+        //    var nextUpdate = getNextUpdatePref();
+        //    if ( !nextUpdate || setNew )
+        //    {
+        //        dfuLog( "Update: Next Update has not been set, setting it now " );
+        //        var curdate = Date();
+        //        var update = Math.floor( Math.random()*day );
+        //        
+        //        dfuLog( "Update: current date is " + curdate + 
+        //            " setting update for " + new Date(
+        //            Date.parse(curdate) + update) );            
+        //        setNextUpdatePref( Date.parse(curdate) + update );
+        //        var x = getNextUpdatePref();
+        //            
+        //        dfuLog( "Update: timeout is set for : " + 
+        //            makeUpdateTimeString( update ));
+        //        
+        //        setTimeoutPref( Date.parse(curdate) + update );
+        //        libxChromeWindow.setTimeout ( reviveUpdate, update );
+        //    }
+        //    else
+        //    {
+        //        var curdate = Date.parse(Date());
+        //        
+        //        dfuLog( "Update: current date " + new Date(curdate) );
+        //        dfuLog( "Update: next update will be " + new Date( nextUpdate ));
+        //        
+        //        if ( curdate > nextUpdate )
+        //        {   // set timeout missed its update somehow reseting
+        //            var timeSinceUpdateTarget = curdate - nextUpdate;
+        //            
+        //            var timeToResetUpdate = Math.floor((
+        //                6*hour/timeSinceUpdateTarget)*hour*Math.random());
+        //            if ( timeToResetUpdate > 6*hour )
+        //            {
+        //                timeToResetUpdate = 4*hour + Math.floor( 
+        //                    Math.random()*2*hour );
+        //            }
+        //            
+        //            dfuLog( "Update: timeout is set for : " + 
+        //                makeUpdateTimeString( timeToResetUpdate ));
+        //            
+        //            setTimeoutPref( curdate + timeToResetUpdate );
+        //            
+        //            libxChromeWindow.setTimeout( reviveUpdate, timeToResetUpdate );
+        //        }
+        //        else
+        //        {   // timeout is in the future so we just set it for that date
+        //            var timeLeft = nextUpdate - curdate;
+        //            
+        //            dfuLog( "Update: update is still good and will occur at " + 
+        //                new Date(nextUpdate) );
+        //            dfuLog( "Update: timeout is set for : " + 
+        //                makeUpdateTimeString( timeLeft ));
+        //                
+        //            setTimeoutPref( curdate + timeLeft );
+        //            
+        //            libxChromeWindow.setTimeout( reviveUpdate, timeLeft );
+        //        }
+        //    }
+        //},
+
+        /**
+         * Adds a hotfix code object (@see @libx.cache.FileCache for
+         * the object structure) to the list of hotfixes
+         *
+         * @param {Object} hotfixObj object to add to list
+         */
+        addToHotfixList : function ( hotfixObj )
+        {
+            this.hotfixList.push( hotfixObj );
+        },
+
+        /** 
+         * Sets a listener that is called if the root is updated
+         *
+         * @param {Function} func function to assign to onRootUpdate member
+         */
+        setRootUpdateListener : function ( func )
+        {
+            this.onRootUpdate = func;
+        },
+        
+        /** 
+         * DoForUrl function to create the doforurls and automatically add them to 
+         * the dfuActions list
+         *
+         * @param {RegEx}          urlpattern  pattern used to filter url
+         * @param {Function}       what        function to execute
+         * @param {Array of RegEx} exclude     patterns used to prevent execution
+         * @param {String}         description description of cue
+         *
+         * //TODO: update capitalization and callsites in feed code
+         */
+        DoForURL : function (urlpattern, what, exclude, description)
+        {
+            this.pattern = urlpattern;
+            this.action = what;
+
+            //This is a string version of action (and can be used in an eval call)
+            this.actionText = "(" + what + ")";
+
+            this.exclude = exclude;
+            this.description = 
+                description ? description : "No description available";
+            this.aidx = dfuActions.push(this);
+        },
+        
+        /** 
+         * TODO: need to fix to work with file cache
+         * runs through all the doforurls once a new page is loaded (FF version)
+         * For IE, see the file iepagecomplete.js
+         *
+         * @param {Event} ev event object used to get information including the window
+         *                   object associated with the event, and url location
+         */ 
+        onPageComplete_ff : function(ev)
+        //{
+        //    if (!ev || !ev.originalTarget || !ev.originalTarget.location) return;
+        //    
+        //    var win = ev.explicitOriginalTarget.defaultView;
+        //    if (!win || ev.originalTarget.location == 'about:blank')
+        //            return;     
+        //    var doc = win.document;
+        //    
+        //    if ( win.frameElement != null && win.frameElement.style.visibility == "hidden" ) 
+        //        return;
+        //            
+        //    var sandbox = libxEnv.sandbox.createSandbox( win, ev.originalTarget.location.href );
+
+        //    for ( var l = 0; l < sandboxScriptList.length; l++ )
+        //    {
+        //        try {
+        //            libxEnv.sandbox.evaluateInSandbox( 
+        //                sandboxScriptList[l].text, sandbox );
+        //        }
+        //        catch(f)
+        //        {
+        //            dfuLog(" sandboxScript " +sandboxScriptList[l].url + " " + f );
+        //        }
+        //    }
+
+        //    //Try some tests of the document request cache here:
+        //    //Add first thing to cache
+        //    //libxEnv.xisbn.getISBNMetadataAsText("9780060731327",
+        //    //        { 
+        //    //            ifFound : function (text) {
+        //    //                alert("ifFound text for 9780060731328 : " + text);
+        //    //            },
+
+        //    //            notFound : function (toRemove) {
+        //    //                alert("notFound text for 9780060731327");
+        //    //                libxEnv.xisbn.xisbncache.removeFromCache(toRemove);
+        //    //            }
+        //    //        });
+        //    //libxEnv.crossref.getDOIMetadataAsText("10.1103/PhysRevf.66.063511",
+        //    //        { ifFound : function (text) {
+        //    //              alert("ifFound text for 10.1103/PhysRevD.66.063511 : " + text);
+        //    //          },
+        //    //          notFound : function (toRemove) {
+        //    //              alert("notFound text for 10.1103/PhysRevf.66.063511");
+        //    //              libxEnv.crossref.doicache.removeFromCache(toRemove);
+        //    //          }
+        //    //        });
+
+        //    //Add first thing to cache
+        //    //libxEnv.pubmed.getPubmedMetadataAsText(16646082,
+        //    //        { ifFound : function (text) {
+        //    //        alert("ifFound text for 16646082 : " + text);
+        //    //        }
+        //    //        });
+
+        //    ////Add second thing to cache
+        //    //libxEnv.pubmed.getPubmedMetadataAsText(99999999,
+        //    //        { 
+        //    //            ifFound : function (text) {
+        //    //                alert("ifFound text for 19137428 : " + text);
+        //    //            },
+
+        //    //            notFound : function (toRemove) {
+        //    //                alert("notFound text for 99999999");
+        //    //                libx.cache.memorycache.removeFromCache(toRemove);
+        //    //            }
+        //    //        });
+
+        //    ////Try readding first thing to cache
+        //    //libxEnv.pubmed.getPubmedMetadataAsText(16646082,
+        //    //        { ifFound : function (text) {
+        //    //        alert("ifFound text for 16646082 (again) : " + text);
+        //    //        }
+        //    //        });
+
+        //    ////Add last thing to cache
+        //    //libxEnv.pubmed.getPubmedMetadataAsText(19137380,
+        //    //        { ifFound : function (text) {
+        //    //        alert("ifFound text 19137380 : " + text);
+        //    //        }
+        //    //        });
+
+        //    ////Try adding to a full cache
+        //    //libxEnv.pubmed.getPubmedMetadataAsText(19137368,
+        //    //        { ifFound : function (text) {
+        //    //        alert("ifFound text 19137368 : " + text);
+        //    //        }
+        //    //        });
+
+        //    //See if we try to retrieve same result from cache
+        //    //libxEnv.pubmed.getPubmedMetadataAsText(16646082,
+        //    //        { ifFound : function (text) {
+        //    //        alert("ifFound text : " + text);
+        //    //        }
+        //    //        });
+        //            
+        //outer:
+        //    for (var i = 0; i < dfuActions.length; i++) {
+        //        var dfu = dfuActions[i];
+        //        var match;
+        //        if (match = ev.originalTarget.location.href.match(dfu.pattern)) {
+        //            var exclude = dfu.exclude;
+        //            if (exclude) {
+        //                for (var j = 0; j < exclude.length; j++)
+        //                    if (ev.originalTarget.location.href.match(exclude[j]))
+        //                        continue outer;
+        //            }
+
+        //            try {
+        ///* NB: dfu.action is already defined in chrome space.  We'd like to do:
+        // * sandbox.action = function () {
+        // *   dfu.action(this.document, match);
+        // * }
+        // * and then evaluate 'this.action()'.  However, evaluating
+        // * a chrome function within the sandbox switches the global object to 
+        // * the chrome global object, hiding all properties added by the
+        // * (untrusted) sandbox code (such as jQuery's $ included earlier.)
+        // *
+        // * Therefore, we must convert the function back to a string and
+        // * evaluate that string in the box, as shown below.
+        // */
+        //                sandbox.match = match;
+        //                var func = "(" + dfu.action + 
+        //                    ")(this.document, this.match);";              
+        //                libxEnv.sandbox.evaluateInSandbox( func , sandbox);
+        //            } catch (e) { 
+        //                dfuLog(" action: " + dfu.description + " caused error " +
+        //                    e.message);
+        //            }
+        //        }
+        //    }
+        //},
+
+        //Accessor functions
+        //This allows IE to access properties and functions that are "private"
+        //in this class.  See the iepagecomplete.js file.
+
+        /**
+         * Returns the dfuLog object
+         */
+        getdfuLog : function ()
+        {
+            return dfuLog;
+        },
+
+        /**
+         * Returns the dfuActions list
+         */
+        getdfuActions : function ()
+        {
+            return dfuActions;
+        },
+
+        /**
+         * Returns the sandbox script list
+         */
+        getsandboxScriptList : function ()
+        {
+            return sandboxScriptList;
+        },
+
+        /**
+         * returns the hotfixList
+         */
+        gethotfixList : function ()
+        {
+            return this.hotfixList;
+        },
+
+        /**
+         * returns the current root location
+         */
+        getcurroot : function ()
+        {
+            return curroot;
+        },
+        
+        /**
+         * returns the default root location
+         */
+        getdefaultRoot : function()
+        {
+            return defaultRoot;
         }
-    }
+    });
+
+    return doForUrlClass;
     
-    return this;
-}
+})();
 
 // creates a new doforurlClass object to attach to libxEnv
-libxEnv.doforurls = new libxEnv.doforurlClass();
+//libxEnv.doforurls = new libx.scripts.DoForUrl();
+libx.scripts = { };
+libx.scripts.doforurls = new libx.scripts.DoForUrl();
 
 // vim: ts=4
+
