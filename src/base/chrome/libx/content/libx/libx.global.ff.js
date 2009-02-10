@@ -29,6 +29,32 @@ libx.cache.bd = {
     }
 }
 
+(function () {
+
+function setTimer(callback, timeout, nsITimer_TYPE) {
+	return Components.classes['@mozilla.org/timer;1']
+    	.createInstance(Components.interfaces.nsITimer)
+        .initWithCallback({notify: function () {
+                    if (typeof callback == "string")
+                        eval (callback);
+                    else
+                        callback ();
+                }}, timeout, nsITimer_TYPE);
+}
+
+/**
+ *	Initiates a timeout that will trigger the callback function periodically
+ *	after the specified timeout
+ *
+ *	Intended to be compatible with window.setInterval
+ *
+ *	@param {Function|String} Callback function or statement
+ *	@param {Integer} Timeout ( in milliseconds )
+ */
+libx.utils.timer.setInterval = function ( callback, timeout ) {
+    setTimer(callback, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+};
+
 /**
  *	Initiates a timeout that will trigger the callback function exactly once
  *	after the specified timeout
@@ -39,16 +65,10 @@ libx.cache.bd = {
  *	@param {Integer} Timeout ( in milliseconds )
  */
 libx.utils.timer.setTimeout = function ( callback, timeout ) {
-	Components.classes['@mozilla.org/timer;1']
-    	.createInstance(Components.interfaces.nsITimer)
-        .initWithCallback({notify: function () {
-                    if (typeof callback == "string")
-                        eval (callback);
-                    else
-                        callback ();
-                }}, timeout,
-                Components.interfaces.nsITimer.TYPE_ONE_SHOT );
+    setTimer(callback, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 };
+
+}) ();
 
 /**
  * Load XML Document from String
