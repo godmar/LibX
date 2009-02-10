@@ -499,6 +499,10 @@ libx.cache.FileCache = ( function () {
                     {
                         //Write the updated file to the local file system
                         writeFile(this.url, result);
+
+                        //Add this to index file
+                        libx.io.writeToFile("filelist.txt", fileLine, false, true);
+
                     }, 
 
                     error : function (result, stat, xhr) 
@@ -507,6 +511,11 @@ libx.cache.FileCache = ( function () {
                         if (stat != 304)
                         {
                             libx.log.write("Got HTTP " + stat + " when checking for " + this.url);
+                        }
+                        else
+                        {
+                            //Add this to index file
+                            libx.io.writeToFile("filelist.txt", fileLine, false, true);
                         }
                     },
 
