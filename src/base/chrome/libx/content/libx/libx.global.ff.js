@@ -29,17 +29,21 @@ libx.cache.bd = {
     }
 };
 
+
 (function () {
+// store reference to interval timers to prevent GC
+var timers = [];
 
 function setTimer(callback, timeout, nsITimer_TYPE) {
-	Components.classes['@mozilla.org/timer;1']
-    	.createInstance(Components.interfaces.nsITimer)
-        .initWithCallback({notify: function () {
+	var timer = Components.classes['@mozilla.org/timer;1']
+    	.createInstance(Components.interfaces.nsITimer);
+    timer.initWithCallback({notify: function (timer) {		
                     if (typeof callback == "string")
                         eval (callback);
                     else
                         callback ();
                 }}, timeout, nsITimer_TYPE);
+    return timer;
 }
 
 /**
@@ -52,7 +56,9 @@ function setTimer(callback, timeout, nsITimer_TYPE) {
  *	@param {Integer} Timeout ( in milliseconds )
  */
 libx.utils.timer.setInterval = function ( callback, timeout ) {
-    setTimer(callback, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    var timer = setTimer(callback, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    // Need to keep a reference to this timer to prevent it from being GC'd
+    timers.push ( timer );
 }
 
 /**
