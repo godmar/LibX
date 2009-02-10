@@ -26,6 +26,7 @@ var globalScripts = [
     "chrome://libx/content/locale.js",
 	"chrome://libx/content/config.js",
     "chrome://libx/content/events.js",
+    "chrome://libx/content/json2.js",
     "chrome://libx/content/catalogs/catalog.js",
 	"chrome://libx/content/catalogs/milleniumopac.js",
 	"chrome://libx/content/catalogs/horizonopac.js",
