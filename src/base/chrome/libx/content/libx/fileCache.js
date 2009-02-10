@@ -95,7 +95,7 @@ libx.cache.FileCache = ( function () {
      */
     function calculateHashedPath ( url ) 
     {
-        var unprocessedPath = libx.bd.hash.hashString( url );
+        var unprocessedPath = libx.utils.hash.hashString( url );
         var path = unprocessedPath.substring( 0 , firstSlashPos );
         path += "/" + unprocessedPath.substring( firstSlashPos, 
             secondSlashPos-1);
@@ -290,10 +290,6 @@ libx.cache.FileCache = ( function () {
                 //Store the information in the old file list.  Files not
                 //accessed on this run will removed on next update
                 oldFileList = files;
-
-                //invoke the timeout function here
-                //TODO: Use update time preference to determine the setTimeout
-                //time needed to invoke this function
             }
             else
             {
@@ -326,7 +322,7 @@ libx.cache.FileCache = ( function () {
                     writeUpdateToFile(newUpdate);
 
                     //Set the timeout
-                    setTimeout(this.updateTimeout, timeToResetUpdate);
+                    libx.utils.timer.setTimeout(this.updateTimeout, timeToResetUpdate);
                 }
                 else
                 {
@@ -337,7 +333,7 @@ libx.cache.FileCache = ( function () {
                     writeUpdateToFile(newUpdateDate);
 
                     //Set the timeout
-                    setTimeout(this.updateTimeout, timeLeft);
+                    libx.utils.timer.setTimeout(this.updateTimeout, timeLeft);
                 }
             }
             else
@@ -351,7 +347,7 @@ libx.cache.FileCache = ( function () {
                 writeUpdateToFile(updateDate);
 
                 //Set the timeout
-                setTimeout(this.updateTimeout, update);
+                libx.utils.timer.setTimeout(this.updateTimeout, update);
             }
         },
 
@@ -544,7 +540,7 @@ libx.cache.FileCache = ( function () {
             writeUpdateToFile(updateDate);
 
             //Set the timeout
-            setTimeout(this.updateTimeout, update);
+            libx.utils.timer.setTimeout(this.updateTimeout, update);
         },
         
         /**
