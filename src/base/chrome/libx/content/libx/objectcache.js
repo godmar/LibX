@@ -1,7 +1,7 @@
 (function () {
 
-var updateInterval = 3 * 1000; // 3 sec
 var updateInterval = 24 * 60 * 60 * 1000;    // 24 hours
+var updateInterval = 3 * 1000; // 60 sec
 var fileinfoExt = ".fileinfo.json";
 
 /**
@@ -169,7 +169,7 @@ function updateRequests (cachedRequests) {
     for (var i = 0; i < cachedRequests.length; i++) {
         var request = cachedRequests[i];
         request.lastModified = lastMetadata[i].lastModified;
-        println("re-retrieving " + request.url + " last modified: " + request.lastModified + "\n");
+        libx.log.write("re-retrieving " + request.url + " last modified: " + request.lastModified);
 
         var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
         if (libx.io.fileExists(metadataFile)) {

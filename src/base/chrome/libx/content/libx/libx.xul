@@ -53,7 +53,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 	<script type="application/x-javascript" src="chrome://libx/content/libx.ff.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/citeulike.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/magicsearch.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/libapp.js" />
 
 	<script type="application/x-javascript">
 	<![CDATA[

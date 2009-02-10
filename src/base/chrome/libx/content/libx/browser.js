@@ -33,14 +33,34 @@ var browser =
 		libx.bd.initialize();
 		
 		// To implement:  this.toolbar = new Toolbar();
-        var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
+        new libx.config.EditionConfigurationReader( {
             url: "chrome://libx/content/config.xml",
             onload: function (edition) {
                 libx.edition = edition;
 
                 libx.browser.activateConfiguration(edition);
-
                 libx.citeulike.notificationicon.initialize();
+
+                // now pull in additional files
+                // var editionRoot = libx.edition.localizationfeeds.primary;
+                var editionRoot = null;
+                var baseUrl = editionRoot 
+                    || "http://libx.org/libx-new/src/libx2/" 
+                var bootstrapUrl = baseUrl + "bootstrapwindow.js";
+
+                var parentRequest;
+                libx.cache.defaultObjectCache.get(parentRequest = {
+                    url: bootstrapUrl,
+                    keepUpdated: true,
+                    success: function (scriptText, metadata) { 
+                        try {
+                            libx.log.write("evaluating: " + metadata.originURL);
+                            eval (scriptText);
+                        } catch (e) {
+                            libx.log.write( "error in " + metadata.originURL);
+                        }
+                    }
+                });
             },
             onerror: function () {
                 libx.log.write ( "ERROR: Config XML Not Found" );
@@ -48,18 +68,6 @@ var browser =
             }
         });
 
-        //
-        // XXX function should end here
-        //
-        try {
-            libx.log.write( "Applying Hotfixes" );
-            for ( var i = 0; i < libxEnv.doforurls.hotfixList.length; i++ )
-            {
-                eval( libxEnv.doforurls.hotfixList[i].text );
-            }
-        } catch (e) {
-            libx.log.write( "Hotfix error " + e.message );
-        } 
 	},
 	
 	/**
