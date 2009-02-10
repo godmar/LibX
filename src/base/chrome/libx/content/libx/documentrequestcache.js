@@ -123,9 +123,9 @@ var memoryCacheClass = libx.core.Class.create ( {
             //If none is specified, jQuery will intelligently pass either responseXML 
             //or responseText to your success callback, based on the MIME type of the response.
             //See http://docs.jquery.com/Ajax/jQuery.ajax#options
-            if (paramObj.dataType === undefined) {
-                throw "In MemoryCache: Need to specify data type of returned data from server";
-            }
+            //if (paramObj.dataType === undefined) {
+            //    throw "In MemoryCache: Need to specify data type of returned data from server";
+            //}
 
             var defaults = {
                 type : "GET",
@@ -268,11 +268,13 @@ var memoryCacheClass = libx.core.Class.create ( {
                 var onreadystatechange = function () {
                     if (xmlHttpReq.readyState == 4) {
 
+                        if (request.dataType == "xml") {
+                            result = xmlHttpReq.responseXML;
+                        } else 
                         if (request.dataType == "text") {
                             result = xmlHttpReq.responseText;
-                        }
-                        else if (request.dataType == "xml") {
-                            result = xmlHttpReq.responseXML;
+                        } else {
+                            result = xmlHttpReq.responseBody;
                         }
 
                         if (!request.bypassCache) {

@@ -44,7 +44,7 @@ var globalScripts = [
     "chrome://libx/content/citeulike-checkurl.js",
 	"chrome://libx/content/proxy.js",
 	"chrome://libx/content/libx.global.ff.js",
-    "chrome://libx/content/fileCache.js",
+    "chrome://libx/content/objectcache.js",
 	"chrome://libx/content/prefs.ff.js",
 	"chrome://libx/content/hash.js",
 	"chrome://libx/content/openurl.js",
