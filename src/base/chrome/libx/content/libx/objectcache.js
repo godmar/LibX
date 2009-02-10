@@ -1,7 +1,7 @@
 (function () {
 
 var updateInterval = 24 * 60 * 60 * 1000;    // 24 hours
-// var updateInterval = 1 * 1000; // 1 sec
+var updateInterval = 3 * 1000; // 1 sec
 var fileinfoExt = ".fileinfo.json";
 
 /**
@@ -94,8 +94,9 @@ function flagSuccess (request) {
 
 var RetrievalType = { 
     UNCONDITIONAL : 1, 
-    ONLYIFMODIFIED : 1 
+    ONLYIFMODIFIED : 2 
 }; 
+
 
 function retrieveRequest(request, retrievalType) {
     var headers = {};
@@ -106,8 +107,16 @@ function retrieveRequest(request, retrievalType) {
         headers["If-Modified-Since"] = request.lastModified;
     }
     libx.cache.globalMemoryCache.get({
+        header: headers,
         url: request.url,
         bypassCache: true,
+        complete: function (data, status, xhr) {
+            if (status == 304) {
+                var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
+                request._metadata = libx.utils.json.parse(libx.io.getFileText(metadataFile));
+                flagSuccess (request);
+            }
+        },
         success: function (data, status, xhr) {
             var contentType = xhr.getResponseHeader("Content-Type");
             var ext = request.ext || computeExtensionFromContentType(contentType);
@@ -128,6 +137,17 @@ function retrieveRequest(request, retrievalType) {
     });
 }
 
+function handleRequest(request) {
+    // check if resource exists on disk
+    var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
+    if (libx.io.fileExists(metadataFile)) {
+        request._metadata = libx.utils.json.parse(libx.io.getFileText(metadataFile));
+        flagSuccess (request);
+    } else {
+        retrieveRequest(request, RetrievalType.UNCONDITIONAL);
+    }
+}
+
 function updateRequests (cachedRequests) {
     libx.log.write("updating requests: " + cachedRequests.length);
     var lastMetadata = []
@@ -143,8 +163,14 @@ function updateRequests (cachedRequests) {
     for (var i = 0; i < cachedRequests.length; i++) {
         var request = cachedRequests[i];
         request.lastModified = lastMetadata[i].lastModified;
-        libx.log.write("re-retrieving " + request.url + " last modified: " + request.lastModified);
-        retrieveRequest(request, RetrievalType.ONLYIFMODIFIED);
+        println("re-retrieving " + request.url + " last modified: " + request.lastModified + "\n");
+
+        var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
+        if (libx.io.fileExists(metadataFile)) {
+            retrieveRequest(request, RetrievalType.ONLYIFMODIFIED);
+        } else {
+            retrieveRequest(request, RetrievalType.UNCONDITIONAL);
+        }
     }
 }
 
@@ -195,14 +221,7 @@ libx.cache.ObjectCache = libx.core.Class.create(
         // mark all dependencies as unmet initially
         resetRequest(request);
 
-        // check if resource exists on disk
-        var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
-        if (libx.io.fileExists(metadataFile)) {
-            request._metadata = libx.utils.json.parse(libx.io.getFileText(metadataFile));
-            flagSuccess (request);
-        } else {
-            retrieveRequest(request, RetrievalType.UNCONDITIONAL);
-        }
+        handleRequest(request);
         
         if (request.keepUpdated)
             this.cachedRequests.push(request);
