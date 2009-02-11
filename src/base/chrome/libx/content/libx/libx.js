@@ -263,7 +263,6 @@ libx.initialize = function ()
     // Load Preferences
     libx.preferences.initialize();
 
-    if (false)  // DEACTIVATED
     new libx.config.EditionConfigurationReader({
         url: "chrome://libx/content/config.xml",
         onload: function (edition) {
@@ -272,7 +271,7 @@ libx.initialize = function ()
             // var editionRoot = libx.edition.localizationfeeds.primary;
             var editionRoot = null;
             var bootstrapUrl = editionRoot || 
-                libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
+                libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
                     "http://libx.org/libx-new/src/libx2/bootstrapglobal.js");
 
             libx.bootstrap.loadScript(bootstrapUrl);
