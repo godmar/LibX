@@ -2,7 +2,7 @@
 load("../libx2/base/atomparser.js");
 
 var rootPackage = "http://libx.org/libx-new/src/libapproot/libxcore";
-var atomParser = new libx.atom.AtomParser(rootPackage);
+var atomParser = new libx.libapp.PackageWalker(rootPackage);
 
 function getDesc(pkg) {
     var pkgName = libx.utils.xpath.findSingleXML(pkg.ownerDocument, "preceding-sibling::atom:title/text()", 

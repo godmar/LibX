@@ -30,34 +30,10 @@ var ns = {
     libx2:	"http://libx.org/xml/libx2"
 };
 
-function getEntry(invofcc) {
-    var pathComp = invofcc.url.split(/\//);
-    var pathDir = pathComp.splice(0, pathComp.length - 1).join("/") + "/";
-    var pathBase = pathComp[pathComp.length - 1];
-
-    if (debug) libx.log.write("url= " + invofcc.url + " path=" + pathDir + " base=" + pathBase);
-
-    libx.cache.globalMemoryCache.get({
-        url: pathDir,
-        dataType: "xml",
-        success: function (xmlDoc, status, xhr) {
-            var xpathExpr = "//atom:entry[atom:id/text() = '" + invofcc.url + "']";
-            var entry = libx.utils.xpath.findSingleXML(xmlDoc, xpathExpr, xmlDoc, ns);
-            if (entry != null) {
-                invofcc.forEntry(xmlDoc, pathDir, entry);
-            } else {
-                libx.cache.globalMemoryCache.get({
-                    url: invofcc.url,
-                    dataType: "xml",
-                    success: function (xmlDoc, status, xhr) {
-                        invofcc.forEntry(xmlDoc, pathDir, xmlDoc.document); // XXX pass in root
-                    }
-                });
-            }
-        }
-    });
-}
-
+/**
+ * Iterate over entries in a libx2:package or libx2:libapp
+ * and invoke 'callback'
+ */
 function foreachEntry(baseNode, callback) {
     var contents_nodes = libx.utils.xpath.findNodesXML(
             baseNode.ownerDocument, 
@@ -68,10 +44,22 @@ function foreachEntry(baseNode, callback) {
     }
 }
 
-libx.atom = { };
-libx.libapp = { };
+/**
+ * Namespace resolver for namespaces: libx2, atom
+ *  atom:	"http://www.w3.org/2005/Atom"
+ *  libx2:	"http://libx.org/xml/libx2"
+ */
 libx.libapp.nsResolver = ns;
-libx.libapp.PackageVisitor = libx.core.Class.create({
+
+/**
+ * @class
+ *
+ * Hierarchical visitor for packages.
+ * Visit all modules, libapps, and packages reachable from
+ * a given package.
+ */
+libx.libapp.PackageVisitor = libx.core.Class.create(
+    /** @lends libx.libapp.PackageVisitor.prototype */{
     onPackage: function (baseURL, pkg) {
         var self = this;
         foreachEntry(pkg, function (srcAttr) {
@@ -91,41 +79,76 @@ libx.libapp.PackageVisitor = libx.core.Class.create({
 });
 
 function handleEntry(visitor, url) {
-    getEntry({ 
-        url : url,
-        forEntry : function (xmlDoc, baseURL, entryNode) {
-            var pkgNode = libx.utils.xpath.findSingleXML(
-                xmlDoc, "./libx2:package", entryNode, ns
-            );
-            if (pkgNode != null) {
-                visitor.onPackage(baseURL, pkgNode);
-                return;
-            }
 
-            var libappNode = libx.utils.xpath.findSingleXML(
-                xmlDoc, "./libx2:libapp", entryNode, ns
-            );
-            if (libappNode != null) {
-                visitor.onLibapp(baseURL, libappNode);
-                return;
-            }
+    function handleEntryBody(xmlDoc, baseURL, entryNode) {
+        var libx2Node = libx.utils.xpath.findSingleXML(
+            xmlDoc, "./libx2:*", entryNode, ns
+        );
+        if (libx2Node == null) {
+            libx.log.write(baseURL + ": entry does not contain any libx2:* node");
+            return;
+        }
 
-            var moduleNode = libx.utils.xpath.findSingleXML(
-                xmlDoc, "./libx2:module", entryNode, ns
-            );
-            if (moduleNode != null) {
-                visitor.onModule(baseURL, moduleNode);
-                return;
+        switch (String(libx2Node.localName)) {
+        case "package":
+            visitor.onPackage(baseURL, libx2Node);
+            break;
+        case "libapp":
+            visitor.onLibapp(baseURL, libx2Node);
+            break;
+        case "module":
+            visitor.onModule(baseURL, libx2Node);
+            break;
+        default:
+            libx.log.write("entry is neither libapp, module, nor package: " + libx2Node.localName);
+        }
+    }
+
+    var pathComp = url.split(/\//);
+    var pathDir = url.match(/.*\//);
+    var pathBase = url.replace(/.*\//, "");
+
+    if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);
+
+    libx.cache.globalMemoryCache.get({
+        url: pathDir,
+        dataType: "xml",
+        success: function (xmlDoc, status, xhr) {
+            var xpathExpr = "//atom:entry[atom:id/text() = '" + url + "']";
+            var entry = libx.utils.xpath.findSingleXML(xmlDoc, xpathExpr, xmlDoc, ns);
+            if (entry != null) {
+                handleEntryBody(xmlDoc, pathDir, entry);
+            } else {
+                libx.cache.globalMemoryCache.get({
+                    url: url,
+                    dataType: "xml",
+                    success: function (xmlDoc, status, xhr) {
+                        handleEntryBody(xmlDoc, pathDir, xmlDoc.documentElement);
+                    }
+                });
             }
-            libx.log.write("entry is neither libapp, module, nor package !??");
         }
     });
 }
 
-libx.atom.AtomParser = libx.core.Class.create({
-    initialize: function (rootPackage) {
-        this.rootPackage = rootPackage;
+/**
+ * @class
+ */
+libx.libapp.PackageWalker = libx.core.Class.create(
+    /** @lends libx.libapp.PackageWalker.prototype */{
+    /**
+     * @constructs
+     * @param {String} rootPackageId - URL describing the entry/id 
+     *         of a package or libapp.
+     */
+    initialize: function (rootPackageId) {
+        this.rootPackage = rootPackageId;
     },
+
+    /**
+     * Apply visitor to all packages, libapps, and modules
+     * that are referenced from given root
+     */
     walk : function (visitor) {
         handleEntry(visitor, this.rootPackage);
     }
