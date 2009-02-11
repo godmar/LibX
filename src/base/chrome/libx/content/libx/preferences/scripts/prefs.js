@@ -24,7 +24,7 @@ libx.stringbundle = {
         try {
             return bundle.GetStringFromName (name);
         } catch ( e ) {
-            libx.log.write ( "Warning: No defined string for - " + name + ", using " + def + " instead" );
+            //libx.log.write ( "Warning: No defined string for - " + name + ", using " + def + " instead" );
             return def;
         } 
     }
@@ -35,7 +35,10 @@ $(document).ready ( function () {
     var prefs = libx.prefs;
     var result = process ( libx.prefs, "libx.prefs" );
     
-    $('#content-div')[0].innerHTML = result;
+    var tmpdiv = document.createElement ( 'div' );
+    tmpdiv.html ( result );
+    $('#content-div').append ( tmpdiv.clone() );
+    
     $('.tabs-ul').tabs();
         
         
@@ -79,7 +82,7 @@ $(document).ready ( function () {
         function () {
             libx.preferences.getByID ( this.name )._setValue ( this.value );
         } );
-        
+
 } );
     
 /**

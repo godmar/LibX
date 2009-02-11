@@ -1,0 +1,51 @@
+{!
+    /**
+     *    Template for the object cache tab in the preferences menu
+     *
+     */
+    var cachedObjects = [];
+	var filepaths = libx.io.find(/fileinfo.json/);
+	for ( var i = 0; i < filepaths.length; i++ ) {
+		// get the metadata
+		var metadata = libx.utils.json.parse(libx.io.getFileText(filepaths[i]));
+		cachedObjects.push ( {
+			url : metadata.originURL,
+			filename : filepaths[i],
+			lastmod : metadata.lastModified,
+			mimeType : metadata.mimeType
+		} );
+	}
+	
+	
+!}
+
+<script type="text/javascript">
+<![CDATA[
+	function purge ( filename ) {
+		libx.io.removeFile ( filename );
+		
+	}
+	
+	function purgeAll () { 
+		$(".purge-button").click();
+	}
+	
+	function updateAll () {
+		libx.cache.defaultObjectCache.updateRequests();
+	}
+]]>
+</script>
+
+<button onclick="libx.cache.defaultObjectCache.updateRequests();">Update Now!</button>
+<button onclick="purgeAll();">Purge All</button>
+<for each="obj" in="cachedObjects">
+	<div class="groupbox">
+		<label> {+ obj.url +} </label>
+		<div>
+			<p> Last Modified: {+ obj.lastmod +} </p> 
+			<p> Mime-Type: {+ obj.mimeType +} </p>	
+			<button class="purge-button" onclick="purge('{+obj.filename+}');"> Purge </button>
+		</div>
+	</div>
+	
+</for>
