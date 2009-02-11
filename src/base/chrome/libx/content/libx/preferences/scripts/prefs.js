@@ -1,5 +1,5 @@
-$.ajaxSetup ( { async: false } );
-                                             
+
+// XXX: This needs to be made cross-browser at some point                                             
 (function () {
     var gLibx = Components.classes['@libx.org/libxcomponent;1'].getService().wrappedJSObject.libx;
     libx = { };
@@ -7,6 +7,7 @@ $.ajaxSetup ( { async: false } );
 })();
 
 // Populate libx.edition, used for the context menu and about tabs
+// We need this b/c configuration is loaded by each browser window, not in global space
 var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
             url: "chrome://libx/content/config.xml",
             onload: function (edition) {
@@ -15,34 +16,41 @@ var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
     } );
     
 // Get localized String Bundle
-var stringBundleService = Components.classes["@mozilla.org/intl/stringbundle;1"]  
-            .getService(Components.interfaces.nsIStringBundleService);
-var bundle = stringBundleService.createBundle("chrome://libx/locale/prefs.properties");
-
-libx.stringbundle = {    
-    getLocalizedString : function ( name, def ) {
-        try {
-            return bundle.GetStringFromName (name);
-        } catch ( e ) {
-            //libx.log.write ( "Warning: No defined string for - " + name + ", using " + def + " instead" );
-            return def;
-        } 
-    }
+var prefsBundle = {
+	bundle : new libx.locale.StringBundle("chrome://libx/locale/prefs.properties"),
+	getProperty : function ( val, defaultVal ) {
+		var prop = "";
+		try {
+			prop = this.bundle.getProperty ( val );
+		} catch ( e ) {
+			prop = defaultVal;
+		}
+		return libx.utils.xml.encodeEntities ( prop );
+	}
 };
 
-$(document).ready ( function () {
+var onloadFunctions = [];
 
-    var prefs = libx.prefs;
+$(document).ready ( function () {
+	// Process the first template, which will create tabs and recursively process
+	// each subsequent template
     var result = process ( libx.prefs, "libx.prefs" );
+
+    // Clone and append to main document
+    // This evaluates scripts and style sheets ( setting the innerHTML does not seem to )
+    $('#content-div').append ( $( result ) );
     
-    var tmpdiv = document.createElement ( 'div' );
-    $( tmpdiv ).html ( result );
-    $('#content-div').append ( $( tmpdiv ).clone() );
     
+    // Initialize any necessary code for the templates
+    for ( var i = 0; i < onloadFunctions.length; i++ ) {
+    	onloadFunctions[i]();
+    }
+    
+    // Initialize the tabs
     $('.tabs-ul').tabs();
         
         
-    // tree initialization
+    // Initialize the trees
     $("ul.tree").checkTree({
         labelAction: "expand",
         
@@ -73,11 +81,14 @@ $(document).ready ( function () {
     
     $(".checked,.half_checked").siblings(".arrow").click();
     
+    
+    // Set event handlers for checkboxes
     $(".preference-checkbox").click ( 
         function () {
             libx.preferences.getByID ( this.name )._setValue ( this.checked );
         } );
-        
+    
+    // Set event handlers for radio buttons
     $(":radio").click(
         function () {
             libx.preferences.getByID ( this.name )._setValue ( this.value );
@@ -85,6 +96,7 @@ $(document).ready ( function () {
 
 } );
     
+
 /**
  *    Processes a template.
  *    @param pref - object to be passed into template
@@ -96,48 +108,34 @@ $(document).ready ( function () {
 */
 function process ( pref, layout ) {        
     var template = null;
-    
-    // try to get by layout paramater if it is specified
-    if ( layout != null ) {
-        template = getTemplate ( layout );
+    var filenames = [ layout ];
+    if ( pref != null ) {
+    	filenames.push ( pref._id );
+    	filenames.push ( pref._layout );
+    	filenames.push ( pref._nodeType );
     }
     
-    // If that fails, try to get it by id
-    if ( template == null ) {
-        template = getTemplate ( pref._id );
+    for ( var i = 0; i < filenames.length; i++ ) {
+    	if ( filenames[i] != null ) {
+    		var templateText = getTemplate ( filenames[i] );
+    		// getTemplate returns false if template is not found
+    		if ( templateText ) {
+    			var jsplate = new JsPlate ( templateText, filenames[i] );
+    			return jsplate.process ( pref );
+    		}
+    	}
     }
     
-    // If that fails, try to get it by layout attribute
-    if ( template == null ) {
-        template = getTemplate ( pref._layout );
-    }
-    
-    // If that fails, try to get by node type attribute
-    if ( template == null ) {
-        template = getTemplate ( pref._nodeType );
-    }
-    
-    if ( template == null ) {
-        alert ( "ERROR: Cannot find template for : " + pref._nodeType + " " + pref._name );
-    }
-    
-    var jsplate = new JsPlate ( template );
-    return jsplate.process ( pref );    
+    libx.log.write ( "Error: Unable to find template for " + filenames.toString() );
+    return "";
 }
 
 /**
  *    Attempts to retrieve a template
  */    
-function getTemplate ( name ) {
-    var templateXHR = $.ajax ( {
-        url : "templates/" + name + ".tmpl"
-    });
-    
-    if ( templateXHR.status == '404' || templateXHR.responseText == "" ) {
-        return null;
-    }
-    
-    return templateXHR.responseText;
+function getTemplate ( name ) {    
+	var text = libx.io.getFileText ( "chrome://libx/content/preferences/templates/" + name + ".tmpl" );
+	return text;
 }
 
 /**

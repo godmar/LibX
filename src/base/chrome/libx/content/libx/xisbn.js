@@ -81,7 +81,7 @@ libx.services.xisbn = {
             function addIfPresent(before, attr, after) {
                 var s = "";
                 if (attr != null) {
-                    s = before + String(attr).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                    s = before + libx.utils.xml.decodeEntities ( String(attr) );
                     if (after !== undefined)
                         s += after;
                 }
@@ -134,7 +134,7 @@ libx.services.xisbn = {
             function addIfPresent(before, attr, after) {
                 var s = "";
                 if (attr != null) {
-                    s = before + String(attr).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                    s = before + libx.utils.xml.decodeEntities ( String(attr) );
                     if (after !== undefined)
                         s += after;
                 }

@@ -60,14 +60,6 @@ function writeOpenSearch(f, c) {
 }
 
 function libxWriteOpenSearchDescriptions() {
-    function encodeEntities(s) {
-        var result = '';
-        for (var i = 0; i < s.length; i++) {
-            var c = s.charAt(i);
-            result += {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c] || c;
-        }
-        return result;
-    }
 
     var icon = libx.edition.options['icon'].replace("chrome:\/\/libx\/skin\/", "");
     //println("icon is: " + icon);
@@ -86,7 +78,7 @@ function libxWriteOpenSearchDescriptions() {
             writeOpenSearch(fw, {
                 shortName: name.getAttribute('short'),
                 longName: name.getAttribute('long'),
-                urlTemplate: encodeEntities(catalogs[i].makeSearch(opt, "{searchTerms}")),
+                urlTemplate: libx.utils.xml.encodeEntities (catalogs[i].makeSearch(opt, "{searchTerms}")),
                 catalogName: catalogs[i].name + " by " + libx.edition.searchoptions[opt],
                 iconPath: org.libx.editionbuilder.Config.httpeditionpath + last + "/" + icon,
                 attribution: name.getAttribute('adaptedby')

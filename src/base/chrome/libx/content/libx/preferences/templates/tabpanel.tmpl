@@ -21,7 +21,7 @@
         <for each="child" in="data._children">            
             <li>
                 <a href="#{+ tabID ( child._id ) +}">
-                    <span>{+ libx.stringbundle.getLocalizedString ( child._idstr + "-tabname", child._name ) +}</span>
+                    <span>{+ prefsBundle.getProperty ( child._idstr + "-tabname", child._name ) +}</span>
                 </a>
             </li>
         </for>

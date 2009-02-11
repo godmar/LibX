@@ -6,7 +6,7 @@
 !}
 <!-- group.tmpl -->
 <div class="groupbox">
-    <label>{+ libx.stringbundle.getLocalizedString ( data._idstr + "-group-label", data._name +}</label>
+    <label>{+ prefsBundle.getProperty ( data._idstr + "-group-label", data._name +}</label>
     <for each="child" in="data._children">
         {+ process ( child ) +}
     </for>

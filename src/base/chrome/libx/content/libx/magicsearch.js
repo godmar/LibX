@@ -261,9 +261,7 @@ libx.ui.magicSearch = function (data)
 
                         // as of Feb 2007, Scholar places the correct OpenURL in the
                         // href element, which means & is encoded as &.
-                        openurlpath = openurlpath.replace(/&amp;/g, "&")
-                                                 .replace(/&lt;/g, "<")
-                                                 .replace(/&gt;/g, ">");
+                        openurlpath = libx.utils.xml.decodeEntities ( openurlpath );
 
                         // sending the original data in a (non-standard) OpenURL field
                         // allows an OpenURL resolver to offer an option to correct for

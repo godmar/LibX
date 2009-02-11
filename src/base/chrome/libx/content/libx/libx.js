@@ -77,7 +77,24 @@ libx.utils = {
      *
      * @namespace libx.utils.xml
      */
-    xml: { },
+    xml: { 
+    	encodeEntities : function ( s ) {
+    		var result = '';
+        	for (var i = 0; i < s.length; i++) {
+            	var c = s.charAt(i);
+            	result += {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c] || c;
+        	}
+        	return result;
+    	},
+    	decodeEntities : function ( s ) {
+    		var result = '';
+        	for (var i = 0; i < s.length; i++) {
+            	var c = s.charAt(i);
+            	result += {'&lt;':'<', '&gt;':'>', '&amp;':'&', '&quot;':'"'}[c] || c;
+        	}
+        	return result;
+    	}
+    },
 
     /**
      * String utilities

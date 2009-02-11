@@ -18,7 +18,7 @@
         <li>
             <if test="(child._nodeType == 'category')">
                 <input type="checkbox" />
-                <label>{+ libx.stringbundle.getLocalizedString ( "libx.contextmenu." + child._name, child._name ) +}</label>
+                <label>{+ child._name +}</label>
                 {+ process ( child, "contextmenutree" ) +}
             </if>
             <if test="(child._nodeType == 'preference')">

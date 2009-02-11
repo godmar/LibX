@@ -20,7 +20,7 @@
         <for each="child" in="data._children">            
             <li>
                 <a href="#{+ tabID ( child._id ) +}">
-                    <span style="font-size:.7em">{L child._idstr + "-tabname", child._name L}</span>
+                    <span style="font-size:.7em">{L child._idstr + "-tabname" L}</span>
                 </a>
             </li>
         </for>
@@ -29,7 +29,7 @@
     <!-- Tab Bodies -->
     <for each="child" in="data._children">
             <div id="{+ tabID ( child._id ) +}">
-                <p>{L child._idstr + "-description", child._name L}</p>
+                <p>{L child._idstr + "-description" L}</p>
                 <div style="overflow:auto;height:50%;">
                     {P child, "contextmenutree" P}
                 </div>

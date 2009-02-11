@@ -339,8 +339,6 @@ var Group = libx.core.Class.create (
 	isEnabled : function ( item ) {
 		var name = "libx.prefs.contextmenu." + this.name + "." + item.toString();
 		var pref = libx.preferences.get ( name );
-		libx.log.write ( "ContextMenu: " + name );
-		libx.log.write ( "pref is: " + pref );
 		if ( pref ) {
 			return pref._value;
 		}

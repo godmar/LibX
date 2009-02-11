@@ -9,8 +9,9 @@
 /**
 	@constructor
 */
-JsPlate = function(templateFileText) {
+JsPlate = function(templateFileText, templateFile) {
 	this.template = templateFileText;
+	this.templateFile = templateFile;
 	this.code = "";
 	this.parse();
 }
@@ -62,7 +63,7 @@ JsPlate.prototype.parse = function() {
 		function (match, code) {
 			code = code.replace(/"/g, "``"); // prevent qoute-escaping of inline code
 			code = code.replace(/(\r?\n)/g, " ");
-			return "``+ ( libx.stringbundle.getLocalizedString ("+code+" ) ) +``";
+			return "``+ ( prefsBundle.getProperty ("+code+" ) ) +``";
 		}
 	);
 	
@@ -74,7 +75,7 @@ JsPlate.prototype.parse = function() {
 //			code = code.replace(/"/g, "``"); // prevent qoute-escaping of inline code
 	//		code = code.replace(/(\r?\n)/g, " ");
 		//	code = code.trim();
-			return "``+ ( libx.stringbundle.getLocalizedString (data._idstr+``-description``, data._name ) ) +``";
+			return "``+ ( prefsBundle.getProperty (data._idstr+``-description`` ) ) +``";
 		}
 	);
 	

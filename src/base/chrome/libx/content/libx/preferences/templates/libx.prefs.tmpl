@@ -20,15 +20,17 @@
         <for each="child" in="data._children">            
             <li>
                 <a href="#{+ tabID ( child._id ) +}">
-                    <span>{+ libx.stringbundle.getLocalizedString ( child._idstr + "-tabname", child._name ) +}</span>
+                    <span>{+ prefsBundle.getProperty ( child._idstr + "-tabname", child._name ) +}</span>
                 </a>
             </li>
         </for>
-        <li>
-            <a href="#object-cache-libx-tab">
-                <span>Object Cache</span>
-            </a>
-        </li>
+        <if test="libx.utils.browserprefs.getBoolPref('libx.developer')">
+	        <li>
+	            <a href="#developer-tab">
+	                <span>Developer</span>
+	            </a>
+	        </li>
+        </if>
         <li>
             <a href="#about-libx-tab">
                 <span>About</span>
@@ -40,9 +42,11 @@
                 {P child P}
             </div>
     </for>
-    <div id="object-cache-libx-tab">
-        {P null, "objectcache" P}
-    </div>
+    <if test="libx.utils.browserprefs.getBoolPref('libx.developer')">
+	    <div id="developer-tab">
+	        {P null, "developer" P}
+	    </div>
+    </if>
     <div id="about-libx-tab">
         {P null, "aboutlibx" P}
     </div>

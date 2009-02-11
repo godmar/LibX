@@ -11,7 +11,7 @@
         <li>
             <if test="(child._nodeType == 'category')">
                 <input type="checkbox" />
-                <label>{+ libx.stringbundle.getLocalizedString ( child._idstr + "-label", child._name ) +}</label>
+                <label>{+ prefsBundle.getProperty ( child._idstr + "-label", child._name ) +}</label>
                 {+ process ( child ) +}
             </if>
             <if test="(child._nodeType == 'preference')">
