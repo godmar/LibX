@@ -6,7 +6,7 @@
     var cachedObjects = [];
 	var filepaths = libx.io.find(/fileinfo.json/);
 	for ( var i = 0; i < filepaths.length; i++ ) {
-		// get the metadata
+		/* get the metadata */
 		var metadata = libx.utils.json.parse(libx.io.getFileText(filepaths[i]));
 		cachedObjects.push ( {
 			url : metadata.originURL,
