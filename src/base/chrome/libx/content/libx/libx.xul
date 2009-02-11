@@ -47,6 +47,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         })();
         ]]>
     </script>
+	<script type="application/x-javascript" src="chrome://libx/content/bootstrap.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/browser.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/contextMenuUtils.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/menuObjects.js" />

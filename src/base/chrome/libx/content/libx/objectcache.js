@@ -113,7 +113,8 @@ function flagSuccess (request) {
             }
         }
 
-        flagSuccess(dependent);
+        if (dependent._metadata != null)
+            flagSuccess(dependent);
     }
 }
 

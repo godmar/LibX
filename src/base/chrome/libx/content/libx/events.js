@@ -84,13 +84,22 @@ libx.events = {
      * @param {String} eventName - name of event, say "load"
      * @param {Object} observer - must have oneventName method, e.g., "onload"
      * @param {Window} window (optional) - only listen to events 
-     *                                     associated with this window
+     *                 associated with this window
+     * @param {String} observerId (optional) - if given, replace listener
+     *                 previously added using the same observerId
      */
-    addListener : function (eventName, observer, observerWindow) {
-        if (handlerMap[eventName] == undefined)
-            handlerMap[eventName] = [ ];
+    addListener : function (eventName, observer, observerWindow, observerId) {
+        var handlers = handlerMap[eventName];
+        if (handlers == undefined)
+            handlers = handlerMap[eventName] = [ ];
 
-        handlerMap[eventName].push({ handler : observer, window: observerWindow });
+        for (var i = 0; i < handlers.length; i++) {
+            if (handlers[i].id == observerId && handlers[i].window == observerWindow) {
+                handlers.splice(i, 1);
+                break;
+            }
+        }
+        handlerMap[eventName].push({ handler : observer, window: observerWindow, id : observerId });
     }
 
     /* XXX to be done removeListener */

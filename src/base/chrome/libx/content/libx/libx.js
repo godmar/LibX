@@ -253,38 +253,6 @@ libx.utils = {
 libx.buildDate = "$builddate$";
 
 /**
- * Bootstrap LibX code.
- *
- * @namespace
- */
-libx.bootstrap = {
-    /**
-     * Load a script.
-     *
-     * @param {String} scriptURL  URL
-     */
-    loadScript : function (scriptURL) {
-        var scriptBase = {
-            baseURL : scriptURL.match (/.*\//),
-            request : {
-                url: scriptURL,
-                keepUpdated: true,
-                success: function (scriptText, metadata) { 
-                    try {
-                        libx.log.write("evaluating: " + metadata.originURL, "bootstrap");
-                        eval (scriptText);
-                    } catch (e) {
-                        libx.log.write( "error loading " + metadata.originURL + " -> " + e);
-                    }
-                }
-            }
-        };
-
-        libx.cache.defaultObjectCache.get(scriptBase.request);
-    }
-};
-
-/**
  *
  * Initialize LibX
  *
