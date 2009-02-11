@@ -253,6 +253,39 @@ libx.utils = {
 libx.buildDate = "$builddate$";
 
 /**
+ * Bootstrap LibX code.
+ *
+ * @namespace
+ */
+libx.bootstrap = {
+    /**
+     * Load a script.
+     *
+     * @param {String} scriptURL  URL
+     */
+    loadScript : function (scriptURL) {
+        var scriptBase = {
+            baseURL : scriptURL.match (/.*\//),
+            request : {
+                url: scriptURL,
+                keepUpdated: true,
+                success: function (scriptText, metadata) { 
+                    try {
+                        libx.log.write("evaluating: " + metadata.originURL, "bootstrap");
+                        eval (scriptText);
+                    } catch (e) {
+                        libx.log.write( "error loading " + metadata.originURL + " -> " + e);
+                    }
+                }
+            }
+        };
+
+        libx.cache.defaultObjectCache.get(scriptBase.request);
+    }
+};
+
+/**
+ *
  * Initialize LibX
  *
  */
@@ -262,28 +295,19 @@ libx.initialize = function ()
     // Load Preferences
     libx.preferences.initialize();
 
-    if (false)  // refactor with version in browser.js
+    if (false)  // DEACTIVATED
     new libx.config.EditionConfigurationReader({
         url: "chrome://libx/content/config.xml",
         onload: function (edition) {
             libx.edition = edition;
+
             // var editionRoot = libx.edition.localizationfeeds.primary;
             var editionRoot = null;
-            var rootScriptUrl = editionRoot 
-                || "http://libx.org/libx-new/src/libx2/bootstrapglobal.js";
+            var bootstrapUrl = editionRoot || 
+                libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
+                    "http://libx.org/libx-new/src/libx2/bootstrapglobal.js");
 
-            var parentRequest;
-            libx.cache.defaultObjectCache.get(parentRequest = {
-                url: rootScriptUrl,
-                success: function (scriptText, metadata) { 
-                    try {
-                        libx.log.write("evaluating: " + metadata.originURL);
-                        eval( scriptText );
-                    } catch (e) {
-                        libx.log.write( "error in " + metadata.originURL);
-                    }
-                }
-            });
+            libx.bootstrap.loadScript(bootstrapUrl);
         }
     });
 }

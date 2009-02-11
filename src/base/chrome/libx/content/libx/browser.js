@@ -41,26 +41,14 @@ var browser =
                 libx.browser.activateConfiguration(edition);
                 libx.citeulike.notificationicon.initialize();
 
-                // now pull in additional files
+                // now pull in additional files - location to be determined
                 // var editionRoot = libx.edition.localizationfeeds.primary;
                 var editionRoot = null;
-                var baseUrl = editionRoot 
-                    || "http://libx.org/libx-new/src/libx2/" 
-                var bootstrapUrl = baseUrl + "bootstrapwindow.js";
+                var bootstrapUrl = editionRoot || 
+                    libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
+                        "http://libx.org/libx-new/src/libx2/bootstrapwindow.js");
 
-                var parentRequest;
-                libx.cache.defaultObjectCache.get(parentRequest = {
-                    url: bootstrapUrl,
-                    keepUpdated: true,
-                    success: function (scriptText, metadata) { 
-                        try {
-                            libx.log.write("evaluating: " + metadata.originURL);
-                            eval (scriptText);
-                        } catch (e) {
-                            libx.log.write( "error in " + metadata.originURL);
-                        }
-                    }
-                });
+                libx.bootstrap.loadScript(bootstrapUrl);
             },
             onerror: function () {
                 libx.log.write ( "ERROR: Config XML Not Found" );

@@ -1,7 +1,7 @@
 (function () {
 
+var updateInterval = 10 * 1000; // 10 sec for testing - please, if you activate that, don't leave your browser running.
 var updateInterval = 24 * 60 * 60 * 1000;    // 24 hours
-var updateInterval = 3 * 1000; // 60 sec
 var fileinfoExt = ".fileinfo.json";
 
 /**
@@ -22,28 +22,24 @@ function calculateHashedPath ( url )
     return path;
 };
 
+var contentType2Extension = {
+    "image/gif":                ".gif",
+    "image/jpg":                ".jpg",
+    "image/png":                ".png",
+    "application/x-javascript": ".js",
+    "text/plain":               ".txt",
+    "text/html":                ".html",
+    "text/xml":                 ".xml",
+    "application/rss+xml":      ".xml",
+    "application/atom+xml":     ".xml"
+};
+
 function computeExtensionFromContentType (mimeType) {
     mimeType = mimeType.split(';')[0];
-    switch (mimeType) {
-    case "image/gif":
-        return ".gif";
-    case "image/jpg":
-        return ".jpg";
-    case "image/png":
-        return ".png";
-    case "application/x-javascript":
-        return ".js";
-    case "text/plain":
-        return ".txt";
-    case "text/html":
-        return ".html";
-    case "text/xml":
-    case "application/rss+xml":
-    case "application/atom+xml":
-        return ".xml";
-    default:
-        return "." + mimeType.replace(/\//g, "_");
-    }
+    if (contentType2Extension[mimeType])
+        return contentType2Extension[mimeType];
+
+    return "." + mimeType.replace(/\//g, "_");
 }
 
 /* Reset a request's _unmetdependencies list */
@@ -91,12 +87,10 @@ function flagSuccess (request) {
     }
 }
 
-
 var RetrievalType = { 
     UNCONDITIONAL : 1, 
     ONLYIFMODIFIED : 2 
 }; 
-
 
 function retrieveRequest(request, retrievalType) {
     var headers = {};
@@ -155,7 +149,7 @@ function handleRequest(request) {
 }
 
 function updateRequests (cachedRequests) {
-    libx.log.write("updating requests: " + cachedRequests.length);
+    libx.log.write("updating requests: " + cachedRequests.length, "objectcache");
     var lastMetadata = []
     for (var i = 0; i < cachedRequests.length; i++) {
         if (cachedRequests[i]._metadata) {   // request did previously complete
