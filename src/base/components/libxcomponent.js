@@ -46,6 +46,7 @@ var globalScripts = [
 	"chrome://libx/content/proxy.js",
 	"chrome://libx/content/libx.global.ff.js",
     "chrome://libx/content/objectcache.js",
+    "chrome://libx/content/bootstrap.js",
 	"chrome://libx/content/prefs.ff.js",
 	"chrome://libx/content/hash.js",
 	"chrome://libx/content/openurl.js",
