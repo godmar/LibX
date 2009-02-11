@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-files="../base/chrome/libx/content/libx ../base/chrome/libx/content/libx/catalogs"
+files="../base/chrome/libx/content/libx ../base/chrome/libx/content/libx/catalogs ../libx2 ../libx2/base"
 outdir="doc"
 defopts="-a -p"
 opts=""
