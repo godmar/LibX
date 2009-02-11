@@ -552,7 +552,7 @@ return /** @lends libx.preferences */ {
         var overwrite = descriptor.overwrite;
         var base = descriptor.base;
         
-        var xmlRoot = xml.firstChild.nextSibling;
+        var xmlRoot = xml.documentElement;
         var loadedPrefs =  new prefFactory[xmlRoot.nodeName]( null, base, xmlRoot );
         if ( descriptor.prefs == null ) {
             descriptor.prefs = loadedPrefs;

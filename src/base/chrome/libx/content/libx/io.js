@@ -294,7 +294,7 @@ if (typeof(JSIO) != 'boolean') {
                     for (var i = 0; i < list.length; ++i) {
                         if (list[i].isDirectory()) {
                             files = list[i].directoryEntries;
-                            list2 = this._read(files, recursive);
+                            list2 = list2.concat ( this._read(files, recursive) );
                         }
                     }
                     for (i = 0; i < list2.length; ++i) {
@@ -481,6 +481,25 @@ return /** @lends libx.io */ {
     removeFile : function ( path ) {
         var file = getFile ( path );
         FileIO.unlink ( file );
+    },
+    
+    /**
+     *	Takes a regular expression, and returns all files whos name matches that
+     *	regular expression
+     *	@param {RegularExpression} regular expression to match against file names
+     *	@return {String[]} array of matching path names
+     */
+    find : function (  regex ) {
+    	var entries = [];
+	    var profd = DirIO.get  ( 'ProfD' );
+		profd.append ( 'libx' );
+		DirIO.open ( profd );
+		var list = DirIO.read ( profd, true );
+		for ( var i = 0; i < list.length; i++ ) {
+		    var path = ( FileIO.path ( list[i] ) );
+		    if ( path.match ( regex ) ) { entries.push ( path ); }
+		}
+		return entries;
     }
 };
 } )();
