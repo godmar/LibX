@@ -17,10 +17,10 @@ var observer = {
          */
         var sbox = new libx.libapp.Sandbox(event.window, { libx: libx });
         if (event.url.match("libx.cs.vt.edu") != null)
-            sbox.evaluate("alert('You are running libx: ' + libx.edition.name.long);");
+            sbox.evaluate("alert('You\\'re running libx: ' + libx.edition.name.long);");
     }
 }
 
-libx.events.addListener("ContentLoaded", observer, window);
+libx.events.addListener("ContentLoaded", observer, window, "libapploader");
 
 }());
