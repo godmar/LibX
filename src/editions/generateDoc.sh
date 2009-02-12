@@ -62,7 +62,9 @@ java -jar ../jsdoc/jsrun.jar ../jsdoc/app/run.js $opts -t=../jsdoc/templates/jsd
 cat > $outdir/rindex.html << EOF
 <html>
 <head>
-    <meta http-equiv="refresh" content="0;url=chrome://libxdoc/content/index.html" />
+	<script type="text/javascript">
+		window.location = "chrome://libxdoc/content/index.html";
+	</script>
 </head>
 <body>
 </body>
