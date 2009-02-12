@@ -58,5 +58,21 @@ libx.log = {
         }
 
         libx.log.bd.write(prefix + ": " + msg);
+    },
+
+    /**
+     * @namespace
+     *
+     * browser-dependent implementation of logging.
+     * Each environment must provide a 'write' function that writes
+     * messages to a console or log file.
+     */
+    bd : {
+        /**
+         * Write a message to the JS console
+         *
+         * @param {String} msg message to write
+         */
+        write : libx.core.AbstractFunction("libx.log.bd.write")
     }
 }
