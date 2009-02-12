@@ -172,5 +172,10 @@ libx.core = (function() {
   return { 
         'Class': Class,
         'EmptyFunction': function () { },
+        'AbstractFunction': function (fname) { 
+            return function () {
+                throw "function " + fname + " not implemented";
+            }
+        },
     };
 })();
