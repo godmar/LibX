@@ -287,7 +287,7 @@ libx.io = {
 //Logging functions///////////////////////////////////////////////////////////
 
 libx.log.bd = {
-    /**
+    /*
      * Write a message to the JS console
      * @param {String} msg message to write
      */

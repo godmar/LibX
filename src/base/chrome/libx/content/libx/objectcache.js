@@ -183,6 +183,12 @@ function updateRequests (cachedRequests) {
     libx.log.write("updating requests: " + cachedRequests.length, "objectcache");
     var lastMetadata = []
     for (var i = 0; i < cachedRequests.length; i++) {
+        // remove requests that have cleared their keepUpdated flag
+        if (!cachedRequests[i].keepUpdated) {
+            cachedRequests.splice(i--, 1);
+            continue;
+        }
+
         if (cachedRequests[i]._metadata) {   // request did previously complete
             lastMetadata.push(cachedRequests[i]._metadata);
         } else {
@@ -215,6 +221,8 @@ libx.cache.ObjectCache = libx.core.Class.create(
     /** @lends libx.cache.ObjectCache.prototype */ {
     initialize: function () {
         var self = this;
+        this.cachedRequests = new Array();
+
         libx.utils.timer.setInterval(function () {
             updateRequests(self.cachedRequests);
         }, updateInterval);
@@ -257,10 +265,6 @@ libx.cache.ObjectCache = libx.core.Class.create(
         if (request.keepUpdated)
             this.cachedRequests.push(request);
     },
-    /**
-     * List of cached request that must be kept up to date.
-     */
-    cachedRequests: new Array(),
 
     /**
      * Update all requests that have the 'keepUpdated' flag set.

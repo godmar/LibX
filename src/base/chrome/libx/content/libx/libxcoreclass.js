@@ -13,10 +13,20 @@
  * Lowercase names represent objects
  */
  
- /**
+/**
  * @namespace
+ *
+ * The global libx object.  All bow.
  */
 libx = { };
+
+/**
+ * A reference to the global libx object.
+ *
+ * This reference can be used to retrieve new properties
+ * if the object was previously cloned.
+ */
+libx.global = libx;
 
 /**
  * Embed Alex Arnell's 'inheritance' class in the libx.core

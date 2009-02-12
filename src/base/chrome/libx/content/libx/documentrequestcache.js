@@ -260,7 +260,15 @@ var memoryCacheClass = libx.core.Class.create ( {
                 //Need to send the request to the server
                 var xmlHttpReq = libx.cache.bd.getXMLHttpReqObj();
 
-                xmlHttpReq.open(request.type, request.url, request.async);
+                try {
+                    xmlHttpReq.open(request.type, request.url, request.async);
+                } catch (er) {
+                    libx.log.write("error in XMLHTTPRequest.open for: " + request.type + " " + request.url);
+                    if ( typeof ( request.error ) == "function" ) {
+                        request.error ( e.toString(), xmlHttpReq.status, xmlHttpReq );
+                    }
+                    return xmlHttpReq;
+                }
 
                 //Used in onreadystate change function (captured through closure)
                 var cache = this.xhrCache; 

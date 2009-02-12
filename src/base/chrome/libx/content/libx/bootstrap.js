@@ -37,22 +37,31 @@ libx.bootstrap = {
      *
      * @param {String} scriptURL  URL
      */
-    loadScript : function (scriptURL, depends) {
+    loadScript : function (scriptURL, depends, keepUpdated) {
         var bootstrapSelf = this;
         var scriptBase = {
             baseURL : scriptURL.match (/.*\//),
             loadDependentScript : function (depScriptURL) {
-                bootstrapSelf.loadScript(depScriptURL, [ this.request ]);
+                return bootstrapSelf.loadScript(depScriptURL, [ this.request ]);
             },
             request : {
                 url: scriptURL,
-                keepUpdated: true,
+                keepUpdated: keepUpdated,
                 success: function (scriptText, metadata) { 
                     try {
-                        libx.log.write("evaluating: " + metadata.originURL, "bootstrap");
+                        libx.log.write("loading (" + metadata.originURL + ") from (" + metadata.chromeURL + ")", "bootstrap");
+
+                        var jsSubScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
+                            .getService(Ci.mozIJSSubScriptLoader);
+                        jsSubScriptLoader.loadSubScript(metadata.chromeURL, { scriptBase : scriptBase, libx : libx });  // FF only!
+                        libx.log.write("done loading (" + metadata.originURL + ")");
+
+/*
                         eval (scriptText);
+ */
                     } catch (e) {
-                        libx.log.write( "error loading " + metadata.originURL + " -> " + e);
+                        var where = e.location || (e.fileName + ":" + e.lineNumber);
+                        libx.log.write( "error loading " + metadata.originURL + " -> " + e + " " + where);
                     }
                 },
                 depends: depends
@@ -60,6 +69,7 @@ libx.bootstrap = {
         };
 
         libx.cache.defaultObjectCache.get(scriptBase.request);
+        return scriptBase.request;
     }
 };
 

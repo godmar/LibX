@@ -33,29 +33,33 @@ var browser =
 		libx.bd.initialize();
 		
 		// To implement:  this.toolbar = new Toolbar();
-        new libx.config.EditionConfigurationReader( {
-            url: "chrome://libx/content/config.xml",
-            onload: function (edition) {
-                libx.edition = edition;
 
-                libx.browser.activateConfiguration(edition);
-                libx.citeulike.notificationicon.initialize();
+        function activateConfiguration(edition) {
+            libx.edition = edition;
+            libx.log.write("Activating configuration: " + libx.edition.name.long);
+            libx.browser.activateConfiguration(edition);
+            libx.citeulike.notificationicon.initialize();
 
-                // now pull in additional files - location to be determined
-                // var editionRoot = libx.edition.localizationfeeds.primary;
-                var editionRoot = null;
-                var bootstrapUrl = editionRoot || 
-                    libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
-                        "http://libx.org/libx-new/src/libx2/bootstrapwindow.js");
+            // now pull in additional files - location to be determined
+            // var editionRoot = libx.edition.localizationfeeds.primary;
+            var editionRoot = null;
+            var bootstrapUrl = editionRoot || 
+                libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
+                    "http://libx.org/libx-new/src/libx2/bootstrapwindow.js");
 
-                libx.bootstrap.loadScript(bootstrapUrl);
-            },
-            onerror: function () {
-                libx.log.write ( "ERROR: Config XML Not Found" );
-                return;
-            }
-        });
+            libx.bootstrap.loadScript(bootstrapUrl, undefined, true);
+        }
 
+        libx.log.write("libx.browser.initialize: libx.global.edition=" + libx.global.edition);
+        if (libx.global.edition != null) {
+            activateConfiguration(libx.global.edition);
+        } else {
+            libx.events.addListener("EditionConfigurationLoaded", {
+                onEditionConfigurationLoaded: function (event) {
+                    activateConfiguration(event.edition);
+                }
+            });
+        }
 	},
 	
 	/**

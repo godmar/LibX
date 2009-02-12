@@ -284,16 +284,22 @@ libx.initialize = function ()
         url: "chrome://libx/content/config.xml",
         onload: function (edition) {
             libx.edition = edition;
+            libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
+
+            var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
+            edLoadedEvent.edition = edition;
+            edLoadedEvent.notify();
 
             // var editionRoot = libx.edition.localizationfeeds.primary;
             var editionRoot = null;
             var bootstrapUrl = editionRoot || 
                 libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
                     "http://libx.org/libx-new/src/libx2/bootstrapglobal.js");
-
-            libx.bootstrap.loadScript(bootstrapUrl);
+        
+            libx.bootstrap.loadScript(bootstrapUrl, undefined, true);
         }
     });
+    libx.log.write("libx.initialize complete");
 }
 
 // vim: ts=4
