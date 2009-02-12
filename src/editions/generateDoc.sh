@@ -3,7 +3,7 @@
 
 files="../base/chrome/libx/content/libx ../base/chrome/libx/content/libx/catalogs ../libx2 ../libx2/base"
 outdir="doc"
-defopts="-a -p"
+defopts="-p"
 opts=""
 
 while [ $# -ge 1 ]; do
@@ -59,5 +59,13 @@ echo "Files to document: " $files
 echo "Output Directory:  " $outdir
 java -jar ../jsdoc/jsrun.jar ../jsdoc/app/run.js $opts -t=../jsdoc/templates/jsdoc -d=$outdir $files
 
-
+cat > $outdir/rindex.html << EOF
+<html>
+<head>
+    <meta http-equiv="refresh" content="0;url=chrome://libxdoc/content/index.html" />
+</head>
+<body>
+</body>
+</html>
+EOF
 
