@@ -46,7 +46,7 @@ libx.bootstrap = {
 
         var runScriptActivity = {
             baseURL : scriptURL.match (/.*\//),
-            onready : function (scriptText, metadata) {
+            onready : function (metadata) {
                 try {
                     libx.log.write("loading (" + metadata.originURL + ") from (" + metadata.chromeURL + ")", "bootstrap");
 
@@ -55,9 +55,6 @@ libx.bootstrap = {
                     jsSubScriptLoader.loadSubScript(metadata.chromeURL, { scriptBase : this, libx : libx });  // FF only!
                     libx.log.write("done loading (" + metadata.originURL + ")");
 
-/*
-                    eval (scriptText);
-*/
                 } catch (e) {
                     var where = e.location || (e.fileName + ":" + e.lineNumber);
                     libx.log.write( "error loading " + metadata.originURL + " -> " + e + " " + where);
@@ -70,12 +67,31 @@ libx.bootstrap = {
             url: scriptURL,
             keepUpdated: keepUpdated,
             success: function (scriptText, metadata) { 
-                runScriptActivity.markReady(scriptText, metadata);
+                runScriptActivity.markReady(metadata);
             }
         });
 
-        // XXX to-be-done listen for Update event
+        var self = this;
+        if (keepUpdated) {
+            // on update, reschedule activity
+            if (this.urlUpdateListenerMaps[scriptURL] == undefined) {
+                var evListener = {};
+                evListener["onUpdate" + scriptURL] = function (ev) {
+                    self.scriptQueue.scheduleLast(runScriptActivity);
+                    runScriptActivity.markReady(ev.metadata);
+                }
+                this.urlUpdateListenerMaps[scriptURL] = evListener;
+                libx.events.addListener("Update" + scriptURL, evListener);
+            }
+        }
     },
+    /**
+     * @private
+     *
+     * Maps urls to event listeners.
+     * A single listener is registered for each URL.
+     */
+    urlUpdateListenerMaps : { },
 
     /**
      * Signal that all scripts needed for bootstrapping have been
