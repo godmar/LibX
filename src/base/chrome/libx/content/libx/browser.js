@@ -47,10 +47,12 @@ var browser =
                 libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
                     "http://libx.org/libx-new/src/libx2/bootstrapwindow.js");
 
-            libx.bootstrap.loadScript(bootstrapUrl, undefined, true);
+            libx.bootstrap.loadScript(bootstrapUrl, true);
         }
 
-        libx.log.write("libx.browser.initialize: libx.global.edition=" + libx.global.edition);
+        /* The loading of the global libx's edition may have completed 
+         * after we cloned the libx object.
+         */
         if (libx.global.edition != null) {
             activateConfiguration(libx.global.edition);
         } else {

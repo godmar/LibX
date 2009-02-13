@@ -4,24 +4,21 @@ load("../libx2/base/atomparser.js");
 var rootPackage = "http://libx.org/libx-new/src/libapproot/libxcore";
 var atomParser = new libx.libapp.PackageWalker(rootPackage);
 
-function getDesc(pkg) {
-    var pkgName = libx.utils.xpath.findSingleXML(pkg.ownerDocument, "preceding-sibling::atom:title/text()", 
-            pkg, libx.libapp.nsResolver).nodeValue;
-    return pkgName;
-}
-
 var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
-    onPackage: function (baseURL, pkg) {
-        println("Saw package: base=" + baseURL + " pkg: " + getDesc(pkg));
-        this.parent(baseURL, pkg);
+    onpackage: function (pkg) {
+        println("pkg: " + libx.utils.types.dumpObject(pkg));
+        this.parent(pkg);
     },
-    onLibapp: function (baseURL, libapp) {
-        println("Saw libapp: base=" + baseURL + " pkg: " + getDesc(libapp));
-        this.parent(baseURL, libapp);
+    onlibapp: function (libapp) {
+        println("libapp: " + libx.utils.types.dumpObject(libapp));
+        this.parent(libapp);
     },
-    onModule: function (baseURL, module) {
-        println("Saw module: base=" + baseURL + " pkg: " + getDesc(module));
-        this.parent(baseURL, module);
+    onmodule: function (module) {
+        println("module: " + module.description);
+        for (var i = 0; i < module.include.length; i++) {
+            println(" include: " + module.include[i]);
+        }
+        this.parent(module);
     }
 });
 

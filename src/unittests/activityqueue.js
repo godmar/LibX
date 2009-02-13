@@ -3,8 +3,8 @@
 
 var Printer = libx.core.Class.create({
     initialize : function (what) { this.what = what; },
-    onready: function() {
-        print(this.what + " ");
+    onready: function(x, y) {
+        print(this.what + " " + x + y);
     }
 });
 
@@ -19,7 +19,7 @@ function test(order) {
         queue.scheduleLast(p[i]);
 
     for (var i = 0; i < order.length; i++)
-        p[order[i]].markReady();
+        p[order[i]].markReady(i, " ");
 
     println("");
 }
@@ -32,10 +32,11 @@ var queue = new libx.utils.collections.ActivityQueue();
 var i = 0;
 var MAX = 3;
 var Printer1 = new libx.core.Class.create(Printer, {
-    onready: function() {
-        this.parent();
-        if (i++ < MAX)
+    onready: function(a, b) {
+        this.parent(a, b);
+        if (i++ < MAX) {
             queue.scheduleFirst(this);
+        }
     }
 });
 
@@ -45,10 +46,12 @@ queue.scheduleLast(p1);
 var p2 = new Printer1("B");
 queue.scheduleLast(p2);
 
+while (i < 2)
+    p1.markReady(" -1- ", " ");
+
 while (i <= MAX)
-    p1.markReady();
+    queue.markReady(p1, " -2- ", " ");
 
-p2.markReady();
+p2.markReady("", "");
 println("");
-
 

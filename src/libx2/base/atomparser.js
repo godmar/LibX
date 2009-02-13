@@ -30,19 +30,25 @@ var ns = {
     libx2:	"http://libx.org/xml/libx2"
 };
 
-/**
- * Iterate over entries in a libx2:package or libx2:libapp
- * and invoke 'callback'
- */
-function foreachEntry(baseNode, callback) {
-    var contents_nodes = libx.utils.xpath.findNodesXML(
-            baseNode.ownerDocument, 
-            "./libx2:entry", baseNode, ns);
+var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body" ];
+var libx2RegexpClauses = [ "include", "exclude" ];
 
-    for (var i = 0; i < contents_nodes.length; i++) {
-        callback(contents_nodes[i].getAttribute('src'));
+/**
+ * Resolver 'url' relative to 'base'
+ */
+function resolveURL(baseURL, url)
+{
+    if (url.match(/^[a-z]+:/)) {    // absolute URL
+        return url;
+    } else
+    if (url.match(/\/.*/)) {        // same host+protocol, but absolute path
+        return baseURL.match(/^[a-z]+:\/\/[^\/]+\//) + url.replace(/^\//, "");
+    } else {
+        // relative path
+        return baseURL.match(/^.*\//) + url;
     }
 }
+
 
 /**
  * Namespace resolver for namespaces: libx2, atom
@@ -60,21 +66,15 @@ libx.libapp.nsResolver = ns;
  */
 libx.libapp.PackageVisitor = libx.core.Class.create(
     /** @lends libx.libapp.PackageVisitor.prototype */{
-    onPackage: function (baseURL, pkg) {
-        var self = this;
-        foreachEntry(pkg, function (srcAttr) {
-            if (debug) libx.log.write("Saw package.entry: base=" + baseURL + " src=" + srcAttr);
-            handleEntry(self, baseURL + srcAttr);
-        });
+    onpackage: function (pkg) {
+        for (var i = 0; i < pkg.entries.length; i++)
+            handleEntry(this, pkg.entries[i].url);
     },
-    onLibapp: function (baseURL, libapp) {
-        var self = this;
-        foreachEntry(libapp, function (srcAttr) {
-            if (debug) libx.log.write("Saw libapp.entry: base=" + baseURL + " src=" + srcAttr);
-            handleEntry(self, baseURL + srcAttr);
-        });
+    onlibapp: function (libapp) {
+        for (var i = 0; i < libapp.entries.length; i++)
+            handleEntry(this, libapp.entries[i].url);
     },
-    onModule: function (baseURL, module) {
+    onmodule: function (module) {
     }
 });
 
@@ -89,23 +89,63 @@ function handleEntry(visitor, url) {
             return;
         }
 
-        switch (String(libx2Node.localName)) {
-        case "package":
-            visitor.onPackage(baseURL, libx2Node);
-            break;
-        case "libapp":
-            visitor.onLibapp(baseURL, libx2Node);
-            break;
-        case "module":
-            visitor.onModule(baseURL, libx2Node);
-            break;
-        default:
-            libx.log.write("entry is neither libapp, module, nor package: " + libx2Node.localName);
+        var desc = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:title/text()",
+            entryNode, ns);
+        desc = desc != null ? desc.nodeValue : "no description";
+
+        var nodeInfo = { 
+            baseURL: baseURL,
+            atomEntry: entryNode,
+            description: desc,
+            entries: []
+        };
+
+        var clauses = libx2Clauses;
+        for (var i = 0; i < clauses.length; i++) {
+            var clause = clauses[i];
+            var clauseNodes = libx.utils.xpath.findNodesXML(
+                xmlDoc, "./libx2:" + clause, libx2Node, ns);
+
+            nodeInfo[clause] = new Array();
+            if (clauseNodes == null)
+                continue;
+
+            for (var j = 0; j < clauseNodes.length; j++) {
+                nodeInfo[clause].push(String(clauseNodes[j].firstChild.nodeValue));
+            }
+        };
+
+        // replace 'include', 'exclude', etc. with compiled RegExp objects
+        for (var i = 0; i < libx2RegexpClauses.length; i++) {
+            var rClause = libx2RegexpClauses[i];
+            for (var j = 0; j < nodeInfo[rClause].length; j++) {
+                try {
+                    var m = nodeInfo[rClause][j].match(/\/(.*)\/(.*)/);
+                    nodeInfo[rClause][j] = new RegExp(m[1], m[2]);
+                } catch (e) {
+                    libx.log.write("invalid regular expression: " + nodeInfo[rClause][j]);
+                    nodeInfo[rClause].splice(j--, 1);
+                }
+            }
         }
+
+        var libxEntries = libx.utils.xpath.findNodesXML(
+            xmlDoc, "./libx2:entry", libx2Node, ns);
+
+        for (var i = 0; libxEntries != null && i < libxEntries.length; i++) {
+            nodeInfo.entries.push({
+                url: resolveURL(baseURL, libxEntries[i].getAttribute('src')),
+                libxEntry: libxEntries[i]
+            });
+        }
+ 
+        var visitorMethodName = "on" + String(libx2Node.localName);
+        if (visitor[visitorMethodName])
+            visitor[visitorMethodName](nodeInfo);
     }
 
     var pathComp = url.split(/\//);
-    var pathDir = url.match(/.*\//);
+    var pathDir = String(url.match(/.*\//));
     var pathBase = url.replace(/.*\//, "");
 
     if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);

@@ -30,8 +30,8 @@
  */
 (function () {
 
-var updateInterval = 10 * 1000; // 10 sec for testing - please, if you activate that, don't leave your browser running.
-var updateInterval = 24 * 60 * 60 * 1000;    // 24 hours
+var defaultUpdateInterval = 10 * 1000; // 10 sec for testing - please, if you activate that, don't leave your browser running.
+var defaultUpdateInterval = 24 * 60 * 60 * 1000;    // 24 hours
 var fileinfoExt = ".fileinfo.json";
 
 /**
@@ -72,64 +72,21 @@ function computeExtensionFromContentType (mimeType) {
     return "." + mimeType.replace(/\//g, "_");
 }
 
-/* Reset a request's _unmetdependencies list */
-function resetRequest(request) {
-    request._unmetdependencies = [];
-    delete request._metadata; 
-    var dependencies = request.depends || [];
-
-    for (var i = 0; i < dependencies.length; i++) {
-        request._unmetdependencies.push(dependencies[i]);
-    }
-}
-
-/* Request has completed.
- * Invoke 'success' if all dependencies have been met.
- */
-function flagSuccess (request) {
-    /* Remove already completed dependencies. */
-    var unmetdependencies = request._unmetdependencies;
-    for (var i = 0; i < unmetdependencies.length; i++) {
-        if (unmetdependencies[i]._metadata != null)
-            unmetdependencies.splice(i, 1);
-    }
-
-    /* Done if any dependencies have not yet completed */
-    if (unmetdependencies.length > 0)
-        return;
-
-    /* Signal success. */
-    var metadata = request._metadata;
+function flagSuccess (request, metadata) {
     if (request.success)
         request.success(libx.io.getFileText(metadata.localPath), metadata);
-    
-    /* Notify dependents. */
-    for (var i = 0; i < request._dependents.length; i++) {
-        var dependent = request._dependents[i];
-        for (var j = 0; j < dependent._unmetdependencies.length; j++) {
-            if (dependent._unmetdependencies[j] == request) {
-                dependent._unmetdependencies.splice(j, 1);
-                break;
-            }
-        }
-
-        if (dependent._metadata != null)
-            flagSuccess(dependent);
-    }
 }
 
 var RetrievalType = { 
-    UNCONDITIONAL : 1, 
-    ONLYIFMODIFIED : 2 
+    GET : 1,    // get an item and invoke 'success'
+    UPDATE : 2  // check for updates, signal event if updates occurred
 }; 
 
 function retrieveRequest(request, retrievalType) {
     var headers = {};
-    if (retrievalType == RetrievalType.ONLYIFMODIFIED) {
-        if (request.lastModified == null)
-            throw "Must specify .lastModified if using conditional get";
-
-        headers["If-Modified-Since"] = request.lastModified;
+    if (retrievalType == RetrievalType.UPDATE) {
+        if (request.lastModified != null)
+            headers["If-Modified-Since"] = request.lastModified;
     }
     libx.cache.globalMemoryCache.get({
         header: headers,
@@ -137,9 +94,7 @@ function retrieveRequest(request, retrievalType) {
         bypassCache: true,
         complete: function (data, status, xhr) {
             if (status == 304) {
-                var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
-                request._metadata = libx.utils.json.parse(libx.io.getFileText(metadataFile));
-                flagSuccess (request);
+                libx.log.write("304 object not modified " + request.url, "objectcache");
             }
         },
         success: function (data, status, xhr) {
@@ -155,59 +110,73 @@ function retrieveRequest(request, retrievalType) {
                 localPath : localPath,
                 chromeURL : "chrome://libxresource/content/" + localPath
             };
-            request._metadata = metadata;
             libx.io.writeToFile (localPath, data, true);
-            libx.io.writeToFile (baseLocalPath + fileinfoExt, libx.utils.json.stringify(metadata), true);
-            flagSuccess (request);
+            var oldMetadata = getMetadata(request.url);
+            putMetadata(request.url, metadata);
+
+            // fire 'update' on first retrieval or if last modified date signals newer version
+            if (retrievalType == RetrievalType.UPDATE && (oldMetadata == null || true)) {  // XXX really only if: || DateBefore(oldMetadata.lastModified, metadata.lastModified)
+                var updateEvent = new libx.events.Event("Update" + request.url);
+                updateEvent.metadata = metadata;
+                updateEvent.notify();
+            }
+            if (retrievalType == RetrievalType.GET)
+                flagSuccess(request, metadata);
         }
     });
 }
 
+/*
+ * Get metadata associated with a URL, or null if URL is not (or no longer!) cached
+ */
+function getMetadata(url) {
+    var metadataFile = calculateHashedPath (url) + fileinfoExt;
+    if (libx.io.fileExists(metadataFile))
+        return libx.utils.json.parse(libx.io.getFileText(metadataFile));
+
+    return null;
+}
+
+/*
+ * Write metadata to disk
+ */
+function putMetadata(url, metadata) {
+    libx.io.writeToFile (calculateHashedPath(url) + fileinfoExt, libx.utils.json.stringify(metadata), true);
+}
+
 function handleRequest(request) {
-    // check if resource exists on disk
-    var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
-    if (libx.io.fileExists(metadataFile)) {
-        request._metadata = libx.utils.json.parse(libx.io.getFileText(metadataFile));
-        // XXX: if now < request.expires then flagSuccess, 
-        flagSuccess (request);
-        // else {
-        // request.lastModified = request._metadata.lastModified;
+    var metadata = getMetadata(request.url);
+    if (metadata == null) {
+        retrieveRequest(request, RetrievalType.GET);
+    } else {
+        // XXX: if (now < request.expires) {
+        flagSuccess (request, metadata);
+        // } else {
+        // request.lastModified = metadata.lastModified;
         // retrieveRequest(request, RetrievalType.ONLYIFMODIFIED);
         // }
-    } else {
-        retrieveRequest(request, RetrievalType.UNCONDITIONAL);
     }
 }
 
 function updateRequests (cachedRequests) {
     libx.log.write("updating requests: " + cachedRequests.length, "objectcache");
     var lastMetadata = []
+
+    // remove requests that have cleared their keepUpdated flag
     for (var i = 0; i < cachedRequests.length; i++) {
-        // remove requests that have cleared their keepUpdated flag
-        if (!cachedRequests[i].keepUpdated) {
+        var request = cachedRequests[i];
+        if (!request.keepUpdated) {
             cachedRequests.splice(i--, 1);
             continue;
         }
 
-        if (cachedRequests[i]._metadata) {   // request did previously complete
-            lastMetadata.push(cachedRequests[i]._metadata);
-        } else {
-            lastMetadata.push({ DID_NOT_COMPLETE : 1});
-        }
-        resetRequest(cachedRequests[i]);
-    }
-
-    for (var i = 0; i < cachedRequests.length; i++) {
-        var request = cachedRequests[i];
-        request.lastModified = lastMetadata[i].lastModified;
+        var metadata = getMetadata(request.url);
         libx.log.write("checking " + request.url + " last modified: " + request.lastModified, "objectcache");
 
-        var metadataFile = calculateHashedPath (request.url) + fileinfoExt;
-        if (libx.io.fileExists(metadataFile)) {
-            retrieveRequest(request, RetrievalType.ONLYIFMODIFIED);
-        } else {
-            retrieveRequest(request, RetrievalType.UNCONDITIONAL);
+        if (metadata != null) {
+            request.lastModified = metadata.lastModified;
         }
+        retrieveRequest(request, RetrievalType.UPDATE);
     }
 }
 
@@ -219,7 +188,10 @@ function updateRequests (cachedRequests) {
  */
 libx.cache.ObjectCache = libx.core.Class.create(
     /** @lends libx.cache.ObjectCache.prototype */ {
-    initialize: function () {
+    initialize: function (updateInterval) {
+        if (updateInterval == null)
+            updateInterval = defaultUpdateInterval;
+
         var self = this;
         this.cachedRequests = new Array();
 
@@ -234,31 +206,14 @@ libx.cache.ObjectCache = libx.core.Class.create(
      *      Modeled after <a href="http://docs.jquery.com/Ajax/jQuery.ajax#options">jQuery._ajax</a>
      *      with the following additions:
      *
-     *  @param {Array} request.depends: a list of previously issued requests on which
-     *      this request depends.  The cache will guarantee that the success and
-     *      update callbacks of all dependent objects are executed prior to the
-     *      execution of this request's callback.
-     *
      *  @param {Boolean} request.keepUpdated: if true, object is checked periodically.
-     *      If an update is found, 'success' is called on it.  Thus, 'success' must be
-     *      idempotent.
+     *      If an update is found, an update event is signaled.
+     *      The event name is 'onUpdate' + URL.
      *
      *  @param {String} extension (optional) required extension, if any.  If not given, the
      *      extension is computed from the returned Content-Type.
      */
     get : function (request) {
-
-        // initialize dependents of this request
-        request._dependents = [];   
-
-        // record this request as a dependent for each of its dependencies
-        var dependencies = request.depends || [];
-        for (var i = 0; i < dependencies.length; i++) {
-            dependencies[i]._dependents.push(request);
-        }
-
-        // mark all dependencies as unmet initially
-        resetRequest(request);
 
         handleRequest(request);
         

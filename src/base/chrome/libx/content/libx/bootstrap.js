@@ -33,44 +33,89 @@
  */
 libx.bootstrap = {
     /**
+     * Queue of scripts scheduled for execution
+     */
+    scriptQueue : new libx.utils.collections.ActivityQueue(),
+
+    /**
      * Load a script.
      *
      * @param {String} scriptURL  URL
      */
-    loadScript : function (scriptURL, depends, keepUpdated) {
-        var bootstrapSelf = this;
-        var scriptBase = {
-            baseURL : scriptURL.match (/.*\//),
-            loadDependentScript : function (depScriptURL) {
-                return bootstrapSelf.loadScript(depScriptURL, [ this.request ]);
-            },
-            request : {
-                url: scriptURL,
-                keepUpdated: keepUpdated,
-                success: function (scriptText, metadata) { 
-                    try {
-                        libx.log.write("loading (" + metadata.originURL + ") from (" + metadata.chromeURL + ")", "bootstrap");
+    loadScript : function (scriptURL, keepUpdated) {
 
-                        var jsSubScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
-                            .getService(Ci.mozIJSSubScriptLoader);
-                        jsSubScriptLoader.loadSubScript(metadata.chromeURL, { scriptBase : scriptBase, libx : libx });  // FF only!
-                        libx.log.write("done loading (" + metadata.originURL + ")");
+        var runScriptActivity = {
+            baseURL : scriptURL.match (/.*\//),
+            onready : function (scriptText, metadata) {
+                try {
+                    libx.log.write("loading (" + metadata.originURL + ") from (" + metadata.chromeURL + ")", "bootstrap");
+
+                    var jsSubScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
+                        .getService(Ci.mozIJSSubScriptLoader);
+                    jsSubScriptLoader.loadSubScript(metadata.chromeURL, { scriptBase : this, libx : libx });  // FF only!
+                    libx.log.write("done loading (" + metadata.originURL + ")");
 
 /*
-                        eval (scriptText);
- */
-                    } catch (e) {
-                        var where = e.location || (e.fileName + ":" + e.lineNumber);
-                        libx.log.write( "error loading " + metadata.originURL + " -> " + e + " " + where);
-                    }
-                },
-                depends: depends
+                    eval (scriptText);
+*/
+                } catch (e) {
+                    var where = e.location || (e.fileName + ":" + e.lineNumber);
+                    libx.log.write( "error loading " + metadata.originURL + " -> " + e + " " + where);
+                }
             }
         };
+        this.scriptQueue.scheduleLast(runScriptActivity);
 
-        libx.cache.defaultObjectCache.get(scriptBase.request);
-        return scriptBase.request;
-    }
+        libx.cache.defaultObjectCache.get({
+            url: scriptURL,
+            keepUpdated: keepUpdated,
+            success: function (scriptText, metadata) { 
+                runScriptActivity.markReady(scriptText, metadata);
+            }
+        });
+
+        // XXX to-be-done listen for Update event
+    },
+
+    /**
+     * Signal that all scripts needed for bootstrapping have been
+     * scheduled.
+     */
+    finish : function () {
+        var self = this;
+        var lastScriptDone = {
+            onready: function () {
+                self.hasFinished = true;
+                if (libx == libx.global) {
+                    new libx.events.Event("GlobalBootstrapDone").notify();
+                }
+            }
+        };
+        this.scriptQueue.scheduleLast(lastScriptDone);
+        lastScriptDone.markReady();
+    },
+    hasFinished : false
 };
+
+(function () {
+
+/**
+ * If this is bootstrapping a window's script, wait for GlobalBootstrapDone
+ * event to be fired.
+ */
+if (libx != libx.global && !libx.global.bootstrap.hasFinished) {
+    var startQueue = new libx.utils.collections.EmptyActivity();
+    libx.bootstrap.scriptQueue.scheduleFirst(startQueue);
+
+    /* Make sure that all per-window bootstrap scripts are executed after the global bootstrap scripts */
+    libx.events.addListener("GlobalBootstrapDone", {
+        onGlobalBootstrapDone: function (globalBootstrapDoneEvent) {
+            startQueue.markReady();
+        }
+    });
+}
+
+}) ();
+
 
 // vim: ts=4

@@ -180,10 +180,14 @@ libx.utils = {
             remove : function (node) {
                 node.prev.next = node.next;
                 node.next.prev = node.prev;
+                delete node.prev;
+                delete node.next;
             },
+            /** first node in list */
             front: function () {
                 return this.head.next;
             },
+            /** last node in list */
             back: function () {
                 return this.tail.prev;
             },
@@ -269,16 +273,18 @@ libx.utils = {
  * A FIFO queue of activities
  *
  * Activities must not use 
- * properties 'next', 'previous', '_isReady', and 'markReady'
+ * properties 'next', 'previous', '_isReady', '_hasRun', and 'markReady'
  */
 libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collections.LinkedList, 
     /** @lends libx.utils.collections.ActivityQueue.prototype */ {
     /** @private */
     prepareActivity : function (activity) {
         activity._isReady = false;
+        activity._hasRun = false;
         var queue = this;
         activity.markReady = function () {
-            queue.markReady(activity);
+            var myArgs = [].splice.call(arguments, 0);
+            queue.markReady.apply(queue, [activity].concat(myArgs));
         }
     },
     /**
@@ -307,20 +313,36 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
      *
      * Alternatively, activity.markReady() may be called.
      * @param {Object} activity
-     *
      */
     markReady : function (activity) {
         activity._isReady = true;
+        activity._readyArgs = [].splice.call(arguments, 1);
         while (activity == this.front() && activity._isReady) {
-            this.popFront().onready();
+            activity._hasRun = true;
+            this.popFront();
+            activity.onready.apply(activity, activity._readyArgs);
             activity = this.front();
         }
     }
 });
 
 /**
+ * An activity that does nothing.
+ *
+ * Place in an activity queue to control when other activities fire.
+ *
+ * @see libx.utils.collections.ActivityQueue
+ *
+ * @static
+ */
+libx.utils.collections.EmptyActivity = libx.core.Class.create({
+    onready: function () { /* empty */ }
+});
+
+/**
  * Store the build date here.  Checking whether this value exists
- * as well as comparison can be used by feed code if needed.
+ * as well as comparison can be used by externally loaded code to
+ * determine the installed version of LibX
  */
 libx.buildDate = "$builddate$";
 
@@ -351,10 +373,9 @@ libx.initialize = function ()
                 libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
                     "http://libx.org/libx-new/src/libx2/bootstrapglobal.js");
         
-            libx.bootstrap.loadScript(bootstrapUrl, undefined, true);
+            libx.bootstrap.loadScript(bootstrapUrl, true);
         }
     });
-    libx.log.write("libx.initialize complete");
 }
 
 // vim: ts=4

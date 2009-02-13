@@ -1,6 +1,8 @@
-var cache = libx.cache.defaultObjectCache;
+var cache = new libx.cache.ObjectCache(2000);
+var queue = new libx.utils.collections.ActivityQueue();
+var testUrl = "http://libx.cs.vt.edu/~gback/jquery/sometext.txt";
 
-cache.get(req1 = {
+cache.get({
     url : "http://libx.cs.vt.edu/icons/apache_pb2.gif",
     success : function (data, metadata) {
         println("success: " + metadata.mimeType + " " + metadata.lastModified);
@@ -9,24 +11,47 @@ cache.get(req1 = {
     keepUpdated : true
 });
 
+queue.scheduleFirst(req1 = {
+    onready: function () {
+        println("success3: " + this.metadata.mimeType + " " + this.metadata.lastModified);
+        print("data: " + this.data);
+    }
+});
+
+queue.scheduleFirst(req2 = {
+    onready: function () {
+        println("success2: " + this.metadata.mimeType + " " + this.metadata.lastModified);
+        print("data: " + this.data);
+    }
+});
+
 cache.get({
-    url : "http://libx.cs.vt.edu/~gback/jquery/sometext.txt",
+    url : testUrl,
     success : function (data, metadata) {
-        println("success3: " + metadata.mimeType + " " + metadata.lastModified);
-        print("data: " + data);
+        req1.data = data;
+        req1.metadata = metadata;
+        req1.markReady();
     },
-    depends: [ req1 ]
+    keepUpdated : true
 });
 
-cache.get(req2 = {
-    url : "http://libx.cs.vt.edu/~gback/jquery/sometext.txt",
+cache.get({
+    url : testUrl,
     success : function (data, metadata) {
-        println("success2: " + metadata.mimeType + " " + metadata.lastModified);
-        print("data: " + data);
-    },
-    depends: [ req1 ]
+        req2.data = data;
+        req2.metadata = metadata;
+        req2.markReady();
+    }
 });
 
+var evHandler = { };
+evHandler['onUpdate' + testUrl] = function (ev) {
+    println("saw update for " + ev.metadata.originURL 
+        + " -> " + ev.metadata.localPath 
+        + " " + ev.metadata.lastModified);
+}
 
-println("sleeping 10 sec");
-java.lang.Thread.sleep(10 * 1000);
+libx.events.addListener("Update" + testUrl, evHandler);
+
+println("sleeping 30 sec - please touch " + testUrl);
+java.lang.Thread.sleep(30 * 1000);
