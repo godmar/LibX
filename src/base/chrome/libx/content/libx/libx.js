@@ -264,6 +264,61 @@ libx.utils = {
 };
 
 /**
+ * @class
+ *
+ * A FIFO queue of activities
+ *
+ * Activities must not use 
+ * properties 'next', 'previous', '_isReady', and 'markReady'
+ */
+libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collections.LinkedList, 
+    /** @lends libx.utils.collections.ActivityQueue.prototype */ {
+    /** @private */
+    prepareActivity : function (activity) {
+        activity._isReady = false;
+        var queue = this;
+        activity.markReady = function () {
+            queue.markReady(activity);
+        }
+    },
+    /**
+     * Schedule an activity at the front of the queue
+     *
+     * @param {Object} activity
+     * @param {Function} activity.onready - function to be run when ready
+     */
+    scheduleFirst : function (activity) {
+        this.prepareActivity(activity);
+        this.pushFront(activity);
+    },
+    /**
+     * Schedule an activity at the tail of the queue
+     *
+     * @param {Object} activity
+     * @param {Function} activity.onready - function to be run when ready
+     */
+    scheduleLast : function (activity) {
+        this.prepareActivity(activity);
+        this.pushBack(activity);
+    },
+    /**
+     * Mark an activity as ready.  If the activity is at the head
+     * of the queue, run all ready activities in the queue.
+     *
+     * Alternatively, activity.markReady() may be called.
+     * @param {Object} activity
+     *
+     */
+    markReady : function (activity) {
+        activity._isReady = true;
+        while (activity == this.front() && activity._isReady) {
+            this.popFront().onready();
+            activity = this.front();
+        }
+    }
+});
+
+/**
  * Store the build date here.  Checking whether this value exists
  * as well as comparison can be used by feed code if needed.
  */
