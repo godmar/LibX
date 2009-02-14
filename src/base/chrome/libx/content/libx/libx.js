@@ -178,6 +178,10 @@ libx.utils = {
                 before.prev = node;
             },
             remove : function (node) {
+                if (!('prev' in node)) {
+                    libx.log.backtrace("LinkedList.remove");
+                    throw new Error("LinkedList.remove: node not in list: " + node);
+                }
                 node.prev.next = node.next;
                 node.next.prev = node.prev;
                 delete node.prev;

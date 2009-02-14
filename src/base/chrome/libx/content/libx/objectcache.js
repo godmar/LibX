@@ -171,11 +171,11 @@ function updateRequests (cachedRequests) {
         }
 
         var metadata = getMetadata(request.url);
-        libx.log.write("checking " + request.url + " last modified: " + request.lastModified, "objectcache");
-
         if (metadata != null) {
             request.lastModified = metadata.lastModified;
         }
+
+        libx.log.write("checking " + request.url + " last modified: " + request.lastModified, "objectcache");
         retrieveRequest(request, RetrievalType.UPDATE);
     }
 }

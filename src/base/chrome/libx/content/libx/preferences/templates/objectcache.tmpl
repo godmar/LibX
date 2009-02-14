@@ -10,9 +10,10 @@
 		var metadata = libx.utils.json.parse(libx.io.getFileText(filepaths[i]));
 		cachedObjects.push ( {
 			url : metadata.originURL,
+			chromeurl : metadata.chromeURL,
 			filename : filepaths[i],
 			lastmod : metadata.lastModified,
-			mimeType : metadata.mimeType
+			mimetype : metadata.mimeType
 		} );
 	}
 	
@@ -23,11 +24,12 @@
 <![CDATA[
 	function purge ( filename ) {
 		libx.io.removeFile ( filename );
-		
+	    // XXX remove this entry from the page.	
 	}
 	
 	function purgeAll () { 
 		$(".purge-button").click();
+        // XXX refresh the page or remove all entries
 	}
 	
 	function updateAll () {
@@ -36,14 +38,15 @@
 ]]>
 </script>
 
+<button onclick="libx.cache.globalMemoryCache.flush();">Flush Global Memory Cache</button>
 <button onclick="libx.cache.defaultObjectCache.updateRequests();">Update Now!</button>
 <button onclick="purgeAll();">Purge All</button>
 <for each="obj" in="cachedObjects">
 	<div class="groupbox">
-		<label> {+ obj.url +} </label>
+		<label> {+ obj.url +} <a href="{+ obj.chromeurl +}">(Open Cached Copy)</a> </label>
 		<div>
 			<p> Last Modified: {+ obj.lastmod +} </p> 
-			<p> Mime-Type: {+ obj.mimeType +} </p>	
+			<p> Mime-Type: {+ obj.mimetype +} </p>	
 			<button class="purge-button" onclick="purge('{+obj.filename+}');"> Purge </button>
 		</div>
 	</div>

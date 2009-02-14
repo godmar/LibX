@@ -18,6 +18,8 @@ var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
         for (var i = 0; i < module.include.length; i++) {
             println(" include: " + module.include[i]);
         }
+        println("module.guardedby: " + module.guardedby);
+        println("module.body: " + module.body.match(/^.*\n.*\n.*\n/));
         this.parent(module);
     }
 });

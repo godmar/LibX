@@ -88,6 +88,13 @@ var memoryCacheClass = libx.core.Class.create ( {
         },
 
         /**
+         * Flush cache
+         */
+        flush : function () {
+            this.xhrCache.flush ();
+        },
+
+        /**
          * Builds the string that serves as the key to the cache
          *
          * String delimited by commas (,)
@@ -483,7 +490,15 @@ var InternalCache = libx.core.Class.create ( {
         node.data.requests.push( request );
 
         this.moveToFront(node);
+    },
+
+    /**
+     * Flush cache
+     */
+    flush : function () {
+        this.initialize(this.maxSize);
     }
+
 });
 return memoryCacheClass;
 

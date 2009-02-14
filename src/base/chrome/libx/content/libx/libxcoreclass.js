@@ -184,7 +184,7 @@ libx.core = (function() {
         'EmptyFunction': function () { },
         'AbstractFunction': function (fname) { 
             return function () {
-                throw "function " + fname + " not implemented";
+                throw new Error("function " + fname + " not implemented");
             }
         },
     };

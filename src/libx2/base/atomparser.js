@@ -31,6 +31,7 @@ var ns = {
 };
 
 var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body" ];
+var libx2ArrayClauses = { include : 1, exclude : 1, require : 1 };
 var libx2RegexpClauses = [ "include", "exclude" ];
 
 /**
@@ -106,12 +107,23 @@ function handleEntry(visitor, url) {
             var clauseNodes = libx.utils.xpath.findNodesXML(
                 xmlDoc, "./libx2:" + clause, libx2Node, ns);
 
-            nodeInfo[clause] = new Array();
+            if (clause in libx2ArrayClauses)
+                nodeInfo[clause] = new Array();
+
             if (clauseNodes == null)
                 continue;
 
-            for (var j = 0; j < clauseNodes.length; j++) {
-                nodeInfo[clause].push(String(clauseNodes[j].firstChild.nodeValue));
+            if (clause in libx2ArrayClauses) {
+                for (var j = 0; j < clauseNodes.length; j++) {
+                    nodeInfo[clause].push(String(clauseNodes[j].firstChild.nodeValue));
+                }
+            } else {
+                if (clauseNodes.length > 0)
+                    nodeInfo[clause] = String(clauseNodes[0].firstChild.nodeValue);
+
+                if (clauseNodes.length > 1) {
+                    libx.log.write("module: '" + desc + "' additional <" + clause + "> ignored");
+                }
             }
         };
 
@@ -187,7 +199,11 @@ libx.libapp.PackageWalker = libx.core.Class.create(
 
     /**
      * Apply visitor to all packages, libapps, and modules
-     * that are referenced from given root
+     * that are referenced from given root.
+     *
+     * @see libx.libapp.PackageVisitor
+     *
+     * @param {libx.libapp.PackageVisitor} visitor
      */
     walk : function (visitor) {
         handleEntry(visitor, this.rootPackage);

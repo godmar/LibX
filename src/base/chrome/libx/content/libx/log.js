@@ -61,6 +61,13 @@ libx.log = {
     },
 
     /**
+     * Dump a backtrace, if supported.
+     */
+    backtrace : function (msg) {
+        libx.log.bd.backtrace(msg);
+    },
+
+    /**
      * @namespace
      *
      * browser-dependent implementation of logging.
@@ -73,6 +80,13 @@ libx.log = {
          *
          * @param {String} msg message to write
          */
-        write : libx.core.AbstractFunction("libx.log.bd.write")
+        write : libx.core.AbstractFunction("libx.log.bd.write"),
+
+        /**
+         * Dump a backtrace, if supported.
+         *
+         * @param {String} msg message to prepend
+         */
+        backtrace : libx.core.AbstractFunction("libx.log.bd.write")
     }
 }
