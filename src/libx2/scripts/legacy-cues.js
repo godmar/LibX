@@ -48,6 +48,13 @@ libx.cues.Cue = libx.core.Class.create(
         link.appendChild(image);
         this.cue = link;
     },
+    
+    /**
+     * Insert cue
+     */
+    insertBefore : function (domSibling) {
+        domSibling.parentNode.insertBefore(this.cue, domSibling.nextSibling);
+    },
 
     /**
      * Animate this cue
@@ -75,7 +82,7 @@ libx.cues.CatalogCue = libx.core.Class.create(libx.cues.Cue,
      * @param {libx.catalogs.Catalog} catalog (optional)
      */
     initialize : function (searchtype, searchterms, catalog) {
-        catalog = catalog || libx.editions.catalogs.default;
+        catalog = catalog || libx.edition.catalogs.primary;
         var searchUrl = catalog.makeSearch(searchtype, searchterms);
         var searchImage = catalog.image || null;
 
@@ -84,7 +91,7 @@ libx.cues.CatalogCue = libx.core.Class.create(libx.cues.Cue,
         var localizedLabel = null;
         switch (searchtype) {
         case 'Y':
-            localizedLabel = "catsearch.label"; break;
+            localizedLabel = "catalog.contextmenu.search.label"; break;
         case 'i':
             localizedLabel = "isbnsearch.label"; break;
         case 'is':
@@ -95,9 +102,9 @@ libx.cues.CatalogCue = libx.core.Class.create(libx.cues.Cue,
             localizedLabel = "callnolookup.label"; break;
         }
         if (localizedLabel)
-            searchTitle = libxEnv.getProperty(localizedLabel, [catalogs.name, searchterms]); // XXX
+            searchTitle = libx.locale.getProperty(localizedLabel, catalog.name, searchterms);
 
-        this.parent.initialize(searchUrl, searchTitle, searchImage);
+        this.parent(searchUrl, searchTitle, searchImage);
     }
 });
 
