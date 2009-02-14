@@ -17,6 +17,7 @@ libx.utils.collections.BitVector = libx.core.Class.create(
     set : function (index, value) {
         checkIndex(this.vector, index);
         this.vector[index] = value;
+        return this;
     },
     get : function (index) {
         checkIndex(this.vector, index);
@@ -24,6 +25,9 @@ libx.utils.collections.BitVector = libx.core.Class.create(
     },
     add : function (value) {
         this.vector.push(value);
+    },
+    size : function () {
+        return this.vector.length;
     },
     /**
      * Clone this bitvector.

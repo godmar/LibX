@@ -51,6 +51,7 @@ libx.libapp.TextExplorer = libx.core.Class.create(
             this.nodesPerChunk = nodesPerChunk;
         if (intervalBetweenTimeouts != undefined)
             this.intervalBetweenTimeouts = intervalBetweenTimeouts;
+
         this.textTransformerList = [];
 
         /*
@@ -74,9 +75,8 @@ libx.libapp.TextExplorer = libx.core.Class.create(
 
         function dfsTraverse() 
         {
-            var maxcnt = self.nodesPerChunk;    // do 40 nodes at a time
             var cnt = 0;
-            while (cnt++ < maxcnt && self.dfsStack.length > 0) 
+            while (cnt++ < self.nodesPerChunk && self.dfsStack.length > 0) 
             {
                 var n = self.dfsStack.pop();
                 var enabledTransformers = n.enabledTransformers;
@@ -89,9 +89,9 @@ libx.libapp.TextExplorer = libx.core.Class.create(
                     continue;
 
                 if (self.nodeType.TEXT_NODE === currentNode.nodeType) {
-                    processTextNode();
+                    processTextNode(currentNode, enabledTransformers);
                 } else {
-                    processNonTextNode();
+                    processNonTextNode(currentNode, enabledTransformers);
                 }
             }
 
@@ -100,53 +100,49 @@ libx.libapp.TextExplorer = libx.core.Class.create(
                 libx.utils.timer.setTimeout(dfsTraverse, self.intervalBetweenTimeouts);
             }
 
-            function processTextNode() {
+            function processTextNode(textNode, enabledTransformers) {
                 for (var ctr = 0; ctr < self.textTransformerList.length; ++ctr)
                 {
                     if (!enabledTransformers.get(ctr))
                         continue;
 
-                    //Pass the text node to the textTransformer
-                    var nodes = self.textTransformerList[ctr].processNode(currentNode);
+                    // Pass the text node to the textTransformer
+                    var nodes = self.textTransformerList[ctr].processNode(textNode);
                     
-                    //Continue if no change
+                    // Continue if no change
                     if (nodes == null)
                         continue;
 
-                    //Replace currentNode with the returned nodes
-                    var currentParent = currentNode.parentNode;
+                    // Replace textNode with the returned nodes, and schedule
+                    // returned nodes for processing using the remaining text
+                    // transformers
+                    var currentParent = textNode.parentNode;
+                    var currentSibling = textNode.nextSibling;
+                    currentParent.removeChild(textNode);
 
-                    var currentSibling = currentNode.nextSibling;
+                    var remainingTransformers = enabledTransformers.clone();
+                    for (var j = 0; j <= ctr; j++)
+                        remainingTransformers.set(j, false);
 
-                    currentParent.removeChild(currentNode);
-
-                    for (var childIdx = 0; childIdx < nodes.length; ++childIdx)
-                    {
-                        currentParent.insertBefore(nodes[childIdx], currentSibling);
+                    for (var j = 0; j < nodes.length; j++) {
+                        currentParent.insertBefore(nodes[j], currentSibling);
+                        self.dfsStack.push({node: nodes[j],
+                                            enabledTransformers: remainingTransformers});
                     }
-
-                    // Since the DOM has changed, we must schedule the new parent node for
-                    // reprocessing; but we do not repeat processing using this filter.
-                    var enabledTransformersMinusThis = enabledTransformers.clone();
-                    enabledTransformersMinusThis.set(ctr, false);
-                    self.dfsStack.push({node: currentParent,
-                                        enabledTransformers: enabledTransformersMinusThis});
 
                     break;
                 }
             }
 
-            function processNonTextNode() { 
+            function processNonTextNode(currentNode, enabledTransformers) { 
                 var nodeName = currentNode.nodeName.toLowerCase();
 
                 // Disable transformers that list this element in their
                 // skippedElementList list. 
+                enabledTransformers = enabledTransformers.clone();
                 for (var ctr = 0; ctr < self.textTransformerList.length; ctr++)
                 {
-                    if (enabledTransformers.get(ctr)
-                        && nodeName in self.textTransformerList[ctr].skippedElements)
-                    {
-                        enabledTransformers = enabledTransformers.clone();
+                    if (nodeName in self.textTransformerList[ctr].skippedElements) {
                         enabledTransformers.set(ctr, false);
                     }
                 }
