@@ -4,14 +4,21 @@
 
 (function () {
 
-var scriptBase = "http://libx.org/libx-new/src/libx2/scripts/"
+/* Adjust this */
+var libappBase = "http://libx.org/libx2/libapps/";
+var scriptBase = libappBase + "scripts/";
+
+/*
+ * Aliases for scripts
+ */
 var requireAlias = {
     "jquery" : scriptBase + "jquery-1.2.3.js",
     "legacy-cues" : scriptBase + "legacy-cues.js"
 };
 
-// XXX read this from libx.edition.
-var rootPackages = [ "http://libx.org/libx-new/src/libapproot/libxcore" ];
+// This URL will be read from the edition/user configuration.
+// For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
+var rootPackages = [ libappBase + "libxcore" ];
 
 var libapps = [];
 
@@ -25,7 +32,6 @@ var RegisterLibappsClass = new libx.core.Class.create(libx.libapp.PackageVisitor
 var registerLibapps = new RegisterLibappsClass();
 
 for (var i = 0; i < rootPackages.length; i++) {
-    libx.log.write("walking: " + rootPackages[i]);
     new libx.libapp.PackageWalker(rootPackages[i]).walk(registerLibapps);
 }
 
@@ -51,124 +57,128 @@ function checkIncludesExcludes(spec, url)
     return executeModule;
 }
 
-var observer = {
-    onContentLoaded: function (event) {
-
-        libx.log.write("user visited: " + event.url + " " + libx.edition.name.long + " #libapps=" + libapps.length);
-        
-        /**
-         * Create a new sandbox in which the captured per-XUL-window 
-         * 'libx' object appears under the global name 'libx'.
-         */
-        var sbox = new libx.libapp.Sandbox(event.window, { libx: libx });
+var contentLoadedObserver = { };
+contentLoadedObserver.onContentLoaded = function (event) {
+    libx.log.write("user visited: " + event.url + " " + libx.edition.name.long + " #libapps=" + libapps.length);
+    
+    /**
+     * Create a new sandbox in which the captured per-XUL-window 
+     * 'libx' object appears under the global name 'libx'.
+     */
+    var sbox = new libx.libapp.Sandbox(event.window, { libx: libx });
 /*
-        if (event.url.match("libx.cs.vt.edu") != null)
-            sbox.evaluate("alert('You are running libx: ' + libx.edition.name.long);");
+    if (event.url.match("libx.cs.vt.edu") != null)
+        sbox.evaluate("alert('You are running libx: ' + libx.edition.name.long);");
 */
 
-        /*
-         * queue that determines order of required scripts and modules.
-         * XXX: should not be a global queue, but rather (probably) per module.
-         * Global makes it simpler to ensure that each script was loaded only
-         * once. XXX
-         */
-        var requireQueue = new libx.utils.collections.ActivityQueue();
+    /*
+     * queue that determines order of required scripts and modules.
+     *
+     * XXX: should not be a global queue, but rather (probably) per module.
+     * Global makes it simpler to ensure that each script was loaded only
+     * once. XXX
+     */
+    var requireQueue = new libx.utils.collections.ActivityQueue();
 
-        /* map require url to activity */
-        var requireURL2Activity = { };
+    /* map require url to activity */
+    var requireURL2Activity = { };
 
-        for (var i = 0; i < libapps.length; i++) {
-            var libapp = libapps[i];
+    for (var i = 0; i < libapps.length; i++) {
+        executeLibapp(libapps[i]);
+    }
 
-            // unlike for modules, 'include' for libapps is optional.
-            if (libapp.include.length > 0) {
-                var executeLibapp = checkIncludesExcludes(libapp, event.url);
-                if (executeLibapp == null)
+    function executeLibapp(libapp) {
+
+        // unlike for modules, 'include' for libapps is optional.
+        if (libapp.include.length > 0) {
+            var executeLibapp = checkIncludesExcludes(libapp, event.url);
+            if (executeLibapp == null)
+                return;
+        }
+
+        libx.log.write("executing libapp: " + libapp.description, "libapp");
+        libapp.space = new libx.libapp.TupleSpace();
+
+        var moduleExecutor = {
+            onmodule: function (module) {
+                var executeModule = checkIncludesExcludes(module, event.url);
+                if (executeModule == null)
                     return;
-            }
 
-            libx.log.write("executing libapp: " + libapp.description, "libapp");
-            libapp.space = new libx.libapp.TupleSpace();
+                libx.log.write("executing module: " + module.description + " requires: " + module.require + " match was: " + executeModule, "libapp");
 
-            for (var j = 0; j < libapp.entries.length; j++) {
-                new libx.libapp.PackageWalker(libapp.entries[j].url).walk({
-                    onmodule: function (module) {
-                        var executeModule = checkIncludesExcludes(module, event.url);
-                        if (executeModule == null)
-                            return;
+                /* schedule required modules */
+                for (var k = 0; k < module.require.length; k++) {
+                    var rUrl = module.require[k];
+                    if (rUrl in requireAlias)
+                        rUrl = requireAlias[rUrl];
 
-                        libx.log.write("executing module: " + module.description + " requires: " + module.require + " match was: " + executeModule, "libapp");
-
-                        /* schedule required modules */
-                        for (var k = 0; k < module.require.length; k++) {
-                            var rUrl = module.require[k];
-                            if (rUrl in requireAlias)
-                                rUrl = requireAlias[rUrl];
-
-                            /* schedule loading of script if not already scheduled */
-                            if (!(rUrl in requireURL2Activity)) {
-                                requireURL2Activity[rUrl] = {
-                                    onready : function (scriptText, metadata) {
-                                        libx.log.write("Running in sandbox: " + metadata.originURL, "libapp");
-                                        sbox.evaluate(scriptText);
-                                    }
-                                }
-
-                                var rAct = requireURL2Activity[rUrl];
-                                requireQueue.scheduleLast(rAct);
-
-                                libx.log.write("requesting script: " + rUrl, "libapp");
-                                libx.cache.defaultObjectCache.get({
-                                    url: rUrl,
-                                    success: function (scriptText, metadata) {
-                                        libx.log.write("received script: " + metadata.originURL, "libapp");
-                                        requireURL2Activity[rUrl].markReady(scriptText, metadata);
-                                    }
-                                });
-
-                            } else {
-                                var rAct = requireURL2Activity[rUrl];
+                    /* schedule loading of script if not already scheduled */
+                    if (!(rUrl in requireURL2Activity)) {
+                        requireURL2Activity[rUrl] = {
+                            onready : function (scriptText, metadata) {
+                                libx.log.write("Running in sandbox: " + metadata.originURL, "libapp");
+                                sbox.evaluate(scriptText);
                             }
                         }
 
-                        /* now schedule the module itself */
-                        var runModuleActivity = {
-                            onready: function () {
-                                runModule(module);
-                            }
-                        };
-                        requireQueue.scheduleLast(runModuleActivity);
-                        runModuleActivity.markReady();
+                        var rAct = requireURL2Activity[rUrl];
+                        requireQueue.scheduleLast(rAct);
 
-                        function runModule(module) {
-                            libx.log.write("Module in sandbox: " + module.description);
-                            var jsCode = ""
-                            + "      (function () {\n"
-                            + "      " + module.body + "\n"
-                            + "      }) (); \n"
-
-                            if ('guardedby' in module) {
-                                jsCode = "var takeRequest = {\n"
-                                + "  priority: " + module.priority + ", \n"
-                                + "  template: " + module.guardedby + ", \n"
-                                + "  ontake: function (tuple) {\n"
-                                +           jsCode
-                                + "      libx.libapp.space.take(takeRequest);\n"
-                                + "  }\n"
-                                + "};\n"
-                                + "libx.libapp.space.take(takeRequest);"
+                        libx.log.write("requesting script: " + rUrl, "libapp");
+                        libx.cache.defaultObjectCache.get({
+                            url: rUrl,
+                            success: function (scriptText, metadata) {
+                                libx.log.write("received script: " + metadata.originURL, "libapp");
+                                requireURL2Activity[rUrl].markReady(scriptText, metadata);
                             }
-                            libx.libapp.space = libapp.space;
-                            libx.log.write("Running code: " + jsCode, "libapp");
-                            sbox.evaluate(jsCode);
-                        }
+                        });
+
+                    } else {
+                        var rAct = requireURL2Activity[rUrl];
                     }
-                });
+                }
+
+                /* now schedule the module itself */
+                var runModuleActivity = {
+                    onready: function () {
+                        runModule(module);
+                    }
+                };
+                requireQueue.scheduleLast(runModuleActivity);
+                runModuleActivity.markReady();
+
+                function runModule(module) {
+                    libx.log.write("Module in sandbox: " + module.description);
+                    var jsCode = ""
+                    + "      (function () {\n"
+                    + "      " + module.body + "\n"
+                    + "      }) (); \n"
+
+                    if ('guardedby' in module) {
+                        jsCode = "var takeRequest = {\n"
+                        + "  priority: " + module.priority + ", \n"
+                        + "  template: " + module.guardedby + ", \n"
+                        + "  ontake: function (tuple) {\n"
+                        +           jsCode
+                        + "      libx.libapp.space.take(takeRequest);\n"
+                        + "  }\n"
+                        + "};\n"
+                        + "libx.libapp.space.take(takeRequest);"
+                    }
+                    libx.libapp.space = libapp.space;
+                    libx.log.write("Running code: " + jsCode, "libapp");
+                    sbox.evaluate(jsCode);
+                }
             }
+        };
+
+        for (var i = 0; i < libapp.entries.length; i++) {
+            new libx.libapp.PackageWalker(libapp.entries[i].url).walk(moduleExecutor);
         }
     }
-}
+};
 
-libx.events.addListener("ContentLoaded", observer, window, "libapploader");
+libx.events.addListener("ContentLoaded", contentLoadedObserver, window, "libapploader");
 
 }());
