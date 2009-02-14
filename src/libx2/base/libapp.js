@@ -153,10 +153,10 @@ var observer = {
                                 + "  template: " + module.guardedby + ", \n"
                                 + "  ontake: function (tuple) {\n"
                                 +           jsCode
-                                + "      libx.libapp.space.take(takeRequest);\n";
-                                + "  }";
-                                + "};";
-                                jsCode += "libx.libapp.space.take(takeRequest);"
+                                + "      libx.libapp.space.take(takeRequest);\n"
+                                + "  }\n"
+                                + "};\n"
+                                + "libx.libapp.space.take(takeRequest);"
                             }
                             libx.libapp.space = libapp.space;
                             libx.log.write("Running code: " + jsCode, "libapp");
