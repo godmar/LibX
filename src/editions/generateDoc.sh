@@ -18,6 +18,9 @@ $0 [-d outdir][-files files]
   -files files - Quote-enclosed list of files to parse, defaults to
                  all files in $files
 
+  -libx2base dir  - Base of LibX2 repository - this will include 
+                scripts from dir/libapps/scripts
+
   -chrome      - Generates documentation ready to be inserted into LibX XPI 
                  file (use ./xcreateextension.pl -doc $outdir)
 
@@ -33,6 +36,10 @@ EOF
 -files)
     shift
     files=$1
+;;
+-libx2base)
+    shift
+    files="$files $1/libapps/scripts"
 ;;
 -chrome)
     opts="$opts -chrome=chrome://libxdoc/content/"

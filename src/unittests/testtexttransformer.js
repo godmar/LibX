@@ -3,31 +3,21 @@
 //
 load ("../libx2/base/bitvector.js");
 load ("../libx2/base/textexplorer.js");
+load ("../libx2/base/texttransformer.js");
 
-var textTransformer = {
-    skippedElements : {
-        a : 1
-    },
+var textTransformer = new libx.libapp.RegexpTextTransformer(/(\d{9,12}[\dX])/ig);
+textTransformer.onMatch = function (textNode, m) {
+    var isbn = libx.utils.stdnumsupport.isISBN(m[0], false);
+    if (!isbn)
+        return null;
 
-    processNode : function (node) {
-        var text = libx.utils.string.trim(String(node.nodeValue));
-        // println("processing: " + text);
-        var m = text.match(/(\d{9,12}[\dX])/i);
-        if (!m)
-            return null;
-        var isbn = libx.utils.stdnumsupport.isISBN(m[0], false);
-        if (!isbn)
-            return null;
-
-        var doc = node.ownerDocument;
-        var l = text.indexOf(m[0]);
-        var left = doc.createTextNode(text.substr(0, l));
-        var right = doc.createTextNode(text.substr(l + m[0].length));
-        var a = doc.createElement("a");
-        a.setAttribute('href', 'somewhere....');
-        a.appendChild(doc.createTextNode(m[0]));
-        return [left, a, right];
-    }
+    var doc = textNode.ownerDocument;
+    var a = doc.createElement("a");
+    a.setAttribute('href', 'somewhere....');
+    a.appendChild(doc.createTextNode(m[0]));
+    return [ a, function (node) {
+        node.setAttribute('title', 'Search ...');
+    }];
 };
 
 var xmlDoc;
@@ -39,6 +29,7 @@ libx.cache.globalMemoryCache.get({
 
         var exp = new libx.libapp.TextExplorer(1000000, 0);
         exp.addTextTransformer(textTransformer);
+        if (false)
         exp.addTextTransformer({
             skippedElements : {
                 a : 1
@@ -46,7 +37,7 @@ libx.cache.globalMemoryCache.get({
 
             libx : /(libx)/ig,
             processNode : function (node) {
-                var text = libx.utils.string.trim(String(node.nodeValue));
+                var text = String(node.data);
                 if (!this.libx.test(text))
                     return null;
                 return [ node.ownerDocument.createTextNode(text.replace(this.libx, "$1 (it rocks)")) ];
