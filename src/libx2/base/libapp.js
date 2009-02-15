@@ -65,7 +65,8 @@ contentLoadedObserver.onContentLoaded = function (event) {
      * Create a new sandbox in which the captured per-XUL-window 
      * 'libx' object appears under the global name 'libx'.
      */
-    var sbox = new libx.libapp.Sandbox(event.window, { libx: libx });
+    var sboxGlobalSpace = { libx: libx };
+    var sbox = new libx.libapp.Sandbox(event.window, sboxGlobalSpace);
 /*
     if (event.url.match("libx.cs.vt.edu") != null)
         sbox.evaluate("alert('You are running libx: ' + libx.edition.name.long);");
@@ -82,13 +83,18 @@ contentLoadedObserver.onContentLoaded = function (event) {
 
     /* map require url to activity */
     var requireURL2Activity = { };
+    var tupleSpace = new libx.libapp.TupleSpace();
+    var textExplorer = new libx.libapp.TextExplorer();
 
     for (var i = 0; i < libapps.length; i++) {
         executeLibapp(libapps[i]);
     }
+    libx.log.write("#textTransformers: " + textExplorer.textTransformerList.length);
+    textExplorer.traverse(event.window.document.documentElement);
 
     function executeLibapp(libapp) {
 
+        libx.log.write("checking include/exclude for libapp: " + libapp.description, "libapp");
         // unlike for modules, 'include' for libapps is optional.
         if (libapp.include.length > 0) {
             var executeLibapp = checkIncludesExcludes(libapp, event.url);
@@ -97,7 +103,6 @@ contentLoadedObserver.onContentLoaded = function (event) {
         }
 
         libx.log.write("executing libapp: " + libapp.description, "libapp");
-        libapp.space = new libx.libapp.TupleSpace();
 
         var moduleExecutor = {
             onmodule: function (module) {
@@ -149,6 +154,18 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 runModuleActivity.markReady();
 
                 function runModule(module) {
+                    if (module.regexptexttransformer.length > 0) {
+                        libx.log.write("regexptexttransformer: " + module.regexptexttransformer[0]);
+                        var textTransformer 
+                            = new libx.libapp.RegexpTextTransformer(module.regexptexttransformer[0]);
+                        textTransformer.onMatch = function (textNode, match) {
+                            libx.log.write("regexptexttransformer.match called: " + match[0] + " evaling: " + module.body);
+                            return eval("(function (textNode, match) {" + module.body + "})(textNode, match);");
+                        }
+                        textExplorer.addTextTransformer(textTransformer);
+                        return;
+                    }
+
                     libx.log.write("Module in sandbox: " + module.description);
                     var jsCode = ""
                     + "      (function () {\n"
@@ -166,7 +183,16 @@ contentLoadedObserver.onContentLoaded = function (event) {
                         + "};\n"
                         + "libx.libapp.space.take(takeRequest);"
                     }
-                    libx.libapp.space = libapp.space;
+                    // cleaning global space
+                    jsCode += "for (var p in this) {\n";
+                    jsCode += "  if (p != 'window' && p != 'document' && p != 'unsafeWindow'";
+                    for (var p in sboxGlobalSpace)
+                        jsCode += " && p != '" + p + "'";
+                    jsCode += ")\n";
+                    jsCode += "   delete p;\n";
+                    jsCode += "}\n";
+                    jsCode += "delete p;\n";
+                    libx.libapp.space = tupleSpace;
                     libx.log.write("Running code: " + jsCode, "libapp");
                     sbox.evaluate(jsCode);
                 }

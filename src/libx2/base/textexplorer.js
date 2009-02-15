@@ -26,7 +26,7 @@
  * ***** END LICENSE BLOCK ***** 
  */
 
-/*
+/**
  * Handles traversing the DOM tree and finding text nodes.  It stores
  * a list of TextTransformer objects that will handle transforming
  * text nodes.
@@ -78,7 +78,7 @@ libx.libapp.TextExplorer = libx.core.Class.create(
             var cnt = 0;
             while (cnt++ < self.nodesPerChunk && self.dfsStack.length > 0) 
             {
-                var n = self.dfsStack.pop();
+                var n = self.dfsStack.pop();    // use .shift() for BFS
                 var enabledTransformers = n.enabledTransformers;
                 var currentNode = n.node;
 
@@ -125,8 +125,20 @@ libx.libapp.TextExplorer = libx.core.Class.create(
                         remainingTransformers.set(j, false);
 
                     for (var j = 0; j < nodes.length; j++) {
-                        currentParent.insertBefore(nodes[j], currentSibling);
-                        self.dfsStack.push({node: nodes[j],
+                        // nodes[j] is dual-typed
+                        // it may be either a node, or a pair [node, callback]
+                        if ('0' in nodes[j]) {
+                            var node = nodes[j][0];
+                            var cbfunc = nodes[j][1];
+                        } else {
+                            var node = nodes[j];
+                            var cbfunc = null;
+                        }
+                        currentParent.insertBefore(node, currentSibling);
+                        if (cbfunc)
+                            cbfunc(node);
+
+                        self.dfsStack.push({node: node,
                                             enabledTransformers: remainingTransformers});
                     }
 
@@ -170,7 +182,7 @@ libx.libapp.TextExplorer = libx.core.Class.create(
         this.textTransformerList.push(transformer);
     },
 
-    /*
+    /**
      * Provide symbols for DOM node types
      * @static
      */

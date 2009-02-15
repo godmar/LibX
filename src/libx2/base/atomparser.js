@@ -30,9 +30,9 @@ var ns = {
     libx2:	"http://libx.org/xml/libx2"
 };
 
-var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body" ];
-var libx2ArrayClauses = { include : 1, exclude : 1, require : 1 };
-var libx2RegexpClauses = [ "include", "exclude" ];
+var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body", "regexptexttransformer" ];
+var libx2ArrayClauses = { include : 1, exclude : 1, require : 1, regexptexttransformer : 1 };
+var libx2RegexpClauses = [ "include", "exclude", "regexptexttransformer" ];
 
 /**
  * Resolver 'url' relative to 'base'
@@ -162,19 +162,19 @@ function handleEntry(visitor, url) {
 
     if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);
 
-    libx.cache.globalMemoryCache.get({
+    libx.cache.defaultObjectCache.get({
         url: pathDir,
-        dataType: "xml",
-        success: function (xmlDoc, status, xhr) {
+        success: function (filecontent, metadata) {
+            var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
             var xpathExpr = "//atom:entry[atom:id/text() = '" + url + "']";
             var entry = libx.utils.xpath.findSingleXML(xmlDoc, xpathExpr, xmlDoc, ns);
             if (entry != null) {
                 handleEntryBody(xmlDoc, pathDir, entry);
             } else {
-                libx.cache.globalMemoryCache.get({
+                libx.cache.defaultObjectCache.get({
                     url: url,
-                    dataType: "xml",
-                    success: function (xmlDoc, status, xhr) {
+                    success: function (filecontent, metadata) {
+                        var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
                         handleEntryBody(xmlDoc, pathDir, xmlDoc.documentElement);
                     }
                 });
