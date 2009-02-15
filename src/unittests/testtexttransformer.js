@@ -29,7 +29,6 @@ libx.cache.globalMemoryCache.get({
 
         var exp = new libx.libapp.TextExplorer(1000000, 0);
         exp.addTextTransformer(textTransformer);
-        if (false)
         exp.addTextTransformer({
             skippedElements : {
                 a : 1
