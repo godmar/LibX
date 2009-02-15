@@ -7,14 +7,12 @@
 
     jrunscript -cp . -f rununittests.js
 
-3. Run some tests with
+3. Run single tests with
+
+    ./runsingletest.sh collections.js
+
+   which is a wrapper for
 
     jrunscript -cp . -f loadlibx.js -f collections.js
-
-    jrunscript -cp . -f loadlibx.js -f memcache.js
-
-    jrunscript -cp . -f loadlibx.js -f atompub.js
-
-    jrunscript -cp . -f loadlibx.js -f testatom.js
 
     (-cp . is needed to pick up org.libx.utils.*)
