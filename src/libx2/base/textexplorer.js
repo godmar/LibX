@@ -41,8 +41,6 @@ libx.libapp.TextExplorer = libx.core.Class.create(
     intervalBetweenTimeouts : 15,
 
     /**
-     * @constructor
-     *
      * @param {int} nodesPerChunk
      * @param {int} intervalBetweenTimeouts
      */

@@ -14,18 +14,22 @@ libx.utils.collections.BitVector = libx.core.Class.create(
     initialize : function () {
         this.vector = [];
     },
+    /** Set an element (must be within bounds) */
     set : function (index, value) {
         checkIndex(this.vector, index);
         this.vector[index] = value;
         return this;
     },
+    /** Get an element */
     get : function (index) {
         checkIndex(this.vector, index);
         return this.vector[index];
     },
+    /** Add an element to the end of the vector */
     add : function (value) {
         this.vector.push(value);
     },
+    /** Get current size. */
     size : function () {
         return this.vector.length;
     },

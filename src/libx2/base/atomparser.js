@@ -92,10 +92,14 @@ function handleEntry(visitor, url) {
 
         var desc = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:title/text()",
             entryNode, ns);
-        desc = desc != null ? desc.nodeValue : "no description";
+        desc = desc != null ? desc.nodeValue : "atom:title is missing";
+        var atomid = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:id/text()",
+            entryNode, ns);
+        atomid = atomid != null ? atomid.nodeValue : "atom:id is missing";
 
         var nodeInfo = { 
             baseURL: baseURL,
+            id: atomid,
             atomEntry: entryNode,
             description: desc,
             entries: []
@@ -189,7 +193,6 @@ function handleEntry(visitor, url) {
 libx.libapp.PackageWalker = libx.core.Class.create(
     /** @lends libx.libapp.PackageWalker.prototype */{
     /**
-     * @constructs
      * @param {String} rootPackageId - URL describing the entry/id 
      *         of a package or libapp.
      */

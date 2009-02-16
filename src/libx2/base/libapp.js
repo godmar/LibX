@@ -59,14 +59,31 @@ function checkIncludesExcludes(spec, url)
 
 var contentLoadedObserver = { };
 contentLoadedObserver.onContentLoaded = function (event) {
-    libx.log.write("user visited: " + event.url + " " + libx.edition.name.long + " #libapps=" + libapps.length);
+
+    function log(msg) {
+        libx.log.write("Sandbox (" + event.url + "):\n" + msg, "libapp");
+    }
+
+    log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libapps.length);
     
-    /**
+    /*
      * Create a new sandbox in which the captured per-XUL-window 
-     * 'libx' object appears under the global name 'libx'.
+     * A shallow clone of the 'libx' object appears under the 
+     * global name 'libx'
+     *
+     * libx.space refers to the per-page tuple space.
+     *
+     * libx.regexp refers to the match if a regexp text transformer
+     * executes.
      */
-    var sboxGlobalSpace = { libx: libx };
+    var libx_regexp = { }; 
+    var libxClone = { space : new libx.libapp.TupleSpace(), regexp : libx_regexp };
+    libx.core.Class.mixin(libxClone, libx, true);
+
+    var sboxGlobalSpace = { libx: libxClone };
     var sbox = new libx.libapp.Sandbox(event.window, sboxGlobalSpace);
+// log("checking libx.space.... " + sbox.sandBox.libx.space);
+
 /*
     if (event.url.match("libx.cs.vt.edu") != null)
         sbox.evaluate("alert('You are running libx: ' + libx.edition.name.long);");
@@ -83,18 +100,18 @@ contentLoadedObserver.onContentLoaded = function (event) {
 
     /* map require url to activity */
     var requireURL2Activity = { };
-    var tupleSpace = new libx.libapp.TupleSpace();
+
     var textExplorer = new libx.libapp.TextExplorer();
 
     for (var i = 0; i < libapps.length; i++) {
         executeLibapp(libapps[i]);
     }
-    libx.log.write("#textTransformers: " + textExplorer.textTransformerList.length);
+
+    log("#textTransformers: " + textExplorer.textTransformerList.length);
     textExplorer.traverse(event.window.document.documentElement);
 
     function executeLibapp(libapp) {
 
-        libx.log.write("checking include/exclude for libapp: " + libapp.description, "libapp");
         // unlike for modules, 'include' for libapps is optional.
         if (libapp.include.length > 0) {
             var executeLibapp = checkIncludesExcludes(libapp, event.url);
@@ -102,105 +119,133 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 return;
         }
 
-        libx.log.write("executing libapp: " + libapp.description, "libapp");
+        log("after URL check, executing libapp: " + libapp.description);
 
-        var moduleExecutor = {
-            onmodule: function (module) {
-                var executeModule = checkIncludesExcludes(module, event.url);
-                if (executeModule == null)
-                    return;
-
-                libx.log.write("executing module: " + module.description + " requires: " + module.require + " match was: " + executeModule, "libapp");
-
-                /* schedule required modules */
-                for (var k = 0; k < module.require.length; k++) {
-                    var rUrl = module.require[k];
-                    if (rUrl in requireAlias)
-                        rUrl = requireAlias[rUrl];
-
-                    /* schedule loading of script if not already scheduled */
-                    if (!(rUrl in requireURL2Activity)) {
-                        requireURL2Activity[rUrl] = {
-                            onready : function (scriptText, metadata) {
-                                libx.log.write("Running in sandbox: " + metadata.originURL, "libapp");
-                                sbox.evaluate(scriptText);
-                            }
-                        }
-
-                        var rAct = requireURL2Activity[rUrl];
-                        requireQueue.scheduleLast(rAct);
-
-                        libx.log.write("requesting script: " + rUrl, "libapp");
-                        libx.cache.defaultObjectCache.get({
-                            url: rUrl,
-                            success: function (scriptText, metadata) {
-                                libx.log.write("received script: " + metadata.originURL, "libapp");
-                                requireURL2Activity[rUrl].markReady(scriptText, metadata);
-                            }
-                        });
-
-                    } else {
-                        var rAct = requireURL2Activity[rUrl];
-                    }
-                }
-
-                /* now schedule the module itself */
-                var runModuleActivity = {
-                    onready: function () {
-                        runModule(module);
-                    }
-                };
-                requireQueue.scheduleLast(runModuleActivity);
-                runModuleActivity.markReady();
-
-                function runModule(module) {
-                    if (module.regexptexttransformer.length > 0) {
-                        libx.log.write("regexptexttransformer: " + module.regexptexttransformer[0]);
-                        var textTransformer 
-                            = new libx.libapp.RegexpTextTransformer(module.regexptexttransformer[0]);
-                        textTransformer.onMatch = function (textNode, match) {
-                            libx.log.write("regexptexttransformer.match called: " + match[0] + " evaling: " + module.body);
-                            return eval("(function (textNode, match) {" + module.body + "})(textNode, match);");
-                        }
-                        textExplorer.addTextTransformer(textTransformer);
-                        return;
-                    }
-
-                    libx.log.write("Module in sandbox: " + module.description);
-                    var jsCode = ""
-                    + "      (function () {\n"
-                    + "      " + module.body + "\n"
-                    + "      }) (); \n"
-
-                    if ('guardedby' in module) {
-                        jsCode = "var takeRequest = {\n"
-                        + "  priority: " + module.priority + ", \n"
-                        + "  template: " + module.guardedby + ", \n"
-                        + "  ontake: function (tuple) {\n"
-                        +           jsCode
-                        + "      libx.libapp.space.take(takeRequest);\n"
-                        + "  }\n"
-                        + "};\n"
-                        + "libx.libapp.space.take(takeRequest);"
-                    }
-                    // cleaning global space
-                    jsCode += "for (var p in this) {\n";
-                    jsCode += "  if (p != 'window' && p != 'document' && p != 'unsafeWindow'";
-                    for (var p in sboxGlobalSpace)
-                        jsCode += " && p != '" + p + "'";
-                    jsCode += ")\n";
-                    jsCode += "   delete p;\n";
-                    jsCode += "}\n";
-                    jsCode += "delete p;\n";
-                    libx.libapp.space = tupleSpace;
-                    libx.log.write("Running code: " + jsCode, "libapp");
-                    sbox.evaluate(jsCode);
-                }
-            }
-        };
+        // we run each module only once, no matter how many libapps refer to it
+        var hasModuleRun = { };
 
         for (var i = 0; i < libapp.entries.length; i++) {
-            new libx.libapp.PackageWalker(libapp.entries[i].url).walk(moduleExecutor);
+            new libx.libapp.PackageWalker(libapp.entries[i].url).walk({
+                onmodule: function (module) {
+                    if (module.id in hasModuleRun)
+                        return;
+
+                    hasModuleRun[module.id] = 1;
+                    executeModule(module);
+                }
+            });
+        }
+
+        function executeModule(module) {
+            var executeModule = checkIncludesExcludes(module, event.url);
+            if (executeModule == null)
+                return;
+
+            log("after URL check, executing module: " + module.description 
+                + "\nthis module requires: " + module.require 
+                + "\nmatching URL was: " + executeModule);
+
+            /* schedule required modules */
+            for (var k = 0; k < module.require.length; k++) {
+                var rUrl = module.require[k];
+                if (rUrl in requireAlias)
+                    rUrl = requireAlias[rUrl];
+
+                /* schedule loading of script if not already scheduled */
+                if (rUrl in requireURL2Activity)
+                    continue;
+
+                requireURL2Activity[rUrl] = {
+                    onready : function (scriptText, metadata) {
+                        log("injecting required script: " + metadata.originURL);
+                        sbox.evaluate(scriptText);
+                    }
+                }
+
+                var rAct = requireURL2Activity[rUrl];
+                requireQueue.scheduleLast(rAct);
+
+                libx.cache.defaultObjectCache.get({
+                    url: rUrl,
+                    success: function (scriptText, metadata) {
+                        requireURL2Activity[rUrl].markReady(scriptText, metadata);
+                    }
+                });
+            }
+
+            /* now schedule the module itself */
+            var runModuleActivity = {
+                onready: function () {
+                    if (module.regexptexttransformer.length > 0) {
+                        runTextTransformerModule(module);
+                    } else {
+                        runModule(module);
+                    }
+                }
+            };
+            requireQueue.scheduleLast(runModuleActivity);
+            runModuleActivity.markReady();
+
+            function runTextTransformerModule(module) {
+                log("Adding RegexpTextTransformer Module: " + module.regexptexttransformer[0]);
+                var textTransformer = new libx.libapp.RegexpTextTransformer(module.regexptexttransformer[0]);
+                textTransformer.onMatch = function (textNode, match) {
+                    //
+                    libx_regexp.textNode = textNode;
+                    libx_regexp.match = match;
+
+                    var jsCode = "(function () {\n"
+                        + "  var textNode = libx.regexp.textNode;\n"
+                        + "  var match = libx.regexp.match;\n"
+                        +       module.body
+                        + "}) ();\n";
+                
+                    log("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
+                    return sbox.evaluate(jsCode);
+                    // return eval("(function (textNode, match) {" + module.body + "})(textNode, match);");
+                }
+                textExplorer.addTextTransformer(textTransformer);
+            }
+
+            function runModule(module) {
+
+                var jsCode = ""
+                + "      (function () {\n"
+                + "      " + module.body + "\n"
+                + "      }) (); \n"
+
+                // wrap in 'guardedby' clause, if needed
+                if ('guardedby' in module) {
+                    jsCode = "(function () {\n"
+                    + " var takeRequest = {\n"
+                    + "   priority: " + module.priority + ", \n"
+                    + "   template: " + module.guardedby + ", \n"
+                    + "   ontake: function (tuple) {\n"
+                    +            jsCode
+                    + "       libx.space.take(takeRequest);\n"
+                    + "   }\n"
+                    + " };\n"
+                    + " libx.space.take(takeRequest);\n"
+                    + "}) ();\n"
+                }
+                // clean global space
+                /*
+                 * We cannot clean the global space, or we kill items added by required scripts,
+                 * such as $.  We could remember which items were there before, and remove all
+                 * others.
+                 *
+                jsCode += "for (var p in this) {\n";
+                jsCode += "  if (p != 'window' && p != 'document' && p != 'unsafeWindow'";
+                for (var p in sboxGlobalSpace)
+                    jsCode += " && p != '" + p + "'";
+                jsCode += ")\n";
+                jsCode += "   delete this[p];\n";
+                jsCode += "}\n";
+                jsCode += "delete this.p;\n";
+                */
+                log("Running module '" + module.description + "': \n" + jsCode);
+                sbox.evaluate(jsCode);
+            }
         }
     }
 };

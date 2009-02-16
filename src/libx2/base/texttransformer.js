@@ -62,7 +62,6 @@ libx.libapp.TextTransformer = libx.core.Class.create(
 libx.libapp.RegexpTextTransformer = libx.core.Class.create(libx.libapp.TextTransformer, 
     /** @lends libx.libapp.RegexpTextTransformer.prototype */{
     /**
-     * @constructor
      * @param {RegExp} filter - a regular expression filter for this object
      */
     initialize : function (filter) {
