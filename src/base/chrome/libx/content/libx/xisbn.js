@@ -56,7 +56,7 @@ function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
     }
 
     //Send request
-    libx.cache.globalMemoryCache.get(xmlParam);
+    libx.cache.defaultMemoryCache.get(xmlParam);
 }
 
 /**

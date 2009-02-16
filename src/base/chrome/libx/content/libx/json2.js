@@ -162,6 +162,10 @@
     var JSON = { };
     /**
      * @namespace
+     *
+     * Standard JSON support.
+     * See <a href="http://www.JSON.org/json2.js">http://www.JSON.org/json2.js</a>
+     * for more information.
      */
     libx.utils.json = JSON;
 

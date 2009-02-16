@@ -21,7 +21,7 @@ textTransformer.onMatch = function (textNode, m) {
 };
 
 var xmlDoc;
-libx.cache.globalMemoryCache.get({
+libx.cache.defaultMemoryCache.get({
     dataType : "xml",
     url : "http://libx.cs.vt.edu/~gback/jquery/testdoc.xhtml",
     success : function (xml, status, xhr) {

@@ -101,7 +101,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     initialize: function ( invofcc ) {
         var editionConfigReader = this;
 
-        libx.cache.globalMemoryCache.get({
+        libx.cache.defaultMemoryCache.get({
             dataType : "xml",
             type     : "GET",
             url      : invofcc.url,

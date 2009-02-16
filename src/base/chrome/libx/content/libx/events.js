@@ -46,25 +46,20 @@ var handlerMap = { };
  * nor in FF XUL).
  */
 libx.events = { 
-    /**
-     * Event represents an LibX internal event.
-     *
-     * @class
-     */
     Event : libx.core.Class.create(
         /** @lends libx.events.Event.prototype */{
         /**
-         * @constructs
+         * Event represents an LibX internal event.
+         *
          * @param {String} eventName name of event, can be freely chosen
          * @param {Window} eventWindow window (optional)
+         * @constructs
          */
         initialize : function (eventName, eventWindow) {
             this.eventName = eventName;
             this.eventWindow = eventWindow;
         },
         /**
-         * @constructs
-         *
          * Notify any observers.  If the event was created with a
          * window, only observers that specified the same window
          * will be notified.

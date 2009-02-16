@@ -55,8 +55,8 @@ return /** @lends libx.locale */ {
 		}
 	},
 	
-	/** @namespace */
-	bd : {},
+	/** @namespace libx.locale.bd */
+	bd : { },
 	
 	StringBundle : libx.core.Class.create ( 
 	/** @lends libx.locale.StringBundle.prototype */{

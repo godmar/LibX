@@ -1,7 +1,8 @@
 // draft unit tests for interpreting AtomPub feeds
 //
-libx.cache.globalMemoryCache.get({
-    url : "http://libx.cs.vt.edu/~gback/feeds-draft.xml",
+libx.cache.defaultMemoryCache.get({
+    //url : "http://libx.cs.vt.edu/~gback/feeds-draft.xml",
+    url : "http://libx.org/libx2/libapps/",
     dataType : "xml",
     async : true,
     success : function (xmlDoc, status, xhr) {

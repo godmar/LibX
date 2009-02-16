@@ -88,7 +88,7 @@ function retrieveRequest(request, retrievalType) {
         if (request.lastModified != null)
             headers["If-Modified-Since"] = request.lastModified;
     }
-    libx.cache.globalMemoryCache.get({
+    libx.cache.defaultMemoryCache.get({
         header: headers,
         url: request.url,
         bypassCache: true,

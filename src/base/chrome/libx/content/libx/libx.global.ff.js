@@ -29,15 +29,11 @@ libx.log.bd = {
 }
 
 libx.cache.bd = {
-    /**
-     * Create XHR object
-     */
     getXMLHttpReqObj : function () {
        return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
                 .createInstance(Components.interfaces.nsIXMLHttpRequest);
     }
 };
-
 
 (function () {
 // store reference to interval timers to prevent GC
@@ -85,7 +81,7 @@ libx.utils.timer.setTimeout = function ( callback, timeout ) {
 
 }) ();
 
-/**
+/*
  * Load XML Document from String
  *
  * @param {String} xmlstring
@@ -97,6 +93,12 @@ libx.utils.xml.loadXMLDocumentFromString = function (xmlstring) {
     return parser.parseFromString(xmlstring, "text/xml");
 }
 
+/**
+ * Browser-dependent implementation of a bundle of strings representing
+ * properties.
+ *
+ * @class
+ */
 libx.locale.bd.StringBundle = libx.core.Class.create ( 
 /** @lends libx.locale.bd.StringBundle */ {
 

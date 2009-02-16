@@ -44,7 +44,7 @@ libx.utils.xpath = {
      * the URI is the value.  It's encapsulated in an anonymous function.
      */
 
-    /**
+    /*
      * Evaluates an XPath expression and returns a single DOM node or null
      *
      * @param {DOM Tree} doc               document (used if root is undefined)
@@ -75,7 +75,7 @@ libx.utils.xpath = {
         return r.singleNodeValue;
     },
 
-    /**
+    /*
      * Evaluates an XPath expression and returns an array of DOM nodes
      *
      * @param {DOM Tree} doc               document (used if root is undefined)
@@ -106,43 +106,6 @@ libx.utils.xpath = {
         var n;
         while ((n = r.iterateNext()) != null)
             rr.push(n);
-
-        return rr;
-    },
-
-    //XXX: Should this be renamed to findSnapshotXML?
-
-    /**
-     * Evaluates an XPath expression and returns an array of DOM nodes
-     *
-     * @param {DOM Tree} html              document (used if root is undefined)
-     * @param {String}   xpathexpr         XPath expression
-     * @param {DOM Tree} root              root of DOM to execute search (used
-     *                                     instead of doc if defined)
-     * @param {Object}   namespaceresolver Object keys are namespace prefixes,
-     *                                     values are corresponding URIs
-     *
-     * @returns an array of nodes
-     */
-
-    findSnapshot : function (doc, xpathexpr, root, namespaceresolver) {
-        var r;
-        try {
-            r = doc.evaluate(xpathexpr, root?root:doc, 
-                             function (prefix) { 
-                                 return namespaceresolver[prefix]; 
-                             }, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-        }
-        catch (e) {
-            //XXX: Need to use a more specific log type
-            libx.log.write("In findSnapshot: XPath expression " + xpathexpr + " does not return a set of nodes");
-            return null;    // XXX should you rethrow here?
-        }
-
-        var rr = new Array();
-        for (var i = 0; i < r.snapshotLength; i++) {
-            rr.push(r.snapshotItem(i));
-        }
 
         return rr;
     }

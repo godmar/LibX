@@ -160,7 +160,7 @@ libx.ui.magicSearch = function (data)
             bypassCache : true
         };
         
-        var request = libx.cache.globalMemoryCache.get(xhrParams);
+        var request = libx.cache.defaultMemoryCache.get(xhrParams);
         var r = request.responseText;
 
         // see if the query was bungled b/c of searchterms clutched together

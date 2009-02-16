@@ -59,7 +59,7 @@ libx.catalog.factory["custom"] = libx.core.Class.create(libx.catalog.Catalog,
             },
             bypassCache : true
         };
-        libx.cache.globalMemoryCache.get(xhrParams);
+        libx.cache.defaultMemoryCache.get(xhrParams);
     }
 });
 

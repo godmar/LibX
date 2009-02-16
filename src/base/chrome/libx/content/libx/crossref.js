@@ -111,7 +111,7 @@ libx.services.crossref = {
         }
 
         //Send the request
-        libx.cache.globalMemoryCache.get(xmlParam);
+        libx.cache.defaultMemoryCache.get(xmlParam);
     },
 
     /** @private */

@@ -22,13 +22,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 /**
- * Cache related classes
- *
- * @namespace
- */
-libx.cache = { };
-
-/**
  * An in-memory cache implementation for documents.
  *
  * Interface is compatible with $._ajax described here:
@@ -74,8 +67,6 @@ var memoryCacheClass = libx.core.Class.create ( {
 
         /**
          * Initializes this MemoryCache object
-         *
-         * @constructs
          *
          * @param {Integer} cacheCapacity Sets the capacity of the cache used to store
          *                                xmlhttprequests.  Default value of 50 is used.
@@ -344,14 +335,12 @@ var memoryCacheClass = libx.core.Class.create ( {
             } // end if result not in cache
         }
 });
-/**
+/*
  * Serves as private cache
  */
 var InternalCache = libx.core.Class.create ( {
 
-    /**
-     * Constructor
-     *
+    /*
      * @param size integer representing maximum size of cache
      */
     initialize : function (maxSize) {
@@ -362,7 +351,7 @@ var InternalCache = libx.core.Class.create ( {
         this.cacheLength = 0;
     },
 
-   /**
+   /*
     * Removes a given node from the cache.  Useful for cases where the result
     * wasn't valid, but the request had a 200 http code anyway.
     */
@@ -376,7 +365,7 @@ var InternalCache = libx.core.Class.create ( {
         --this.cacheLength;
     },
 
-    /**
+    /*
      * Attempts to add an element to the cache with a given key.  If an
      * element with the same key is already stored in the cache, then we
      * add the handler functions to the queue associated with the element.
@@ -469,7 +458,7 @@ var InternalCache = libx.core.Class.create ( {
         return this.cacheTable[keyValue];
     },
     
-    /**
+    /*
      * Moves given node to front of list
      *
      * @param {Object} node node to move to front of list
@@ -479,7 +468,7 @@ var InternalCache = libx.core.Class.create ( {
         this.cacheList.pushFront(node);
     },
 
-    /**
+    /*
      * Add request to cache
      *
      * @param {Object} node node to which to add this request
@@ -492,7 +481,7 @@ var InternalCache = libx.core.Class.create ( {
         this.moveToFront(node);
     },
 
-    /**
+    /*
      * Flush cache
      */
     flush : function () {
@@ -504,5 +493,16 @@ return memoryCacheClass;
 
 })();
 
-libx.cache.globalMemoryCache = new libx.cache.MemoryCache();
+/**
+ * Browser-dependent aspects of memory and file caching implementation
+ */
+libx.cache.bd = {
+    /**
+     * Browser-dependent - create an XHR object
+     * @return {XMLHttpRequest}
+     */
+    getXMLHttpReqObj : libx.core.AbstractFunction('libx.cache.bd.getXMLHttpReqObj')
+}
+
+libx.cache.defaultMemoryCache = new libx.cache.MemoryCache();
 

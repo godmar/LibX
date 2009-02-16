@@ -39,7 +39,7 @@ EOF
 ;;
 -libx2base)
     shift
-    files="$files $1/libapps/scripts"
+    files="$files $1/libapps/scripts/legacy-cues.js"
 ;;
 -chrome)
     opts="$opts -chrome=chrome://libxdoc/content/"

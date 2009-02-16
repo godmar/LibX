@@ -525,7 +525,7 @@ return /** @lends libx.preferences */ {
             log ( "XMLPreferences.loadDefault", "Invalid filename: " + filename );
         }
         var callbackFunct = this.loadXML;
-        libx.cache.globalMemoryCache.get ( {
+        libx.cache.defaultMemoryCache.get ( {
             url : filename,
             dataType : "xml",
             type     : "GET",

@@ -1,7 +1,7 @@
 
 load("../libx2/base/atomparser.js");
 
-var rootPackage = "http://libx.org/libx-new/src/libapproot/libxcore";
+var rootPackage = "http://libx.org/libx2/libapps/libxcore";
 var atomParser = new libx.libapp.PackageWalker(rootPackage);
 
 var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
@@ -19,6 +19,7 @@ var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
             println(" include: " + module.include[i]);
         }
         println("module.guardedby: " + module.guardedby);
+        println("module.id: " + module.id);
         println("module.body: " + module.body.match(/^.*\n.*\n.*\n/));
         this.parent(module);
     }

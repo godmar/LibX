@@ -453,7 +453,7 @@ libx.cache.FileCache = ( function () {
                 };
 
                 //Send the request
-                libx.cache.globalMemoryCache.get(xmlParams);
+                libx.cache.defaultMemoryCache.get(xmlParams);
             }
         },
 
@@ -537,7 +537,7 @@ libx.cache.FileCache = ( function () {
                 else
                     delete reqParam.serverMIMEType;
 
-                libx.cache.globalMemoryCache.get(reqParam);
+                libx.cache.defaultMemoryCache.get(reqParam);
             }
 
             //Set the next timeout (sometime within the next 24 hours)

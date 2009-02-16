@@ -112,9 +112,9 @@ libx.ui.getCurrentWindowContent = function() {
 //XPath functions/////////////////////////////////////////////////////////////
 
 //XXX: We should create a new file to contain this object (xpathutils.ie.js)
-libx.ie.xpath = {
+libx.utils.xpath = {
 
-    /**
+    /*
      * Evaluates an XPath expression and returns a single DOM node or null
      *
      * Note: This will only work on a well formed XML/XHTML document
@@ -166,7 +166,7 @@ libx.ie.xpath = {
         }
     },
 
-    /**
+    /*
      * Evaluates an XPath expression and returns a set of DOM nodes or null
      *
      * Note: This will only work on a well formed XML/XHTML document
@@ -212,12 +212,7 @@ libx.ie.xpath = {
         catch (e) {
             libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes");
         }
-    },
-
-    findSnapshot : function (doc, xpathexpr, root) {
-        return null;
     }
-
 };
 
 //Get remote text functions///////////////////////////////////////////////////
@@ -229,7 +224,7 @@ libx.cache.bd = {
     }
 }
 
-/**
+/*
  * Load XML Document from String
  *
  * @param {String} xmlstring

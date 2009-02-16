@@ -71,7 +71,7 @@ libx.libapp.Sandbox = libx.core.Class.create(
      */
     evaluate : function ( code ) {
         try {
-            Components.utils.evalInSandbox( code, this.sandBox );
+            return Components.utils.evalInSandbox( code, this.sandBox );
         } catch (er) {
             libx.log.write("Error in Sandbox.evaluate: " + er);
         }

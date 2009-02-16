@@ -46,6 +46,13 @@ libx.services = { }
 libx.libapp = { }
 
 /**
+ * Support for caching of resources.
+ *
+ * @namespace
+ */
+libx.cache = { };
+
+/**
  * @namespace
  * Utility namespaces
  *
@@ -77,7 +84,21 @@ libx.utils = {
      *
      * @namespace libx.utils.xml
      */
-    xml: { 
+    xml: {
+        /**
+         * Parse an XML document from a string
+         *
+         * @param {String} input source 
+         * @return {Document} an XML document
+         */
+        loadXMLDocumentFromString : libx.core.AbstractFunction('libx.utils.xml.loadXMLDocumentFromString'),
+
+        /**
+         * Encode characters into valid HTML 
+         *
+         * @param {String} input string
+         * @return {String} string in which characters have been replaced with HTML entities
+         */
     	encodeEntities : function ( s ) {
     		var result = '';
         	for (var i = 0; i < s.length; i++) {
@@ -86,6 +107,12 @@ libx.utils = {
         	}
         	return result;
     	},
+        /**
+         * Decode HTML entities into characters
+         *
+         * @param {String} input string
+         * @return {String} string in which HTML entities have been replaced
+         */
     	decodeEntities : function ( s ) {
     		var result = '';
         	for (var i = 0; i < s.length; i++) {
@@ -94,6 +121,42 @@ libx.utils = {
         	}
         	return result;
     	}
+    },
+
+    /**
+     * XML XPath utilities
+     *
+     * @namespace libx.utils.xpath
+     */
+    xpath: {
+        /**
+         * Evaluates an XPath expression and returns a single DOM node or null
+         *
+         * @param {DOM Tree} doc               document (used if root is undefined)
+         * @param {String}   xpathexpr         XPath expression
+         * @param {DOM Tree} root              root of DOM to execute search (used
+         *                                     instead of doc if defined)
+         * @param {Object}   namespaceresolver Object keys are namespace prefixes,
+         *                                     values are corresponding URIs
+         *
+         * @returns DOM node or null if not found
+         *
+         */
+        findSingleXML : libx.core.AbstractFunction('libx.utils.xpath.findSingleXML'),
+
+        /**
+         * Evaluates an XPath expression and returns an array of DOM nodes
+         *
+         * @param {DOM Tree} doc               document (used if root is undefined)
+         * @param {String}   xpathexpr         XPath expression
+         * @param {DOM Tree} root              root of DOM to execute search (used
+         *                                     instead of doc if defined)
+         * @param {Object}   namespaceresolver Object keys are namespace prefixes,
+         *                                     values are corresponding URIs
+         *
+         * @returns array of nodes, possibly empty
+         */
+        findNodesXML : libx.core.AbstractFunction('libx.utils.xpath.findNodesXML')
     },
 
     /**
@@ -162,6 +225,11 @@ libx.utils = {
          * @class
          *
          * A standard-style doubly-linked list
+         * Note: this list does not use separate list cells, rather it
+         * uses inserted objects' 'next' and 'prev' properties.
+         *
+         * You must provide your own list cells if you wish to keep objects
+         * in multiple lists.
          */
         LinkedList: libx.core.Class.create(
             /** @lends libx.utils.collections.LinkedList */{
@@ -171,12 +239,14 @@ libx.utils = {
                 this.head.next = this.tail;
                 this.tail.prev = this.head;
             },
+            /** insert a node */
             insert : function (before, node) {
                 node.prev = before.prev;
                 node.next = before;
                 before.prev.next = node;
                 before.prev = node;
             },
+            /** remove a node */
             remove : function (node) {
                 if (!('prev' in node)) {
                     libx.log.backtrace("LinkedList.remove");
@@ -187,43 +257,73 @@ libx.utils = {
                 delete node.prev;
                 delete node.next;
             },
-            /** first node in list */
+            /** return first node in list */
             front: function () {
                 return this.head.next;
             },
-            /** last node in list */
+            /** return last node in list */
             back: function () {
                 return this.tail.prev;
             },
+            /** add node to front of list */
             pushFront : function (node) {
                 this.insert(this.front(), node);
             },
+            /** add node to back of list */
             pushBack : function (node) {
                 this.insert(this.tail, node);
             },
+            /** remove node from front of the list 
+             * @return {Node} first node
+             */
             popFront : function (node) {
                 var front = this.front();
                 this.remove(front);
                 return front;
             },
+            /** remove node from back of the list 
+             * @return {Node} last node
+             */
             popBack : function (node) {
                 var back = this.back();
                 this.remove(back);
                 return back;
             },
+            /** 
+             * iterate over a list forward like so:
+             * for (var node = list.begin(); node != list.end(); node = node.next) {
+             * }
+             *
+             * @return {Node} first node
+             */
             begin: function () {
                 return this.front();
             },
+            /** 
+             * return end marker for forward iteration. Not part of list.
+             * @return {Node}
+             */
             end: function () {
                 return this.tail;
             },
+            /** 
+             * iterate over a list backward like so:
+             * for (var node = list.rbegin(); node != list.rend(); node = node.prev) {
+             * }
+             *
+             * @return {Node} last node
+             */
             rbegin: function () {
                 return this.back();
             },
+            /** 
+             * return begin marker for reverse iteration. Not part of list.
+             * @return {Node}
+             */
             rend: function () {
                 return this.head;
             },
-            /** iteration */
+            /** apply 'operator' to each element */
             map : function (operator) {
                 for (var node = this.begin(); node != this.end(); node = node.next) {
                     operator(node);

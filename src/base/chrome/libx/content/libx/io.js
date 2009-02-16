@@ -7,6 +7,15 @@
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 
+/**
+ * Support for I/O
+ * Writing and reading files in LibX's internal file storage,
+ * which in Firefox is located in a subdirectory 'libx' in the 
+ * Profile subdirectory.  LibX uses this storage for its 
+ * object cache and other things. 
+ *
+ * @namespace
+ */
 libx.io = (function () {
 
 /*
@@ -461,7 +470,7 @@ return /** @lends libx.io */ {
     getFileXML : function ( path ) {
         var fullPath = getFilePath ( path );
         var responseXML = null;
-        libx.cache.globalMemoryCache.get ({
+        libx.cache.defaultMemoryCache.get ({
             url : fullPath,
             dataType : "xml",
             type     : "GET",
