@@ -4,7 +4,9 @@
 
 (function () {
 
-/* Adjust this */
+/* This URL will be read from the edition/user configuration.
+ * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
+ */
 var libappBase = "http://libx.org/libx2/libapps/";
 var scriptBase = libappBase + "scripts/";
 
@@ -16,8 +18,6 @@ var requireAlias = {
     "legacy-cues" : scriptBase + "legacy-cues.js"
 };
 
-// This URL will be read from the edition/user configuration.
-// For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
 var rootPackages = [ libappBase + "libxcore" ];
 
 var libapps = [];
@@ -67,22 +67,20 @@ contentLoadedObserver.onContentLoaded = function (event) {
     log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libapps.length);
     
     /*
-     * Create a new sandbox in which the captured per-XUL-window 
-     * A shallow clone of the 'libx' object appears under the 
-     * global name 'libx'
+     * A shallow clone of the per-XUL-window 'libx' object appears 
+     * under the global name 'libx'
      *
      * libx.space refers to the per-page tuple space.
      *
      * libx.regexp refers to the match if a regexp text transformer
      * executes.
      */
-    var libx_regexp = { }; 
-    var libxClone = { space : new libx.libapp.TupleSpace(), regexp : libx_regexp };
+    var libxDotRegexp = { }; 
+    var libxClone = { space : new libx.libapp.TupleSpace(), regexp : libxDotRegexp };
     libx.core.Class.mixin(libxClone, libx, true);
 
     var sboxGlobalSpace = { libx: libxClone };
     var sbox = new libx.libapp.Sandbox(event.window, sboxGlobalSpace);
-// log("checking libx.space.... " + sbox.sandBox.libx.space);
 
 /*
     if (event.url.match("libx.cs.vt.edu") != null)
@@ -92,9 +90,23 @@ contentLoadedObserver.onContentLoaded = function (event) {
     /*
      * queue that determines order of required scripts and modules.
      *
-     * XXX: should not be a global queue, but rather (probably) per module.
-     * Global makes it simpler to ensure that each script was loaded only
-     * once. XXX
+     * In the implementation below, this is a global queue.
+     * Each module, and thus each dependent script, is loaded 
+     * exactly once.
+     *
+     * This will work for many cases, and is the most efficient since
+     * scripts such as jQuery are loaded into only 1 sandbox.
+     *
+     * However, it will not allow any separation of libapps. 
+     * Not clear what to do -
+     * Should we separate all libapps, give each its own sandbox and tuple space?
+     * Or should we separate a libapp if it is denoted wit a "separate" flag?
+     *
+     * An additional issue are text transformers.  Ideally, we'd like to
+     * run only one - but then the question arises into which tuple space this
+     * one text transformers places tuples... but it may actually be possible
+     * to have just one text explorer whose transformers place items into multiple 
+     * tuple spaces.
      */
     var requireQueue = new libx.utils.collections.ActivityQueue();
 
@@ -145,13 +157,12 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 + "\nthis module requires: " + module.require 
                 + "\nmatching URL was: " + executeModule);
 
-            /* schedule required modules */
+            /* schedule required scripts on which this module depends */
             for (var k = 0; k < module.require.length; k++) {
                 var rUrl = module.require[k];
                 if (rUrl in requireAlias)
                     rUrl = requireAlias[rUrl];
 
-                /* schedule loading of script if not already scheduled */
                 if (rUrl in requireURL2Activity)
                     continue;
 
@@ -191,8 +202,8 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 var textTransformer = new libx.libapp.RegexpTextTransformer(module.regexptexttransformer[0]);
                 textTransformer.onMatch = function (textNode, match) {
                     //
-                    libx_regexp.textNode = textNode;
-                    libx_regexp.match = match;
+                    libxDotRegexp.textNode = textNode;
+                    libxDotRegexp.match = match;
 
                     var jsCode = "(function () {\n"
                         + "  var textNode = libx.regexp.textNode;\n"
@@ -202,7 +213,6 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 
                     log("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
                     return sbox.evaluate(jsCode);
-                    // return eval("(function (textNode, match) {" + module.body + "})(textNode, match);");
                 }
                 textExplorer.addTextTransformer(textTransformer);
             }
