@@ -67,7 +67,7 @@ libx.utils = {
     stdnumsupport: { },
 
     /**
-     * @namespace libx.utils.browserprefs
+     * @namespace 
      *
      * Support for manipulating preferences.
      *

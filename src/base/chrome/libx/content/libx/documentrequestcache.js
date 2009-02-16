@@ -29,6 +29,8 @@
  *
  * Supports multiple pending requests for the same document
  * simultaneously.
+ * 
+ * @namespace
  */
 libx.cache.MemoryCache = ( function () {
 
@@ -86,6 +88,8 @@ var memoryCacheClass = libx.core.Class.create ( {
         },
 
         /**
+         * @private
+         *
          * Builds the string that serves as the key to the cache
          *
          * String delimited by commas (,)

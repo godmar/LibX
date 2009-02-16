@@ -28,6 +28,7 @@ libx.log.bd = {
     }
 }
 
+//XXX: Needs to be defined as abstract function (to solve problem of duplicates)
 libx.cache.bd = {
     getXMLHttpReqObj : function () {
        return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]

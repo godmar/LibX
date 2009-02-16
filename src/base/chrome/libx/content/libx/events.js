@@ -37,7 +37,14 @@
 var handlerMap = { };
 
 /**
- * @namespace libx.events
+ * Event represents an LibX internal event.
+ * @name Event
+ * @class
+ */
+
+/**
+ * @name libx.events
+ * @namespace 
  *
  * Support for events.  LibX events provide a 
  * browser-independent implementation of a observer pattern.
@@ -45,6 +52,8 @@ var handlerMap = { };
  * They are not related to browser events (neither in a content window,
  * nor in FF XUL).
  */
+
+
 libx.events = { 
     Event : libx.core.Class.create(
         /** @lends libx.events.Event.prototype */{

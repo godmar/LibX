@@ -31,6 +31,7 @@ libx.utils.browserprefs = {
     getBoolPref : function (pref, defvalue) {
         return defvalue;
     },
+
     getIntPref : function (pref, defvalue) {
         return defvalue;
     }

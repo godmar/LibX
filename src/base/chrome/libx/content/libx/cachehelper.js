@@ -19,6 +19,7 @@
  * @namespace
  */
  libx.utils.cachehelper = libx.core.Class.create({
+     /** @lends libx.utils.cachehelper.prototype */
 
     /**
      * Sets up the cachehelper
@@ -122,7 +123,7 @@
     /**
      * Calculates the next update time
      */
-    getNextUpdateDelta : function (testParam) {
+    getNextUpdateDelta : function () {
 
         var currentDateInt = Date.parse(Date());
 
@@ -152,11 +153,8 @@
         var timeToUpdate = Math.floor(( 6 * hour / timeSinceUpdate) * hour * Math.random());
 
         if (timeToUpdate > 6 * hour) {
-            print("Hit over 6 hours on past update");
             timeToUpdate = 4 * hour + Math.floor( Math.random() * 2 * hour );
         }
-        else
-            print("Did not go over 6 hours on past update");
 
         return timeToUpdate;
     },

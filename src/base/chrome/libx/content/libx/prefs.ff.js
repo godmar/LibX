@@ -32,10 +32,11 @@
     var nsPreferences = tmp_scope.nsPreferences;
 
     libx.core.Class.mixin(libx.utils.browserprefs, {
+        /** @lends libx.utils.browserprefs */
         /**
          * Retrieve a boolean preference
          *
-         * @member libx.utils.browserprefs
+         * @memberOf libx.utils.browserprefs
          * @param {String} prefName - name of the preference
          * @param {Boolean} defValue - value to be substituted if not found
          * @return {Boolean} value of preference
@@ -47,7 +48,7 @@
         /**
          * Retrieve a string preference
          *
-         * @member libx.utils.browserprefs
+         * @memberOf libx.utils.browserprefs
          * @param {String} prefName - name of the preference
          * @param {String} defValue - value to be substituted if not found
          * @return {String} value of preference
@@ -59,7 +60,7 @@
         /**
          * Retrieve an integer preference
          *
-         * @member libx.utils.browserprefs
+         * @memberOf libx.utils.browserprefs
          * @param {String} prefName - name of the preference
          * @param {Number} defValue - value to be substituted if not found
          * @return {Number} value of preference
@@ -71,7 +72,7 @@
         /**
          * Set a boolean preference
          *
-         * @member libx.utils.browserprefs
+         * @memberOf libx.utils.browserprefs
          * @param {String} prefName - name of the preference
          * @param {Boolean} value - new value
          */
@@ -82,7 +83,7 @@
         /**
          * Set a string preference
          *
-         * @member libx.utils.browserprefs
+         * @memberOf libx.utils.browserprefs
          * @param {String} prefName - name of the preference
          * @param {String} value - new value
          */
@@ -93,7 +94,7 @@
         /**
          * Set an integer preference
          *
-         * @member libx.utils.browserprefs
+         * @memberOf libx.utils.browserprefs
          * @param {String} prefName - name of the preference
          * @param {Number} value - new value
          */

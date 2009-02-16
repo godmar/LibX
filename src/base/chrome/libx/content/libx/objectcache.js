@@ -34,6 +34,11 @@ var defaultUpdateInterval = 10 * 1000; // 10 sec for testing - please, if you ac
 var defaultUpdateInterval = 24 * 60 * 60 * 1000;    // 24 hours
 var fileinfoExt = ".fileinfo.json";
 
+//Used to invoke setInterval 
+var setTimeout = false;
+
+var cacheUtil = libx.utils.cacheUtil;
+
 /**
  * calculates the sha1 path associated with the url (without file ending)
  *
@@ -102,13 +107,15 @@ function retrieveRequest(request, retrievalType) {
             var ext = request.ext || computeExtensionFromContentType(contentType);
             var baseLocalPath = calculateHashedPath (request.url);
             var localPath = baseLocalPath + ext;
-            // XXX store 'expires' date on disk
+            var expireDateInt = cacheUtil.getExpireDate(xhr);
+            
             var metadata = {
                 lastModified : xhr.getResponseHeader('Last-Modified'),
                 mimeType : xhr.getResponseHeader('Content-Type'),
                 originURL : request.url,
                 localPath : localPath,
-                chromeURL : "chrome://libxresource/content/" + localPath
+                chromeURL : "chrome://libxresource/content/" + localPath,
+                expires   : expireDateInt
             };
             libx.io.writeToFile (localPath, data, true);
             var oldMetadata = getMetadata(request.url);
@@ -159,7 +166,11 @@ function handleRequest(request) {
 }
 
 function updateRequests (cachedRequests) {
-    libx.log.write("updating requests: " + cachedRequests.length, "objectcache");
+    libx.log.write("updating requests: " + cachedRequests.length, " objectcache");
+
+    //Write next update time to disk
+    cacheUtil.writeNextUpdateToPref(updateInterval);
+
     var lastMetadata = []
 
     // remove requests that have cleared their keepUpdated flag
@@ -178,6 +189,15 @@ function updateRequests (cachedRequests) {
         libx.log.write("checking " + request.url + " last modified: " + request.lastModified, "objectcache");
         retrieveRequest(request, RetrievalType.UPDATE);
     }
+
+    //If we were called with setTimeout
+    if (setTimeout) {
+        setTimeout = false;
+
+        libx.utils.timer.setInterval(function () {
+            updateRequests(cachedRequests);
+        }, updateInterval);
+    }
 }
 
 /**
@@ -195,9 +215,15 @@ libx.cache.ObjectCache = libx.core.Class.create(
         var self = this;
         this.cachedRequests = new Array();
 
-        libx.utils.timer.setInterval(function () {
+        var timeToNextUpdate = cacheUtil.getNextUpdateDelta();
+
+        libx.utils.timer.setTimeout(function () {
             updateRequests(self.cachedRequests);
-        }, updateInterval);
+        }, timeToNextUpdate);
+
+        //libx.utils.timer.setInterval(function () {
+        //  updateRequests(self.cachedRequests);
+        //}, updateInterval);
     },
 
     /**
