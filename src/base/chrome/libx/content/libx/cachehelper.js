@@ -1,6 +1,6 @@
 //A helper class that can calculate expiration time and determine the time till
 //next update
-(function () {
+libx.utils.cachehelper = (function () {
 
  var lmFactor;
 
@@ -18,7 +18,7 @@
  *
  * @namespace
  */
- libx.utils.cachehelper = libx.core.Class.create({
+ var cacheUtilClass = libx.core.Class.create({
      /** @lends libx.utils.cachehelper.prototype */
 
     /**
@@ -27,12 +27,17 @@
      * @param {Number} factor used in heuristic calculation of expiration date
      *                        defaults to 0.5
      */
-    initialize : function (factor)
+    initialize : function (factor, dayLength)
     {
         if (factor != null)
             lmFactor = factor
         else
             lmFactor = 0.5;
+
+        if (dayLength != null) {
+            day = dayLength;
+            hour = Math.floor(day / 24);
+        }
     },
 
     /**
@@ -178,7 +183,8 @@
     }
  });
 
- libx.utils.cacheUtil = new libx.utils.cachehelper();
+ return cacheUtilClass;
 
  })();
 
+libx.utils.cacheUtil = new libx.utils.cachehelper();
