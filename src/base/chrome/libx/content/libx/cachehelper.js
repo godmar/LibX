@@ -128,18 +128,14 @@
         var currentDateInt = Date.parse(Date());
 
         //Read the update time from preferences
-        if (testParam == null)
-        {
         var storedUpdate = libx.utils.browserprefs.getIntPref("libx.objectcache.nextupdate");
 
         if (storedUpdate == null) {
+            var nextDay = currentDateInt + day
             //Write it to preferences
-            libx.utils.browserprefs.setIntPref("libx.objectcache.nextupdate", currentDateInt + day);
+            libx.utils.browserprefs.setIntPref("libx.objectcache.nextupdate", nextDay);
             return day;
         }
-        }
-        else
-            var storedUpdate = testParam;
 
         if (currentDateInt < storedUpdate)
             return storedUpdate - currentDateInt;
@@ -152,9 +148,16 @@
         //than 6 hours).
         var timeToUpdate = Math.floor(( 6 * hour / timeSinceUpdate) * hour * Math.random());
 
+        //If we didn't miss the last scheduled update by much, then reschedule
+        //it between 4 and 6 hours from now
         if (timeToUpdate > 6 * hour) {
             timeToUpdate = 4 * hour + Math.floor( Math.random() * 2 * hour );
         }
+
+        var newUpdateTime = currentDateInt + timeToUpdate;
+
+        //Store new update in preferences
+        libx.utils.browserprefs.setIntPref("libx.objectcache.nextupdate", newUpdateTime);
 
         return timeToUpdate;
     },
