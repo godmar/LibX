@@ -130,3 +130,34 @@ xhrLastMod.onreadystatechange = function ()
     }
 }
 xhrLastMod.send(undefined);
+
+var hour = 1000 * 3600;
+var day = 1000 * 24 * 3600;
+
+var currDate = Date.parse(Date());
+var oneHr = currDate + 3600 * 1000;
+var sixHr = oneHr * 6;
+var minusEightMin = currDate - 480 * 1000;
+var minusOneDay = currDate - 3600 * 24 * 1000;
+
+//Test next update calculations
+var delta = libx.utils.cacheUtil.getNextUpdateDelta(oneHr);
+
+if (delta == hour)
+    print("\nPASSED future timeout test\n");
+else
+    print("\nFAILED future timeout test, got delta of " + delta + " should have gotten " + hour);
+
+delta = libx.utils.cacheUtil.getNextUpdateDelta(minusEightMin);
+
+if (delta < 6 * hour && delta > 0)
+    print("\nPASSED past timeout test for eight minutes ago (should have gotten over 6 hours on first attempt)\n");
+else
+    print("\nFAILED past timeout test for eight minutes ago, got " + delta + " should have been less than " + sixHr);
+
+delta = libx.utils.cacheUtil.getNextUpdateDelta(minusOneDay);
+
+if (delta < 6 * hour && delta > 0)
+    print("\nPASSED past timeout test for one day ago (should have gotten under 6 hours on first attempt)\n");
+else
+    print("\nFAILED past timeout test for one hour ago, got " + delta + " should have been less than " + sixHr);
