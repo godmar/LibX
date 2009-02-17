@@ -64,20 +64,35 @@ $(document).ready ( function () {
 		
 		function outputNS ( ns, ind ) {
 			var tmp = "";
+			
+			// Store all names of our children for sorting
+			var children = [];
+			
 			for ( var k in ns ) {
 				if ( k != 'class' ) {
-					tmp += ind + "<li>" + "\n";
-					tmp += ind + "	<span>" + "\n";
-					tmp += ind + "		" + ( ns[k]['class'] != undefined ) ? ns[k]['class'] : k + "\n";
-					tmp += ind + "	</span>" + "\n";
+					// Name of the child
+					var name = ( ns[k]['class'] != undefined ) ? ns[k]['class'] : k;
+					// String representing child's html
+					var htmlstr = "";
+					htmlstr += ind + "<li>" + "\n";
+					htmlstr += ind + "	<span>" + "\n";
+					htmlstr += ind + "		" + name + "\n";
+					htmlstr += ind + "	</span>" + "\n";
 					var outtmp = outputNS ( ns[k], ind + "\t" );
 					if ( outtmp != "" ) {
-						tmp += ind + "	<ul>" + "\n";
-						tmp += ind + "		" + outtmp + "\n";
-						tmp += ind + "	</ul>" + "\n";
+						htmlstr += ind + "	<ul>" + "\n";
+						htmlstr += ind + "		" + outtmp + "\n";
+						htmlstr += ind + "	</ul>" + "\n";
 					}
-					tmp += ind + "</li>"  + "\n";
+					htmlstr += ind + "</li>"  + "\n";
+
+					children.push ( { name: name, str : htmlstr } );		
 				} 
+			}
+			
+			children.sort ( function (a, b ) { return b.name < a.name; } );
+			for ( var i = 0; i < children.length; i++ ) {
+				tmp+= children[i].str;
 			}
 			return tmp;
 		}
