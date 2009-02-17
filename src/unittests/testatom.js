@@ -7,6 +7,7 @@ var atomParser = new libx.libapp.PackageWalker(rootPackage);
 var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
     onpackage: function (pkg) {
         println("pkg: " + libx.utils.types.dumpObject(pkg));
+        println("  " + libx.utils.types.dumpObject(pkg.entries[0]));
         this.parent(pkg);
     },
     onlibapp: function (libapp) {
@@ -30,5 +31,5 @@ var myVisitor = new MyVisitorClass();
 atomParser.walk(myVisitor);
 
 println("waiting for stuff to finish...");
-java.lang.Thread.sleep(3000);
+java.lang.Thread.sleep(5000);
 
