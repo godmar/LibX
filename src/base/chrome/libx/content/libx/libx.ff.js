@@ -488,7 +488,7 @@ libx.ff.initialize = function() {
         if (!win)
             return;     
 
-        if (ev.originalTarget.location == 'about:blank')
+        if (/^(javascript:|about:blank)/.test(ev.originalTarget.location))
             return;     
 
         // don't run anything in hidden frames - some are used for Comet-style communication
