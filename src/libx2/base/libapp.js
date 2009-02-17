@@ -168,8 +168,21 @@ contentLoadedObserver.onContentLoaded = function (event) {
 
                 requireURL2Activity[rUrl] = {
                     onready : function (scriptText, metadata) {
-                        log("injecting required script: " + metadata.originURL);
-                        sbox.evaluate(scriptText);
+                        if (/.*\.js$/.test(metadata.originURL)) {
+                            log("injecting required script: " + metadata.originURL);
+                            sbox.evaluate(scriptText);
+                        } else
+                        if (/.*\.css$/.test(metadata.originURL)) {
+                            // $('head').append ( '<link href="http://libx2/libx2/libapps/scripts/jquery.jgrowl.css" rel="stylesheet" type="text/css" />');
+                            var doc = event.window.document;
+                            var heads = doc.getElementsByTagName('head');
+                            var sheet = doc.createElement('link');
+                            sheet.setAttribute('rel', 'stylesheet');
+                            sheet.setAttribute('type', 'text/css');
+                            sheet.setAttribute('href', metadata.chromeURL);
+                            log("injecting stylesheet: " + metadata.originURL + " as " + metadata.chromeURL);
+                            heads[0].appendChild(sheet);
+                        }
                     }
                 }
 
