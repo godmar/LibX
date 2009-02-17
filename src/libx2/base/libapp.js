@@ -1,5 +1,5 @@
 /*
- * Support for running libapps,
+ * Support for running libapps.
  */
 
 (function () {
@@ -23,6 +23,11 @@ var rootPackages = [ libappBase + "libxcore" ];
 var libapps = [];
 
 // Step 1. Find all libapps in the root packages
+// This code registers all libapps on browser-window startup
+// registrations will progress as quickly as the package tree
+// can be walked.  It may be the case that an ContentLoaded event
+// fires before the walk is complete, resulting in libapps
+// not being executed on the first visit.
 var RegisterLibappsClass = new libx.core.Class.create(libx.libapp.PackageVisitor, {
     onlibapp: function (libapp) {
         libapps.push(libapp);
@@ -75,11 +80,10 @@ contentLoadedObserver.onContentLoaded = function (event) {
      * libx.regexp refers to the match if a regexp text transformer
      * executes.
      */
-    var libxDotRegexp = { }; 
-    var libxClone = { space : new libx.libapp.TupleSpace(), regexp : libxDotRegexp };
-    libx.core.Class.mixin(libxClone, libx, true);
+    var libxDotLibappData = { };    // an object for holding data that is per libapp.
+    var libxClonePlusAppData = libx.core.Class.mixin({ libappdata : libxDotLibappData }, libx, true);
 
-    var sboxGlobalSpace = { libx: libxClone };
+    var sboxGlobalSpace = { libx: libxClonePlusAppData };
     var sbox = new libx.libapp.Sandbox(event.window, sboxGlobalSpace);
 
 /*
@@ -88,27 +92,21 @@ contentLoadedObserver.onContentLoaded = function (event) {
 */
 
     /*
-     * queue that determines order of required scripts and modules.
-     *
+     * Queue that determines order of required scripts.
      * In the implementation below, this is a global queue.
-     * Each module, and thus each dependent script, is loaded 
-     * exactly once.
+     * Each script and style-sheet is loaded exactly once
+     * into the sandbox.  Thus, scripts share the global
+     * namespace within the sandbox.
      *
-     * This will work for many cases, and is the most efficient since
-     * scripts such as jQuery are loaded into only 1 sandbox.
+     * Module execution is added to this queue as well to 
+     * ensure it occurs after all required scripts have been
+     * loaded and all required style sheets have been injected.
      *
-     * However, it will not allow any separation of libapps. 
-     * Not clear what to do -
-     * Should we separate all libapps, give each its own sandbox and tuple space?
-     * Or should we separate a libapp if it is denoted wit a "separate" flag?
-     *
-     * An additional issue are text transformers.  Ideally, we'd like to
-     * run only one - but then the question arises into which tuple space this
-     * one text transformers places tuples... but it may actually be possible
-     * to have just one text explorer whose transformers place items into multiple 
-     * tuple spaces.
+     * Each libapp has however its own tuple space.  On each entry 
+     * into the sandbox, we clone 'libx' and capture the current 
+     * libapp's tuple space in libx.space.
      */
-    var requireQueue = new libx.utils.collections.ActivityQueue();
+    var requiredScripts = new libx.utils.collections.ActivityQueue();
 
     /* map require url to activity */
     var requireURL2Activity = { };
@@ -119,8 +117,12 @@ contentLoadedObserver.onContentLoaded = function (event) {
         executeLibapp(libapps[i]);
     }
 
+    // at this point, all libapps and modules that were in the cache (and
+    // whose dependencies were in the cache) have been loaded, synchronously.
     log("#textTransformers: " + textExplorer.textTransformerList.length);
     textExplorer.traverse(event.window.document.documentElement);
+
+    // function ends here.  Modules and libapps will continue executing asynchronously.
 
     function executeLibapp(libapp) {
 
@@ -132,17 +134,11 @@ contentLoadedObserver.onContentLoaded = function (event) {
         }
 
         log("after URL check, executing libapp: " + libapp.description);
-
-        // we run each module only once, no matter how many libapps refer to it
-        var hasModuleRun = { };
+        libapp.space = new libx.libapp.TupleSpace()
 
         for (var i = 0; i < libapp.entries.length; i++) {
             new libx.libapp.PackageWalker(libapp.entries[i].url).walk({
                 onmodule: function (module) {
-                    if (module.id in hasModuleRun)
-                        return;
-
-                    hasModuleRun[module.id] = 1;
                     executeModule(module);
                 }
             });
@@ -166,14 +162,13 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 if (rUrl in requireURL2Activity)
                     continue;
 
-                requireURL2Activity[rUrl] = {
+                var rAct = requireURL2Activity[rUrl] = {
                     onready : function (scriptText, metadata) {
                         if (/.*\.js$/.test(metadata.originURL)) {
                             log("injecting required script: " + metadata.originURL);
                             sbox.evaluate(scriptText);
                         } else
                         if (/.*\.css$/.test(metadata.originURL)) {
-                            // $('head').append ( '<link href="http://libx2/libx2/libapps/scripts/jquery.jgrowl.css" rel="stylesheet" type="text/css" />');
                             var doc = event.window.document;
                             var heads = doc.getElementsByTagName('head');
                             var sheet = doc.createElement('link');
@@ -186,16 +181,24 @@ contentLoadedObserver.onContentLoaded = function (event) {
                     }
                 }
 
-                var rAct = requireURL2Activity[rUrl];
-                requireQueue.scheduleLast(rAct);
+                requiredScripts.scheduleLast(rAct);
 
                 libx.cache.defaultObjectCache.get({
                     url: rUrl,
                     success: function (scriptText, metadata) {
-                        requireURL2Activity[rUrl].markReady(scriptText, metadata);
+                        requireURL2Activity[this.url].markReady(scriptText, metadata);
                     }
                 });
             }
+
+            /* code to set up the sandbox by shallow-cloning libx and setting the 
+             * correct libx.space property.  Assumes that libxDotLibappData was
+             * initialized correctly prior to calling into the sandbox.
+             * Repeated execution will clone the previous clone, which 
+             * is fine (and almost autopoeitic.) */
+            var setupSandbox = 
+                "libx = libx.core.Class.mixin({ }, libx, true);\n"
+              + "libx.space = libx.libappdata.space;\n";
 
             /* now schedule the module itself */
             var runModuleActivity = {
@@ -207,20 +210,21 @@ contentLoadedObserver.onContentLoaded = function (event) {
                     }
                 }
             };
-            requireQueue.scheduleLast(runModuleActivity);
+            requiredScripts.scheduleLast(runModuleActivity);
             runModuleActivity.markReady();
 
             function runTextTransformerModule(module) {
                 log("Adding RegexpTextTransformer Module: " + module.regexptexttransformer[0]);
                 var textTransformer = new libx.libapp.RegexpTextTransformer(module.regexptexttransformer[0]);
                 textTransformer.onMatch = function (textNode, match) {
-                    //
-                    libxDotRegexp.textNode = textNode;
-                    libxDotRegexp.match = match;
+                    // Place textNode, match, and libapp.space into the sandbox.
+                    libxDotLibappData.textNode = textNode;
+                    libxDotLibappData.match = match;
+                    libxDotLibappData.space = libapp.space;
 
-                    var jsCode = "(function () {\n"
-                        + "  var textNode = libx.regexp.textNode;\n"
-                        + "  var match = libx.regexp.match;\n"
+                    var jsCode = setupSandbox + "(function () {\n"
+                        + "  var textNode = libx.libappdata.textNode;\n"
+                        + "  var match = libx.libappdata.match;\n"
                         +       module.body
                         + "}) ();\n";
                 
@@ -232,6 +236,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
 
             function runModule(module) {
 
+                libxDotLibappData.space = libapp.space;
                 var jsCode = ""
                 + "      (function () {\n"
                 + "      " + module.body + "\n"
@@ -266,6 +271,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 jsCode += "}\n";
                 jsCode += "delete this.p;\n";
                 */
+                jsCode = setupSandbox + jsCode;
                 log("Running module '" + module.description + "': \n" + jsCode);
                 sbox.evaluate(jsCode);
             }

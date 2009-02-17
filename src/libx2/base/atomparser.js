@@ -42,7 +42,7 @@ function resolveURL(baseURL, url)
     if (url.match(/^[a-z]+:/)) {    // absolute URL
         return url;
     } else
-    if (url.match(/\/.*/)) {        // same host+protocol, but absolute path
+    if (url.match(/^\/.*/)) {        // same host+protocol, but absolute path
         return baseURL.match(/^[a-z]+:\/\/[^\/]+\//) + url.replace(/^\//, "");
     } else {
         // relative path
@@ -85,10 +85,6 @@ function handleEntry(visitor, url) {
         var libx2Node = libx.utils.xpath.findSingleXML(
             xmlDoc, "./libx2:*", entryNode, ns
         );
-        if (libx2Node == null) {
-            libx.log.write(baseURL + ": entry does not contain any libx2:* node");
-            return;
-        }
 
         var desc = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:title/text()",
             entryNode, ns);
@@ -96,6 +92,11 @@ function handleEntry(visitor, url) {
         var atomid = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:id/text()",
             entryNode, ns);
         atomid = atomid != null ? atomid.nodeValue : "atom:id is missing";
+
+        if (libx2Node == null) {
+            libx.log.write(baseURL + ": entry " + atomid + " does not contain any libx2:* node");
+            return;
+        }
 
         var nodeInfo = { 
             baseURL: baseURL,
@@ -150,7 +151,7 @@ function handleEntry(visitor, url) {
 
         for (var i = 0; libxEntries != null && i < libxEntries.length; i++) {
             nodeInfo.entries.push({
-                url: resolveURL(baseURL, libxEntries[i].getAttribute('src')),
+                url: resolveURL(baseURL, String(libxEntries[i].getAttribute('src'))),
                 libxEntry: libxEntries[i]
             });
         }
