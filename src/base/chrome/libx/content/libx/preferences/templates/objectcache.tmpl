@@ -43,8 +43,9 @@
 <button onclick="purgeAll();">Purge All</button>
 <for each="obj" in="cachedObjects">
 	<div class="groupbox">
-		<label> {+ obj.url +} <a href="{+ obj.chromeurl +}">(Open Cached Copy)</a> </label>
+		<label> {+ obj.url +}  </label>
 		<div>
+			<a href="{+ obj.chromeurl +}">(Open Cached Copy)</a>
 			<p> Last Modified: {+ obj.lastmod +} </p> 
 			<p> Mime-Type: {+ obj.mimetype +} </p>	
 			<button class="purge-button" onclick="purge('{+obj.filename+}');"> Purge </button>

@@ -1,0 +1,19 @@
+
+
+
+
+
+<ul class="tree">
+	<for each="app" in="libx.libapp.loadedLibapps">
+    	<li>
+        	<label>{+app.description+}</label>
+        	<ul>
+	        	<for each="entry" in="app.entries">
+	        		<li>
+	        			<label>{+entry.url+}</label>
+	        		</li>
+	        	</for>
+        	</ul>
+       	</li>
+	</for>
+</ul>
