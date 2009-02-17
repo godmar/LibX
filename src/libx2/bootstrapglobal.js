@@ -6,6 +6,7 @@ var files = [
     "base/bitvector.js",
     "base/textexplorer.js",
     "base/texttransformer.js",
+    "base/link360service.js",
 ];
 
 for (var i = 0; i < files.length; i++) {
