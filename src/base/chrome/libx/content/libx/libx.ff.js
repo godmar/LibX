@@ -159,12 +159,12 @@ libx.ff.toolbar = {
         this.toolbarname = toolbarname;
         this.xulToolbar = document.getElementById(this.toolbarname);
         this.searchFieldVbox = document.getElementById("libx-search-field-vbox");
-
+		var self = this;
         /* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
         menu = document.getElementById ( 'libx-statusbar-popup' );
         menu.addEventListener('popupshowing', function () {
             var mitem = document.getElementById('libx-statusbar-togglebar-item');
-            mitem.setAttribute('checked', !this.xulToolbar.collapsed);
+            mitem.setAttribute('checked', !self.xulToolbar.collapsed);
         }, false);
     },
     /** 
