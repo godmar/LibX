@@ -65,14 +65,12 @@ $(document).ready ( function () {
 		function outputNS ( ns, ind ) {
 			var tmp = "";
 			
-			// Store all names of our children for sorting
+			/* Store all names of our children for sorting */
 			var children = [];
 			
 			for ( var k in ns ) {
 				if ( k != 'class' ) {
-					// Name of the child
 					var name = ( ns[k]['class'] != undefined ) ? ns[k]['class'] : k;
-					// String representing child's html
 					var htmlstr = "";
 					htmlstr += ind + "<li>" + "\n";
 					htmlstr += ind + "	<span>" + "\n";
