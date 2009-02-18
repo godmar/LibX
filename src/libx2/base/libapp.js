@@ -7,7 +7,7 @@
 /* This URL will be read from the edition/user configuration.
  * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
  */
-var libappBase = "http://libx.org/libx2/libapps/";
+var libappBase = "http://libx2/libx2/libapps/";
 var scriptBase = libappBase + "scripts/";
 
 /*
@@ -15,7 +15,11 @@ var scriptBase = libappBase + "scripts/";
  */
 var requireAlias = {
     "jquery" : scriptBase + "jquery-latest.js",
-    "legacy-cues" : scriptBase + "legacy-cues.js"
+    "jgrowl" : scriptBase + "jquery.jgrowl.js",
+    "jgrowl.css" : scriptBase + "jquery.jgrowl.css",
+    "legacy-cues" : scriptBase + "legacy-cues.js",
+    "jquery-ui" : scriptBase + "jquery-ui.js",
+    "jquery-ui.css" : scriptBase + "theme/ui.all.css"
 };
 
 var rootPackages = [ libappBase + "libxcore" ];
@@ -169,7 +173,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
                     onready : function (scriptText, metadata) {
                         if (/.*\.js$/.test(metadata.originURL)) {
                             log("injecting required script: " + metadata.originURL);
-                            sbox.evaluate(scriptText);
+                            sbox.evaluate(scriptText, metadata.originURL.split ( '/' ).pop() );
                         } else
                         if (/.*\.css$/.test(metadata.originURL)) {
                             var doc = event.window.document;
@@ -232,7 +236,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
                         + "}) ();\n";
                 
                     log("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
-                    return sbox.evaluate(jsCode);
+                    return sbox.evaluate(jsCode, module.description );
                 }
                 textExplorer.addTextTransformer(textTransformer);
             }
@@ -276,7 +280,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 */
                 jsCode = setupSandbox + jsCode;
                 log("Running module '" + module.description + "': \n" + jsCode);
-                sbox.evaluate(jsCode);
+                sbox.evaluate(jsCode, module.description );
             }
         }
     }

@@ -69,8 +69,7 @@ libx.libapp.Sandbox = libx.core.Class.create(
      *
      * @param {String} code to be evaluated
      */
-    evaluate : function ( code ) {
-    	
+    evaluate : function ( code, fname ) {
         try {
 	        if ( libx.utils.browserprefs.getBoolPref('libx.sandbox.usesubscriptloader', false ) ) {
 	        	
@@ -82,10 +81,9 @@ libx.libapp.Sandbox = libx.core.Class.create(
 	        		libx.global.libapp.FILE_COUNTER = 0;
 	        	}
 	        	
-	    		var filename = "chrome://libx/content/temp" + libx.global.libapp.FILE_COUNTER++ + ".js";
+	    		var filename = "temp/" + ( fname ? fname : libx.global.libapp.FILE_COUNTER++ );
 				libx.io.writeToFile ( filename, code, true );
-				
-	    		this.subscriptLoader.loadSubScript ( filename, this.sandBox );
+	    		this.subscriptLoader.loadSubScript ( "chrome://libxresource/content/" + filename, this.sandBox );
 	    		
 	    	} else {
 	            return Components.utils.evalInSandbox( code, this.sandBox );
