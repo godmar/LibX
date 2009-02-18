@@ -50,17 +50,17 @@ libx.core = (function() {
     Licensed under the new BSD License. See end of file for full license terms.
   */
   /**
-   * @name libx.core.Class
+   *	@name libx.core.Class
+   *	@class
    */
   var Class = (function() {
     var __extending = {};
 
-    return {
+    return /** @lends libx.core.Class */ {
       /**
        * Create a new class that extends parent with more
        * definitions.
        *
-       * @static libx.core.Class
        * @param {Constructor} parent
        * @param {Object} definitions of methods and fields
        * @return {Constructor} new class constructor.
@@ -90,6 +90,13 @@ libx.core = (function() {
         }
         return func;
       },
+      
+      /**
+       *	Allows the use of mixins
+       *	@param {Object} destination
+       *	@param {Object} source object
+       *	@param {Boolean} overwrite whether or not to overwrite already existing properties in the destination object
+       */
       mixin: function (dest, src, clobber) {
         clobber = clobber || false;
         if (typeof(src) != 'undefined' && src !== null) {
@@ -101,6 +108,12 @@ libx.core = (function() {
         }
         return dest;
       },
+      /**
+       *	Allows one class to inherit properties from another
+       *	@param {Class} Destination class ( the one that is inheriting )
+       *	@param {Class} Source class ( the one that is being inherited from )
+       *	@param {String} fname Optional, if specified only this property will be inherited
+       */
       inherit: function(dest, src, fname) {
         if (arguments.length == 3) {
           var ancestor = dest[fname], descendent = src[fname], method = descendent;
@@ -153,7 +166,8 @@ libx.core = (function() {
   /**
    * Create a new class that (optionally) derives from a parent.
    *
-   * @static libx.core.Class
+   * @name libx.core.Class.create
+   * @function
    * @param {Constructor} parent (optional)
    * @param {Object} definitions of methods and fields
    * @return {Constructor} new class constructor.
