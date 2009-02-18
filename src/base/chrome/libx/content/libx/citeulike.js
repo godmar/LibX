@@ -40,7 +40,7 @@ libx.citeulike.notificationicon = {
      * or not posting to CiteULike is supported from a given website
      */
     initialize: function () {
-        var icon = new libx.bd.utils.UrlBarIcon();
+        var icon = new libx.ui.UrlBarIcon();
         icon.setHidden ( true );
         icon.setImage ( "chrome://libx/skin/citeulike.ico" );
         icon.setOnclick ( function  (e) {

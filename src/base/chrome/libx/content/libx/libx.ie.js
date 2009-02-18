@@ -34,7 +34,6 @@
  * @namespace
  */
 libx.ie = { };
-libx.bd = libx.ie;
 
 /**
  * @namespace
@@ -54,8 +53,6 @@ libx.ie.initialize = function() {
     // Listener for the prefs window to catch changes to the roots info
     libxEnv.doforurls.setRootUpdateListener( libxEnv.updateRootInfo );
 }
-
-libxEnv.debugInit = function () {}  // XXX needed?
 
 //Window functions////////////////////////////////////////////////////////////
 
@@ -293,9 +290,6 @@ libx.log.bd = {
 
 //Context menu functions//////////////////////////////////////////////////////
 
-libxEnv.initializeContextMenu = function () {
-}
-
 libxEnv.addMenuObject = function(menuentry) {
     return libxInterface.addMenuEntry(menuentry);
 }
@@ -317,29 +311,29 @@ function libxSelectAutolink(value)
     libx.utils.browserprefs.setBoolPref("libx.autolink", value);
 }
 
-/**
+/*
  * Creates a URL Bar Icon
  * @class
  *
  * Not implemented.
  */
-libx.ie.utils.UrlBarIcon = libx.core.Class.create(
-    /** lends libx.ie.utils.UrlBarIcon.prototype */ {
-    /**
+libx.ui.UrlBarIcon = libx.core.Class.create(
+{
+    /*
      * @constructs
      */
     initialize:  function () {
     },
-    //* modifies the hidden attribute of the icon
+    // modifies the hidden attribute of the icon
     setHidden : function ( hidden ) {
     },
-    //* sets the image src of the icon
+    // sets the image src of the icon
     setImage : function ( img ) {
     },
-    //* sets the onclick function of the icon
+    // sets the onclick function of the icon
     setOnclick : function ( onclick ) {
     },
-    //* sets tooltip text
+    // sets tooltip text
     setTooltipText : function ( text ) {
     }
 });

@@ -14,7 +14,7 @@ var scriptBase = libappBase + "scripts/";
  * Aliases for scripts
  */
 var requireAlias = {
-    "jquery" : scriptBase + "jquery-1.2.3.js",
+    "jquery" : scriptBase + "jquery-latest.js",
     "legacy-cues" : scriptBase + "legacy-cues.js"
 };
 
@@ -39,6 +39,9 @@ var registerLibapps = new RegisterLibappsClass();
 for (var i = 0; i < rootPackages.length; i++) {
     new libx.libapp.PackageWalker(rootPackages[i]).walk(registerLibapps);
 }
+
+// record last set of loaded libapps with global object, for prefs display
+libx.global.libapp.loadedLibapps = libapps;
 
 /*
  * Check if include/exclude applies.

@@ -127,8 +127,11 @@ libx.catalog.Catalog = libx.core.Class.create(
     makeKeywordSearch: function(/**String*/keyword) {
         return this.makeSearch("Y", keyword);
     },
-    // Create a url that requests an item by ISBN from the xISBN service,
-    // if the current catalog supports it
+    /**
+     * Create a url that requests an item by ISBN from the xISBN service,
+     * if the current catalog supports it.
+     * @return {URL} xISBN liblookup URL
+     */
     makeXISBNRequest: function(isbn) {
         if (this.xisbn.res_id) {
             // new service described at http://xisbn.worldcat.org/liblook/howtolink.htm

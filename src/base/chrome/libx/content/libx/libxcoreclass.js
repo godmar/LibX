@@ -33,11 +33,11 @@ libx.global = libx;
  * namespace.
  * See http://code.google.com/p/inheritance/ 
  * for details and documentation.
- *
+ * <p>
  * Following snippet taken from 
  * http://pastie.textmate.org/private/ua9j48n4w0k4wpxktsxdhw
  * This file contains Alex's original code and a name space wrapper.
- *
+ * <p>
  *	@namespace
  *
  *	This property is global.
@@ -49,9 +49,9 @@ libx.core = (function() {
     Copyright (c) 2006, 2007, 2008, Alex Arnell <alex@twologic.com>
     Licensed under the new BSD License. See end of file for full license terms.
   */
-	/**
-	 * @name libx.core.Class
-	 */
+  /**
+   * @name libx.core.Class
+   */
   var Class = (function() {
     var __extending = {};
 
@@ -60,7 +60,7 @@ libx.core = (function() {
        * Create a new class that extends parent with more
        * definitions.
        *
-       * @member libx.core.Class
+       * @static libx.core.Class
        * @param {Constructor} parent
        * @param {Object} definitions of methods and fields
        * @return {Constructor} new class constructor.
@@ -150,6 +150,14 @@ libx.core = (function() {
   })();
 
   // finally remap Class.create for backward compatability with prototype
+  /**
+   * Create a new class that (optionally) derives from a parent.
+   *
+   * @static libx.core.Class
+   * @param {Constructor} parent (optional)
+   * @param {Object} definitions of methods and fields
+   * @return {Constructor} new class constructor.
+   */
   Class.create = function() {
     return Class.extend.apply(this, arguments);
   };
@@ -181,7 +189,19 @@ libx.core = (function() {
   // return whatever new name you want for Class
   return { 
         'Class': Class,
+        /**
+         * Implement an empty function, which does nothing.
+         *
+         * @name libx.core.EmptyFunction
+         */
         'EmptyFunction': function () { },
+        /**
+         * Implement an abstract function
+         *
+         * @name libx.core.AbstractFunction
+         * @param {String} name of a function
+         * @return {Function} a function that throws an error with given 'name'
+         */
         'AbstractFunction': function (fname) { 
             return function () {
                 throw new Error("function " + fname + " not implemented");

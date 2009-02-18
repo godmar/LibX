@@ -39,22 +39,14 @@
 libx.ff = { };
 
 /**
- * Browser-dependent layer.
- * libx.bd is an alias for libx.ff or libx.ie.
- *
- * @see libx.ie 
- * @see libx.ff
- * @namespace
- */
-libx.bd = libx.ff;
-
-/**
  * @namespace
  * Utility classes and functions for LibX Firefox
  */
 libx.ff.utils = { };
 
-/**
+(function () {
+
+/*
  * Support for context menu.  
  * @class
  *
@@ -62,9 +54,8 @@ libx.ff.utils = { };
  *  chrome://global/content/nsDragAndDrop.js
  *  chrome://global/content/nsTransferable.js
  */
-libx.ff.utils.ContextPopupHelper = libx.core.Class.create(
-    /** @lends libx.ff.utils.ContextPopupHelper.prototype */{
-    /**
+var ContextPopupHelper = libx.core.Class.create({
+    /*
      * Determine if popup was opened over element of kind 'tagname'
      * @return true if so
      */
@@ -80,7 +71,7 @@ libx.ff.utils.ContextPopupHelper = libx.core.Class.create(
         return true;
     },
 
-    /**
+    /*
      * @return true if popup was opened over hyperlink? 
      */
     isOverLink: function() {
@@ -88,7 +79,7 @@ libx.ff.utils.ContextPopupHelper = libx.core.Class.create(
         return this.isTag('A') && this.lastPopupNode.href != "";
     },
 
-    /**
+    /*
      * @return {String} selection, if any, else null
      */
     getSelection: function() {
@@ -98,15 +89,15 @@ libx.ff.utils.ContextPopupHelper = libx.core.Class.create(
         return s == null ? "" : s.toString();
     },
 
-    /**
-     * Determine is user selectec text
+    /*
+     * Determine is user selected text
      * @return {Boolean} true if text is selected
      */
     isTextSelected: function() {
         return gContextMenu.isTextSelected;
     },
 
-    /**
+    /*
      * Get DOM node over which popup was opened
      * @return {DOMNode} over which popup was opened
      */
@@ -115,7 +106,7 @@ libx.ff.utils.ContextPopupHelper = libx.core.Class.create(
     }
 });
 
-/**
+/*
  * Support for drag'n'drop
  * @class
  *
@@ -123,8 +114,7 @@ libx.ff.utils.ContextPopupHelper = libx.core.Class.create(
  *  chrome://global/content/nsDragAndDrop.js
  *  chrome://global/content/nsTransferable.js
  */
-libx.ff.utils.TextDropTarget = libx.core.Class.create(
-    /** @lends libx.ff.utils.TextDropTarget.prototype */{
+var TextDropTarget = libx.core.Class.create({
     initialize: function (func) {
         this.callback = func;
     },
@@ -162,6 +152,7 @@ libx.ff.toolbar = {
 		var self = this;
         /* reflect visibility of toolbar in checkbox when lower-right menu is shown. */
         menu = document.getElementById ( 'libx-statusbar-popup' );
+        var self = this;
         menu.addEventListener('popupshowing', function () {
             var mitem = document.getElementById('libx-statusbar-togglebar-item');
             mitem.setAttribute('checked', !self.xulToolbar.collapsed);
@@ -369,12 +360,12 @@ libx.ff.toolbar = {
         if (edition.options.disablescholar) {
             scholarbutton.hidden = true;
         } else {
-            new libx.ff.utils.TextDropTarget(libx.ui.magicSearch).attachToElement(scholarbutton);
+            new TextDropTarget(libx.ui.magicSearch).attachToElement(scholarbutton);
         }
 
         // add the selected search as a default target
         var searchbutton = document.getElementById("libx-search-button");
-        new libx.ff.utils.TextDropTarget(function (data) {
+        new TextDropTarget(function (data) {
             var url = libx.ff.toolbar.selectedCatalog.search([{ searchType: 'Y', searchTerms: data }]);
             libx.ui.openSearchWindow(url);
         }).attachToElement(searchbutton);
@@ -440,7 +431,7 @@ libx.ff.toolbar = {
 /**
  * Initialize Firefox-specific parts.
  */
-libx.ff.initialize = function() {
+libx.ui.initialize = function() {
 
     libx.ff.toolbar.initialize('libx-toolbar');
 
@@ -511,8 +502,8 @@ libx.ff.initialize = function() {
 /**
  * Activate a new configuration
  */
-libx.ff.activateConfiguration = function (edition) {
-    this.toolbar.activateConfiguration(edition);
+libx.ui.activateConfiguration = function (edition) {
+    libx.ff.toolbar.activateConfiguration(edition);
 }
 
 // open search results, according to user preferences
@@ -591,8 +582,8 @@ libx.ui.openSearchWindow = function (url, pref) {
 /**
  *	Returns a popuphelper object
  */
-libx.ff.getPopupHelper = function () {
-	return new libx.ff.utils.ContextPopupHelper ();
+libx.ui.getPopupHelper = function () {
+	return new ContextPopupHelper ();
 };
 
 
@@ -626,7 +617,7 @@ libx.ui.getCurrentWindowContent = function() {
 }
 
 /**
- * Represents a browser-dependant Context Menu Item
+ * Represents a browser-dependent Context Menu Item
  */
 libx.ui.bd.ContextMenuItem = libx.core.Class.create ( {
 	initialize : function () {
@@ -710,8 +701,8 @@ libx.ui.bd.ContextMenuItem = libx.core.Class.create ( {
  * Currently used for FF+CiteULike.
  * Revisit namespace choice later.
  */
-libx.ff.utils.UrlBarIcon = libx.core.Class.create(
-    /** lends libx.ff.utils.UrlBarIcon.prototype */ {
+libx.ui.UrlBarIcon = libx.core.Class.create(
+    /** lends libx.ui.UrlBarIcon.prototype */ {
     /**
      * @constructs
      */
@@ -740,6 +731,8 @@ libx.ff.utils.UrlBarIcon = libx.core.Class.create(
         this.img.setAttribute ( 'tooltiptext', text );
     }
 });
+
+}) ();
 
 // vim: ts=4
 

@@ -41,6 +41,7 @@ var globalScripts = [
 	"chrome://libx/content/catalogs/vubis.js",
 	"chrome://libx/content/catalogs/voyager7.js",
 	"chrome://libx/content/catalogs/talisprism.js",
+	"chrome://libx/content/catalogs/polaris.js",
 	"chrome://libx/content/catalogs/openURLCatalog.js",
     "chrome://libx/content/citeulike-checkurl.js",
 	"chrome://libx/content/proxy.js",

@@ -22,12 +22,10 @@ libx.services.link360 = {
     }
 };
 
-/**
- * A Link360 service object
- */
 libx.services.link360.Link360 = libx.core.Class.create(
     /** @lends libx.services.link360.Link360.prototype */{
     /**
+     * A Link360 service object
      * @param {String} ssid - Serials Solutions Client ID
      * @constructs
      */
@@ -42,7 +40,6 @@ libx.services.link360.Link360 = libx.core.Class.create(
      * @param {Function} options.notFound
      * @param {Function} options.hasFullText
      * @param {Function} options.foundNoFullText
-     * @constructs
      */
     getMetadata : function (options) {
         var self = this;

@@ -57,7 +57,7 @@ var ContextMenu = libx.core.Class.create (
         } );
 		
 		var groupLists = this.groupLists = new Array();
-		var popuphelper = this.popuphelper = libx.bd.getPopupHelper();
+		var popuphelper = this.popuphelper = libx.ui.getPopupHelper();
 		
 		/**
 		 *	Function called when ContextMenu is being shown

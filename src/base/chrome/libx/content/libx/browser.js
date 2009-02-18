@@ -8,8 +8,6 @@
  *	browser abstractions ( ie, context menu, toolbar )
  */
 libx.browser = (function () { 
-/** @private */
-var contextMenu;
 
 /**
  *	This is the browser object
@@ -30,14 +28,15 @@ var browser =
             base : "libx.prefs"
         } );  
           
-		libx.bd.initialize();
+		libx.ui.initialize();
 		
 		// To implement:  this.toolbar = new Toolbar();
 
         function activateConfiguration(edition) {
             libx.edition = edition;
             libx.log.write("Activating configuration: " + libx.edition.name.long);
-            libx.browser.activateConfiguration(edition);
+            libx.ui.activateConfiguration (edition);
+            this.contextMenu = new libx.ui.ContextMenu (libx.ui.basicContextMenuDescriptor, edition);
             libx.citeulike.notificationicon.initialize();
 
             // now pull in additional files - location to be determined
@@ -62,21 +61,8 @@ var browser =
                 }
             });
         }
-	},
-	
-	/**
-	 * Activate a given configuration.
-	 *
-	 * @param edition edition configuration object
-	 */
-	activateConfiguration : function (edition) {
-        libx.bd.activateConfiguration (edition);
-		contextMenu = this.contextMenu = 
-            new libx.ui.ContextMenu 
-                (libx.ui.basicContextMenuDescriptor, edition);
 	}
 };
-
 
 return browser;
 })();

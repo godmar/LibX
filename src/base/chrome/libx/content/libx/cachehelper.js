@@ -1,5 +1,7 @@
-//A helper class that can calculate expiration time and determine the time till
-//next update
+/**
+ * A helper class that can calculate expiration time and determine the time till
+ * next update
+ */
 libx.utils.cachehelper = (function () {
 
  var lmFactor;
