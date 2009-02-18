@@ -7,7 +7,7 @@
 /* This URL will be read from the edition/user configuration.
  * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
  */
-var libappBase = "http://libx2/libx2/libapps/";
+var libappBase = "http://libx.org/libx2/libapps/";
 var scriptBase = libappBase + "scripts/";
 
 /*
