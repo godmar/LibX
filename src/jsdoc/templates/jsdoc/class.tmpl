@@ -48,7 +48,7 @@
 					+}.<br />
 				</if>
 			
-				{+resolveLinks(data.classDesc)+}
+				<p>{+resolveLinks(data.classDesc)+}</p>
 				
 				<if test="!data.isBuiltin()">{# isn't defined in any file #}
 					<br /><i>Defined in: </i> {+new Link().toSrc(data.srcFile)+}.
@@ -218,9 +218,9 @@
 				!}
 						<b>{+ data.alias +}</b><if test="classType != 'Namespace '">{+ makeSignature(data.params) +}</if>
 				</div>
-				
+				 
 				<div class="description">
-					{+resolveLinks(data.desc)+}
+					<p>{+resolveLinks(data.desc)+}</p>
 					<if test="data.author"><br /><i>Author: </i>{+data.author+}.</if>
 				</div>
 				
@@ -315,7 +315,7 @@
 					
 					</div>
 					<div class="description">
-						{+resolveLinks(member.desc)+}
+						<p>{+resolveLinks(member.desc)+}</p>
 						<if test="member.srcFile != data.srcFile">
 							<br />
 							<i>Defined in: </i> {+new Link().toSrc(member.srcFile)+}.
@@ -383,7 +383,7 @@
 					
 					</div>
 					<div class="description">
-						{+resolveLinks(member.desc)+}
+						<p>{+resolveLinks(member.desc)+}</p>
 						<if test="member.srcFile != data.srcFile">
 							<br />
 							<i>Defined in: </i> {+new Link().toSrc(member.srcFile)+}.

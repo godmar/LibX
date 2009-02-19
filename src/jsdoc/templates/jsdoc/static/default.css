@@ -127,6 +127,10 @@ td.attributes, .fixedFont
 	padding-left: 4px;
 }
 
+.description > p
+{
+	white-space:pre;	
+}
 .summaryTable { margin-bottom: 8px; }
 
 ul.inheritsList
