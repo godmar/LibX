@@ -48,7 +48,6 @@
 		$("#objectcache-content").replaceWith( process ( null, "objectcache" ) );
 	}
 
-});
 ]]>
 </script>
 <div id="objectcache-content" style="font-size:.8em;">
@@ -83,7 +82,7 @@
 			<div class="ui-component-content">
 				
 				<a href="{+ obj.chromeurl +}" style="">(Open Cached Copy)</a>
-				<a href="#" style="float:right" onclick="purge('{+obj.filename+}');$(this).parent().parent().remove()"> (Purge) </a>
+				<a href="#" class="purgebutton" style="float:right" onclick="purge('{+obj.filename+}');$(this).parent().parent().remove()"> (Purge) </a>
 				
 				
 				<p> Mime-Type: {+ obj.mimetype +} </p>	
