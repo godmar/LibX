@@ -4,7 +4,7 @@
 
 
 <ul class="tree">
-	<for each="app" in="libx.libapp.loadedLibapps">
+	<for each="app" in="(libx.libapp.loadedLibapps || [])">
     	<li>
         	<label>{+app.description+}</label>
         	<ul>

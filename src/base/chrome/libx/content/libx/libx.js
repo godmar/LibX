@@ -43,7 +43,12 @@ libx.services = { }
  *
  * This namespace is global.
  */
-libx.libapp = { }
+libx.libapp = { 
+    /**
+     * Array of loaded libapps
+     */
+    loadedLibapps : []
+}
 
 /**
  * Support for caching of resources.
