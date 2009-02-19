@@ -14,12 +14,19 @@ function sortByPriority( a, b )
 
 /** @private */
 var WILDCARD = { toString: function () { return "*WILDCARD*"; } };
+var NOT = { toString: function () { return "*NOT*"; } };
 
 /** @private */
 function match ( template, tuple )
 {
     for ( var p in template )
     {
+        if ( template[p] === NOT ) {
+            if (p in tuple)
+                return false;
+            else
+                continue;
+        }
         if ( !tuple.hasOwnProperty(p)) {
             return false;
         }
@@ -45,8 +52,18 @@ libx.libapp.TupleSpace = libx.core.Class.create(
 
     /**
      * WILDCARD
+     * Use this constant to match any value (as long as the property is present)
      */
     WILDCARD: WILDCARD,
+
+    /**
+     * NOT
+     * Use this constant to match if the property is absent
+     * Note: 'absent' means the property is undefined.
+     * A property that is null or false is still defined and
+     * will not match NOT.
+     */
+    NOT: NOT,
 
     /**
      * Place a tuple into tuple space, executing any pending takes.

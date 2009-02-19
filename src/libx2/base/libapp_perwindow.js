@@ -226,11 +226,13 @@ contentLoadedObserver.onContentLoaded = function (event) {
 
                 // wrap in 'guardedby' clause, if needed
                 if ('guardedby' in module) {
+                    var guardTuple = module.guardedby.replace(/}\s*$/, ", '_processed_by_module_" + module.id + "': libx.space.NOT }");
                     jsCode = "(function () {\n"
                     + " var takeRequest = {\n"
                     + "   priority: " + module.priority + ", \n"
-                    + "   template: " + module.guardedby + ", \n"
+                    + "   template: " + guardTuple + ", \n"
                     + "   ontake: function (tuple) {\n"
+                    + "          tuple['_processed_by_module_" + module.id + "'] = true;\n"
                     +            jsCode
                     + "       libx.space.take(takeRequest);\n"
                     + "   }\n"
