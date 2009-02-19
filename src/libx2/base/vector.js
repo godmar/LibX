@@ -7,10 +7,15 @@ function checkIndex(vector, index) {
 }
 
 /**
- * @class
+ * A Vector class.
+ *
+ * Vector wraps an array and performs bounds checks for indices.
+ * Also supports clone.
+ *
+ * @class libx.utils.collections.Vector
  */
-libx.utils.collections.BitVector = libx.core.Class.create(
-    /** @lends libx.utils.collections.BitVector.prototype */{
+var Vector = libx.utils.collections.Vector = libx.core.Class.create(
+    /** @lends libx.utils.collections.Vector.prototype */{
     initialize : function () {
         this.vector = [];
     },
@@ -34,10 +39,10 @@ libx.utils.collections.BitVector = libx.core.Class.create(
         return this.vector.length;
     },
     /**
-     * Clone this bitvector.
+     * Clone this vector.
      */
     clone : function () {
-        var bv = new libx.utils.collections.BitVector();
+        var bv = new Vector();
         bv.vector = this.vector.concat();
         return bv;
     }

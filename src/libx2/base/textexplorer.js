@@ -56,7 +56,7 @@ libx.libapp.TextExplorer = libx.core.Class.create(
          * An array of booleans indicating whether a particular TextExplorer
          * is currently enabled.
          */
-        this.enabledTransformers = new libx.utils.collections.BitVector();
+        this.enabledTransformers = new libx.utils.collections.Vector();
     },
 
     /**
