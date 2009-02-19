@@ -1,19 +1,64 @@
+{!
 
 
+function getModules ( entry ) {
+	var modules = [];	
+	new libx.libapp.PackageWalker(entry.url).walk({
+		onmodule: function (module) {
+			modules.push ( module );
+		}
+	});
+	return modules;
+}
 
+var appProps = ["include","exclude" ];
+var modProps = ["include","exclude", "regexptexttransformer", "require"];
 
-
-<ul class="tree">
-	<for each="app" in="(libx.libapp.loadedLibapps || [])">
-    	<li>
-        	<label>{+app.description+}</label>
-        	<ul>
-	        	<for each="entry" in="app.entries">
-	        		<li>
-	        			<label>{+entry.url+}</label>
-	        		</li>
-	        	</for>
-        	</ul>
-       	</li>
-	</for>
+var idnum = 0;
+!}
+<ul>
+	<if test="libx.libapp != null && libx.libapp.loadedLibapps != null">
+		<for each="app" in="libx.libapp.loadedLibapps">
+		<li>
+    		<div class="groupbox">
+    			<label>{+libx.utils.xml.encodeEntities(app.description)+}</label>
+        		<if test="app.id != null">
+        			<p>ID: {+app.id+}</p>
+        		</if>
+        		<for each="prop" in="appProps">
+        			<for each="val" in="app[prop]">
+	        			<p>{+prop + ":" + val+}</p> 	
+	        		</for>
+        		</for>
+        		<ul>
+		        	<for each="entry" in="app.entries">
+		        		<li>
+		        		{! var module = getModules(entry)[0]; !}
+		        			<div class="groupbox">
+		        				<label>{+libx.utils.xml.encodeEntities(module.description)+}</label>
+		        				
+		        					<p>URL: {+libx.utils.xml.encodeEntities(entry.url)+}</p>
+		        					<for each="prop" in="modProps">
+		        						<for each="val" in="module[prop]">
+	        								<p>{+prop + "::" + libx.utils.xml.encodeEntities( val.toString() )+}</p> 	
+	        							</for>
+		        					</for>
+		        					<if test="module.gaurdedby != null">
+		        						<p>Guarded By: {+ libx.utils.xml.encodeEntities ( module.guardedby ) +}</p> 
+		        					</if>	
+		        					{! var idstr = "libapp" + idnum++; !}
+		        					<a href="javascript:void(function(){$('#{+idstr+}').toggle()})()">View Source</a>
+		        					<div id="{+idstr+}" style="display:none;" >
+		        					<pre>
+		        						{+libx.utils.xml.encodeEntities(module.body)+}
+		        					</pre>
+		        					</div>
+		        					
+		        			</div>
+		        		</li>
+		        	</for>
+		        </ul>
+        	</div>
+		</li>
+	</for></if>
 </ul>

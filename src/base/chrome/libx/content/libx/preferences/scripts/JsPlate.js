@@ -124,17 +124,19 @@ JsPlate.values = function(obj) {
 JsPlate.prototype.process = function(data) {	
 	var keys = JsPlate.keys;
 	var values = JsPlate.values;
-	
+		
 	try {
 		var output = eval(this.code);
 	}
 	catch (e) {
-		alert(">> There was an error evaluating the compiled code from template: "+this.templateFile);
-		alert("   The error was on line "+e.lineNumber+" "+e.name+": "+e.message);
+		var erstr = "";
+		erstr += (">> There was an error evaluating the compiled code from template: "+this.templateFile) + "\n";
+		erstr += ("   The error was on line "+e.lineNumber+" "+e.name+": "+e.message) + "\n";
 		var lines = this.code.split("\r");
-		if (e.lineNumber-2 >= 0) alert("line "+(e.lineNumber-1)+": "+lines[e.lineNumber-2]);
-		alert("line "+e.lineNumber+": "+lines[e.lineNumber-1]);
-		alert("this.code: " + this.code);
+		if (e.lineNumber-2 >= 0) erstr+=("line "+(e.lineNumber-1)+": "+lines[e.lineNumber-2]) + "\n";
+		erstr += ("line "+e.lineNumber+": "+lines[e.lineNumber-1]) + "\n";
+		erstr += ("this.code: " + this.code) + "\n";
+		libx.log.write ( erstr );
 	}
 	
 	return output;

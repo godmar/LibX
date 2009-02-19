@@ -16,31 +16,35 @@
 			mimetype : metadata.mimeType
 		} );
 	}
-	
-	
 !}
 
 <script type="text/javascript">
 <![CDATA[
 	function purge ( filename ) {
 		libx.io.removeFile ( filename );
-	    // XXX remove this entry from the page.	
+	    refresh();	
 	}
 	
 	function purgeAll () { 
 		$(".purge-button").click();
-        // XXX refresh the page or remove all entries
+        refresh();
 	}
 	
 	function updateAll () {
 		libx.cache.defaultObjectCache.updateRequests();
+		refresh();
+	}
+	
+	function refresh() {
+		$("#objectcache-content").replaceWith( process ( null, "objectcache" ) );
 	}
 ]]>
 </script>
-
+<div id="objectcache-content">
 <button onclick="libx.cache.defaultMemoryCache.flush();">Flush Global Memory Cache</button>
 <button onclick="libx.cache.defaultObjectCache.updateRequests();">Update Now!</button>
 <button onclick="purgeAll();">Purge All</button>
+<button onclick="refresh();">Refresh</button>
 <for each="obj" in="cachedObjects">
 	<div class="groupbox">
 		<label> {+ obj.url +}  </label>
@@ -48,8 +52,9 @@
 			<a href="{+ obj.chromeurl +}">(Open Cached Copy)</a>
 			<p> Last Modified: {+ obj.lastmod +} </p> 
 			<p> Mime-Type: {+ obj.mimetype +} </p>	
-			<button class="purge-button" onclick="purge('{+obj.filename+}');"> Purge </button>
+			<button class="purge-button" onclick="purge('{+obj.filename+}');refresh();"> Purge </button>
 		</div>
 	</div>
 	
 </for>
+</div>
