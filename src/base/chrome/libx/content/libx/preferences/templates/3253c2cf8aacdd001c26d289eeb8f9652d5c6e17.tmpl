@@ -30,7 +30,7 @@
     <for each="child" in="data._children">
             <div id="{+ tabID ( child._id ) +}">
                 <p>{L child._idstr + "-description" L}</p>
-                <div style="overflow:auto;height:50%;">
+                <div style="overflow:scroll;height:400px;font-size:.8em;">
                     {P child, "contextmenutree" P}
                 </div>
             </div>

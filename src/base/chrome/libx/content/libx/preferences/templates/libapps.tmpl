@@ -16,49 +16,47 @@ var modProps = ["include","exclude", "regexptexttransformer", "require"];
 
 var idnum = 0;
 !}
-<ul>
+<div class="libapp-div" style="overflow:scroll;height:400px;font-size:.8em;">
 	<if test="libx.libapp != null && libx.libapp.loadedLibapps != null">
 		<for each="app" in="libx.libapp.loadedLibapps">
-		<li>
-    		<div class="groupbox">
-    			<label>{+libx.utils.xml.encodeEntities(app.description)+}</label>
-        		<if test="app.id != null">
-        			<p>ID: {+app.id+}</p>
-        		</if>
-        		<for each="prop" in="appProps">
-        			<for each="val" in="app[prop]">
-	        			<p>{+prop + ":" + val+}</p> 	
+    		<div class="ui-dialog-titlebar">
+    			<span>
+	    			<if test="app.id != null">
+	        			<label style="float:right">{+app.id+}</label>
+	        		</if>
+	    			<label>{+libx.utils.xml.encodeEntities(app.description)+}</label>
+	        		<for each="prop" in="appProps">
+	        			<for each="val" in="app[prop]">
+		        			<p>{+prop + ":" + val+}</p> 	
+		        		</for>
 	        		</for>
-        		</for>
-        		<ul>
+        		</span>
+        		<ul class="ui-component-content" style="list-style-type:none;">
 		        	<for each="entry" in="app.entries">
-		        		<li>
+		        		<li style="list-style-type:none;">
 		        		{! var module = getModules(entry)[0]; !}
-		        			<div class="groupbox">
-		        				<label>{+libx.utils.xml.encodeEntities(module.description)+}</label>
-		        				
-		        					<p>URL: {+libx.utils.xml.encodeEntities(entry.url)+}</p>
-		        					<for each="prop" in="modProps">
-		        						<for each="val" in="module[prop]">
-	        								<p>{+prop + "::" + libx.utils.xml.encodeEntities( val.toString() )+}</p> 	
-	        							</for>
-		        					</for>
-		        					<if test="module.gaurdedby != null">
-		        						<p>Guarded By: {+ libx.utils.xml.encodeEntities ( module.guardedby ) +}</p> 
-		        					</if>	
-		        					{! var idstr = "libapp" + idnum++; !}
-		        					<a href="javascript:void(function(){$('#{+idstr+}').toggle()})()">View Source</a>
-		        					<div id="{+idstr+}" style="display:none;" >
-		        					<pre>
-		        						{+libx.utils.xml.encodeEntities(module.body)+}
-		        					</pre>
-		        					</div>
-		        					
-		        			</div>
+	        				<a href="javascript:void(0);" onclick="$(this).siblings().toggle()">{+libx.utils.xml.encodeEntities(module.description)+}</a>
+	        				<div class="ui-component-content" style="display:none;">
+	        					<p>URL: {+libx.utils.xml.encodeEntities(entry.url)+}</p>
+	        					<for each="prop" in="modProps">
+	        						<for each="val" in="module[prop]">
+        								<p>{+prop + " : " + libx.utils.xml.encodeEntities( val.toString() )+}</p> 	
+        							</for>
+	        					</for>
+	        					<if test="module.gaurdedby != null">
+	        						<p>Guarded By: {+ libx.utils.xml.encodeEntities ( module.guardedby ) +}</p> 
+	        					</if>	
+	        					{! var idstr = "libapp" + idnum++; !}
+	        					<a href="javascript:void(function(){$('#{+idstr+}').toggle()})()">View Source</a>
+	        					<div id="{+idstr+}" style="display:none;" >
+	        					<pre>
+	        						{+libx.utils.xml.encodeEntities(module.body)+}
+	        					</pre>
+	        					</div>
+	        				</div>
 		        		</li>
 		        	</for>
 		        </ul>
         	</div>
-		</li>
 	</for></if>
-</ul>
+</div>
