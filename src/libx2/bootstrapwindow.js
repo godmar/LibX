@@ -4,7 +4,7 @@
 
 libx.log.write("bootstrapping per-window libx from: " + scriptBase.baseURL);
 var files = [
-    "base/libapp.js",
+    "base/libapp_perwindow.js",
 ];
 
 for (var i = 0; i < files.length; i++) {

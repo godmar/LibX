@@ -22,31 +22,6 @@ var requireAlias = {
     "jquery-ui.css" : scriptBase + "theme/ui.all.css"
 };
 
-var rootPackages = [ libappBase + "libxcore" ];
-
-var libapps = [];
-
-// Step 1. Find all libapps in the root packages
-// This code registers all libapps on browser-window startup
-// registrations will progress as quickly as the package tree
-// can be walked.  It may be the case that an ContentLoaded event
-// fires before the walk is complete, resulting in libapps
-// not being executed on the first visit.
-var RegisterLibappsClass = new libx.core.Class.create(libx.libapp.PackageVisitor, {
-    onlibapp: function (libapp) {
-        libapps.push(libapp);
-        libx.log.write("registered libapp: " + libapp.description);
-    }
-});
-var registerLibapps = new RegisterLibappsClass();
-
-for (var i = 0; i < rootPackages.length; i++) {
-    new libx.libapp.PackageWalker(rootPackages[i]).walk(registerLibapps);
-}
-
-// record last set of loaded libapps with global object, for prefs display
-libx.global.libapp.loadedLibapps = libapps;
-
 /*
  * Check if include/exclude applies.
  * Returns match if successful, null otherwise
@@ -76,7 +51,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
         libx.log.write("Sandbox (" + event.url + "):\n" + msg, "libapp");
     }
 
-    log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libapps.length);
+    log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libx.libapp.loadedLibapps.length);
     
     /*
      * A shallow clone of the per-XUL-window 'libx' object appears 
@@ -120,8 +95,8 @@ contentLoadedObserver.onContentLoaded = function (event) {
 
     var textExplorer = new libx.libapp.TextExplorer();
 
-    for (var i = 0; i < libapps.length; i++) {
-        executeLibapp(libapps[i]);
+    for (var i = 0; i < libx.libapp.loadedLibapps.length; i++) {
+        executeLibapp(libx.libapp.loadedLibapps[i]);
     }
 
     // at this point, all libapps and modules that were in the cache (and

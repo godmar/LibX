@@ -7,6 +7,7 @@ var files = [
     "base/textexplorer.js",
     "base/texttransformer.js",
     "base/link360service.js",
+    "base/libapp_global.js",
 ];
 
 for (var i = 0; i < files.length; i++) {
