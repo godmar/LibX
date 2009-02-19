@@ -36,24 +36,25 @@
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
-			<p class="description">
+			<div class="description">
 				<if test="data.augments.length"><br />Extends
-					{+
-						data.augments
-						.sort()
-						.map(
-							function($) { return new Link().toSymbol($); }
-						)
-						.join(", ")
-					+}.<br />
+					<p>	{+
+							data.augments
+							.sort()
+							.map(
+								function($) { return new Link().toSymbol($); }
+							)
+							.join(", ")
+						+}.<br />
+					</p>
 				</if>
 			
 				<p>{+resolveLinks(data.classDesc)+}</p>
 				
 				<if test="!data.isBuiltin()">{# isn't defined in any file #}
-					<br /><i>Defined in: </i> {+new Link().toSrc(data.srcFile)+}.
+					<p><br /><i>Defined in: </i> {+new Link().toSrc(data.srcFile)+}.</p>
 				</if>
-			</p>
+			</div>
 
 <!-- ============================== constructor summary ==================== -->			
 			<if test="!data.isBuiltin() && (data.isNamespace || data.is('CONSTRUCTOR'))">
