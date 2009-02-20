@@ -12,7 +12,8 @@ function checkIndex(vector, index) {
  * Vector wraps an array and performs bounds checks for indices.
  * Also supports clone.
  *
- * @class libx.utils.collections.Vector
+ * @name libx.utils.collections.Vector
+ * @class 
  */
 var Vector = libx.utils.collections.Vector = libx.core.Class.create(
     /** @lends libx.utils.collections.Vector.prototype */{
