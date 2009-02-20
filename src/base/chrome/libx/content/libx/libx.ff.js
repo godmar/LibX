@@ -38,12 +38,6 @@
  */
 libx.ff = { };
 
-/**
- * @namespace
- * Utility classes and functions for LibX Firefox
- */
-libx.ff.utils = { };
-
 (function () {
 
 /*

@@ -1,5 +1,11 @@
 {!
 
+/*
+ * XXX This file cannot be part of the LibX core.  
+ * 
+ * Can you easily move it to <mozdev.cvs>/src/libx2/templates
+ * ?
+ */
 
 function getModules ( entry ) {
 	var modules = [];	
@@ -12,7 +18,7 @@ function getModules ( entry ) {
 }
 
 var appProps = ["include","exclude" ];
-var modProps = ["include","exclude", "regexptexttransformer", "require"];
+var modProps = ["include","exclude", "guardedby", "regexptexttransformer", "require"];
 
 var idnum = 0;
 !}
@@ -43,9 +49,6 @@ var idnum = 0;
         								<p>{+prop + " : " + libx.utils.xml.encodeEntities( val.toString() )+}</p> 	
         							</for>
 	        					</for>
-	        					<if test="module.gaurdedby != null">
-	        						<p>Guarded By: {+ libx.utils.xml.encodeEntities ( module.guardedby ) +}</p> 
-	        					</if>	
 	        					{! var idstr = "libapp" + idnum++; !}
 	        					<a href="javascript:void(function(){$('#{+idstr+}').toggle()})()">View Source</a>
 	        					<div id="{+idstr+}" style="display:none;" >

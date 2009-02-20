@@ -31,7 +31,7 @@ var ns = {
 };
 
 var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body", "regexptexttransformer" ];
-var libx2ArrayClauses = { include : 1, exclude : 1, require : 1, regexptexttransformer : 1 };
+var libx2ArrayClauses = { include : 1, exclude : 1, guardedby : 1, require : 1, regexptexttransformer : 1 };
 var libx2RegexpClauses = [ "include", "exclude", "regexptexttransformer" ];
 
 /**

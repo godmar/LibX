@@ -37,12 +37,6 @@
 var handlerMap = { };
 
 /**
- * Event represents an LibX internal event.
- * @name Event
- * @class
- */
-
-/**
  * @name libx.events
  * @namespace 
  *
@@ -52,7 +46,6 @@ var handlerMap = { };
  * They are not related to browser events (neither in a content window,
  * nor in FF XUL).
  */
-
 
 libx.events = { 
     Event : libx.core.Class.create(

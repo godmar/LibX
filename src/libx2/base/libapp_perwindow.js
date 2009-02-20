@@ -223,21 +223,43 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 libxDotLibappData.space = libappSpace;
                 var jsCode = "/* begin module body */\n" + module.body + "\n/* end module body */\n";
 
-                // wrap in 'guardedby' clause, if needed
-                if ('guardedby' in module) {
-                    var guardTuple = module.guardedby.replace(/}\s*$/, ", '_processed_by_module_" + module.id + "': libx.space.NOT }");
-                    jsCode =
-                      " var takeRequest = {\n"
-                    + "   priority: " + module.priority + ", \n"
-                    + "   template: " + guardTuple + ", \n"
-                    + "   ontake: function (tuple) {\n"
-                    + "       tuple['_processed_by_module_" + module.id + "'] = true;\n"
-                    +            jsCode
-                    + "       libx.space.take(takeRequest);\n"
-                    + "   }\n"
-                    + " };\n"
-                    + " libx.space.take(takeRequest);\n"
+                // wrap in 'guardedby' clauses, if needed
+                // compute indentation
+                var indent = [ "  " ];
+                for (var i = 1; i < module.guardedby.length; i++)
+                    indent[i] = indent[i-1] + indent[0];
+
+                for (var i = module.guardedby.length - 1; i >= 0; i--) {
+                    var ind = indent[i];
+                    var guardTuple = module.guardedby[i].replace(/}\s*$/, ", '_processed_by_module_" + module.id + "': libx.space.NOT }");
+                    jsCode = ""
+                    + ind + "var __takereq" + i + " = {\n"
+                    + ind + "  priority: " + module.priority + ", \n"
+                    + ind + "  template: " + guardTuple + ", \n"
+                    + ind + "  ontake: function (tuple) {\n"
+                    + ind + "     __cumulativetuple = libx.core.Class.mixin(__cumulativetuple, tuple, true);\n"
+
+                    + (i == module.guardedby.length - 1 ? (
+                      ind + "     tuple = __cumulativetuple;\n" 
+                    + ind + "     tuple['_processed_by_module_" + module.id + "'] = true;\n"
+                    ) : "")
+
+                    + ind +            jsCode
+
+                    + (i == module.guardedby.length - 1 ? (
+                      ind + "     __cumulativetuple = { }; /* reset cumulativetuple and start over */\n"
+                    + ind + "     libx.space.take(__takereq0);\n"
+                    ) : "")
+
+                    + ind + "   }\n"
+                    + ind + " };\n"
+
+                    jsCode += ind + "libx.space.take(__takereq" + i + ");\n";
+
+                    if (i == 0)
+                        jsCode = "var __cumulativetuple = { };\n" + jsCode;
                 }
+
                 jsCode = "(function (__libx) {\n"
                     + setupSandbox
                     + jsCode

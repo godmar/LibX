@@ -35,12 +35,6 @@
  */
 libx.ie = { };
 
-/**
- * @namespace
- * Utility classes and functions for LibX IE
- */
-libx.ie.utils = { };
-
  /*
   * Designed to hold Internet Explorer-specific code for the LibX extension.
   */

@@ -2,6 +2,7 @@
 load("../libx2/base/atomparser.js");
 
 var rootPackage = "http://libx.org/libx2/libapps/libxcore";
+var rootPackage = "http://libx.org/libx2/libapps/searchbyisbn";
 var atomParser = new libx.libapp.PackageWalker(rootPackage);
 
 var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
@@ -19,7 +20,9 @@ var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
         for (var i = 0; i < module.include.length; i++) {
             println(" include: " + module.include[i]);
         }
-        println("module.guardedby: " + module.guardedby);
+        for (var i = 0; i < module.guardedby.length; i++) {
+            println(" guardedby: " + module.guardedby[i]);
+        }
         println("module.id: " + module.id);
         println("module.body: " + module.body.match(/^.*\n.*\n.*\n/));
         this.parent(module);
