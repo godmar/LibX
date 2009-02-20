@@ -51,13 +51,11 @@ libx.libapp.TupleSpace = libx.core.Class.create(
     },
 
     /**
-     * WILDCARD
      * Use this constant to match any value (as long as the property is present)
      */
     WILDCARD: WILDCARD,
 
     /**
-     * NOT
      * Use this constant to match if the property is absent
      * Note: 'absent' means the property is undefined.
      * A property that is null or false is still defined and
@@ -77,7 +75,7 @@ libx.libapp.TupleSpace = libx.core.Class.create(
             var p = this.pending[i];
             if ( match( p.template, tuple ) )
             {
-                this.pending.splice( p, 1 );
+                this.pending.splice( i, 1 );
                 p.ontake( tuple );
                 return;
             }
