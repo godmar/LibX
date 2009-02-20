@@ -116,7 +116,8 @@ contentLoadedObserver.onContentLoaded = function (event) {
         }
 
         log("after URL check, executing libapp: " + libapp.description);
-        libapp.space = new libx.libapp.TupleSpace()
+        var libappSpace = new libx.libapp.TupleSpace();
+        libappSpace.description = libapp.description;
 
         for (var i = 0; i < libapp.entries.length; i++) {
             new libx.libapp.PackageWalker(libapp.entries[i].url).walk({
@@ -179,7 +180,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
              * Repeated execution will clone the previous clone, which 
              * is fine (and almost autopoeitic.) */
             var setupSandbox = 
-                "libx = libx.core.Class.mixin({ }, libx, true);\n"
+                "var libx = __libx.core.Class.mixin({ }, __libx, true); /* clone libx */\n"
               + "libx.space = libx.libappdata.space;\n";
 
             /* now schedule the module itself */
@@ -202,13 +203,14 @@ contentLoadedObserver.onContentLoaded = function (event) {
                     // Place textNode, match, and libapp.space into the sandbox.
                     libxDotLibappData.textNode = textNode;
                     libxDotLibappData.match = match;
-                    libxDotLibappData.space = libapp.space;
+                    libxDotLibappData.space = libappSpace;
 
-                    var jsCode = setupSandbox + "(function () {\n"
+                    var jsCode = "(function (__libx) {\n"
+                        + setupSandbox
                         + "  var textNode = libx.libappdata.textNode;\n"
                         + "  var match = libx.libappdata.match;\n"
                         +       module.body
-                        + "}) ();\n";
+                        + "}) (libx);\n";
                 
                     log("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
                     return sbox.evaluate(jsCode, module.description );
@@ -218,28 +220,28 @@ contentLoadedObserver.onContentLoaded = function (event) {
 
             function runModule(module) {
 
-                libxDotLibappData.space = libapp.space;
-                var jsCode = ""
-                + "      (function () {\n"
-                + "      " + module.body + "\n"
-                + "      }) (); \n"
+                libxDotLibappData.space = libappSpace;
+                var jsCode = "/* begin module body */\n" + module.body + "\n/* end module body */\n";
 
                 // wrap in 'guardedby' clause, if needed
                 if ('guardedby' in module) {
                     var guardTuple = module.guardedby.replace(/}\s*$/, ", '_processed_by_module_" + module.id + "': libx.space.NOT }");
-                    jsCode = "(function () {\n"
-                    + " var takeRequest = {\n"
+                    jsCode =
+                      " var takeRequest = {\n"
                     + "   priority: " + module.priority + ", \n"
                     + "   template: " + guardTuple + ", \n"
                     + "   ontake: function (tuple) {\n"
-                    + "          tuple['_processed_by_module_" + module.id + "'] = true;\n"
+                    + "       tuple['_processed_by_module_" + module.id + "'] = true;\n"
                     +            jsCode
                     + "       libx.space.take(takeRequest);\n"
                     + "   }\n"
                     + " };\n"
                     + " libx.space.take(takeRequest);\n"
-                    + "}) ();\n"
                 }
+                jsCode = "(function (__libx) {\n"
+                    + setupSandbox
+                    + jsCode
+                    + "}) (libx);\n"
                 // clean global space
                 /*
                  * We cannot clean the global space, or we kill items added by required scripts,
@@ -255,8 +257,7 @@ contentLoadedObserver.onContentLoaded = function (event) {
                 jsCode += "}\n";
                 jsCode += "delete this.p;\n";
                 */
-                jsCode = setupSandbox + jsCode;
-                log("Running module '" + module.description + "': \n" + jsCode);
+                log("Running module '" + module.description + "': \n" + jsCode + "\nusing space: " + libappSpace.description);
                 sbox.evaluate(jsCode, module.description );
             }
         }
