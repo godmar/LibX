@@ -83,7 +83,7 @@ libx.libapp.Sandbox = libx.core.Class.create(
 	        	
 	    		var filename = "temp/" + ( fname ? fname : libx.global.libapp.FILE_COUNTER++ );
 				libx.io.writeToFile ( filename, code, true );
-	    		this.subscriptLoader.loadSubScript ( "chrome://libxresource/content/" + filename, this.sandBox );
+	    		return this.subscriptLoader.loadSubScript ( "chrome://libxresource/content/" + filename, this.sandBox );
 	    		
 	    	} else {
 	            return Components.utils.evalInSandbox( code, this.sandBox );
