@@ -39,6 +39,14 @@ var Vector = libx.utils.collections.Vector = libx.core.Class.create(
     size : function () {
         return this.vector.length;
     },
+    /** Get number of elements that are not false. */
+    count : function () {
+        var s = 0;
+        for (var i = 0; i < this.vector.length; i++)
+            if (this.vector[i])
+                s++;
+        return s;
+    },
     /**
      * Clone this vector.
      */

@@ -157,6 +157,10 @@ libx.libapp.TextExplorer = libx.core.Class.create(
                     }
                 }
 
+                // If no transformers remain, don't schedule children
+                if (enabledTransformers.count() == 0)
+                    return;
+
                 // Schedule children for processing
                 for (var ctr = 0; ctr < currentNode.childNodes.length; ctr++)
                 {
