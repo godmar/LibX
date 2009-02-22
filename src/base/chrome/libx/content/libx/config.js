@@ -173,20 +173,22 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     },
 
     loadLocalizationFeeds: function (doc) {
-        var localizationfeeds = new Array();
+        var localizationfeeds = {
+            'package' : [], 'bootglobal' : [], 'bootwindow' : [] 
+        }
+
         this.makeConfigurationItemArray (doc,
-            "/edition/localizationfeeds/*", null, libx.core.EmptyFunction,
+            "/edition/localizationfeeds/*[@type != 'legacy']", null, libx.core.EmptyFunction,
             function (node, feedorwhitelist) {
                 switch (node.nodeName) {
                 case "whitelist":
                     localizationfeeds.whitelist = feedorwhitelist;
                     break;
                 case "feed":
-                    localizationfeeds.push(feedorwhitelist);
+                    localizationfeeds[feedorwhitelist.type].push(feedorwhitelist);
                     break;
                 }
             });
-        localizationfeeds.primary = localizationfeeds[0];
         return localizationfeeds;
     },
 

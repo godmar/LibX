@@ -39,14 +39,18 @@ var browser =
             this.contextMenu = new libx.ui.ContextMenu (libx.ui.basicContextMenuDescriptor, edition);
             libx.citeulike.notificationicon.initialize();
 
-            // now pull in additional files - location to be determined
-            // var editionRoot = libx.edition.localizationfeeds.primary;
-            var editionRoot = null;
-            var bootstrapUrl = editionRoot || 
-                libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
-                    "http://libx.org/libx-new/src/libx2/bootstrapwindow.js");
+            // Load all URLs marked as @type = 'bootwindow' in configuration
+            var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;
+            if (bootWindowUrls.length == 0) {
+                // Fall back to local preference
+                bootWindowUrls.push(
+                    libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
+                        "http://libx.org/libx-new/src/libx2/bootstrapwindow.js"));
+            }
+        
+            for (var i = 0; i < bootWindowUrls.length; i++)
+                libx.bootstrap.loadScript(bootWindowUrls[i], true);
 
-            libx.bootstrap.loadScript(bootstrapUrl, true);
         }
 
         /* The loading of the global libx's edition may have completed 

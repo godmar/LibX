@@ -34,7 +34,7 @@ chomp ($makensis);
 
 # Change this to build, say "libx-experimental-<edition>.xpi"
 # If set to non-empty, will suppress creation of update.rdf file
-my $localbuild = "restructuring-";
+my $localbuild = "2-";
 # my $localbuild = "";
 
 # "Boolean" that determines whether setup.nsi will be a full install (all files
@@ -386,7 +386,7 @@ if (! (-r $defaultspreffile)) {
 $conf{'additionalproperties'} = "";     # legacy
 $conf{'emhomepageURL'} = $httpeditionpath . $editionrelpath . "/libx.html";
 $conf{'emupdateURL'} = $httpeditionpath . $editionrelpath . "/update.rdf";
-$conf{'xpilocation'} = $httpeditionpath . $editionrelpath . "/libx-" . $localbuild . $editionid . ".xpi";
+$conf{'xpilocation'} = $httpeditionpath . $editionrelpath . "/libx" . $localbuild . $editionid . ".xpi";
 
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});

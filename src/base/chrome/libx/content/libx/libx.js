@@ -476,13 +476,16 @@ libx.initialize = function ()
             edLoadedEvent.edition = edition;
             edLoadedEvent.notify();
 
-            // var editionRoot = libx.edition.localizationfeeds.primary;
-            var editionRoot = null;
-            var bootstrapUrl = editionRoot || 
-                libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
-                    "http://libx.org/libx-new/src/libx2/bootstrapglobal.js");
+            // Load all URLs marked as @type = 'bootglobal' in configuration
+            var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
+            if (bootGlobalUrls.length == 0) {
+                bootGlobalUrls.push(
+                    libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
+                        "http://libx.org/libx-new/src/libx2/bootstrapglobal.js"));
+            }
         
-            libx.bootstrap.loadScript(bootstrapUrl, true);
+            for (var i = 0; i < bootGlobalUrls.length; i++)
+                libx.bootstrap.loadScript(bootGlobalUrls[i], true);
         }
     });
 }
