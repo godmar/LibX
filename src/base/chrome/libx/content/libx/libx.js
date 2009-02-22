@@ -479,13 +479,13 @@ libx.initialize = function ()
             // Load all URLs marked as @type = 'bootglobal' in configuration
             var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
             if (bootGlobalUrls.length == 0) {
-                bootGlobalUrls.push(
+                bootGlobalUrls.push({ url:
                     libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
-                        "http://libx.org/libx-new/src/libx2/bootstrapglobal.js"));
+                        "http://libx.org/libx-new/src/libx2/bootstrapglobal.js") });
             }
         
             for (var i = 0; i < bootGlobalUrls.length; i++)
-                libx.bootstrap.loadScript(bootGlobalUrls[i], true);
+                libx.bootstrap.loadScript(bootGlobalUrls[i].url, true);
         }
     });
 }

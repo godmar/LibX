@@ -43,13 +43,13 @@ var browser =
             var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;
             if (bootWindowUrls.length == 0) {
                 // Fall back to local preference
-                bootWindowUrls.push(
+                bootWindowUrls.push({ url:
                     libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
-                        "http://libx.org/libx-new/src/libx2/bootstrapwindow.js"));
+                        "http://libx.org/libx-new/src/libx2/bootstrapwindow.js") });
             }
         
             for (var i = 0; i < bootWindowUrls.length; i++)
-                libx.bootstrap.loadScript(bootWindowUrls[i], true);
+                libx.bootstrap.loadScript(bootWindowUrls[i].url, true);
 
         }
 
