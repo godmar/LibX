@@ -24,7 +24,7 @@
                 </a>
             </li>
         </for>
-        <if test="libx.utils.browserprefs.getBoolPref('libx.developer')">
+        <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
 	        <li>
 	            <a href="#developer-tab">
 	                <span>Developer</span>
@@ -42,7 +42,7 @@
                 {P child P}
             </div>
     </for>
-    <if test="libx.utils.browserprefs.getBoolPref('libx.developer')">
+    <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
 	    <div id="developer-tab">
 	        {P null, "developer" P}
 	    </div>
