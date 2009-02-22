@@ -11,7 +11,7 @@
  */
 var libappBase = "http://libx.org/libx2/libapps/";
 
-var rootPackages = [ libappBase + "libxcore" ];
+var rootPackages = [ { url: libappBase + "libxcore" } ];
 
 // This code registers all libapps on browser startup
 // Registrations will progress as quickly as the package tree
@@ -28,10 +28,11 @@ var registerLibapps = new RegisterLibappsClass();
 
 function loadLibapps(edition) {
     var feeds = edition.localizationfeeds;
-    // XXX use edition to get rootPackages...
+    rootPackages = feeds.package || rootPackages;
     
     for (var i = 0; i < rootPackages.length; i++) {
-        new libx.libapp.PackageWalker(rootPackages[i]).walk(registerLibapps);
+        libx.log.write("Loading root feed from: " + rootPackages[i].url);
+        new libx.libapp.PackageWalker(rootPackages[i].url).walk(registerLibapps);
     }
 }
 
