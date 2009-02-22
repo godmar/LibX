@@ -70,9 +70,15 @@ libx.events = {
             // see http://www.mennovanslooten.nl/blog/post/59
             var argsAsArray = [].splice.call(arguments, 0);
             var observers = handlerMap[this.eventName] || [];
-            for (var i = 0; i < observers.length; i++)
-                if (this.eventWindow == observers[i].window)
-                    observers[i].handler["on" + this.eventName].apply(observers[i].handler, [this].concat(argsAsArray));
+            for (var i = 0; i < observers.length; i++) {
+                if (this.eventWindow == observers[i].window) {
+                    try {
+                        observers[i].handler["on" + this.eventName].apply(observers[i].handler, [this].concat(argsAsArray));
+                    } catch (er) {
+                        libx.log.write("Exception in event handler: " + er, "events");
+                    }
+                }
+            }
         }
     }),
 
