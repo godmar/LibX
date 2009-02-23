@@ -182,7 +182,7 @@ var memoryCacheClass = libx.core.Class.create ( {
          *                                            call completion (after
          *                                            success or error
          *                                            functions) parameters
-         *                                            (XMLHttpRequest, status)
+         *                                            (result, status, XMLHttpRequest)
          *
          * @param {String}   paramObj.contentType     set content-type of data
          *                                            that's sent to server
@@ -211,11 +211,11 @@ var memoryCacheClass = libx.core.Class.create ( {
          *
          * @param {Function} paramObj.error           function to execute on
          *                                            request failure parameters
-         *                                            (XMLHttpRequest, status)
+         *                                            (result, status, XMLHttpRequest)
          *
          * @param {Function} paramObj.success         function to execute on
          *                                            request success parameters
-         *                                            (XMLHttpRequest, status)
+         *                                            (result, status, XMLHttpRequest)
          *
          * @param {Boolean}  paramObj.bypassCache     boolean which will ignore
          *                                            cache and always send
