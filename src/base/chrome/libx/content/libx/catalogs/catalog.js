@@ -210,7 +210,18 @@ libx.catalog.Catalog = libx.core.Class.create(
     options: "Y;t;a;d;i;c",
     
     /**
-     *	Constructs a search for provided search type and search term
+     *	Constructs a search for provided search type and search term.
+     *
+     *	Search type is a short code as described in the edition
+     *	configuration's search option. Historically, the following codes
+     *	are used:
+     *	'i' - ISBN
+     *	'Y' - Keyword
+     *	't' - Title
+     *	'a' - Author
+     *	'c' - Call Number
+     *	'd' - Subject
+     *
      *	@abstract
      *	@return {URL} Search URL	
      */
