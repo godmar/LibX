@@ -18,12 +18,12 @@
         <li>
             <if test="(child._nodeType == 'category')">
                 <input type="checkbox" />
-                <label>{+ child._name +}</label>
+                <label>{+ libx.utils.xml.encodeEntities ( child._name ) +}</label>
                 {+ process ( child, "contextmenutree" ) +}
             </if>
             <if test="(child._nodeType == 'preference')">
                 <input type="checkbox" name="{+child._id+}" class="preference-checkbox" <if test="child._value">checked="checked"</if> />
-                <label>{+ getLabel(child._name)  +}</label>
+                <label>{+ libx.utils.xml.encodeEntities ( getLabel(child._name) )  +}</label>
             </if>
         </li>
     </for>
