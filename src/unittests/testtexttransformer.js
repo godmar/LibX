@@ -1,7 +1,7 @@
 //
 // testing text explorer
 //
-load ("../libx2/base/bitvector.js");
+load ("../libx2/base/vector.js");
 load ("../libx2/base/textexplorer.js");
 load ("../libx2/base/texttransformer.js");
 
