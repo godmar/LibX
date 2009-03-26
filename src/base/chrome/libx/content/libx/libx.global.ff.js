@@ -93,6 +93,18 @@ libx.utils.xml.loadXMLDocumentFromString = function (xmlstring) {
     return parser.parseFromString(xmlstring, "text/xml");
 }
 
+/*
+ * Convert XML Document to String
+ *
+ * @param {DOMDocument} XML document
+ * @return {String} string representation of documen
+ */
+libx.utils.xml.convertXMLDocumentToString = function (xmlDoc) {
+    var serializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
+            .createInstance(Components.interfaces.nsIDOMSerializer);
+    return serializer.serializeToString(xmlDoc);
+}
+
 /**
  * Browser-dependent implementation of a bundle of strings representing
  * properties.

@@ -181,6 +181,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             <menupopup id="libx-statusbar-popup">
                 <menuitem label="$emnameshort$"/>
                 <menuseparator/>
+                <menuitem label="Purge Object Cache" oncommand="libx.cache.defaultObjectCache.purgeAll()" />
                 <menuitem label="Show Preferences" oncommand="libx.ui.openSearchWindow('chrome://libx/content/preferences/pref.xhtml');" />
                 <menuitem label="Show Toolbar" type="checkbox" id="libx-statusbar-togglebar-item" 
                     oncommand="this.setAttribute('checked', libx.ff.toolbar.toggle('libx-toolbar'));" />

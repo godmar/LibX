@@ -223,6 +223,16 @@ libx.cache.ObjectCache = libx.core.Class.create(
     },
 
     /**
+     * Remove all cached files
+     */
+    purgeAll : function () {
+        var filepaths = libx.io.find(/fileinfo.json/);
+        for ( var i = 0; i < filepaths.length; i++ ) {
+            libx.io.removeFile (filepaths[i]);
+        }
+    },
+
+    /**
      * Update all requests that have the 'keepUpdated' flag set.
      */
     updateRequests : function () {

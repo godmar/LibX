@@ -473,7 +473,7 @@ libx.ui.initialize = function() {
         if (!win)
             return;     
 
-        if (/^(javascript:|about:blank)/.test(ev.originalTarget.location))
+        if (/^(chrome:|javascript:|about:)/.test(ev.originalTarget.location))
             return;     
 
         // don't run anything in hidden frames - some are used for Comet-style communication
