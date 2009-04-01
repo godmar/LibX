@@ -41,6 +41,7 @@ var idnum = 0;
 		        	<for each="entry" in="app.entries">
 		        		<li style="list-style-type:none;">
 		        		{! var module = getModules(entry)[0]; !}
+		        		<if test="module != null">
 	        				<a href="javascript:void(0);" onclick="$(this).siblings().toggle()">{+libx.utils.xml.encodeEntities(module.description)+}</a>
 	        				<div class="ui-component-content" style="display:none;">
 	        					<p>URL: {+libx.utils.xml.encodeEntities(entry.url)+}</p>
@@ -49,6 +50,10 @@ var idnum = 0;
         								<p>{+prop + " : " + libx.utils.xml.encodeEntities( val.toString() )+}</p> 	
         							</for>
 	        					</for>
+	        					{! var guardedby = module.guardedby; !}
+	        					<if test="guardedby != null">
+	        						<p>Guarded By: {+ libx.utils.xml.encodeEntities ( module.guardedby ) +}</p> 
+	        					</if>	
 	        					{! var idstr = "libapp" + idnum++; !}
 	        					<a href="javascript:void(function(){$('#{+idstr+}').toggle()})()">View Source</a>
 	        					<div id="{+idstr+}" style="display:none;" >
@@ -57,6 +62,7 @@ var idnum = 0;
 	        					</pre>
 	        					</div>
 	        				</div>
+	        				</if>
 		        		</li>
 		        	</for>
 		        </ul>

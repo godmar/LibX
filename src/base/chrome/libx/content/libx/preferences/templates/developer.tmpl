@@ -11,7 +11,7 @@
 !}
 
 <div style="font-size:.8em;">
-	<ul class="tabs-ul">
+	<ul id="developer-tabs">
 		<li>
 			<a href="#objectcache-tab">
 				<span>Cache Control</span>
@@ -29,6 +29,10 @@
 	<div id="libapps-tab">
 		{P null, "libapps" P}
 	</div>
-</div>           
+</div>    
+<script type="text/javascript">
+	/* Initialize the tabs */     
+	$('#developer-tabs').tabs();
+</script> 
 
 

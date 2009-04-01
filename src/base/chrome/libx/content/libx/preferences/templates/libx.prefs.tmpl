@@ -16,38 +16,69 @@
 !}
 
 <div>
-    <ul class="tabs-ul">
-        <for each="child" in="data._children">            
-            <li>
-                <a href="#{+ tabID ( child._id ) +}">
-                    <span>{+ prefsBundle.getProperty ( child._idstr + "-tabname", child._name ) +}</span>
-                </a>
-            </li>
-        </for>
+    <ul id="libx-prefs-tabs">
+    	<!-- Switched to specifically loading tabs to force an ordering -->
+        <if test="libx.prefs.browser != null">
+	        <li>
+	            <a href="#browser-maintab">
+	                <span>{+ prefsBundle.getProperty ( "libx.prefs.browser-tabname", "Browser" )+}</span>
+	            </a>
+	        </li>
+        </if>
+        <if test="libx.prefs.contextmenu != null">
+	        <li>
+	            <a href="#contextmenu-maintab">
+	                <span>{+ prefsBundle.getProperty ( "libx.prefs.contextmenu-tabname", "Context Menu" )+}</span>
+	            </a>
+	        </li>
+        </if>
+        <if test="libx.prefs.libapps != null">
+	        <li>
+	            <a href="#libapps-maintab">
+	                <span>{+ prefsBundle.getProperty ( "libx.prefs.libapps-tabname", "Libapps" )+}</span>
+	            </a>
+	        </li>
+        </if>
         <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
 	        <li>
-	            <a href="#developer-tab">
+	            <a href="#developer-maintab">
 	                <span>Developer</span>
 	            </a>
 	        </li>
         </if>
         <li>
-            <a href="#about-libx-tab">
+            <a href="#about-libx-maintab">
                 <span>About</span>
             </a>
         </li>
     </ul>
-    <for each="child" in="data._children">
-            <div id="{+ tabID ( child._id ) +}">
-                {P child P}
-            </div>
-    </for>
+    <!-- Order down here doesnt matter -->
+    <if test="libx.prefs.browser != null">
+	    <div id="browser-maintab">
+	        {P libx.prefs.browser P}
+	    </div>
+	</if>
+    <if test="libx.prefs.contextmenu != null">
+	    <div id="contextmenu-maintab">
+	        {P libx.prefs.contextmenu, "chrome://libxprefs/content/templates/libx.prefs.contextmenu.tmpl" P}
+	    </div>
+	</if>
+    <if test="libx.prefs.libapps != null">
+	    <div id="libapps-maintab">
+	        {P libx.prefs.libapps, "chrome://libxprefs/content/templates/libapps.tmpl" P}
+	    </div>
+	</if>
     <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
-	    <div id="developer-tab">
-	        {P null, "developer" P}
+	    <div id="developer-maintab">
+	        {P null, "chrome://libxprefs/content/templates/developer.tmpl" P}
 	    </div>
     </if>
-    <div id="about-libx-tab">
-        {P null, "aboutlibx" P}
+    <div id="about-libx-maintab">
+        {P null, "chrome://libxprefs/content/templates/aboutlibx.tmpl" P}
     </div>
+    
+	<script type="text/javascript">
+		/* Initialize the tabs */
+	    $('#libx-prefs-tabs').tabs();
+	</script>
 </div>

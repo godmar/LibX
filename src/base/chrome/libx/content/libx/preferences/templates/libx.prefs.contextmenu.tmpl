@@ -13,10 +13,9 @@
         return id + '-tab';
     }
 !}
-<!-- libx.prefs.contextmenu : 3253c2cf8aacdd001c26d289eeb8f9652d5c6e17.tmpl -->
 <div style="font-size:.8em;">
     <!-- Tab Headers -->
-    <ul class="tabs-ul">
+    <ul id="context-menu-tabs">
         <for each="child" in="data._children">            
             <li>
                 <a href="#{+ tabID ( child._id ) +}">
@@ -36,3 +35,8 @@
             </div>
     </for>
 </div>
+
+<script type="text/javascript">
+	/* Initialize the tabs */
+    $('#context-menu-tabs').tabs();
+</script>
