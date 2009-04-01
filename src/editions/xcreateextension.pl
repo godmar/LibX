@@ -462,6 +462,9 @@ foreach my $file ("contextmenu.prefs.xml", "browser.prefs.xml") {
         die "Cannot copy $editionpath/$file $tmpdir/$dir/$file";
 }
 
+# jar up the preferences to avoid conflicting with long filenames in XP
+system ( "cd \"$tmpdir/chrome/libx/content/libx\"; zip -r preferences.jar preferences; rm -rf preferences;" ) == 0 || die "Jarring preferences failed";
+
 if (defined($docinputdir)) {
     # cmd below assumes that $tmpdir is a relative path
     system ( "(CWD=`pwd`; cd $docinputdir; zip -r \$CWD/$tmpdir/documentation.jar .)" ) == 0 || die "copy of documentation failed";
