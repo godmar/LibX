@@ -70,12 +70,8 @@ JsPlate.prototype.parse = function() {
 	// The {description}
 	this.code = this.code.replace(
 		/\{description\}/gi,
-		function (match, code) {
-		
-//			code = code.replace(/"/g, "``"); // prevent qoute-escaping of inline code
-	//		code = code.replace(/(\r?\n)/g, " ");
-		//	code = code.trim();
-			return "``+ ( prefsBundle.getProperty (data._idstr+``-description`` ) ) +``";
+		function (match, code) {			
+			return "``+ ( prefsBundle.getProperty (data._idstr+``-description``, data._name ) ) +``";
 		}
 	);
 	
