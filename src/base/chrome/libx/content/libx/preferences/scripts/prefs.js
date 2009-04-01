@@ -18,19 +18,22 @@ var editionConfigurationReader = new libx.config.EditionConfigurationReader( {
 // Get localized String Bundle
 var prefsBundle = {
 	bundle : new libx.locale.StringBundle("chrome://libx/locale/prefs.properties"),
-	getProperty : function ( val, defaultVal ) {
+	getProperty : function ( name, defaultVal ) {
 		var prop = "";
-		try {
-			prop = this.bundle.getProperty ( val );
-		} catch ( e ) {
+		
+		prop = this.bundle.getProperty ( name );
+		// If an error occurs, pref returns <name>
+		libx.log.write ( name + ", prop is: " + prop );
+		if ( prop.indexOf ( "<" + name ) == 0 && defaultVal != null )
 			prop = defaultVal;
-		}
+			
 		return libx.utils.xml.encodeEntities ( prop );
 	}
 };
 
 var onloadFunctions = [];
-
+var templateID = 42;
+var globaldata = {};
 $(document).ready ( function () {
 	// Process the first template, which will create tabs and recursively process
 	// each subsequent template
@@ -38,20 +41,120 @@ $(document).ready ( function () {
 
     // Clone and append to main document
     // This evaluates scripts and style sheets ( setting the innerHTML does not seem to )
+    
     $('#content-div').append ( $( result ) );
+
+} );
     
-    
-    // Initialize any necessary code for the templates
-    for ( var i = 0; i < onloadFunctions.length; i++ ) {
-    	onloadFunctions[i]();
+
+/**
+ *    Processes a template.
+ *    @param pref - object to be passed into template
+ *    @param layout - optional, used to specify a specific layout
+ *    If layout is not specified, we will look for the template as follows
+ *        1. We will look for a template matching the preferences _id attribute
+ *        2. We will look for a template matching the preferences _layout attribute
+ *        3. We will look for a template matching the preferences _nodeType attribute
+*/
+function process ( pref, layout ) {        
+    var template = null;
+    var base = "chrome://libxprefs/content/templates/";
+    var ext = ".tmpl";
+    var filenames = [  ];
+    if ( layout != null )
+    	( layout.indexOf ( "://" ) > 0 ) ? filenames.push ( layout ) : filenames.push ( base + layout + ext );
+    if ( pref != null ) {
+    	//filenames.push ( base + pref._id + ext );
+    	if ( pref._layout != null ) {
+    		if ( pref._layout.indexOf ( "://" ) > 0 )  
+    			filenames.push ( pref._layout );
+    		else
+    			filenames.push ( base + pref._layout + ext );
+    	} 
+    	filenames.push ( base + pref._nodeType + ext );
     }
-    
-    // Initialize the tabs
-    $('.tabs-ul').tabs();
-        
-        
-    // Initialize the trees
-    $("ul.tree").checkTree({
+
+
+    return processTemplate ( filenames, pref );
+}
+
+/**
+ *    Attempts to retrieve a template
+ */    
+function processTemplate ( filenames, data ) {
+	var divID = "template"+templateID++;    
+	libx.log.write ( "processing for: " + divID + "\n" + filenames.join ( "\n\t" )	);
+	// store the data here so we can retrieve it later
+	globaldata[divID] = data;
+	
+	function getTemplate () {
+		var file = files.shift();
+		libx.log.write ( "Processing file=" + file );
+		/*libx.cache.defaultObjectCache.get ( { */
+		libx.cache.defaultObjectCache.get({
+			dataType: "text",
+			url: file,
+			error: function ( result, status, xhr ) {
+				libx.log.write ( "Error callback for: " + divID + " w/ status: " + result );
+			},
+			success: function (result, status, xhr) {
+				libx.log.write ( "Complete for: " + divID );
+
+				if ( ( result != null )) {
+					
+					
+
+					var jsplate = new JsPlate ( result, file );
+					
+					var tmpdiv = $("#"+divID);
+					var tmpparent = $(tmpdiv).parent();
+					tmpdiv.replaceWith(jsplate.process(globaldata[divID]));
+					initTemplate ( tmpparent );
+					
+					
+				} else {
+					
+					getTemplate ();
+					if ( files.length > 0 ) {
+					} else {
+						libx.log.write ("Cant Find Template" );
+					}
+				}
+			}
+		} );
+	}
+	
+	// var text = libx.io.getFileText ( "chrome://libxprefs/content/templates/" + name + ".tmpl" );
+	var htmlstr = "<div id='"+divID+"'/>\n" 
+	+ "<script type='text/javascript'>\n"
+	+ "(function() {\n"
+	+ " var files = " + libx.utils.json.stringify ( filenames ) + ";\n"
+	+ " var divID = '" + divID + "';\n"
+	+   getTemplate.toString() + "\n"
+	+ " getTemplate ();\n"
+	+ " })();\n"
+	+ "</script>";
+	return htmlstr;
+}
+
+/**
+ * Various initialization functions are executed after templates are loaded
+ */
+function initTemplate ( elem ) {
+	// Set event handlers for checkboxes
+	$(elem).find(".preference-checkbox").click ( 
+	    function () {
+	        libx.preferences.getByID ( this.name )._setValue ( this.checked );
+	} );
+	
+
+	// Set event handlers for radio buttons
+	$(elem).find(":radio").click(
+	    function () {
+		    libx.preferences.getByID ( this.name )._setValue ( this.value );
+	} );
+	    // Initialize the trees
+    $(elem).find("ul.tree").checkTree({
         labelAction: "expand",
         
         /**
@@ -78,66 +181,12 @@ $(document).ready ( function () {
                 } );
         }
     });
-    
-    $(".checked,.half_checked").siblings(".arrow").click();
-    
-    
-    // Set event handlers for checkboxes
-    $(".preference-checkbox").click ( 
-        function () {
-            libx.preferences.getByID ( this.name )._setValue ( this.checked );
-        } );
-    
-    // Set event handlers for radio buttons
-    $(":radio").click(
-        function () {
-            libx.preferences.getByID ( this.name )._setValue ( this.value );
-        } );
-
-} );
-    
-
-/**
- *    Processes a template.
- *    @param pref - object to be passed into template
- *    @param layout - optional, used to specify a specific layout
- *    If layout is not specified, we will look for the template as follows
- *        1. We will look for a template matching the preferences _id attribute
- *        2. We will look for a template matching the preferences _layout attribute
- *        3. We will look for a template matching the preferences _nodeType attribute
-*/
-function process ( pref, layout ) {        
-    var template = null;
-    var filenames = [ layout ];
-    if ( pref != null ) {
-    	filenames.push ( pref._id );
-    	filenames.push ( pref._layout );
-    	filenames.push ( pref._nodeType );
-    }
-    
-    for ( var i = 0; i < filenames.length; i++ ) {
-    	if ( filenames[i] != null ) {
-    		var templateText = getTemplate ( filenames[i] );
-    		// getTemplate returns false if template is not found
-    		if ( templateText ) {
-    			var jsplate = new JsPlate ( templateText, filenames[i] );
-    			return jsplate.process ( pref );
-    		}
-    	}
-    }
-    
-    libx.log.write ( "Error: Unable to find template for " + filenames.toString() );
-    return "";
+    // Fix the checked state of parents of checkboxes
+    $(elem).find("ul.tree :checkbox[checked]").siblings(".checked").click().click();
+    // Open up to show all items that are currently checked
+    $(elem).find("ul.tree .checked,.half_checked").siblings( ".arrow.collapsed").click();
+			    
 }
-
-/**
- *    Attempts to retrieve a template
- */    
-function getTemplate ( name ) {    
-	var text = libx.io.getFileText ( "chrome://libx/content/preferences/templates/" + name + ".tmpl" );
-	return text;
-}
-
 /**
  *    This needs to be updated to allow for saving of int/string and multichoice prefs
  */
