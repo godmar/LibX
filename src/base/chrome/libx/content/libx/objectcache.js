@@ -97,6 +97,10 @@ function retrieveRequest(request, retrievalType) {
             if (status == 304) {
                 libx.log.write("304 object not modified " + request.url, "objectcache");
             }
+            
+            if ( status == 0 ) {
+            	this.success ( data, status, xhr );
+            }
         },
         success: function (data, status, xhr) {
             var contentType = xhr.getResponseHeader("Content-Type");
