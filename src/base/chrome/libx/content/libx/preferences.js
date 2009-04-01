@@ -187,7 +187,7 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                 this._items = new Array();
                 break;
             default :
-                this._value = convert ( node.getAttribute ( 'value' ), this._type );
+                this._value = convert ( childDescriptor._value, this._type );
         }
         
         // Only choice and multichoice should have child nodes
@@ -385,7 +385,7 @@ function convert ( value, type ) {
             val = new Number ( value );
             break;
         case 'boolean' :
-            if ( value == 'true' ) {
+            if ( value == 'true' || value == true ) {
                 val = true;
             } else {
                 val = false;
@@ -429,21 +429,21 @@ var DefaultVisitor = libx.core.Class.create ( {
 var SerializeVisitor = libx.core.Class.create ( DefaultVisitor, {
     str : "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE category SYSTEM \"http://libx.org/xml/libxprefs.dtd\">\n",
     category : function ( cat ) {
-        this.str += "<category name=\"" + cat._name + "\" layout=\"" + cat._layout + "\">\n";
+        this.str += "<category name=\"" + libx.utils.xml.encodeEntities( cat._name ) + "\" layout=\"" + libx.utils.xml.encodeEntities ( cat._layout ) + "\">\n";
         this.parent ( cat );
         this.str += "</category>\n";
     },
     item : function ( item ) {
-        this.str += "<item type=\"" + item._type + "\" value=\"" + item._value + "\" ";
+        this.str += "<item type=\"" + libx.utils.xml.encodeEntities( item._type ) + "\" value=\"" + libx.utils.xml.encodeEntities( item._value ) + "\" ";
         if ( item._selected ) {
-            this.str += "selected=\"" + item._selected + "\""; 
+            this.str += "selected=\"" + libx.utils.xml.encodeEntities( item._selected ) + "\""; 
         }
         this.str += "/>\n";
     },
     preference : function ( pref ) {
-        this.str += "<preference name=\"" + pref._name + "\" type=\"" + pref._type + "\" ";
+        this.str += "<preference name=\"" + libx.utils.xml.encodeEntities ( pref._name ) + "\" type=\"" + libx.utils.xml.encodeEntities( pref._type ) + "\" ";
         if ( pref._type != 'choice' && pref._type != 'multichoice' ) {
-            this.str += "value=\"" + pref._value + "\"";
+            this.str += "value=\"" + libx.utils.xml.encodeEntities ( pref._value ) + "\"";
         }
         this.str += " >\n";
         this.parent ( pref );
@@ -490,7 +490,7 @@ return /** @lends libx.preferences */ {
         libx.prefs = new prefFactory["category"]({ _name: "prefs" }, "libx");
         
         var userPrefsDoc = libx.io.getFileXML ( USER_PREFS );
-
+		libx.log.write ( "Loading user prefs: " + userPrefsDoc );
         if (userPrefsDoc != null)
             this.loadXML (
                 userPrefsDoc,
