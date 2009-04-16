@@ -98,6 +98,8 @@ function retrieveRequest(request, retrievalType) {
                 libx.log.write("304 object not modified " + request.url, "objectcache");
             }
             
+            // Callback for handling file:// url requests, which
+            // return a 0 for success, not a 200
             if ( status == 0 ) {
             	this.success ( data, status, xhr );
             }
