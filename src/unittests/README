@@ -1,18 +1,56 @@
-
+How to invoke the launcher:
+// ---
 1. Compile utils classes
 
     javac org/libx/utils/*.java
 
 2.  Run all tests with
 
-    jrunscript -cp . -f rununittests.js
+	./launchtest.pl --all
 
 3. Run single tests with
 
-    ./runsingletest.sh collections.js
+    ./launchtest atompub.js
 
-   which is a wrapper for
+For more info: ./launchtest.pl --help
 
-    jrunscript -cp . -f loadlibx.js -f collections.js
 
-    (-cp . is needed to pick up org.libx.utils.*)
+During each run, a results file will be generated if there are any mismatches
+against reference files. A report for each individual diff will be recorded in
+testName.diff in the directory of the .ref file. The results files append a UNIX
+timestamp for uniqueness, in case we want to save them for some reason.
+
+// ---
+Reference File Checking
+
+The unit testing framework has the ability to perform a diff on a test's output
+against a pre-filled reference file. The user can create a reference file for a
+particular test as described below.
+
+You will see a number of folders in this directory, such as PackageVisitor,
+TextTransformer, etc. These names are derived from the names of the test suites
+to be executed. 
+
+To create a reference file:
+
+1.	run ./launchtest.pl --ref testsuite.js; (or --all)
+2.	When each test is finished, the launcher will prompt to see if the output
+	was correct; if so, type "y"
+3.	A new reference file will be created; to overwrite an existing reference
+	file, repeat this process
+
+
+
+NOTES:
+	- the diff ignored differences in blank lines by default
+	- each time the tests are run, the output file (testName.txt) is replaced
+
+A good example of how to set up the reference files is available for the
+atompub.js test file.
+
+TODO:
+	- decentralize definitions of testsuite attributes (ref file dir, ...)
+		+ based on test naming convention testname.suffix.js
+		+ more organization, no need to edit the main laucher to add more tests
+	- wait/signal, conc.js...
+	- rhinoxhr --> env

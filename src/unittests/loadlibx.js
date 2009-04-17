@@ -74,6 +74,8 @@ libx.utils.xml = {
 
 // XMLHttpRequest
 load("rhinoxhr.js");
+// XXX: look at env.js
+
 
 // libx.cache.bd
 libx.cache.bd = {
@@ -237,14 +239,14 @@ libx.utils.timer = {
         })), timeout, timeout);
     }
 };
-
+/*
 logger = {
     write : function (what) { print (what); }
 };
 libx.log = {
     write : function (what) { println (what); }
 };
-
+*/
 var libxscripts2 = [
     "objectcache.js",
     "crossref.js",

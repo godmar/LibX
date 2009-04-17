@@ -1,39 +1,67 @@
-// draft unit tests for interpreting AtomPub feeds
+// test the atompub parser
 //
-libx.cache.defaultMemoryCache.get({
-    //url : "http://libx.cs.vt.edu/~gback/feeds-draft.xml",
-    url : "http://libx.org/libx2/libapps/",
-    dataType : "xml",
-    async : true,
-    success : function (xmlDoc, status, xhr) {
-        var nsResolver = { atom: "http://www.w3.org/2005/Atom",
-                           libx2: "http://libx.org/xml/libx2" };
-        
-        // print all nodes that match a given xpathExpr
-        function printNodes(what, xpathExpr) {
-            var nodes = libx.utils.xpath.findNodesXML(xmlDoc, xpathExpr, xmlDoc, nsResolver);
-            for (var i = 0; i < nodes.length; i++)
-                logger.write("found " + what + ": " + nodes[i].nodeValue + "\n");
-        }
+// define globals:
+var success;
+function PackageVisitorTest(name)
+{
+	TestCase.call(this, name);
+}
+function PackageVisitorTest_setUp()
+{
+	success = false;
+	libx.cache.defaultMemoryCache.get({
+		url : "http://libx.org/libx2/libapps/",
+		dataType : "xml",
+		async : true,
+		success : function (xmlDoc, status, xhr) {
+			var nsResolver = { 
+				atom: "http://www.w3.org/2005/Atom",
+				libx2: "http://libx.org/xml/libx2" 
+			};
+			// print all nodes that match a given xpathExpr
+			function printNodes(what, xpathExpr) {
+				var nodes = libx.utils.xpath.findNodesXML(xmlDoc, xpathExpr, xmlDoc, nsResolver);
+				for (var i = 0; i < nodes.length; i++)
+					print("found " + what + ": " + nodes[i].nodeValue + "\n");
+			}
 
-        // select text beneath an atom:title element that is a child of such atom:entry elements
-        // that have a child libx2:module which in turn has a child libx2:body
-        printNodes("Libx module", "//atom:entry[libx2:module/libx2:body]/atom:title/text()");
-        printNodes("Libx libapp", "//atom:entry[libx2:libapp]/atom:title/text()");
-        printNodes("Libx package", "//atom:entry[libx2:package]/atom:title/text()");
+			// select text beneath an atom:title element that is a child of such atom:entry elements
+			// that have a child libx2:module which in turn has a child libx2:body
+			printNodes("Libx package", "//atom:entry[libx2:package]/atom:title/text()");
 
-        var libapps = libx.utils.xpath.findNodesXML(xmlDoc, "//atom:entry/libx2:libapp", xmlDoc, nsResolver);
-        for (var i = 0; i < libapps.length; i++) {
-            logger.write("Found libapp: " + libx.utils.xpath.findSingleXML(xmlDoc, 
-                                            "preceding-sibling::atom:title/text()", 
-                                            libapps[i], nsResolver).nodeValue + "\n");
+			var libapps = libx.utils.xpath.findNodesXML(xmlDoc, "//atom:entry/libx2:libapp", xmlDoc, nsResolver);
+			for (var i = 0; i < libapps.length; i++) {
+				print("Libapp: " + libx.utils.xpath.findSingleXML(xmlDoc, 
+												"preceding-sibling::atom:title/text()", 
+												libapps[i], nsResolver).nodeValue + "\n");
 
-            var entries = libx.utils.xpath.findNodesXML(xmlDoc, "./libx2:entry", libapps[i], nsResolver);
-            for (var j = 0; j < entries.length; j++)
-                logger.write(" -> " + entries[j].getAttribute('src') + "\n");
-        }
-    }
-});
+				var entries = libx.utils.xpath.findNodesXML(xmlDoc, "./libx2:entry", libapps[i], nsResolver);
+				for (var j = 0; j < entries.length; j++)
+					print(" -> " + entries[j].getAttribute('src') + "\n");
+			}
+			success = true;
+		}
+	});
+	java.lang.Thread.sleep(3000);
+}
 
-logger.write("waiting 2 sec for atompub tests to complete\n");
-java.lang.Thread.sleep(2000);
+function PackageVisitorTest_testSuccess()
+{
+	this.assertTrue(success);
+}
+
+// ---
+// test suite setup code
+PackageVisitorTest.prototype = new TestCase();
+PackageVisitorTest.glue();
+
+function PackageVisitorTestSuite()
+{
+    TestSuite.call(this, "PackageVisitorTestSuite");
+    this.addTestSuite(PackageVisitorTest);
+}
+PackageVisitorTestSuite.prototype = new TestSuite();
+PackageVisitorTestSuite.prototype.suite = function () 
+{
+	return new PackageVisitorTestSuite(); 
+}
