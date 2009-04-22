@@ -1,3 +1,4 @@
+var DEBUG = false;
 
 // XXX: This needs to be made cross-browser at some point                                             
 (function () {
@@ -23,7 +24,7 @@ var prefsBundle = {
 		
 		prop = this.bundle.getProperty ( name );
 		// If an error occurs, pref returns <name>
-		libx.log.write ( name + ", prop is: " + prop );
+		if ( DEBUG ) libx.log.write ( name + ", prop is: " + prop );
 		if ( prop.indexOf ( "<" + name ) == 0 && defaultVal != null )
 			prop = defaultVal;
 			
@@ -83,13 +84,13 @@ function process ( pref, layout ) {
  */    
 function processTemplate ( filenames, data ) {
 	var divID = "template"+templateID++;    
-	libx.log.write ( "processing for: " + divID + "\n" + filenames.join ( "\n\t" )	);
+	if ( DEBUG )  libx.log.write ( "processing for: " + divID + "\n" + filenames.join ( "\n\t" )	);
 	// store the data here so we can retrieve it later
 	globaldata[divID] = data;
 	
 	function getTemplate () {
 		var file = files.shift();
-		libx.log.write ( "Processing file=" + file );
+		if ( DEBUG ) libx.log.write ( "Processing file=" + file );
 		/*libx.cache.defaultObjectCache.get ( { */
 		libx.cache.defaultObjectCache.get({
 			dataType: "text",
@@ -98,7 +99,7 @@ function processTemplate ( filenames, data ) {
 				libx.log.write ( "Error callback for: " + divID + " w/ status: " + result );
 			},
 			success: function (result, status, xhr) {
-				libx.log.write ( "Complete for: " + divID );
+				if ( DEBUG ) libx.log.write ( "Complete for: " + divID );
 
 				if ( ( result != null )) {
 					
@@ -124,14 +125,18 @@ function processTemplate ( filenames, data ) {
 		} );
 	}
 	
-	// var text = libx.io.getFileText ( "chrome://libxprefs/content/templates/" + name + ".tmpl" );
+	/* add in the div and script tags to support async loading of preferences
+	   once script tag is inserted, it is evaluated, grabs the template, and replaces the div
+	   with the evaluated template
+	   setTimeout prevents window from freezing up while loading
+	*/
 	var htmlstr = "<div id='"+divID+"'/>\n" 
 	+ "<script type='text/javascript'>\n"
 	+ "(function() {\n"
 	+ " var files = " + libx.utils.json.stringify ( filenames ) + ";\n"
 	+ " var divID = '" + divID + "';\n"
 	+   getTemplate.toString() + "\n"
-	+ " getTemplate ();\n"
+	+ " setTimeout ( getTemplate, 100 );\n"
 	+ " })();\n"
 	+ "</script>";
 	return htmlstr;
