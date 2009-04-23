@@ -1,5 +1,7 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
+my $resultsdir;			# directory where results/diffs are stored
+my $suitedir;			# directory where test and ref files are stored
 my %refdir = ();		# stores testsuite(index) and directory(value)
 my $args_topass;		# space delimited string of args to pass
 my $out_file = "none";	# saves the file to which we will write output
@@ -7,25 +9,21 @@ my @buffer;				# temporary buffer for the output of a test
 my %failures = ();		# errors from diffs against reference files
 my $timestamp = time();	# so we can create multiple, unique reports
 my %valid_args;			# hash of properties for each argument
+my $recording = 0;		# boolean, true if recording, false if not
 
 &define_valid_args (\%valid_args);	# define valid arguments that we can expect
 
 # read, interpret, and handle arguments
 foreach (@ARGV) {	# {{{
 	if (!exists ($valid_args{$_})) {
-		if (/\.js$/) {
-			$args_topass .= $_.' ';	
-		}
-		else {
-			die ("Bad Argument\n");
-		}
+		$args_topass .= $_.' ';	
 	}
 	else {
 		my $callback = $valid_args{$_}{fn};
 		&$callback(\%valid_args);	
 	}
 }	# }}}
-
+$args_topass =~ s/\s+$//;	# strip trailing whitespace
 open (TESTOUTPUT, "jrunscript -cp . rununittests.js $args_topass |");
 while (<TESTOUTPUT>) {
 	if (/^##\s/) {
@@ -35,35 +33,38 @@ while (<TESTOUTPUT>) {
 			$refdir{$1} = $2;
 		}
 		elsif (/^## RecordOutput_(Begin|End): (.+)\.(.+)/) {
+			#					  $1		   $2    $3
 			if ($1 eq 'Begin') {
-				$out_file = $refdir{"$2Suite"}.$3;
+				$out_file = $refdir{$2}."/".$3;
+				$recording = 1;
+				system("clear");
+				print "Test: $2.$3\n";
 			}
-			elsif ($out_file ne 'none' and $1 eq 'End') {
+			elsif ($1 eq 'End') {
+				$recording = 0;
 				if ($valid_args{"--ref"}{value} == 1) {
 					print ">> Is this test output correct? (y/n): ";
 					chomp ($accept = <STDIN>);
 					if ($accept eq 'y') {
-						&writeBufferToFile ("$out_file.ref", @buffer);
+						&writeBufferToFile ($suitedir."$out_file.ref", @buffer);
 					}
 				}
-				&writeTestOutput($out_file, @buffer);
+				&writeTestOutput($resultsdir.$out_file, @buffer);
+				# TODO: add check for the .ref file, otherwise don't run diff
 				&performDiff($out_file);
 				undef @buffer;
 			}
-			if ($refdir{"$2Suite"} eq 'none') {
-				$out_file = "none";
-			}
 		}
-		else {
-			# if for some reason legitimate output begins with '##'
-			print $_ if ($valid_args{"-v"}{value} == 1);
+		elsif (/^## SUITEDIR: (\w+\/)/) {
+			$suitedir = $1;
+		}
+		elsif (/^## RESULTSDIR: (\w+\/)/) {
+			$resultsdir = $1;
 		}
 	}
 	else {
 		print $_ if ($valid_args{"-v"}{value} == 1);
-		if ($out_file ne 'none') {
-			push(@buffer, $_);
-		}
+		push(@buffer, $_) if ($recording == 1)
 	}
 }
 close (TESTOUTPUT);
@@ -71,9 +72,10 @@ close (TESTOUTPUT);
 # message displayed with the test output is all we get
 if (keys(%failures) > 0) {
 	print "Some test outputs did not match their reference files\n";
-	print "Please see ./TestSuites/results/results_$timestamp.txt \n\n";
+	print "Please see $resultsdir"."all/results_$timestamp.txt \n\n";
 	&writeResults($timestamp, \%failures);
 }
+
 # write any failures to a results file
 sub writeResults
 {
@@ -83,9 +85,10 @@ sub writeResults
 	while (my ($key, $value) = each %$hash_buffer ) {
 		push (@buffer, "$key\n$value\n\n");
 	}
-	&writeBufferToFile ("./TestSuites/results/all/results_$timestamp.txt", 
+	&writeBufferToFile ($resultsdir."all/results_$timestamp.txt", 
 		@buffer);
 }
+
 # write output to be compared against the corresponding reference file
 sub writeTestOutput
 {
@@ -100,7 +103,13 @@ sub writeBufferToFile	# {{{
 {
 	my $file 	= shift;
 	my @buffer 	= @_;
-	# we are to assume the caller has created the file
+
+	# this call could occur on a new testoutput creation, or a new ref
+	# file, so we need to make sure the directories 
+	$_ = $file;
+	/^((\w+\/)+)/;
+	system("mkdir -p $1");
+
 	open (TOFILE, ">", "$file")
 		or die ("Could not open file $file for writing\n");
 	foreach (@buffer) {
@@ -113,14 +122,14 @@ sub writeBufferToFile	# {{{
 sub performDiff
 {
 	my $file = shift;
-	my $result = `diff -uB $file."txt" $file."ref"`;
+	my $result = `diff -uB $resultsdir$file."txt" $suitedir$file."ref"`;
 
 	# impement diff exit code checking? only throws exit codes if failure 
 	# unrelated to the file comparison...
 	if ($result ne '') {
-		print "Test output != Reference file. See $file.diff for details\n";
-		&writeBufferToFile ("$file.diff", $result);
-		$failures{"$file: Output did not match reference file"} = $result;
+		print "Test output != Reference file. See $resultsdir$file.diff for details\n";
+		&writeBufferToFile ("$resultsdir$file.diff", $result);
+		$failures{"$resultsdir$file: Output did not match reference file"} = $result;
 	}
 	else {
 		print "Reference file matched test file!\n";
@@ -141,10 +150,10 @@ sub __cb_arg_help	# {{{
   @<<<<<<	@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	$arg,	$desc
 .
-	print "Usage: ./launchtest.pl [OPTION]... [FILE]\n";
+	print "Usage: ./launchtest.pl [OPTION] [TESTSUITE]\n";
 	print "Examples: \n";
-	print "  ./launchtest.pl test1.js test2.js testn.js\n";
-	print "  ./launchtest.pl -v testn.js\n";
+	print "  ./launchtest.pl testsuite1 testsuite2 testsuiteN\n";
+	print "  ./launchtest.pl -v packagevisitor\n";
 	print "  ./launchtest.pl --ref --all\n\n";
 
 	$~ = CONTENTS;

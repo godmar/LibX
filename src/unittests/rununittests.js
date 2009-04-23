@@ -5,61 +5,80 @@ JsUtil.prototype.include("jsunit/lib/JsUnit.js");
 // load libx unittest loader
 load("loadlibx.js");
 
-/* please note that the reference attribute should be a directory containing the
- * reference files that correspond to your individual test cases (add trailing
- * slash)
- * e.g., for PackageVisitorTestSuite.testSuccess() and 
- * reference: "./reference/PackageVisitor", you will need to make sure your
- * reference file is at ./reference/PackageVisitor/testSuccess.ref
- * It's designed this way because in order to keep complexity down, certain
- * assumptions are made. If you do not want a reference file, please set 
- * reference to "none"
+var SUITEDIR 	= "testsuites";
+var RESULTSDIR	= "testresults";
+var ALLTESTS	= null;
+
+// some utility functions
+function isTestFile (name)
+{
+	return RegExp(/\w+\.test\.js$/).test(name);
+}
+function isRefFile (name)
+{
+	return RegExp(/\w+\.ref$/).test(name);
+}
+function isDir (name)	/* probably */
+{
+	return !isRefFile(name) && !isTestFile(name);
+}
+function getLowestDir (name)
+{
+	var tmpsplit = name.split("/");
+	return tmpsplit[tmpsplit.length - 2];
+}
+function getFileFromPath (name)
+{
+	var tmpsplit = name.split("/");
+	return tmpsplit[tmpsplit.length - 1];
+}
+function stripTopDir (name)
+{
+	var tmpsplit = name.split(/^(\w+)\//);
+	return tmpsplit[2];
+}
+
+/* suite {String}	path of suite or filename to load
+ * if suite is a directory, then recursively load all test.js files and suites;
+ * if suite is a filename (indicated by ending in test.js) then only load that
+ * file. If SUITEDIR is passed in, then load all tests
  */
-var testSuiteList =
-{	
-	MemCacheTestSuite: {
-		jsfile:		"memcache.js",
-		reference: 	"none" 
-	},
-	PackageVisitorTestSuite: {
-		jsfile:		"atompub.js",
-		reference:	"./reference/PackageVisitor/"
-	},
-	AtomParserTestSuite: {
-		jsfile:		"testatom.js", 
-		reference:	"none" 
-	},
-	TextTransformerTestSuite: { 
-		jsfile:		"testtexttransformer.js", 
-		reference:	"none"
+function loadTestSuite (suite)
+{
+	if (isTestFile(suite)) {
+		loadTestIntoAll (suite);
+		return 0;
 	}
-};
-// this list is filled with test suites if the user invokes jsunit with
-// arguments specifying which tests they wish to run
-var testSuitesToRun = { };
+	var files = new java.io.File(suite).list();
+	for (var i = files.length - 1; i >= 0; i--) {
+		if (isDir(files[i])) {
+			// if a directory is found, then continue recursing
+			loadTestSuite(suite + "/" + files[i]);
+		}
+		else if (isTestFile(files[i])) {
+			println("## TestLauncher: "+ getFileFromPath(suite) + "Test --> " 
+				+ stripTopDir(suite));
+		
+			loadTestIntoAll ((suite + "/" + files[i]));
+		}
+		/* else do nothing, ignore */
+	}
+}
+function loadTestIntoAll (test)
+{
+	JsUtil.prototype.include(test);
+	ALLTESTS.addTest(eval(getLowestDir(test) +"TestSuite").prototype.suite());
+}
+/* include all test suites in SUITEDIR for testing. */
 function loadAllTestSuites ()
 {
-	for (var attribute in testSuiteList) {
-		println(attribute +" in "+ testSuiteList[attribute].jsfile);
-		println("## TestLauncher: "+ attribute +" --> "
-				+ testSuiteList[attribute].reference);
-		JsUtil.prototype.include(testSuiteList[attribute].jsfile);
-	}
-	testSuitesToRun = testSuiteList;
+	loadTestSuite(SUITEDIR);
 }
+/* include a certain list of tests in SUITEDIR for testing. */
 function loadSelectTestSuites (argv) 
 {
-	for (var i = 0; i < argv.length; i++) {
-		// TODO: rewrite using indexOf( ... )
-		for (var attribute in testSuiteList) {
-			if (testSuiteList[attribute].jsfile == argv[i]) {
-				println(attribute +" in "+ testSuiteList[attribute].jsfile);
-				println("## TestLauncher: "+ attribute +" --> "
-					+ testSuiteList[attribute].reference);
-				testSuitesToRun[attribute] = testSuiteList[attribute];
-				JsUtil.prototype.include(testSuitesToRun[attribute].jsfile);
-			}
-		}
+	for (var i = argv.length - 1; i >= 0; i--) {
+		loadTestSuite(SUITEDIR + "/" + argv[i]);
 	}
 }
 function AllTests()
@@ -68,37 +87,26 @@ function AllTests()
 }
 function AllTests_suite()
 {
-    var suite = new AllTests();
-	for (var attribute in testSuitesToRun) {
-		var testSuite = eval(attribute);
-   		suite.addTest(testSuite.prototype.suite());
-		//java.lang.Thread.sleep(5000);
+    ALLTESTS = new AllTests();
+	if (args[0] != undefined) {
+		println("Test Suites Selected to Run:");
+		// we are assuming that the launcher has sanitized the arguments
+		loadSelectTestSuites (args);
 	}
-    return suite;
-}
-var argv = [ ];
-// if arguments are given to the launcher, then we will only run the tests
-// listed in the command-line arguments
-if (arguments[0] != undefined) {
-	for (var i = 0; i < arguments.length; i++) {
-		if (arguments[i].match(/\.js$/)) {
-			argv[i] = arguments[i];
-		}
-		else {
-			println("Invalid Argument: Not a javascript file -- "+ arguments[i]);
-			exit(1);
-		}
+	else {
+		println("Running all tests: ");
+		loadAllTestSuites();
 	}
-	println("Test Suites Selected to Run:");
-	loadSelectTestSuites(argv);	
+    return ALLTESTS;
 }
-else {
-	println("Running all tests: ");
-	loadAllTestSuites();
-}
+println ("## SUITEDIR: "+SUITEDIR+"/");
+println ("## RESULTSDIR: "+RESULTSDIR+"/");
+
+var args = arguments;
+//
 // begin the test suite
 AllTests.prototype = new TestSuite();
 AllTests.prototype.suite = AllTests_suite;
 
 // run the tests and print results to console
-JsUtil.prototype.quit(TextTestRunner.prototype.main(argv));
+JsUtil.prototype.quit(TextTestRunner.prototype.main(arguments));
