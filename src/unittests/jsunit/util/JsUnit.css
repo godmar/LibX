@@ -1,0 +1,120 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2007 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+h1 { text-align: center; font-family:Times,serif }
+caption { font-weight: bold }
+hr { border-color: rgb(198,166,70); border-style: solid }
+img { border-color: #ffffcc; border-style: ridge; border-width: 6px }
+div.tabs { 
+    float: left; 
+    width: 100%; 
+    margin-bottom: 6px; 
+    border-color: rgb(198,166,70); 
+    border-bottom-style: solid; 
+    border-bottom-width: 2px 
+}
+div.tabs ul { margin: 0px; padding-left: 10px; padding-bottom: 8px; list-style: none; }
+div.tabs li, div.tabs form { display: inline; padding: 0px; margin: 0px; }
+div.tabs form { float: right }
+a.el { text-decoration: none; font-weight: bold }
+a.elRef { font-weight: bold }
+a.code { text-decoration: none; font-weight: normal; color: #4444ee }
+a.codeRef { font-weight: normal; color: #4444ee }
+a:hover { color: red }
+dl.el { margin-left: -1cm }
+div.fragment { width: 100%; border: none; background-color: #ffff88 }
+div.ah { background-color: red; margin-bottom: 3; margin-top: 3; font-weight: bold; color: yellow }
+td.md { background-color: #ffff88 }
+td.mdname1 { background-color: #ffff88; font-weight: bold; color: #602020; }
+td.mdname { background-color: #ffff88; font-weight: bold; color: #602020; width: 600px; }
+table.header { border: 0; vertical-align: middle }
+/* table.header td { margin: 6; padding-left: 12; padding-right: 12 } */
+div.header { font-size: 300%; font-weight: bold; font-family:Times,serif }
+div.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+div.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+body { background: #ffffcc }
+td.indexkey { 
+   background-color: #ffff88; 
+   font-weight: bold; 
+   padding-right  : 10px; 
+   padding-top    : 2px; 
+   padding-left   : 10px; 
+   padding-bottom : 2px; 
+   margin-left    : 0px; 
+   margin-right   : 0px; 
+   margin-top     : 2px; 
+   margin-bottom  : 2px;
+   border-width   : 2;
+   border-style   : solid;
+   border-color   : rgb(198,166,70)
+}
+td.indexvalue { 
+   background-color: #ffff88; 
+   font-style: italic; 
+   padding-right  : 10px; 
+   padding-top    : 2px; 
+   padding-left   : 10px; 
+   padding-bottom : 2px; 
+   margin-left    : 0px; 
+   margin-right   : 0px; 
+   margin-top     : 2px; 
+   margin-bottom  : 2px;
+   border-width   : 2;
+   border-style   : solid;
+   border-color   : rgb(198,166,70)
+}
+font.keyword       { color: #008000 }
+font.keywordtype   { color: #604020 }
+font.keywordflow   { color: #e08000 }
+font.comment       { color: #800000 }
+font.preprocessor  { color: #806020 }
+font.stringliteral { color: #002080 }
+font.charliteral   { color: #008080 }
+span.J { color: #00CC00 }
+span.s { color: #0000CC }
+span.U { color: #FF0000 }
+
+.cell3d { 
+    border-top: silver 1px solid;
+    border-left: silver 1px solid;
+    border-bottom: black 1px solid; 
+    border-right: black 1px solid; 
+}
+.tab3d {
+    border-top: silver 1px solid;
+    border-left: silver 1px solid;
+    border-bottom: #666666 1px solid; 
+    border-right: #666666 1px solid; 
+    background-color: rgb(198,166,70); 
+    color: #ffffcc
+}
+
+div td { 
+   background-color: #ffff88; 
+   padding-right  : 10px; 
+   padding-top    : 2px; 
+   padding-left   : 10px; 
+   padding-bottom : 2px; 
+   margin-left    : 0px; 
+   margin-right   : 0px; 
+   margin-top     : 2px; 
+   margin-bottom  : 2px;
+   border-width   : 2;
+   border-style   : solid;
+   border-color   : rgb(198,166,70)
+}
+

@@ -1,0 +1,98 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+
+\htmlonly
+
+<div class="JsUnit">
+
+\endhtmlonly
+
+\page rhino Rhino
+
+\section mozrhino Mozilla.org's Rhino
+
+<p>Rhino is the name of the JavaScript engine from mozilla.org written
+completely in Java. Depending on the configuration, the engine is even capable
+of translating the code to Java and compile it automatically. Since it is Open
+Source and especially designed for usage in other products, you can find
+nowadays a lot of applications using Rhino as easy scripting environment.  The
+engine is shipped in the file <i>js.jar</i>. A shell and a transpiler to
+convert JavaScript into Java code is available.</p>
+
+<ul>
+    <li><a href="http://www.mozilla.org/rhino/index.html">Rhino Homepage</a></li>
+    <li><a href="http://www.mozilla.org/rhino/tutorial.html">Embedder's Guide</a></li>
+    <li><a href="http://www.mozilla.org">Mozilla</a></li>
+</ul>
+
+<p>The version 1.5RC3 (and possibly earlier versions) has a bug and will throw
+a TypeError if the method toString is called for a class derived from Error.
+JsUnit is able to compensate this bug, although it is fixed for 1.5RC4.</p>
+
+<ul>
+    <li><a href="http://bugzilla.mozilla.org/show_bug.cgi?id=181654">Bug
+181654</a></li>
+</ul>
+
+
+\subsection rhinoexample Examples
+
+<p>The distribution of Rhino includes a shell, that can be used as command
+line version to execute standalone JavaScript sources. This shell implements
+some commands not available in the JavaScript standard. Concerning JsUnit this
+is \c print to write to the console and \c load to load other JavaScript
+files. Call the engine with</p>
+
+\htmlonly
+<div class="fragment"><pre>
+java org.mozilla.javascript.tools.shell.Main <i>&lt;filename&gt;.js</i></pre>
+</div>
+\endhtmlonly
+
+<p>You can run the examples or the JsUnit's TestSuite giving AllTests.js as
+argument running the shell.</p>
+
+<p>Additionally the engine will also throw a TypeError running JsUnit if
+optimization is enabled (greater 0). I have not investigated on this
+further.</p>
+
+<ul>
+    <li><a href="http://www.mozilla.org/rhino/shell.html">Rhino
+    Shell reference</a></li>
+</ul>
+
+\subsection rhinodebugger Debugger
+
+<p>A basic debugger is also part of the distribution. Call</p>
+
+\htmlonly
+<div class="fragment"><pre>
+java org.mozilla.javascript.tools.debugger.Main <i>&lt;filename&gt;.js</i></pre>
+</div>
+\endhtmlonly
+
+\image html rhinodebugger.png
+
+\htmlonly
+
+</div>
+
+\endhtmlonly
+
+*/

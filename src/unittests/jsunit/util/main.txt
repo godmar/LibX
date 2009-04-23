@@ -1,0 +1,155 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006,2007 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*! 
+
+\htmlonly
+
+<div class="JsUnit">
+
+\endhtmlonly
+
+\mainpage JsUnit
+
+\section overview Overview
+
+\subsection description Description
+
+<p>JsUnit is a simple framework to write repeatable tests in JavaScript. It is
+an instance of the xUnit architecture for unit testing frameworks. JsUnit is a
+port of JUnit 3.8.1 originally written by Erich Gamma and Kent Beck. It covers
+the core system and the examples.</p>
+
+<ul>
+    <li><a href="http://www.junit.org">Homepage JUnit</a></li>
+    <li><a href="http://www.xprogramming.com/software.htm">Unit testing frameworks</a></li>
+    <li><a href="http://c2.com/cgi/wiki?TestingFramework">Portland Pattern Repository for Testing Frameworks</a></li>
+</ul>
+
+\subsection licenseintro License
+
+<p>JsUnit is the released under the Apache Software License 2.0 (ASL).</p>
+
+<ul>
+    <li>\ref license</li>
+</ul>
+
+\subsection downloads Downloads
+
+<p>JsUnit uses the infrastructure of SourceForge. Therefore are all downloads
+are available at the of the JsUnit project page. The documentation of JsUnit
+contains always release notes and the project history.</p>
+
+<ul>
+    <li><a href="http://developer.berlios.de/project/filelist.php?group_id=158">Download section of JsUnit at SouceForge</a></li>
+    <li>\ref release</li>
+    <li>\ref history</li>
+</ul>
+
+<p>The JsUnit projects uses the Perl script js2doxy.pl to convert JavaScript
+into pseudo C++ code, that can be used for Doxygen as input. The distribution
+of JsUnit contains this script in the util directory. You may download this
+script also from the CVS repository directly.</p>
+
+<ul>
+    <li><a
+    href="http://svn.berlios.de/wsvn/jsunit/trunk/jsunit/util/js2doxy.pl?op=file">js2doxy.pl
+    in Subversion</a></li>
+    <li>\ref docConv</li>
+</ul>
+
+\subsection usageintro Usage
+
+<p>The documents include a little manual how to write unit tests with JsUnit.
+The coding conventions follow the guide line of Netscape. Since JUnit is based
+on Java I introduced an interface mechanism used for the JsUnit realization
+following a specific programming convention.</p>
+
+<ul>
+    <li>\ref codeConv</li>
+    <li>\ref interface</li>
+    <li>\ref writing</li>
+    <li>\ref examples</li>
+</ul>
+
+<p>The distribution also includes some samples demonstrating the usage of 
+JsUnit in different environments.</p>
+
+<ul>
+    <li>\ref maven2</li>
+    <li>\ref ant</li>
+    <li>\ref products</li>
+</ul>
+
+\subsection people People
+
+<p>You can e-mail me for any question, suggestion or problem. Join the JsUnit
+mailing list hosted by Yahoo! Groups for more attention and share your request
+and their answer with others that may be interested. Please note that more
+than one JsUnit project exists. Additionally JsUnit would not have been
+possible in the current from with the help of other people.</p>
+
+<ul>
+    <li><a href="http://groups.yahoo.com/group/jsunit/join">Join JsUnit mailing list</a></li>
+    <li><a href="mailto:joehni@mail.berlios.de">E-mail to J&ouml;rg
+Schaible</a></li>
+    <li>\ref acknowledge</li>
+</ul>
+
+\section donations Donations
+
+<p>While JsUnit is and will be freely available, the programming effort eats
+up a lot of my spare time.  I really enjoy programming, but sometimes
+maintaining and developing a framework becomes also a burden, since it
+prevents me sometimes from investigating in new and other technologies.
+Donations will keep my delight and motivation developing JsUnit at a much
+higher level.</p>
+
+\subsection donationreasons Reasons for Donations
+
+<p>There might be a reason for you reading at this section:</p>
+
+<ul>
+    <li>You appreciate the features that JsUnit already has and you want to
+    show your appreciation for implementing these features.</li>
+    <li>You are an individual or business user interested in ongoing
+    development on this framework.</li>
+    <li>You are a business user contributing a fair amount of money for the
+    potential large benefit (and cost savings) that your company derives from
+    JsUnit development.</li>
+    <li>Or, you have just some money to share :)</li>
+</ul>
+
+\subsection donationcollection Collection of Donations
+
+<p>I have setup a PayPal account that accepts payments from PayPal members and
+people without PayPal account. Just click this button to make a donation for
+past JsUnit development.</p>
+
+\htmlonly
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_xclick">
+<input type="hidden" name="business" value="joehni@mail.berlios.de">
+<input type="hidden" name="item_name" value="JsUnit">
+<input type="image" src="PayPal.png" border="0" name="submit" alt="Make a donation using PayPal">
+</form>
+</div>
+
+\endhtmlonly
+
+*/

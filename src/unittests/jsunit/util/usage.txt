@@ -1,0 +1,346 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006,2007 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+
+\htmlonly
+
+<div class="JsUnit">
+
+\endhtmlonly
+
+\page usage Usage
+
+\section generalusage General Usage
+
+\subsection codeConv Coding Conventions
+
+<p>To create an object in JavaScript you have to use the new operator. Every
+time this operator will call a function that creates automatically the new
+object implicitly. The new object is of the type of the function. This means
+the function's code represents the class definition, the
+&quot;constructor&quot; is the function call itself. Since JsUnit 1.2 the
+standard inheritance mechanism described in the <a
+href="http://developer.netscape.com/docs/manuals/js/core/jsguide15/obj2.html">JavaScript
+guide 1.5 for the object model</a> is supported and preferred.</p>
+
+<p>JsUnit follows the scheme that all member variables are declared within
+this constructor. Afterwards all member functions are declared, using the name
+schema classname_memberfunctionname. All member functions are then added to
+the prototype of the class. This prevents naming conflicts in the global
+namespace. The first section within the constructor is used for the
+inheritance. Call a base class by using the call method of its
+constructor:</p> 
+
+\code
+function ClassName( arg1, arg2 )
+{
+    BaseClass.call( this, arg1, arg2 );
+}
+\endcode
+
+<p>After calling the constructor you should initialize the member variables by
+assigning them a value:</p>
+
+\code
+this.mMember1 = 1;
+this.mMember2 = "yes";
+\endcode
+
+<p>After writing the constructor it is the time to define all member
+functions.  Declare the function using the class name as prefix. Assign all
+functions afterwards to the prototype:</p>
+
+\code
+function ClassName_f1() {}
+function ClassName_f2() {}
+
+ClassName.prototype = new BaseClass();
+ClassName.prototype.f1 = ClassName_f1;
+ClassName.prototype.f2 = ClassName_f2;
+\endcode
+
+<p>The assignment of the methods is quite cumbersome for a big number of 
+member functions and it is easy to forget one.  Therefore the \a Function
+object has been enhanced with a new method \a glue that automates this
+assignment as long as the naming convention is honored:</p>
+
+\code
+function ClassName_f1() {}
+function ClassName_f2() {}
+
+ClassName.prototype = new BaseClass();
+ClassName.glue();
+\endcode
+
+<p>It is no problem to overload a function that was already assigned in a the
+base class.  Call the overloaded function using its apply or call method in the
+prototype of the constructor:</p>
+
+\code
+function ClassName_f1() 
+{
+    BaseClass.prototype.f1.apply( this, arguments );
+}
+//...
+ClassName.prototype.f1 = ClassName_f1;
+\endcode
+
+<p>You may also define static member variables using a prototype
+definition:</p>
+
+\code
+ClassName.prototype.v1 = 1;
+\endcode
+
+\subsection altSyntax Alternative Syntax
+
+<p>The previous chapter followed the coding convention of the JavaScript
+Reference Guide. A convention always imply you may use an alternative coding
+style, the Perl script \ref docScript "js2doxy.pl" will understand even
+this:</p>
+
+\code
+function ClassName( arg1, arg2 )
+{
+    BaseClass.call( this, arg1, arg2 );
+}
+ClassName.prototype = new BaseClass();
+ClassName.prototype.f1 = function ClassName_f1( arg1 ) 
+{
+    BaseClass.prototype.f1.call( this, arg1 );
+}
+ClassName.prototype.f2 = function() 
+{
+    BaseClass.prototype.f2.apply( this, arguments );
+}
+ClassName.prototype.v1 = 1;
+\endcode
+
+<p>The advantage of method <code>f2</code> definition is, that the code is
+quite compact and keeps the global namespace clean. The disadvantage is that
+the function itself has no name and the call stack (if supported by the
+engine) will return an anonymous function call.</p>
+
+\subsection interface Interfaces
+
+<p>JavaScript does not support interfaces (although <i>implements</i> is a
+keyword). Since it is quite handy to be sure that a class supports a defined
+number of functions, the system implements a new member function \a fulfills of
+the class Function that performs this action. Since the functions of an
+interface are never called, they can be implemented quite minimalistic:</p>
+
+\code
+function InterfaceName() {}
+InterfaceName.prototype.f1 = function() {}
+InterfaceName.prototype.f2 = function( a, b ) {}
+\endcode
+
+<p>An interface definition may only define member functions, but no member
+variables. To ensure that a class fulfills this interface you call its
+function \a fulfills </p>
+
+\code
+ClassName()
+{
+}
+//...
+ClassName.prototype.f1 = ClassName_f1;
+ClassName.prototype.f2 = ClassName_f2;
+ClassName.fulfills( InterfaceName );
+\endcode
+
+\subsection writing Writing test cases and test suites
+
+\dontinclude SimpleTest.js
+
+<p>Writing unit tests you have to write at first test cases for your classes.
+The programming paradigm of eXtreme Programming demands writing your test
+cases first. Then you are able to program your class against the test case,
+so you know when you are ready. Anyway, writing a test case means deriving
+from class TestCase:</p>
+
+\skip SimpleTest
+\until }
+
+<p>Overload the setUp function if necessary:<p>
+
+\skip SimpleTest_setUp
+\until }
+
+<p>Add your test fixtures:</p>
+
+\skip SimpleTest_testDivide
+\until }
+
+<p>You may also overload the tearDown function. To complete the class you have
+to assign the methods</p>
+
+\skip prototype
+\until testAsserts;
+
+<p>In a final step you have to create a TestSuite out of all your test classes.
+Derive your own test suite from the TestSuite:</p>
+
+\skip function
+\until SimpleTestSuite();
+
+<p>You may add as many test classes as you want or even other test suites. The
+test methods will automatically found if they follow the naming conventions.
+
+\subsection application Creating a test application
+
+<p>After writing the test cases we need an application to run the tests. The
+application has the responsibility to include all necessary sources. Create a
+TestRunner for reporting the results, add all wanted test suites to the runner
+and perform the test. The TestRunner itself is normally also a derived class,
+that has reporting functions that work perfectly in the system environment.
+See below a sample callable from the JavaScript shells:</p>
+
+\include AllTests.js
+
+<p>This file can also be included from HTML code using a script tag. See
+AllScripts.html that demonstrated this reuse. </p>
+
+\subsection embed Embedding JsUnit
+
+\dontinclude AllTests.html
+
+<p>JsUnit provides a special EmbeddedTextTestRunner that can act as special
+entry point for other applications embedding JsUnit. Such a TestRunner has a
+run method that takes an array of Strings as names of the tests to perform. 
+The ideal combination is a TestCollector implementation that collects these
+names from the current scope. See as example:</p>  
+
+\skip HTMLWriterFilter
+\until runner.run
+
+<p>The EmbeddedTextTestRunner simply takes a ResultPrinter implementation as 
+argument (here an implementation that writes HTML code into the document) and
+uses a TestCaseCollector to find all available TestCase implementations in the
+current scope. As alternative JsUnit provides also an AllTestsCollector and a
+TestSuiteColector.</p>
+
+\dontinclude JsUnitRhinoRunner.java
+
+<p>Have a look at the Java code of the package to see how such a construct is
+used in combination with Rhino - a Java implementation of JavaScript - to 
+generate XML for the various JUnit report generators:</p>
+
+\skip final String xml
+\until writer.write
+
+\subsection examples Examples
+
+<p>The examples are also ports from the originals that accompany JUnit. Please
+note that the last test case of SimpleTest is supposed to fail to demonstrate
+this case.</p>
+
+<p>Most supported environments cannot share their test application. Therefore
+are a lot of AllTests*.* files part of the sample package. See the list below
+for all deliveries. Individual execution of the examples is available in the
+product specific documentation.</p>
+
+<ul>
+    <li>\ref scriptengines</li>
+    <li>\ref ant</li>
+    <li>\ref maven2</li>
+</ul>
+
+<table>
+<tr>
+    <td><b>Files</b></td>
+    <td><b>Environment</b></td>
+</tr>
+<tr>
+
+    <td>AllTests.html</td>
+    
+    <td>Any browser with a JavaScript implementation capable of
+    exceptions</td>
+    
+</tr>
+<tr>
+
+    <td>AllTests.vup</td>
+    
+    <td>Project for Microsoft Visual Interdev</td>
+    
+</tr>
+<tr>
+
+    <td>AllTests.wsf</td>
+    
+    <td>Script for Windows Script Host. Run best with <em>cscript</em></td>
+    
+</tr>
+<tr>
+
+    <td>AllTestsBV<br>AllTestsBV.jsp</td>
+    
+    <td>JavaScript Server Page of BroadVision's One-2-one server. Use the
+    script AllTestsBV to start the <em>ctxdriver</em> for command line
+    invocation.</td>
+    
+</tr>
+<tr>
+
+    <td>AllTestsNS<br>AllTestsNS.html</td>
+    
+    <td>Netscape SSJS application. The shell script uses <em>jsac</em> to
+    compile the web application. The script generates a web file from the HTML
+    source and the other used files.</td>
+    
+</tr>
+<tr>
+
+    <td>AllTests.js</td>
+    
+    <td>JavaScript to use with the JavaScript shells. For the Mozilla shells
+    use <em>java -jar js.jar</em> to run <em>Rhino</em> built from Java source
+    or use <em>jsshell</em> resp. <em>js</em> to run <em>SpiderMonkey</em> 
+    built from C source. You may also use <em>cscript</em> for this file or
+    <em>kjscmd</em>.</td>
+    
+</tr>
+<tr>
+
+    <td>build.xml</td>
+    
+    <td>\ref ant build file that runs the Ant Task for JsUnit tests with the help 
+    of <em>Rhino</em>. A test report is generated that can be processed by
+    <em>JUnitReport</em>.</td>
+    
+</tr>
+<tr>
+
+    <td>pom.xml</td>
+    
+    <td>Maven 2 project description file that runs the Maven 2 plugin for 
+    JsUnit tests with the help of <em>Rhino</em>. A test report is generated
+    that can be processed by the <em>Surefire Report</em> plugin.</td>
+    
+</tr>
+</table>
+
+\htmlonly
+
+</div>
+
+\endhtmlonly
+
+*/

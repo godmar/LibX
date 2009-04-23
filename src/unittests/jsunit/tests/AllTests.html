@@ -1,0 +1,165 @@
+<!--
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<html>
+<head>
+<title>JsUnit TestSuite</title>
+<script type="text/javascript" language="JavaScript" src="../lib/JsUtil.js"></script>
+<script type="text/javascript" language="JavaScript" src="../lib/JsUnit.js"></script>
+
+<script type="text/javascript" language="JavaScript" src="JsUtilTest.js"></script>
+<script type="text/javascript" language="JavaScript" src="JsUnitTest.js"></script>
+<script type="text/javascript" language="JavaScript" src="AllTests.js"></script>
+
+<script type="text/javascript" language="JavaScript">
+<!--
+var JavaScript = "true"; 
+var JavaScript_1_2 = "false"; 
+var JavaScript_1_3 = "false"; 
+var JavaScript_1_4 = "false"; 
+var JavaScript_1_5 = "false"; 
+var JavaScript_1_6 = "false"; 
+var JavaScript_1_7 = "false"; 
+var JavaScript_1_8 = "false"; 
+var JavaScript_1_9 = "false"; 
+var JavaScript_2_0 = "false"; 
+var JavaScript_2_1 = "false"; 
+var JavaScript_3_0 = "false"; 
+var JScript = "false"; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.2">
+<!--
+JavaScript_1_2 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.3">
+<!--
+JavaScript_1_3 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.4">
+<!--
+JavaScript_1_4 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.5">
+<!--
+JavaScript_1_5 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.6">
+<!--
+JavaScript_1_6 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.7">
+<!--
+JavaScript_1_7 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.8">
+<!--
+JavaScript_1_8 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.9">
+<!--
+JavaScript_1_9 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript2.0">
+<!--
+JavaScript_2_0 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript2.1">
+<!--
+JavaScript_2_1 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JavaScript9.0">
+<!--
+JavaScript_3_0 = true; 
+// -->
+</script>
+<script type="text/javascript" language="JScript">
+<!--
+JScript = true; 
+// -->
+</script>
+</head>
+<body>
+<h1>JsUnit TestSuite</h1>
+<h2>Language Support</h2>
+<script type="text/javascript" language="JavaScript">
+<!--
+document.writeln("<p>");
+document.writeln("JavaScript: " + JavaScript + "<br>");
+document.writeln("JavaScript 1.2: " + JavaScript_1_2 + "<br>");
+document.writeln("JavaScript 1.3: " + JavaScript_1_3 + "<br>");
+document.writeln("JavaScript 1.4: " + JavaScript_1_4 + "<br>");
+document.writeln("JavaScript 1.5: " + JavaScript_1_5 + "<br>");
+document.writeln("JavaScript 1.6: " + JavaScript_1_6 + "<br>");
+document.writeln("JavaScript 1.7: " + JavaScript_1_7 + "<br>");
+document.writeln("JavaScript 1.8: " + JavaScript_1_8 + "<br>");
+document.writeln("JavaScript 1.9: " + JavaScript_1_9 + "<br>");
+document.writeln("JavaScript 2.0: " + JavaScript_2_0 + "<br>");
+document.writeln("JavaScript 2.1: " + JavaScript_2_1 + " (version seems ignored)<br>");
+document.writeln("JavaScript 3.0: " + JavaScript_3_0 + " (version seems ignored)<br>");
+document.writeln("JScript: " + JScript + "<br>");
+document.writeln("has exceptions: " + hasExceptions + "<br>");
+document.writeln("exceptions working: " + exceptionsWorking + "<br>");
+document.writeln("</p>");
+// -->
+</script>
+<h2>Engine Detection</h2>
+<script type="text/javascript" language="JavaScript">
+<!--
+document.writeln("<p>");
+for( var i in JsUtil.prototype )
+    if( typeof JsUtil.prototype[i] != "function" && i.match( /^(is|has)/ ))
+        document.writeln( i + ": " + JsUtil.prototype[i] + "<br>" );
+document.writeln("</p>");
+    if( this.ScriptEngine )
+    {
+        var o = this.ScriptEngine;
+        document.writeln( "Object: " + o + "<br>");
+        for( var i in o )
+            document.writeln( " i is " + i + "<br>");
+    }
+document.writeln("</p>");
+// -->
+</script>
+<noscript><p style="color:red">JavaScript seems to be disabled!</p></noscript>
+<h2>JsUnit Test Suite</h2>
+<script type="text/javascript" language="JavaScript">
+<!--
+if( exceptionsWorking )
+{
+    var runner = new TextTestRunner();
+    runner.setPrinter(
+        new ClassicResultPrinter(
+            new HTMLWriterFilter( runner.getPrinter().getWriter())));
+    runner.doRun( AllTests.prototype.suite());
+}
+else
+    document.writeln("<p style='color:red'>Sorry, exceptions not working!</p>");
+// -->
+</script>
+</body>
+</html>

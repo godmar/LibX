@@ -1,0 +1,64 @@
+<!--
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<HTML>
+<HEAD>
+<TITLE>JsUnit Test</TITLE>
+<server>
+var hasExceptions = "false";
+var exceptionsWorking = "false";
+function throwEx()
+{
+    throw new Object();
+}
+function testEx()
+{
+    var me = this;
+    try { hasExceptions = "true"; new throwEx(); } 
+    catch( ex ) { exceptionsWorking = this == me; }
+}
+new testEx();
+</server>
+<server>
+function main()
+{
+    var runner = new TextTestRunner( new NsServerWriter());
+    var suite = new TestSuite( "AllTests" );
+    suite.addTest( new JsUtilTestSuite());
+    suite.addTest( new JsUnitTestSuite());
+    return runner.doRun( suite );
+}
+</server>
+</HEAD>
+<BODY>
+<H1>JsUnit Test</H1>
+<H2>Language Support</H2>
+<server>
+write("<P>");
+write("has exceptions: " + hasExceptions + "<BR>");
+write("exceptions working: " + exceptionsWorking + "<BR>");
+write("</P>");
+</server>
+<H2>JsUnit Test Suite</H2>
+<server>
+if( exceptionsWorking )
+    main();
+else
+    write("<P style='color:red'>Sorry, exceptions not working!</P>");
+</server>
+</body>
+</html>

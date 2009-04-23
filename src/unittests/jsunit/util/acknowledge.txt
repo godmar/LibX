@@ -1,0 +1,65 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006,2007 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+
+\htmlonly
+
+<div class="JsUnit">
+
+\endhtmlonly
+
+\page acknowledge Acknowledgments
+
+<p>JsUnit would not have been possible in this form without the work and ideas
+of a lot of other people:</p>
+
+<ul>
+
+    <li>Shao Lo for contributing to the core lib</li>
+
+    <li>Niklaus Haldimann for his help and contribution for 
+    <a href="www.obtree.com">Obtree</a> support</li>
+    
+    <li><a href="http://www.berlios.de">BerliOS</a> for hosting this
+    project</li>
+    
+    <li>Achim Kraus, author of the first Perl script converting the
+    JavaScript code into something Doxygen can understand</li>
+    
+    <li>Dimitri van Heesch for his wonderful documentation tool
+    <a href="http://www.doxygen.org">Doxygen</a></li>
+    
+    <li>People from <a href="http://sources.redhat.com/">Cygwin</a> for
+    providing me with the power of the Linux tools in Windows</li>
+    
+    <li>Erich Gamma and Kent Beck for developing with 
+    <a href="http://www.junit.org">JUnit</a> some kind of standard for unit
+    testing</li>
+    
+    <li>John Lakos, author of <a href="http://www.amazon.com/exec/obidos/tg/detail/-/0201633620/qid=1049317504/sr=8-1/ref=sr_8_1/102-0653728-9333704?v=glance&s=books&n=507846">Large-Scale C++ Software Design</a>; after reading his 
+    book it was my first time writing unit tests</li>
+    
+</ul>
+
+\htmlonly
+
+</div>
+
+\endhtmlonly
+
+*/

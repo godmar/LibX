@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# JsUnit - a JUnit port for JavaScript
+# Copyright (C) 1999,2000,2001,2002,2003,2006,2007 Joerg Schaible
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+type doxygen > /dev/null 2>&1
+if test $? -ne 0; then
+    if test -d /opt/doxygen/bin; then
+        PATH=$PATH:/opt/doxygen/bin
+    else
+        echo "doxygen not available!"
+        exit 1
+    fi
+fi
+type dot > /dev/null 2>&1
+if test $? -ne 0; then
+    if test -d /opt/graphviz/bin; then
+        HAVE_DOT="YES"
+        PATH=$PATH:/opt/graphviz/bin
+    elif test -d /opt/ATT/Graphviz/bin; then
+        HAVE_DOT="YES"
+        PATH=$PATH:/opt/ATT/Graphviz/bin
+    else
+        HAVE_DOT="NO"
+    fi
+else
+    HAVE_DOT="YES"
+fi
+OUTPUT_DIRECTORY=.
+VERSION=`dirname $0`/../pom.xml
+VERSION=`grep version $VERSION | line | sed -e 's,.*<version>\(.\+\)</version>.*,\1,g'`
+GENERATE_HTML=YES
+PERL_PATH=/usr/bin/perl
+if test `uname -s | grep -ic CYGWIN` -gt 0; then
+    PERL_PATH=`cygpath -aw $PERL_PATH`
+fi
+export GENERATE_HTML OUTPUT_DIRECTORY HAVE_DOT PERL_PATH VERSION
+if test "$1" = "--keep-temp"; then
+    KEEP=1
+else
+    KEEP=0
+fi
+
+CWD=$PWD
+cd `dirname $0`/..
+JSUNIT_HOME=$PWD
+rm -rf .lib/ .docs/ docs/ > /dev/null 2>&1
+mkdir .lib .docs 
+PAGER=cat perldoc -t util/js2doxy.pl > .lib/js2doxy.man
+cd $JSUNIT_HOME/lib
+for js in *.js; do 
+    ../util/js2doxy.pl $js > ../.lib/$js
+done
+
+cd $JSUNIT_HOME
+doxygen util/Doxyfile
+cp util/*.png docs/
+mv docs/*.html .docs/
+cd $JSUNIT_HOME/.docs
+for html in *.html; do 
+    sed -e 's,<\([hH][1-9]\)>JsU\(nit.*\)</\1>,<\1><span class="J">J</span><span class="s">s</span><span class="U">U</span>\2</\1>,g' $html > ../docs/$html
+done
+
+cd $JSUNIT_HOME/docs
+chmod 644 *
+
+cd $JSUNIT_HOME
+if test $KEEP -eq 0; then 
+    rm -rf .lib .docs
+fi
+
+cd $CWD
+

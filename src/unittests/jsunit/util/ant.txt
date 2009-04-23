@@ -1,0 +1,125 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 2007 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+
+\htmlonly
+
+<div class="JsUnit">
+
+\endhtmlonly
+
+\page ant Apache Ant
+
+<p><a href="http://ant.apache.org/">Ant</a> is a build tool from the Apache
+Software Foundation generally used for Java development.  Ant uses an XML-based
+build script (by default <em>build.xml</em> to define build targets.  Each
+target consists of a sequence of tasks that must be executed.  Typically exists
+a target <em>test</em> that builds the project (because of a dependency to the
+<em>compile</em> target), runs the tests (as a result of executing the
+<em>junit</em> task) and creates a test report (created by the 
+<em>junitreport</em> task).</p>
+
+<p>Especially in Java-based web projects exists often also JavaScript files that
+are included into HTML pages.  Such files can contain methods and JavaScript
+classes that should be also tested like the other Java source.  JsUnit provides
+therefore a <em>jsunit</em> task that can be used as replacement or in addition
+to a <em>junit</em> task.  It generates the XML in the same format that is used
+later on by the <em>jsunitreport</em> task to generate the reports.</p>
+
+<p>The <em>jsunit</em> task embeds \ref rhino to perform the JavaScript tests.
+</p>
+
+\section antdownload Download Ant Task
+
+<p>The Ant task is available from the Maven 2 repository of JsUnit at
+BerliOS, download <a
+href="http://jsunit.berlios.de/maven2/repo/de/berlios/jsunit/jsunit-ant/1.3/jsunit-ant-1.3.jar">here</a>.</p>
+
+\section antsetup Setting up Ant
+
+<p>To run the JsUnit task you must setup Ant.  It must find during 
+execution the Java classes of the task itself and the classes the task is 
+dependent on.  Following Jars are necessary:
+<ul>
+	<li>jsunit.jar: Jar with the JsUnit JavaScript library and utility classes to invoke Rhino</li>
+	<li>jsunit-ant.jar: Jar with the Ant task</li>
+	<li>js.jar: Rhino, embeddable JavaScript engine</li>
+</ul>
+
+<p>You may provide them on command line calling Ant with the <em>lib</em>
+option, add them to the CLASSPATH, or put them into Ant's lib directory.</p>
+
+<p>Note, that depending on the on the Ant installation it often happens that the 
+<em>junitreport</em> task fails with a missing classes 
+<em>org.apache.xalan.processor.TransformerFactoryImpl</em> or 
+<em>org.apache.xml.serializer.SerializerTrace</em>. Reason is a missing
+Xalan version. Take a recent one (&gt;= 2.5) and add it to Ant's <em>lib</em>
+directory. Take care what you add. The binary distribution of Xalan comes with
+multiple jars, you have to add <em>xalan_j.jar</em> and
+<em>serializer.jar</em>. If you take the Xalan version located in the Maven
+repository anything is already included.</p>
+
+\section anttask Using the Ant Task
+
+<p>The JsUnit Ant task has to be declared first</p>
+
+\code
+<taskdef name="jsunit" className="de.berlios.jsunit.ant.JsUnitTask" />
+\endcode
+
+<p>The task itself has a <em>dir</em> attribute that defines the root directory
+for all following file declarations.  A JsUnit task may contain multiple 
+<em>source</em> and <em>testsuite</em> subtasks.  A JavaScript file to test is
+declared with every source tag using the <em>file</em> attribute.  The reason
+for an explicit declaration is a possible dependency between the files, that is 
+resolved by loading them in the declared sequence.</p>
+
+<p>The JavaScript test files are declared using the <em>testsuite</em> subtasks.
+A TestSuite subtask supports following attributes:</p>
+
+<ul>
+	<li><strong>name</strong>: The name of the test suite</li>
+	<li><strong>todir</strong>: The target directory for the test results</li>
+	<li><strong>type</strong>: The type of the test suite, one of the following values:
+		<dl>
+ 			<dt>ALLTESTS</dt>
+ 			<dd>Looks for a class AllTests derived from TestSuite and runs its suite.</dd>
+ 			<dt>TESTSUITES</dt>
+ 			<dd>Looks for all classes ending with TestSuite and that are derived from TestSuite and run their suites.</dd>
+ 			<dt>TESTCASES</dt>
+ 			<dd>Looks for all classes ending with TestCase and that are derived from TestCase and runs them (the default).</dd>
+ 		</dl>
+	</li>
+	<li><strong>characterSet</strong>: The optional character set for the encoding</li>
+</ul>
+
+\section antexample Example build.xml
+ 
+The following JsUnit task is used in the Ant build script of the samples directory.
+ 
+\dontinclude build.xml
+\skip <jsunit
+\until </jsunit
+
+\htmlonly
+
+</div>
+
+\endhtmlonly
+
+*/

@@ -1,0 +1,77 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+
+\htmlonly
+
+<div class="JsUnit">
+
+\endhtmlonly
+
+\page spidermonkey SpiderMonkey
+
+\section mozspidermonkey Mozilla.org's SpiderMonkey
+
+<p>SpiderMoney is the name of the JavaScript engine from mozilla.org written
+completely in C. Depending on the configuration, the engine is even capable of
+compiling the JavaScript.  Since it is Open Source and especially designed for
+usage in other products, you can find nowadays a lot of applications using
+SpiderMonkey as easy scripting environment. Mozilla browser itself (and
+therefore the Netscape browser also) is using this engine in their browsers.
+This engine extremely fast and reliable.</p>
+
+<ul>
+    <li><a href="http://www.mozilla.org/js/spidermonkey">SpiderMoney Homepage</a></li>
+    <li><a href="http://www.mozilla.org/js/spidermonkey/apidoc/jsguide.html">Embedder's Guide</a></li>
+    <li><a href="http://www.mozilla.org">Mozilla</a></li>
+    <li><a href="http://channels.netscape.com/ns/browsers/default.jsp">Netscape Navigator</a></li>
+    <li><a href="http://www.obtree.com">IXOS-Obtree C4</a></li>
+</ul>
+
+<p>Early version built into the iPlanet Web Server does not seem to have an
+Error object.</p>
+
+\subsection spidermonkeyexample Examples
+
+<p>The SpiderMonkey sources contain also a shell that is able to execute
+standalone JavaScript sources. You have to obtain the sources from the CVS or
+from a defined tarball and build the shell yourself. Depending on your OS you
+will have an executable js or jsshell.</p>
+
+<p>You can run the examples or the JsUnit's TestSuite giving AllTests.js as
+argument running the shell.</p>
+
+<ul>
+    <li><a href="http://www.mozilla.org/cvs.html">Source from CVS</a></li>
+    <li><a href="ftp://ftp.mozilla.org/pub/js/">Source as tarball</a></li>
+    <li><a href="http://lxr.mozilla.org/mozilla/source/js/src/README.html">Howto build the shell</a></li>
+</ul>
+
+\subsection spidermonkeydebugger Debugger
+
+<p>The SpiderMonkey sources also reference two versions of a debugger, but I
+did not get running one of them. If someone was more successful than me,
+please send a note.</p>
+
+\htmlonly
+
+</div>
+
+\endhtmlonly
+
+*/

@@ -1,0 +1,146 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006,2007 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+
+\htmlonly
+
+<div class="JsUnit">
+
+\endhtmlonly
+
+\page windowsscript Microsoft Windows Script
+
+\section jsript JScript in General
+
+<p>Microsoft's JavaScript implementation named JScript is part of the Windows
+Script. This is a service offered by the Operating System. This contains a
+generic engine that is able to run a lot of languages, JScript is just one
+among others.  Microsoft offers in the package JScript and VBScript, other
+vendors offer other languages that can be plugged into the engine. Any
+application may embed the script engine and process scripts in any of the
+registered languages.</p>
+
+<ul>
+    <li><a href="http://msdn.microsoft.com/scripting/">Windows Script</a></li>
+</ul>
+
+<p>Please recognize, that products using Windows Script are often delivered
+with a specific version of the engine. Since it is used as a system wide
+service, upgrading this engine to a newer version will also upgrade the
+languages delivered with Windows Script.  Therefore even and old Internet
+Explorer can use an up-to-date JScript version.</p>
+
+<p>The JScript implementation up-to version 5.6 has an incompatible definition
+of the Error class, they do not provide the Error#name and Error#message
+members.  Early versions also miss the Array#push and Array#pop member
+functions that are in this case provided by JsUnit.</p>
+
+<ul>
+    <li>Applications
+        <ul>
+            <li>\ref cscript</li>
+            <li>\ref iexplore</li>
+            <li>\ref iis (ASP)</li>
+        </ul>
+    </li>
+    <li>Development and Debugging
+        <ul>
+            <li>\ref wsdebug</li>
+            <li>\ref interdev</li>
+        </ul>
+    </li>
+</ul>
+
+\subsection cscript Windows Script Host
+
+<p>The Windows Script host has two utilities running scripts from
+command-line: cscript and wscript. Both utilities recognize the file extension
+and will run JScript files directly. wscript will execute them in a GUI
+environment, while cscript is a console application running the script in the
+console.</p> 
+
+<p>JScript code can be within normal .js files or the JScript files can be
+included using a Windows Script Host file (.wsf). JsUnit delivers in the
+examples <i>AllTests.js</i> and <i>AllTests.wsf</i> for both variants. Such
+files are also available for the unit tests of JsUnit itself.</p>
+
+\subsection iexplore Internet Explorer
+
+<p>The Internet Explorer's JScript capabilities are inherited from the
+installed Windows Script. Therefore even an Internet Explorer 3.x may be able
+to run JsUnit, if the engine was updated separately. The Internet Explorer adds
+DOM objects to the JScript. The DOM is different between the various Internet
+explorer versions, but independent from the JScript version.</p>
+
+<p>Use the HTML include tag to add JsUnit to your scripts. See the file
+<i>AllTests.html</i> delivered in the examples. Such a file is also available
+to run the unit tests of JsUnit. You might debug every script using the
+Windows Script Debugger or more advanced development tools from Microsoft.</p>
+
+\section jsdebugging General JScript Debugging
+
+<p>Since JScript is embedded into the Windows Script Engine, any debugger
+capable of debugging this script environment can be used to debug any
+application using this engine. So it is possible to debug scripts running in
+the Internet Explorer and in the Windows Script Host as well as scripts
+running server-side in Active Server Pages.</p>
+
+\subsection wsdebug Windows Script Debugger
+
+<p>The Microsoft Script Debugger is available at MSDN for download.  It can be
+used to debug scripts embedded in HTML documents or for single JavaScript
+files.</p>
+
+<ul>
+    <li><a href="http://msdn.microsoft.com/library/default.asp?url=/downloads/list/webdev.asp">Windows Script Debugger</a></li>
+</ul>
+
+<p>To debug a script from command-line use the command-line interpreters with
+the /X option:</p>
+
+\htmlonly
+<div class="fragment"><pre>
+cscript /X <i>&lt;filename&gt;.js</i></pre>
+</div>
+\endhtmlonly
+
+\image html msscriptdebugger.png
+
+\subsection interdev Microsoft Visual InterDev
+
+<p>Microsoft Visual InterDev 6.0 is a development environment for web
+applications. It is very comfortable with debugging JavaScript code on client-
+and server side. JsUnit contains a Visual InterDev solution (.sln) and project
+(.vup) file for the unit tests and the samples. Visual InterDev is now
+integrated into Visual Studio .NET</p>
+
+<ul>
+    <li><a href="http://msdn.microsoft.com/vinterdev/technical/documentation.asp">Microsoft Visual InterDev 6.0</a></li>
+    <li><a href="http://msdn.microsoft.com/vinterdev/default.asp">Visual Studio .NET</a></li>
+</ul>
+
+\image html interdev.png
+
+
+\htmlonly
+
+</div>
+
+\endhtmlonly
+
+*/

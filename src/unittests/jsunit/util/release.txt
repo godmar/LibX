@@ -1,0 +1,196 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006,2007 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+
+\page release Release Notes
+
+\section currentrelease Version 1.3
+
+<p>2007-10-19: XML generation, Maven 2 and Ant support</p>
+
+\subsection new New Features
+
+Note: Staring with this version the license of the software has been changed
+to the Apache Software \ref license 2.0
+
+<ul>
+    <li>New EmbeddedTextTestRunner for better integration into 
+    other applications</li>
+    <li>New XMLResultPrinter for JUnitReport support</li>
+    <li>TextTestRunner supports new argument --xml</li>
+    <li>New TestCollector interface and implementations</li>
+    <li>TextTestRunner supports new argument --run OPTION</li>
+    <li>Added method assertMatches</li>
+    <li>JsUnit Java library with embedded Rhino</li>
+    <li>\ref ant Task for JsUnit</li>
+    <li>\ref maven2 Plugin for JsUnit</li>
+</ul>
+
+\subsection change Design Changes
+
+<ul>
+    <li>Method gluing: The Function object has now a glue method, that will add
+    any function argument to the prototype</li>
+    <li>Explicit regular expression support now by assertMatches instead of 
+    undocumented functionality in assertEquals</li>
+</ul>
+
+\subsection bug Bug Fixes
+
+<ul>
+    <li>Fix AllTests.html in samples</li>
+    <li>Fix tests for BroadVision and iPlanet</li>
+    <li>Interfaces missing in docs for 1.2</li>
+    <li>ResultPrinter failed to print an available CallStack</li>
+    <li>ExceptionTestCase does no longer catch AssertionFailedError</li>
+    <li>JsUtil.prototype.isRhino is now also true for embedded Rhino</li>
+    <li>BaseTestRunner.getTest returns now a proper TestSuite</li>
+    <li>Fix argument handling for TextTestRunner.start</li>
+</ul>
+
+\section todo ToDo List
+
+<table>
+<tr>
+    <td><b>Topic</b></td>
+    <td><b>Comment</b></td>
+</tr>
+<tr>
+
+    <td>Site</td>
+    
+    <td>JsUnit exists now of different modules build with Maven 2. Therefore
+    better site documentation can be generated easier. Migrate old content
+    to apt format.</td>
+    
+</tr>
+</table>
+
+\section history History of JsUnit
+
+\subsection v1_2 Version 1.2
+
+<p>2006-06-06: More compliance to JUnit</p>
+
+<p>A lot of internal work has be done. The changes of JUnit 3.8.1
+have been integrated and JsUnit is running quite smoothly for JScript,
+SpiderMonkey, Rhino and KJSCmd. Also the new documentation script works 
+fine.</p>
+
+\subsection new New Features
+
+<ul>
+    <li>Test is an interface now (conforming with JUnit), TestCase and 
+    TestSuite implement this interface</li>
+    <li>Assert supports member functions assertSame, assertTrue and 
+    assertFalse</li>
+    <li>TestSuite supports member function addTestSuite</li>
+    <li>TestResult supports member function removeListener and 
+    runProtected</li>
+    <li>Support of class ResultPrinter</li>
+    <li>BaseTestRunner supports preferences</li>
+    <li>Interface Protectable supported</li>
+    <li>Support conforming Error object hierarchy</li>
+    <li>Alternative interface design contract by Function.fulfills</li>
+    <li>New script for document generation recognizes functions and classes
+    directly</li>
+    <li>Support of the JUnit extension classes</li>
+    <li>Changes of JUnit 3.8.1 and new classes migrated to JsUnit</li>
+    <li>Special support in Assert.assertEquals comparing Strings or match a
+    RegExp against a string</li>
+    <li>New utility class JsUtil and enhanced CallStack API</li>
+    <li>New utility class hierarchy PrinterWriter</li>
+    <li>Special HTML support with HTMLWriterFilter</li>
+    <li>Deprecated CtxRunner and NSServerRunner in favor of a more generic
+    solution using a TextTestRunner and the new CtxWriter/NSServerWriter</li>
+</ul>
+
+\subsection change Design Changes
+
+<ul>
+    <li>JsUnit uses standard object model</li>
+    <li>TestSuite supports again strings as name</li>
+    <li>CallStack.js has been renamed to JsUtil.js</li>
+    <li>Support of Array.push and Array.pop at all systems</li>
+    <li>TestSuites for complete test files provided</li>
+    <li>TestSuite needs now a TextCase object as argument</li>
+    <li>TestRunner renamed to BaseTestRunner according to JUnit</li>
+    <li>Call base class always with explicit name</li>
+    <li>Name of fixtures are prepended with the name of the TestCase</li>
+    <li>Native report format equals now JUnit. Old format supported by
+    class ClassicReportPrinter</li>
+    <li>Use TextTestRunner.prototype.main to call</li>
+    <li>Use own Error class hierarchy since ECMA standard does not guarantee
+    consistent behavior deriving from system classes</li>
+</ul>
+
+\subsection bug Bug Fixes
+
+<ul>
+    <li>Added BerliOS reference to project documentation</li>
+    <li>Added test code for constructors</li>
+    <li>HTML output of exceptions</li>
+    <li>Expression 'this.constructor' does not refer direct base class</li>
+</ul>
+
+\subsection v1_1 Version 1.1
+
+<p>2001-09-07: Minor update</p>
+
+<h5>New Features</h5>
+
+<ul>
+    <li>Added unit tests for JsUnit library</li>
+    <li>Automated test suite generation</li>
+    <li>Browser TestSuite for JsUnit checks now JavaScript compatibility</li>
+    <li>Support of Rhino and SpiderMonkey shells from Mozilla.org</li>
+    <li>Support of KJSCmd, the shell wrapper for the KJSEmbed of KDE</li>
+    <li>Support of current Konqueror and Opera version</li>
+</ul>
+
+<h5>Design Changes</h5>
+
+<ul>
+    <li>TestSuite has no methods setUp and tearDown anymore</li>
+    <li>BrowserTestRunner renamed to HTMLTestRunner</li>
+</ul>
+
+<h5>Bug Fixes</h5>
+
+<ul>
+    <li>Added copyright notice to all files</li>
+    <li>Added BerliOS reference to project documentation</li>
+    <li>Corrected script tags in HTML files</li>
+    <li>tearDown method was not called in case of an exception</li>
+</ul>
+
+\subsection v1_0 Version 1.0
+
+<p>2001-08-01: Completing the library after more than a year more or less
+ongoing development, the first release of this software is published</p>
+
+<h5>Features</h5>
+
+<ul>
+    <li>Port of JUnit 3.2 for JavaScript</li>
+    <li>Support of various systems, mostly based on standalone script 
+    engines</li>
+    <li>JavaDoc like documentation generation</li>
+</ul>
+
+*/

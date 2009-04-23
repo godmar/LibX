@@ -1,0 +1,128 @@
+/*
+JsUnit - a JUnit port for JavaScript
+Copyright (C) 1999,2000,2001,2002,2003,2006 Joerg Schaible
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*!
+\page internal Internals
+
+\section developer Internal Developer's Guide
+
+\subsection docConv Document Conventions
+
+<p>The documentation of JavaScript code follows the JavaDoc conventions. The
+generation is done using a Perl script generating Pseudo C++ code with the
+comments that is processed afterwards with DoxyGen. A lot of the features of
+DoxyGen are supported including the QT style of the comments.  See following
+chapter how to generate the documentation.</p>
+
+<ul>
+    <li><a href="http://www.doxygen.org">Doxygen</a></li>
+</ul>
+
+<p>Documentation blocks within the code are embedded with:</p>
+
+\htmlonly
+<div class="fragment"><pre>
+&#47;**
+&nbsp;*
+&nbsp;*&#47;</pre></div>
+\endhtmlonly
+
+<p>First element of such a block has to be a tag identifying the documented
+element or is directly a brief description of the next code element. Within
+the code following elements are supported:</p>
+
+<ul>
+    <li>\@class</li>
+    <li>\@ctor</li>
+    <li>\@file</li>
+    <li>\@fn</li>
+    <li>\@interface</li>
+    <li>\@var</li>
+</ul>
+
+<p>Other elements like <em>\@type</em> or <em>\@enum</em> are ignored. The
+element type <em>\@ctor</em> is introduced by the Perl script to allow a
+separate description of the class' constructor that is simply the initializer
+function of the class. The class itself is identified by assigning elements to
+its prototype. For an interface only functions should be added to the
+prototype.</p>
+
+<p>Unlike C++ JavaScript has no idea about variable or function types. Since
+this information is nevertheless valuable for the documentation the script
+supports some tags that allow the type specification to be generated in the
+pseudo code:</p>
+
+<ul>
+
+    <li><em>\@tparam TYPE PARAM COMMENT</em><br>This command sets the type of
+    a parameter.  It is replaced in the documentation comment with the
+    <em>\@param PARAM COMMENT</em> command (without the <em>TYPE</em>).</li>
+
+    <li><em>\@tparam TYPE COMMENT</em><br>This command sets the return type of
+    a function.  It is replaced in the documentation comment with the
+    <em>\@return COMMENT</em> command (without the <em>TYPE</em>).  This
+    comand is a short cut of the normal <em>\@return</em> command and the
+    <em>\@type</em> command supported by this program.</li>
+
+    <li><em>\@type TYPE</em><br>This command sets the type of a variable or the
+    return type of a function.</li>
+
+</ul>
+
+<p>Keep in mind that C++ pseudo code is produced. Unlike in C++ it is quite not
+clear which elements will belong in the end to a class. Therefore the script
+cannot support the grouping commands of DoxyGen.</p>
+
+\subsection docScript Script Manual
+
+<p><pre>
+\htmlinclude "js2doxy.man"
+</pre></p>
+
+\subsection docGen Rebuilding Documentation
+
+<p>Like everyone I am not very keen on writing documentation. The best way I
+can live with it is the way javadoc supports this. Luckily there are some
+other tools out there that can be used for other languages, but most of these
+tools are only available for object-oriented languages. While JavaScript
+allows to write object-oriented code, most people are not aware of this.
+Therefore I use a perl script to transform JavaScript code that follow the
+coding conventions above in some kind of pseudo C++ that can be used to fool
+Doxygen, my favorite non-Java source code documentation tool.</p>
+
+<p>Use the script <em>jsdoc</em> to rebuild the documentation. It is located
+in the util directory. It depends on a Unix environment including Perl.  In
+Windows I personally use Cygwin that comes nowadays with quite complete Unix
+packages. Additionally you have to install Doxygen and Graphviz a
+cross-platform drawing toolkit from AT&amp;T. My script expects both tools
+either in the PATH or at /opt/doxygen and /opt/graphviz. In Windows I have
+mounted my Windows program files folder to /opt using Cygwin functionality.
+(Nowadays Cygwin offers also doxygen as prebuild package, but it is quite
+outdated and works only at binary mounts.)</p>
+
+<ul>
+    <li><a href="http://www.cygwin.com">Cygwin</a></li>
+    <li><a href="http://www.doxygen.org">Doxygen</a></li>
+    <li><a href="http://www.research.att.com/sw/tools/graphviz/">Graphviz</a></li>
+</ul>
+
+<p>My script will call the Perl script <em>js2doxy.pl</em> to generate pseudo
+C++. Then it calls Doxygen to generate the first version of the HTML
+documentation. At last text processing is done with <em>sed</em> to generate
+the JsUnit color style in the headers.</p>
+
+*/
