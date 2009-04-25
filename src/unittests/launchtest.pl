@@ -3,7 +3,7 @@
 my $resultsdir;			# directory where results/diffs are stored
 my $suitedir;			# directory where test and ref files are stored
 my %refdir = ();		# stores testsuite(index) and directory(value)
-my $args_topass;		# space delimited string of args to pass
+my $args_topass = "";	# space delimited string of args to pass
 my $out_file = "none";	# saves the file to which we will write output
 my @buffer;				# temporary buffer for the output of a test
 my %failures = ();		# errors from diffs against reference files
@@ -12,7 +12,6 @@ my %valid_args;			# hash of properties for each argument
 my $recording = 0;		# boolean, true if recording, false if not
 
 &define_valid_args (\%valid_args);	# define valid arguments that we can expect
-
 
 # read, interpret, and handle arguments
 foreach (@ARGV) {
@@ -29,7 +28,6 @@ if ($valid_args{'--all'}{value} != 1) {
 }
 open (TESTOUTPUT, "jrunscript -cp . rununittests.js $args_topass |");
 while (<TESTOUTPUT>) {
-	print $_;
 	if (/^##\s/) {
 		# we will prefix ## to lines that we intend for the launcher; additional
 		# directives can be supported if desired
@@ -41,8 +39,7 @@ while (<TESTOUTPUT>) {
 			if ($1 eq 'Begin') {
 				$out_file = $refdir{$2}."/".$3;
 				$recording = 1;
-				system("clear");
-				print "Test: $2.$3\n";
+				print "Running Test: $2.$3\n";
 			}
 			elsif ($1 eq 'End') {
 				$recording = 0;
@@ -74,10 +71,13 @@ while (<TESTOUTPUT>) {
 		elsif (/^## RESULTSDIR: (\w+\/)/) {
 			$resultsdir = $1;
 		}
+		elsif (/^## RecordOutput_End: Suite .AllTests.$/) {
+			$valid_args{"-v"}{value} = 1;
+		}
 	}
 	else {
-		#print $_ if ($valid_args{"-v"}{value} == 1);
-		push(@buffer, $_) if ($recording == 1)
+		print $_ 			if ($valid_args{"-v"}{value} == 1);
+		push(@buffer, $_) 	if ($recording == 1)
 	}
 }
 close (TESTOUTPUT);
@@ -141,9 +141,9 @@ sub performDiff
 		print "Ignoring reference file check for this test\n";
 	}
 	elsif ($result ne '') {
-		print "Test output != Reference file. See $resultsdir$file.diff for details\n";
+		print "Test output != Ref file. See $resultsdir$file.diff\n";
 		&writeBufferToFile ("$resultsdir$file.diff", $result);
-		$failures{"$resultsdir$file: Output did not match reference file"} = $result;
+		$failures{"$resultsdir$file: Output did not match ref file"} = $result;
 	}
 	else {
 		print "Reference file matched test file!\n";
