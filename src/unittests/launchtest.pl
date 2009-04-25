@@ -13,8 +13,9 @@ my $recording = 0;		# boolean, true if recording, false if not
 
 &define_valid_args (\%valid_args);	# define valid arguments that we can expect
 
+
 # read, interpret, and handle arguments
-foreach (@ARGV) {	# {{{
+foreach (@ARGV) {
 	if (!exists ($valid_args{$_})) {
 		$args_topass .= $_.' ';	
 	}
@@ -22,10 +23,13 @@ foreach (@ARGV) {	# {{{
 		my $callback = $valid_args{$_}{fn};
 		&$callback(\%valid_args);	
 	}
-}	# }}}
-$args_topass =~ s/\s+$//;	# strip trailing whitespace
+}
+if ($valid_args{'--all'}{value} != 1) {
+	$args_topass =~ s/\s+$//;	# strip trailing whitespace
+}
 open (TESTOUTPUT, "jrunscript -cp . rununittests.js $args_topass |");
 while (<TESTOUTPUT>) {
+	print $_;
 	if (/^##\s/) {
 		# we will prefix ## to lines that we intend for the launcher; additional
 		# directives can be supported if desired
@@ -49,21 +53,30 @@ while (<TESTOUTPUT>) {
 						&writeBufferToFile ($suitedir."$out_file.ref", @buffer);
 					}
 				}
-				&writeTestOutput($resultsdir.$out_file, @buffer);
-				# TODO: add check for the .ref file, otherwise don't run diff
-				&performDiff($out_file);
+				else {
+					&writeTestOutput($resultsdir.$out_file, @buffer);
+					&performDiff($out_file);
+				}
 				undef @buffer;
 			}
 		}
 		elsif (/^## SUITEDIR: (\w+\/)/) {
 			$suitedir = $1;
+
+			# do the unit test runner a huge favor by indexing the dir tree
+			# under $suitedir, so we don't have to write some ridiculous
+			# javascript to do this for us
+			open (LISTING, "ls -1RI 'CVS' $suitedir |");
+			@dirlist = <LISTING>;
+			close (LISTING);
+			&writeBufferToFile ($suitedir."index", @dirlist);
 		}
 		elsif (/^## RESULTSDIR: (\w+\/)/) {
 			$resultsdir = $1;
 		}
 	}
 	else {
-		print $_ if ($valid_args{"-v"}{value} == 1);
+		#print $_ if ($valid_args{"-v"}{value} == 1);
 		push(@buffer, $_) if ($recording == 1)
 	}
 }
@@ -122,11 +135,12 @@ sub writeBufferToFile	# {{{
 sub performDiff
 {
 	my $file = shift;
-	my $result = `diff -uB $resultsdir$file."txt" $suitedir$file."ref"`;
+	$result = `diff -uB $resultsdir$file.'txt' $suitedir$file.'ref'`;
 
-	# impement diff exit code checking? only throws exit codes if failure 
-	# unrelated to the file comparison...
-	if ($result ne '') {
+	if ($?) {
+		print "Ignoring reference file check for this test\n";
+	}
+	elsif ($result ne '') {
 		print "Test output != Reference file. See $resultsdir$file.diff for details\n";
 		&writeBufferToFile ("$resultsdir$file.diff", $result);
 		$failures{"$resultsdir$file: Output did not match reference file"} = $result;
