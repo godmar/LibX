@@ -88,6 +88,7 @@ if (keys(%failures) > 0) {
 	print "Please see $resultsdir"."all/results_$timestamp.txt \n\n";
 	&writeResults($timestamp, \%failures);
 }
+system ("rm -f '$suitedir/index'");
 
 # write any failures to a results file
 sub writeResults

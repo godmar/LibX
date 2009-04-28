@@ -146,7 +146,7 @@ function AllTests_suite()
 }
 println ("## SUITEDIR: "+SUITEDIR+"/");
 println ("## RESULTSDIR: "+RESULTSDIR+"/");
-
+java.lang.Thread.sleep(500);
 var args = arguments;
 //
 // begin the test suite
