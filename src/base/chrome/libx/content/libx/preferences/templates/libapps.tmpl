@@ -17,6 +17,10 @@ function getModules ( entry ) {
 	return modules;
 }
 
+function encode ( str ) {
+	return libx.utils.xml.encodeEntities ( '' + str );
+}
+
 var appProps = ["include","exclude" ];
 var modProps = ["include","exclude", "guardedby", "regexptexttransformer", "require"];
 
@@ -30,7 +34,7 @@ var idnum = 0;
 	    			<if test="app.id != null">
 	        			<label style="float:right">{+app.id+}</label>
 	        		</if>
-	    			<label>{+libx.utils.xml.encodeEntities(app.description)+}</label>
+	    			<label>{+encode(app.description)+}</label>
 	        		<for each="prop" in="appProps">
 	        			<for each="val" in="app[prop]">
 		        			<p>{+prop + ":" + val+}</p> 	
@@ -42,23 +46,23 @@ var idnum = 0;
 		        		<li style="list-style-type:none;">
 		        		{! var module = getModules(entry)[0]; !}
 		        		<if test="module != null">
-	        				<a href="javascript:void(0);" onclick="$(this).siblings().toggle()">{+libx.utils.xml.encodeEntities(module.description)+}</a>
+	        				<a href="javascript:void(0);" onclick="$(this).siblings().toggle()">{+encode(module.description)+}</a>
 	        				<div class="ui-component-content" style="display:none;">
-	        					<p>URL: {+libx.utils.xml.encodeEntities(entry.url)+}</p>
+	        					<p>URL: {+encode(entry.url)+}</p>
 	        					<for each="prop" in="modProps">
 	        						<for each="val" in="module[prop]">
-        								<p>{+prop + " : " + libx.utils.xml.encodeEntities( val.toString() )+}</p> 	
+        								<p>{+prop + " : " + encode( val.toString() )+}</p> 	
         							</for>
 	        					</for>
 	        					{! var guardedby = module.guardedby; !}
 	        					<if test="guardedby != null">
-	        						<p>Guarded By: {+ libx.utils.xml.encodeEntities ( module.guardedby ) +}</p> 
+	        						<p>Guarded By: {+ encode ( module.guardedby ) +}</p> 
 	        					</if>	
 	        					{! var idstr = "libapp" + idnum++; !}
 	        					<a href="javascript:void(function(){$('#{+idstr+}').toggle()})()">View Source</a>
 	        					<div id="{+idstr+}" style="display:none;" >
 	        					<pre>
-	        						{+libx.utils.xml.encodeEntities(module.body)+}
+	        						{+encode(module.body)+}
 	        					</pre>
 	        					</div>
 	        				</div>
