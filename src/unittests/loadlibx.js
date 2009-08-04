@@ -218,7 +218,6 @@ libx.io.getFileText = function (fname) {
     }
     return "could not read data";
 }
-
 var javaTimer = java.util.Timer("libx-timer", true);
 libx.utils.timer = {
     setTimeout: function (func, timeout) {
@@ -239,21 +238,16 @@ libx.utils.timer = {
         })), timeout, timeout);
     }
 };
-/*
-logger = {
-    write : function (what) { print (what); }
-};
 libx.log = {
-    write : function (what) { println (what); }
+    write : function (msg) { println (msg); },
 };
-*/
 var libxscripts2 = [
     "objectcache.js",
     "crossref.js",
     "pubmed.js",
     "xisbn.js",
     "magicsearch.js",
+    "testing.js"
 ];
 
 loadScript(libxscripts2);
-
