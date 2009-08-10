@@ -57,7 +57,7 @@ var UnitTestEnv = libx.core.Class.create({
         this.print = ostream;
         this.print("\n");
         this.print("LibX Unit Tests\n");
-        this.print("------------------------------\n");
+        this.print("------------------------------");
     },
     /**
      * Begins execution of all tests in all test suites
@@ -66,7 +66,7 @@ var UnitTestEnv = libx.core.Class.create({
         var list = libx.testing.unittests;
         var i = 1;
         for (var suite in list) {
-            this.print("["+ i +"/"+ this.suites +"]");
+            this.print("\n\n["+ i +"/"+ this.suites +"] ");
             this.print("Running Test Suite: '"+ list[suite].name +"'\n");
             this.runAllTestsInSuite (list[suite]);
             i++;
@@ -77,29 +77,28 @@ var UnitTestEnv = libx.core.Class.create({
      * by a launcher, or by runAllTests
      */
     runAllTestsInSuite : function (suite) {
-        var i = 1;
+        var j = 1;
         for (var test in suite.tests) {
-            this.print ("\t["+ i +"/" + suite.tests.length +"]");
-            this.print ("Test: "+ suite.funcNames[test] +" : ");
-            this.print ("\n");
+            this.print("\t["+ j +"/" + suite.tests.length +"] ");
+            this.print("Unit Test: "+ suite.funcNames[test] + "\n");
             this.runSingleTest (suite.tests[test], suite.name, suite.setup);
             // check assertions
             for (i in asserts) {
                 if (asserts[i].result == false) {
                     this.failures.push ({
-                        "function": name,
+                        "function": suite.funcNames[test],
                         "assertion": asserts[i]
                     });
-                    this.print("FAIL\n");
-                    this.print("\t!!! Assertion Failed in function "+ name +": ");
+                    this.print("\t!!! Assertion Failed in function "+ suite.funcNames[test] +": ");
                     this.print(asserts[i].type +" --> ("+ asserts[i].msg +")\n");
                 }
                 else {
                     this.print("OK\n");
                 }
             }
+            j++;
+            this.tests++;
         }
-        this.tests++;
     },
     /**
      * Runs and evaluates a single test. Can be called by a launcher, or
@@ -107,6 +106,7 @@ var UnitTestEnv = libx.core.Class.create({
      */
     runSingleTest : function (func, name, setup) {
         asserts = [ ];
+        output = [ ];
         if (setup === undefined) {
             func(libx.log);
         }
@@ -115,7 +115,8 @@ var UnitTestEnv = libx.core.Class.create({
             func(libx.log);
         }
         if (output.length > 0) {
-            this.print (output.join(""));
+            this.print(" >>>>>>>>>>>>>> ");
+            this.print(output.join("\n >>>>>>>>>>>>>> "));
         }
         // TODO: check debugs and output
     },
@@ -125,13 +126,16 @@ var UnitTestEnv = libx.core.Class.create({
      */
     printResults : function () {
         var failures = this.failures;
-        this.print("\nDONE.\n");
+        this.print("\n\nDONE.\n");
         this.print("------------------------------\n");
         this.print("Tests Run: "+ this.tests +"\n");
         this.print("Failures:  "+ failures.length +"\n");
 
         this.print("\n");
     },
+    /**
+     * Override libx.log.write so that test framework can capture the output
+     */
     write : function (msg) {
         output.push(msg);
     }
@@ -140,6 +144,13 @@ var UnitTestEnv = libx.core.Class.create({
 var UnitTestMethods = {
     WAIT : function () {
         // TODO: implement
+    },
+    ASSERT_TRUE : function (a, msg) {
+        asserts.push({
+            "type" :    "ASSERT_TRUE",
+            "result" :  (a == true),
+            "msg" :     (msg === undefined) ? a +" != true" : msg
+        });
     },
     ASSERT_EQUALS : function (a, b, msg) {
         asserts.push({
@@ -217,6 +228,7 @@ var UnitTestMethods = {
     }
 };
 
+// Testing API
 return /** @lends libx.testing */ {
     
     methods : UnitTestMethods,
@@ -248,10 +260,9 @@ return /** @lends libx.testing */ {
     *   of the test is determined by the return value of the function, OR the 
     *   match of its output with the reference output. (it'd be nice if
     *   everyone started their test case function names with "test")
+    * @param {String} funcName      A description of the function that contains
+    *   the test code so it can be easily identified in the test output
     *                               
-    * @param {String}   refOutput   Optional. If specified, the success of the
-    *   test will be determined by its equality with the refOutput, in addition
-    *   to any assertions present in the function.
     */
     addUnitTest : function (suiteName, func, funcName) {
         var suiteobj;
@@ -262,7 +273,7 @@ return /** @lends libx.testing */ {
         }
         suiteobj.tests.push(func);
         if (funcName === undefined) {
-            funcName = "anonymous function";
+            funcName = "Anonymous Function";
         }
         suiteobj.funcNames.push(funcName);
     },
@@ -272,10 +283,6 @@ return /** @lends libx.testing */ {
      * information about the environment in which the tests are executed. 
      * This object will be passed from a launcher written specifically to 
      * run tests using this custom framework.
-     *
-     * @param {Object} test_env Contains all needed functions plus some metadata
-     * @param {Object} out Output stream to write to. libx.log and 
-     *  document.write are possible examples.
      *
      * @returns {Boolean} True if everything went ok; false indicates that one
      *  or more errors occured, which may mean that the test results might not

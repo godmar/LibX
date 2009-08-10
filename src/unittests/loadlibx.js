@@ -247,7 +247,7 @@ var libxscripts2 = [
     "pubmed.js",
     "xisbn.js",
     "magicsearch.js",
-    "testing.js"
 ];
 
 loadScript(libxscripts2);
+load ("testing.js");

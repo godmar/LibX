@@ -113,7 +113,7 @@ sub writeTestOutput
 }
 
 # generic function to write an array of 'lines' to a file
-sub writeBufferToFile	# {{{
+sub writeBufferToFile
 {
 	my $file 	= shift;
 	my @buffer 	= @_;
@@ -130,7 +130,7 @@ sub writeBufferToFile	# {{{
 		print TOFILE $_;
 	}
 	close (TOFILE);
-}	# }}}
+}
 
 # perform a diff on test output against a reference file
 sub performDiff
@@ -151,14 +151,14 @@ sub performDiff
 	}
 }
 # --all callback function; run all tests 
-sub __cb_arg_all	# {{{
+sub __cb_arg_all
 {
 	my $arg_list = shift;
 	$arg_list->{'--all'}{value} = 1;
-}	# }}}
+}
 
 # --help callback function; display help output and exit
-sub __cb_arg_help	# {{{
+sub __cb_arg_help
 {
 	my $arg_list = shift;
 	format CONTENTS =
@@ -178,28 +178,28 @@ sub __cb_arg_help	# {{{
 	}
 	print "\n";
 	exit;
-}	# }}}
+}
 
 # --ref callback function; create reference file based on test output
-sub __cb_arg_ref	# {{{
+sub __cb_arg_ref
 {
 	my $arg_list = shift;
 	$arg_list->{'--ref'}{value} = 1;
 	$arg_list->{'-v'}{value} 	= 1;	# turn -v on
-}	# }}}
+}
 
 # -v callback function; switch on verbosity, i.e., display all test output
-sub __cb_arg_v	# {{{
+sub __cb_arg_
 {
 	my $arg_list = shift;
 	$arg_list->{'-v'}{value} = 1;
-}	# }}}
+}
 
 # define the description, callback functions, and default values for each arg
 sub define_valid_args
 {
 	my $args = shift;
-	%$args = (		# // setup args hash {{{
+	%$args = (		# // setup args hash 
 		'--all' 	=>	{ 	
 			fn 		=> "__cb_arg_all", 
 			desc 	=> "Run all tests" ,
@@ -221,5 +221,4 @@ sub define_valid_args
 			value	=> 0
 		}
 	);
-# }}}
 }
