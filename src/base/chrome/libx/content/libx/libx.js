@@ -101,18 +101,18 @@ libx.utils = {
         /**
          * Encode characters into valid HTML 
          *
-         * @param {String} input string
+         * @param {any} anything that can be coerced into a string
          * @return {String} string in which characters have been replaced with HTML entities
          */
     	encodeEntities : function ( s ) {
-    		if ( s ) {
-	    		var result = '';
-	        	for (var i = 0; i < s.length; i++) {
-	            	var c = s.charAt(i);
-	            	result += {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c] || c;
-	        	}
-	        	return result;
-	        }
+            s = String (s);
+
+            var result = '';
+            for (var i = 0; i < s.length; i++) {
+                var c = s.charAt(i);
+                result += {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c] || c;
+            }
+            return result;
     	},
         /**
          * Decode HTML entities into characters
