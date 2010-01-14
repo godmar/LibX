@@ -1,5 +1,5 @@
 /* nothing */
-libx.log.write("bootstrapping global libx from: " + scriptBase.baseURL);
+libx.log.write("bootstrapping global libx from: " + bootStrapper.baseURL);
 var files = [
     "base/tuplespace.js",
     "base/atomparser.js",
@@ -12,8 +12,8 @@ var files = [
 ];
 
 for (var i = 0; i < files.length; i++) {
-    libx.bootstrap.loadScript(scriptBase.baseURL + files[i]);
+    bootStrapper.loadScript(bootStrapper.baseURL + files[i]);
 }
 
-libx.bootstrap.finish();
+bootStrapper.finish();
 

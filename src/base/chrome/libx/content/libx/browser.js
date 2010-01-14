@@ -48,9 +48,25 @@ var browser =
                         "http://libx.org/libx-new/src/libx2/bootstrapwindow.js") });
             }
         
-            for (var i = 0; i < bootWindowUrls.length; i++)
-                libx.bootstrap.loadScript(bootWindowUrls[i].url, true);
+            var windowBootStrapper = new libx.bootstrap.BootStrapper();
+            if (!libx.initialize.globalBootStrapper.hasFinished) {
+                /* Global boot strapping still in progress.  Delay bootstrapping
+                 * of window scripts until this is done. */
+                var blockUntilGlobalBootstrapDone = new libx.utils.collections.EmptyActivity();
+                windowBootStrapper.scriptQueue.scheduleFirst(blockUntilGlobalBootstrapDone);
 
+                libx.events.addListener("GlobalBootstrapDone", {
+                    onGlobalBootstrapDone: function (globalBootstrapDoneEvent) {
+                        blockUntilGlobalBootstrapDone.markReady();
+                    }
+                });
+            }
+
+            for (var i = 0; i < bootWindowUrls.length; i++)
+                windowBootStrapper.loadScript(bootWindowUrls[i].url, true, {
+		    libx: libx,
+		    window: window,
+		});
         }
 
         /* The loading of the global libx's edition may have completed 

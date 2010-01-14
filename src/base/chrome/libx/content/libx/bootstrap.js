@@ -24,35 +24,62 @@
 /**
  * Bootstrap LibX code from a script URL.
  *
- * The code below is include twice.
- * Once in global space (where 'libx' refers to the global libx object)
- * and once per window (where 'libx' refers to the per-window wrapper
- * and where 'window' is captured).
- *
  * @namespace
  */
-libx.bootstrap = {
+libx.bootstrap = { };
+
+/**
+ * @class
+ *
+ * Manage the bootstrapping of a sequence of scripts.
+ *
+ * Loads scripts and executes them in the order in which
+ * they were requested.
+ */
+libx.bootstrap.BootStrapper = libx.core.Class.create(
+    /** @lends libx.bootstrap.BootStrapper */{
     /**
-     * Queue of scripts scheduled for execution
+     * @param {Event} eventToFireWhenFinished (optional) 
+     *          an event to fire when this bootstrapper has finished.
      */
-    scriptQueue : new libx.utils.collections.ActivityQueue(),
+    initialize : function (eventToFireWhenFinished) {
+        this.eventToFireWhenFinished = eventToFireWhenFinished;
+        this.scriptQueue = new libx.utils.collections.ActivityQueue();
+        /**
+         * @private
+         *
+         * Maps urls to event listeners.
+         * A single listener is registered for each URL.
+         */
+        this.url2UpdateListener = { };
+        this.hasFinished = false;
+    },
 
     /**
      * Load a script.
      *
      * @param {String} scriptURL  URL
+     * @param {boolean} keepUpdated  if true, reexecute script when it was updated
+     * @param {Object} globalProperties  set of properties to place in global scope
      */
-    loadScript : function (scriptURL, keepUpdated) {
+    loadScript : function (scriptURL, keepUpdated, globalProperties) {
 
-        var bootstrap = this;
+	var self = this;
         var runScriptActivity = {
             onready : function (metadata) {
-                bootstrap.loadSubScript(metadata, { 
-                    scriptBase : { 
-                        baseURL : scriptURL.match (/.*\//) 
-                    },
-                    libx : libx 
-                });
+		var globalTargetScope = {
+                    bootStrapper : { 
+                        baseURL : scriptURL.match (/.*\//),
+			finish  : function () { 
+			    self.finish(); 
+			},
+			loadScript  : function (scriptURL) { 
+			    return self.loadScript(scriptURL, keepUpdated, globalTargetScope); 
+			}
+                    }
+		};
+		libx.core.Class.mixin(globalTargetScope, globalProperties, true);
+                libx.bootstrap.loadSubScript(metadata, globalTargetScope);
             }
         };
         this.scriptQueue.scheduleLast(runScriptActivity);
@@ -68,24 +95,17 @@ libx.bootstrap = {
         var self = this;
         if (keepUpdated) {
             // on update, reschedule activity
-            if (this.urlUpdateListenerMaps[scriptURL] == undefined) {
+            if (this.url2UpdateListener[scriptURL] == undefined) {
                 var evListener = {};
                 evListener["onUpdate" + scriptURL] = function (ev) {
                     self.scriptQueue.scheduleLast(runScriptActivity);
                     runScriptActivity.markReady(ev.metadata);
                 }
-                this.urlUpdateListenerMaps[scriptURL] = evListener;
+                this.url2UpdateListener[scriptURL] = evListener;
                 libx.events.addListener("Update" + scriptURL, evListener);
             }
         }
     },
-    /**
-     * @private
-     *
-     * Maps urls to event listeners.
-     * A single listener is registered for each URL.
-     */
-    urlUpdateListenerMaps : { },
 
     /**
      * Signal that all scripts needed for bootstrapping have been
@@ -96,36 +116,14 @@ libx.bootstrap = {
         var lastScriptDone = {
             onready: function () {
                 self.hasFinished = true;
-                if (libx == libx.global) {
-                    new libx.events.Event("GlobalBootstrapDone").notify();
+                if (self.eventToFireWhenFinished != null) {
+                    self.eventToFireWhenFinished.notify();
                 }
             }
         };
         this.scriptQueue.scheduleLast(lastScriptDone);
         lastScriptDone.markReady();
-    },
-    hasFinished : false
-};
-
-(function () {
-
-/**
- * If this is bootstrapping a window's script, wait for GlobalBootstrapDone
- * event to be fired.
- */
-if (libx != libx.global && !libx.global.bootstrap.hasFinished) {
-    var startQueue = new libx.utils.collections.EmptyActivity();
-    libx.bootstrap.scriptQueue.scheduleFirst(startQueue);
-
-    /* Make sure that all per-window bootstrap scripts are executed after the global bootstrap scripts */
-    libx.events.addListener("GlobalBootstrapDone", {
-        onGlobalBootstrapDone: function (globalBootstrapDoneEvent) {
-            startQueue.markReady();
-        }
-    });
-}
-
-}) ();
-
+    }
+});
 
 // vim: ts=4

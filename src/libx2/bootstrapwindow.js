@@ -2,14 +2,21 @@
  * Load LibX code, per window
  */
 
-libx.log.write("bootstrapping per-window libx from: " + scriptBase.baseURL);
+libx.log.write("bootstrapping per-window libx from: " + bootStrapper.baseURL);
 var files = [
     "base/libapp_perwindow.js",
 ];
 
 for (var i = 0; i < files.length; i++) {
-    libx.bootstrap.loadScript(scriptBase.baseURL + files[i]);
+    bootStrapper.loadScript(bootStrapper.baseURL + files[i]);
 }
 
-libx.bootstrap.finish();
+bootStrapper.finish();
+
+libx.events.addListener("ContentLoaded", {
+    onContentLoaded: function (event) {
+        var ev = event.nativeEvent;
+        libx.log.write("page visit: ev.originalTarget.location=" + ev.originalTarget.location);
+    }
+}, window, "testtest");
 

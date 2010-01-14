@@ -486,8 +486,14 @@ libx.initialize = function ()
                         "http://libx.org/libx-new/src/libx2/bootstrapglobal.js") });
             }
         
+            var globalBootStrapper 
+                = libx.initialize.globalBootStrapper 
+                = new libx.bootstrap.BootStrapper( 
+                new libx.events.Event("GlobalBootstrapDone")
+            );
+
             for (var i = 0; i < bootGlobalUrls.length; i++)
-                libx.bootstrap.loadScript(bootGlobalUrls[i].url, true);
+                globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
         }
     });
 }
