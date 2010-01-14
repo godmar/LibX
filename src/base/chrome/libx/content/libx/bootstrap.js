@@ -44,21 +44,15 @@ libx.bootstrap = {
      */
     loadScript : function (scriptURL, keepUpdated) {
 
+        var bootstrap = this;
         var runScriptActivity = {
-            baseURL : scriptURL.match (/.*\//),
             onready : function (metadata) {
-                try {
-                    libx.log.write("loading (" + metadata.originURL + ") from (" + metadata.chromeURL + ")", "bootstrap");
-
-                    var jsSubScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
-                        .getService(Ci.mozIJSSubScriptLoader);
-                    jsSubScriptLoader.loadSubScript(metadata.chromeURL, { scriptBase : this, libx : libx });  // FF only!
-                    libx.log.write("done loading (" + metadata.originURL + ")");
-
-                } catch (e) {
-                    var where = e.location || (e.fileName + ":" + e.lineNumber);
-                    libx.log.write( "error loading " + metadata.originURL + " -> " + e + " " + where);
-                }
+                bootstrap.loadSubScript(metadata, { 
+                    scriptBase : { 
+                        baseURL : scriptURL.match (/.*\//) 
+                    },
+                    libx : libx 
+                });
             }
         };
         this.scriptQueue.scheduleLast(runScriptActivity);
