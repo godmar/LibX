@@ -45,9 +45,9 @@ var globalScripts = [
     "chrome://libx/content/catalogs/openURLCatalog.js",
     "chrome://libx/content/citeulike-checkurl.js",
     "chrome://libx/content/proxy.js",
+    "chrome://libx/content/bootstrap.js",
     "chrome://libx/content/libx.global.ff.js",
     "chrome://libx/content/objectcache.js",
-    "chrome://libx/content/bootstrap.js",
     "chrome://libx/content/prefs.ff.js",
     "chrome://libx/content/hash.js",
     "chrome://libx/content/openurl.js",
@@ -63,8 +63,9 @@ var globalScripts = [
 for (var i = 0; i < globalScripts.length; i++) {
     try {
         jsSubScriptLoader.loadSubScript(globalScripts[i]);
-    } catch (er) {
-        log("Error while loading " + globalScripts[i] + ": " + er);
+    } catch (e) {
+        var where = e.location || (e.fileName + ":" + e.lineNumber);
+        log("Error while loading " + globalScripts[i] + ": " + e + " " + where);
     }
 }
 
