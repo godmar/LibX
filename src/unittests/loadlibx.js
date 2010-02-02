@@ -4,11 +4,20 @@
 
 // see http://java.sun.com/javase/6/docs/technotes/guides/scripting/programmer_guide/index.html#jsimport
 importPackage(org.w3c.dom);
+importPackage(java.io);
 importPackage(javax.xml.xpath);
 importPackage(javax.xml.parsers);
 importPackage(javax.xml.namespace);
 importClass(java.util.TimerTask);
 importClass(org.xml.sax.SAXException);
+load("env.rhino.js");
+
+function println(msg) {
+    java.lang.System.out.println(msg);
+}
+function print(msg) {
+    java.lang.System.out.print(msg);
+}
 
 var libxbase = "../base/chrome/libx/content/libx/";
 var libxscripts1 = [
@@ -60,7 +69,6 @@ libx.utils.xml = {
 
             // println("parsing: " + input);
             input = new java.io.ByteArrayInputStream((new java.lang.String(input)).getBytes("UTF8"));
-
             /*DocumentBuilderFactory*/var domFactory = DocumentBuilderFactory.newInstance();
             domFactory.setNamespaceAware(true);
             /*DocumentBuilder*/var builder = domFactory.newDocumentBuilder();
@@ -71,11 +79,6 @@ libx.utils.xml = {
         }
     }
 };
-
-// XMLHttpRequest
-load("rhinoxhr.js");
-// XXX: look at env.js
-
 
 // libx.cache.bd
 libx.cache.bd = {
@@ -152,6 +155,7 @@ libx.utils.xpath = {
     }
 }
 
+
 libx.ui = { }
 
 importPackage(org.libx.utils);
@@ -203,6 +207,11 @@ libx.io.writeToFile = function (fname, data, create, append) {
 }
 
 libx.io.getFileText = function (fname) {
+    var file = getPath(fname, false);
+    return readFile(file);
+};
+/*
+libx.io.getFileText = function (fname) {
     // println("getFileText: path=" + fname);
     var file = getPath(fname, false);
     try {
@@ -218,6 +227,13 @@ libx.io.getFileText = function (fname) {
     }
     return "could not read data";
 }
+*/
+libx.utils.timer = {
+    setTimeout: setTimeout,
+    setInterval: setInterval
+};
+
+/*
 var javaTimer = java.util.Timer("libx-timer", true);
 libx.utils.timer = {
     setTimeout: function (func, timeout) {
@@ -238,6 +254,7 @@ libx.utils.timer = {
         })), timeout, timeout);
     }
 };
+*/
 libx.log = {
     write : function (msg) { println (msg); },
 };

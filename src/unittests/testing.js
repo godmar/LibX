@@ -4,11 +4,15 @@
  */
 libx.testing = (function () {
 
+var logging = true;
 var all_tests = new Array();
+var main_thread = null;
+var main_group = null;
 var cur_test = {
     run     : null,
     libx    : libx,
     thread  : null,
+    group   : null,
     parent  : null,
     lock    : false,
     oktorun : false,
@@ -28,8 +32,6 @@ var UnitTestEnv = libx.core.Class.create({
     tests       : 0,     // total number of tests run
     totalsuites : 0,     // number of test suites
     output      : "",    // save all output
-    print       : print,
-    println     : println,
     all_tests   : new Array(),
 
     /**
@@ -37,7 +39,7 @@ var UnitTestEnv = libx.core.Class.create({
      * logging function used by the cli
      */
     log : function (msg) {
-        this.print(msg);
+        print(msg);
         this.output += msg;
     },
 
@@ -47,7 +49,9 @@ var UnitTestEnv = libx.core.Class.create({
      * Initializes the LibX unit testing environment
      */
     initialize : function () {
-        java.lang.Thread.currentThread().setPriority(10);
+        main_thread = java.lang.Thread.currentThread();
+        main_group = main_thread.getThreadGroup();
+        main_thread.setName("main");
         cur_test.parent = this;
 
         this.all_tests = all_tests;
@@ -105,19 +109,14 @@ var UnitTestEnv = libx.core.Class.create({
      * by runAllTestsInSuite
      */
     runSingleTest : function (func, name, setup, timeout) {
-        if (setup === undefined) {
-            this.runFunctionAsThread(func);
-        }
-        else {
-            setup();
-            this.runFunctionAsThread(func);
-        }
+        this.runFunctionAsThread(func, setup);
+
         // yield to the thread we just created so that it can acquire
         // the test lock before the parent tries; this allows the parent
         // to wait for a specified time, and fail the test if it takes
         // too long
         while (!cur_test.lock) {
-            java.lang.Thread.currentThread().yield();
+            main_thread.yield();
         }
         cur_test.oktorun = true;
         var timed_out = false;
@@ -128,8 +127,8 @@ var UnitTestEnv = libx.core.Class.create({
                 timed_out = true;
                 break;
             }
-            java.lang.Thread.currentThread().yield();
-            java.lang.Thread.currentThread().sleep(250);
+            main_thread.yield();
+            main_thread.sleep(250);
         }
         if (timed_out) {
             //print("parent timed out waiting for lock\n");
@@ -139,64 +138,53 @@ var UnitTestEnv = libx.core.Class.create({
                 "msg"   : "the function timed out"
             });
         }
-        else {
-            //print("parent acquired lock\n");
-        }
         // kill thread
         // http://java.sun.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
-        var tmp_thread = cur_test.thread;
-        cur_test.thread = null;
-        tmp_thread.interrupt();
-
+        var tmp_group = cur_test.group;
+        cur_test.group.stop();
         cur_test.lock = false;
         cur_test.oktorun = false;
+        gc();
     },
     /**
      * @private
      * executes a function as a thread, which can be paused or killed on-demand
      * Called from libx.testing.runSingleTest
      */
-    runFunctionAsThread : function (func) {
+    runFunctionAsThread : function (func, setup) {
         // wrapper for the unit test function; prepare each test function
         // with a miniature environment
         cur_test.run = function () {
             cur_test.thread.yield();
             cur_test.lock = true;
             cur_test.thread.yield();
-            //print("thread acquired lock\n");
 
-            var p = print;
-            var pl = println;
-            print = function (msg) {
-                p("         >> "+ msg);
-            }
-            println = function (msg) {
-                pl("         >> "+ msg);
-            }
             // we can't start until the parent says so, i.e., until it is 
             // ready to wait for the lock
             while(!cur_test.oktorun) {
                 cur_test.thread.yield();
             }
             try {
-                func();
+                func(setup ? setup() : undefined);
                 //print("thread released lock\n");
                 cur_test.lock = false;
             }
             catch (e) {
                 if (/InterruptedException/.test(e.toString())) {
                     // if the test thread is sleeping, this exception will
-                    // be thrown when trying to interrupt it.
+                    // be thrown when trying to interrupt it. This is ok.
                     cur_test.lock = false;
                 }
                 else {
                     this.parent.log("From the current unit test function: \n");
-                    this.parent.log(e);
+                    this.parent.log(e.toString());
+                    quit();
                 }
             }
         };
-        cur_test.thread = new java.lang.Thread(new java.lang.Runnable(cur_test));
-        cur_test.thread.setPriority(10);
+        cur_test.group = new java.lang.ThreadGroup("unittest");
+        cur_test.group.setDaemon(false);
+        cur_test.thread = new java.lang.Thread(cur_test.group, new java.lang.Runnable(cur_test));
         (cur_test.thread).start();
     },
     /**
@@ -211,7 +199,21 @@ var UnitTestEnv = libx.core.Class.create({
         this.log("Failures:  "+ failures.length +"\n");
 
         this.log("\n");
+        if (logging) this.dumpLog();
     },
+    /**
+     * @private
+     * Called from printResults. Writes the log contents to file.
+     */
+    dumpLog : function () {
+        var d = new Date();
+        var filename = "testlog_"+ d.getTime() +".txt";
+        var fstream = new java.io.FileWriter(filename);
+        var out = new java.io.BufferedWriter(fstream);
+        out.write(this.output);
+        out.close();
+        println("Logfile written to "+ filename +"\n");
+    }
 });
 
 // Testing API
@@ -221,60 +223,73 @@ return /** @lends libx.testing */ {
      * default timeout, in seconds, for test functions who don't specify a timeout value
      */
     defaulttimeout : 10,
-
     /*
      * collection of supporting functions available to users of the unit
      * test suite
      */
     methods : {
         ASSERT_TRUE : function (a, msg) {
+            var result = (a == true);
             cur_test.asserts.push({
                 "type"  : "ASSERT_TRUE",
-                "result": (a == true),
+                "result": result,
                 "msg"   : (msg === undefined) ? a +" != true" : msg
             });
+            return result;
         },
         ASSERT_FALSE : function (a, msg) {
+            var result = (a == false);
             cur_test.asserts.push({
                 "type"  : "ASSERT_FALSE",
-                "result": (a == false),
+                "result": result,
                 "msg"   : (msg === undefined) ? a +" != false" : msg
             });
+            return result;
         },
         ASSERT_EQUAL : function (a, b, msg) {
+            var result = (a == b);
             cur_test.asserts.push({
                 "type"  : "ASSERT_EQUAL",
-                "result": (a == b),
+                "result": result,
                 "msg"   : (msg === undefined) ? a +" != "+ b : msg
             });
+            return result;
         },
         ASSERT_NOT_EQUAL : function (a, b, msg) {
+            var result = (a != b);
             cur_test.asserts.push({
                 "type"  : "ASSERT_NOT_EQUAL",
-                "result": (a != b),
+                "result": result,
                 "msg"   : (msg === undefined) ? a +" == "+ b : msg
             });
+            return result;
         },
         ASSERT_NOT_IDENTICAL : function (a, b, msg) {
+            var result = (a !== b);
             cur_test.asserts.push({
                 "type"  : "ASSERT_NOT_IDENTICAL",
-                "result": (a !== b),
+                "result": result,
                 "msg"   : (msg === undefined) ? a +" === "+ b : msg
             });
+            return result;
         },
         ASSERT_IDENTICAL : function (a, b, msg) {
+            var result = (a === b);
             cur_test.asserts.push({
                 "type"  : "ASSERT_IDENTICAL",
-                "result": (a === b),
+                "result": result,
                 "msg"   : (msg === undefined) ? a +" !== "+ b : msg
             });
+            return result;
         },
         ASSERT_REGEXP_MATCHES : function (a, b, msg) {
+            var result = (new RegExp(a)).test(b);
             cur_test.asserts.push({
                 "type"  : "ASSERT_REGEXP_MATCHES",
-                "result": (new RegExp(a)).test(b),
+                "result": result,
                 "msg"   : (msg === undefined) ? "regexp "+ a.toSource() +" does not match "+ b : msg
             });
+            return result;
         },
         /**
          * cause the current unit test to fail and stop execution
@@ -285,6 +300,7 @@ return /** @lends libx.testing */ {
                 "result": false,
                 "msg"   : (msg === undefined) ? "unit test triggered FAIL for unspecified reason" : msg
             });
+            return false;
         },
         /**
          * pause for a specified number of milliseconds
@@ -299,7 +315,7 @@ return /** @lends libx.testing */ {
                     cur_test.asserts.push({
                         type  : "WAIT_FOR_CONDITION", result: true,
                     });
-                    return;
+                    return true;
                 }
                 cur_test.thread.sleep(500);
             }
@@ -310,6 +326,7 @@ return /** @lends libx.testing */ {
                 result: false,
                 msg   : (msg === undefined) ? "condition never met" : msg
             });
+            return false;
         }
     },
 
@@ -323,10 +340,10 @@ return /** @lends libx.testing */ {
      *
      * @returns {Boolean} Returns false if a suite with this name already exists
      */
-    createUnitTestSuite : function (suiteName, setUpFunc) {
+    createUnitTestSuite : function (obj) {
         all_tests.push({
-            name:     suiteName,
-            setup:    setUpFunc,
+            name:     obj.name,
+            setup:    obj.setup,
             tests:     [ ],
             funcNames: [ ],
             timeouts:  [ ]
@@ -392,18 +409,29 @@ return /** @lends libx.testing */ {
         var testobj = new UnitTestEnv();
         testobj.runAllTests();
         testobj.printResults();
+        quit();
     },
     /**
      * prepare unit tests which test the operation of the testing framework
      */
-    unittests : function () {
-        libx.testing.createUnitTestSuite("test framework");
+    unittests : function () {   // UNITTESTS
+        libx.testing.createUnitTestSuite({
+            name: "test framework", 
+            setup: function () { return 10; }
+        });
 
+        libx.testing.addUnitTest({
+            suiteName:  "test framework",
+            funcName:   "testing the setup() function return feature",
+            testFunction: function (setup) {
+                libx.testing.methods.ASSERT_EQUAL(setup, 10);
+            }
+        });
         libx.testing.addUnitTest({
             suiteName:  "test framework",
             funcName:   "testing wait_for_condition statement (1)",
             testFunction: function () {
-                this.print("this test should fail, because the condition will not be met\n");
+                print("this test should fail, because the condition will not be met\n");
                 libx.testing.methods.WAIT_FOR_CONDITION(
                     (function () { return false; })(), 2
                 );

@@ -1,8 +1,6 @@
-
 load("../libx2/base/atomparser.js");
-
-var rootPackage = "http://libx.org/libx2/libapps/libxcore";
-var rootPackage = "http://libx.org/libx2/libapps/searchbyisbn";
+var rootPackage = "http://libx.cs.vt.edu/~tjwebb/libxcore";
+//var rootPackage = "http://libx.org/libx2/libapps/searchbyisbn";
 var atomParser = new libx.libapp.PackageWalker(rootPackage);
 
 var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
@@ -30,9 +28,7 @@ var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
 });
 
 var myVisitor = new MyVisitorClass();
-
 atomParser.walk(myVisitor);
 
 println("waiting for stuff to finish...");
-java.lang.Thread.sleep(5000);
-
+java.lang.Thread.sleep(6000);
