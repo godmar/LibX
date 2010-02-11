@@ -1,4 +1,0 @@
-<FilesMatch "\.(js|xml)$">
-Header set Cache-Control "max-age=1,must-revalidate"
-</FilesMatch>
-
