@@ -2,7 +2,7 @@
 libx.log.write("bootstrapping global libx from: " + bootStrapper.baseURL);
 var files = [
     "global/shared/libapp/tuplespace.js",
-    "global/shared/libapp/packagewalker.js",
+    "global/shared/libapp/atomparser.js",
     "global/shared/utils/collections/vector.js",
     "global/shared/libapp/textexplorer.js",
     "global/shared/libapp/texttransformer.js",

@@ -483,7 +483,7 @@ libx.initialize = function ()
             if (bootGlobalUrls.length == 0) {
                 bootGlobalUrls.push({ url:
                     libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
-                        "http://libx.org/libx-new/src/libx2/bootstrapglobal.js") });
+                        "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobal.js") });
             }
         
             var globalBootStrapper 

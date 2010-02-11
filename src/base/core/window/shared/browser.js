@@ -45,7 +45,7 @@ var browser =
                 // Fall back to local preference
                 bootWindowUrls.push({ url:
                     libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
-                        "http://libx.org/libx-new/src/libx2/bootstrapwindow.js") });
+                        "http://libx.org/libx-new/src/base/bootstrapped/bootstrapwindow.js") });
             }
         
             var windowBootStrapper = new libx.bootstrap.BootStrapper();
