@@ -1,4 +1,4 @@
-load("../libx2/base/atomparser.js");
+load("../base/bootstrapped/global/shared/libapp/atomparser.js");
 
 // test the testing framework itself
 libx.testing.unittests();

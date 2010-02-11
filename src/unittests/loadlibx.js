@@ -19,33 +19,36 @@ function print(msg) {
     java.lang.System.out.print(msg);
 }
 
-var libxbase = "../base/chrome/libx/content/libx/";
+var libxbase = "../base/core/";
 var libxscripts1 = [
-    "libxcoreclass.js",
-    "libx.js",
-    "documentrequestcache.js",
-    "config.js",
-    "events.js",
-    "json2.js",
-    "catalogs/catalog.js",
-	"catalogs/milleniumopac.js",
-	"catalogs/horizonopac.js",
-	"catalogs/voyageropac.js",
-	"catalogs/alephopac.js",
-	"catalogs/sirsiopac.js",
-	"catalogs/web2opac.js",
-	"catalogs/centralsearch.js",
-	"catalogs/custom.js",
-	"catalogs/evergreen.js",
-	"catalogs/worldcat.js",
-	"catalogs/vubis.js",
-	"catalogs/voyager7.js",
-	"catalogs/talisprism.js",
-	"catalogs/openURLCatalog.js",
-    "citeulike-checkurl.js",
-	"proxy.js",
-	"openurl.js",
-	"isbnutils.js",
+    "global/shared/core.js",
+    "global/shared/libx.js",
+    "global/shared/cache/memorycache.js",
+    "global/shared/config.js",
+    "global/shared/events.js",
+    "global/shared/utils/json.js",
+    "global/shared/catalog.js",
+    "global/shared/catalog/catalog.js",
+    "global/shared/catalog/factory/bookmarklet.js",
+    "global/shared/catalog/factory/scholar.js",
+	"global/shared/catalog/factory/millenium.js",
+	"global/shared/catalog/factory/horizon.js",
+	"global/shared/catalog/factory/voyager.js",
+	"global/shared/catalog/factory/aleph.js",
+	"global/shared/catalog/factory/sirsi.js",
+	"global/shared/catalog/factory/web2.js",
+	"global/shared/catalog/factory/centralsearch.js",
+	"global/shared/catalog/factory/custom.js",
+	"global/shared/catalog/factory/evergreen.js",
+	"global/shared/catalog/factory/worldcat.js",
+	"global/shared/catalog/factory/vubis.js",
+	"global/shared/catalog/factory/voyager7.js",
+	"global/shared/catalog/factory/talisprism.js",
+	"global/shared/catalog/factory/openurlresolver.js",
+    "global/shared/citeulike.js",
+	"global/shared/proxy.js",
+	"global/shared/openurl.js",
+	"global/shared/utils/stdnumsupport.js",
 ];
 
 function loadScript(libxscripts) {
@@ -259,11 +262,11 @@ libx.log = {
     write : function (msg) { println (msg); },
 };
 var libxscripts2 = [
-    "objectcache.js",
-    "crossref.js",
-    "pubmed.js",
-    "xisbn.js",
-    "magicsearch.js",
+    "global/shared/cache/objectcache.js",
+    "global/shared/services/crossref.js",
+    "global/shared/services/pubmed.js",
+    "global/shared/utils/stdnumsupport.js",
+    "window/shared/ui/magicsearch.js",
 ];
 
 loadScript(libxscripts2);
