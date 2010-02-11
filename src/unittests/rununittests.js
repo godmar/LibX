@@ -4,4 +4,4 @@ load("../base/bootstrapped/global/shared/libapp/atomparser.js");
 libx.testing.unittests();
 
 // test the atom parser
-libx.libapp.atomparser.unittests();
+//libx.libapp.atomparser.unittests();
