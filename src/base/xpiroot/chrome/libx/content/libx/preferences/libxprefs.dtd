@@ -1,0 +1,26 @@
+<!-- DTD for LibX Preferences -->
+<!-- $Id: libxprefs.dtd,v 1.1.2.1 2010/02/11 18:25:23 brn Exp $ -->
+
+<!ELEMENT category (category|preference)+>
+<!ATTLIST category 
+        name              CDATA #REQUIRED
+        layout         	  CDATA #REQUIRED
+>
+
+
+<!ELEMENT preference (item)*>
+<!ATTLIST preference 
+        name              CDATA #REQUIRED
+        type         	  (int|boolean|string|choice|multichoice) 'string'
+		value             CDATA #IMPLIED
+>
+
+
+<!ELEMENT item >
+<!ATTLIST item 
+        value              CDATA #REQUIRED
+        type         	   (int|boolean|string) 'string'
+	    selected           (selected)     #IMPLIED
+>
+
+

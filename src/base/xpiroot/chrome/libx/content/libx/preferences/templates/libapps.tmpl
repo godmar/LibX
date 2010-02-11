@@ -1,0 +1,75 @@
+{!
+
+/*
+ * XXX This file cannot be part of the LibX core.  
+ * 
+ * Can you easily move it to <mozdev.cvs>/src/libx2/templates
+ * ?
+ */
+
+function getModules ( entry ) {
+	var modules = [];	
+	new libx.libapp.PackageWalker(entry.url).walk({
+		onmodule: function (module) {
+			modules.push ( module );
+		}
+	});
+	return modules;
+}
+
+function encode ( str ) {
+	return libx.utils.xml.encodeEntities ( '' + str );
+}
+
+var appProps = ["include","exclude" ];
+var modProps = ["include","exclude", "guardedby", "regexptexttransformer", "require"];
+
+var idnum = 0;
+!}
+<div class="libapp-div" style="overflow:scroll;height:400px;font-size:.8em;">
+	<if test="libx.libapp != null && libx.libapp.loadedLibapps != null">
+		<for each="app" in="libx.libapp.loadedLibapps">
+    		<div class="ui-dialog-titlebar">
+    			<span>
+	    			<if test="app.id != null">
+	        			<label style="float:right">{+app.id+}</label>
+	        		</if>
+	    			<label>{+encode(app.description)+}</label>
+	        		<for each="prop" in="appProps">
+	        			<for each="val" in="app[prop]">
+		        			<p>{+prop + ":" + val+}</p> 	
+		        		</for>
+	        		</for>
+        		</span>
+        		<ul class="ui-component-content" style="list-style-type:none;">
+		        	<for each="entry" in="app.entries">
+		        		<li style="list-style-type:none;">
+		        		{! var module = getModules(entry)[0]; !}
+		        		<if test="module != null">
+	        				<a href="javascript:void(0);" onclick="$(this).siblings().toggle()">{+encode(module.description)+}</a>
+	        				<div class="ui-component-content" style="display:none;">
+	        					<p>URL: {+encode(entry.url)+}</p>
+	        					<for each="prop" in="modProps">
+	        						<for each="val" in="module[prop]">
+        								<p>{+prop + " : " + encode( val.toString() )+}</p> 	
+        							</for>
+	        					</for>
+	        					{! var guardedby = module.guardedby; !}
+	        					<if test="guardedby != null">
+	        						<p>Guarded By: {+ encode ( module.guardedby ) +}</p> 
+	        					</if>	
+	        					{! var idstr = "libapp" + idnum++; !}
+	        					<a href="javascript:void(function(){$('#{+idstr+}').toggle()})()">View Source</a>
+	        					<div id="{+idstr+}" style="display:none;" >
+	        					<pre>
+	        						{+encode(module.body)+}
+	        					</pre>
+	        					</div>
+	        				</div>
+	        				</if>
+		        		</li>
+		        	</for>
+		        </ul>
+        	</div>
+	</for></if>
+</div>

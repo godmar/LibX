@@ -1,0 +1,12 @@
+{!     
+    /** Default Category Template */
+!}
+<!-- category.tmpl -->
+<div class="groupbox">
+    <label>{L data._idstr + "-description", data._name L}</label>
+    <for each="child" in="data._children">
+        <div>
+            {P child P}
+        </div>
+    </for>
+</div>

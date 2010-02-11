@@ -420,9 +420,14 @@ if (-d $tmpdir) {
     system("/bin/rm -r $tmpdir") == 0 or die "$!: cannot rm " . $tmpdir . " in " . `pwd` . " running as " . `id`;
 }
 
-my @files = split(/\s+/, `find ../base`);
+my @files = split(/\s+/, `find ../base | grep -v ../base/core`);
+# append ../base/core to the end so that the necessary directory structure exists
+push(@files, split(/\s+/, `find ../base/core`));
+
 foreach my $src (@files) {
     my $dst = $src;
+    $dst =~ s/..\/base\/xpiroot\//..\/base\//;
+    $dst =~ s/..\/base\/core/..\/base\/chrome\/libx\/content\/libx\/core/;
     $dst =~ s/..\/base/$tmpdir/;
     if (-d $src) {
         # recreate directory
@@ -687,7 +692,7 @@ else {
 #String that contains list of JavaScript files (and the file list file) to bundle
 #in the installer
 my $jFileList = "";
-my $listFilePath = "../base/chrome/libx/content/libx/";
+my $listFilePath = "../base/xpiroot/chrome/libx/content/libx/";
 my $listFileName = "filelist.txt";
 my $listFile = $listFilePath . $listFileName;
 

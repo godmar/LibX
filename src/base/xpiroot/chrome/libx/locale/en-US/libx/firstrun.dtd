@@ -1,0 +1,23 @@
+<!-- 
+Text associated with first run dialog are contained in here for easier localization
+-->
+
+<!ENTITY libx.firstrun.title "Congratulations, you have successfully installed LibX">
+
+<!ENTITY libx.firstrun.privacy.title "A notice about your privacy:">
+<!ENTITY libx.firstrun.privacy.text "Certain features of LibX require sending information about the site you are visiting to third parties to retrieve additional information. You may change these options later by going to the LibX menu -> LibX Preferences -> AJAX Options">
+
+<!ENTITY libx.firstrun.privacy.groupboxlabel "Privacy options">
+<!ENTITY libx.firstrun.privacy.proxylabel "Contact proxy to determine if current page can be reloaded">
+<!ENTITY libx.firstrun.privacy.proxytooltip "Enable/Disable transmitting the current page's URL to the configured proxy">
+<!ENTITY libx.firstrun.privacy.oclclabel "Contact OCLC for metadata about ISBN's found within a page">
+<!ENTITY libx.firstrun.privacy.oclctooltip "Enable/Disable transmitting ISBN's found within a page to OCLC Registry">
+
+<!ENTITY libx.firstrun.toolbar.text "Additionally, you may select whether or not you want the toolbar to be enabled. The toolbar may also be toggled at any time by pressing the F9 key.">
+
+<!ENTITY libx.firstrun.toolbar.groupboxlabel "LibX Toolbar options">
+<!ENTITY libx.firstrun.toolbar.enable "Enable LibX Toolbar">
+<!ENTITY libx.firstrun.toolbar.disable "Disable LibX Toolbar">
+
+
+

@@ -15,20 +15,24 @@ include('readconfigxml.php');
       <link rel="icon" href="<? echo $icon ?>" type="image/x-icon" />
       <link rel="shortcut icon" href="<? echo $icon ?>" type="image/x-icon" />
 
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/libx.cs.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/isbnutils.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/libx.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/openurl.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/catalog.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/milleniumopac.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/horizonopac.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/voyageropac.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/alephopac.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/sirsiopac.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/centralsearch.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/openURLCatalog.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/catalogs/web2opac.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/magicsearch.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/libx.cs.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/utils/stdnumsupport.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/libx.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/openurl.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/catalog.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/bookmarklet.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/scholar.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/millenium.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/horizon.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/voyager.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/aleph.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/sirsi.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/centralsearch.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/openurlresolver.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/web2.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/window/shared/ui/magicsearch.js"></script>
 <script type="text/javascript">
 libxClientSideCatalogInit("<? echo $edition_config_xml; ?>");
 </script>

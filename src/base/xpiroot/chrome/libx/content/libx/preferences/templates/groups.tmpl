@@ -1,0 +1,12 @@
+{!     
+     
+!}
+<!-- groups.tmpl -->
+<for each="child" in="data._children">
+    <div class="groupbox">
+    <label>{+ prefsBundle.getProperty ( child._idstr + "-group-label", child._name ) +}</label>
+        <div>
+            {+ process ( child ) +}
+        </div>
+    </div>
+</for>
