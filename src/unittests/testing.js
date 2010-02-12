@@ -4,6 +4,8 @@
  */
 libx.testing = (function () {
 
+
+
 var logging = true;
 var all_tests = new Array();
 var main_thread = null;
@@ -19,7 +21,8 @@ var cur_test = {
     asserts : [ ],
     print   : function (msg) {
         print("         >> "+ msg);
-    }
+    },
+    output  : ""
 };
 
 /**
@@ -53,6 +56,13 @@ var UnitTestEnv = libx.core.Class.create({
         main_group = main_thread.getThreadGroup();
         main_thread.setName("main");
         cur_test.parent = this;
+
+        // refine logging function so that the test framework can 
+        // validate unit test output
+        libx.log.write = function (msg) {
+            cur_test.output += msg;
+            this.log(msg);
+        }
 
         this.all_tests = all_tests;
         this.totalsuites = this.all_tests.length;
@@ -109,6 +119,7 @@ var UnitTestEnv = libx.core.Class.create({
      * by runAllTestsInSuite
      */
     runSingleTest : function (func, name, setup, timeout) {
+        cur_test.output = "";
         this.runFunctionAsThread(func, setup);
 
         // yield to the thread we just created so that it can acquire
@@ -267,29 +278,43 @@ return /** @lends libx.testing */ {
         ASSERT_NOT_IDENTICAL : function (a, b, msg) {
             var result = (a !== b);
             cur_test.asserts.push({
-                "type"  : "ASSERT_NOT_IDENTICAL",
-                "result": result,
-                "msg"   : (msg === undefined) ? a +" === "+ b : msg
+                type  : "ASSERT_NOT_IDENTICAL",
+                result: result,
+                msg   : (msg === undefined) ? a +" === "+ b : msg
             });
             return result;
         },
         ASSERT_IDENTICAL : function (a, b, msg) {
             var result = (a === b);
             cur_test.asserts.push({
-                "type"  : "ASSERT_IDENTICAL",
-                "result": result,
-                "msg"   : (msg === undefined) ? a +" !== "+ b : msg
+                type  : "ASSERT_IDENTICAL",
+                result: result,
+                msg   : (msg === undefined) ? a +" !== "+ b : msg
             });
             return result;
         },
         ASSERT_REGEXP_MATCHES : function (a, b, msg) {
             var result = (new RegExp(a)).test(b);
             cur_test.asserts.push({
-                "type"  : "ASSERT_REGEXP_MATCHES",
-                "result": result,
-                "msg"   : (msg === undefined) ? "regexp "+ a.toSource() +" does not match "+ b : msg
+                type  : "ASSERT_REGEXP_MATCHES",
+                result: result,
+                msg   : (msg === undefined) ? "regexp "+ a.toSource() +" does not match "+ b : msg
             });
             return result;
+        },
+        ASSERT_OUTPUT : function (file, logdiff, msg) {
+            var valid  = readFile(file);
+            var result = (cur_test.output == valid);
+            cur_test.asserts.push({
+                type  : "ASSERT_OUTPUT",
+                result: result,
+                msg   : (msg === undefined) ? "Output does not match text in file '"+ file +"'"
+            });
+            if (logdiff && !result) {
+                var opt = { output: "diff -u:" };
+                runCommand("echo \""+ cur_test.output +"\" | diff -u "+ file +" -", opt);
+                this.log(opt.output);
+            }
         },
         /**
          * cause the current unit test to fail and stop execution
@@ -465,6 +490,16 @@ return /** @lends libx.testing */ {
                 this.print ("waiting 1 sec -- should not timeout\n");
                 libx.testing.methods.WAIT(1);
                 this.print ("we didn't timeout.\n");
+            }
+        });
+        libx.testing.addUnitTest({
+            suiteName:  "test framework",
+            funcName:   "testing output validation",
+            testFunction: function () {
+                libx.log.write("hello\n");
+                libx.log.write("i'm testing the output validation feature");
+                libx.log.write("\n12345");
+                ASSERT_OUTPUT (".output_test.txt");
             }
         });
         libx.testing.addUnitTest({
