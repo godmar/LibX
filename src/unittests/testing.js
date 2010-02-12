@@ -1,12 +1,9 @@
 /**
- *
- * @namespace
+ * @namespace libx.testing
  */
 libx.testing = (function () {
 
-
-
-var logging = true;
+var logging = true; // this can be safely changed according to your preferences
 var all_tests = new Array();
 var main_thread = null;
 var main_group = null;
@@ -22,7 +19,8 @@ var cur_test = {
     print   : function (msg) {
         print("         >> "+ msg);
     },
-    output  : ""
+    output  : "",
+    timeout : false
 };
 
 /**
@@ -52,6 +50,7 @@ var UnitTestEnv = libx.core.Class.create({
      * Initializes the LibX unit testing environment
      */
     initialize : function () {
+        var env = this;
         main_thread = java.lang.Thread.currentThread();
         main_group = main_thread.getThreadGroup();
         main_thread.setName("main");
@@ -61,7 +60,7 @@ var UnitTestEnv = libx.core.Class.create({
         // validate unit test output
         libx.log.write = function (msg) {
             cur_test.output += msg;
-            this.log(msg);
+            env.log(msg);
         }
 
         this.all_tests = all_tests;
@@ -120,6 +119,7 @@ var UnitTestEnv = libx.core.Class.create({
      */
     runSingleTest : function (func, name, setup, timeout) {
         cur_test.output = "";
+        cur_test.timeout = false;
         this.runFunctionAsThread(func, setup);
 
         // yield to the thread we just created so that it can acquire
@@ -145,7 +145,7 @@ var UnitTestEnv = libx.core.Class.create({
             //print("parent timed out waiting for lock\n");
             cur_test.asserts.push({
                 "type"  : "TIMEOUT",
-                "result": false,
+                "result": cur_test.timeout,
                 "msg"   : "the function timed out"
             });
         }
@@ -293,36 +293,36 @@ return /** @lends libx.testing */ {
             });
             return result;
         },
-        ASSERT_REGEXP_MATCHES : function (a, b, msg) {
+        ASSERT_REGEXP_MATCHES : function (a, b, expect, msg) {
             var result = (new RegExp(a)).test(b);
             cur_test.asserts.push({
                 type  : "ASSERT_REGEXP_MATCHES",
-                result: result,
+                result: result || expect,
                 msg   : (msg === undefined) ? "regexp "+ a.toSource() +" does not match "+ b : msg
             });
             return result;
         },
-        ASSERT_OUTPUT : function (file, logdiff, msg) {
+        ASSERT_OUTPUT : function (file, logdiff, expect, msg) {
             var valid  = readFile(file);
-            var result = (cur_test.output == valid);
+            var result = (cur_test.output + "\n\n" == valid) || expect;
             cur_test.asserts.push({
                 type  : "ASSERT_OUTPUT",
                 result: result,
-                msg   : (msg === undefined) ? "Output does not match text in file '"+ file +"'"
+                msg   : (msg === undefined) ? "Output does not match text in file '"+ file +"'" : msg
             });
             if (logdiff && !result) {
-                var opt = { output: "diff -u:" };
-                runCommand("echo \""+ cur_test.output +"\" | diff -u "+ file +" -", opt);
-                this.log(opt.output);
+                var opt = { input: cur_test.output + "\n", output: "diff -u:" };
+                runCommand("diff", "-u", file, "-", opt);
+                print(opt.output);
             }
         },
         /**
          * cause the current unit test to fail and stop execution
          */
-        FAIL : function (msg) {
+        FAIL : function (msg, expect) {
             cur_test.asserts.push({
                 "type"  : "FAIL",
-                "result": false,
+                "result": !expect,
                 "msg"   : (msg === undefined) ? "unit test triggered FAIL for unspecified reason" : msg
             });
             return false;
@@ -330,10 +330,12 @@ return /** @lends libx.testing */ {
         /**
          * pause for a specified number of milliseconds
          */
-        WAIT : function (timeout) {
+        WAIT : function (timeout, expect) {
+            if (expect) cur_test.timeout = true;
             cur_test.thread.sleep(timeout * 1000);
         },
-        WAIT_FOR_CONDITION : function (func, timeout, msg) {
+        WAIT_FOR_CONDITION : function (func, timeout, expect, msg) {
+            if (expect) cur_test.timeout = true;
             var ticks = Math.floor((timeout * 1000) / 500);
             for (var i = 0; i < ticks; i++) {
                 if (func) {
@@ -348,7 +350,7 @@ return /** @lends libx.testing */ {
             if (func) return;
             cur_test.asserts.push({
                 type  : "WAIT_FOR_CONDITION",
-                result: false,
+                result: false || expect,
                 msg   : (msg === undefined) ? "condition never met" : msg
             });
             return false;
@@ -371,7 +373,7 @@ return /** @lends libx.testing */ {
             setup:    obj.setup,
             tests:     [ ],
             funcNames: [ ],
-            timeouts:  [ ]
+            timeouts:  [ ],
         });
     },
     /**
@@ -397,6 +399,7 @@ return /** @lends libx.testing */ {
         var func        = obj.testFunction;
         var funcName    = obj.funcName;
         var timeout     = obj.timeout;
+        var fail        = obj.expectFailure;
         var suiteobj    = null;
         for (suite in all_tests) {
             if (all_tests[suite].name == suiteName) {
@@ -407,16 +410,14 @@ return /** @lends libx.testing */ {
             print("Test Suite '"+ suiteName +"' not found");
             return;
         }
-        suiteobj.tests.push(func);
-        if (funcName === undefined) {
-            funcName = "Unnamed Test Function";
-        }
+        if (funcName === undefined) funcName = "Unnamed Test Function";
         if (timeout !== undefined && timeout > 0) {
             suiteobj.timeouts.push(timeout);
         }
         else {
             suiteobj.timeouts.push(libx.testing.defaulttimeout);
         }
+        suiteobj.tests.push(func);
         suiteobj.funcNames.push(funcName);
     },
     /**
@@ -458,7 +459,7 @@ return /** @lends libx.testing */ {
             testFunction: function () {
                 print("this test should fail, because the condition will not be met\n");
                 libx.testing.methods.WAIT_FOR_CONDITION(
-                    (function () { return false; })(), 2
+                    (function () { return false; })(), 2, true
                 );
             }
         });
@@ -478,7 +479,7 @@ return /** @lends libx.testing */ {
             timeout:    2,
             testFunction:       function () {
                 this.print ("waiting 3 sec -- should timeout and fail\n");
-                libx.testing.methods.WAIT(3);
+                libx.testing.methods.WAIT(3, true);
                 this.print ("we didn't timeout.\n");
             }
         });
@@ -499,7 +500,7 @@ return /** @lends libx.testing */ {
                 libx.log.write("hello\n");
                 libx.log.write("i'm testing the output validation feature");
                 libx.log.write("\n12345");
-                ASSERT_OUTPUT (".output_test.txt");
+                libx.testing.methods.ASSERT_OUTPUT (".output_test.txt", true);
             }
         });
         libx.testing.addUnitTest({
@@ -527,8 +528,6 @@ return /** @lends libx.testing */ {
                 libx.testing.methods.ASSERT_REGEXP_MATCHES("(a+)(b+)", "aabbb");
             }
         });
-
-
     }
 }
 })(); // end libx.testing

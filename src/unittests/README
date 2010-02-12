@@ -1,10 +1,7 @@
-I.	Configuration
+I.	Setup
 	
-	1. Compile utils classes
-		javac org/libx/utils/*.java
-
-    2. Change the classpath variable in runtests.sh to the path where js.jar 
-        is located (default is /usr/share/java/js.jar)
+	Compile utils classes
+    javac org/libx/utils/*.java
 
 II. Invocation
 
@@ -19,7 +16,7 @@ III. Notes
     1. An example test suite can be found in testing.js, at the bottom. Search
         for UNITTESTS.
 
-    2. Do not add libx.testing.runAllUnitTests() at the end of your unittest
+    2. Do not add 'libx.testing.runAllUnitTests()' at the end of your unittest
         source files; the launch script does this.
         
     3. Assertion statements are available through the testing framework, e.g:
@@ -55,3 +52,14 @@ III. Notes
     6. Logging is enabled by default; each run will produce a file called 
         testlog_<timestamp>.txt. Logging can be disabled by setting the
         'logging' variable in testing.js to false.
+
+    7. Unit test output validation can be done using the function
+        libx.testing.methods.ASSERT_OUTPUT(FILENAME). All text printed using
+        the libx.log.write(str) function during the execution of the unit test
+        will be compared. 
+        ***Note: make sure to add a newline at the end of each text file.
+
+    8. Unit tests can be rigged to fail on purpose. For a particular assert
+        to fail, add an extra boolean arg to your function call, e.g.
+        ASSERT_OUTPUT("output.txt", true). Functions that already have inverses
+        do not support this and will ignore the argument if you pass it.
