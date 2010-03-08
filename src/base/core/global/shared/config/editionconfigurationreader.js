@@ -41,16 +41,15 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             complete : function (xml, stat, xhr) {
                 var doc = new libx.config.XMLConfigWrapper(xhr.responseXML);
 
-                var edition = {
-                    catalogs : editionConfigReader.loadCatalogs ( doc ),
-                    openurl : editionConfigReader.loadResolvers ( doc ),
-                    proxy : editionConfigReader.loadProxies ( doc ),
-                    options : editionConfigReader.loadOptions ( doc ),
-                    links: editionConfigReader.loadLinks ( doc ),
-                    searchoptions: editionConfigReader.loadSearchOptions ( doc ),
-                    localizationfeeds: editionConfigReader.loadLocalizationFeeds ( doc ),
-                    name: { }
-                };
+                var edition = {};
+           		edition.openurl = editionConfigReader.loadResolvers ( doc );
+                edition.catalogs = editionConfigReader.loadCatalogs ( doc, edition );
+                edition.proxy = editionConfigReader.loadProxies ( doc );
+                edition.options = editionConfigReader.loadOptions ( doc );
+                edition.links = editionConfigReader.loadLinks ( doc );
+                edition.searchoptions = editionConfigReader.loadSearchOptions ( doc );
+                edition.localizationfeeds = editionConfigReader.loadLocalizationFeeds ( doc );
+                edition.name = { };
                 doc.copyAttributes(doc.getNode("/edition/name"), edition.name);
 
                 invofcc.onload ( edition );
@@ -173,7 +172,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
         return opts;
     },
 
-    loadCatalogs : function ( doc ) {
+    loadCatalogs : function ( doc, edition ) {
         return this.makeConfigurationItemArray (doc,
             "/edition/catalogs/*", libx.catalog.factory, 
             function (node) {
@@ -201,7 +200,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                         
                 cat.urlregexp = new RegExp( cat.urlregexp );
                 if (typeof (cat.__init) == "function") {
-                    cat.__init();
+                    cat.__init(edition);
                 }
             
                 libx.log.write("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");

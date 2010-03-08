@@ -1,32 +1,9 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is LibX Firefox Extension.
- *
- * The Initial Developer of the Original Code is Annette Bailey (libx.org@gmail.com)
- * Portions created by the Initial Developer are Copyright (C) 2005
- * the Initial Developer and Virginia Tech. All Rights Reserved.
- *
- * Contributor(s): Godmar Back (godmar@gmail.com)
- *
- * ***** END LICENSE BLOCK ***** */
-
-/*
- * LibX toolbar extension
- *
- * Author: Annette Bailey <annette.bailey@gmail.com>
+/* 
+ * NOTE: This file is temporarily being used instead of core/global/shared/libx.js
+ * until bootstrapping, IO, and preferences are implemented in Google Chrome.
  */ 
                         
+
 /**
  * @namespace
  * Support for built-in access to services such 
@@ -457,50 +434,60 @@ libx.utils.collections.EmptyActivity = libx.core.Class.create({
  */
 libx.buildDate = "$builddate$";
 
+var listener;
+
 /**
  *
  * Initialize LibX
  *
  */
-libx.initialize = function () 
-{
+libx.initialize = function () {
+    /*
 	libx.locale.initialize();
     // Load Preferences
     libx.preferences.initialize();
+    */
 }
 
-/**
- * Load edition configuration.
- */
 libx.loadConfig = function(configUrl) {
-    new libx.config.EditionConfigurationReader({
-        url: configUrl,
-        onload: function (edition) {
-            libx.edition = edition;
-            libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
+	try {
+	    new libx.config.EditionConfigurationReader({
+	        url: configUrl,
+	        onload: function (edition) {
+	            libx.edition = edition;
+	            libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
+	
+	            var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
+	            edLoadedEvent.edition = edition;
+	            edLoadedEvent.notify();
+	
+	            /*
+	            // Load all URLs marked as @type = 'bootglobal' in configuration
+	            var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
+	            if (bootGlobalUrls.length == 0) {
+	                bootGlobalUrls.push({ url:
+	                    libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
+	                        "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobal.js") });
+	            }
+	        
+	            var globalBootStrapper 
+	                = libx.initialize.globalBootStrapper 
+	                = new libx.bootstrap.BootStrapper( 
+	                new libx.events.Event("GlobalBootstrapDone")
+	            );
+	
+	            for (var i = 0; i < bootGlobalUrls.length; i++)
+	                globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
+	            */
+	            
+	        }
+	    });
+	} catch (e) {
+		delete libx.edition;
+		throw e;
+	}
 
-            var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
-            edLoadedEvent.edition = edition;
-            edLoadedEvent.notify();
-
-            // Load all URLs marked as @type = 'bootglobal' in configuration
-            var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
-            if (bootGlobalUrls.length == 0) {
-                bootGlobalUrls.push({ url:
-                    libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
-                        "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobal.js") });
-            }
-        
-            var globalBootStrapper 
-                = libx.initialize.globalBootStrapper 
-                = new libx.bootstrap.BootStrapper( 
-                new libx.events.Event("GlobalBootstrapDone")
-            );
-
-            for (var i = 0; i < bootGlobalUrls.length; i++)
-                globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
-        }
-    });
 }
 
 // vim: ts=4
+

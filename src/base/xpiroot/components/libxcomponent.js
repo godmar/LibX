@@ -86,6 +86,12 @@ try {
     log("Error in libx.initialize(): " + er);
 }
 
+try {
+    libx.loadConfig("chrome://libx/content/config.xml");
+} catch (er) {
+    log("Error in libx.loadConfig(): " + er);
+}
+
 function LibXComponent() {
     //This allows access only from JavaScript
     this.wrappedJSObject = this;

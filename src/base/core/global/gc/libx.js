@@ -18,27 +18,37 @@
  * the Initial Developer and Virginia Tech. All Rights Reserved.
  *
  * Contributor(s): Godmar Back (godmar@gmail.com)
- *                 Michael Doyle ( vtdoylem@gmail.com )
  *
  * ***** END LICENSE BLOCK ***** */
 
-/**
- *	OpenURLResolver Catalog Implementation
- *
- *	@name libx.catalog.factory.openurlresolver
- *	@augments libx.catalog.Catalog
- *	@class 
- */
-libx.catalog.factory["openurlresolver"] = libx.core.Class.create(libx.catalog.Catalog, 
-/** @lends libx.catalog.factory.openurlresolver.prototype */
-{
-    __init: function (edition) {
-	this.options = edition.openurl[this.resolvernum].options;
-},
+libx.ui = {
+    jquery: {}
+};
 
-	search: function (fields) {
-        return libx.edition.openurl[this.resolvernum].search(fields);
-	}
-});
+libx.localStorage = {
+    setItem: function(key, value) {
+        try {
+            window.localStorage.setItem(key, value);
+        } catch(e) {
+            throw new Error("libx.localStorage.setItem(): " + e);
+        }
+    },
+    getItem: function(key) {
+        try {
+            return window.localStorage.getItem(key);
+        } catch(e) {
+            throw new Error("libx.localStorage.getItem(): " + e);
+        }
+    },
+    removeItem: function(key) {
+        try {
+            return window.localStorage.removeItem(key);
+        } catch(e) {
+            throw new Error("libx.localStorage.removeItem(): " + e);
+        }
+    },
+    clear: function() {
+        window.localStorage.clear();
+    }
+};
 
-// vim: ts=4

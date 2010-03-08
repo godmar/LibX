@@ -1,0 +1,94 @@
+
+<script src="jquery.js"></script>
+
+<script src="core/global/shared/core.js"></script>
+<script src="libx.js"></script>
+<script src="core/global/shared/log.js"></script>
+<!-- <script src="core/global/shared/io.js"></script> -->
+<script src="core/global/shared/locale.js"></script>
+<script src="core/global/shared/preferences.js"></script>
+<script src="core/global/shared/cache/memorycache.js"></script>
+<script src="core/global/shared/config.js"></script>
+<script src="core/global/shared/config/xmlconfigwrapper.js"></script>
+<script src="core/global/shared/config/editionconfigurationreader.js"></script>
+<script src="core/global/shared/events.js"></script>
+<!-- <script src="core/global/shared/utils/json.js"></script> -->
+<script src="core/global/shared/catalog.js"></script>
+<script src="core/global/shared/catalog/catalog.js"></script>
+<script src="core/global/shared/catalog/factory/bookmarklet.js"></script>
+<script src="core/global/shared/catalog/factory/scholar.js"></script>
+<script src="core/global/shared/catalog/factory/millenium.js"></script>
+<script src="core/global/shared/catalog/factory/horizon.js"></script>
+<script src="core/global/shared/catalog/factory/voyager.js"></script>
+<script src="core/global/shared/catalog/factory/aleph.js"></script>
+<script src="core/global/shared/catalog/factory/sirsi.js"></script>
+<script src="core/global/shared/catalog/factory/web2.js"></script>
+<script src="core/global/shared/catalog/factory/centralsearch.js"></script>
+<script src="core/global/shared/catalog/factory/custom.js"></script>
+<script src="core/global/shared/catalog/factory/evergreen.js"></script>
+<script src="core/global/shared/catalog/factory/worldcat.js"></script>
+<script src="core/global/shared/catalog/factory/vubis.js"></script>
+<script src="core/global/shared/catalog/factory/voyager7.js"></script>
+<script src="core/global/shared/catalog/factory/talisprism.js"></script>
+<script src="core/global/shared/catalog/factory/polaris.js"></script>
+<script src="core/global/shared/catalog/factory/openurlresolver.js"></script>
+<!-- <script src="core/global/shared/citeulike.js"></script> -->
+<script src="core/global/shared/proxy.js"></script>
+<script src="core/global/shared/proxy/factory/ezproxy.js"></script>
+<script src="core/global/shared/proxy/factory/wam.js"></script>
+<script src="core/global/shared/bootstrap.js"></script>
+<script src="core/global/gc/libx.js"></script>
+<script src="core/global/gc/log.js"></script>
+<script src="core/global/gc/cache.js"></script>
+<!-- <script src="core/global/ff/utils/timer.js"></script> -->
+<!-- <script src="core/global/ff/utils/xml.js"></script> -->
+<!-- <script src="core/global/ff/locale.js"></script> -->
+<script src="core/global/gc/bootstrap.js"></script>
+<!-- <script src="core/global/shared/cache/objectcache.js"></script> -->
+<script src="core/global/gc/utils/browserprefs.js"></script>
+<!-- <script src="core/global/shared/utils/hash.js"></script> -->
+<script src="core/global/shared/openurl.js"></script>
+<!-- <script src="core/global/shared/utils/stdnumsupport.js"></script> -->
+<script src="core/global/gc/utils/xpath.js"></script>
+<!-- <script src="core/global/shared/services/xisbn.js"></script> -->
+<!-- <script src="core/global/shared/services/pubmed.js"></script> -->
+<!-- <script src="core/global/shared/services/crossref.js"></script> -->
+<!-- <script src="core/global/ff/libapp/sandbox.js"></script> -->
+<script src="core/global/shared/ui/jquery/autocomplete/autocomplete.js"></script>
+
+<script>
+
+/*
+ * BRN: temporary function to grab all files remotely
+ * until local file storage is implemented.
+ */
+libx.parseRemoteItem = function(item) {
+    var base = libx.localStorage.getItem('configUrl').replace('/config.xml', '');
+    
+    return base + item.replace('chrome://libx/skin', '');
+};
+
+try {
+    libx.initialize();
+} catch (er) {
+    console.log("Error in libx.initialize(): " + er);
+}
+
+
+// show edition icon after config is loaded
+libx.events.addListener("EditionConfigurationLoaded",
+    {
+        onEditionConfigurationLoaded: function() {
+            chrome.browserAction.setIcon( {
+                path: libx.parseRemoteItem(libx.edition.options.icon)
+            } );
+        }
+    }
+);
+
+// load config if user has one set
+var configUrl = libx.localStorage.getItem('configUrl');
+if(configUrl)
+    libx.loadConfig(configUrl);
+
+</script>

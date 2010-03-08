@@ -1,0 +1,115 @@
+body {
+    font-family: Tahoma;
+    font-size: 12px;
+    
+    /* fix scrollbar bug */
+    overflow: hidden;
+}
+
+a {
+    color: #666;
+}
+
+a:hover {
+    color: #000;
+}
+
+#libxeditionsearch {
+    width: 500px;
+}
+
+#results {
+    border: 1px solid #666;
+    border-bottom: 0px;
+    font-size: 11px;
+    font-family: Tahoma;
+    padding: 0px;
+    display: none;
+    cursor: default;
+}
+
+#results div {
+    border-bottom: 1px solid #666;
+    padding: 3px;
+}
+
+div .selected {
+    background-color: #666;
+    color: #fff;
+}
+
+div .unselected {
+    background-color: #fff;
+    color: #666;
+}
+
+#edition_box > h1 {
+    font-size: 11px;
+}
+
+#edition_details {
+    border: 1px solid #eee;
+    font-size: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+#edition_details tr > td:first-child {
+    font-weight: bold;
+    vertical-align: top;
+    padding-right: 20px;
+}
+
+#edition_details > a {
+    float: right;
+}
+
+#edition_details ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#view1 {
+    height: 450px;
+    display: none;
+}
+
+#view2 {
+    display: none;
+}
+
+#view3_text {
+    min-width: 150px;
+    margin-bottom: 25px;
+}
+
+#search_form > table * {
+    margin: 0;
+}
+
+#catalogs, #search_options{
+    min-width: 100%;
+}
+
+#search_text {
+    width: 196px;
+}
+
+#cancel {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+}
+
+#search_form > input {
+    float: right;
+}
+
+.change_edition {
+    font-size: 11px;
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background-color: white;
+}
