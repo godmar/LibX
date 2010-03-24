@@ -48,6 +48,7 @@ var globalScripts = [
     "chrome://libx/content/core/global/shared/catalog/factory/talisprism.js",
     "chrome://libx/content/core/global/shared/catalog/factory/polaris.js",
     "chrome://libx/content/core/global/shared/catalog/factory/openurlresolver.js",
+    "chrome://libx/content/core/global/shared/catalog/factory/primo.js",
     "chrome://libx/content/core/global/shared/citeulike.js",
     "chrome://libx/content/core/global/shared/proxy.js",
     "chrome://libx/content/core/global/shared/proxy/factory/ezproxy.js",
