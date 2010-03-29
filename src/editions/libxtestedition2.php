@@ -31,7 +31,7 @@ include('readconfigxml.php');
 <script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/centralsearch.js"></script>
 <script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/openurlresolver.js"></script>
 <script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/web2.js"></script>
-<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/.js"></script>
+<script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/global/shared/catalog/factory/primo.js"></script>
 <script type="text/javascript" src="<? echo $libxbase ?>/chrome/libx/content/libx/core/window/shared/ui/magicsearch.js"></script>
 <script type="text/javascript">
 libxClientSideCatalogInit("<? echo $edition_config_xml; ?>");
