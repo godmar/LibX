@@ -19,11 +19,10 @@ var globalScripts = [
     "chrome://libx/content/core/global/shared/core.js",
     "chrome://libx/content/core/global/shared/libx.js",
     "chrome://libx/content/core/global/shared/log.js",
-    "chrome://libx/content/core/global/shared/io.js",
+    "chrome://libx/content/core/global/ff/io.js",
     "chrome://libx/content/core/global/shared/locale.js",
     "chrome://libx/content/core/global/shared/preferences.js",
     "chrome://libx/content/core/global/shared/cache/memorycache.js",
-    "chrome://libx/content/core/global/shared/locale.js",
     "chrome://libx/content/core/global/shared/config.js",
     "chrome://libx/content/core/global/shared/config/xmlconfigwrapper.js",
     "chrome://libx/content/core/global/shared/config/editionconfigurationreader.js",
@@ -62,7 +61,7 @@ var globalScripts = [
     "chrome://libx/content/core/global/ff/bootstrap.js",
     "chrome://libx/content/core/global/shared/cache/objectcache.js",
     "chrome://libx/content/core/global/ff/utils/browserprefs.js",
-    "chrome://libx/content/core/global/shared/utils/hash.js",
+    "chrome://libx/content/core/global/ff/utils/hash.js",
     "chrome://libx/content/core/global/shared/openurl.js",
     "chrome://libx/content/core/global/shared/utils/stdnumsupport.js",
     "chrome://libx/content/core/global/ff/utils/xpath.js",
@@ -70,6 +69,9 @@ var globalScripts = [
     "chrome://libx/content/core/global/shared/services/pubmed.js",
     "chrome://libx/content/core/global/shared/services/crossref.js",
     "chrome://libx/content/core/global/ff/libapp/sandbox.js",
+    "chrome://libx/content/core/global/shared/ui/jquery/autocomplete.js",
+    "chrome://libx/content/core/global/shared/ui/jquery/dropdown.js",
+    "chrome://libx/content/core/global/shared/ui/jquery/accordionmenu.js"
 ];
 
 for (var i = 0; i < globalScripts.length; i++) {
@@ -88,7 +90,10 @@ try {
 }
 
 try {
-    libx.loadConfig("chrome://libx/content/config.xml");
+    var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl',
+            "chrome://libx/content/config.xml");
+    libx.log.write('Loading config from ' + configUrl);
+    libx.loadConfig(configUrl);
 } catch (er) {
     log("Error in libx.loadConfig(): " + er);
 }

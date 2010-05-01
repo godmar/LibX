@@ -18,16 +18,12 @@ libx.ui.jquery.autocomplete = function ($, options)
     var acListCurrent = -1;
     var acDelay       = 500;
 
-    // initialize vars
-    var acSearchId  = "#" + options.field_id;
-    var acResultsId = "#" + options.results_id;
-
     // create the results div
-    $("body").append('<div id="' + options.results_id + '"></div>');
-
+    var acResultsDiv = $('<div class="results" />'); 
+    $("body").append(acResultsDiv);
+    
     // register mostly used vars
-    var acSearchField   = $(acSearchId);
-    var acResultsDiv    = $(acResultsId);
+    var acSearchField   = options.field;
 
     // clear auto complete box
     function clearAutoComplete()
@@ -56,7 +52,7 @@ libx.ui.jquery.autocomplete = function ($, options)
     }
     
     // on blur listener
-    acSearchField.blur(function(){ setTimeout(clearAutoComplete, 200) });
+    acSearchField.blur(function(){ libx.utils.timer.setTimeout(clearAutoComplete, 200) });
 
     // on key up listener
     acSearchField.keyup(function (e) {
@@ -66,7 +62,7 @@ libx.ui.jquery.autocomplete = function ($, options)
         var lastVal = acSearchField.val();
 
         // check an treat up and down arrows
-        if(enterKey(keyCode)){
+        if(enterKey(keyCode)) {
             return;
         }
         
@@ -82,7 +78,7 @@ libx.ui.jquery.autocomplete = function ($, options)
         }
 
         // if is text, call with delay
-        setTimeout(function () {autoComplete(lastVal)}, acDelay);
+        libx.utils.timer.setTimeout(function () {autoComplete(lastVal)}, acDelay);
     });
 
     // treat up and down key strokes defining the next selected element
@@ -142,6 +138,11 @@ libx.ui.jquery.autocomplete = function ($, options)
     // treat the auto-complete action (delayed function)
     function autoComplete(lastValue)
     {
+        
+        // if user hides search during delay time, don't show results
+        if(!acSearchField.is(':visible'))
+            return;
+        
         // get the field value
         var part = acSearchField.val();
 
@@ -183,7 +184,7 @@ libx.ui.jquery.autocomplete = function ($, options)
                 acResultsDiv.css("display", "block");
                 
                 // for all divs in results
-                var divs = $(acResultsId + " > div");
+                var divs = $("div", acResultsDiv);
             
                 // on mouse over set selection
                 divs.mouseover( function() {

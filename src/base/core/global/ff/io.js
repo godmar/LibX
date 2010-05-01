@@ -350,7 +350,7 @@ if (typeof(JSIO) != 'boolean') {
     /**
      *  Helper function for libx.io
      *    Returns file for given path
-     *    Creates folders alogn path if they dont exist if the second param is true
+     *    Creates folders along path if they don't exist if the second param is true
      *    @param {String} path of the file to retrieve
      *    @param {boolean} whether or not to create the directory/file
      */

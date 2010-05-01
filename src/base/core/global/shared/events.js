@@ -83,6 +83,21 @@ libx.events = {
     }),
 
     /**
+     * Registers an event listener, firing the listener immediately if
+     * necessary.
+     * @param {String}   eventName - name of event, say "load"
+     * @param {Object}   observer - must have oneventName method, e.g., "onload"
+     * @param {Function} shouldFireRightAway - the listener will be fired
+     *                   immediately if this function returns an event
+     */
+    registerEventListener : function(eventName, observer, shouldFireRightAway) {
+        libx.events.addListener(eventName, observer);
+        var event = shouldFireRightAway(eventName);
+        if (event != null)
+            observer["on" + eventName](event);
+    },
+    
+    /**
      * Add a listener for a given event
      * @param {String} eventName - name of event, say "load"
      * @param {Object} observer - must have oneventName method, e.g., "onload"

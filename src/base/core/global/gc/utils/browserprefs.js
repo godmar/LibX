@@ -23,21 +23,18 @@
  * ***** END LICENSE BLOCK ***** */
 
 (function () {
-
-	var prefs = libx.localStorage.getItem('prefs');
-	if(!prefs) {
-		prefs = {};
-		libx.localStorage.setItem('prefs', prefs);
-	}
 	
+    /* Get a preference from localstorage.  If it does not exist, return the
+     * default value. */
 	function getPref(prefName, defValue) {
-		if(typeof(prefs[prefName]) != 'undefined')
-			return prefs[prefName];
+	    var pref = localStorage[prefName];
+		if(typeof(pref) != 'undefined')
+			return pref;
 		return defValue;
 	}
 	
 	function setPref(prefName, value) {
-		prefs[prefName] = value;
+		localStorage[prefName] = value;
 	}
 	
     libx.core.Class.mixin(libx.utils.browserprefs, {
@@ -51,7 +48,7 @@
          * @return {Boolean} value of preference
          */
         getBoolPref : function ( prefName, defValue ) {
-    		return getPref(prefName, defValue);
+    		return getPref(prefName, defValue).toString() == 'true';
         },
 
         /**
@@ -75,7 +72,7 @@
          * @return {Number} value of preference
          */
         getIntPref : function ( prefName, defValue ) {
-        	return getPref(prefName, defValue);
+        	return parseInt(getPref(prefName, defValue));
         },
 
         /**
@@ -86,7 +83,7 @@
          * @param {Boolean} value - new value
          */
         setBoolPref : function ( prefName, value ) {
-			setPref(prefName, value);
+			setPref(prefName, Boolean(value));
         },
 
         /**
@@ -97,7 +94,7 @@
          * @param {String} value - new value
          */
         setStringPref : function ( prefName, value ) {
-        	setPref(prefName, value);
+        	setPref(prefName, String(value));
         },
 
         /**
@@ -108,7 +105,7 @@
          * @param {Number} value - new value
          */
         setIntPref : function ( prefName, value ) {
-        	setPref(prefName, value);
+        	setPref(prefName, parseInt(value));
         }
     });
 })();

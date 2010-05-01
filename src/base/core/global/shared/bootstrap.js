@@ -67,18 +67,18 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
 	var self = this;
         var runScriptActivity = {
             onready : function (metadata) {
-		var globalTargetScope = {
+        		var globalTargetScope = {
                     bootStrapper : { 
                         baseURL : scriptURL.match (/.*\//),
-			finish  : function () { 
-			    self.finish(); 
-			},
-			loadScript  : function (scriptURL) { 
-			    return self.loadScript(scriptURL, keepUpdated, globalTargetScope); 
-			}
+                        finish  : function () { 
+                            self.finish(); 
+                        },
+                        loadScript  : function (scriptURL) { 
+                            return self.loadScript(scriptURL, keepUpdated, globalTargetScope); 
+                        }
                     }
-		};
-		libx.core.Class.mixin(globalTargetScope, globalProperties, true);
+                };
+                libx.core.Class.mixin(globalTargetScope, globalProperties, true);
                 libx.bootstrap.loadSubScript(metadata, globalTargetScope);
             }
         };

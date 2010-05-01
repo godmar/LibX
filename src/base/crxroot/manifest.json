@@ -9,12 +9,13 @@
   "update_url": "http://top.cs.vt.edu/~gback/chrome/updates.xml",
   "browser_action": {
     "default_icon": "libx2-48.png",
-    "popup": "popup.html"
+    "popup": "popup/popup.html"
   },
   "permissions": [
     "tabs",
     "http://api.flickr.com/",
     "http://libx.org/"
-  ]
+  ],
+  "default_locale": "en"
 }
 

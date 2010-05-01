@@ -1,0 +1,148 @@
+body {
+    font-family: Tahoma;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+a {
+    color: #666;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: black;
+}
+
+#edition-search-input {
+    width: 100%;
+}
+
+.results {
+    border: 1px solid #666;
+    font-size: 11px;
+    font-family: Tahoma;
+    padding: 0px;
+    display: none;
+    cursor: default;
+    overflow: auto;
+}
+
+.results div {
+    border-top: 1px solid #666;
+    padding: 3px;
+}
+
+.results div:first-child {
+    border-top: 0;
+    padding: 3px;
+}
+
+.results .selected {
+    background-color: #666;
+    color: #fff;
+}
+
+.results .unselected {
+    background-color: #fff;
+    color: #666;
+}
+
+#edition-search-details {
+    border: 1px solid #eee;
+    font-size: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+#edition-search-details tr > td:first-child {
+    font-weight: bold;
+    vertical-align: top;
+    padding-right: 20px;
+}
+
+#edition-search-details > a {
+    float: right;
+}
+
+#edition-search-details ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#full-catalogs {
+    min-width: 100%;
+}
+
+.switch-display {
+    display: none;
+}
+
+#tabs {
+    border-spacing: 0;
+    width: 600px;
+}
+
+#content-pane {
+    border: 1px solid #35b;
+    padding: 10px;
+}
+
+#tab-pane {
+    width: 100px;
+    padding: 0;
+}
+
+#tabs .tab-item {
+    border: 1px solid #ccc;
+    border-right: 1px solid #35b;
+    padding: 5px;
+    margin-right: -1px;
+    background-color: #888;
+    cursor: pointer;
+    color: white;
+    white-space: nowrap;
+    margin-top: -1px;
+    z-index: 0;
+    position: relative;
+    color: #ddd;
+}
+
+#tabs .tab-item:hover {
+    border-left: 1px solid white;
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+    z-index: 1;
+    color: white;
+}
+
+#tabs #tab-pane .selected {
+    background-color: white;
+    border: 1px solid #35b;
+    border-right: 1px solid white;
+    color: black;
+    z-index: 2;
+}
+
+#edition-image-large {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+#edition-name-header {
+    font-size: 11px;
+    padding: 0 5px;
+    float: right;
+    margin-bottom: -9px;
+    margin-right: 8px;
+    font-weight: bold;
+    background-color: white;
+    display: block;
+}
+

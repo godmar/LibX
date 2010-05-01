@@ -48,7 +48,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         ]]>
     </script>
 	<script type="application/x-javascript" src="chrome://libx/content/core/window/shared/browser.js" />
-	<script type="application/x-javascript" src="chrome://libx/content/core/window/shared/ui.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/core/window/shared/ui/contextmenu.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/core/window/shared/ui/basiccontextmenudescriptor.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/core/window/ff/libx.js" />
 	<script type="application/x-javascript" src="chrome://libx/content/core/window/shared/citeulike/notificationicon.js" />
@@ -187,6 +187,73 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             </menupopup>
         </statusbarpanel>
     </statusbar>
+    
+    <script type="application/javascript" xmlns="http://www.w3.org/1999/xhtml">
+        <![CDATA[
+            
+            /*
+             * This code is a workaround to Firefox bug #385609:
+             * https://bugzilla.mozilla.org/show_bug.cgi?id=385609
+             *
+             * Alice0775 White posted this workaround at:
+             * https://bugzilla.mozilla.org/show_bug.cgi?id=561157#c4
+             *
+             * This code creates a dummy popup window, temporarily gives it focus,
+             * then focuses back on the LibX popup to resolve the focus bug.
+             */
+            window.addEventListener('load', function() {
+            
+                var windowObjectReference;
+                var panel = document.getElementById('libx-popup-panel');
+                
+                panel.addEventListener('popupshowing', function() {
+                    window.windowObjectReference =
+                        window.open("chrome://libx/content/popup/dummy.html",
+                            "dummy",
+                            "left=-10000,resizable=no,scrollbars=no,status=no,chrome=yes,dialog=yes,minimizable=no");
+                    setTimeout(function(self){
+                        document.getElementById("libx-popup-panel").focus();
+                        document.getElementById("libx-popup-iframe").contentWindow.focus();
+                    }, 0, this);
+                }, false);
+                
+                panel.addEventListener('popuphidden', function() {
+                    window.windowObjectReference.focus();
+                    setTimeout(function(self) {
+                        window.windowObjectReference.close();
+                    }, 0, this);
+                    
+                    // reset iframe URL to imitate Google Chrome functionality
+                    document.getElementById('libx-popup-iframe').contentWindow.location =
+                        'chrome://libx/content/popup/popup.html';
+                }, false);
+                
+                /* Hide popup panel if user clicks outside div */
+                panel.addEventListener('click', function(e) {
+                    if(e.target.tagName == 'HTML') {
+                        document.getElementById('libx-popup-panel').hidePopup();
+                    }
+                }, false);
+                
+            }, false);
+            
+        ]]>
+    </script>
+    
+    <toolbaritem id="urlbar-container">
+        <toolbarbutton id="libx-button" insertafter="urlbar-search-splitter" 
+            image="&libx.image;"
+            popup="libx-popup-panel"
+        />
+    </toolbaritem>
+    
+    <popupset>
+        <panel id="libx-popup-panel" style="background-color: transparent; border: 0;">
+            <iframe style="background-color: transparent;" width="650" height="700"
+                id="libx-popup-iframe" src="chrome://libx/content/popup/popup.html"/>
+        </panel>
+    </popupset>
+    
 </overlay>
 
 <!-- 

@@ -1,10 +1,8 @@
 
-<script src="jquery.js"></script>
-
 <script src="core/global/shared/core.js"></script>
-<script src="libx.js"></script>
+<script src="core/global/shared/libx.js"></script>
 <script src="core/global/shared/log.js"></script>
-<!-- <script src="core/global/shared/io.js"></script> -->
+<script src="core/global/gc/io.js"></script>
 <script src="core/global/shared/locale.js"></script>
 <script src="core/global/shared/preferences.js"></script>
 <script src="core/global/shared/cache/memorycache.js"></script>
@@ -12,7 +10,7 @@
 <script src="core/global/shared/config/xmlconfigwrapper.js"></script>
 <script src="core/global/shared/config/editionconfigurationreader.js"></script>
 <script src="core/global/shared/events.js"></script>
-<!-- <script src="core/global/shared/utils/json.js"></script> -->
+<script src="core/global/shared/utils/json.js"></script> 
 <script src="core/global/shared/catalog.js"></script>
 <script src="core/global/shared/catalog/catalog.js"></script>
 <script src="core/global/shared/catalog/factory/bookmarklet.js"></script>
@@ -37,16 +35,15 @@
 <script src="core/global/shared/proxy/factory/ezproxy.js"></script>
 <script src="core/global/shared/proxy/factory/wam.js"></script>
 <script src="core/global/shared/bootstrap.js"></script>
-<script src="core/global/gc/libx.js"></script>
 <script src="core/global/gc/log.js"></script>
 <script src="core/global/gc/cache.js"></script>
-<!-- <script src="core/global/ff/utils/timer.js"></script> -->
-<!-- <script src="core/global/ff/utils/xml.js"></script> -->
-<!-- <script src="core/global/ff/locale.js"></script> -->
+<script src="core/global/gc/utils/timer.js"></script>
+<script src="core/global/gc/utils/xml.js"></script>
+<script src="core/global/gc/locale.js"></script>
 <script src="core/global/gc/bootstrap.js"></script>
-<!-- <script src="core/global/shared/cache/objectcache.js"></script> -->
+<script src="core/global/shared/cache/objectcache.js"></script>
 <script src="core/global/gc/utils/browserprefs.js"></script>
-<!-- <script src="core/global/shared/utils/hash.js"></script> -->
+<script src="core/global/gc/utils/hash.js"></script>
 <script src="core/global/shared/openurl.js"></script>
 <!-- <script src="core/global/shared/utils/stdnumsupport.js"></script> -->
 <script src="core/global/gc/utils/xpath.js"></script>
@@ -54,19 +51,12 @@
 <!-- <script src="core/global/shared/services/pubmed.js"></script> -->
 <!-- <script src="core/global/shared/services/crossref.js"></script> -->
 <!-- <script src="core/global/ff/libapp/sandbox.js"></script> -->
-<script src="core/global/shared/ui/jquery/autocomplete/autocomplete.js"></script>
+<script src="core/global/gc/ui.js"></script>
+<script src="core/global/shared/ui/jquery/autocomplete.js"></script>
+<script src="core/global/shared/ui/jquery/dropdown.js"></script>
+<script src="core/global/shared/ui/jquery/accordionmenu.js"></script>
 
 <script>
-
-/*
- * BRN: temporary function to grab all files remotely
- * until local file storage is implemented.
- */
-libx.parseRemoteItem = function(item) {
-    var base = libx.localStorage.getItem('configUrl').replace('/config.xml', '');
-    
-    return base + item.replace('chrome://libx/skin', '');
-};
 
 try {
     libx.initialize();
@@ -76,18 +66,18 @@ try {
 
 
 // show edition icon after config is loaded
-libx.events.addListener("EditionConfigurationLoaded",
-    {
-        onEditionConfigurationLoaded: function() {
-            chrome.browserAction.setIcon( {
-                path: libx.parseRemoteItem(libx.edition.options.icon)
-            } );
-        }
+libx.events.addListener("EditionConfigurationLoaded", {
+    onEditionConfigurationLoaded: function() {
+        // get icon remotely. temporary implementation until caching in
+        // localstorage is implemented.
+        var iconUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)
+            .replace('/config.xml', '') + libx.edition.options.icon.replace('chrome://libx/skin', '');
+        chrome.browserAction.setIcon( { path: iconUrl } );
     }
-);
+});
 
 // load config if user has one set
-var configUrl = libx.localStorage.getItem('configUrl');
+var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
 if(configUrl)
     libx.loadConfig(configUrl);
 

@@ -420,14 +420,16 @@ if (-d $tmpdir) {
     system("/bin/rm -r $tmpdir") == 0 or die "$!: cannot rm " . $tmpdir . " in " . `pwd` . " running as " . `id`;
 }
 
-my @files = split(/\s+/, `find ../base | grep -v ../base/core | grep -v /CVS`);
+my @files = split(/\s+/, `find ../base | grep -v ../base/core | grep -v ../base/popup | grep -v /CVS`);
 # append ../base/core to the end so that the necessary directory structure exists
 push(@files, split(/\s+/, `find ../base/core | grep -v /CVS`));
+push(@files, split(/\s+/, `find ../base/popup | grep -v /CVS`));
 
 foreach my $src (@files) {
     my $dst = $src;
     $dst =~ s/..\/base\/xpiroot\//..\/base\//;
     $dst =~ s/..\/base\/core/..\/base\/chrome\/libx\/content\/libx\/core/;
+    $dst =~ s/..\/base\/popup/..\/base\/chrome\/libx\/content\/libx\/popup/;
     $dst =~ s/..\/base/$tmpdir/;
     if (-d $src) {
         # recreate directory

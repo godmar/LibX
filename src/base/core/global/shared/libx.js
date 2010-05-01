@@ -59,6 +59,16 @@ libx.cache = { };
 
 /**
  * @namespace
+ * Support for the user interface.
+ * 
+ * This namespace is global.
+ */
+libx.ui = {
+    jquery : {}
+};
+
+/**
+ * @namespace
  * Utility namespaces
  *
  * This namespace is global.

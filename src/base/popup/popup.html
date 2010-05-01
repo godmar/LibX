@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../getlibx.js"></script>
+    <link rel="stylesheet" href="popup.css" type="text/css" media="screen"></link>
+    <script src="jquery.js"></script>
+    <link rel="stylesheet" href="accordion.css" type="text/css" media="screen"></link>
+    <script src="popup.js"></script>
+</head>
+
+<body>
+
+<div id="full-view">
+    <table id="tabs">
+        <tr>
+            <td></td>
+            <td>
+                <span id="edition-name-header"></span>
+            </td>
+        </tr>
+        <tr>
+            <td id="tab-pane" valign="top">
+                <div><img id="edition-image-large" /></div>
+                <div class="tab-item" id="search-tab">Search</div>
+                <div class="tab-item" id="links-tab">Links</div>
+                <div class="tab-item" id="about-tab">About</div>
+                <div style="padding: 5px" id="change-edition-tab"><a href="#" id="change-edition">Change Edition</a></div>
+            </td>
+            <td id="content-pane" valign="top">
+            
+                <!-- search view -->
+                <div class="tab-content" id="search-view" style="width: 100%">
+                    <form id="full-search-form" style="width: 100%">
+                        <div style="width: 100%">
+                            <div style="width: 100%; float: left">
+                                <div style="font-weight: bold; font-size: 15px; padding-bottom: 8px;">Search <span id="full-catalogs"></span> for...</div>
+                                <div style="width: 100%;">
+                                    <table cellspacing="0" cellpadding="0" style="width: 100%" id="full-search-fields"></table>
+                                </div>
+                                <input style="float: right; width: 80px; padding: 5px;" type="submit" value="Search"></input>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            
+                <!-- links view -->
+                <div class="tab-content" id="links-view">
+                    <ul id="links" style="font-size: 15px;"></ul>
+                </div>
+            
+                <!-- about view -->
+                <div class="tab-content" id="about-view">
+                    <div style="text-align: center">
+                        <div style="font-weight: bold; font-size: 20px;" id="about-name"></div>
+                        <hr style="width: 50%; border: 0; border-top: 1px solid black;" />
+                        <div style="font-size: 15px;" id="about-desc"></div>
+                        <div><i>Adapted by: <span id="about-adaptedby"></span></i></div>
+                    </div>
+                </div>
+                
+                <!-- edition selection view -->
+                <div class="tab-content" id="change-edition-view" style="min-height: 350px">
+                    Select a LibX edition:
+                    <input type="text" id="edition-search-input"></input>
+                    <div id="edition-search-details">
+                        <table>
+                            <tr>
+                                <td>Edition:</td>
+                                <td id="edition-search-name"></td>
+                            </tr>
+                            <tr>
+                                <td>Maintainers:</td>
+                                <td><ul id="edition-search-maintainers"></ul></td>
+                            </tr>
+                            <tr>
+                                <td>Revision:</td>
+                                <td><select id="edition-search-revisions"></select></td>
+                            </tr>
+                        </table>
+                        <a id="edition-search-load" href="javascript: void(0);">Load edition</a>
+                    </div>
+                </div>
+                
+                <!-- error view -->
+                <div class="tab-content" id="error-view">
+                    Could not load configuration from <span id="error-url"></span>.
+                    <p><a href="#" id="error-change-edition">Change edition</a></p>
+                </div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <span style="font-size: 10px; float: right; background-color: white; display: block;"><a href="#" class="switch-display">Simple view</a></span>
+            </td>
+        </tr>
+    </table>
+</div>
+    
+<div id="simple-view" style="display: none">
+    <form id="simple-search-form">
+        <input style="width: 98%; margin: 0;"></input>
+        <ul id="simple-menu" class="menu collapsible"> 
+            <li id="simple-menu-catalogs" /> 
+            <li id="simple-menu-options" /> 
+        </ul> 
+        <a href="#" style="font-size: 10px; float: right; padding: 3px;" class="switch-display">Full view</a>
+    </form>
+</div>
+
+</body>
+
+</html>
+

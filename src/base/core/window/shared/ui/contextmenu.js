@@ -23,13 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
  
- 
-/**
- * Namespace for Browser abstractions
- * @namespace
- */
-libx.ui = { };
- 
 libx.ui.ContextMenu = ( function () 
 { 
 
