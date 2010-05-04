@@ -315,9 +315,6 @@ $(function() {
     
     // automatically reload the page if edition changes
     libx.events.addListener("EditionConfigurationLoaded",
-        {
-            onEditionConfigurationLoaded: showInitialView
-        }, undefined, 'popup'
-    );
+        { onEditionConfigurationLoaded: showInitialView });
     
 });

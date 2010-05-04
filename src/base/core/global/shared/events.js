@@ -111,10 +111,13 @@ libx.events = {
         if (handlers == undefined)
             handlers = handlerMap[eventName] = [ ];
 
-        for (var i = 0; i < handlers.length; i++) {
-            if (handlers[i].id == observerId && handlers[i].window == observerWindow) {
-                handlers.splice(i, 1);
-                break;
+        if(observerId != undefined) {
+            for (var i = 0; i < handlers.length; i++) {
+                libx.log.write('obsID=' + observerId);
+                if (handlers[i].id == observerId && handlers[i].window == observerWindow) {
+                    handlers.splice(i, 1);
+                    break;
+                }
             }
         }
         handlerMap[eventName].push({ handler : observer, window: observerWindow, id : observerId });

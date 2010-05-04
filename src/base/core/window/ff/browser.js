@@ -64,23 +64,39 @@ var browser =
 
             for (var i = 0; i < bootWindowUrls.length; i++)
                 windowBootStrapper.loadScript(bootWindowUrls[i].url, true, {
-		    libx: libx,
-		    window: window,
-		});
+                    libx: libx,
+                    window: window,
+                });
+            
+            /* Get icon remotely. Temporary implementation until IO is
+             * implemented and icon is stored locally. */
+            var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
+            if(configUrl != null) {
+                var iconUrl = configUrl.replace('/config.xml', '')
+                    + edition.options.icon.replace('chrome://libx/skin', '');
+                libx.log.write('Loaded config ' + configUrl);
+                libx.log.write('Loaded icon ' + iconUrl);
+                document.getElementById('libx-button').image = iconUrl;
+            }
+            
         }
 
-        /* The loading of the global libx's edition may have completed 
-         * after we cloned the libx object.
-         */
-        if (libx.global.edition != null) {
-            activateConfiguration(libx.global.edition);
-        } else {
-            libx.events.addListener("EditionConfigurationLoaded", {
-                onEditionConfigurationLoaded: function (event) {
-                    activateConfiguration(event.edition);
-                }
-            });
-        }
+        /* Register listener with immediate fire function in case the global
+         * libx edition loaded after we cloned the libx object. */        
+        libx.events.registerEventListener("EditionConfigurationLoaded", {
+            onEditionConfigurationLoaded: function (event) {
+                libx.log.write("Config loaded!");
+                activateConfiguration(event.edition);
+            }
+        }, function (eventType) {
+            var e = null;
+            if (libx.global.edition != null) {
+                libx.log.write("Creating event!");
+                e = new libx.events.Event(eventType);
+                e.edition = libx.global.edition;
+            }
+            return e;
+        });
 	}
 };
 
