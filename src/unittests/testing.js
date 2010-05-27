@@ -334,6 +334,9 @@ return /** @lends libx.testing */ {
             if (expect) cur_test.timeout = true;
             cur_test.thread.sleep(timeout * 1000);
         },
+        /**
+         * expect is a flag that means 'expect failure'
+         */
         WAIT_FOR_CONDITION : function (func, timeout, expect, msg) {
             if (expect) cur_test.timeout = true;
             var ticks = Math.floor((timeout * 1000) / 500);
