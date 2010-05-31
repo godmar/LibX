@@ -3,6 +3,7 @@
  */
 libx.testing = (function () {
 
+var record = false;
 var logging = true; // this can be safely changed according to your preferences
 var all_tests = new Array();
 var main_thread = null;
@@ -58,7 +59,7 @@ var UnitTestEnv = libx.core.Class.create({
 
         // refine logging function so that the test framework can 
         // validate unit test output
-        libx.log.write = function (msg) {
+        libx.testing.record = function (msg) {
             cur_test.output += msg;
             env.log(msg);
         }
@@ -229,6 +230,14 @@ var UnitTestEnv = libx.core.Class.create({
 
 // Testing API
 return /** @lends libx.testing */ {
+
+    /**
+     * Specifiy whether to record test output in text files. This flag can be 
+     * set by the launcher, or manually.
+     */
+    recording : function (flag) {
+        record = flag;
+    },
     
     /**
      * default timeout, in seconds, for test functions who don't specify a timeout value
@@ -240,7 +249,9 @@ return /** @lends libx.testing */ {
      */
     methods : {
         ASSERT_TRUE : function (a, msg) {
-            var result = (a == true);
+            var result;
+            if (a === undefined || a == null) result = false;
+            else result = (a == true);
             cur_test.asserts.push({
                 "type"  : "ASSERT_TRUE",
                 "result": result,
@@ -249,7 +260,9 @@ return /** @lends libx.testing */ {
             return result;
         },
         ASSERT_FALSE : function (a, msg) {
-            var result = (a == false);
+            var result;
+            if (a === undefined || a == null) result = false;
+            else result = (a == false);
             cur_test.asserts.push({
                 "type"  : "ASSERT_FALSE",
                 "result": result,
@@ -258,7 +271,9 @@ return /** @lends libx.testing */ {
             return result;
         },
         ASSERT_EQUAL : function (a, b, msg) {
-            var result = (a == b);
+            var result;
+            if (a === undefined || a == null) result = false;
+            result = (a == b);
             cur_test.asserts.push({
                 "type"  : "ASSERT_EQUAL",
                 "result": result,
@@ -267,7 +282,9 @@ return /** @lends libx.testing */ {
             return result;
         },
         ASSERT_NOT_EQUAL : function (a, b, msg) {
-            var result = (a != b);
+            var result;
+            if (a === undefined || a == null) result = false;
+            else result = (a != b);
             cur_test.asserts.push({
                 "type"  : "ASSERT_NOT_EQUAL",
                 "result": result,
@@ -276,7 +293,9 @@ return /** @lends libx.testing */ {
             return result;
         },
         ASSERT_NOT_IDENTICAL : function (a, b, msg) {
-            var result = (a !== b);
+            var result;
+            if (a === undefined || a == null) result = false;
+            else result = (a !== b);
             cur_test.asserts.push({
                 type  : "ASSERT_NOT_IDENTICAL",
                 result: result,
@@ -285,7 +304,9 @@ return /** @lends libx.testing */ {
             return result;
         },
         ASSERT_IDENTICAL : function (a, b, msg) {
-            var result = (a === b);
+            var result;
+            if (a === undefined || a == null) result = false;
+            else result = (a === b);
             cur_test.asserts.push({
                 type  : "ASSERT_IDENTICAL",
                 result: result,
@@ -294,7 +315,9 @@ return /** @lends libx.testing */ {
             return result;
         },
         ASSERT_REGEXP_MATCHES : function (a, b, expect, msg) {
-            var result = (new RegExp(a)).test(b);
+            var result;
+            if (a === undefined || a == null) result = false;
+            else result = (a.test(b));
             cur_test.asserts.push({
                 type  : "ASSERT_REGEXP_MATCHES",
                 result: result || expect,
@@ -302,18 +325,31 @@ return /** @lends libx.testing */ {
             });
             return result;
         },
-        ASSERT_OUTPUT : function (file, logdiff, expect, msg) {
-            var valid  = readFile(file);
-            var result = (cur_test.output + "\n\n" == valid) || expect;
+        ASSERT_OUTPUT_MATCHES : function (file, logdiff, expect, msg) {
+            if (record) {
+                try {
+                    var fstream = new java.io.FileWriter("tests/output/"+ file);
+                    var tofile = new java.io.BufferedWriter(fstream);
+                    tofile.write(cur_test.output);   
+                    tofile.close();
+                    print("\nRecorded test output to file: "+ "test/output/"+ file);
+                }
+                catch (ex) {
+                    print(ex.toString());
+                }
+            }
+            var valid  = readFile("tests/output/"+ file);
+            var result = (cur_test.output == valid) || expect;
+            if (result === undefined || result == null | valid === undefined || valid == null)
+                result = false;
             cur_test.asserts.push({
-                type  : "ASSERT_OUTPUT",
+                type  : "ASSERT_OUTPUT_MATCHES",
                 result: result,
-                msg   : (msg === undefined) ? "Output does not match text in file '"+ file +"'" : msg
+                msg   : (msg === undefined) ? "Output does not match text in file 'tests/output/"+ file +"'" : msg
             });
             if (logdiff && !result) {
                 var opt = { input: cur_test.output + "\n", output: "diff -u:" };
-                runCommand("diff", "-u", file, "-", opt);
-                print(opt.output);
+                runCommand("diff", "-u", "tests/output/"+ file, "-", opt);
             }
         },
         /**
@@ -439,98 +475,6 @@ return /** @lends libx.testing */ {
         testobj.runAllTests();
         testobj.printResults();
         quit();
-    },
-    /**
-     * prepare unit tests which test the operation of the testing framework
-     */
-    unittests : function () {   // UNITTESTS
-        libx.testing.createUnitTestSuite({
-            name: "test framework", 
-            setup: function () { return 10; }
-        });
-
-        libx.testing.addUnitTest({
-            suiteName:  "test framework",
-            funcName:   "testing the setup() function return feature",
-            testFunction: function (setup) {
-                libx.testing.methods.ASSERT_EQUAL(setup, 10);
-            }
-        });
-        libx.testing.addUnitTest({
-            suiteName:  "test framework",
-            funcName:   "testing wait_for_condition statement (1)",
-            testFunction: function () {
-                print("this test should fail, because the condition will not be met\n");
-                libx.testing.methods.WAIT_FOR_CONDITION(
-                    (function () { return false; })(), 2, true
-                );
-            }
-        });
-        libx.testing.addUnitTest({
-            suiteName:  "test framework",
-            funcName:   "testing wait_for_condition statement (2)",
-            testFunction: function () {
-                this.print("this test should pass, because the condition should be met immediately\n");
-                libx.testing.methods.WAIT_FOR_CONDITION(
-                    (function () { return true; })(), 1
-                );
-            }
-        });
-        libx.testing.addUnitTest({
-            suiteName:  "test framework", 
-            funcName:   "testing timeout interval and WAIT (1)",
-            timeout:    2,
-            testFunction:       function () {
-                this.print ("waiting 3 sec -- should timeout and fail\n");
-                libx.testing.methods.WAIT(3, true);
-                this.print ("we didn't timeout.\n");
-            }
-        });
-        libx.testing.addUnitTest({
-            suiteName:  "test framework", 
-            funcName:   "testing timeout interval and WAIT (2)",
-            timeout:    2,
-            testFunction: function () {
-                this.print ("waiting 1 sec -- should not timeout\n");
-                libx.testing.methods.WAIT(1);
-                this.print ("we didn't timeout.\n");
-            }
-        });
-        libx.testing.addUnitTest({
-            suiteName:  "test framework",
-            funcName:   "testing output validation",
-            testFunction: function () {
-                libx.log.write("hello\n");
-                libx.log.write("i'm testing the output validation feature");
-                libx.log.write("\n12345");
-                libx.testing.methods.ASSERT_OUTPUT (".output_test.txt", true);
-            }
-        });
-        libx.testing.addUnitTest({
-            suiteName:  "test framework",
-            funcName:   "test assert statements",
-            testFunction: function () {
-                libx.testing.methods.ASSERT_TRUE(1);
-                libx.testing.methods.ASSERT_TRUE(1 == 1);
-
-                libx.testing.methods.ASSERT_FALSE(0);
-                libx.testing.methods.ASSERT_FALSE(2 + 2 == 5);
-
-                libx.testing.methods.ASSERT_EQUAL("abc", "abc");
-                libx.testing.methods.ASSERT_EQUAL(true, true);
-                libx.testing.methods.ASSERT_EQUAL(3.1415926535, 3.1415926535);
-
-                libx.testing.methods.ASSERT_NOT_EQUAL(3.1415926535, 3.141592653);
-                libx.testing.methods.ASSERT_NOT_EQUAL(true, false);
-
-                libx.testing.methods.ASSERT_IDENTICAL(3.1415926535, 3.1415926535);
-                libx.testing.methods.ASSERT_IDENTICAL("", "");
-
-                libx.testing.methods.ASSERT_NOT_IDENTICAL("", true);
-
-                libx.testing.methods.ASSERT_REGEXP_MATCHES("(a+)(b+)", "aabbb");
-            }
-        });
     }
 }
 })(); // end libx.testing

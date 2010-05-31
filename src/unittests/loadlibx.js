@@ -270,4 +270,3 @@ var libxscripts2 = [
 ];
 
 loadScript(libxscripts2);
-load ("testing.js");

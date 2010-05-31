@@ -6,15 +6,15 @@ I.	Setup
 II. Invocation
 
     Run all tests:
-        ./runtests.sh rununittests.js
+        ./runtest.sh rununittests.js
 
     Run individual test:
-        ./runtests.sh <sometest.js>
+        ./runtest.sh <sometest.js>
 
 III. Notes
     
-    1. An example test suite can be found in testing.js, at the bottom. Search
-        for UNITTESTS.
+    1. Unit Test output can be recorded by adding "-r" to the end of the
+        ./runtest invocation. These outputs are stored in tests/output/
 
     2. Do not add 'libx.testing.runAllUnitTests()' at the end of your unittest
         source files; the launch script does this.
@@ -51,11 +51,12 @@ III. Notes
 
     6. Logging is enabled by default; each run will produce a file called 
         testlog_<timestamp>.txt. Logging can be disabled by setting the
-        'logging' variable in testing.js to false.
+        'logging' variable in testing.js to false. The files can be cleaned up
+        by running './runtest.sh --clearlogs'
 
     7. Unit test output validation can be done using the function
         libx.testing.methods.ASSERT_OUTPUT(FILENAME). All text printed using
-        the libx.log.write(str) function during the execution of the unit test
+        the libx.testing.record(str) function during the execution of the unit test
         will be compared. 
         ***Note: make sure to add a newline at the end of each text file.
 
