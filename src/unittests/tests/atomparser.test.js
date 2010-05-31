@@ -18,11 +18,12 @@
             var atomParser = new libx.libapp.PackageWalker(rootPackage);
             var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {
                 onpackage: function (pkg) {
-                    //println("pkg: " + libx.utils.types.dumpObject(pkg));
+                    println("pkg: " + libx.utils.types.dumpObject(pkg));
                    // println("  " + libx.utils.types.dumpObject(pkg.entries[0]));
                     this.parent(pkg);
                 },
                 onlibapp: function (libapp) {
+                    println("libapp: " + libx.utils.types.dumpObject(libapp));
                     //println("args: "+ libx.utils.types.dumpObject(libapp.args));
                     /*
                     if (libapp.description == "Libx2 param passing test app")
@@ -35,6 +36,7 @@
                 },
                 onmodule: function (module) {
                     if (module.description == "test parameter passing") {
+                        println("module: "+ module);
                         /*
                         if (module.args.x)
                             libx.testing.methods.ASSERT_EQUAL(

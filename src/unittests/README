@@ -6,10 +6,10 @@ I.	Setup
 II. Invocation
 
     Run all tests:
-        ./runtest.sh rununittests.js
+        ./runtest.sh --all
 
     Run individual test:
-        ./runtest.sh <sometest.js>
+        './runtest.sh <sometest>' will load the file 'tests/sometest.test.js'
 
 III. Notes
     
@@ -64,3 +64,4 @@ III. Notes
         to fail, add an extra boolean arg to your function call, e.g.
         ASSERT_OUTPUT("output.txt", true). Functions that already have inverses
         do not support this and will ignore the argument if you pass it.
+        ***Note: At this time, (05/2010), this feature is tested minimally
