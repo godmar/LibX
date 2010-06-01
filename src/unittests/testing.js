@@ -232,7 +232,7 @@ var UnitTestEnv = libx.core.Class.create({
 return /** @lends libx.testing */ {
 
     /**
-     * Specifiy whether to record test output in text files. This flag can be 
+     * Specify whether to record test output in text files. This flag can be 
      * set by the launcher, or manually.
      */
     recording : function (flag) {
@@ -267,6 +267,15 @@ return /** @lends libx.testing */ {
                 "type"  : "ASSERT_FALSE",
                 "result": result,
                 "msg"   : (msg === undefined) ? a +" != false" : msg
+            });
+            return result;
+        },
+        ASSERT_UNDEFINED : function (a, msg) {
+            var result = a === undefined;
+            cur_test.asserts.push({
+                "type"  : "ASSERT_UNDEFINED",
+                "result": result,
+                "msg"   : (msg === undefined) ? a +" not undefined" : msg
             });
             return result;
         },
