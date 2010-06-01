@@ -31,5 +31,5 @@ fi
 # rhino is invoked first and then load('loadlibx.js') is called, then env.js
 # works.
 
-echo "print('Loading environment, one moment...');load('loadlibx.js');${LOADTESTS}${SETFLAGS}libx.testing.runAllUnitTests();" \
+echo "print('Loading environment, one moment...');load('loadlibx.js');load('testing.js');${LOADTESTS}${SETFLAGS}libx.testing.runAllUnitTests();" \
     | java -classpath .:$CLASSPATH: org.mozilla.javascript.tools.shell.Main
