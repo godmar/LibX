@@ -11,7 +11,7 @@
 
     suite.addUnitTest("testing wait_for_condition statement (1)",
         function () {
-            print("this test should fail, because the condition will not be met\n");
+            this.log("this test should fail, because the condition will not be met\n");
             this.WAIT_FOR_CONDITION(
                 (function () { return false; })(), 2, true
             );
@@ -20,7 +20,7 @@
 
     suite.addUnitTest("testing wait_for_condition statement (2)",
         function () {
-            this.print("this test should pass, because the condition should be met immediately\n");
+            this.log("this test should pass, because the condition should be met immediately\n");
             this.WAIT_FOR_CONDITION(
                 (function () { return true; })(), 1
             );
@@ -29,30 +29,28 @@
 
     suite.addUnitTest("testing timeout interval and WAIT (1)",
         function () {
-            this.print ("waiting 3 sec -- should timeout and fail\n");
+            this.log ("waiting 3 sec -- should timeout and fail\n");
             this.WAIT(3, true);
-            this.print ("we didn't timeout.\n");
+            this.log ("we didn't timeout.\n");
         },
         { timeout:    2 }
     );
 
     suite.addUnitTest("testing timeout interval and WAIT (2)",
         function () {
-            this.print ("waiting 1 sec -- should not timeout\n");
+            this.log ("waiting 1 sec -- should not timeout\n");
             this.WAIT(1);
-            this.print ("we didn't timeout.\n");
+            this.log ("we didn't timeout.\n");
         },
         { timeout:    2 }
     );
 
     suite.addUnitTest("testing output validation",
         function () {
-            libx.testing.record("hello\n");
-            libx.testing.record("i'm testing the output validation feature");
-            libx.testing.record("\n12345");
-            this.ASSERT_OUTPUT_MATCHES(
-                "unittestframework_outputtest.txt"
-            );
+            this.log("hello\n");
+            this.log("i'm testing the output validation feature");
+            this.log("\n12345");
+            this.ASSERT_OUTPUT_MATCHES();
         }
     );
 

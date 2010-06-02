@@ -3,8 +3,8 @@
  */
 libx.testing = (function () {
 
-var record = false;
-var logging = true; // this can be safely changed according to your preferences
+var recordingMode = false;
+var dumpLogAtEnd = false; // this can be safely changed according to your preferences
 
 var Test = libx.core.Class.create({
     initialize : function (funcName, testFunction, options) {
@@ -20,11 +20,18 @@ var Test = libx.core.Class.create({
         this.timeoutValue = options != null && options.timeout || libx.testing.defaulttimeout;
     },
     /**
+     * Log output to console.  
+     * Such output can be recorded, and tested against earlier output.
+     */
+    log : function (msg) {
+        this.output += msg;
+    },
+    /**
      * Runs and evaluates a single test. Can be called by a launcher, or
      * by runAllTestsInSuite
      */
     runTest : function (testsuite, env) {
-        env.output = "";    // save current tests's output
+        this.output = "";    // save current tests's output
         this.timeout = false;
         var threadGroup = this.runFunctionAsThread(testsuite, env);
         var thisThread = java.lang.Thread.currentThread();
@@ -82,8 +89,8 @@ var Test = libx.core.Class.create({
                 java.lang.Thread.currentThread().yield();
             }
             try {
-                self._env = env;    // for internal use in ASSERT_OUTPUT_MATCHES
                 self.testFunction('setup' in testsuite ? testsuite.setup() : undefined);
+                env.log(this.output);
                 //print("thread released lock\n");
                 self.lock = false;
             }
@@ -197,22 +204,22 @@ var Test = libx.core.Class.create({
         });
         return result;
     },
-    ASSERT_OUTPUT_MATCHES : function (file, logdiff, expect, msg) {
-        var env = this._env;
-        if (record) {
+    ASSERT_OUTPUT_MATCHES : function (logdiff, expect, msg) {
+        var file = encodeURIComponent(this.funcName) + ".expected";
+        if (recordingMode) {
             try {
                 var fstream = new java.io.FileWriter("tests/output/"+ file);
                 var tofile = new java.io.BufferedWriter(fstream);
-                tofile.write(env.output);
+                tofile.write(this.output);
                 tofile.close();
-                print("\nRecorded test output to file: "+ "test/output/"+ file);
+                this.log("\nRecorded test output to file: "+ "test/output/"+ file);
             }
             catch (ex) {
-                print(ex.toString());
+                this.log(ex.toString());
             }
         }
         var valid  = readFile("tests/output/"+ file);
-        var result = (env.output == valid) || expect;
+        var result = (this.output == valid) || expect;
         if (result === undefined || result == null | valid === undefined || valid == null)
             result = false;
         this.asserts.push({
@@ -221,7 +228,7 @@ var Test = libx.core.Class.create({
             msg   : (msg === undefined) ? "Output does not match text in file 'tests/output/"+ file +"'" : msg
         });
         if (logdiff && !result) {
-            var opt = { input: env.output + "\n", output: "diff -u:" };
+            var opt = { input: this.output + "\n", output: "diff -u:" };
             runCommand("diff", "-u", "tests/output/"+ file, "-", opt);
         }
     },
@@ -378,12 +385,6 @@ var UnitTestEnv = libx.core.Class.create({
 
         // refine logging function so that the test framework can 
         // validate unit test output
-        var env = this;
-        libx.testing.record = function (msg) {
-            env.output += msg;
-            env.log(msg);
-        }
-
         this.log("\n");
         this.log("LibX Unit Tests\n");
         this.log("------------------------------");
@@ -417,7 +418,7 @@ var UnitTestEnv = libx.core.Class.create({
         this.log("Failures:  "+ failures.length +"\n");
 
         this.log("\n");
-        if (logging) this.dumpLog();
+        if (dumpLogAtEnd) this.dumpLog();
     },
     /**
      * @private
@@ -438,6 +439,14 @@ var UnitTestEnv = libx.core.Class.create({
 return /** @lends libx.testing */ {
     testsuites  : { },   // map test suite name to test suite
 
+    /**
+     * Specify whether to record test output in text files. This flag can be 
+     * set by the launcher, or manually.
+     */
+    setRecordingMode : function (_recordingMode) {
+        recordingMode = _recordingMode;
+    },
+    
     /**
      * default timeout, in seconds, for test functions who don't specify a timeout value
      */

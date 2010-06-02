@@ -22,7 +22,7 @@ else
 fi
 
 if [ "x$2" = "x-r" ]; then
-    SETFLAGS="libx.testing.recording(true);"
+    SETFLAGS="libx.testing.setRecordingMode(true);"
 fi
 
 
