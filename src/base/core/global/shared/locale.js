@@ -29,16 +29,16 @@
  */
 libx.locale = ( function () { 
 
-var DEFAULT_PROPERTIES = "chrome://libx/locale/definitions.properties";
-var libxbundle = null;
-
 return /** @lends libx.locale */ {
 
+    /** @namespace libx.locale.bd */
+    bd : { },
+    
 	/**
 	 *	Initializes the libx.locale namespace, loading the LibX properties
 	 */
 	initialize : function () {
-		libxbundle = new libx.locale.StringBundle ( DEFAULT_PROPERTIES );
+        this.bd.initialize();
 	},
 	
 	/**
@@ -47,57 +47,30 @@ return /** @lends libx.locale */ {
 	 *	@param {Objects} variable number of arguments
 	 */	
 	getProperty : function ( name /*, arg0, arg1, arg2, .... */) {
-		if ( libxbundle != null ) {
-			return libxbundle.getProperty.apply ( libxbundle, arguments );
-		} else {
-			libx.log.write ( "Error: libx bundle was not initialized" );
-			return null;
-		}
-	},
+	    
+	    var args = [];
+        for ( var i = 1; i < arguments.length; i++ ) {
+            args.push ( arguments[i] );
+        }
+        
+        try {
+            if (args.length > 0) {
+                var formatted = this.bd.getFormattedString(name, args);
+            } else {
+                var formatted = this.bd.getString(name);
+            }
+            if (formatted == null) {
+                libx.log.write("Property '" + name + "' not found in '" + this.url + "'");
+                return "<" + name + ">";
+            }
+            return formatted;
+        } catch (e) {
+            libx.log.write("Error retrieving property '" + name + "' from '" + this.url + "': " + e);
+            return "<" + name + ">";
+        }
+	    
+	}
 	
-	/** @namespace libx.locale.bd */
-	bd : { },
-	
-	StringBundle : libx.core.Class.create ( 
-	/** @lends libx.locale.StringBundle.prototype */{
-	
-		/**
-		 *	Initializes a StringBundle
-		 *	@constructs
-		 */
-		initialize : function ( url ) {
-            this.url = url;
-			this.bundle = new libx.locale.bd.StringBundle ( url );	
-		},
-		
-		/**
-		 *	Returns a property, or null if it doesnt exist
-		 *	@param {String} name of the property
-		 *	@param {String} any additional arguments, each should be passed as seperate paramaters
-		 */
-		getProperty : function ( name ) {
-			var args = [];
-		    for ( var i = 1; i < arguments.length; i++ ) {
-		        args.push ( arguments[i] );
-		    }
-		    
-			try {
-		        if (args.length > 0) {
-		            var formatted = this.bundle.getFormattedString(name, args);
-		        } else {
-		            var formatted = this.bundle.getString(name);
-		        }
-                if (formatted == null) {
-                    libx.log.write("Property '" + name + "' not found in '" + this.url + "'");
-                    return "<" + name + ">";
-                }
-                return formatted;
-		    } catch (e) {
-                libx.log.write("Error retrieving property '" + name + "' from '" + this.url + "': " + e);
-		        return "<" + name + ">";
-		    }
-		}
-	} )	
 };
 
 } ) ();

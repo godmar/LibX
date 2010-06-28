@@ -23,22 +23,22 @@ libx.ui.jquery.dropdown = function ($, options)
     
     // register mostly used vars
     var acSearchField   = options.field;
-
+        
     // populate results box
-    for(var i in options.dropdown_items) {
+    for(var i = 0; i < options.dropdown_items.length; i++ ) {
         
         var div = $('<div class="unselected" />');
-        var itemText = options.dropdown_items[i];
-
+        var itemText = options.dropdown_items[i].text;
         div.text(itemText);
-        (function(i, itemText) {
+        
+        (function(value, text) {
             div.click(function() {
-                acSearchField.text(itemText);
+                acSearchField.text(text);
                 clearResults();
                 if(options.select)
-                    options.select(i, itemText);
+                    options.select(value, text);
             });
-        }) (i, itemText);
+        }) (options.dropdown_items[i].value, itemText);
         
         // on mouse over set selection
         div.mouseover( function() {
@@ -98,85 +98,6 @@ libx.ui.jquery.dropdown = function ($, options)
         acResultsDiv.css("top", results_top);
         acResultsDiv.css("width", sf_width);
         acResultsDiv.css("min-width", '150px');
-    }
-
-    // on key up listener
-    acSearchField.keyup(function (e) {
-
-        // get keyCode (window.event is for IE)
-        var keyCode = e.keyCode || window.event.keyCode;
-        var lastVal = acSearchField.val();
-
-        // check an treat up and down arrows
-        if(enterKey(keyCode)){
-            return;
-        }
-        
-        // check an treat up and down arrows
-        if(updownArrow(keyCode)){
-            return;
-        }
-
-        // check for an ENTER or ESC
-        if(keyCode == 27){
-            clearResults();
-            return;
-        }
-
-    });
-
-    // treat up and down key strokes defining the next selected element
-    function updownArrow(keyCode) {
-        if(keyCode == 40 || keyCode == 38){
-
-            if(keyCode == 38){ // keyUp
-                if(acListCurrent == 0 || acListCurrent == -1){
-                    acListCurrent = acListTotal-1;
-                } else{
-                    acListCurrent--;
-                }
-            } else { // keyDown
-                if(acListCurrent == acListTotal-1){
-                    acListCurrent = 0;
-                } else {
-                    acListCurrent++;
-                }
-            }
-
-            // loop through each result div applying the correct style
-            acResultsDiv.children().each(function(i){
-                if(i == acListCurrent){
-                    acSearchField.val($(this).text());
-                    this.className = "selected";
-                } else {
-                    this.className = "unselected";
-                }
-            });
-
-            return true;
-        } else {
-            // reset
-            acListCurrent = -1;
-            return false;
-        }
-    }
-
-    // treat up and down key strokes defining the next selected element
-    function enterKey(keyCode) {
-        if(keyCode == 13) { // enter key
-
-            acResultsDiv.children().each(function(i){
-                if(i == acListCurrent){
-                    acSearchField.val($(this).text());
-                    options.select(acResultsDiv.children()[i].item);
-                    clearResults();
-                }
-            });
-
-            return true;
-        } else {
-            return false;
-        }
     }
     
 }

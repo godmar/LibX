@@ -1,21 +1,35 @@
 {
-  "background_page": "libx.html",
-  "name": "LibX for Google Chrome",
-  "version": "1.0",
-  "icons": { "48": "libx2-48.png",
-            "128": "libx2-128.png" },
-
-  "description": "LibX (libx.org) for Google Chrome",
-  "update_url": "http://top.cs.vt.edu/~gback/chrome/updates.xml",
-  "browser_action": {
-    "default_icon": "libx2-48.png",
-    "popup": "popup/popup.html"
-  },
-  "permissions": [
-    "tabs",
-    "http://api.flickr.com/",
-    "http://libx.org/"
-  ],
-  "default_locale": "en"
+    "background_page": "libx.html",
+    "name": "LibX for Google Chrome",
+    "version": "0.1",
+    "icons": {
+        "48": "libx2-48.png",
+        "128": "libx2-128.png"
+    },
+    "description": "LibX (libx.org) for Google Chrome",
+    "update_url": "$emupdateURL$",
+    "browser_action": {
+        "default_icon": "libx2-48.png",
+        "popup": "popup/popup.html"
+    },
+    "content_scripts": [{
+        "matches": [
+            "http://*/*",
+            "https://*/*"
+        ],
+        "js": [
+            "core/global/shared/core.js",
+            "core/global/shared/libx.js",
+            "core/global/shared/log.js",
+            "core/global/gc/log.js",
+            "core/window/gc/ui/window.js",
+            "core/window/shared/ui/autosense.js"
+        ]
+    }],
+    "permissions": [
+        "tabs",
+        "http://*/",
+        "https://*/"
+    ],
+    "default_locale": "en_US"
 }
-

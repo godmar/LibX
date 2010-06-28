@@ -8,98 +8,92 @@
  *	browser abstractions ( ie, context menu, toolbar )
  */
 libx.browser = (function () { 
-
+    
 /**
- *	This is the browser object
- */
-var browser = 
-/** @lends libx.browser */
-{ 
+ * @lends libx.browser
+ * This is the browser object
+ */ 
+return { 
 	/**
 	 *	Initialize the browser-specific GUI elements, if needed.
      *  In Firefox, this code is called once per new window. 
      *  It is called after libx.xul has been loaded.
 	 */
 	initialize : function () {	
-		// Initialize the browser preferences
-        libx.preferences.load ( {
-            filename : "chrome://libx/content/browser.prefs.xml",
-            overwrite : false,
-            base : "libx.prefs"
-        } );  
-          
-		libx.ui.initialize();
-		
-		// To implement:  this.toolbar = new Toolbar();
 
+        libx.ui.initialize();
+    
         function activateConfiguration(edition) {
-            libx.edition = edition;
-            libx.log.write("Activating configuration: " + libx.edition.name.long);
-            libx.ui.activateConfiguration (edition);
-            this.contextMenu = new libx.ui.ContextMenu (libx.ui.basicContextMenuDescriptor, edition);
-            libx.citeulike.notificationicon.initialize();
-
-            // Load all URLs marked as @type = 'bootwindow' in configuration
-            var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;
-            if (bootWindowUrls.length == 0) {
-                // Fall back to local preference
-                bootWindowUrls.push({ url:
-                    libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
-                        "http://libx.org/libx-new/src/base/bootstrapped/bootstrapwindow.js") });
-            }
-        
-            var windowBootStrapper = new libx.bootstrap.BootStrapper();
-            if (!libx.initialize.globalBootStrapper.hasFinished) {
-                /* Global boot strapping still in progress.  Delay bootstrapping
-                 * of window scripts until this is done. */
-                var blockUntilGlobalBootstrapDone = new libx.utils.collections.EmptyActivity();
-                windowBootStrapper.scriptQueue.scheduleFirst(blockUntilGlobalBootstrapDone);
-
-                libx.events.addListener("GlobalBootstrapDone", {
-                    onGlobalBootstrapDone: function (globalBootstrapDoneEvent) {
-                        blockUntilGlobalBootstrapDone.markReady();
-                    }
-                });
-            }
-
-            for (var i = 0; i < bootWindowUrls.length; i++)
-                windowBootStrapper.loadScript(bootWindowUrls[i].url, true, {
-                    libx: libx,
-                    window: window,
-                });
             
-            /* Get icon remotely. Temporary implementation until IO is
-             * implemented and icon is stored locally. */
+            /* Parse remote URL. Temporary implementation until config.xml is
+             * updated to not use chrome:// URLs. */
             var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
             if(configUrl != null) {
                 var iconUrl = configUrl.replace('/config.xml', '')
                     + edition.options.icon.replace('chrome://libx/skin', '');
-                libx.log.write('Loaded config ' + configUrl);
-                libx.log.write('Loaded icon ' + iconUrl);
-                document.getElementById('libx-button').image = iconUrl;
+                libx.cache.defaultObjectCache.get({
+                    type: 'GET',
+                    url: iconUrl,
+                    serverMIMEType: 'text/plain; charset=x-user-defined',
+                    fetchDataUri: true,
+                    success: function(data) {
+                        document.getElementById('libx-button').image = data;
+                    }
+                });
             }
             
         }
-
+        
         /* Register listener with immediate fire function in case the global
          * libx edition loaded after we cloned the libx object. */        
         libx.events.registerEventListener("EditionConfigurationLoaded", {
             onEditionConfigurationLoaded: function (event) {
-                libx.log.write("Config loaded!");
                 activateConfiguration(event.edition);
             }
         }, function (eventType) {
             var e = null;
             if (libx.global.edition != null) {
-                libx.log.write("Creating event!");
                 e = new libx.events.Event(eventType);
                 e.edition = libx.global.edition;
             }
             return e;
         });
+        
+        libx.events.addListener('ContentLoaded', {
+            onContentLoaded: function(e) {
+                if(e.window.top != e.window.self)
+                    return;
+                var obj = {
+                    libx: libx,
+                    libxTemp: {
+                        addListener : function(listener) {
+                            libx.events.addListener('RequestToContentScript', {
+                                onRequestToContentScript: function(e, request, sender, sendResponse) {
+                                    var reqObj = libx.utils.json.parse(request);
+                                    listener(reqObj, sender, function(response) {
+                                        var resStr = libx.utils.json.stringify(response);
+                                        sendResponse(resStr);
+                                    });
+                                }
+                            }, e.window, e.window);
+                        }
+                    }
+                };
+                var sbox = new libx.libapp.Sandbox(e.window, obj);
+                sbox.loadScript("chrome://libx/content/core/window/shared/ui/autosense.js");
+            }
+        }, window);
+        
+        // remove any content script listeners when tab is closed
+        function removeListeners(event) {
+            var browser = gBrowser.getBrowserForTab(event.target);
+            libx.events.removeListener('RequestToContentScript', browser.contentWindow);
+        }
+        var container = gBrowser.tabContainer;
+        container.addEventListener("TabClose", removeListeners, false);
+        
 	}
 };
 
-return browser;
 })();
 

@@ -37,20 +37,15 @@
                    em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                    em:minVersion="1.0"
                    em:maxVersion="3.6.*" />
-  <RDF:Description RDF:about="urn:mozilla:extension:file:libx"
-                   em:package="content/libx/"
-                   em:locale="locale/en-US/libx/"
-                   em:skin="skin/libx/" />
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"
-                   em:name="$emname$"
+                   em:name="LibX"
                    em:version="$libxversion$"
                    em:creator="Annette Bailey"
-                   em:description="$emdescription$"
-                   em:homepageURL="$emhomepageURL$"
+                   em:description="Browser plugin for libraries."
+                   em:homepageURL="http://www.libx.org/"
                    em:updateURL="$emupdateURL$"
-                   em:iconURL="$emiconURL$"
-                   em:aboutURL="chrome://libx/content/libxprefs.xul"
+                   em:iconURL="chrome://libx/skin/libx2-48.png"
                    em:updateKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDIddUqmiyYAp8BNkGBBJqQf7xIfMpeiSIXHzatrHFvhAnmcYkKmqH2QC/t5zDFfNppwcjh+qS1jU9WBJnisjefF228+r5zknHKGH16zf9rGGAw862XjFoRoDNJ6u8y4XQtrGzuXQ8n7BSF+vrOW9ADTCOkjD+o3czo23ytTzEgOQIDAQAB">
     <em:contributor>Godmar Back</em:contributor>
     <em:contributor>Richard Karnesky</em:contributor>

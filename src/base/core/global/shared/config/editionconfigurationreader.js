@@ -32,14 +32,14 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     initialize: function ( invofcc ) {
         var editionConfigReader = this;
 
-        libx.cache.defaultMemoryCache.get({
+        libx.cache.defaultObjectCache.get({
             dataType : "xml",
             type     : "GET",
             url      : invofcc.url,
 
-            // should be 'success', but 'success' currently is not fired correctly
-            complete : function (xml, stat, xhr) {
-                var doc = new libx.config.XMLConfigWrapper(xhr.responseXML);
+            success : function (text, metadata) {
+                var xml = libx.utils.xml.loadXMLDocumentFromString(text);
+                var doc = new libx.config.XMLConfigWrapper(xml);
 
                 var edition = {};
            		edition.openurl = editionConfigReader.loadResolvers ( doc );
@@ -51,15 +51,14 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 edition.localizationfeeds = editionConfigReader.loadLocalizationFeeds ( doc );
                 edition.name = { };
                 doc.copyAttributes(doc.getNode("/edition/name"), edition.name);
+                doc.copyAttributes(doc.getNode("/edition"), edition);
 
                 invofcc.onload ( edition );
             },
 
             error : function (xml, stat, xhr) {
-            /* error is currently fired erroneously FIXME
                 if (invofcc.onerror)
                     invofcc.onerror ( stat );
-            */
             }
         });
     },

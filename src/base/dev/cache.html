@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>LibX</title>
+<script src="../getlibx.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script>
+$(function() {
+    var filename = null;
+    var cache = new libx.storage.Store('cache');
+    var metacache = new libx.storage.Store('metacache');
+    cache.find({
+        success: function(files) {
+            files.sort();
+            for(var i = 0; i < files.length; i++) {
+                var link = $('<a href="#">' + files[i] + '</a><br/>');
+                link.click(function() {
+                    $('a', '#cached-items').css('background-color', '#fff');
+                    $(this).css('background-color', '#ddd');
+                    filename = $(this).text();
+                    function getItem(cache, elemId) {
+                        cache.getItem({
+                            key: filename,
+                            success: function(data) {
+                                $('#' + elemId).val(data);
+                            }
+                        });
+                    }
+                    getItem(cache, 'item');
+                    getItem(metacache, 'meta-item');
+                });
+                $('#cached-items').append(link);
+            }
+        }
+    });
+    $('#save-changes').click(function() {
+        if(filename == null)
+            return;
+        function setItem(cache, elemId) {
+            cache.setItem({
+                key: filename,
+                value: $('#' + elemId).val()
+            });
+        }
+        setItem(cache, 'item');
+        setItem(metacache, 'meta-item');
+    });
+    $('#clear-cache').click(function() {
+        metacache.clear();
+        cache.clear();
+    });
+});
+</script>
+</head>
+<body>
+<h1>LibX cache control</h1>
+<div id="cached-items" style="color: #000; height: 150px; overflow: auto; border: 1px solid #ddd"></div>
+<h2>metadata:</h2>
+<textarea id="meta-item" style="height: 50px; width: 100%; border: 1px solid #ddd"></textarea>
+<h2>cached data:</h2>
+<textarea id="item" style="height: 350px; width: 100%; border: 1px solid #ddd"></textarea>
+<button id="save-changes" type="submit">Save changes</button>
+<button id="clear-cache" type="submit">Clear cache</button>
+</body>
+</html>

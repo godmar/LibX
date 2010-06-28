@@ -4,18 +4,11 @@ overlay	chrome://navigator/content/navigator.xul	chrome://libx/content/libx.xul
 content	libx	chrome/libx/content/libx/ xpcnativewrappers=no
 content libx    chrome/libx/content/libx/ xpcnativewrappers=no contentaccessible=yes
 
-content libxresource chrome/../../../libx/ xpcnativewrappers=no
-content libxresource chrome/../../../libx/xpcnativewrappers=no contentaccessible=yes
-
 skin	libx	classic/1.0	chrome/libx/skin/libx/
 
-locale	libx	en-US	chrome/libx/locale/en-US/libx/
+locale	libx	en-US	chrome/libx/locale/en_US/
 
 # LibX documentation, if included, will be accessible at 
 # chrome://libxdoc/content/index.html
 content libxdoc jar:documentation.jar!/
-
-# LibX Preferences, to avoid filename restrictions on Windows XP
-# are now jarred and accessible via chrome://libxprefs/content/*
-content libxprefs jar:chrome/libx/content/libx/preferences.jar!/preferences/
 

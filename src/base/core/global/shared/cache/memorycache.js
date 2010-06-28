@@ -39,8 +39,10 @@ libx.cache.MemoryCache = ( function () {
  * Invoke success/complete/error callbacks on an array of requests
  */
 function invokeCallbacks(xmlHttpReq, requests, result) {
-
-    if (xmlHttpReq.status == 200) {
+    
+    // local files do not return http status codes, simply status 0
+    //XXX: make sure 0 never gets returned in any error cases
+    if (xmlHttpReq.status == 200 || xmlHttpReq.status == 0) {
         // 200 OK
         for (var i = 0; i < requests.length; ++i) {
             if (typeof requests[i].success == "function") {
@@ -183,10 +185,7 @@ var memoryCacheClass = libx.core.Class.create ( {
          *                                            success or error
          *                                            functions) parameters
          *                                            (result, status, XMLHttpRequest)
-         *
-         * @param {String}   paramObj.contentType     set content-type of data
-         *                                            that's sent to server
-         *
+         *                                            
          * @param {String}   paramObj.serverMIMEType  type of data expected
          *                                            from server 
          *
@@ -194,17 +193,13 @@ var memoryCacheClass = libx.core.Class.create ( {
          *                                            server
          *
          * @param {String}   paramObj.dataType        (REQUIRED) data type
-         *                                            expected from server (text
-         *                                            or xml)
+         *                                            expected from server (text,
+         *                                            xml, or json)
          *
          * @param {String}   paramObj.type            type of request "POST" or
          *                                            "GET" (defaults to "GET")
          *
          * @param {String}   paramObj.url             (REQUIRED) url to request
-         *
-         * @param {String}   paramObj.dataType        (REQUIRED) string
-         *                                            representing return type
-         *                                            (xml or text)
          *
          * @param {Object}   paramObj.header          object key = header name,
          *                                            value = header value
@@ -280,9 +275,10 @@ var memoryCacheClass = libx.core.Class.create ( {
 
                         if (request.dataType == "xml") {
                             result = xmlHttpReq.responseXML;
-                        } else 
-                        if (request.dataType == "text") {
+                        } else if (request.dataType == "text") {
                             result = xmlHttpReq.responseText;
+                        } else if (request.dataType == "json") {
+                            result = libx.utils.json.parse(xmlHttpReq.responseText);
                         } else {
                             result = xmlHttpReq.responseBody || xmlHttpReq.responseText;
                         }
@@ -309,10 +305,10 @@ var memoryCacheClass = libx.core.Class.create ( {
                     }
                 }
 
-                //Set content type if defined
+                //Set response MIME type if defined
                 //TODO: Handle this case in Internet Explorer
                 if (request.serverMIMEType !== undefined) {
-                    xmlHttpReq.overrideMimeType(request.contentType);
+                    xmlHttpReq.overrideMimeType(request.serverMIMEType);
                 }
 
                 //Store the xmlHttpRequest object in the cache

@@ -1,0 +1,35 @@
+{
+    "tab_search" :          { "message" : "Search" },
+    "tab_links" :           { "message" : "Links" },
+    "tab_about" :           { "message" : "About" },
+    "tab_change" :          { "message" : "Change Edition" },
+    "tab_pageactions" :     { "message" : "Page Actions" },
+    "label_search" :        { "message" : "Search" },
+    "label_for" :           { "message" : "for..." },
+    "label_select" :        { "message" : "Select a LibX edition:" },
+    "label_error" :         { "message" : "Could not load configuration from" },
+    "about_adapted" :       { "message" : "Adapted by:" },
+    "view_simple" :         { "message" : "Simple view" },
+    "view_full" :           { "message" : "Full view" },
+    "load_edition" :        { "message" : "Edition:" },
+    "load_maintainers" :    { "message" : "Maintainers:" },
+    "load_revision" :       { "message" : "Revision:" },
+    "load_link" :           { "message" : "Load this edition" },
+    "load_cancel" :         { "message" : "Cancel" },
+    "button_search" :       { "message" : "Search" },
+    "update_message1" :     { "message" : "You have this LibX edition installed: $edition$, revision $revision$",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" }
+                              }
+                            },
+    "update_message2" :     { "message" : "You are visiting this LibX edition: $edition$, revision $revision$",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" }
+                              }
+                            },
+    "update_link" :         { "message" : "Update to this revision" },
+    "search_and" :          { "message" : "AND" },
+    "search_more" :         { "message" : "more..." }
+}

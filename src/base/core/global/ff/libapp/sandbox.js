@@ -67,30 +67,36 @@ libx.libapp.Sandbox = libx.core.Class.create(
     /**
      * Evaluate a given piece of JavaScript
      *
-     * @param {String} code to be evaluated
+     * @param {String}  code to be evaluated
+     * @param {String}  name of file or identifier for code being evaluated
+     *                  (used for debugging details)
      */
     evaluate : function ( code, fname ) {
         try {
-	        if ( libx.utils.browserprefs.getBoolPref('libx.sandbox.usesubscriptloader', false ) ) {
-	        	
-	        	if ( this.subscriptLoader == null ) {
-	        		this.subscriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                      .getService(Components.interfaces.mozIJSSubScriptLoader);;
-	        	}
-	        	if ( libx.global.libapp.FILE_COUNTER == null ) {
-	        		libx.global.libapp.FILE_COUNTER = 0;
-	        	}
-	        	
-	    		var filename = "temp/" + ( fname ? fname : libx.global.libapp.FILE_COUNTER++ );
-				libx.io.writeToFile ( filename, code, true );
-	    		return this.subscriptLoader.loadSubScript ( "chrome://libxresource/content/" + filename, this.sandBox );
-	    		
-	    	} else {
-	            return Components.utils.evalInSandbox( code, this.sandBox );
-	        }
-        } catch (er) {
-            libx.log.write("Error in Sandbox.evaluate: " + er);
-        }
+            return Components.utils.evalInSandbox( code, this.sandBox, '1.8', fname, 1 );
+        } catch (e) {
+	        var where = e.location || (e.fileName + ":" + e.lineNumber);
+	        libx.log.write( "error in Sandbox.evaluate: " + e + " -> " + where);
+	    }
+    },
+    
+    /**
+     * Load a script from a given URL
+     * 
+     * @param {String}  location of script
+     */
+    loadScript : function ( url ) {
+        var self = this;
+        libx.cache.defaultMemoryCache.get({
+            url: url,
+            type: "GET",
+            dataType: "text",
+            serverMIMEType: "text/javascript",
+            success: function(data) {
+                self.evaluate(data, url);
+            }
+        });
     }
+    
 });
 

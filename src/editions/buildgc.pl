@@ -5,24 +5,15 @@ use XML::LibXML;
 use HTML::Entities;
 use Cwd;
 
-my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
-
-# directory that contains key3.db
-my $keydirectory = "/home/www/libxprivatekey";
-my $libxextid = "urn:mozilla:extension:{d75de36c-af0d-4dc2-b63a-0d482d4b9815}";
-
-# from http://hyperstruct.net/projects/spock
-my $spockexe = `/usr/bin/which spock 2>/dev/null` || "/opt/spock/spock";
-chomp ($spockexe);
+# path to private key file
+my $keypath = "/home/www/libxprivatekey/libx.pem";
 
 # XXX fix this ridiculous dependency
 -d "../base" || die "This script must be run inside libx/src/editions";
 
-# Change this to build, say "libx2-experimental-<edition>.xpi",
-# If set to non-empty, will suppress creation of update.rdf file
+# Change this to build, say "libx2-experimental-<edition>.crx",
+# If set to non-empty, will suppress creation of updates.xml file
 my $localbuild = "";
-
-my $docinputdir = undef;
 
 # process cmdline args
 # this loop courtesy of Pat Tullmann, 1997 
@@ -44,19 +35,12 @@ while ($_ = $ARGV[0]) {
 
     # add more cmdline arguments here...
     
-    # Generate and package documentation
-    if ( /^-doc$/ ) {
-        ($#ARGV >= 0) || &usage("-doc requires directory to specify location of documentation");
-        $docinputdir= shift @ARGV;
-        next;
-    }
-    
     ## Unknown -args are fatal
     /^\-/ && (&usage("Unknown option: $_"));
 }
 
 # path to update directory
-my $updatepath = "/home/www/libx.org/releases/ff";
+my $updatepath = "/home/www/libx.org/releases/gc";
 
 -d $updatepath || &usage("directory $updatepath does not exist.");
 
@@ -66,11 +50,11 @@ my %conf = ();
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 
-my $xpifile = "libx2-$localbuild$conf{builddate}.xpi";
+my $crxfile = "libx2-$localbuild$conf{builddate}.crx";
 
 $conf{'libxversion'} = '2.0.' . $conf{'builddate'};
-$conf{'emupdateURL'} = "http://libx.org/releases/ff/update.rdf";
-$conf{'xpilocation'} = "http://libx.org/releases/ff/$xpifile";
+$conf{'emupdateURL'} = "http://libx.org/releases/gc/updates.xml";
+$conf{'crxlocation'} = "http://libx.org/releases/gc/$crxfile";
 #######################################################
 
 #
@@ -103,17 +87,18 @@ if (-d $tmpdir) {
 my $basedir = "../base";
 
 my %filemap = (
-    "$basedir/xpiroot"   => "$tmpdir",
-    "$basedir/core"      => "$tmpdir/chrome/libx/content/libx/core",
-    "$basedir/dev"       => "$tmpdir/chrome/libx/content/libx/dev",
-    "$basedir/popup"     => "$tmpdir/chrome/libx/content/libx/popup",
-    "$basedir/locale"    => "$tmpdir/chrome/libx/locale"
+    "$basedir/crxroot"   => "$tmpdir",
+    "$basedir/core"      => "$tmpdir/core",
+    "$basedir/dev"       => "$tmpdir/dev",
+    "$basedir/popup"     => "$tmpdir/popup",
+    "$basedir/locale"    => "$tmpdir/_locales"
 );
 
 foreach my $key ( keys %filemap ) {
     my @files = split(/\s+/, `find $key`);
     foreach my $src ( @files ) {
         my $dst = $src;
+        print "processing $src to $dst\n";
         $dst =~ s/$key/$filemap{$key}/;
         if (-d $src) {
             # recreate directory
@@ -124,27 +109,17 @@ foreach my $key ( keys %filemap ) {
     }
 }
 
-if (defined($docinputdir)) {
-    # cmd below assumes that $tmpdir is a relative path
-    system ( "(CWD=`pwd`; cd $docinputdir; zip -r \$CWD/$tmpdir/documentation.jar .)" ) == 0 || die "copy of documentation failed";
-    $addtoplevelfiles .= " documentation.jar";
-}
-
-system("rm $updatepath/$xpifile; " .
+system("rm $updatepath/$crxfile; " .
        "cd $tmpdir; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
-       "zip -r $updatepath/$xpifile ./chrome ./components " . $addtoplevelfiles) == 0 || die "zip failed";
-
-system("chmod g+w $updatepath/$xpifile") == 0 || die "chmod g+w failed";
+       "crxmake --pack-extension=. --extension-output=$updatepath/$crxfile --pack-extension-key=$keypath") == 0 || die "crxmake failed";
+system("chmod g+w $updatepath/$crxfile") == 0 || die "chmod g+w failed";
 
 ############################################################
 
-# add hash to and sign update.rdf
+# add hash to and sign updates.xml
 if ($localbuild eq "") {
-    -x $spockexe || die "$spockexe does not exist or is not executable.";
-    system("$spockexe -d $keydirectory -i \"$libxextid\" -f $updatepath/$xpifile"
-        . " $tmpdir/update.rdf > $updatepath/update.rdf") == 0
-        || die "could not run spock to sign update.rdf: $!";
+    system("mv $tmpdir/updates.xml $updatepath/updates.xml") == 0 || die "could not move updates.xml";
 }
 
 system ("/bin/rm -rf $tmpdir");

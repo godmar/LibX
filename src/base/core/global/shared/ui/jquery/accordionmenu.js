@@ -16,7 +16,9 @@ libx.ui.jquery.accordionmenu = function ($, options) {
          *
          * @param {Object}   jQuery reference to the menu element
          * @param {String}   name of this menu item
-         * @param {Object}   mapping of key=>value subitems for this menu
+         * @param {Array}    array of subitems for this menu; each array element
+         *                   must be an object containing a "text" and "value"
+         *                   property
          * @param {Function} callback when a subitem is chosen
          */
         setMenuItems: function(itemRef, itemName, subItems, selection) {
@@ -37,16 +39,16 @@ libx.ui.jquery.accordionmenu = function ($, options) {
                 }
             });
             
-            for(var i in subItems) {
-                var subItem = $('<li><a href="#">' + subItems[i] + '</a></li>')
+            for(var i = 0; i < subItems.length; i++) {
+                var subItem = $('<li><a href="#">' + subItems[i].text + '</a></li>')
                     .appendTo(subItemList);
-                (function(key, value) {
+                (function(text, value) {
                     subItem.click(function() {
-                        itemLink.text(value);
+                        itemLink.text(text);
                         subItemList.slideUp('normal');
-                        selection(key, value);
+                        selection(value, text);
                     });
-                }) (i, subItems[i]);
+                }) (subItems[i].text, subItems[i].value);
                 
             }
             

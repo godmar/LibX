@@ -64,9 +64,9 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
      */
     loadScript : function (scriptURL, keepUpdated, globalProperties) {
 
-	var self = this;
+        var self = this;
         var runScriptActivity = {
-            onready : function (metadata) {
+            onready : function (script, metadata) {
         		var globalTargetScope = {
                     bootStrapper : { 
                         baseURL : scriptURL.match (/.*\//),
@@ -79,16 +79,17 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
                     }
                 };
                 libx.core.Class.mixin(globalTargetScope, globalProperties, true);
-                libx.bootstrap.loadSubScript(metadata, globalTargetScope);
+                libx.bootstrap.loadSubScript(script, metadata, globalTargetScope);
             }
         };
         this.scriptQueue.scheduleLast(runScriptActivity);
 
         libx.cache.defaultObjectCache.get({
             url: scriptURL,
+            fetchDataUri: libx.bootstrap.fetchDataUri,
             keepUpdated: keepUpdated,
             success: function (scriptText, metadata) { 
-                runScriptActivity.markReady(metadata);
+                runScriptActivity.markReady(scriptText, metadata);
             }
         });
 

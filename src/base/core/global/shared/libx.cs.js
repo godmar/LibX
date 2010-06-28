@@ -37,7 +37,7 @@ libx.utils.browserprefs = {
     }
 };
 
-libx.ui.openSearchWindow = function (url) {
+libx.ui.tabs.create = function (url) {
     if (typeof url == "string") {
         /* GET */
         window.open(url);
@@ -84,7 +84,7 @@ function libxRunAdvancedTestSearch(catindex, search)
 {
     try {
         var url = libx.edition.catalogs[catindex].search(search);
-        libx.ui.openSearchWindow(url);
+        libx.ui.tabs.create(url);
     } catch (er) {
         libx.log.write(er + "\ncatalog #" + catindex + " is: " + props(libx.edition.catalogs[catindex]));
     }

@@ -32,50 +32,19 @@
 
 var defaultUpdateInterval = 10 * 1000; // 10 sec for testing - please, if you activate that, don't leave your browser running.
 var defaultUpdateInterval = 24 * 60 * 60 * 1000;    // 24 hours
-var fileinfoExt = ".fileinfo.json";
 
-/**
- * calculates the sha1 path associated with the url (without file ending)
- *
- * @param {String} url path to the file
- */
-function calculateHashedPath ( url ) 
-{
-    var pathPattern = "0123456789AB/0123456789AB/0123456789ABCDEF";
-    var firstSlashPos = pathPattern.indexOf("/");
-    var secondSlashPos = pathPattern.lastIndexOf("/");
-
-    var unprocessedPath = libx.utils.hash.hashString( url );
-    var path = unprocessedPath.substring(0, firstSlashPos)
-        + "/" + unprocessedPath.substring(firstSlashPos, secondSlashPos - 1)
-        + "/" + unprocessedPath.substring(secondSlashPos - 1, pathPattern.length - 2);
-    return path;
-};
-
-var contentType2Extension = {
-    "image/gif":                ".gif",
-    "image/jpg":                ".jpg",
-    "image/png":                ".png",
-    "application/x-javascript": ".js",
-    "text/plain":               ".txt",
-    "text/html":                ".html",
-    "text/css":                 ".css",
-    "text/xml":                 ".xml",
-    "application/rss+xml":      ".xml",
-    "application/atom+xml":     ".xml"
-};
-
-function computeExtensionFromContentType (mimeType) {
-    mimeType = mimeType.split(';')[0];
-    if (contentType2Extension[mimeType])
-        return contentType2Extension[mimeType];
-
-    return "." + mimeType.replace(/\//g, "_");
-}
+var cacheStore = new libx.storage.Store('cache');
+var metaStore = new libx.storage.Store('metacache');
 
 function flagSuccess (request, metadata) {
-    if (request.success)
-        request.success(libx.io.getFileText(metadata.localPath), metadata);
+    if (request.success) {
+        cacheStore.getItem({
+            key: metadata.originURL,
+            success: function(text) {
+                request.success(text, metadata);
+            }
+        });
+    }
 }
 
 var RetrievalType = { 
@@ -92,6 +61,7 @@ function retrieveRequest(request, retrievalType) {
     libx.cache.defaultMemoryCache.get({
         header: headers,
         url: request.url,
+        serverMIMEType: request.serverMIMEType,
         bypassCache: true,
         complete: function (data, status, xhr) {
             if (status == 304) {
@@ -106,29 +76,56 @@ function retrieveRequest(request, retrievalType) {
         },
         success: function (data, status, xhr) {
             var contentType = xhr.getResponseHeader("Content-Type");
-            var ext = request.ext || computeExtensionFromContentType(contentType);
-            var baseLocalPath = calculateHashedPath (request.url);
-            var localPath = baseLocalPath + ext;
             // XXX store 'expires' date on disk
             var metadata = {
                 lastModified : xhr.getResponseHeader('Last-Modified'),
-                mimeType : xhr.getResponseHeader('Content-Type'),
-                originURL : request.url,
-                localPath : localPath,
-                chromeURL : "chrome://libxresource/content/" + localPath
+                mimeType : contentType,
+                originURL : request.url
             };
-            libx.io.writeToFile (localPath, data, true);
-            var oldMetadata = getMetadata(request.url);
-            putMetadata(request.url, metadata);
-
-            // fire 'update' on first retrieval or if last modified date signals newer version
-            if (retrievalType == RetrievalType.UPDATE && (oldMetadata == null || true)) {  // XXX really only if: || DateBefore(oldMetadata.lastModified, metadata.lastModified)
-                var updateEvent = new libx.events.Event("Update" + request.url);
-                updateEvent.metadata = metadata;
-                updateEvent.notify();
+    
+            if(request.fetchDataUri) {
+                data = 'data:' + contentType + ';base64,' + libx.utils.binary.binary2Base64(data);
             }
-            if (retrievalType == RetrievalType.GET)
-                flagSuccess(request, metadata);
+            
+            var oldMetadata = null;
+            
+            var finishWrite = (function() {
+                var count = 0;
+                return function() {
+                    count++;
+                    // only continue after all operations below
+                    if(count < 2)
+                        return;
+                    // fire 'update' on first retrieval or if last modified date signals newer version
+                    if (retrievalType == RetrievalType.UPDATE && (oldMetadata == null || true)) {  // XXX really only if: || DateBefore(oldMetadata.lastModified, metadata.lastModified)
+                        var updateEvent = new libx.events.Event("Update" + request.url);
+                        updateEvent.metadata = metadata;
+                        updateEvent.notify();
+                    }
+                    if (retrievalType == RetrievalType.GET) {
+                        flagSuccess(request, metadata);
+                    }
+                };
+            }) ();
+            
+            cacheStore.setItem({
+                key: request.url,
+                value: data,
+                complete: finishWrite
+            });
+            
+            getMetadata({
+                url: request.url,
+                success: function(data) { oldMetaData = data },
+                complete: function() {
+                    putMetadata({
+                        url: request.url,
+                        metadata: metadata,
+                        complete: finishWrite
+                    });
+                }
+            });
+
         }
     });
 }
@@ -136,33 +133,42 @@ function retrieveRequest(request, retrievalType) {
 /*
  * Get metadata associated with a URL, or null if URL is not (or no longer!) cached
  */
-function getMetadata(url) {
-    var metadataFile = calculateHashedPath (url) + fileinfoExt;
-    if (libx.io.fileExists(metadataFile))
-        return libx.utils.json.parse(libx.io.getFileText(metadataFile));
-
-    return null;
+function getMetadata(paramObj) {    
+    metaStore.getItem({
+        key: paramObj.url,
+        success: function(text) {
+            if(paramObj.success)
+                paramObj.success(libx.utils.json.parse(text));
+        },
+        notfound: paramObj.notfound,
+        complete: paramObj.complete
+        
+    });
 }
 
 /*
  * Write metadata to disk
  */
-function putMetadata(url, metadata) {
-    libx.io.writeToFile (calculateHashedPath(url) + fileinfoExt, libx.utils.json.stringify(metadata), true);
+function putMetadata(paramObj) {
+    metaStore.setItem({
+        key: paramObj.url,
+        value: libx.utils.json.stringify(paramObj.metadata),
+        complete: paramObj.complete
+    });
 }
 
 function handleRequest(request) {
-    var metadata = getMetadata(request.url);
-    if (metadata == null) {
-        retrieveRequest(request, RetrievalType.GET);
-    } else {
-        // XXX: if (now < request.expires) {
-        flagSuccess (request, metadata);
-        // } else {
-        // request.lastModified = metadata.lastModified;
-        // retrieveRequest(request, RetrievalType.ONLYIFMODIFIED);
-        // }
-    }
+    
+    getMetadata({
+        url: request.url,
+        success: function(data) {
+            flagSuccess (request, data);
+        },
+        notfound: function() {
+            retrieveRequest(request, RetrievalType.GET);
+        }
+    });
+    
 }
 
 function updateRequests (cachedRequests) {
@@ -177,13 +183,17 @@ function updateRequests (cachedRequests) {
             continue;
         }
 
-        var metadata = getMetadata(request.url);
-        if (metadata != null) {
-            request.lastModified = metadata.lastModified;
-        }
+        var paramObj = { url: request.url };
+        paramObj.success = (function (request) {
+            return function(metadata) {
+                request.lastModified = metadata.lastModified;
+                libx.log.write("checking " + request.url + " last modified: " + request.lastModified, "objectcache");
+                retrieveRequest(request, RetrievalType.UPDATE);
+            };
+        }) (request);
+        
+        getMetaData(paramObj);
 
-        libx.log.write("checking " + request.url + " last modified: " + request.lastModified, "objectcache");
-        retrieveRequest(request, RetrievalType.UPDATE);
     }
 }
 
@@ -217,6 +227,9 @@ libx.cache.ObjectCache = libx.core.Class.create(
      *      If an update is found, an update event is signaled.
      *      The event name is 'onUpdate' + URL.
      *
+     *  @param {Boolean} request.fetchDataUri: if true, data is returned
+     *      and stored as a data URI instead of raw data
+     *
      *  @param {String} extension (optional) required extension, if any.  If not given, the
      *      extension is computed from the returned Content-Type.
      */
@@ -232,10 +245,7 @@ libx.cache.ObjectCache = libx.core.Class.create(
      * Remove all cached files
      */
     purgeAll : function () {
-        var filepaths = libx.io.find(/fileinfo.json/);
-        for ( var i = 0; i < filepaths.length; i++ ) {
-            libx.io.removeFile (filepaths[i]);
-        }
+        cacheStore.clear();
     },
 
     /**

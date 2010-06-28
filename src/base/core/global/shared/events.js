@@ -64,14 +64,15 @@ libx.events = {
         /**
          * Notify any observers.  If the event was created with a
          * window, only observers that specified the same window
-         * will be notified.
+         * will be notified.  Otherwise, all observers associated
+         * with this event will be notified.
          */
         notify : function () {
             // see http://www.mennovanslooten.nl/blog/post/59
             var argsAsArray = [].splice.call(arguments, 0);
             var observers = handlerMap[this.eventName] || [];
             for (var i = 0; i < observers.length; i++) {
-                if (this.eventWindow == observers[i].window) {
+                if (this.eventWindow == undefined || this.eventWindow == observers[i].window) {
                     try {
                         observers[i].handler["on" + this.eventName].apply(observers[i].handler, [this].concat(argsAsArray));
                     } catch (er) {
@@ -113,7 +114,6 @@ libx.events = {
 
         if(observerId != undefined) {
             for (var i = 0; i < handlers.length; i++) {
-                libx.log.write('obsID=' + observerId);
                 if (handlers[i].id == observerId && handlers[i].window == observerWindow) {
                     handlers.splice(i, 1);
                     break;
@@ -121,9 +121,27 @@ libx.events = {
             }
         }
         handlerMap[eventName].push({ handler : observer, window: observerWindow, id : observerId });
+    },
+    
+    /**
+     * Remove listeners for a given event
+     * @param {String} eventName - name of event, say "load"
+     * @param {Window} window (optional) - only remove events associated with
+     *                 this window
+     * @param {String} observerId (optional) - only remove the event with this
+     *                 observerId
+     */
+    removeListener : function (eventName, observerWindow, observerId) {
+        if (!eventName in handlerMap)
+            return;
+        var handlers = handlerMap[eventName];
+        
+        for (var i = 0; i < handlers.length; i++)
+            if((observerId == handlers[i].id || observerId == undefined) &&
+                    (observerWindow == handlers[i].window || observerWindow == undefined))
+                handlers.splice(i, 1);
     }
 
-    /* XXX to be done removeListener */
 };
 
 })();

@@ -1,23 +1,26 @@
 
+libx.bootstrap.fetchDataUri = true;
+
 /**
- * Load a script in Google Chrome via eval().
+ * Load a script in Google Chrome.
  *
  * @param {metadata.originURL} originURL Script URL
  * @param {metadata.chromeURL} chromeURL internal chrome URL
  */
-libx.bootstrap.loadSubScript = function (metadata, globalScope)
-{
-    try {
-        libx.log.write("loading (" + metadata.originURL + ") from (" + metadata.chromeURL + ")", "bootstrap");
+libx.bootstrap.loadSubScript = function (scriptDataUri, metadata, globalScope) {
+    
+    libx.log.write("loading (" + metadata.originURL + ")");
 
-        (function(bootStrapper) {
-            eval(libx.io.getFileText(metadata.localPath));
-        }) (globalScope.bootStrapper);
+    (function() {
+        // make all properties of globalScope visible to the background page
+        // window so that injected scripts can access these properties
+        for(var i in globalScope)
+            window[i] = globalScope[i];
         
-        libx.log.write("done loading (" + metadata.originURL + ")");
-
-    } catch (e) {
-        var where = e.location || (e.fileName + ":" + e.lineNumber);
-        libx.log.write( "error loading " + metadata.originURL + " -> " + e + " " + where);
-    }
-}
+        // inject script element into background page
+        var script = document.createElement('script');
+        script.src = scriptDataUri;
+        document.head.appendChild(script);
+    }) ();
+    
+};

@@ -8,7 +8,6 @@ Nathan Baker.
 
 http://www.libx.org
 
-You are using the $libxedition$
 This changelog.txt file is part of LibX Version $libxversion$
 
 For more recent changes, please see ChangeLog at http://libx.mozdev.org/source.html

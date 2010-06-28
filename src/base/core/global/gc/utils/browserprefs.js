@@ -24,17 +24,19 @@
 
 (function () {
 	
-    /* Get a preference from localstorage.  If it does not exist, return the
+    var prefix = 'browserprefs.';
+    
+    /* Get a preference from localStorage.  If it does not exist, return the
      * default value. */
 	function getPref(prefName, defValue) {
-	    var pref = localStorage[prefName];
+	    var pref = localStorage[prefix + prefName];
 		if(typeof(pref) != 'undefined')
 			return pref;
 		return defValue;
 	}
 	
 	function setPref(prefName, value) {
-		localStorage[prefName] = value;
+		localStorage[prefix + prefName] = value;
 	}
 	
     libx.core.Class.mixin(libx.utils.browserprefs, {
