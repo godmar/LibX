@@ -417,8 +417,10 @@ $(function() {
     // show view depending on whether user already has edition loaded
     if(libx.utils.browserprefs.getStringPref('libx.edition.configurl', null))
         popup.showInitialView();
-    else
+    else {
         popup.showEditionChange();
+        popup.loadPageActions();
+    }
     
     // notify Firefox that the page has loaded
     var popupLoaded = new libx.events.Event("PopupLoadingDone");
