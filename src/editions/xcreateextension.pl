@@ -68,7 +68,8 @@ chomp($conf{'builddate'});
 
 my $xpifile = "libx2-$localbuild$conf{builddate}.xpi";
 
-$conf{'libxversion'} = '2.0.' . $conf{'builddate'};
+# use days since epoch for versioning due to chrome's strict versioning rules
+$conf{'libxversion'} = '2.0.' . int(time/86400);
 $conf{'emupdateURL'} = "http://libx.org/releases/ff/update.rdf";
 $conf{'xpilocation'} = "http://libx.org/releases/ff/$xpifile";
 #######################################################

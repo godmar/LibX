@@ -52,7 +52,8 @@ chomp($conf{'builddate'});
 
 my $crxfile = "libx2-$localbuild$conf{builddate}.crx";
 
-$conf{'libxversion'} = '2.0.' . $conf{'builddate'};
+# use days since epoch for versioning due to chrome's strict versioning rules
+$conf{'libxversion'} = '2.0.' . int(time/86400);
 $conf{'emupdateURL'} = "http://libx.org/releases/gc/updates.xml";
 $conf{'crxlocation'} = "http://libx.org/releases/gc/$crxfile";
 #######################################################

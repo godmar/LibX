@@ -1,7 +1,7 @@
 {
     "background_page": "libx.html",
     "name": "LibX for Google Chrome",
-    "version": "0.1",
+    "version": "$libxversion$",
     "icons": {
         "48": "libx2-48.png",
         "128": "libx2-128.png"
