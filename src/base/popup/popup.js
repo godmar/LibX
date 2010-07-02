@@ -167,22 +167,25 @@ return {
             serverMIMEType: 'text/plain; charset=x-user-defined',
             fetchDataUri: true,
             success: function(data) {
-                image[0].src = data;
+                image.attr('src', data);
             }
         });
         
         image.load(function() {
-     
-            // reset width and height if they were specified
+            
+            // reset image width/height if changing edition image
             image.width('');
             image.height('');
             
             // reduce image if necessary, preserving aspect ratio
-            var img_width = image[0].width;
-            var img_height = image[0].height;
+            var img_width = image.attr('width');
+            var img_height = image.attr('height');
             if(img_width > 75) {
-                image.width(75);
-                image.height(75 * img_height / img_width);
+                image.css('width', '75px');
+                image.css('height', (75 * img_height / img_width) + 'px');
+            } else {
+                image.css('width', img_width + 'px');
+                image.css('height', img_height + 'px');
             }
         });
         
@@ -421,8 +424,4 @@ $(function() {
         popup.showEditionChange();
         popup.loadPageActions();
     }
-    
-    // notify Firefox that the page has loaded
-    var popupLoaded = new libx.events.Event("PopupLoadingDone");
-    popupLoaded.notify();
 });

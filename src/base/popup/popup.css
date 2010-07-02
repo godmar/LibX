@@ -1,7 +1,10 @@
 body {
     font-family: Tahoma;
     font-size: 12px;
-    overflow: hidden;
+    margin: 0;
+    padding: 8px;
+    overflow: hidden; /* removes scrollbars from Firefox */
+    float: left; /* resizes body element for Firefox */
 }
 
 a {
@@ -18,7 +21,7 @@ a:hover {
 }
 
 #edition-search-input {
-    width: 100%;
+    width: 99%;
 }
 
 .results {

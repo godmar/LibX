@@ -67,117 +67,48 @@ Author: Annette Bailey <annette.bailey@gmail.com>
     
     <script type="application/javascript">
         <![CDATA[
-            
-        /*
-         * This code is a workaround to Firefox bug #385609:
-         * https://bugzilla.mozilla.org/show_bug.cgi?id=385609
-         *
-         * This is a modified version of Alice0775 White's workaround:
-         * https://bugzilla.mozilla.org/show_bug.cgi?id=561157#c4
-         *
-         * This code creates a dummy popup window, temporarily gives it focus,
-         * then focuses back on the LibX popup to resolve the focus bug.
-         *
-         * Be careful changing this code--results are not consistent among
-         * Firefox installations (and many of the "hacks" below are used
-         * to address this).
-         */
+
         window.addEventListener('load', function() {
-        
-            var windowObjectReference;
-            var panel = document.getElementById('libx-popup-panel');
-            var iframe = document.getElementById("libx-popup-iframe");
             
-            // because the LibX popup button is programmatically clicked when Firefox is loaded
-            // (see the bottom of this listener), this creates a flicker the first time the popup
-            // is shown.  this problem is fixed by not loading the LibX popup page on the popup's
-            // first load.
-            var firstLoad = true;
+            var popupReference = { close: libx.core.EmptyFunction };
             
-            panel.addEventListener('popupshowing', function() {
+            document.getElementById('libx-button').addEventListener('click', function() {
+                popupReference.close();
+                popupReference = window.open("chrome://libx/content/popup/popup.html",
+                    "libx-popup",
+                    "width=200,height=200,left=-10000,titlebar=no,resizable=no,scrollbars=no,status=no,chrome=yes,dependent=yes,minimizable=no");
+                        
+                popupReference.addEventListener('blur', function() {
+                    popupReference.close();
+                }, false);
                 
-                function createDummyWindow() {
-                    windowObjectReference = window.open("chrome://libx/content/popup/dummy.html",
-                        "dummy",
-                        "left=-10000,resizable=no,scrollbars=no,status=no,chrome=yes,dependent=yes,minimizable=no,dialog=yes");
-                }
+                popupReference.addEventListener('load', function() {
+                    var $ = popupReference.$;
                 
-                // for some reason, the dummy window needs to be created twice for best results.
-                // if only called once, (1) the LibX button needs to be clicked twice the first time
-                // Firefox is loaded, and (2) there are occasional focus problems.
-                createDummyWindow();
-                createDummyWindow();
-                
-                if(firstLoad)
-                    firstLoad = false;
-                else
-                    // reset iframe URL to imitate Google Chrome functionality
-                    iframe.contentWindow.location = 'chrome://libx/content/popup/popup.html';
-                    
-                setTimeout(function() {
-                    panel.focus();
-                    iframe.contentWindow.focus();
-                }, 0);
-                
-            }, false);
-            
-            panel.addEventListener('popuphidden', function() {
-                windowObjectReference.focus();
-                setTimeout(function() {
-                    windowObjectReference.close();
-                    gBrowser.contentWindow.focus();
-                }, 0);
-                
-                // make the panel invisible until the new iframe is loaded
-                // to prevent flickering
-                panel.width = "0";
-            }, false);
-            
-            // hide popup panel if user clicks the invisible portion of the iframe
-            panel.addEventListener('mousedown', function(e) {
-                if(e.target.tagName == 'HTML') {
-                    document.getElementById('libx-popup-panel').hidePopup();
-                }
-            }, true);
-            
-            libx.events.addListener('PopupLoadingDone', {
-                onPopupLoadingDone: function() {
-                
-                    var fullViewDiv = iframe.contentWindow.document.getElementById('full-view');
-                    fullViewDiv.style.backgroundColor = 'white';
-                    fullViewDiv.style.border = '1px solid #ccc';
-                    fullViewDiv.style.padding = '8px';
-                    
-                    var simpleViewDiv = iframe.contentWindow.document.getElementById('simple-view');
-                    simpleViewDiv.style.width = '180px';
-                    simpleViewDiv.style.backgroundColor = 'white';
-                    simpleViewDiv.style.border = '1px solid #ccc';
-                    simpleViewDiv.style.padding = '8px';
-                    simpleViewDiv.style.paddingBottom = '20px';
-                
-                    // resize the popup depending on whether user has
-                    // full view or simple view enabled
-                    function switchView(fullview) {
-                        if(fullview)
-                            panel.width = "635";
-                        else
-                            panel.width = "210";
+                    function adjustPopupPosition() {
+                        popupReference.innerWidth = $('body').outerWidth();
+                        popupReference.innerHeight = $('body').outerHeight();
+
+                        var buttonBox = document.getElementById('libx-button').boxObject;
+                        
+                        var screenX = buttonBox.screenX - popupReference.outerWidth + buttonBox.width;
+                        var screenY = buttonBox.screenY + buttonBox.height;
+                        
+                        // readjust popup position if it goes off the screen
+                        if(screenX < 0)
+                            screenX = 0;
+                        if(screenY > screen.height - popupReference.outerHeight)
+                            screenY = screen.height - popupReference.outerHeight - 50;
+                            
+                        popupReference.screenX = screenX;
+                        popupReference.screenY = screenY;
                     }
                     
-                    var fullview = libx.utils.browserprefs.getBoolPref("libx.edition.displayadvanced", true);
-                    switchView(fullview);
-                
-                    iframe.contentWindow.$('.switch-display').click(function() {
-                        fullview = !fullview;
-                        switchView(fullview);
-                    });
+                    $('body').bind('DOMSubtreeModified', adjustPopupPosition);
                     
-                }
-            });
-            
-            // occasionally, the popup does not gain focus the first time it is loaded.
-            // this fixes the problem by loading the first popup immediately.
-            document.getElementById('libx-button').click();
+                }, false);
+                
+            }, false);
             
         }, false);
             
@@ -187,20 +118,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
     <toolbaritem id="urlbar-container">
         <toolbarbutton id="libx-button" insertafter="urlbar-search-splitter" 
             image="chrome://libx/skin/libx2-16.png"
-            popup="libx-popup-panel"
         />
     </toolbaritem>
-    
-    <popupset>
-        <panel id="libx-popup-panel" style="background-color: transparent; border: 0;">
-            <!-- create an iframe with a transparent background and height larger than necessary.
-                 the iframe's content document contains a div with a white background, which
-                 has a height that may change.  this gives the illusion that the iframe itself
-                 is being resized. -->
-            <iframe style="background-color: transparent;" width="650" height="700"
-                id="libx-popup-iframe"/>
-        </panel>
-    </popupset>
     
 </overlay>
 

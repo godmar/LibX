@@ -117,9 +117,7 @@ libx.ui.tabs.create = function (url) {
     }
     
     // hide the LibX popup when opening a new tab
-    var popupPanel = document.getElementById('libx-popup-panel');
-    if(popupPanel)
-        popupPanel.hidePopup();
+    window.focus();
     
     // open URL in new tab
     var tab = getBrowser().addTab.apply(getBrowser(), tabarguments);
