@@ -116,12 +116,13 @@ libx.ui.tabs.create = function (url) {
         var windowarguments = [ url2, null, postData ];
     }
     
-    // hide the LibX popup when opening a new tab
-    window.focus();
-    
     // open URL in new tab
     var tab = getBrowser().addTab.apply(getBrowser(), tabarguments);
     getBrowser().selectedTab = tab;
+    
+    // hide the LibX popup when opening a new tab
+    window.focus();
+    document.getElementById('libx-panel').hidePopup();
         
 };
 
@@ -136,4 +137,3 @@ libx.ui.getCurrentWindowContent = function() {
 };
 
 // vim: ts=4
-

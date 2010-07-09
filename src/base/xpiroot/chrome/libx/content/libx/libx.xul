@@ -35,9 +35,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
 <overlay orient="vertical" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
-	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
-	<script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
+    <script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
+    <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
+    <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
     <script type="application/x-javascript">
         <![CDATA[
         
@@ -50,12 +50,12 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
         ]]>
     </script>
-	<script type="application/x-javascript" src="chrome://libx/content/core/window/ff/browser.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/browser.js" />
     <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/libx.js" />
 
-	<script type="application/x-javascript">
-	<![CDATA[
-	  // must postpone initialization until entire overlay is loaded into chrome
+    <script type="application/x-javascript">
+    <![CDATA[
+      // must postpone initialization until entire overlay is loaded into chrome
       window.addEventListener("load", function () {
         // delay LibX initialization until after all other handlers have executed
         // improves startup speed and avoids triggering bugs in Firefox proper on MacOS
@@ -70,50 +70,117 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
         window.addEventListener('load', function() {
             
-            var popupReference = { close: libx.core.EmptyFunction };
+            var button = document.getElementById('libx-button');
             
-            document.getElementById('libx-button').addEventListener('click', function() {
-                popupReference.close();
-                popupReference = window.open("chrome://libx/content/popup/popup.html",
-                    "libx-popup",
-                    "width=200,height=200,left=-10000,titlebar=no,resizable=no,scrollbars=no,status=no,chrome=yes,dependent=yes,minimizable=no");
-                        
-                popupReference.addEventListener('blur', function() {
-                    popupReference.close();
+            // use an alternative to panel for Windows due to Firefox bug #385609,
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=385609
+            var strOS = navigator.appVersion;
+            if(strOS.indexOf('Win') == -1) {
+                
+                var iframe = document.getElementById('libx-iframe'); 
+                
+                button.setAttribute('popup', 'libx-panel');
+                
+                button.addEventListener('click', function() {
+                    iframe.style.width = "0";
+                    iframe.style.height = "0";
+                    iframe.contentWindow.location = "chrome://libx/content/popup/popup.html";
                 }, false);
                 
-                popupReference.addEventListener('load', function() {
-                    var $ = popupReference.$;
+                libx.events.addListener('PopupLoaded', {
+                    onPopupLoaded: function() {
+                      
+                        var $ = iframe.contentWindow.$;
+                        $('body').css('border', '1px solid #666');
                 
-                    function adjustPopupPosition() {
-                        popupReference.innerWidth = $('body').outerWidth();
-                        popupReference.innerHeight = $('body').outerHeight();
-
-                        var buttonBox = document.getElementById('libx-button').boxObject;
+                        function adjustPopupPosition(e) {
                         
-                        var screenX = buttonBox.screenX - popupReference.outerWidth + buttonBox.width;
-                        var screenY = buttonBox.screenY + buttonBox.height;
+                            // this timeout is required to fix a bug in linux where
+                            // switching between full/simple views occasionally makes
+                            // the popup shrink too small
+                            setTimeout(function() {
+                                var width = $('body').outerWidth();
+                                var height = $('body').outerHeight();
+                                iframe.style.width = width + 'px';
+                                iframe.style.height = height +'px';
+                            }, 0);
+                        }
+                    
+                        $('body').bind('DOMSubtreeModified', adjustPopupPosition);
+                        adjustPopupPosition();
                         
-                        // readjust popup position if it goes off the screen
-                        if(screenX < 0)
-                            screenX = 0;
-                        if(screenY > screen.height - popupReference.outerHeight)
-                            screenY = screen.height - popupReference.outerHeight - 50;
-                            
-                        popupReference.screenX = screenX;
-                        popupReference.screenY = screenY;
                     }
-                    
-                    $('body').bind('DOMSubtreeModified', adjustPopupPosition);
-                    
+                });
+                
+            } else {
+            
+                var popupWindow = { close: libx.core.EmptyFunction };
+                
+                button.addEventListener('click', function() {
+                    popupWindow.close();
+                    popupWindow = window.open("chrome://libx/content/popup/popup.xul",
+                        "libx-popup",
+                        "chrome=yes,dependent=yes");
                 }, false);
                 
-            }, false);
+                libx.events.addListener('PopupLoaded', {
+                    onPopupLoaded: function() {
+
+                        var iframe = popupWindow.document.getElementById('iframe');
+                        
+                        // close popup if user clicks outside of it
+                        iframe.contentWindow.addEventListener('blur', function() {
+                            popupWindow.close();
+                        }, false);
+                    
+                        // close popup if user presses Esc
+                        popupWindow.addEventListener('keydown', function(e) {
+                            if(e.which == 27)
+                                popupWindow.close();
+                        }, false);
+                    
+                        var $ = iframe.contentWindow.$;
+                        $('body').css('border', '1px solid #666');
+                
+                        function adjustPopupPosition(e) {
+                            var width = $('body').outerWidth();
+                            var height = $('body').outerHeight();
+                            iframe.style.width = width + 'px';
+                            iframe.style.height = height +'px';
+                            popupWindow.innerWidth = width;
+                            popupWindow.innerHeight = height;
+                                
+                            var buttonBox = document.getElementById('libx-button').boxObject;
+                            var screenX = buttonBox.screenX - popupWindow.outerWidth + buttonBox.width;
+                            var screenY = buttonBox.screenY + buttonBox.height;
+        
+                            // readjust popup position if it goes off the screen
+                            if(screenX < 0)
+                                screenX = 0;
+                            if(screenY > screen.height - popupWindow.outerHeight)
+                                screenY = buttonBox.screenY - popupWindow.outerHeight;
+            
+                            popupWindow.moveTo(screenX, screenY);
+                        }
+                    
+                        $('body').bind('DOMSubtreeModified', adjustPopupPosition);
+                        adjustPopupPosition();
+                        
+                    }
+                });
+            
+            }
             
         }, false);
-            
         ]]>
     </script>
+    
+    <!-- used in all OSs except Windows -->
+    <popupset>
+        <panel position="after_end" id="libx-panel">
+            <iframe style="overflow: hidden;" id="libx-iframe"></iframe>
+        </panel>
+    </popupset>
     
     <toolbaritem id="urlbar-container">
         <toolbarbutton id="libx-button" insertafter="urlbar-search-splitter" 

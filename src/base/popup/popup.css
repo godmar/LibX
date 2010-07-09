@@ -1,10 +1,10 @@
 body {
-    font-family: Tahoma;
+    font-family: Tahoma, Nimbus Sans L;
     font-size: 12px;
     margin: 0;
-    padding: 8px;
-    overflow: hidden; /* removes scrollbars from Firefox */
+    padding: 5px;
     float: left; /* resizes body element for Firefox */
+    background-color: white;
 }
 
 a {
@@ -16,18 +16,16 @@ a:hover {
     color: black;
 }
 
-#full-view {
-    position: relative;
-}
-
 #edition-search-input {
-    width: 99%;
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
 .results {
     border: 1px solid #666;
     font-size: 11px;
-    font-family: Tahoma;
     padding: 0px;
     display: none;
     cursor: default;
@@ -139,6 +137,7 @@ a:hover {
 #change-edition {
     display: block;
     padding: 5px;
+    white-space: nowrap;
 }
 
 #change-edition-view {
@@ -213,8 +212,6 @@ ul {
     width: 100%;
 }
 
-/* input style="width: 100%; margin-bottom: 1px;" */
-
 #full-search-fields td:nth-child(3) {
     padding-left: 10px;
 }
@@ -259,13 +256,12 @@ ul {
     font-size: 10px;
 }
 
-#simple-view {
-    display: none;
-}
-
 #simple-view input {
-    width: 98%;
     margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
 #switch-view-full {
