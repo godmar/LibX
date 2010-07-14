@@ -115,11 +115,13 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             
                 var popupWindow = { close: libx.core.EmptyFunction };
                 
+                // left=-10000  creates the window off-screen to remove flickering
+                // titlebar=no  creates the window with no titlebar to fix layout artifacts glitch
                 button.addEventListener('click', function() {
                     popupWindow.close();
                     popupWindow = window.open("chrome://libx/content/popup/popup.xul",
                         "libx-popup",
-                        "titlebar=no,chrome=yes,dependent=yes");
+                        "left=-10000,titlebar=no,chrome=yes,dependent=yes");
                 }, false);
                 
                 libx.events.addListener('PopupLoaded', {
@@ -141,7 +143,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                     
                         var $ = iframe.contentWindow.$;
                         $('body').css('border', '1px solid #666');
-                
+            
                         function adjustPopupPosition(e) {
                             var width = $('body').outerWidth();
                             var height = $('body').outerHeight();
@@ -162,9 +164,14 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             
                             popupWindow.moveTo(screenX, screenY);
                         }
-                    
+                        
                         $('body').bind('DOMSubtreeModified', adjustPopupPosition);
-                        adjustPopupPosition();
+                        
+                        // this timeout fixes a layout bug where the border for the change edition view
+                        // is not set correctly
+                        setTimeout(function() {
+                            adjustPopupPosition();
+                        }, 0);
                         
                     }
                 });
