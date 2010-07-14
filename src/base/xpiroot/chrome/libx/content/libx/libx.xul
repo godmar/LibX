@@ -80,7 +80,6 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                 var iframe = document.getElementById('libx-iframe'); 
                 
                 button.setAttribute('popup', 'libx-panel');
-                
                 button.addEventListener('click', function() {
                     iframe.style.width = "0";
                     iframe.style.height = "0";
@@ -120,13 +119,14 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                     popupWindow.close();
                     popupWindow = window.open("chrome://libx/content/popup/popup.xul",
                         "libx-popup",
-                        "chrome=yes,dependent=yes");
+                        "titlebar=no,chrome=yes,dependent=yes");
                 }, false);
                 
                 libx.events.addListener('PopupLoaded', {
                     onPopupLoaded: function() {
 
                         var iframe = popupWindow.document.getElementById('iframe');
+                        iframe.contentWindow.focus();
                         
                         // close popup if user clicks outside of it
                         iframe.contentWindow.addEventListener('blur', function() {
