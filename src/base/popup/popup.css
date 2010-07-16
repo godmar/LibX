@@ -224,17 +224,30 @@ ul {
     text-align: center;
 }
 
-#about-view div:nth-child(1) {
+#about-view h1 {
+    margin: 0;
     font-weight: bold;
     font-size: 20px;
 }
 
-#about-view div:nth-child(2) {
+#about-view h2{
+    margin: 0;
+    font-weight: normal;
     font-size: 15px;
 }
 
-#about-view div:nth-child(3) {
+#about-view h3 {
+    margin: 0;
+    font-weight: normal;
     font-style: italic;
+}
+
+.about-footer {
+    margin-top: 25px;
+}
+
+.about-footer div {
+    font-size: 11px;
 }
 
 #switch-simple-view {

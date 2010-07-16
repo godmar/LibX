@@ -3,12 +3,12 @@ popup.pageActions.autoSense = function () {
 
 libx.ui.tabs.sendRequestToSelected( { type: "pageEdition" }, function(response) {
     
-    if(!response.edition)
+    if(!response.id)
         return;
     
     function loadEdition() {
         libx.cache.defaultMemoryCache.get({
-            url: "http://libx.org/editions/config/" + response.edition,
+            url: "http://libx.org/editions/config/" + response.id,
             dataType: "json",
             success: function(json) {
                 try {
@@ -20,7 +20,7 @@ libx.ui.tabs.sendRequestToSelected( { type: "pageEdition" }, function(response) 
                     libx.loadConfig(configUrl);
                 } catch(e) {
                     libx.log.write("Error loading auto-sensed URL " +
-                        "http://libx.org/editions/config/" + response.edition + ": " + e);
+                        "http://libx.org/editions/config/" + response.id + ": " + e);
                 }
             }
         });
@@ -35,19 +35,41 @@ libx.ui.tabs.sendRequestToSelected( { type: "pageEdition" }, function(response) 
         var pageRev = getRevision(response.version);
             
         // prompt to update
-        if(libx.edition.id != response.edition || pageRev > myRev) {
-            var update_message = libx.locale.getProperty("update_message1", myRev, libx.edition.id) + 
-                "<br/>" + libx.locale.getProperty("update_message2", pageRev, response.edition);
-            var update_link = libx.locale.getProperty("update_link");
-            var div = $('<div><p>' + update_message + '</p></div>');
-            $('<div><a href="#">' + update_link + '</a></div>').appendTo(div).click(function() {
-                loadEdition();
-            });
-            popup.addPageAction(div);
+        if(libx.edition.id != response.id || pageRev > myRev) {
+            
+            function showPrompt(name) {
+                var update_message = "<p>" + libx.locale.getProperty("update_message1", myRev, libx.edition.id, libx.edition.name.edition) + "</p>"
+                    + "<p>" + libx.locale.getProperty("update_message2", pageRev, response.id, name) + "</p>";
+                var update_link = libx.locale.getProperty("update_message3", pageRev, response.id, name);
+                var div = $('<div>' + update_message + '</div>');
+                $('<div><a href="#">' + update_link + '</a></div>').appendTo(div).click(function() {
+                    loadEdition();
+                });
+                popup.addPageAction(div);
+            }
+            
+            if(!response.name) {
+                libx.cache.defaultMemoryCache.get({
+                    url: "http://libx.org/editions/search?q=" + response.id,
+                    dataType: "json",
+                    success: function(json) {
+                        var name = "Unknown edition";
+                        for(var i = 0; i < json.length; i++) {
+                            if(json[i].id == response.id) {
+                                name = json[i].shortDesc;
+                                break;
+                            }
+                        }
+                        showPrompt(name);
+                    }
+                });
+            } else
+                showPrompt(response.name);
+                
         }
 
         // automatically update
-        else if(libx.edition.id == response.edition && pageRev == myRev && popup.firstLoad) {
+        else if(libx.edition.id == response.id && pageRev == myRev && popup.firstLoad) {
             loadEdition();
         }
     

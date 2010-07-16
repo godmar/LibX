@@ -9,6 +9,8 @@
     "label_select" :        { "message" : "Select a LibX edition:" },
     "label_error" :         { "message" : "Could not load configuration from" },
     "about_adapted" :       { "message" : "Adapted by:" },
+    "about_writtenby" :     { "message" : "LibX was written by:" },
+    "about_contrib" :       { "message" : "Contributors:" },
     "view_simple" :         { "message" : "Simple view" },
     "view_full" :           { "message" : "Full view" },
     "load_edition" :        { "message" : "Edition:" },
@@ -17,19 +19,27 @@
     "load_link" :           { "message" : "Load this edition" },
     "load_cancel" :         { "message" : "Cancel" },
     "button_search" :       { "message" : "Search" },
-    "update_message1" :     { "message" : "You have this LibX edition installed: $edition$, revision $revision$",
+    "update_message1" :     { "message" : "The currently active LibX configuration is \"$name$\", revision $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
-                                "edition":    { "content": "$2" }
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
                               }
                             },
-    "update_message2" :     { "message" : "You are visiting this LibX edition: $edition$, revision $revision$",
+    "update_message2" :     { "message" : "The page you are looking at advertises LibX configuration \"$name$\", revision $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
-                                "edition":    { "content": "$2" }
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
                               }
                             },
-    "update_link" :         { "message" : "Update to this revision" },
+    "update_message3" :     { "message" : "Click here to activate LibX configuration \"$name$\", revision $revision$ (id: $edition$).",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
     "search_and" :          { "message" : "AND" },
     "search_more" :         { "message" : "more..." }
 }
