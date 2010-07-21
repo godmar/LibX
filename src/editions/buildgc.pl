@@ -5,6 +5,11 @@ use XML::LibXML;
 use HTML::Entities;
 use Cwd;
 
+# directory to which built files are output
+my $fs_base_dir = "/home/www/libx.org/releases/";
+# URL at which build is accessible
+my $publish_base_url = "http://libx.org/releases/";
+
 # path to private key file
 my $keypath = "/home/www/libxprivatekey/libx.pem";
 
@@ -40,7 +45,7 @@ while ($_ = $ARGV[0]) {
 }
 
 # path to update directory
-my $updatepath = "/home/www/libx.org/releases/gc";
+my $updatepath = $fs_base_dir . "gc";
 
 -d $updatepath || &usage("directory $updatepath does not exist.");
 
@@ -54,8 +59,8 @@ my $crxfile = "libx2-$localbuild$conf{builddate}.crx";
 
 # use days since epoch for versioning due to chrome's strict versioning rules
 $conf{'libxversion'} = '2.0.' . int(time/86400);
-$conf{'emupdateURL'} = "http://libx.org/releases/gc/updates.xml";
-$conf{'crxlocation'} = "http://libx.org/releases/gc/$crxfile";
+$conf{'emupdateURL'} = $publish_base_url . "gc/updates.xml";
+$conf{'xpilocation'} = $publish_base_url . "gc/$crxfile";
 #######################################################
 
 #
