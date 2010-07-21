@@ -5,6 +5,11 @@ use XML::LibXML;
 use HTML::Entities;
 use Cwd;
 
+# directory to which built files are output
+my $fs_base_dir = "/home/www/libx.org/releases/";
+# URL at which build is accessible
+my $publish_base_url = "http://libx.org/releases/";
+
 my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 
 # directory that contains key3.db
@@ -56,7 +61,7 @@ while ($_ = $ARGV[0]) {
 }
 
 # path to update directory
-my $updatepath = "/home/www/libx.org/releases/ff";
+my $updatepath = $fs_base_dir . "ff";
 
 -d $updatepath || &usage("directory $updatepath does not exist.");
 
@@ -70,8 +75,8 @@ my $xpifile = "libx2-$localbuild$conf{builddate}.xpi";
 
 # use days since epoch for versioning due to chrome's strict versioning rules
 $conf{'libxversion'} = '2.0.' . int(time/86400);
-$conf{'emupdateURL'} = "http://libx.org/releases/ff/update.rdf";
-$conf{'xpilocation'} = "http://libx.org/releases/ff/$xpifile";
+$conf{'emupdateURL'} = $publish_base_url . "ff/update.rdf";
+$conf{'xpilocation'} = $publish_base_url . "ff/$xpifile";
 #######################################################
 
 #
