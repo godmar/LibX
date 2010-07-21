@@ -41,6 +41,13 @@
                                 "name":       { "content": "$3" }
                               }
                             },
+    "proxy_message1" :      { "message" : "Die Seite kann über den Proxy-Server \"$proxyname$\" geladen werden.",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" },
+                                "proxytype":  { "content": "$2" }
+                              }
+                            },
+    "proxy_message2" :      { "message" : "Klicken Sie hier, um diese Seite über den Proxy-Server zu laden." },
     "search_and" :          { "message" : "UND" },
     "search_more" :         { "message" : "mehr..." }
 }
