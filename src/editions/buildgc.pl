@@ -72,7 +72,6 @@ sub copyandreplace
     my ($src, $dst) = @_;
 
     # copy files, replacing variables
-    print "processing $src to $dst\n";
     local (*FS);
     open (FS, "<$src") || die "Could not open $src for reading";
     my $srctext = do { local ($/); <FS> };      # slurp
@@ -115,7 +114,7 @@ foreach my $key ( keys %filemap ) {
     }
 }
 
-system("rm $updatepath/$crxfile; " .
+system("rm -f $updatepath/$crxfile; " .
        "cd $tmpdir; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
        "crxmake --pack-extension=. --extension-output=$updatepath/$crxfile --pack-extension-key=$keypath") == 0 || die "crxmake failed";
