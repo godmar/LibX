@@ -192,7 +192,7 @@ function updateRequests (cachedRequests) {
             };
         }) (request);
         
-        getMetaData(paramObj);
+        getMetadata(paramObj);
 
     }
 }

@@ -82,50 +82,6 @@ libx.ui.initialize = function() {
     }, true);
 };
 
-// open search results
-libx.ui.tabs.create = function (url) {
-    /* 
-     * Posting. Follows http://developer.mozilla.org/en/docs/Code_snippets:Post_data_to_window
-     */
-    function convertPostString2PostData (dataString) {
-        // POST method requests must wrap the encoded text in a MIME stream
-        const Cc = Components.classes;
-        const Ci = Components.interfaces;
-        var stringStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
-        if ("data" in stringStream) // Gecko 1.9 or newer
-            stringStream.data = dataString;
-        else // 1.8 or older
-            stringStream.setData(dataString, dataString.length);
-
-        var postData = Cc["@mozilla.org/network/mime-input-stream;1"].createInstance(Ci.nsIMIMEInputStream);
-        postData.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        postData.addContentLength = true;
-        postData.setData(stringStream);
-        return postData;
-    }
-
-    var isGet = typeof (url) == "string";
-    var url2 = isGet ? url : url[0];
-
-    if (isGet) {
-        var tabarguments = [ url2 ];
-        var windowarguments = [ url2 ];
-    } else {
-        var postData = convertPostString2PostData(url[1]);
-        var tabarguments = [ url2, null, null, postData ];
-        var windowarguments = [ url2, null, postData ];
-    }
-    
-    // open URL in new tab
-    var tab = getBrowser().addTab.apply(getBrowser(), tabarguments);
-    getBrowser().selectedTab = tab;
-    
-    // hide the LibX popup when opening a new tab
-    window.focus();
-    document.getElementById('libx-panel').hidePopup();
-        
-};
-
 /**
  * Returns a Window object for the primary content window.
  * See https://developer.mozilla.org/en/DOM/window.content

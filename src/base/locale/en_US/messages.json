@@ -40,6 +40,13 @@
                                 "name":       { "content": "$3" }
                               }
                             },
+    "proxy_message1" :      { "message" : "This page can be reloaded using the \"$proxyname$\" proxy (type: $proxytype$).",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" },
+                                "proxytype":  { "content": "$2" }
+                              }
+                            },
+    "proxy_message2" :      { "message" : "Click here to reload this page using the proxy." },
     "search_and" :          { "message" : "AND" },
     "search_more" :         { "message" : "more..." }
 }

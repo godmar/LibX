@@ -1,7 +1,7 @@
 
 popup.pageActions.autoSense = function () {
-
-libx.ui.tabs.sendRequestToSelected( { type: "pageEdition" }, function(response) {
+        
+function doAutoSense(response) {
     
     if(!response.id)
         return;
@@ -73,13 +73,18 @@ libx.ui.tabs.sendRequestToSelected( { type: "pageEdition" }, function(response) 
             loadEdition();
         }
     
-        // do nothing
+        // otherwise, do nothing
             
     } else {
         // user has no edition yet; load edition on current page
         loadEdition();
     }
     
+}
+
+// autosense document in the currently selected tab
+libx.ui.tabs.getSelected( function(tab) {
+    libx.ui.tabs.sendRequest( tab.id, { type: "pageEdition" }, doAutoSense );
 });
 
 };
