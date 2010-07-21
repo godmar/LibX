@@ -1,6 +1,6 @@
 {
     "background_page": "libx.html",
-    "name": "LibX for Google Chrome",
+    "name": "__MSG_extension_name__",
     "version": "$libxversion$",
     "icons": {
         "48": "libx2-48.png",

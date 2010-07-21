@@ -1,4 +1,5 @@
 {
+    "extension_name":       { "message" : "LibX for Google Chrome" },
     "tab_search" :          { "message" : "Search" },
     "tab_links" :           { "message" : "Links" },
     "tab_about" :           { "message" : "About" },
