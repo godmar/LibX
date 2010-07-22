@@ -7,7 +7,8 @@ content libx    chrome/libx/content/libx/ xpcnativewrappers=no contentaccessible
 skin	libx	classic/1.0	chrome/libx/skin/libx/
 
 locale	libx	en-US	chrome/libx/locale/en_US/
-locale  libx    de-DE   chrome/libx/locale/de/
+locale  libx    de   chrome/libx/locale/de/
+locale  libx    ja   chrome/libx/locale/ja/
 
 # LibX documentation, if included, will be accessible at 
 # chrome://libxdoc/content/index.html
