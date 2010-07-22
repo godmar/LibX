@@ -1,0 +1,53 @@
+{
+    "extension_name":       { "message" : "LibX for Google Chrome" },
+    "tab_search" :          { "message" : "検索" },
+    "tab_links" :           { "message" : "リンク" },
+    "tab_about" :           { "message" : "LibXについて" },
+    "tab_change" :          { "message" : "Editionの変更" },
+    "tab_pageactions" :     { "message" : "Page Actions" },
+    "label_search" :        { "message" : "" },
+    "label_for" :           { "message" : "で検索します" },
+    "label_select" :        { "message" : "LibXのeditionを選択して下さい:" },
+    "label_error" :         { "message" : "設定を読み込みことができませんでした" },
+    "about_adapted" :       { "message" : "Adapted by:" },
+    "about_writtenby" :     { "message" : "LibX was written by:" },
+    "about_contrib" :       { "message" : "Contributors:" },
+    "view_simple" :         { "message" : "簡易表示" },
+    "view_full" :           { "message" : "詳細表示" },
+    "load_edition" :        { "message" : "Edition:" },
+    "load_maintainers" :    { "message" : "Maintainers:" },
+    "load_revision" :       { "message" : "Revision:" },
+    "load_link" :           { "message" : "このEditionを読み込みます" },
+    "load_cancel" :         { "message" : "キャンセル" },
+    "button_search" :       { "message" : "検索" },
+    "update_message1" :     { "message" : "このLibXの設定は \"$name$\" です。現在のバージョンは revision $revision$ (id: $edition$) です.",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "update_message2" :     { "message" : "このページで新しいLibXの設定 \"$name$\" が見つかりました。バージョンは revision $revision$ (id: $edition$) です.",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "update_message3" :     { "message" : "クリックで Libxの設定 \"$name$\" が有効になります。バージョンは revision $revision$ (id: $edition$) です.",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "proxy_message1" :      { "message" : "このページはProxy \"$proxyname$\" (type: $proxytype$) により再読み込みされました.",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" },
+                                "proxytype":  { "content": "$2" }
+                              }
+                            },
+    "proxy_message2" :      { "message" : "Proxyを使用して、このページを再度読み込んで下さい." },
+    "search_and" :          { "message" : "AND" },
+    "search_more" :         { "message" : "項目を追加..." }
+}
