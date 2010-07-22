@@ -9,10 +9,13 @@
 libx.locale.bd = (function() {
     
     var localeObj = null;
+    var defaultLocaleObj = null;
     
     return {
         
         initialize: function() {
+
+            // retrieve translation for user's language
             libx.cache.defaultMemoryCache.get({
                 dataType: "json",
                 url: "chrome://libx/locale/messages.json",
@@ -21,6 +24,17 @@ libx.locale.bd = (function() {
                     localeObj = result;
                 }
             });
+            
+            // retrieve default locale for missing translation messages
+            libx.cache.defaultMemoryCache.get({
+                dataType: "json",
+                url: "chrome://libxdefaultlocale/content/messages.json",
+                serverMIMEType: "application/json",
+                success: function(result) {
+                    defaultLocaleObj = result;
+                }
+            });
+            
         },
         
         /**
@@ -30,7 +44,7 @@ libx.locale.bd = (function() {
          *  @return {String} Formatted property
          */
         getFormattedString : function ( name, args ) {
-            return localeObj[name].message.replace(/\$([a-zA-Z0-9_]+)\$/g, function(str, match) {
+            return this.getString(name).replace(/\$([a-zA-Z0-9_]+)\$/g, function(str, match) {
                 var placeholder = localeObj[name].placeholders[match];
                 if(!placeholder)
                     throw new Error("placeholder '" + match + "' not defined.");
@@ -54,7 +68,10 @@ libx.locale.bd = (function() {
          *  @return {String} property
          */
         getString : function ( name ) {
-            return localeObj[name].message;
+            var str = localeObj[name];
+            if(!str)
+                str = defaultLocaleObj[name];
+            return str.message;
         }
         
     };

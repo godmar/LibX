@@ -1,5 +1,6 @@
 {
-    "extension_name":       { "message" : "LibX für Google Chrome" },
+    "translator" :          { "message" : "Godmar Back (godmar@gmail.com)" },
+    "extension_name" :      { "message" : "LibX für Google Chrome" },
     "tab_search" :          { "message" : "Kataloge" },
     "tab_links" :           { "message" : "Ressourcen" },
     "tab_about" :           { "message" : "Impressum" },

@@ -197,6 +197,7 @@ ul {
 
 #full-search-fields td, th {
     padding: 0;
+    white-space: nowrap;
 }
 
 #full-search-fields td:nth-child(1) {
@@ -248,6 +249,10 @@ ul {
 
 .about-footer div {
     font-size: 11px;
+}
+
+#about-translator {
+    display: none;
 }
 
 #switch-simple-view {

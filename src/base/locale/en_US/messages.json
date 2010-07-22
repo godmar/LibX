@@ -1,5 +1,6 @@
 {
-    "extension_name":       { "message" : "LibX for Google Chrome" },
+    "translator" :          { "message" : "" },
+    "extension_name" :      { "message" : "LibX for Google Chrome" },
     "tab_search" :          { "message" : "Search" },
     "tab_links" :           { "message" : "Links" },
     "tab_about" :           { "message" : "About" },
@@ -12,6 +13,7 @@
     "about_adapted" :       { "message" : "Adapted by:" },
     "about_writtenby" :     { "message" : "LibX was written by:" },
     "about_contrib" :       { "message" : "Contributors:" },
+    "about_translator" :    { "message" : "This translation by:" },
     "view_simple" :         { "message" : "Simple view" },
     "view_full" :           { "message" : "Full view" },
     "load_edition" :        { "message" : "Edition:" },

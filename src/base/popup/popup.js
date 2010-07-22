@@ -33,6 +33,10 @@ return {
                 $(this).text(libx.locale.getProperty($.trim($(this).text())));
         });
         
+        // show translation credits
+        if(libx.locale.getProperty('translator'))
+            $('#about-translator').show();
+        
         accordionMenu = libx.ui.jquery.accordionmenu($, {
             menu: $('#simple-menu')
         });
@@ -275,7 +279,7 @@ return {
             var index = numFields++;
             fullSelectedOptions[index] = searchOptions[0].value;
             
-            var field = $('<tr><td nowrap="nowrap"></td>' +
+            var field = $('<tr><td></td>' +
                           '<td><input type="text"/></td>' +
                           '<td><a href="#">' + libx.locale.getProperty('search_more') + '</a></td></tr>');
             
