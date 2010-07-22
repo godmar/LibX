@@ -71,10 +71,15 @@ my %conf = ();
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 
-my $xpifile = "libx2-$localbuild$conf{builddate}.xpi";
+my $xpiname = "libx2-$localbuild$conf{builddate}";
+my $xpifile = "";
+my $dailyrev = 0;
+while(-f $updatepath . "/" . ($xpifile = $xpiname . ($dailyrev ? "-" . $dailyrev : "") . ".xpi")) {
+    $dailyrev++;
+}
 
 # use days since epoch for versioning due to chrome's strict versioning rules
-$conf{'libxversion'} = '2.0.' . int(time/86400);
+$conf{'libxversion'} = "2.0." . int(time/86400) . "." . $dailyrev;
 $conf{'emupdateURL'} = $publish_base_url . "ff/update.rdf";
 $conf{'xpilocation'} = $publish_base_url . "ff/$xpifile";
 #######################################################
@@ -88,7 +93,6 @@ sub copyandreplace
     my ($src, $dst) = @_;
 
     # copy files, replacing variables
-    print "processing $src to $dst\n";
     local (*FS);
     open (FS, "<$src") || die "Could not open $src for reading";
     my $srctext = do { local ($/); <FS> };      # slurp
@@ -136,8 +140,7 @@ if (defined($docinputdir)) {
     $addtoplevelfiles .= " documentation.jar";
 }
 
-system("rm $updatepath/$xpifile; " .
-       "cd $tmpdir; " .
+system("cd $tmpdir; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
        "zip -r $updatepath/$xpifile ./chrome ./components " . $addtoplevelfiles) == 0 || die "zip failed";
 

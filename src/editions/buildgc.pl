@@ -55,10 +55,15 @@ my %conf = ();
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 
-my $crxfile = "libx2-$localbuild$conf{builddate}.crx";
+my $crxname = "libx2-$localbuild$conf{builddate}";
+my $crxfile = "";
+my $dailyrev = 0;
+while(-f $updatepath . "/" . ($crxfile = $crxname . ($dailyrev ? "-" . $dailyrev : "") . ".crx")) {
+    $dailyrev++;
+}
 
 # use days since epoch for versioning due to chrome's strict versioning rules
-$conf{'libxversion'} = '2.0.' . int(time/86400);
+$conf{'libxversion'} = "2.0." . int(time/86400) . "." . $dailyrev;
 $conf{'emupdateURL'} = $publish_base_url . "gc/updates.xml";
 $conf{'crxlocation'} = $publish_base_url . "gc/$crxfile";
 #######################################################
@@ -114,15 +119,14 @@ foreach my $key ( keys %filemap ) {
     }
 }
 
-system("rm -f $updatepath/$crxfile; " .
-       "cd $tmpdir; " .
+system("cd $tmpdir; " .
        "find . -name CVS -type d | xargs /bin/rm -fr ; " .
        "crxmake --pack-extension=. --extension-output=$updatepath/$crxfile --pack-extension-key=$keypath") == 0 || die "crxmake failed";
 system("chmod g+w $updatepath/$crxfile") == 0 || die "chmod g+w failed";
 
 ############################################################
 
-# add hash to and sign updates.xml
+# replace updates.xml
 if ($localbuild eq "") {
     system("mv $tmpdir/updates.xml $updatepath/updates.xml") == 0 || die "could not move updates.xml";
 }
