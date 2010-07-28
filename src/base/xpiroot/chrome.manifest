@@ -11,6 +11,7 @@ locale  libx    en-US   chrome/libx/locale/en_US/
 locale  libx    de      chrome/libx/locale/de/
 locale  libx    ja      chrome/libx/locale/ja/
 locale  libx    it      chrome/libx/locale/it/
+locale  libx    fr      chrome/libx/locale/fr/
 
 content libxdefaultlocale chrome/libx/locale/en_US/
 
