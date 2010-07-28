@@ -1,0 +1,54 @@
+﻿{
+    "translator" :          { "message" : "Pare Francois-Xavier (francois-xavier.pare@umontreal.ca), Geoffroy Lucie (lucie.geoffroy@umontreal.ca)" },
+    "extension_name":       { "message" : "LibX pour Google Chrome" },
+    "tab_search" :          { "message" : "Recherche" },
+    "tab_links" :           { "message" : "Liens" },
+    "tab_about" :           { "message" : "À propos" },
+    "tab_change" :          { "message" : "Changer d'édition" },
+    "tab_pageactions" :     { "message" : "Actions de la page" },
+    "label_search" :        { "message" : "Rechercher" },
+    "label_for" :           { "message" : "pour..." },
+    "label_select" :        { "message" : "Sélectionner une édition de LibX:" },
+    "label_error" :         { "message" : "La configuration sélectionnée n'a pu être chargée" },
+    "about_adapted" :       { "message" : "Adapté par:" },
+    "about_writtenby" :     { "message" : "LibX a été développé par:" },
+    "about_contrib" :       { "message" : "Contributeurs:" },
+    "view_simple" :         { "message" : "Affichage compact" },
+    "view_full" :           { "message" : "Affichage complet" },
+    "load_edition" :        { "message" : "Édition:" },
+    "load_maintainers" :    { "message" : "Mise à jour par:" },
+    "load_revision" :       { "message" : "Révision:" },
+    "load_link" :           { "message" : "Charger cette édition" },
+    "load_cancel" :         { "message" : "Annuler" },
+    "button_search" :       { "message" : "Rechercher" },
+    "update_message1" :     { "message" : "La version présentement active de LibX est \"$name$\", révision $revision$ (id: $edition$).",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "update_message2" :     { "message" : "Cette page utilise LibX \"$name$\", révision $revision$ (id: $edition$).",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "update_message3" :     { "message" : "Cliquer ici pour activer la configuration LibX \"$name$\", révision $revision$ (id: $edition$).",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "proxy_message1" :      { "message" : "Cette page peut être rechargée en utilisant le proxy \"$proxyname$\" (type: $proxytype$).",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" },
+                                "proxytype":  { "content": "$2" }
+                              }
+                            },
+    "proxy_message2" :      { "message" : "Cliquer ici pour recharger cette page en utilisant le proxy." },
+    "search_and" :          { "message" : "ET" },
+    "search_more" :         { "message" : "plus..." }
+}
