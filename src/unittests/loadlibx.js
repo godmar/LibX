@@ -258,15 +258,54 @@ libx.utils.timer = {
     }
 };
 */
+
+/**
+ * Emulate HTML5 localStorage.
+ * http://dev.w3.org/html5/webstorage/#the-storage-interface
+ */
+localStorage = new Array();
+localStorage.byKey = { };
+localStorage.key = function (index) {
+    return this[index] == undefined ? null : this[index].key;
+}
+
+localStorage.getItem = function (key) {
+    return this.byKey[key] != undefined ? this.byKey[key].data : null;
+}
+
+localStorage.setItem = function (key, data) {
+    if (this.byKey[key] == undefined) {
+        var entry = { key : key, data: data, index: this.length };
+        this.push(entry);
+        this.byKey[key] = entry;
+    }
+
+    this.byKey[key] = data;
+}
+
+localStorage.removeItem = function (key) {
+    var entry = this.byKey[key];
+    if (entry != undefined) {
+        this.splice(entry.index, 1);
+        delete this.byKey[key];
+    }
+}
+
+localStorage.clear = function () {
+    this.splice(0, this.length);
+    this.byKey = { };
+}
+
 libx.log = {
     write : function (msg) { println (msg); },
 };
 var libxscripts2 = [
+    "global/gc/storage.js",
     "global/shared/cache/objectcache.js",
     "global/shared/services/crossref.js",
     "global/shared/services/pubmed.js",
     "global/shared/utils/stdnumsupport.js",
-    "window/shared/ui/magicsearch.js",
+    // "window/shared/ui/magicsearch.js",
 ];
 
 loadScript(libxscripts2);

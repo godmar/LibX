@@ -3,8 +3,7 @@
 
 var suite = libx.testing.createUnitTestSuite("Tests for activity queue",
     function () {
-        // load("../base/bootstrapped/global/shared/utils/collections/trie.js");
-        load("../base/core/global/shared/libx.js");
+        /* nothing */
         return 0;
     });
 
