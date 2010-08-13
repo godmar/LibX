@@ -40,9 +40,8 @@ libx.cache.MemoryCache = ( function () {
  */
 function invokeCallbacks(xmlHttpReq, requests, result) {
     
-    // local files do not return http status codes, simply status 0
-    //XXX: make sure 0 never gets returned in any error cases
-    if (xmlHttpReq.status == 200 || xmlHttpReq.status == 0) {
+    // local files always return 0
+    if (xmlHttpReq.status == 200 || (xmlHttpReq.status == 0 && result)) {
         // 200 OK
         for (var i = 0; i < requests.length; ++i) {
             if (typeof requests[i].success == "function") {

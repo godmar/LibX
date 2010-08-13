@@ -37,14 +37,13 @@ var cacheStore = new libx.storage.Store('cache');
 var metaStore = new libx.storage.Store('metacache');
 
 function flagSuccess (request, metadata) {
-    if (request.success) {
-        cacheStore.getItem({
-            key: metadata.originURL,
-            success: function(text) {
-                request.success(text, metadata);
-            }
-        });
-    }
+    cacheStore.getItem({
+        key: metadata.originURL,
+        success: function(text) {
+            request.success(text, metadata);
+        },
+        complete: request.complete
+    });
 }
 
 var RetrievalType = { 
@@ -63,16 +62,14 @@ function retrieveRequest(request, retrievalType) {
         url: request.url,
         serverMIMEType: request.serverMIMEType,
         bypassCache: true,
-        complete: function (data, status, xhr) {
+        error: function(data, status, xhr) {    
             if (status == 304) {
                 libx.log.write("304 object not modified " + request.url, "objectcache");
             }
-            
-            // Callback for handling file:// url requests, which
-            // return a 0 for success, not a 200
-            if ( status == 0 ) {
-            	this.success ( data, status, xhr );
-            }
+            if(request.error)
+                request.error(status);
+            if(request.complete)
+                request.complete();
         },
         success: function (data, status, xhr) {
             var contentType = xhr.getResponseHeader("Content-Type");
@@ -157,20 +154,6 @@ function putMetadata(paramObj) {
     });
 }
 
-function handleRequest(request) {
-    
-    getMetadata({
-        url: request.url,
-        success: function(data) {
-            flagSuccess (request, data);
-        },
-        notfound: function() {
-            retrieveRequest(request, RetrievalType.GET);
-        }
-    });
-    
-}
-
 function updateRequests (cachedRequests) {
     libx.log.write("updating requests: " + cachedRequests.length, "objectcache");
     var lastMetadata = []
@@ -235,7 +218,15 @@ libx.cache.ObjectCache = libx.core.Class.create(
      */
     get : function (request) {
 
-        handleRequest(request);
+        getMetadata({
+            url: request.url,
+            success: function(data) {
+                flagSuccess (request, data);
+            },
+            notfound: function() {
+                retrieveRequest(request, RetrievalType.GET);
+            }
+        });
         
         if (request.keepUpdated)
             this.cachedRequests.push(request);
