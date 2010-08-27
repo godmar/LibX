@@ -270,17 +270,18 @@ localStorage.key = function (index) {
 }
 
 localStorage.getItem = function (key) {
-    return this.byKey[key] != undefined ? this.byKey[key].data : null;
+    var rc = this.byKey[key] != undefined ? this.byKey[key].data : null;
+    return rc;
 }
 
 localStorage.setItem = function (key, data) {
     if (this.byKey[key] == undefined) {
-        var entry = { key : key, data: data, index: this.length };
+        var entry = { key : key, index: this.length };
         this.push(entry);
         this.byKey[key] = entry;
     }
 
-    this.byKey[key] = data;
+    this.byKey[key].data = data;
 }
 
 localStorage.removeItem = function (key) {
@@ -294,6 +295,25 @@ localStorage.removeItem = function (key) {
 localStorage.clear = function () {
     this.splice(0, this.length);
     this.byKey = { };
+}
+
+localStorage.dump = function () {
+    for (var i = 0; i < this.length; i++) {
+        var entry = this[i];
+        println(i + ": key=" + entry.key + " size=" 
+            + entry.data.length + " data=" + entry.data.substring(0, 80));
+    }
+}
+
+function exec(cmd) {
+    var process = java.lang.Runtime.getRuntime().exec(cmd);
+    var inp = new DataInputStream(process.getInputStream());
+    var line = null;
+    while ((line = inp.readLine()) != null) {
+        println(line);
+    }
+    process.waitFor();
+    $exit = process.exitValue();
 }
 
 libx.log = {

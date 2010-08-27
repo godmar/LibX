@@ -27,6 +27,13 @@ var Test = libx.core.Class.create({
         this.output += msg;
     },
     /**
+     * Enter a URL where the files in this directory can be accessed.
+     *
+     * XXX make it easier for this to be per-developer.
+     */
+    baseUrl : "http://libx.org/libx-new/src/unittests/",
+
+    /**
      * Runs and evaluates a single test. Can be called by a launcher, or
      * by runAllTestsInSuite
      */
@@ -248,7 +255,8 @@ var Test = libx.core.Class.create({
      */
     WAIT : function (timeout, expect) {
         if (expect) this.timeout = true;
-        java.lang.Thread.currentThread().sleep(timeout * 1000);
+        $wait(timeout * 1000); 
+        // java.lang.Thread.currentThread().sleep(timeout * 1000);
     },
     /**
      * expect is a flag that means 'expect failure'
@@ -263,9 +271,9 @@ var Test = libx.core.Class.create({
                 });
                 return true;
             }
-            java.lang.Thread.currentThread().sleep(500);
+            this.WAIT(0.5, false);
         }
-        java.lang.Thread.currentThread().sleep(timeout % 500);
+        this.WAIT((timeout % 500)/1000.0, false);
         if (func) return;
         this.asserts.push({
             type  : "WAIT_FOR_CONDITION",
