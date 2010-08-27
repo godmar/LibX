@@ -26,17 +26,25 @@
 /**
  * @fileoverview
  *
- * Implement custom cache libx.cache.ObjectCache
+ * Implement custom cache libx.cache.ObjectCache.
+ *
  */
 (function () {
 
-var defaultUpdateInterval = 10 * 1000; // 10 sec for testing - please, if you activate that, don't leave your browser running.
-var defaultUpdateInterval = 24 * 60 * 60 * 1000;    // 24 hours
+// 10 sec for testing - please, if you activate that, don't leave your browser running.
+var defaultUpdateInterval = 10 * 1000; 
+// 24 hours
+var defaultUpdateInterval = 24 * 60 * 60 * 1000;    
 
+/* XXX these should not be global. They should be instance fields on ObjectCache */
 var cacheStore = new libx.storage.Store('cache');
 var metaStore = new libx.storage.Store('metacache');
 
-function flagSuccess (request, metadata) {
+/* 
+ * Retrieve a cached item from cacheStore. 
+ * Called only after hit in metaStore.
+ */
+function getCachedItem (request, metadata) {
     cacheStore.getItem({
         key: metadata.originURL,
         success: function(text) {
@@ -57,18 +65,21 @@ function retrieveRequest(request, retrievalType) {
         if (request.lastModified != null)
             headers["If-Modified-Since"] = request.lastModified;
     }
+
     libx.cache.defaultMemoryCache.get({
         header: headers,
         url: request.url,
         serverMIMEType: request.serverMIMEType,
         bypassCache: true,
         error: function(data, status, xhr) {    
-            if (status == 304) {
-                libx.log.write("304 object not modified " + request.url, "objectcache");
-            }
-            if(request.error)
+            // do not flag error or complete if auto-updating and the file has not changed
+            if (retrievalType == RetrievalType.UPDATE && status == 304)
+                return;
+
+            if (request.error);
                 request.error(status);
-            if(request.complete)
+
+            if (request.complete)
                 request.complete();
         },
         success: function (data, status, xhr) {
@@ -80,49 +91,63 @@ function retrieveRequest(request, retrievalType) {
                 originURL : request.url
             };
     
-            if(request.fetchDataUri) {
+            if (request.fetchDataUri) {
                 data = 'data:' + contentType + ';base64,' + libx.utils.binary.binary2Base64(data);
             }
             
             var oldMetadata = null;
             
-            var finishWrite = (function() {
-                var count = 0;
-                return function() {
-                    count++;
-                    // only continue after all operations below
-                    if(count < 2)
-                        return;
+            var queue = new libx.utils.collections.ActivityQueue();
+            var itemStoredInCacheStore = new libx.utils.collections.EmptyActivity();
+            queue.scheduleLast(itemStoredInCacheStore);
+
+            var metadataWritten = new libx.utils.collections.EmptyActivity();
+            queue.scheduleLast(metadataWritten);
+
+            var newVersionAvailable = {
+                onready: function() {
                     // fire 'update' on first retrieval or if last modified date signals newer version
-                    if (retrievalType == RetrievalType.UPDATE && (oldMetadata == null || true)) {  // XXX really only if: || DateBefore(oldMetadata.lastModified, metadata.lastModified)
+                    var lastModifiedTime = new Date(metadata.lastModified).getTime();
+                    if (retrievalType == RetrievalType.UPDATE && (oldMetadata == null || 
+                        (new Date(oldMetadata.lastModified)).getTime() < lastModifiedTime)) {
                         var updateEvent = new libx.events.Event("Update" + request.url);
                         updateEvent.metadata = metadata;
                         updateEvent.notify();
                     }
+
+                    // notify client
                     if (retrievalType == RetrievalType.GET) {
-                        flagSuccess(request, metadata);
+                        getCachedItem(request, metadata);
                     }
-                };
-            }) ();
+                }
+            }
+            queue.scheduleLast(newVersionAvailable);
+            newVersionAvailable.markReady();
             
             cacheStore.setItem({
                 key: request.url,
                 value: data,
-                complete: finishWrite
+                complete: function () {
+                    itemStoredInCacheStore.markReady();
+                }
             });
             
             getMetadata({
                 url: request.url,
-                success: function(data) { oldMetaData = data },
+                success: function (metadata) {
+                    oldMetadata = metadata;
+                },
                 complete: function() {
+                    // set or overwrite metadata
                     putMetadata({
                         url: request.url,
                         metadata: metadata,
-                        complete: finishWrite
+                        complete: function () {
+                            metadataWritten.markReady();
+                        }
                     });
                 }
             });
-
         }
     });
 }
@@ -176,13 +201,26 @@ function updateRequests (cachedRequests) {
         }) (request);
         
         getMetadata(paramObj);
-
     }
 }
 
 /**
- * A file-backed cache for objects such as AtomPub XML documents, 
+ * A backed cache for objects such as AtomPub XML documents, 
  * JavaScript files, and other resources such as images.
+ * Resources are addressed by a URL.
+ *
+ * Automatic update functionality: a resource can be "auto-updated,"
+ * in which case the cache will periodically check if a newer version
+ * is available.  If a newer version is available, it will be fetched,
+ * added to the cache, and an onUpdate event for that resource will
+ * be fired.
+ *
+ * Dependent resources: resources may have dependent resources.
+ * If a newer version of a resource that has dependent resources is available,
+ * dependent resources are checked.  This process is repeated transivitely
+ * until all resources have been checked.  Then the 'onUpdate' event is
+ * fired.  This ensures that a new version of all dependent resources is
+ * available when the onUpdate event for a resource with dependents is fired.
  *
  * @namespace
  */
@@ -220,8 +258,8 @@ libx.cache.ObjectCache = libx.core.Class.create(
 
         getMetadata({
             url: request.url,
-            success: function(data) {
-                flagSuccess (request, data);
+            success: function(metadata) {
+                getCachedItem (request, metadata);
             },
             notfound: function() {
                 retrieveRequest(request, RetrievalType.GET);
