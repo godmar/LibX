@@ -1,0 +1,7 @@
+An example resource.
+
+It refers to
+
+reference=file2.txt
+reference=file3.txt
+
