@@ -9,9 +9,11 @@
 /* This URL will be read from the edition/user configuration.
  * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
  */
+//TODO: change this to support new URL scheme
 var libappBase = "http://libx.org/libx2/libapps/";
-
-var rootPackages = [ { url: libappBase + "libxcore" } ];
+//var libappBase = "http://top.cs.vt.edu:8080/editionbuilder/feeds/libx2_feed/";
+//var libappBase = "http://libx2.cs.vt.edu/libx.org/libx2_feed/";
+var rootPackages = [ { url: libappBase + "1" } ];
 
 // This code registers all libapps on browser startup
 // Registrations will progress as quickly as the package tree

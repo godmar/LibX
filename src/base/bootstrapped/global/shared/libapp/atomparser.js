@@ -79,7 +79,7 @@ libx.libapp.PackageVisitor = libx.core.Class.create(
     }
 });
 
-function handleEntry(visitor, url) {
+function handleEntry(visitor, url, cacheMissActivity) {
 
     function handleEntryBody(xmlDoc, baseURL, entryNode) {
         var libx2Node = libx.utils.xpath.findSingleXML(
@@ -101,7 +101,6 @@ function handleEntry(visitor, url) {
         var nodeInfo = { 
             baseURL: baseURL,
             id: atomid,
-            atomEntry: entryNode,
             description: desc,
             entries: []
         };
@@ -151,8 +150,7 @@ function handleEntry(visitor, url) {
 
         for (var i = 0; libxEntries != null && i < libxEntries.length; i++) {
             nodeInfo.entries.push({
-                url: resolveURL(baseURL, String(libxEntries[i].getAttribute('src'))),
-                libxEntry: libxEntries[i]
+                url: resolveURL(baseURL, String(libxEntries[i].getAttribute('src')))
             });
         }
  
@@ -167,9 +165,19 @@ function handleEntry(visitor, url) {
 
     if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);
 
+    var cachehit = false;
     libx.cache.defaultObjectCache.get({
         url: pathDir,
+        cacheprobe: function (filecontent, metadata) {
+            if (metadata) {
+                this.success(filecontent, metadata);
+                cachehit = true;
+            } else if (cacheMissActivity)
+                cacheMissActivity.markReady();
+        },
         success: function (filecontent, metadata) {
+            if (cachehit)
+                return;
             var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
             var xpathExpr = "//atom:entry[atom:id/text() = '" + url + "']";
             var entry = libx.utils.xpath.findSingleXML(xmlDoc, xpathExpr, xmlDoc, ns);
@@ -208,9 +216,11 @@ libx.libapp.PackageWalker = libx.core.Class.create(
      * @see libx.libapp.PackageVisitor
      *
      * @param {libx.libapp.PackageVisitor} visitor
+     * @param {Object} cacheMissActivity - activity to mark ready if the libapp
+     *         is not in the object cache (optional)
      */
-    walk : function (visitor) {
-        handleEntry(visitor, this.rootPackage);
+    walk : function (visitor, cacheMissActivity) {
+        handleEntry(visitor, this.rootPackage, cacheMissActivity);
     }
 });
 

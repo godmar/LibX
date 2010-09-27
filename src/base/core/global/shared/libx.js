@@ -487,10 +487,6 @@ libx.loadConfig = function(configUrl) {
             libx.edition = edition;
             libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
 
-            var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
-            edLoadedEvent.edition = edition;
-            edLoadedEvent.notify();
-
             // Load all URLs marked as @type = 'bootglobal' in configuration
             var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
             if (bootGlobalUrls.length == 0) {
@@ -504,6 +500,10 @@ libx.loadConfig = function(configUrl) {
                 = new libx.bootstrap.BootStrapper( 
                 new libx.events.Event("GlobalBootstrapDone")
             );
+            
+            var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
+            edLoadedEvent.edition = edition;
+            edLoadedEvent.notify();
 
             for (var i = 0; i < bootGlobalUrls.length; i++)
                 globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });

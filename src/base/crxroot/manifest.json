@@ -18,13 +18,64 @@
             "https://*/*"
         ],
         "js": [
+            "popup/jquery.js",
+
+            // reinclude all of libx for each page visited
             "core/global/shared/core.js",
             "core/global/shared/libx.js",
             "core/global/shared/log.js",
+            "core/global/shared/utils/binary.js",
+            "core/global/gc/storage.js",
+            "core/global/shared/locale.js",
+            "core/global/shared/config.js",
+            "core/global/shared/config/xmlconfigwrapper.js",
+            "core/global/shared/config/editionconfigurationreader.js",
+            "core/global/shared/events.js",
+            "core/global/shared/utils/json.js", 
+            "core/global/shared/catalog.js",
+            "core/global/shared/catalog/catalog.js",
+            "core/global/shared/catalog/factory/bookmarklet.js",
+            "core/global/shared/catalog/factory/scholar.js",
+            "core/global/shared/catalog/factory/millenium.js",
+            "core/global/shared/catalog/factory/horizon.js",
+            "core/global/shared/catalog/factory/voyager.js",
+            "core/global/shared/catalog/factory/aleph.js",
+            "core/global/shared/catalog/factory/sirsi.js",
+            "core/global/shared/catalog/factory/web2.js",
+            "core/global/shared/catalog/factory/centralsearch.js",
+            "core/global/shared/catalog/factory/custom.js",
+            "core/global/shared/catalog/factory/evergreen.js",
+            "core/global/shared/catalog/factory/worldcat.js",
+            "core/global/shared/catalog/factory/vubis.js",
+            "core/global/shared/catalog/factory/voyager7.js",
+            "core/global/shared/catalog/factory/talisprism.js",
+            "core/global/shared/catalog/factory/polaris.js",
+            "core/global/shared/catalog/factory/openurlresolver.js",
+            "core/global/shared/proxy.js",
+            "core/global/shared/proxy/factory/ezproxy.js",
+            "core/global/shared/proxy/factory/wam.js",
+            "core/global/shared/bootstrap.js",
+            "core/window/gc/bootstrap.js",
             "core/global/gc/log.js",
-            "core/window/gc/ui/window.js",
-            "core/window/shared/ui/autosense.js"
+            "core/global/gc/cache.js",
+            "core/global/gc/utils/timer.js",
+            "core/global/gc/utils/xml.js",
+            "core/global/gc/locale.js",
+            "core/global/gc/utils/browserprefs.js",
+            "core/global/gc/utils/hash.js",
+            "core/global/shared/openurl.js",
+            "core/global/shared/utils/stdnumsupport.js",
+            "core/global/gc/utils/xpath.js",
+            "core/global/shared/services/xisbn.js",
+            
+            "core/window/gc/window.js",
+            "core/window/shared/ui/autosense.js",
+            "core/window/shared/libapp.js"
         ]
+    }, {
+        //TODO: change this URL after the builder is updated on libx.org
+        "matches": [ "http://top.cs.vt.edu/*/src/zul/libappbuilder.zul" ],
+        "js": [ "core/window/shared/libappbuilder.js" ]
     }],
     "permissions": [
         "tabs",

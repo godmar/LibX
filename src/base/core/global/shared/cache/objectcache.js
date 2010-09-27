@@ -48,6 +48,8 @@ function getCachedItem (request, metadata) {
     cacheStore.getItem({
         key: metadata.originURL,
         success: function(text) {
+            if (request.cacheprobe)
+                request.cacheprobe(text, metadata);
             request.success(text, metadata);
         },
         complete: request.complete
@@ -253,6 +255,10 @@ libx.cache.ObjectCache = libx.core.Class.create(
      *
      *  @param {String} extension (optional) required extension, if any.  If not given, the
      *      extension is computed from the returned Content-Type.
+     *
+     *  @param {Function} cacheprobe (optional) callback function containing the result of the
+     *      cache lookup.  If the object was not found in the cache, the callback is called
+     *      using null as the arguments.
      */
     get : function (request) {
 
@@ -262,6 +268,8 @@ libx.cache.ObjectCache = libx.core.Class.create(
                 getCachedItem (request, metadata);
             },
             notfound: function() {
+                if (request.cacheprobe)
+                    request.cacheprobe(null, null);
                 retrieveRequest(request, RetrievalType.GET);
             }
         });

@@ -17,10 +17,7 @@ libx.bootstrap.loadSubScript = function (scriptData, metadata, globalScope) {
         for(var i in globalScope)
             window[i] = globalScope[i];
         
-        // inject script element into background page
-        var script = document.createElement('script');
-        script.src = 'data:' + metadata.mimeType + ';base64,' + libx.utils.binary.binary2Base64(scriptData);
-        document.head.appendChild(script);
+        eval(scriptData);
     }) ();
     
 };

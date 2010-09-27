@@ -92,7 +92,67 @@ libx.events.addListener("EditionConfigurationLoaded", {
 var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
 if(configUrl)
     libx.loadConfig(configUrl);
+    
+chrome.extension.onRequest.addListener(function (request, sender, sendResponse) {
 
+    if (request.type == "magicImport") {
+        
+        function unserialize(obj) {
+        
+            if (typeof(obj) != "object")
+                return obj;
+                
+            if (typeof(obj._function_index) != "undefined") {
+                return function () {
+                    var args = arguments;
+                    chrome.tabs.sendRequest(sender.tab.id, {
+                        type: "magicImportFunction",
+                        index: obj._function_index,
+                        args: [].slice.call(args)
+                    });
+                };
+            }
+                
+            var newObj = (obj instanceof Array) ? [] : {};
+            for (var i in obj)
+                newObj[i] = unserialize(obj[i]);
+            
+            return newObj;
+        }
+            
+        var args = unserialize(request.requestObj);
+        
+        var obj = window;
+        for (var i = 0; i < request.func.length-1; i++)
+            obj = obj[request.func[i]];
+        
+        var prop = obj[request.func[request.func.length-1]];
+        if (typeof(prop) == "function") {
+            var result = prop.apply(obj, args);
+            sendResponse({ result: result }); //XXX: sending back XMLHttpRequest causes DOM Exception
+        } else {
+            sendResponse({ result: prop });
+        }
+        
+    } else if (request.type == "clearCache") {
+        alert('cache cleared!');
+        var cache = new libx.storage.Store('cache');
+        var metacache = new libx.storage.Store('metacache');
+        metacache.clear();
+        cache.clear();
+        delete libx.edition;
+        libx.libapp.loadedLibapps = [];
+        // load config if user has one set
+        var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
+        if(configUrl)
+            libx.loadConfig(configUrl);
+        sendResponse({});
+        
+    } else
+        sendResponse({});
+        
+});
+    
 </script>
 
 </head>

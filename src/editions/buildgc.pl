@@ -97,11 +97,12 @@ if (-d $tmpdir) {
 my $basedir = "../base";
 
 my %filemap = (
-    "$basedir/crxroot"   => "$tmpdir",
-    "$basedir/core"      => "$tmpdir/core",
-    "$basedir/dev"       => "$tmpdir/dev",
-    "$basedir/popup"     => "$tmpdir/popup",
-    "$basedir/locale"    => "$tmpdir/_locales"
+    "$basedir/crxroot"   	=> "$tmpdir",
+    "$basedir/core"      	=> "$tmpdir/core",
+    "$basedir/dev"       	=> "$tmpdir/dev",
+    "$basedir/popup"     	=> "$tmpdir/popup",
+    "$basedir/locale"    	=> "$tmpdir/_locales",
+    "$basedir/bootstrapped"	=> "$tmpdir/bootstrapped"
 );
 
 foreach my $key ( keys %filemap ) {
