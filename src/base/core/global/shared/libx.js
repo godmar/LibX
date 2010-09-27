@@ -394,7 +394,8 @@ libx.utils = {
  * A FIFO queue of activities
  *
  * Activities must not use 
- * properties 'next', 'previous', '_isReady', '_hasRun', and 'markReady'
+ * properties 'next', 'previous', '_isReady', '_hasRun', and 'markReady',
+ * 'scheduleBefore'
  */
 libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collections.LinkedList, 
     /** @lends libx.utils.collections.ActivityQueue.prototype */ {
@@ -406,6 +407,11 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
         activity.markReady = function () {
             var myArgs = [].splice.call(arguments, 0);
             queue.markReady.apply(queue, [activity].concat(myArgs));
+        }
+        /* insert another activity that must be done before this one. */
+        activity.scheduleBefore = function (beforeActivity) {
+            queue.prepareActivity(beforeActivity);
+            queue.insert(activity, beforeActivity);
         }
     },
     /**
