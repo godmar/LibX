@@ -59,6 +59,7 @@
 <script src="core/global/shared/ui/jquery/dropdown.js"></script>
 <script src="core/global/shared/ui/jquery/accordionmenu.js"></script>
 <script src="core/global/gc/ui/tabs.js"></script>
+<script src="core/global/shared/utils/geteditionresource.js"></script>
 
 <script>
 
@@ -71,21 +72,14 @@ try {
 // show edition icon after config is loaded
 libx.events.addListener("EditionConfigurationLoaded", {
     onEditionConfigurationLoaded: function() {
-    
-        /* Parse remote URL. Temporary implementation until config.xml is
-         * updated to not use chrome:// URLs. */
-        var iconUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)
-            .replace('/config.xml', '') + libx.edition.options.icon.replace('chrome://libx/skin', '');
-        libx.cache.defaultObjectCache.get({
-            type: 'GET',
-            url: iconUrl,
-            serverMIMEType: 'text/plain; charset=x-user-defined',
-            fetchDataUri: true,
-            success: function(data) {
+        libx.utils.getEditionResource({
+            url: libx.edition.options.icon,
+            success: function (data) {
                 chrome.browserAction.setIcon( { path: data } );
             }
         });
     }
+    
 });
 
 // load config if user has one set
@@ -104,11 +98,19 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
                 
             if (typeof(obj._function_index) != "undefined") {
                 return function () {
-                    var args = arguments;
+                    var args = [].slice.call(arguments);
+                    // avoid sending circular structures
+                    for (var i = 0; i < args.length; i++) {
+                        try {
+                            libx.utils.json.stringify(args[i]);
+                        } catch (e) {
+                            args[i] = {};
+                        }
+                    }
                     chrome.tabs.sendRequest(sender.tab.id, {
                         type: "magicImportFunction",
                         index: obj._function_index,
-                        args: [].slice.call(args)
+                        args: args
                     });
                 };
             }
@@ -128,8 +130,14 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
         
         var prop = obj[request.func[request.func.length-1]];
         if (typeof(prop) == "function") {
+            // avoid sending circular structures
             var result = prop.apply(obj, args);
-            sendResponse({ result: result }); //XXX: sending back XMLHttpRequest causes DOM Exception
+            try {
+                libx.utils.json.stringify(result);
+            } catch (e) {
+                result = {};
+            }
+            sendResponse({ result: result });
         } else {
             sendResponse({ result: prop });
         }

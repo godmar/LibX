@@ -331,80 +331,62 @@ return {
         popup.loadCatalog(catalog);
         
         // load catalog selection menus
-        {
-            var catalogs = [];
-            for(var i = 0; i < libx.edition.catalogs.length; i++) {
-                catalogs.push({
-                    text: libx.edition.catalogs[i].name,
-                    value: i
-                });
-            }
-            var link = $('<a href="#">' + libx.edition.catalogs[catalog].name + '</a>');
-            $('#full-catalogs').empty();
-            $('#full-catalogs').append(link);
-            function catalogChosen(num, name) {
-                popup.loadCatalog(num);
-                $('#full-catalogs > a').text(name);
-                $('#simple-menu-catalogs > a').text(name);
-            }
-            libx.ui.jquery.dropdown($, {
-                dropdown_items: catalogs,
-                field: link,
-                select: catalogChosen
+        var catalogs = [];
+        for(var i = 0; i < libx.edition.catalogs.length; i++) {
+            catalogs.push({
+                text: libx.edition.catalogs[i].name,
+                value: i
             });
-            accordionMenu.setMenuItems($('#simple-menu-catalogs'),
-                    libx.edition.catalogs[catalog].name, catalogs, catalogChosen);
         }
+        var link = $('<a href="#">' + libx.edition.catalogs[catalog].name + '</a>');
+        $('#full-catalogs').empty();
+        $('#full-catalogs').append(link);
+        function catalogChosen(num, name) {
+            popup.loadCatalog(num);
+            $('#full-catalogs > a').text(name);
+            $('#simple-menu-catalogs > a').text(name);
+        }
+        libx.ui.jquery.dropdown($, {
+            dropdown_items: catalogs,
+            field: link,
+            select: catalogChosen
+        });
+        accordionMenu.setMenuItems($('#simple-menu-catalogs'),
+                libx.edition.catalogs[catalog].name, catalogs, catalogChosen);
 
         // load edition image
-        {
-            // parse remote URL; temporary implementation until config.xml is
-            // updated to not use chrome URLs
-            var imgUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)
-                .replace('/config.xml', '') + libx.edition.options.logo.replace('chrome://libx/skin', '');
-            
-            var image = $('.edition-image');
-            
-            libx.cache.defaultObjectCache.get({
-                type: 'GET',
-                url: imgUrl,
-                serverMIMEType: 'text/plain; charset=x-user-defined',
-                fetchDataUri: true,
-                success: function(data) {
-                    image.attr('src', data);
-                }
-            });
-            
-            image.load(function() {
-                
-                // reset image width/height if changing edition image
-                image.width('');
-                image.height('');
-                
-                // reduce image if necessary, preserving aspect ratio
-                var img_width = image.attr('width');
-                var img_height = image.attr('height');
-                if(img_width > 75) {
-                    image.css('width', '75px');
-                    image.css('height', (75 * img_height / img_width) + 'px');
-                } else {
-                    image.css('width', img_width + 'px');
-                    image.css('height', img_height + 'px');
-                }
-            });
-        }
+        var image = $('.edition-image');
+        libx.utils.getEditionResource({
+            url: libx.edition.options.logo,
+            success: function (data) {
+                image.attr('src', data);
+            }
+        });
+        image.load(function() {
+            // reset image width/height if changing edition image
+            image.width('');
+            image.height('');
+            // reduce image if necessary, preserving aspect ratio
+            var img_width = image.attr('width');
+            var img_height = image.attr('height');
+            if(img_width > 75) {
+                image.css('width', '75px');
+                image.css('height', (75 * img_height / img_width) + 'px');
+            } else {
+                image.css('width', img_width + 'px');
+                image.css('height', img_height + 'px');
+            }
+        });
         
         // load edition links
-        {
-            $('#links').empty();
-            $.each(libx.edition.links, function(i, elem) {
-                var link = $('<li><a href="#">' + elem.label + '</a></li>');
-                link.click(function() {
-                    libx.ui.tabs.create(elem.href);
-                });
-                $('#links').append(link);
+        $('#links').empty();
+        $.each(libx.edition.links, function(i, elem) {
+            var link = $('<li><a href="#">' + elem.label + '</a></li>');
+            link.click(function() {
+                libx.ui.tabs.create(elem.href);
             });
-        }
+            $('#links').append(link);
+        });
         
         popup.showPreferredView();
 

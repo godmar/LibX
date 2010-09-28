@@ -1,4 +1,6 @@
   
+function loadLibapps() {
+
  /* This URL will be read from the edition/user configuration.
  * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
  */
@@ -306,4 +308,12 @@ function executeLibapp(libapp) {
             eval(jsCode);
         }
     }
+}
+
+}
+
+// prevent bug in Google Chrome where content script may be included twice
+if (!window.libappsIncluded) {
+    window.libappsIncluded = true;
+    loadLibapps();
 }

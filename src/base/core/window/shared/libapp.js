@@ -20,19 +20,6 @@ imported.localStorage(function(result) {
 
 libx.events.addListener("EditionConfigurationLoaded", {
     onEditionConfigurationLoaded: function() {
-        /* Parse remote URL. Temporary implementation until config.xml is
-         * updated to not use chrome:// URLs. */
-        var iconUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)
-            .replace('/config.xml', '') + libx.edition.options.icon.replace('chrome://libx/skin', '');
-        libx.cache.defaultObjectCache.get({
-            type: 'GET',
-            url: iconUrl,
-            serverMIMEType: 'text/plain; charset=x-user-defined',
-            fetchDataUri: true,
-            success: function(data) {
-                libx.edition.options.icon = data;
-            }
-        });
         
         // Load all URLs marked as @type = 'bootwindow' in configuration
         var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;

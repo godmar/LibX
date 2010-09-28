@@ -1,4 +1,13 @@
 
+/**
+ * Returns a Window object for the primary content window.
+ *
+ * @return Window object for content window
+ */
+libx.ui.getCurrentWindowContent = function() {
+    return window;
+};
+
 (function () {
     
     var currFunc = 0;

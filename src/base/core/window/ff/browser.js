@@ -25,22 +25,12 @@ return {
     
         function activateConfiguration(edition) {
             
-            /* Parse remote URL. Temporary implementation until config.xml is
-             * updated to not use chrome:// URLs. */
-            var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-            if(configUrl != null) {
-                var iconUrl = configUrl.replace('/config.xml', '')
-                    + edition.options.icon.replace('chrome://libx/skin', '');
-                libx.cache.defaultObjectCache.get({
-                    type: 'GET',
-                    url: iconUrl,
-                    serverMIMEType: 'text/plain; charset=x-user-defined',
-                    fetchDataUri: true,
-                    success: function(data) {
-                        document.getElementById('libx-button').image = data;
-                    }
-                });
-            }
+            libx.utils.getEditionResource({
+                url: edition.options.icon,
+                success: function (data) {
+                    document.getElementById('libx-button').image = data;
+                }
+            });
             
         }
         
