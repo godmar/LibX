@@ -296,7 +296,7 @@ if (typeof localStorage == "object") {
     var now_ms = Number(new Date());
     var last = Number(localStorage.getItem("libx.lastrun"));
     if (last + 1000 < now_ms) {
-        localStorage.setItem("lastrun", now_ms);
+        localStorage.setItem("libx.lastrun", now_ms);
         loadLibapps();
     } else {
         var d = Number(localStorage.getItem("libx.doubleinjections"));
