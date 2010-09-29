@@ -478,8 +478,9 @@ libx.buildDate = "$builddate$";
  * Initialize LibX
  *
  */
-libx.initialize = function () 
+libx.initialize = function (runsInBackground) 
 {
+    libx.runsInBackground = runsInBackground;
 	libx.locale.initialize();
 }
 
@@ -498,7 +499,9 @@ libx.loadConfig = function(configUrl) {
             if (bootGlobalUrls.length == 0) {
                 bootGlobalUrls.push({ url:
                     libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
-                        "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobal.js") });
+                        libx.runsInBackground ?
+                          "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobal.js"
+                        : "http://libx.org/libx-new/src/base/bootstrapped/bootstrapcontentscript.js") });
             }
         
             var globalBootStrapper 

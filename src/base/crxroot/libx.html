@@ -64,7 +64,7 @@
 <script>
 
 try {
-    libx.initialize();
+    libx.initialize(true);
 } catch (er) {
     console.log("Error in libx.initialize(): " + er);
 }
@@ -150,7 +150,7 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
         }
         
     } else if (request.type == "clearCache") {
-        alert('cache cleared!');
+        alert('Cleared Old Code, Will Download New Code');
         var cache = new libx.storage.Store('cache');
         var metacache = new libx.storage.Store('metacache');
         metacache.clear();

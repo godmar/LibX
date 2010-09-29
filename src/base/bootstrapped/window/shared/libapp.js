@@ -42,11 +42,11 @@ function checkIncludesExcludes(spec, url)
 }
 
 function log(msg) {
-    libx.log.write("libapp: (" + window.location.href + "):\n" + msg, "libapp");
+    libx.log.write("(" + window.location.href + "):\n" + msg, "libapp");
 }
 
 function logDetail(msg) {
-    libx.log.write("libappdetail: (" + window.location.href + "):\n" + msg, "libappdetail");
+    libx.log.write("(" + window.location.href + "):\n" + msg, "libappdetail");
 }
 
 log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libx.libapp.loadedLibapps.length + " time=" + new Date().getTime());

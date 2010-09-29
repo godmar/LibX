@@ -1,6 +1,14 @@
-
+/*
+ * This code executes
+ * in Google Chrome: in the isolated world of the content script
+ * in Firefox: in the sandbox.
+ *
+ * We do not share the global scope here with anybody.
+ * gc/window.js or ff/window.js will have prepared this scope.
+ */
 var imported = {};
 
+/* prepare import of proxies */
 libxTemp.magicImport('localStorage', { returns: true, namespace: imported });
 libxTemp.magicImport('libx.utils.browserprefs.setBoolPref');
 libxTemp.magicImport('libx.utils.browserprefs.setStringPref');
@@ -12,6 +20,7 @@ libxTemp.magicImport('libx.libapp.loadedLibapps', { returns: true, namespace: im
 
 libx.libappdata = {};
 
+// receive entire localStorage as 'result' from background page (this is likely too expensive.)
 imported.localStorage(function(result) {
     libx.utils.browserprefs.setStore(result);
     var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
