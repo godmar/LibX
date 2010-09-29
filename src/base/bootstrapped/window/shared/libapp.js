@@ -94,9 +94,22 @@ var traverseTextActivity = {
 moduleQueue.scheduleLast(traverseTextActivity);
 traverseTextActivity.markReady();
 
+function prepLibappOrModule(libapp) {
+    var regexpClauses = [ "include", "exclude", "regexptexttransformer" ];
+    for (var i = 0; i < regexpClauses.length; i++) {
+        var clause = regexpClauses[i];
+        for (var j = 0; j < libapp[clause].length; j++) {
+            var r = libapp[clause][j];
+            libapp[clause][j] = new RegExp(r.regex, r.flag);
+        }
+    }
+}
+
 // function ends here.  Modules and libapps will continue executing asynchronously.
 
 function executeLibapp(libapp) {
+    // alert("executing: " + libx.utils.json.stringify(libapp));
+    prepLibappOrModule(libapp);
 
     // unlike for modules, 'include' for libapps is optional.
     if (libapp.include.length > 0) {
@@ -133,6 +146,7 @@ function executeLibapp(libapp) {
 
     function executeModule(module, moduleFinishedActivity) {
 
+        prepLibappOrModule(module);
         var executeModule = checkIncludesExcludes(module, window.location.href);
         if (executeModule == null) {
             moduleFinishedActivity.markReady();

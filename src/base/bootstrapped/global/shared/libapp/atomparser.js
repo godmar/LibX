@@ -131,13 +131,13 @@ function handleEntry(visitor, url, cacheMissActivity) {
             }
         };
 
-        // replace 'include', 'exclude', etc. with compiled RegExp objects
+        // verify that 'include', 'exclude', etc. look like regular expressions
         for (var i = 0; i < libx2RegexpClauses.length; i++) {
             var rClause = libx2RegexpClauses[i];
             for (var j = 0; j < nodeInfo[rClause].length; j++) {
                 try {
                     var m = nodeInfo[rClause][j].match(/\/(.*)\/(.*)/);
-                    nodeInfo[rClause][j] = new RegExp(m[1], m[2]);
+                    nodeInfo[rClause][j] = { regex: m[1], flag: m[2] };
                 } catch (e) {
                     libx.log.write("invalid regular expression: " + nodeInfo[rClause][j]);
                     nodeInfo[rClause].splice(j--, 1);
