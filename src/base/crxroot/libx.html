@@ -116,7 +116,8 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
                     chrome.tabs.sendRequest(sender.tab.id, {
                         type: "magicImportFunction",
                         index: obj._function_index,
-                        args: args
+                        args: args,
+                        timestamp: obj.timestamp
                     });
                 };
             }

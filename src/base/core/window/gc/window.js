@@ -12,6 +12,7 @@ libx.ui.getCurrentWindowContent = function() {
     
     var currFunc = 0;
     var funcArray = [];
+    var timestamp = new Date().getTime();
 
     libxTemp = {
             
@@ -40,7 +41,10 @@ libx.ui.getCurrentWindowContent = function() {
                             func: obj,
                             thisRef: thisRef
                         };
-                        return { _function_index: currFunc++ };
+                        return {
+                            _function_index: currFunc++,
+                            timestamp: timestamp
+                        };
                     }
                 
                     if (typeof(obj) != "object")
@@ -75,7 +79,7 @@ libx.ui.getCurrentWindowContent = function() {
     };
     
     chrome.extension.onRequest.addListener(function(request) {
-        if (request.type != "magicImportFunction")
+        if (request.type != "magicImportFunction" || request.timestamp != timestamp)
             return;
             
         var funcObj = funcArray[request.index];
