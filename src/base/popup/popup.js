@@ -189,6 +189,18 @@ return {
             }
         }, undefined, 'popup_reload');
         
+        $('#clearCache').click(function() {
+            var cache = new libx.storage.Store('cache');
+            var metacache = new libx.storage.Store('metacache');
+            metacache.clear();
+            cache.clear();
+            delete libx.edition;
+            libx.libapp.loadedLibapps = [];
+            // load config if user has one set
+            var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
+            if(configUrl)
+                libx.loadConfig(configUrl);
+        });
     },
     
     showFullView: function() {
