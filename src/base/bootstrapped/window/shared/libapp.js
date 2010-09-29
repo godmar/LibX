@@ -45,7 +45,11 @@ function log(msg) {
     libx.log.write("Sandbox: (" + window.location.href + "):\n" + msg, "libapp");
 }
 
-log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libx.libapp.loadedLibapps.length);
+function logDetail(msg) {
+    libx.log.write("Sandbox: (" + window.location.href + "):\n" + msg, "libappdetail");
+}
+
+log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libx.libapp.loadedLibapps.length + " time=" + Number(new Date()));
 
 /*
 if (event.url.match("libx.cs.vt.edu") != null)
@@ -97,11 +101,13 @@ function executeLibapp(libapp) {
     // unlike for modules, 'include' for libapps is optional.
     if (libapp.include.length > 0) {
         var executeLibapp = checkIncludesExcludes(libapp, window.location.href);
-        if (executeLibapp == null)
+        if (executeLibapp == null) {
+            logDetail(libapp.description + " not executed because it did not meet include/exclude: include=" + libapp.include + " exclude=" + libapp.exclude);
             return;
+        }
     }
 
-    log("after URL check, executing libapp: " + libapp.description);
+    log("include/exclude check complete, executing libapp: " + libapp.description);
     var libappSpace = new libx.libapp.TupleSpace();
     libappSpace.description = libapp.description;
 
@@ -133,7 +139,7 @@ function executeLibapp(libapp) {
             return;
         }
 
-        log("after URL check, executing module: " + module.description 
+        log("include/exclude check complete, executing module: " + module.description 
             + "\nthis module requires: " + module.require 
             + "\nmatching URL was: " + executeModule);
 
@@ -215,7 +221,7 @@ function executeLibapp(libapp) {
                     +       module.body
                     + "}) (libx);\n";
             
-                log("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
+                logDetail("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
                 return eval(jsCode);
             }
             textExplorer.addTextTransformer(textTransformer);
@@ -282,7 +288,7 @@ function executeLibapp(libapp) {
             jsCode += "}\n";
             jsCode += "delete this.p;\n";
             */
-            log("Running module '" + module.description + "': \n" + jsCode + "\nusing space: " + libappSpace.description);
+            logDetail("Running module '" + module.description + "': \n" + jsCode + "\nusing space: " + libappSpace.description);
             eval(jsCode);
         }
     }
