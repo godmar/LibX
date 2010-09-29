@@ -41,28 +41,6 @@ function checkIncludesExcludes(spec, url)
     return executeModule;
 }
 
-/*
- * Check if include/exclude applies.
- * Returns match if successful, null otherwise
- */
-function checkIncludesExcludes(spec, url)
-{
-    var executeModule = null;
-    for (var k = 0; k < spec.include.length; k++) {
-        var executeModule = url.match(spec.include[k]);
-        if (executeModule != null)
-            break;
-    }
-
-    for (var k = 0; executeModule != null && k < spec.exclude.length; k++) {
-        if (spec.exclude[k].test(url)) {
-            executeModule = null;
-        }
-    }
-
-    return executeModule;
-}
-
 function log(msg) {
     libx.log.write("Sandbox: (" + window.location.href + "):\n" + msg, "libapp");
 }
@@ -312,8 +290,18 @@ function executeLibapp(libapp) {
 
 }
 
-// prevent bug in Google Chrome where content script may be included twice
-if (!window.libappsIncluded) {
-    window.libappsIncluded = true;
+if (typeof localStorage == "object") {
+    // prevent bug in Google Chrome where content script may be included twice
+    // run libapps on a given page at most once per second
+    var now_ms = Number(new Date());
+    var last = Number(localStorage.getItem("libx.lastrun"));
+    if (last + 1000 < now_ms) {
+        localStorage.setItem("lastrun", now_ms);
+        loadLibapps();
+    } else {
+        var d = Number(localStorage.getItem("libx.doubleinjections"));
+        localStorage.setItem("libx.doubleinjections", d + 1);
+    }
+} else {
     loadLibapps();
 }
