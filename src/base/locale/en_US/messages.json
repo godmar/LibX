@@ -52,7 +52,7 @@
     "proxy_message2" :      { "message" : "Click here to reload this page using the proxy." },
     "search_and" :          { "message" : "AND" },
     "search_more" :         { "message" : "more..." },
-    "tooltip_search" :      { "message" : "LibX: Search \"$catalog$\" for \"$item$\"",
+    "tooltip_search" :      { "message" : "LibX: Search $catalog$ for $item$",
                               "placeholders": {
                                 "catalog":   { "content": "$1" },
                                 "item":      { "content": "$2" }
