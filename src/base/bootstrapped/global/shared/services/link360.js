@@ -49,12 +49,8 @@ libx.services.link360.Link360 = libx.core.Class.create(
         var self = this;
         var cacheRequest = {
             url: this.baseURL + "?version=1.0&" + options.query,
-            // we must parse this as an XML document only after we receive it
-            // since XML documents cannot be stringified when message passing
-            dataType: "text",
+            dataType: "xml",
             success: function (xmlResponse, status, xhr) {
-
-                xmlResponse = libx.utils.xml.loadXMLDocumentFromString(xmlResponse);
             
                 var linkgroupquery = "//ssopenurl:result[1]//ssopenurl:linkGroup[@type = 'holding']";
 

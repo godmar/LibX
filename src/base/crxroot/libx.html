@@ -99,8 +99,15 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
             if (typeof(obj._function_index) != "undefined") {
                 return function () {
                     var args = [].slice.call(arguments);
-                    // avoid sending circular structures
                     for (var i = 0; i < args.length; i++) {
+                        // serialize XML documents
+                        if (typeof(args[i]) == "object" && args[i].xmlVersion) {
+                            alert('XML');
+                            args[i] = {
+                                _xml: libx.utils.xml.convertXMLDocumentToString(args[i])
+                            };
+                        }
+                        // avoid sending circular structures
                         try {
                             libx.utils.json.stringify(args[i]);
                         } catch (e) {

@@ -79,6 +79,13 @@ libx.ui.getCurrentWindowContent = function() {
             return;
             
         var funcObj = funcArray[request.index];
+        
+        // unserialize XML documents
+        for (var i = 0; i < request.args.length; i++) {
+            if (typeof(request.args[i]) == "object" && request.args[i]._xml)
+                request.args[i] = libx.utils.xml.loadXMLDocumentFromString(request.args[i]._xml);
+        }
+        
         funcObj.func.apply(funcObj.thisRef, request.args);
     });
     
