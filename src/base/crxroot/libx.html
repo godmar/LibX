@@ -101,7 +101,7 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
                     var args = [].slice.call(arguments);
                     for (var i = 0; i < args.length; i++) {
                         // serialize XML documents
-                        if (typeof(args[i]) == "object" && args[i].xmlVersion) {
+                        if (args[i] instanceof Object && args[i].xmlVersion) {
                             args[i] = {
                                 _xml: libx.utils.xml.convertXMLDocumentToString(args[i])
                             };
