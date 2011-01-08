@@ -1,0 +1,130 @@
+{!
+
+/*
+ * XXX This file cannot be part of the LibX core.  
+ * 
+ * Can you easily move it to <mozdev.cvs>/src/libx2/templates
+ * ?
+ */
+
+/* BRN: this template does not yet work in firefox */
+ 
+function getModules ( entry ) {
+	var modules = [];	
+	new libx.libapp.PackageWalker(entry.url).walk({
+		onmodule: function (module) {
+			modules.push ( module );
+		}
+	});
+	return modules;
+}
+
+function encode ( str ) {
+	return libx.utils.xml.encodeEntities ( '' + str );
+}
+
+var appProps = [ "include","exclude" ];
+var modProps = [ "include","exclude", "guardedby", "regexptexttransformer", "require" ];
+
+var idnum = 0;
+
+/************/
+
+function addLibapps(libapp) {
+    var newDiv = '<div class="ui-state-default ui-corner-all" style="margin-bottom: 5px;">\n'
+           + '<span>\n'
+           + '<div style="font-weight: bold;">' + encode(libapp.description) + '</div>\n';
+    if (libapp.id != null)
+        newDiv += '<div>' + libapp.id + '</div>\n';
+    for (var i = 0; i < appProps.length; i++) {
+        for (var j = 0; j < libapp[appProps[i]].length; j++)
+            newDiv += "<p>" + appProps[i] + ":" + libapp[appProps[i]][j] + "</p>\n";
+    }
+    newDiv += '</span>\n'
+            + '<ul style="list-style-type:none; text-decoration: underline;">\n';
+    for (var i = 0; i < libapp.entries.length; i++) {
+        var entry = libapp.entries[i];
+        var module = getModules(entry)[0];
+        newDiv += '<li style="list-style-type:none;">\n';
+        if (module != null) {
+            idnum++;
+            var linkstr = "link-" + idnum;
+            var divstr = "div-" + idnum;
+            newDiv += '<a class="libapplink" id="' + linkstr + '" href="#' + divstr + '">' + encode(module.description) + '</a>\n'
+                    + '<div id="' + divstr + '" class="module-info" style="display:none;">\n'
+                    + '<div class="ui-state-default ui-corner-all" style="font-weight: normal; font-size: 0.8em; color: black; padding: 5px;">\n'
+                    + '<div>URL: ' + encode(entry.url) + '</div>\n';
+            for (var j = 0; j < modProps.length; j++) {
+                for (var k = 0; k < module[modProps[j]].length; k++)
+                    newDiv += '<div>' + modProps[j] + ' : ' + encode(module[modProps[j]][k]) + '</div>\n';
+            }
+            newDiv += '</div>\n'
+                    + '<div style="padding: 5px;" >\n'
+                    + '<pre>' + encode(module.body) + '</pre>\n'
+                    + '</div>\n'
+                    + '</div>';
+        }
+        newDiv += '</li>\n';
+    }
+    newDiv += '</ul>\n'
+            + '</div>\n';
+    
+    /* BRN: change this */
+    setTimeout(function() {
+        $("#libapp-info").append(newDiv);
+    }, 1000);
+
+}
+
+function processPackages(packages) {
+
+    for (var i = 0; i < packages.length; i++) {
+        
+        new libx.libapp.PackageWalker(packages[i].url).walk({
+        
+            onpackage: function (pkg) {
+                processPackages(pkg.entries);
+            },
+            onlibapp: function (libapp) {
+                addLibapps(libapp);
+            }
+            
+        });
+            
+    }
+
+}
+
+var libappBase = libx.prefs.browser.feedurl._value;
+var rootPackages = [ { url: libappBase + "1" } ];
+var feeds = libx.edition.localizationfeeds;
+rootPackages = feeds.package || rootPackages;
+
+processPackages(rootPackages);
+
+!}
+<div style="overflow: hidden;">
+    <div id="libapp-info" style="font-size:.8em;float:left;width:400px;"></div>
+    <div style="margin-left: 410px;">
+        <div id="modules"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+setTimeout(function() {
+
+    /* move libapp information div and source div to right pane */
+    $('.module-info').appendTo('#modules');
+
+    $('.libapplink').click(function() {
+        $('.module-info').hide();
+        $($(this).attr('href')).show();
+        
+        /* prevent page from scrolling to anchor */
+        return false;
+    });
+    
+}, 2000);
+
+</script>

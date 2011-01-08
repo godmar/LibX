@@ -6,74 +6,24 @@
  * @class
  */
 
-libx.locale.bd = (function() {
-    
-    var localeObj = null;
-    var defaultLocaleObj = null;
-    
-    return {
-        
-        initialize: function() {
+(function() {
 
-            // retrieve translation for user's language
-            libx.cache.defaultMemoryCache.get({
-                dataType: "json",
-                url: "chrome://libx/locale/messages.json",
-                serverMIMEType: "application/json",
-                success: function(result) {
-                    localeObj = result;
-                }
-            });
-            
-            // retrieve default locale for missing translation messages
-            libx.cache.defaultMemoryCache.get({
-                dataType: "json",
-                url: "chrome://libxdefaultlocale/content/messages.json",
-                serverMIMEType: "application/json",
-                success: function(result) {
-                    defaultLocaleObj = result;
-                }
-            });
-            
-        },
-        
-        /**
-         *  Returns a string with specified name
-         *  @param {String} name of property
-         *  @param {String[]} additional arguments
-         *  @return {String} Formatted property
-         */
-        getFormattedString : function ( name, args ) {
-            return this.getString(name).replace(/\$([a-zA-Z0-9_]+)\$/g, function(str, match) {
-                var placeholder = localeObj[name].placeholders[match];
-                if(!placeholder)
-                    throw new Error("placeholder '" + match + "' not defined.");
-                
-                // replace $n with corresponding argument n
-                return placeholder.content.replace(/(.?)\$([0-9])/g, function(str, chr, match) {
-                    // exclude $$n from argument replacement
-                    if(chr == '$')
-                        return '$' + match;
-                    var result = args[parseInt(match) - 1];
-                    if(!result)
-                        return '';
-                    return chr + result;
-                });
-            });
-        },
-        
-        /**
-         *  Returns a formatted property string
-         *  @param {String} name of property
-         *  @return {String} property
-         */
-        getString : function ( name ) {
-            var str = localeObj[name];
-            if(!str)
-                str = defaultLocaleObj[name];
-            return str.message;
-        }
-        
-    };
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefService)
+                          .getBranch("general.useragent.");
+                          
+    // use Google Chrome-style locale strings (en_US instead of en-US)
+    libx.locale.bd.currentLocale = prefs.getCharPref("locale").replace(/-/g, "_");
     
 }) ();
+
+libx.locale.bd.initialize = function () {
+    libx.locale.getBundle( {
+        //BRN: add defaultLocale
+        async: false,
+        url: "chrome://libx/locale/messages.json",
+        success: function (bundle) {
+            libx.locale.defaultStringBundle = bundle;
+        }
+    } );  
+};

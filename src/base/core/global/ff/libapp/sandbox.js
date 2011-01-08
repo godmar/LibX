@@ -47,7 +47,16 @@ libx.libapp.Sandbox = libx.core.Class.create(
      * @param {Object} globalproperties - properties to be included in global scope
      */
     initialize : function ( win, globalproperties ) {
-        var safeWin = new XPCNativeWrapper(win);
+    
+    	// XXX: We cannot use an XPCNativeWrapper here because
+    	// Firefox 3.6 does not support expando properties on
+		// wrappers.  This is necessary for jQuery and other
+		// libraries.  This should be fixed in Firefox 4
+		// according to:
+		// https://bugzilla.mozilla.org/show_bug.cgi?id=478529
+		
+        //var safeWin = new XPCNativeWrapper(win);
+        var safeWin = win;
 
         this.sandBox = new Components.utils.Sandbox( safeWin );
         this.sandBox.unsafeWindow = win;

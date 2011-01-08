@@ -102,6 +102,7 @@ my %filemap = (
     "$basedir/dev"       	=> "$tmpdir/dev",
     "$basedir/popup"     	=> "$tmpdir/popup",
     "$basedir/locale"    	=> "$tmpdir/_locales",
+    "$basedir/preferences"  => "$tmpdir/preferences",
     "$basedir/bootstrapped"	=> "$tmpdir/bootstrapped"
 );
 

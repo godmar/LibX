@@ -44,11 +44,11 @@ var metaStore = new libx.storage.Store('metacache');
  * Retrieve a cached item from cacheStore. 
  * Called only after hit in metaStore.
  */
-function getCachedItem (request, metadata) {
+function getCachedItem (request, metadata, initialHit) {
     cacheStore.getItem({
         key: metadata.originURL,
         success: function(text) {
-            if (request.cacheprobe)
+            if (request.cacheprobe && initialHit)
                 request.cacheprobe(text, metadata);
             request.success(text, metadata);
         },
@@ -78,7 +78,7 @@ function retrieveRequest(request, retrievalType) {
             if (retrievalType == RetrievalType.UPDATE && status == 304)
                 return;
 
-            if (request.error);
+            if (request.error)
                 request.error(status);
 
             if (request.complete)
@@ -261,11 +261,11 @@ libx.cache.ObjectCache = libx.core.Class.create(
      *      using null as the arguments.
      */
     get : function (request) {
-
+    
         getMetadata({
             url: request.url,
             success: function(metadata) {
-                getCachedItem (request, metadata);
+                getCachedItem (request, metadata, true);
             },
             notfound: function() {
                 if (request.cacheprobe)

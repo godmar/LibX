@@ -1,0 +1,15 @@
+{
+    "enabled": { "message": "Enabled" },
+    "libx.prefs.browser.displaypref.newtabswitch-description":
+        { "message" : "Display results in new tab and switch to it" },
+    "libx.prefs.browser.displaypref.newtab-description":
+        { "message" : "Display results in new tab" },
+    "libx.prefs.browser.displaypref.sametab-description":
+        { "message" : "Display results in the same tab" },
+    "libx.prefs.browser.displaypref.newwindow-description":
+        { "message" : "Display results in new window" },
+    "libx.prefs.browser.autolinking-description":
+        { "message" : "Enable Autolinking" },
+    "libx.prefs.browser.citeulike-description":
+        { "message" : "Display URL bar icon for posting to CiteULike on supported sites." }
+}

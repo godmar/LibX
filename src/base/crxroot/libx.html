@@ -7,8 +7,7 @@
 <!--<script src="core/global/shared/io.js"></script>-->
 <script src="core/global/shared/utils/binary.js"></script>
 <script src="core/global/gc/storage.js"></script>
-<script src="core/global/shared/locale.js"></script>
-<!-- <script src="core/global/shared/preferences.js"></script> -->
+<script src="core/global/shared/preferences.js"></script>
 <script src="core/global/shared/cache/memorycache.js"></script>
 <script src="core/global/shared/config.js"></script>
 <script src="core/global/shared/config/xmlconfigwrapper.js"></script>
@@ -43,9 +42,10 @@
 <script src="core/global/gc/cache.js"></script>
 <script src="core/global/gc/utils/timer.js"></script>
 <script src="core/global/gc/utils/xml.js"></script>
-<script src="core/global/gc/locale.js"></script>
 <script src="core/global/gc/bootstrap.js"></script>
 <script src="core/global/shared/cache/objectcache.js"></script>
+<script src="core/global/shared/locale.js"></script>
+<script src="core/global/gc/locale.js"></script>
 <script src="core/global/gc/utils/browserprefs.js"></script>
 <script src="core/global/gc/utils/hash.js"></script>
 <script src="core/global/shared/openurl.js"></script>
@@ -64,7 +64,7 @@
 <script>
 
 try {
-    libx.initialize(true);
+    libx.initialize(false, true);
 } catch (er) {
     console.log("Error in libx.initialize(): " + er);
 }
@@ -93,7 +93,7 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
         
         function unserialize(obj) {
         
-            if (typeof(obj) != "object")
+            if (typeof(obj) != "object" || obj == null)
                 return obj;
                 
             if (typeof(obj._function_index) != "undefined") {
@@ -156,13 +156,12 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
         metacache.clear();
         cache.clear();
         delete libx.edition;
-        libx.libapp.loadedLibapps = [];
         // load config if user has one set
         var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
         if(configUrl)
             libx.loadConfig(configUrl);
         sendResponse({});
-        
+
     } else
         sendResponse({});
         

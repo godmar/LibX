@@ -28,13 +28,13 @@ return {
         // replace all HTML placeholders with language-specific strings
         $('.set-locale').each(function() {
             if(this.tagName == 'INPUT')
-                $(this).val(libx.locale.getProperty($.trim($(this).val())));
+                $(this).val(libx.locale.defaultStringBundle.getProperty($.trim($(this).val())));
             else
-                $(this).text(libx.locale.getProperty($.trim($(this).text())));
+                $(this).text(libx.locale.defaultStringBundle.getProperty($.trim($(this).text())));
         });
         
         // show translation credits
-        if(libx.locale.getProperty('translator'))
+        if(libx.locale.defaultStringBundle.getProperty('translator'))
             $('#about-translator').show();
         
         accordionMenu = libx.ui.jquery.accordionmenu($, {
@@ -195,7 +195,6 @@ return {
             metacache.clear();
             cache.clear();
             delete libx.edition;
-            libx.libapp.loadedLibapps = [];
             // load config if user has one set
             var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
             if(configUrl)
@@ -293,11 +292,11 @@ return {
             
             var field = $('<tr><td></td>' +
                           '<td><input type="text"/></td>' +
-                          '<td><a href="#">' + libx.locale.getProperty('search_more') + '</a></td></tr>');
+                          '<td><a href="#">' + libx.locale.defaultStringBundle.getProperty('search_more') + '</a></td></tr>');
             
             // add another field when use clicks "more..." link
             $('a', field.appendTo($('#full-search-fields'))).click(function() {
-                $(this).replaceWith('<span>' + libx.locale.getProperty('search_and') + '</span>');
+                $(this).replaceWith('<span>' + libx.locale.defaultStringBundle.getProperty('search_and') + '</span>');
                 addField();
             });
 

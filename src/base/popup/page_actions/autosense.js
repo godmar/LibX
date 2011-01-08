@@ -38,9 +38,9 @@ function doAutoSense(response) {
         if(libx.edition.id != response.id || pageRev > myRev) {
             
             function showPrompt(name) {
-                var update_message = "<p>" + libx.locale.getProperty("update_message1", myRev, libx.edition.id, libx.edition.name.edition) + "</p>"
-                    + "<p>" + libx.locale.getProperty("update_message2", pageRev, response.id, name) + "</p>";
-                var update_link = libx.locale.getProperty("update_message3", pageRev, response.id, name);
+                var update_message = "<p>" + libx.locale.defaultStringBundle.getProperty("update_message1", myRev, libx.edition.id, libx.edition.name.edition) + "</p>"
+                    + "<p>" + libx.locale.defaultStringBundle.getProperty("update_message2", pageRev, response.id, name) + "</p>";
+                var update_link = libx.locale.defaultStringBundle.getProperty("update_message3", pageRev, response.id, name);
                 var div = $('<div>' + update_message + '</div>');
                 $('<div><a href="#">' + update_link + '</a></div>').appendTo(div).click(function() {
                     loadEdition();

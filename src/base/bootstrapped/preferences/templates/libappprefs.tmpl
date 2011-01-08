@@ -1,0 +1,63 @@
+
+{!
+
+var libappBase = libx.prefs.browser.feedurl._value;
+var rootPackages = [ { url: libappBase + "1" } ];
+
+var feeds = libx.edition.localizationfeeds;
+rootPackages = feeds.package || rootPackages;
+
+function processPackages(packages, elem) {
+
+    for (var i = 0; i < packages.length; i++) {
+    
+        new libx.libapp.PackageWalker(packages[i].url).walk({
+            onpackage: function (pkg) {
+                var e = $("<li></li>");
+                var e2 = $("<ul></ul>").appendTo(e);
+            
+                aQueues = [];
+                
+                var enabled = libx.prefs[pkg.id].enabled;
+                var chkbox = '<input type="checkbox" name="' + enabled._id
+                           + '" class="preference-checkbox" '
+                           + (enabled._value ? 'checked="checked"' : "") + '></input>';
+                
+                elem.append("<li style='font-weight: bold; text-decoration: underline;'>" + chkbox + pkg.description + "</li>")
+                    .append("<li>" + process(aQueues, "", libx.prefs[pkg.id]) + "</li>")
+                    .append(e);
+                    
+                aQueues[0].markReady();
+                    
+                processPackages(pkg.entries, e2);
+            },
+            onlibapp: function (libapp) {
+            
+                aQueues = [];
+            
+                var enabled = libx.prefs[libapp.id].enabled;
+                var chkbox = '<input type="checkbox" name="' + enabled._id
+                           + '" class="preference-checkbox" '
+                           + (enabled._value ? 'checked="checked"' : "") + '></input>';
+                           
+                elem.append("<li>" + chkbox + libapp.description + "</li>")
+                    .append("<li>" + process(aQueues, "", libx.prefs[libapp.id]) + "</li>");
+                
+                aQueues[0].markReady();
+            }
+        });
+        
+    }
+
+}
+
+/* BRN: change this */
+setTimeout(function() {
+    processPackages(rootPackages, $("#tree"));
+}, 1000);
+
+!}
+
+<div>
+    <ul id="tree"></ul>
+</div>

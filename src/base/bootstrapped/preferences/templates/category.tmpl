@@ -1,0 +1,13 @@
+{!     
+    /** Default Category Template */
+!}
+<!-- category.tmpl -->
+<div class="groupbox">
+    <!-- XXX: should we force these to always be specified in locale? -->
+    <label>{L:pref data._idstr + "-description", data._name L}</label>
+    <for each="child" in="data._children">
+        <div>
+            {P child P}
+        </div>
+    </for>
+</div>

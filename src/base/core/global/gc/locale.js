@@ -6,31 +6,15 @@
  * @class
  */
 
-libx.locale.bd = (function() {
-    
-    return {
-        
-        initialize: function() {},
-        
-        /**
-         *  Returns a string with specified name
-         *  @param {String} name of property
-         *  @param {String[]} additional arguments
-         *  @return {String} Formatted property
-         */
-        getFormattedString : function ( name, args ) {
-            return chrome.i18n.getMessage(name, args);
-        },
-        
-        /**
-         *  Returns a formatted property string
-         *  @param {String} name of property
-         *  @return {String} property
-         */
-        getString : function ( name ) {
-            return chrome.i18n.getMessage(name);
+libx.locale.bd.currentLocale = chrome.i18n.getMessage("@@ui_locale");
+
+libx.locale.bd.initialize = function() {
+    libx.locale.getBundle( {
+        async: false,
+        url: chrome.extension.getURL("_locales/$locale$/messages.json"),
+        defaultLocale: "en_US",
+        success: function (bundle) {
+            libx.locale.defaultStringBundle = bundle;
         }
-        
-    };
-    
-}) ();
+    } );
+};

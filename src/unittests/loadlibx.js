@@ -64,7 +64,7 @@ loadScript(libxscripts1);
 
 var Lock = java.util.concurrent.locks.ReentrantLock;
 
-libx.utils.xml = {
+libx.core.Class.mixin(libx.utils.xml, {
     saxParserLock : new Lock(),
     loadXMLDocumentFromString : function (input) {
         try {
@@ -81,7 +81,7 @@ libx.utils.xml = {
             this.saxParserLock.unlock();
         }
     }
-};
+}, true);
 
 // libx.cache.bd
 libx.cache.bd = {
@@ -320,11 +320,13 @@ libx.log = {
     write : function (msg) { println (msg); },
 };
 var libxscripts2 = [
+    "global/gc/utils/hash.js",
     "global/gc/storage.js",
     "global/shared/cache/objectcache.js",
     "global/shared/services/crossref.js",
     "global/shared/services/pubmed.js",
     "global/shared/utils/stdnumsupport.js",
+    "global/shared/preferences.js",
     // "window/shared/ui/magicsearch.js",
 ];
 

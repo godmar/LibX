@@ -25,7 +25,9 @@
             "core/global/shared/libx.js",
             "core/global/shared/log.js",
             "core/global/shared/utils/binary.js",
-            "core/global/gc/storage.js",
+            // "core/global/gc/storage.js",
+            "core/window/gc/storage.js",
+            "core/global/shared/preferences.js",
             "core/global/shared/locale.js",
             "core/global/shared/config.js",
             "core/global/shared/config/xmlconfigwrapper.js",
@@ -60,7 +62,6 @@
             "core/global/gc/cache.js",
             "core/global/gc/utils/timer.js",
             "core/global/gc/utils/xml.js",
-            "core/global/gc/locale.js",
             "core/global/gc/utils/browserprefs.js",
             "core/global/gc/utils/hash.js",
             "core/global/shared/openurl.js",
@@ -68,14 +69,14 @@
             "core/global/gc/utils/xpath.js",
             "core/global/shared/services/xisbn.js",
             "core/global/shared/utils/geteditionresource.js",
+            "core/global/gc/locale.js",
             
             "core/window/gc/window.js",
-            "core/window/shared/ui/autosense.js",
-            "core/window/shared/libapp.js"
+            "core/window/shared/ui/autosense.js"
         ]
     }, {
-        //TODO: change this URL after the builder is updated on libx.org
-        "matches": [ "http://top.cs.vt.edu/*/src/zul/libappbuilder.zul" ],
+        //BRN: change this URL after the builder is updated on libx.org
+        "matches": [ "http://top.cs.vt.edu/*/libappbuilder.zul" ],
         "js": [ "core/window/shared/libappbuilder.js" ]
     }],
     "permissions": [

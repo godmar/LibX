@@ -261,7 +261,7 @@ var memoryCacheClass = libx.core.Class.create ( {
                 } catch (er) {
                     libx.log.write("error in XMLHTTPRequest.open for: " + request.type + " " + request.url);
                     if ( typeof ( request.error ) == "function" ) {
-                        request.error ( e.toString(), xmlHttpReq.status, xmlHttpReq );
+                        request.error ( er.toString(), xmlHttpReq.status, xmlHttpReq );
                     }
                     return xmlHttpReq;
                 }

@@ -1404,7 +1404,7 @@ Envjs.runAsync = function(fn, onInterupt){
     try{
         run = Envjs.sync(function(){
             fn();
-            Envjs.wait();
+            // Envjs.wait();
         });
         Envjs.spawn(run);
     }catch(e){
@@ -12078,6 +12078,7 @@ var __clearFragmentCache__ = function(){
  */
 __extend__(Document.prototype, {
     loadXML : function(xmlString) {
+
         //console.log('Parser::Document.loadXML');
         // create Document
         if(this === document){
@@ -12092,7 +12093,7 @@ __extend__(Document.prototype, {
             this._readonly = false;
 
             XMLParser.parseDocument(xmlString, this);
-            
+ 
             Envjs.wait(-1);
         } catch (e) {
             //$error(e);

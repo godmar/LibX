@@ -1,0 +1,40 @@
+{!
+    /**
+     *    Template for the about tab in the preferences menu
+     *
+     */
+
+!}
+<!-- aboutlibx.tmpl -->
+<!-- Icon -->
+
+<div style="float:right">
+    <!-- BRN: add img back in once config.xml files are updated -->
+    <!-- <img src="{+ libx.edition.options.logo +}"/> -->
+    <h2>{+libx.edition.name.long+}</h2>
+    <!-- Adapted -->
+    <h3>{L:template "adaptedby" L}</h3>
+    <p>{+libx.edition.name.adaptedby+}</p>
+        
+</div>
+
+<!-- Edition Name -->
+<h1 style="color:#800000;font-weight:bold;">LibX</h1>
+<p>{L:template "libxversion" L} {+ "LibX Version Goes HERE!" +}</p>
+<p>{L:template "builddate" L} {+ libx.buildDate +}</p>
+
+<!-- Authors -->
+<h3>{L:template "authors" L}</h3>
+    <p> Annette Bailey </p>
+    <p> Godmar Back </p>
+    <p> Michael Doyle </p>
+    <p> Tobias Wieschnowsky </p>
+    <p> Brian Nicholson </p>
+
+
+
+
+<!-- Home Page -->
+<center>
+<a style="float:center" href="http://www.libx.org">{L:template "homepage" L}</a>
+</center>

@@ -1,10 +1,16 @@
-  
-function loadLibapps() {
 
- /* This URL will be read from the edition/user configuration.
- * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
+// stores the string bundle for each module that is run
+libx.libappdata.stringBundles = {};
+
+/*
+ * Return the string bundle for the the specified module.
  */
-var libappBase = "http://libx.org/libx2/libapps/";
+libx.libapp.getStringBundle = function (url) {
+    return libx.libappdata.stringBundles[url];
+};
+
+var sbox = new libx.libapp.Sandbox(window, { libx: libx } );
+var libappBase = libx.prefs.browser.feedurl._value;
 var scriptBase = libappBase + "scripts/";
 
 /*
@@ -49,7 +55,7 @@ function logDetail(msg) {
     libx.log.write("(" + window.location.href + "):\n" + msg, "libappdetail");
 }
 
-log ("beginning page visit " + libx.edition.name.long + " #libapps=" + libx.libapp.loadedLibapps.length + " time=" + new Date().getTime());
+log ("beginning page visit " + libx.edition.name.long + " time=" + new Date().getTime());
 
 /*
 if (event.url.match("libx.cs.vt.edu") != null)
@@ -72,16 +78,55 @@ if (event.url.match("libx.cs.vt.edu") != null)
  * libapp's tuple space in libx.space.
  */
 var requiredScripts = new libx.utils.collections.ActivityQueue();
-var moduleQueue = new libx.utils.collections.ActivityQueue();
+var cachedTextTransformerModuleQueue = new libx.utils.collections.ActivityQueue();
 
 /* map require url to activity */
 var requireURL2Activity = { };
 
 var textExplorer = new libx.libapp.TextExplorer();
 
-for (var i = 0; i < libx.libapp.loadedLibapps.length; i++) {
-    executeLibapp(libx.libapp.loadedLibapps[i]);
+/* This URL will be read from the edition/user configuration.
+ * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
+ */
+var rootPackages = [ { url: libappBase + "1" } ];
+
+// This code recursively walks packages, executing all libapps.
+
+var feeds = libx.edition.localizationfeeds;
+rootPackages = feeds.package || rootPackages;
+
+function processPackages(packages) {
+
+    for (var i = 0; i < packages.length; i++) {
+        
+        // this activity is used to block traverseTextActivity (below)
+        // until every module in every libapp has been added to the queue
+        var activity = new libx.utils.collections.EmptyActivity();
+        cachedTextTransformerModuleQueue.scheduleFirst(activity);
+        
+        (function (activity) {
+        
+            new libx.libapp.PackageWalker(packages[i].url).walk({
+                onpackage: function (pkg) {
+                    if (libx.prefs[pkg.id].enabled._value)
+                        processPackages(pkg.entries);
+                    // all subpackages have been queued
+                    activity.markReady();
+                },
+                onlibapp: function (libapp) {
+                    if (libx.prefs[libapp.id].enabled._value)
+                        executeLibapp(libapp);
+                    // all modules in this libapp have been queued
+                    // since this libapp has been executed
+                    activity.markReady();
+                }
+            }, activity);
+            
+        }) (activity);
+    }
+
 }
+processPackages(rootPackages);
 
 var traverseTextActivity = {
     onready: function () {
@@ -91,7 +136,8 @@ var traverseTextActivity = {
         textExplorer.traverse(window.document.documentElement);
     }
 };
-moduleQueue.scheduleLast(traverseTextActivity);
+
+cachedTextTransformerModuleQueue.scheduleLast(traverseTextActivity);
 traverseTextActivity.markReady();
 
 function prepLibappOrModule(libapp) {
@@ -126,12 +172,12 @@ function executeLibapp(libapp) {
 
     for (var i = 0; i < libapp.entries.length; i++) {
     
-        // activity to delay the text transformers.  if the module is in the
-        // cache, the module is added to the list of transformers if it is a
-        // text transformer module.  if it is not in the cache, the
-        // transformation will not occur until the page is reloaded.
+        // activity to block the text transformers.  if the module is in the
+        // cache, the module is added to the list of transformers.  
+        // if it is not in the cache, the transformation will not occur until
+        // the page is reloaded.
         var moduleFinishedActivity = new libx.utils.collections.EmptyActivity();
-        moduleQueue.scheduleLast(moduleFinishedActivity);
+        cachedTextTransformerModuleQueue.scheduleFirst(moduleFinishedActivity);
         
         (function (activity) {
             new libx.libapp.PackageWalker(libapp.entries[i].url).walk({
@@ -143,7 +189,7 @@ function executeLibapp(libapp) {
             }, activity);
         }) (moduleFinishedActivity);
     }
-
+    
     function executeModule(module, moduleFinishedActivity) {
 
         prepLibappOrModule(module);
@@ -172,7 +218,7 @@ function executeLibapp(libapp) {
                         return;
                     if (/.*\.js$/.test(metadata.originURL)) {
                         log("injecting required script: " + metadata.originURL);
-                        eval(scriptText);
+                        sbox.evaluate(scriptText);
                     } else
                     if (/.*\.css$/.test(metadata.originURL)) {
                         var doc = window.document;
@@ -204,7 +250,22 @@ function executeLibapp(libapp) {
         var setupSandbox = 
             "var libx = __libx.core.Class.mixin({ }, __libx, true); /* clone libx */\n"
           + "libx.space = libx.libappdata.space;\n";
-
+        
+        //TODO: type checking
+        //TODO: support {var} notation
+        var setupArgs = "";
+        for ( var i = 0; i < libapp.entries.length; i++ ) {
+            if ( libapp.entries[i].url == module.id ) {
+                var args = libapp.entries[i].args;
+                if ( args ) {
+                    for ( var arg in args ) {
+                        setupArgs += "var " + arg + " = \"" + args[arg].value + "\";\n";
+                    }
+                }
+                break;
+            }
+        }
+          
         /* now schedule the module itself */
         var runModuleActivity = {
             onready: function () {
@@ -216,9 +277,28 @@ function executeLibapp(libapp) {
                 }
             }
         };
-        requiredScripts.scheduleLast(runModuleActivity);
-        runModuleActivity.markReady();
 
+        /* schedule the module's string bundle */
+        var getModuleStringBundle = {
+            onready: function () {
+                var stringBundle = libx.libappdata.stringBundles[module.id];
+                if (stringBundle) {
+                    runModuleActivity.markReady();
+                } else {
+                    libx.locale.getBundle({
+                        feed: module.id,
+                        success: function (bundle) {
+                            libx.libappdata.stringBundles[module.id] = bundle;
+                            runModuleActivity.markReady();
+                        }
+                    });
+                }
+            }
+        };
+        requiredScripts.scheduleLast(getModuleStringBundle);
+        requiredScripts.scheduleLast(runModuleActivity);
+        getModuleStringBundle.markReady();
+        
         function runTextTransformerModule(module) {
             log("Adding RegexpTextTransformer Module: " + module.regexptexttransformer[0]);
             var textTransformer = new libx.libapp.RegexpTextTransformer(module.regexptexttransformer[0]);
@@ -230,22 +310,33 @@ function executeLibapp(libapp) {
                 
                 var jsCode = "(function (__libx) {\n"
                     + setupSandbox
+                    + setupArgs
+                    + "  libx.libapp.getCurrentModule = function () { return '" + module.id + "'; };\n"
+                    + "  libx.libapp.getCurrentLibapp = function () { return '" + libapp.id + "'; };\n"
                     + "  var textNode = libx.libappdata.textNode;\n"
                     + "  var match = libx.libappdata.match;\n"
                     +       module.body
                     + "}) (libx);\n";
             
                 logDetail("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
-                return eval(jsCode);
+                return sbox.evaluate(jsCode);
             }
             textExplorer.addTextTransformer(textTransformer);
         }
         
         function runModule(module) {
-
+        
             libx.libappdata.space = libappSpace;
             var jsCode = "/* begin module body */\n" + module.body + "\n/* end module body */\n";
 
+            jsCode = "var __getCurrentModule = libx.libapp.getCurrentModule;\n"
+                   + "var __getCurrentLibapp = libx.libapp.getCurrentLibapp;\n"
+                   + "libx.libapp.getCurrentModule = function () { return '" + module.id + "'; };\n"
+                   + "libx.libapp.getCurrentLibapp = function () { return '" + libapp.id + "'; };\n"
+                   + jsCode
+                   + "libx.libapp.getCurrentModule = __getCurrentModule;\n"
+                   + "libx.libapp.getCurrentLibapp = __getCurrentLibapp;\n";
+            
             // wrap in 'guardedby' clauses, if needed
             // compute indentation
             var indent = [ "  " ];
@@ -285,6 +376,7 @@ function executeLibapp(libapp) {
 
             jsCode = "(function (__libx) {\n"
                 + setupSandbox
+                + setupArgs
                 + jsCode
                 + "}) (libx);\n"
             // clean global space
@@ -302,26 +394,10 @@ function executeLibapp(libapp) {
             jsCode += "}\n";
             jsCode += "delete this.p;\n";
             */
+            logDetail("Module URL = '" + module.id + "'");
             logDetail("Running module '" + module.description + "': \n" + jsCode + "\nusing space: " + libappSpace.description);
-            eval(jsCode);
+            sbox.evaluate(jsCode);
+            // getPrefValue(module.id, "autolinking");
         }
     }
-}
-
-}
-
-if (typeof localStorage == "object") {
-    // prevent bug in Google Chrome where content script may be included twice
-    // run libapps on a given page at most once per second
-    var now_ms = Number(new Date());
-    var last = Number(localStorage.getItem("libx.lastrun"));
-    if (last + 1000 < now_ms) {
-        localStorage.setItem("libx.lastrun", now_ms);
-        loadLibapps();
-    } else {
-        var d = Number(localStorage.getItem("libx.doubleinjections"));
-        localStorage.setItem("libx.doubleinjections", d + 1);
-    }
-} else {
-    loadLibapps();
 }

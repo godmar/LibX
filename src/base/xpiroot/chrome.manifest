@@ -1,4 +1,9 @@
 
+# The {classID} here must match the classID in mycomponent.js
+component {2b9e2ab0-83db-4b19-a7e0-3371a2c79619} components/libxcomponent.js
+contract @libx.org/libxcomponent;1 {2b9e2ab0-83db-4b19-a7e0-3371a2c79619}
+category profile-after-change LibXComponent @libx.org/libxcomponent;1
+
 overlay chrome://browser/content/browser.xul        chrome://libx/content/libx.xul
 overlay chrome://navigator/content/navigator.xul    chrome://libx/content/libx.xul
 

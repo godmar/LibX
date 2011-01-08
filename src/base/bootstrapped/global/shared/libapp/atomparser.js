@@ -130,7 +130,13 @@ function handleEntry(visitor, url, cacheMissActivity) {
                 }
             }
         };
-
+        
+        // add preference attribute
+        var prefNode = libx.utils.xpath.findNodesXML(
+            xmlDoc, "./libx2:preferences/*", libx2Node, ns);
+        if (prefNode != null)
+            nodeInfo["preferences"] = prefNode[0];
+            
         // verify that 'include', 'exclude', etc. look like regular expressions
         for (var i = 0; i < libx2RegexpClauses.length; i++) {
             var rClause = libx2RegexpClauses[i];
@@ -145,18 +151,59 @@ function handleEntry(visitor, url, cacheMissActivity) {
             }
         }
 
+        // add entries and args
         var libxEntries = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:entry", libx2Node, ns);
-
         for (var i = 0; libxEntries != null && i < libxEntries.length; i++) {
-            nodeInfo.entries.push({
+            var nodeEntry = {
                 url: resolveURL(baseURL, String(libxEntries[i].getAttribute('src')))
-            });
+            }
+            var argNodes = libx.utils.xpath.findNodesXML(
+                xmlDoc, "./libx2:args/libx2:arg", libxEntries[i], ns);
+            if (argNodes != null) {
+                nodeEntry.args = {};
+                for ( var j = 0; j < argNodes.length; j++ ) {
+                    nodeEntry.args[argNodes[j].getAttribute("name")] = {
+                        value: argNodes[j].getAttribute("value"),
+                        type: argNodes[j].getAttribute("type")
+                    };
+                }
+            }
+            nodeInfo.entries.push(nodeEntry);
         }
- 
+        
+        // add params
+        var params = libx.utils.xpath.findNodesXML(
+            xmlDoc, "./libx2:params/libx2:param", libx2Node, ns);
+        nodeInfo.params = {};
+        if ( params != null ) {
+            for (var i = 0; i < params.length; i++) {
+                nodeInfo.params[params[i].getAttribute("name")] = {
+                    type: params[i].getAttribute("type")
+                };
+            }
+        }
+            
+        // add localizations
+        var locales = libx.utils.xpath.findNodesXML(
+            xmlDoc, "./libx2:locale", libx2Node, ns);
+        nodeInfo.locales = {};
+        if ( locales != null ) {
+            for (var i = 0; i < locales.length; i++) {
+                var language = locales[i].getAttribute("language");
+                nodeInfo.locales[language] = locales[i].textContent;
+                if (locales[i].getAttribute("default") == "true")
+                    nodeInfo.defaultLocale = language;
+            }
+        }
+            
         var visitorMethodName = "on" + String(libx2Node.localName);
         if (visitor[visitorMethodName])
             visitor[visitorMethodName](nodeInfo);
+            
+        var params = libx.utils.xpath.findNodesXML(
+            xmlDoc, "./libx2:params/libx2:param", libx2Node, ns);
+            
     }
 
     var pathComp = url.split(/\//);
@@ -164,29 +211,45 @@ function handleEntry(visitor, url, cacheMissActivity) {
     var pathBase = url.replace(/.*\//, "");
 
     if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);
-
-    var cachehit = false;
+    
+    // get the entire feed (which should include the entry for this url)
     libx.cache.defaultObjectCache.get({
+        cachehit: false, // used below
         url: pathDir,
         cacheprobe: function (filecontent, metadata) {
             if (metadata) {
                 this.success(filecontent, metadata);
-                cachehit = true;
+                this.cachehit = true;
             } else if (cacheMissActivity)
                 cacheMissActivity.markReady();
         },
         success: function (filecontent, metadata) {
-            if (cachehit)
+            if (this.cachehit)
                 return;
             var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
             var xpathExpr = "//atom:entry[atom:id/text() = '" + url + "']";
             var entry = libx.utils.xpath.findSingleXML(xmlDoc, xpathExpr, xmlDoc, ns);
             if (entry != null) {
+                // URL entry was found in this feed
                 handleEntryBody(xmlDoc, pathDir, entry);
             } else {
+                // URL entry not found in this feed; fetch the entry individually
                 libx.cache.defaultObjectCache.get({
+                    cachehit: false, // used below
                     url: url,
+                    cacheprobe: function (filecontent, metadata) {
+                        if (metadata) {
+                            this.success(filecontent, metadata);
+                            this.cachehit = true;
+                        } else {
+                            if (cacheMissActivity) {
+                                cacheMissActivity.markReady();
+                            }
+                        }
+                    },
                     success: function (filecontent, metadata) {
+                        if (this.cachehit)
+                            return;
                         var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
                         handleEntryBody(xmlDoc, pathDir, xmlDoc.documentElement);
                     }
@@ -194,6 +257,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
             }
         }
     });
+
 }
 
 /**

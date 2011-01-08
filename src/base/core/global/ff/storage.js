@@ -17,26 +17,28 @@ libx.storage = (function () {
         dbConn = storageService.openDatabase(file);
     } ());
     
-    function executeStatement(statement, success, error, complete) {
-        var callbackObj = {
-            handleCompletion: libx.core.EmptyFunction,
-            handleError: libx.core.EmptyFunction,
-            handleResult: libx.core.EmptyFunction
-        };
-        if(complete)    callbackObj.handleCompletion = complete;
-        if(error)       callbackObj.handleError = error;
-        if(success)     callbackObj.handleResult = success;
-        
-        statement.executeAsync(callbackObj);  
-    }
-    
     return {
         Store: libx.core.Class.create({
+            
+            async: true,
             
             initialize: function(storeName) {
                 this.storeName = storeName;
                 if(!dbConn.tableExists(storeName))
                     dbConn.createTable(storeName, 'key TEXT  PRIMARY KEY  NOT NULL  UNIQUE, value TEXT');
+            },
+        
+            executeStatement: function(statement, success, error, complete) {
+                var callbackObj = {
+                    handleCompletion: libx.core.EmptyFunction,
+                    handleError: libx.core.EmptyFunction,
+                    handleResult: libx.core.EmptyFunction
+                };
+                if(complete)    callbackObj.handleCompletion = complete;
+                if(error)       callbackObj.handleError = error;
+                if(success)     callbackObj.handleResult = success;
+                
+                statement.executeAsync(callbackObj);
             },
         
             /**
@@ -62,8 +64,15 @@ libx.storage = (function () {
                 statement.params.key = paramObj.key;
                 statement.params.value = paramObj.value;
                 
-                executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete); 
-                
+                if(this.async)
+                    this.executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete); 
+                else {
+                    statement.execute();
+                    if(paramObj.success)
+                        paramObj.success();
+                    if(paramObj.complete)
+                        paramObj.complete();
+                }
             },
             
             /**
@@ -93,22 +102,63 @@ libx.storage = (function () {
                 statement.params.key = paramObj.key;
                 var resultFound = false;
                 
-                var success = function(aResultSet) {
-                    resultFound = true;
-                    if(paramObj.success) {
-                        var row = aResultSet.getNextRow();
-                        paramObj.success(row.getResultByName("value"));
+                if(this.async) {
+                    var success = function(aResultSet) {
+                        resultFound = true;
+                        if(paramObj.success) {
+                            var row = aResultSet.getNextRow();
+                            paramObj.success(row.getResultByName("value"));
+                        }
+                    };
+                    var complete = function(aReason) {
+                        if(paramObj.notfound && !resultFound &&
+                                aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
+                            paramObj.notfound();
+                        if(paramObj.complete)
+                            paramObj.complete();
                     }
-                };
-                var complete = function(aReason) {
-                    if(paramObj.notfound && !resultFound &&
-                            aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
+                    
+                    this.executeStatement(statement, success, paramObj.error, complete);
+                } else {
+                    if (statement.executeStep()) {
+                        if (paramObj.success)
+                            paramObj.success(statement.row.value);
+                    } else if (paramObj.notfound)
                         paramObj.notfound();
                     if(paramObj.complete)
                         paramObj.complete();
                 }
+            },
+            
+            /**
+             * Removes an object from storage with the given key.
+             *
+             * @param {Object}      paramObj contains properties used for retrieval
+             * 
+             * @param {String}      paramObj.key        (REQUIRED) key to look up
+             * 
+             * @param {Function}    paramObj.complete   function to execute upon
+             *                                          call completion
+             *                                          
+             * @param {Function}    paramObj.error      function to execute upon
+             *                                          errors
+             *                                          
+             * @param {Function}    paramObj.success    function to execute upon
+             *                                          success
+             */
+            removeItem: function(paramObj) {
+                var statement = dbConn.createStatement("DELETE FROM " + this.storeName + " WHERE key = :key");
+                statement.params.key = paramObj.key;
                 
-                executeStatement(statement, success, paramObj.error, complete);
+                if(this.async) {
+                    this.executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete);
+                } else {
+                    statement.execute();
+                    if(paramObj.success)
+                        paramObj.success();
+                    if(paramObj.complete)
+                        paramObj.complete();
+                }
             },
             
             /**
@@ -140,27 +190,38 @@ libx.storage = (function () {
                 
                 var statement = dbConn.createStatement("SELECT key FROM " + this.storeName);
                 
-                // multiple partial result sets are returned; wait until
-                // complete callback to signal success so all results can be
-                // received simultaneously
-                var success = function(aResultSet) {
-                    for (var row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {  
-                        var itemName = row.getResultByName("key");
-                        if(pattern.test(itemName))
-                            matches.push(itemName);
-                    }
-                };
-                
-                var complete = function(aReason) {
-                    // query neither encountered an error nor was aborted
-                    if(aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED &&
-                            paramObj.success)
+                if(this.async) {
+                    // multiple partial result sets are returned; wait until
+                    // complete callback to signal success so all results can be
+                    // received simultaneously
+                    var success = function(aResultSet) {
+                        for (var row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {  
+                            var itemName = row.getResultByName("key");
+                            if(pattern.test(itemName))
+                                matches.push(itemName);
+                        }
+                    };
+                    
+                    var complete = function(aReason) {
+                        // query neither encountered an error nor was aborted
+                        if(aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED &&
+                                paramObj.success)
+                            paramObj.success(matches);
+                        if(paramObj.complete)
+                            paramObj.complete();
+                    };
+                    
+                    this.executeStatement(statement, success, paramObj.error, complete);
+                } else {
+                    while (statement.executeStep()) {
+                        if(pattern.test(statement.row.key))
+                            matches.push(statement.row.key);
+                    }  
+                    if(paramObj.success)
                         paramObj.success(matches);
                     if(paramObj.complete)
                         paramObj.complete();
-                };
-                
-                executeStatement(statement, success, paramObj.error, complete);
+                }
                 
             },
             
@@ -179,10 +240,15 @@ libx.storage = (function () {
             clear: function(paramObj) {
                 var statement = dbConn.createStatement("DELETE FROM " + this.storeName);
                 
-                if(!paramObj)
-                    paramObj = {};
-                
-                executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete);
+                if(this.async) {
+                    if(!paramObj)
+                        paramObj = {};
+                    this.executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete);
+                } else {
+                    statement.execute();
+                    if(paramObj.complete)
+                        paramObj.complete();
+                }
             }
         })
     };

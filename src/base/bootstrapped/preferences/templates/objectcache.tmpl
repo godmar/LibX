@@ -1,0 +1,123 @@
+{!
+    /**
+     *    Template for the object cache tab in the preferences menu
+     *
+     */
+    var cachedObjects = [];
+
+    var metaCache = new libx.storage.Store('metacache');
+    metaCache.async = false;
+    metaCache.find({
+        success: function(filepaths) {
+            var fetchedFiles = 0;
+            for ( var i = 0; i < filepaths.length; i++ ) {
+                /* get the metadata */
+                metaCache.getItem({
+                    key: filepaths[i],
+                    success: function(text) {
+                        var metadata = libx.utils.json.parse(text);
+                        /* Calculate the name of the file, this is used to sort */
+                        var urlparts = metadata.originURL.split ( '/' );
+                        var name = urlparts[urlparts.length - 1].length > 0 
+                            ? urlparts[urlparts.length - 1] : urlparts[urlparts.length - 2];
+                        cachedObjects.push ( {
+                            url : metadata.originURL,
+                            filename : filepaths[i],
+                            lastmod : metadata.lastModified,
+                            mimetype : metadata.mimeType,
+                            name : name
+                        } );
+                        cachedObjects.sort( function ( a, b ) { 
+                            return a.name > b.name; 
+                        } );
+                    }
+                });
+            }
+        }
+    });
+    
+!}
+
+{DefaultLocale=en_US}
+
+<div id="objectcache-content" style="font-size:.8em;">
+    <div id="actions">
+        <button id="link-flush">{L:template "flushcache_button" L}</button>
+        <button id="link-update">{L:template "updatenow_button" L}</button>
+        <button id="link-purgeall">{L:template "purgeall_button" L}</button>
+        <button id="link-refresh">{L:template "refresh_button" L}</button>
+    </div>
+    <br/>
+    <div class="accordion" style="overflow:scroll;height:400px">
+        <for each="obj" in="cachedObjects">
+            <div class="ui-dialog-titlebar">
+                <h3>
+                    <a href="#">
+                        <if test="obj.lastmod != null">
+                            <label style="float:right">{+obj.lastmod+}</label>
+                        </if>
+                        <label>{+obj.url+}</label>
+                    </a>
+                </h3>
+                <div class="ui-widget-content">
+                    <a class="link-opencache" href="#{+obj.filename+}" data-mimetype="{+obj.mimetype+}" target="_blank">{L:template "opencachedcopy" L}</a>
+                    <a href="#{+obj.filename+}" class="purgebutton" style="float:right"> {L:template "purge" L}</a>
+                    <p>{L:template "mimetype" L} {+ obj.mimetype +} </p>	
+                </div>
+            </div>
+        </for>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+$('#actions').buttonset();
+
+$(".accordion").accordion({ header: "h3" });
+
+var cache = new libx.storage.Store('cache');
+var metaCache = new libx.storage.Store('metacache');
+
+$('.accordion > div > span').click(function() {
+    $(this).next().toggle();
+}).next().hide();
+
+$('.purgebutton').click(function() {
+    var filename = $(this).attr('href').substr(1);
+    cache.removeItem({ key: filename });
+    metaCache.removeItem({ key: filename });
+    $(this).parent().parent().remove();
+    return false;
+});
+
+$('#link-flush').click(function() {
+    libx.cache.defaultMemoryCache.flush();
+});
+
+$('#link-update').click(function() {
+    libx.cache.defaultObjectCache.updateRequests();
+});
+
+$('#link-purgeall').click(function() {
+    $(".purgebutton").click();
+});
+
+$('#link-refresh').click(function() {
+    var aQueues = [];
+    $("#objectcache-content").replaceWith( process ( blockers, "", null, "objectcache" ) );
+    aQueues[0].markReady();
+});
+
+$('.link-opencache').each(function(i, elem) {
+    var filename = $(this).attr('href').substr(1);
+    cache.getItem( {
+        key: filename,
+        success: function (text) {
+            if(text.substr(0, 5) != 'data:')
+                text = 'data:' + $(elem).attr('data-mimetype') + ';base64,' + libx.utils.binary.binary2Base64(text);
+            $(elem).attr('href', text);
+        }
+    } );
+});
+    
+</script>

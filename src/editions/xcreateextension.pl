@@ -117,7 +117,8 @@ my %filemap = (
     "$basedir/core"      => "$tmpdir/chrome/libx/content/libx/core",
     "$basedir/dev"       => "$tmpdir/chrome/libx/content/libx/dev",
     "$basedir/popup"     => "$tmpdir/chrome/libx/content/libx/popup",
-    "$basedir/locale"    => "$tmpdir/chrome/libx/locale"
+    "$basedir/locale"    => "$tmpdir/chrome/libx/locale",
+    "$basedir/preferences"=>"$tmpdir/chrome/libx/content/libx/preferences"
 );
 
 foreach my $key ( keys %filemap ) {

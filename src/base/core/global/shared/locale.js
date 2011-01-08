@@ -29,47 +29,180 @@
  */
 libx.locale = ( function () { 
 
-return /** @lends libx.locale */ {
+var StringBundle = libx.core.Class.create( {
 
-    /** @namespace libx.locale.bd */
-    bd : { },
+    initialize: function( bundles ) {
+        this.bundles = bundles;
+    },
     
-	/**
-	 *	Initializes the libx.locale namespace, loading the LibX properties
-	 */
-	initialize : function () {
-        this.bd.initialize();
-	},
-	
 	/**
 	 *	Returns a LibX property with specified name 
 	 *	@param {String} name of property
 	 *	@param {Objects} variable number of arguments
 	 */	
 	getProperty : function ( name /*, arg0, arg1, arg2, .... */) {
-	    
-	    var args = [];
-        for ( var i = 1; i < arguments.length; i++ ) {
-            args.push ( arguments[i] );
+        
+        var propertyObj = null;
+        
+        for (var i = 0; i < this.bundles.length; i++) {
+            propertyObj = this.bundles[i][name];
+            if (propertyObj)
+                break;
         }
         
-        try {
-            if (args.length > 0) {
-                var formatted = this.bd.getFormattedString(name, args);
-            } else {
-                var formatted = this.bd.getString(name);
-            }
-            if (formatted == null) {
-                libx.log.write("Property '" + name + "' not found in '" + this.url + "'");
-                return "<" + name + ">";
-            }
-            return formatted;
-        } catch (e) {
-            libx.log.write("Error retrieving property '" + name + "' from '" + this.url + "': " + e);
-            return "<" + name + ">";
+        if (propertyObj == null) {
+            libx.log.write("Property '" + name + "' not found");
+            return "[" + name + "]";
         }
+        
+        var message = propertyObj.message;
+        
+        if (arguments.length > 1) {
+            var args = arguments;
+            message = message.replace(/\$([a-zA-Z0-9_]+)\$/g, function(str, match) {
+                var placeholder = propertyObj.placeholders[match];
+                if(!placeholder)
+                    throw new Error("placeholder '" + match + "' not defined.");
+                
+                // replace $n with corresponding argument n
+                return placeholder.content.replace(/(.?)\$([0-9])/g, function(str, chr, match) {
+                    // exclude $$n from argument replacement
+                    if(chr == '$')
+                        return '$' + match;
+                    var result = args[parseInt(match)];
+                    if(!result)
+                        return '';
+                    return chr + result;
+                });
+            });
+        }
+        
+        return message;
 	    
 	}
+    
+} );
+
+return /** @lends libx.locale */ {
+
+    /** @namespace libx.locale.bd */
+    bd : { },
+    
+    initialize: function () {
+        libx.locale.bd.initialize();
+    },
+    
+	/**
+	 *	Gets a localization bundle.
+     *  Bundles will be searched similar to Google Chrome's i18n rules (http://code.google.com/chrome/extensions/i18n.html#l10):
+     *      1) Search the messages file (if any) for the user's preferred locale.
+     *         For example, if user's locale is en_GB, the en_GB locale will be searched first.
+     *      2) If the user's preferred locale has a region (that is, the locale has an underscore: _),
+     *         search the locale without that region. For example, if the en_GB messages file doesn't exist
+     *         or doesn't contain the message, the system looks in the en messages file.
+     *      3) Use the locale specified in defaultLocale. For example, if defaultLocale is set to "es",
+     *         and neither the en_GB nor en versions of the URL contain the message, es is searched.
+	 *	@param {Object} object parameter that contains the following:
+     *      url             {String}    OPTIONAL - URL to load bundle from.  URL can contain
+     *                                  a $locale$ placeholder, which will be replaced with
+     *                                  the user's current locale
+     *      feed            {String}    OPTIONAL - Feed to load bundle from.  Must be defined if
+     *                                  url option is not used.
+     *      defaultLocale   {String}    OPTIONAL - the fallback locale bundle when either
+     *                                      1) the user's preferred locale does not exist
+     *                                      2) the user's locale exists, but a string is missing
+     *      async           {bool}      whether the locale will be retrieved asynchronously
+     *      success         {Function}  REQUIRED - success callback function; takes a parameter
+     *                                  which is the returned string bundle
+     *      error           {Function}  error callback function
+	 */	
+    getBundle: function (params) {
+        
+        var localesToFind = [];
+        
+        // add locale to lookup list only if it isn't already in list
+        function addLocale(locale) {
+            for (var i = 0; i < localesToFind.length; i++) {
+                if (localesToFind[i] == locale)
+                    return;
+            }
+            localesToFind.push(locale);
+        }
+        
+        addLocale(libx.locale.bd.currentLocale);
+        var regionSeparatorPos = libx.locale.bd.currentLocale.indexOf('_')
+        if (regionSeparatorPos != -1)
+            addLocale(libx.locale.bd.currentLocale.substr(0, regionSeparatorPos));
+        if (params.defaultLocale)
+            addLocale(params.defaultLocale);
+        
+        var queue = new libx.utils.collections.ActivityQueue();
+        var bundles = [];
+        
+        // schedule possible locales, executing callback for each to mark them ready
+        function scheduleLocales(callback) {
+        
+            for (var i = 0; i < localesToFind.length; i++) {        
+                var addBundleActivity = {
+                    onready: function (json) {
+                        if (json)
+                            bundles.push(json);
+                    }
+                };
+                
+                queue.scheduleLast(addBundleActivity);
+                callback(localesToFind[i], addBundleActivity);
+            }
+            
+            var createBundleActivity = {
+                onready: function () {
+                    params.success(new StringBundle(bundles));
+                    if (!bundles.length && params.error)
+                        params.error('Could not load any bundles from: ' + (params.url||params.feed));
+                }
+            };
+            
+            queue.scheduleLast(createBundleActivity);
+            createBundleActivity.markReady();
+            
+        }
+        
+        if (params.url) {
+            // get locales from url
+            scheduleLocales(function (locale, activity) {
+                libx.cache.defaultObjectCache.get( {
+                    async: params.async,
+                    url: params.url.replace(/\$locale\$/, locale),
+                    error: function ( status ) {
+                        activity.markReady();
+                        if (status != 404 && params.error)
+                            params.error(status);
+                    },
+                    success: function (response) {
+                        activity.markReady(libx.utils.json.parse(response));
+                    }
+                } );
+            });
+        } else {
+            // get locales from feed
+            function getLocale(entry) {
+                if (entry.defaultLocale)
+                    addLocale(entry.defaultLocale);
+                scheduleLocales(function (locale, activity) {
+                    if (locale in entry.locales)
+                        activity.markReady(libx.utils.json.parse(entry.locales[locale]));
+                    else
+                        activity.markReady();
+                });
+            }
+            new libx.libapp.PackageWalker(params.feed).walk({
+                onpackage: getLocale,
+                onmodule:  getLocale,
+                onlibapp:  getLocale
+            });
+        }
+        
+    }
 	
 };
 

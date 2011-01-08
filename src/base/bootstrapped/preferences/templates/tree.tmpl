@@ -1,0 +1,28 @@
+{!
+    /**
+     *     Default Tree Template
+     *    We need access to the current preference, as well as its fullname
+     */
+     
+!}
+<!-- tree.tmpl -->
+<ul class="tree">
+    <li>
+    <label>{L:pref data._idstr + "-label" L}</label>
+    <for each="child" in="data._children">
+        <ul class="{! child._layout == 'tree' ? 'tree' : '' !}">
+            <li>
+                <if test="(child._nodeType == 'category')">
+                    <input type="checkbox" />
+                    <!-- XXX: pull these from old bundles file -->
+                    <label>{L:pref child._idstr + "-label", child._name L}</label>
+                    {P child P}
+                </if>
+                <if test="(child._nodeType == 'preference')">
+                    {P child P}
+                </if>
+            </li>
+        </ul>
+    </for>
+    </li>
+</ul>

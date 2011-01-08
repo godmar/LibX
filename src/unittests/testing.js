@@ -31,7 +31,7 @@ var Test = libx.core.Class.create({
      *
      * XXX make it easier for this to be per-developer.
      */
-    baseUrl : "http://libx.org/libx-new/src/unittests/",
+    baseUrl : "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/unittests/",
 
     /**
      * Runs and evaluates a single test. Can be called by a launcher, or
@@ -255,7 +255,7 @@ var Test = libx.core.Class.create({
      */
     WAIT : function (timeout, expect) {
         if (expect) this.timeout = true;
-        $wait(timeout * 1000); 
+        Envjs.wait(timeout * 1000); 
         // java.lang.Thread.currentThread().sleep(timeout * 1000);
     },
     /**

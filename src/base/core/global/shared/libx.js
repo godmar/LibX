@@ -34,7 +34,7 @@
  *
  * This namespace is global.
  */
-libx.services = { }
+libx.services = { };
 
 /**
  * @namespace
@@ -43,12 +43,7 @@ libx.services = { }
  *
  * This namespace is global.
  */
-libx.libapp = { 
-    /**
-     * Array of loaded libapps
-     */
-    loadedLibapps : []
-}
+libx.libapp = { };
 
 /**
  * Support for caching of resources.
@@ -478,16 +473,27 @@ libx.buildDate = "$builddate$";
  * Initialize LibX
  *
  */
-libx.initialize = function (runsInBackground) 
+libx.initialize = function (loadContentScripts, loadGlobalScripts) 
 {
-    libx.runsInBackground = runsInBackground;
-	libx.locale.initialize();
+    libx.initialize.loadContentScripts = loadContentScripts;
+    libx.initialize.loadGlobalScripts = loadGlobalScripts;
+    libx.locale.initialize();
+    libx.preferences.initialize();
+    
+    // initialize browser preferences
+    libx.preferences.load ( {
+    	//BRN: change this
+        filename : "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/preferences/browser.prefs.xml",
+        overwrite : false,
+        base : "libx.prefs"
+    } );  
+    
 }
 
 /**
  * Load edition configuration.
  */
-libx.loadConfig = function(configUrl) {
+libx.loadConfig = function (configUrl) {
     new libx.config.EditionConfigurationReader({
         url: configUrl,
         onload: function (edition) {
@@ -497,11 +503,16 @@ libx.loadConfig = function(configUrl) {
             // Load all URLs marked as @type = 'bootglobal' in configuration
             var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
             if (bootGlobalUrls.length == 0) {
-                bootGlobalUrls.push({ url:
-                    libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
-                        libx.runsInBackground ?
-                          "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobal.js"
-                        : "http://libx.org/libx-new/src/base/bootstrapped/bootstrapcontentscript.js") });
+                if (libx.initialize.loadContentScripts)
+                    bootGlobalUrls.push({
+                        url: libx.utils.browserprefs.getStringPref("libx.bootstrap.contentscript.url", 
+                            "http://libx.org/libx-new/src/base/bootstrapped/bootstrapcontentscript.js")
+                    });
+                if (libx.initialize.loadGlobalScripts)
+                    bootGlobalUrls.push({
+                        url: libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
+                            "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobalscript.js")
+                    });
             }
         
             var globalBootStrapper 

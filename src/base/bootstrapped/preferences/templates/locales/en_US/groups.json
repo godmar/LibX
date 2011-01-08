@@ -1,0 +1,10 @@
+{
+    "libx.prefs.browser-tabname":
+        { "message" : "General" },
+    "libx.prefs.browser.displaypref-group-label":
+        { "message" : "Display Preferences" },
+    "libx.prefs.browser.autolinking-group-label":
+        { "message" : "Autolinking" },
+    "libx.prefs.browser.citeulike-group-label":
+        { "message" : "CiteULike Options" }
+}

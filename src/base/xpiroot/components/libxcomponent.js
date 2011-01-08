@@ -30,7 +30,7 @@ function loadLibX() {
         "shared/libx.js",
         "shared/log.js",
         "ff/storage.js",
-        "shared/locale.js",
+        "shared/preferences.js",
         "shared/utils/binary.js",
         "shared/cache/memorycache.js",
         "shared/config.js",
@@ -67,9 +67,10 @@ function loadLibX() {
         "ff/cache.js",
         "ff/utils/timer.js",
         "ff/utils/xml.js",
-        "ff/locale.js",
         "ff/bootstrap.js",
         "shared/cache/objectcache.js",
+        "shared/locale.js",
+        "ff/locale.js",
         "ff/utils/browserprefs.js",
         "ff/utils/hash.js",
         "shared/openurl.js",
@@ -82,7 +83,8 @@ function loadLibX() {
         "shared/ui/jquery/autocomplete.js",
         "shared/ui/jquery/dropdown.js",
         "shared/ui/jquery/accordionmenu.js",
-        "ff/ui/tabs.js"
+        "ff/ui/tabs.js",
+        "shared/utils/geteditionresource.js"
     ];
     
     for (var i = 0; i < globalScripts.length; i++) {
@@ -97,7 +99,7 @@ function loadLibX() {
  
     try {
         
-        libx.initialize();
+        libx.initialize(true, true);
     } catch (er) {
         log("Error in libx.initialize(): " + er);
     }
@@ -135,6 +137,12 @@ LibXComponent.prototype = {
     QueryInterface   : XPCOMUtils.generateQI([])
 };
 
-function NSGetModule(compMgr, fileSpec) {
-    return XPCOMUtils.generateModule([LibXComponent]);
-}
+/**
+* XPCOMUtils.generateNSGetFactory was introduced in Mozilla 2 (Firefox 4).
+* XPCOMUtils.generateNSGetModule is for Mozilla 1.9.2 (Firefox 3.6).
+*/
+if (XPCOMUtils.generateNSGetFactory)
+    var NSGetFactory = XPCOMUtils.generateNSGetFactory([LibXComponent]);
+else
+    var NSGetModule = XPCOMUtils.generateNSGetModule([LibXComponent]);
+

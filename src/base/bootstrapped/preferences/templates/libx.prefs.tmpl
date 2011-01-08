@@ -1,0 +1,82 @@
+{!
+    /**
+     * libx.prefs template
+     *    This is the top level template that produces tabs for each category, as well as an about tab
+     *
+     * Expected input: 
+     *        data: an object representing a category object
+     * Requires: 
+     *    libx.getLocalizedString
+    */
+    
+    /** Generates a unique identifier for each tab, based on the child's _id attributeb */
+    function tabID ( id ) {
+        return id + '-tab';
+    } 
+!}
+
+{DefaultLocale=en_US}
+
+<div id="libx-prefs-tabs">
+    <ul>
+    	<!-- Switched to specifically loading tabs to force an ordering -->
+        <if test="libx.prefs.browser != null">
+	        <li>
+	            <a href="#browser-maintab">
+	                <span>{L:template "browser_tabname" L}</span>
+	            </a>
+	        </li>
+        </if>
+        <if test="libx.prefs.contextmenu != null">
+	        <li>
+	            <a href="#contextmenu-maintab">
+	                <span>{L:template "contextmenu_tabname" L}</span>
+	            </a>
+	        </li>
+        </if>
+        <li>
+            <a href="#libapps-maintab">
+                <span>{L:template "libapps_tabname" L}</span>
+            </a>
+        </li>
+        <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
+	        <li>
+	            <a href="#developer-maintab">
+	                <span>{L:template "developer_tabname" L}</span>
+	            </a>
+	        </li>
+        </if>
+        <li>
+            <a href="#about-libx-maintab">
+                <span>{L:template "about_tabname" L}</span>
+            </a>
+        </li>
+    </ul>
+    <!-- Order down here doesnt matter -->
+    <if test="libx.prefs.browser != null">
+	    <div id="browser-maintab">
+	        {P libx.prefs.browser P}
+	    </div>
+	</if>
+    <if test="libx.prefs.contextmenu != null">
+	    <div id="contextmenu-maintab">
+	        {P libx.prefs.contextmenu, "libx.prefs.contextmenu" P}
+	    </div>
+	</if>
+    <div id="libapps-maintab">
+        {P null, "libappprefs" P}
+    </div>
+    <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
+	    <div id="developer-maintab">
+	        {P null, "developer" P}
+	    </div>
+    </if>
+    <div id="about-libx-maintab">
+        {P null, "aboutlibx" P}
+    </div>
+    
+	<script type="text/javascript">
+		/* Initialize the tabs */
+	    $('#libx-prefs-tabs').tabs();
+	</script>
+</div>

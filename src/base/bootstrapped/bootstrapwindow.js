@@ -18,5 +18,5 @@ libx.events.addListener("ContentLoaded", {
         var ev = event.nativeEvent;
         libx.log.write("page visit: ev.originalTarget.location=" + ev.originalTarget.location);
     }
-}, window, "testtest");
+}, window);
 

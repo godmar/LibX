@@ -62,7 +62,7 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
      * @param {boolean} keepUpdated  if true, reexecute script when it was updated
      * @param {Object} globalProperties  set of properties to place in global scope
      */
-    loadScript : function (scriptURL, keepUpdated, globalProperties) {
+    loadScript : function (scriptURL, keepUpdated, globalProperties, window) {
 
         var self = this;
         var runScriptActivity = {
@@ -74,12 +74,12 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
                             self.finish(); 
                         },
                         loadScript  : function (scriptURL) { 
-                            return self.loadScript(scriptURL, keepUpdated, globalTargetScope); 
+                            return self.loadScript(scriptURL, keepUpdated, globalTargetScope, window); 
                         }
                     }
                 };
                 libx.core.Class.mixin(globalTargetScope, globalProperties, true);
-                libx.bootstrap.loadSubScript(script, metadata, globalTargetScope);
+                libx.bootstrap.loadSubScript(script, metadata, globalTargetScope, window);
             }
         };
         this.scriptQueue.scheduleLast(runScriptActivity);

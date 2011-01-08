@@ -53,8 +53,12 @@ return {
             onContentLoaded: function(e) {
                 if(e.window.top != e.window.self)
                     return;
-                var obj = {
-                    libx: libx,
+                var globalScope = {
+                
+                    // libx.edition may be loaded after this libx clone, so use
+                    // global libx
+                    libx: libx.global,
+                    
                     libxTemp: {
                         addListener : function(listener) {
                             libx.events.addListener('RequestToContentScript', {
@@ -69,8 +73,9 @@ return {
                         }
                     }
                 };
-                var sbox = new libx.libapp.Sandbox(e.window, obj);
+                var sbox = new libx.libapp.Sandbox(e.window, globalScope);
                 sbox.loadScript("chrome://libx/content/core/window/shared/ui/autosense.js");
+                sbox.loadScript("chrome://libx/content/core/window/ff/window.js");
             }
         }, window);
         
