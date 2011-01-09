@@ -30,6 +30,27 @@ function processPackages(packages, elem) {
                 aQueues[0].markReady();
                     
                 processPackages(pkg.entries, e2);
+                var foundModules = [];
+                var VisitorClass = new libx.core.Class.create(libx.libapp.PackageVisitor, {
+                    onpackage: function (pkg) { },
+                    onmodule: function (module) {
+                        if (libx.prefs[module.id] && $.inArray(module.id, foundModules) == -1) {
+                            foundModules.push(module.id);
+                            aQueues = [];
+                                       
+                            e2.append("<li>" + module.description + "</li>")
+                                .append("<li>" + process(aQueues, "", libx.prefs[module.id]) + "</li>");
+                            
+                            aQueues[0].markReady();
+                        }
+                        
+                        this.parent(module);
+                    }
+                });
+                var visitModules = new VisitorClass();
+                for (var j = 0; j < pkg.entries.length; j++)
+                    new libx.libapp.PackageWalker(pkg.entries[j].url).walk(visitModules);
+                
             },
             onlibapp: function (libapp) {
             

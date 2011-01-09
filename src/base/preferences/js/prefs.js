@@ -192,21 +192,21 @@ function process ( aQueues, rootPref, pref, layout ) {
 function initTemplate ( elem ) {
 
     // Set event handlers for textboxes
-    $(".preference-text", elem).change ( 
-        function () {
-            libx.preferences.getByID ( this.name )._setValue ( this.value );
+    $(".preference-text").live("change", function () {
+        libx.preferences.getByID ( this.name )._setValue ( this.value );
+        libx.preferences.save();
     } );
 
     // Set event handlers for checkboxes
-    $(".preference-checkbox", elem).click ( 
-        function () {
-            libx.preferences.getByID ( this.name )._setValue ( this.checked );
+    $(".preference-checkbox").live("click", function () {
+        libx.preferences.getByID ( this.name )._setValue ( this.checked );
+        libx.preferences.save();
     } );
 
     // Set event handlers for radio buttons
-    $(":radio", elem).click(
-        function () {
-            libx.preferences.getByID ( this.name )._setValue ( this.value );
+    $(":radio", elem).click( function () {
+        libx.preferences.getByID ( this.name )._setValue ( this.value );
+        libx.preferences.save();
     } );
     
     // Initialize the trees
@@ -244,10 +244,4 @@ function initTemplate ( elem ) {
     // // Open up to show all items that are currently checked
     // $("ul.tree .checked,.half_checked", elem).siblings( ".arrow.collapsed").click();
                 
-}
-/**
- *    This needs to be updated to allow for saving of int/string and multichoice prefs
- */
-function save () {
-    libx.preferences.save();
 }
