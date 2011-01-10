@@ -483,7 +483,7 @@ libx.initialize = function (loadContentScripts, loadGlobalScripts)
     // initialize browser preferences
     libx.preferences.load ( {
     	//BRN: change this
-        filename : "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/preferences/browser.prefs.xml",
+        filename : "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/preferences/builtin/browser.prefs.xml",
         overwrite : false,
         base : "libx.prefs"
     } );  

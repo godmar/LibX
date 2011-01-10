@@ -8,12 +8,12 @@
 /**
     @constructor
 */
-JsPlate = function(templateFileText, templateFile, aQueues, rootPref) {
+JsPlate = function(templateFileText, templateFile, aQueues, prefPrefix) {
     this.template = templateFileText;
     this.templateFile = templateFile;
     this.aQueues = aQueues;
     this.code = "";
-    this.rootPref = rootPref;
+    this.prefPrefix = prefPrefix;
     this.parse();
 }
 
@@ -56,7 +56,7 @@ JsPlate.prototype.parse = function() {
         function (match, code) {
             code = code.replace(/"/g, "``"); // prevent quote-escaping of inline code
             code = code.replace(/(\r?\n)/g, " ");
-            return "``+ ( process ( aQueues, '" + self.rootPref + "', " + code + " ) ) +``";
+            return "``+ ( process ( aQueues, '" + self.prefPrefix + "', " + code + " ) ) +``";
         }
     );
     
@@ -68,7 +68,7 @@ JsPlate.prototype.parse = function() {
             code = code.replace(/(\r?\n)/g, " ");
             if (type == "template")
                 return "``+ ( templateBundle.getProperty (" + code + " ) ) +``";
-            return "``+ ( prefBundle.getProperty ('" + self.rootPref + "', " + code + " ) ) +``";
+            return "``+ ( prefBundle.getProperty ('" + self.prefPrefix + "', " + code + " ) ) +``";
         }
     );
     

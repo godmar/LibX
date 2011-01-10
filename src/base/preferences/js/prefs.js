@@ -2,10 +2,12 @@
 var templateBundle = null;
 var prefBundle = {
     bundle : null,
-    getProperty : function (rootPref, name, defaultValue) {
+    getProperty : function (prefix, name, defaultValue) {
         
-        if (rootPref)
-            name = name.replace(rootPref + ".", "");
+        // remove the prefix for this preference name
+        // e.g., libx.prefs.http://feedurl.com/24.mypref becomes mypref
+        if (prefix)
+            name = name.replace(prefix + ".", "");
         
         // the locale string for "enabled" is not specific to the libapp/module
         if (name == "enabled")
@@ -13,7 +15,18 @@ var prefBundle = {
             
         var val = "[" + name + "]";
         if (this.bundle)
-            val = this.bundle.getProperty(name)
+            val = this.bundle.getProperty(name);
+        // if (val == "[" + name + "]") {
+            // var GetModuleLocaleClass = new libx.core.Class.create(libx.libapp.PackageVisitor, {
+                // onmodule: function (module) {
+                    // //BRN: this is async!
+                    // //possible solution: load all libapps/modules in advance
+                // }
+            // });
+            // var getModuleLocaleVisitor = new GetModuleLocaleClass();
+            // new libx.libapp.PackageWalker(/*FEED URL GOES HERE*/).walk(getModuleLocaleVisitor);
+        // }
+            
         if ( defaultValue !== undefined && val == "[" + name + "]" )
             val = defaultValue;
         return val;
@@ -21,6 +34,7 @@ var prefBundle = {
 };
 
 var templateID = 0;
+//BRN: change this
 var base = "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/preferences/templates/";
 var ext = ".tmpl";
 
@@ -57,7 +71,7 @@ $(document).ready ( function () {
  *        1. We will look for a template matching the preferences _layout attribute
  *        2. We will look for a template matching the preferences _nodeType attribute
 */
-function process ( aQueues, rootPref, pref, layout ) {
+function process ( aQueues, prefix, pref, layout ) {
     
     var templateFile = null;
     
@@ -91,10 +105,12 @@ function process ( aQueues, rootPref, pref, layout ) {
             
             var blockers = [];
             
-            if (pref && /:\/\//.test(pref._name)) {
-                rootPref = pref._idstr;
-            }
-            var jsPlate = new JsPlate ( result, templateFile, blockers, rootPref );
+            // get the prefix for this preference
+            // e.g., the prefix for libx.prefs.browser.displaypref is libx.prefs.browser
+            // this prefix is removed for locale keys
+            if (pref && (/:\/\//.test(pref._name) || /^libx\.prefs\.[^\.]+$/.test(pref._idstr)))
+                prefix = pref._idstr;
+            var jsPlate = new JsPlate ( result, templateFile, blockers, prefix );
             tmpdiv.replaceWith ( jsPlate.process(pref) );
             
             for (var i = 0; i < blockers.length; i++)
@@ -167,8 +183,20 @@ function process ( aQueues, rootPref, pref, layout ) {
                 setPrefLocaleActivity.markReady(stringBundle);
             }
         } );
-    } else {
+    } else if (pref && /^libx\.prefs\.[^\.]+$/.test(pref._idstr)) {
         //BRN: add bundle fetching for browser.prefs.xml, etc.
+        libx.locale.getBundle( {
+            //BRN: factor this out
+            defaultLocale: "en_US",
+            url: "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/preferences/builtin/locales/$locale$/" + pref._name + ".json",
+            error: function ( result ) {
+                setPrefLocaleActivity.markReady();
+            },
+            success: function ( stringBundle ) {
+                setPrefLocaleActivity.markReady(stringBundle);
+            }
+        } );
+    } else {
         setPrefLocaleActivity.markReady();
     }
     
