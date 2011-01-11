@@ -287,3 +287,11 @@ ul {
     float: right;
     padding: 3px;
 }
+
+.search-field-remove {
+    padding: 0 0 0 5px;
+}
+
+.search-and {
+    display: none;
+}

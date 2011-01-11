@@ -1,5 +1,32 @@
 
+//TODO: change storage from browserprefs to a libx.storage.Store
+
 var popup = (function() {
+    
+$(function() {
+    
+    popup.initialize();
+
+    // show view depending on whether user already has edition loaded
+    if(libx.utils.browserprefs.getStringPref('libx.edition.configurl', null))
+        popup.loadPopup();
+    else
+        popup.showChangeEditionView();
+    
+    // load page actions
+    for(var i in popup.pageActions)
+        popup.pageActions[i]();
+
+    // notify parent window that the popup has finished loading
+    var evt = new libx.events.Event('PopupLoaded');
+    evt.notify();
+    
+    // save search fields when popup is closed
+    $(window).unload(function () { 
+        popup.saveFields();
+    })
+    
+});
     
 // the menu element for the simple view
 var accordionMenu = null;
@@ -202,6 +229,17 @@ return {
         });
     },
     
+    saveFields: function () {
+        var searchFields = [];
+        $("#full-search-fields input").each(function (i) {
+            searchFields.push({
+                option: fullSelectedOptions[i],
+                value: $(this).val()
+            });
+        });
+        libx.utils.browserprefs.setStringPref("libx.popup.searchfields", libx.utils.json.stringify(searchFields));
+    },
+    
     showFullView: function() {
         $('#simple-view').hide();
         $('#full-view').show();
@@ -264,17 +302,18 @@ return {
         libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', index);
         
         // create mapping of search options
-        var searchOptions = $.map(libx.edition.catalogs[index].options.split(';'), function(i) {
+        var optionsArray = libx.edition.catalogs[index].options.split(';');
+        var optionsMap = $.map(optionsArray, function(i) {
             return {
                 text: libx.edition.searchoptions[i],
                 value: i
             };
         });
         
-        simpleSelectedOption = searchOptions[0].value;
+        simpleSelectedOption = optionsMap[0].value;
         
         // populate simple view with search options
-        accordionMenu.setMenuItems($('#simple-menu-options'), searchOptions[0].text, searchOptions,
+        accordionMenu.setMenuItems($('#simple-menu-options'), optionsMap[0].text, optionsMap,
             function(value, text) {
                 simpleSelectedOption = value;
             }
@@ -283,38 +322,81 @@ return {
         // reset all fields in the full view
         $('#full-search-fields').empty();
         fullSelectedOptions = [];
-        var numFields = 0;
         
         // add a search field to the full view
         function addField() {
-            var index = numFields++;
-            fullSelectedOptions[index] = searchOptions[0].value;
+        
+            fullSelectedOptions.push(optionsMap[0].value);
             
-            var field = $('<tr><td></td>' +
-                          '<td><input type="text"/></td>' +
-                          '<td><a href="#">' + libx.locale.defaultStringBundle.getProperty('search_more') + '</a></td></tr>');
+            var field = $('<tr><td></td>'
+                        + '<td><input class="search-field" type="text"/></td>'
+                        + '<td>'
+                        +     '<a class="search-field-add" href="#">' + libx.locale.defaultStringBundle.getProperty('search_more') + '</a>'
+                        +     '<span class="search-and">' + libx.locale.defaultStringBundle.getProperty('search_and') + '</span>'
+                        + '</td>'
+                        + '<td><a class="search-field-remove" href="#">[-]</a></td></tr>');
             
             // add another field when use clicks "more..." link
-            $('a', field.appendTo($('#full-search-fields'))).click(function() {
-                $(this).replaceWith('<span>' + libx.locale.defaultStringBundle.getProperty('search_and') + '</span>');
-                addField();
-            });
+            field
+                .appendTo($("#full-search-fields"))
+                .find("a.search-field-add").click(function () {
+                    
+                    // show "AND" once "more..." is clicked
+                    $(this).hide();
+                    $(this).next().show();
+                    
+                    addField();
+                    
+                }).end().find("a.search-field-remove").click(function () {
+                
+                    // don't allow removal of the last remaining field
+                    if (fullSelectedOptions.length == 1)
+                        return;
+                
+                    var fieldIndex = field.parent().children().index(field);
+                    fullSelectedOptions.splice(fieldIndex, 1);
+                    
+                    // if removing the field that shows the "more..." link, show the "more..." link next to a different field
+                    if (field.find(".search-field-add").is(":visible")) {
+                        field.prev()
+                            .find(".search-field-add").show()
+                            .end().find(".search-and").hide();
+                    }
+                    
+                    field.remove();
+                    
+                });
 
             // create search options drop-down for this field
-            var link = $('<a href="#">' + searchOptions[0].text + '</a>');
+            var link = $('<a href="#">' + optionsMap[0].text + '</a>');
             $('td:first', field).append(link);
             libx.ui.jquery.dropdown($, {
-                dropdown_items: searchOptions,
+                dropdown_items: optionsMap,
                 field: link,
                 select: function(key, val) {
-                    fullSelectedOptions[index] = key;
+                    fullSelectedOptions[fullSelectedOptions.length-1] = key;
                 }
             });
             
             focus($('input', field));
             
         };
+        var savedFields = libx.utils.browserprefs.getStringPref("libx.popup.searchfields", null);
         addField();
+        if (savedFields) {
+            savedFields = libx.utils.json.parse(savedFields);
+            for (var i = 1; i < savedFields.length; i++)
+                $("#full-search-fields a.search-field-add").last().click();
+            $("#full-search-fields input").each(function (i) {
+                $(this).val(savedFields[i].value);
+                // if search option is in newly selected catalog, keep this search option selected.
+                // otherwise, just use the first search option that the catalog supports
+                if ($.inArray(savedFields[i].option, optionsArray) != -1) {
+                    $(this).parent().prev().find("a").text(libx.edition.searchoptions[savedFields[i].option]);
+                    fullSelectedOptions[i] = savedFields[i].option;
+                }
+            });
+        }
         
     },
     
@@ -353,6 +435,7 @@ return {
         $('#full-catalogs').empty();
         $('#full-catalogs').append(link);
         function catalogChosen(num, name) {
+            popup.saveFields();
             popup.loadCatalog(num);
             $('#full-catalogs > a').text(name);
             $('#simple-menu-catalogs > a').text(name);
@@ -416,23 +499,3 @@ return {
 };
 
 }) ();
-
-$(function() {
-    
-    popup.initialize();
-
-    // show view depending on whether user already has edition loaded
-    if(libx.utils.browserprefs.getStringPref('libx.edition.configurl', null))
-        popup.loadPopup();
-    else
-        popup.showChangeEditionView();
-    
-    // load page actions
-    for(var i in popup.pageActions)
-        popup.pageActions[i]();
-
-    // notify parent window that the popup has finished loading
-    var evt = new libx.events.Event('PopupLoaded');
-    evt.notify();
-    
-});
