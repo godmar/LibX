@@ -25,6 +25,9 @@ return {
     
         function activateConfiguration(edition) {
             
+            libx.edition = edition;
+            this.contextMenu = new libx.ui.ContextMenu (libx.ui.basicContextMenuDescriptor, edition);
+            
             libx.utils.getEditionResource({
                 url: edition.options.icon,
                 success: function (data) {

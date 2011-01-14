@@ -482,6 +482,11 @@ return {
             $('#links').append(link);
         });
         
+        // bind preferences page to click
+        $("#tab-pane").find('a[href="#preferences"]').click(function () {
+            libx.ui.tabs.create("../preferences/pref.xhtml");
+        });
+        
         popup.showPreferredView();
 
     },

@@ -51,7 +51,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         ]]>
     </script>
     <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/browser.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/libx.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/core/window/shared/ui.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/core/window/shared/ui/basiccontextmenudescriptor.js" />
+	<script type="application/x-javascript" src="chrome://libx/content/core/window/ff/libx.js" />
 
     <script type="application/x-javascript">
     <![CDATA[
@@ -181,6 +183,15 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         }, false);
         ]]>
     </script>
+    
+	<menupopup id="contentAreaContextMenu">
+		<menuseparator id="libx-context-menu-separator" />
+		<!-- create a nested menu like so -->
+		<!--BRN: add this back : menu hidden="true" image="&libx.image;" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as..."-->
+        <menu hidden="true" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as...">
+		</menu>
+		<menuitem hidden="true" id="libx-endholder"/>
+	</menupopup>
     
     <!-- used in all OSs except Windows -->
     <popupset>

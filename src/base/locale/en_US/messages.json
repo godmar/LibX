@@ -5,6 +5,7 @@
     "tab_links" :           { "message" : "Links" },
     "tab_about" :           { "message" : "About" },
     "tab_change" :          { "message" : "Change Edition" },
+    "tab_prefs" :           { "message" : "Preferences" },
     "tab_pageactions" :     { "message" : "Page Actions" },
     "label_search" :        { "message" : "Search" },
     "label_for" :           { "message" : "for..." },

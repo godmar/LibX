@@ -3,6 +3,7 @@
     "name": "__MSG_extension_name__",
     "version": "$libxversion$",
     "icons": {
+        "16": "libx2-48.png",
         "48": "libx2-48.png",
         "128": "libx2-128.png"
     },
@@ -70,6 +71,8 @@
             "core/global/shared/services/xisbn.js",
             "core/global/shared/utils/geteditionresource.js",
             "core/global/gc/locale.js",
+            "core/global/shared/ui/contextmenus.js",
+            "core/global/gc/ui/contextmenus.js",
             
             "core/window/gc/window.js",
             "core/window/shared/ui/autosense.js"
@@ -81,6 +84,7 @@
     }],
     "permissions": [
         "tabs",
+        "contextMenus",
         "http://*/",
         "https://*/"
     ],
