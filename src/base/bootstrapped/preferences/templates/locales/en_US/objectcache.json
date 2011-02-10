@@ -1,9 +1,0 @@
-{
-    "flushcache_button" :     { "message" : "Flush Global Memory Cache" },
-    "updatenow_button" :     { "message" : "Update Now!" },
-    "purgeall_button" :     { "message" : "Purge All" },
-    "refresh_button" :     { "message" : "Refresh" },
-    "opencachedcopy" :     { "message" : "(Open Cached Copy)" },
-    "purge" :     { "message" : "(Purge)" },
-    "mimetype" :     { "message" : "Mime-Type:" }
-}

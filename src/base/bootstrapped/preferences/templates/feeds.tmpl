@@ -1,0 +1,98 @@
+
+{BeginLocale=en_US}
+    {
+        "feeds": { "message": "Packages" },
+        "unknown_feed": { "message": "Unknown packages" },
+        "remove_feed": { "message": "Remove from my packages" },
+        "add_feed": { "message": "Add package" }
+    }
+{EndLocale}
+
+{!
+
+function reloadFeeds() {
+    libx.libapp.loadLibapps(libx.edition);
+    var aQueues = [];
+    $("#libapps-tmpl").replaceWith(process(aQueues, null, "libx.prefs.libapps"));
+    aQueues[0].markReady();
+}
+
+var aQ = new libx.utils.collections.ActivityQueue();
+var templateProcessed = {
+    onready: function () {
+        $("#add-feed").click(function () {
+            var feed = prompt("Enter the feed URL:", "");
+            if (feed) {
+                libx.prefs.libapps.feeds._addItem({
+                    _value: feed,
+                    _selected: true,
+                    _type: "string"
+                });
+                libx.preferences.save();
+                reloadFeeds();
+            }
+        });
+        $(".remove-feed").each(function () {
+            var id = $(this).attr("href").substr(1);
+            var item = libx.preferences.getByID(id);
+            
+            /* only show remove link for user-added feeds */
+            for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
+                var pkg = libx.edition.localizationfeeds.package[i];
+                if (pkg.url == item.toString())
+                    return true;
+            }
+            $(this).show();
+            
+            $(this).click(function () {
+                item._selected = false;
+                libx.prefs.libapps.feeds._removeItem(item.toString());
+                libx.preferences.save();
+                reloadFeeds();
+            });
+        });
+        $(".feed-checkbox").click(function () {
+            libx.preferences.getByID(this.name)._selected = this.checked;
+            libx.preferences.save();
+            reloadFeeds();
+        });
+    }
+};
+aQ.scheduleLast(templateProcessed);
+aQueues.push(templateProcessed);
+    
+for (var i = 0; i < data.feeds._items.length; i++) {
+    var item = data.feeds._items[i];
+    (function (item) {
+        var blocker = {
+            onready: function (description) {
+                if (description)
+                    $("#feed-desc-" + item._id).text(description);
+            }
+        };
+        aQ.scheduleLast(blocker);
+        new libx.libapp.PackageWalker(item.toString()).walk({
+            onpackage: function (pkg) {
+                blocker.markReady(pkg.description);
+            }
+        });
+    }) (item);
+}
+
+!}
+
+<!-- feeds.tmpl -->
+<ul><li>
+    <label>{L "feeds" L}</label><button id="add-feed">{L "add_feed" L}</button>
+    <div>
+        <for each="item" in="data.feeds._items">
+            <label id="feed-desc-{+ item._id +}">{L "unknown_feed" L}</label>
+            <a href="#{+ item._id +}" class="remove-feed" style="display: none">{L "remove_feed" L}</a>
+            <br/>
+            <input type="checkbox" class="feed-checkbox" name="{+ item._id +}" <if test="item._selected">checked="checked"</if> />
+            <label>{+ item._value +}</label>
+            <br/>
+        </for>
+    </div>
+</li></ul>
+    

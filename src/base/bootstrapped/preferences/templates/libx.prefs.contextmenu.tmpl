@@ -1,44 +1,36 @@
 {!
-    /**
-     * libx.prefs.contextmenu template
-     * 
-     * Expected input: 
-     *        data: an object representing a category object
-     * Requires: 
-     *    libx.getLocalizedString
-    */
     
-    /** Generates a unique identifier for each tab, based on the child's _id attributeb */
-    function tabID ( id ) {
-        return id + '-tab';
-    }
+    /* Update context menu on changes */
+    $("#context-prefs .preference-checkbox").live("click", function () {
+        /* use this string to access index in libx.ui.contextMenu.items */
+        var idstr = libx.preferences.getByID(this.name)._idstr;
+        var items = libx.ui.contextMenu.items;
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            if ("libx.prefs.contextmenu." + item.item.prefkey == idstr) {
+                libx.ui.contextMenu.update(item.id, {
+                    visible: this.checked
+                });
+                break;
+            }
+        }
+    } );
+    
+    /* required functions for the tree template */
+    var tmplData = {
+        nodeLocale: function (node) {
+            return node._name;
+        },
+        leafLocale: function (node) {
+            var name = node._name;
+            if (name in libx.edition.searchoptions)
+                return libx.edition.searchoptions[name];
+            return libx.locale.defaultStringBundle.getProperty(name + "_contextmenu");
+        }
+    };
+    
 !}
-<div style="font-size:.8em;">
-    <!-- Tab Headers -->
-    <ul id="context-menu-tabs">
-        <for each="child" in="data._children">            
-            <li>
-                <a href="#{+ tabID ( child._id ) +}">
-                    <!-- XXX: add these entries from old bundle file -->
-                    <span style="font-size:.7em">{L:pref child._idstr + "-tabname" L}</span>
-                </a>
-            </li>
-        </for>
-    </ul>
-    
-    <!-- Tab Bodies -->
-    <for each="child" in="data._children">
-            <div id="{+ tabID ( child._id ) +}">
-                <!-- XXX: add these entries from old bundle file -->
-                <p>{L:pref child._idstr + "-description" L}</p>
-                <div style="overflow:scroll;height:400px;font-size:.8em;">
-                    {P child, "contextmenutree" P}
-                </div>
-            </div>
-    </for>
-</div>
 
-<script type="text/javascript">
-	/* Initialize the tabs */
-    $('#context-menu-tabs').tabs();
-</script>
+<div id="context-prefs">
+    {P libx.prefs.contextmenu, null, tmplData P}
+</div>

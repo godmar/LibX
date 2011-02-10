@@ -59,6 +59,7 @@ libx.cache = { };
  * This namespace is global.
  */
 libx.ui = {
+    bd : {},
     jquery : {}
 };
 
@@ -480,13 +481,53 @@ libx.initialize = function (loadContentScripts, loadGlobalScripts)
     libx.locale.initialize();
     libx.preferences.initialize();
     
-    // initialize browser preferences
-    libx.preferences.load ( {
-    	//BRN: change this
-        filename : "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/preferences/builtin/browser.prefs.xml",
-        overwrite : false,
-        base : "libx.prefs"
-    } );  
+    libx.initialize.reload = function () {
+    
+        // clear the object cache
+        var cache = new libx.storage.Store('cache');
+        var metacache = new libx.storage.Store('metacache');
+        metacache.clear();
+        cache.clear();
+        
+        // clear preferences and stale data
+        var prefstore = new libx.storage.Store("prefs");
+        prefstore.clear();
+        delete libx.edition;
+        delete libx.prefs;
+        libx.preferences.initialize();
+        
+        // load config if user has one set
+        var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
+        if(configUrl)
+            libx.loadConfig(configUrl);
+            
+    }
+    
+    var editionAndLocaleLoadedQueue = new libx.utils.collections.ActivityQueue();
+    var localeLoaded = new libx.utils.collections.EmptyActivity();
+    editionAndLocaleLoadedQueue.scheduleLast(localeLoaded);
+    
+    // locale bundle only gets loaded once
+    libx.events.addListener("DefaultLocaleLoaded", {
+        onDefaultLocaleLoaded: function () {
+            localeLoaded.markReady();
+        }
+    });
+    
+    // edition can be loaded multiple times
+    libx.events.addListener("EditionConfigurationLoaded", {
+        onEditionConfigurationLoaded: function (event) {
+            var notifyActivity = {
+                onready: function () {
+                    var loadedEvent = new libx.events.Event("EditionAndLocaleLoaded");
+                    loadedEvent.edition = event.edition;
+                    loadedEvent.notify();
+                }
+            };
+            editionAndLocaleLoadedQueue.scheduleLast(notifyActivity);
+            notifyActivity.markReady();
+        }
+    });
     
 }
 
@@ -494,24 +535,26 @@ libx.initialize = function (loadContentScripts, loadGlobalScripts)
  * Load edition configuration.
  */
 libx.loadConfig = function (configUrl) {
+    
     new libx.config.EditionConfigurationReader({
         url: configUrl,
         onload: function (edition) {
+        
             libx.edition = edition;
             libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
-
+            
             // Load all URLs marked as @type = 'bootglobal' in configuration
             var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
             if (bootGlobalUrls.length == 0) {
                 if (libx.initialize.loadContentScripts)
                     bootGlobalUrls.push({
-                        url: libx.utils.browserprefs.getStringPref("libx.bootstrap.contentscript.url", 
-                            "http://libx.org/libx-new/src/base/bootstrapped/bootstrapcontentscript.js")
+                        url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.contentscript.url", 
+                                libx.locale.getBootstrapURL("bootstrapcontentscript.js") )
                     });
                 if (libx.initialize.loadGlobalScripts)
                     bootGlobalUrls.push({
-                        url: libx.utils.browserprefs.getStringPref("libx.bootstrap.global.url", 
-                            "http://libx.org/libx-new/src/base/bootstrapped/bootstrapglobalscript.js")
+                        url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.global.url",
+                                libx.locale.getBootstrapURL("bootstrapglobal.js") )
                     });
             }
         

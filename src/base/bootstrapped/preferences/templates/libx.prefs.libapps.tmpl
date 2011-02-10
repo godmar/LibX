@@ -1,0 +1,217 @@
+{!
+
+/*
+ * Gets a string bundle for a given entry before processing that entry.
+ *
+ * If an array of child entries are given, they are all also retrieved before
+ * the entry is processed, and they are used as a fall-back when the entry does
+ * not contain the locale property being fetched.
+ *
+ * This is used in the case where a module may store a preference under the 
+ * currently executing libapp.  In this case, the module (not the libapp) will
+ * contain the locale information for the preference.  Therefore, if processing
+ * a libapp's preferences, we may only find locale properties for certain
+ * preferences under the libapp's module entries.
+ */
+function getStringBundle(url, callback, entries) {
+
+    var bundles = [];
+    
+    var bundlesQueue = new libx.utils.collections.ActivityQueue();
+    
+    /* fetch the string bundle for this URL */
+    var blocker = {
+        onready: function (bundle) {
+            bundles.push(bundle);
+        }
+    };
+    bundlesQueue.scheduleLast(blocker);
+    libx.locale.getBundle({
+        feed: url,
+        success: function ( stringBundle ) {
+            blocker.markReady(stringBundle);
+        }
+    });
+    
+    /* also fetch all string bundles for all child modules */
+    if (entries) {
+        for (var i = 0; i < entries.length; i++) {
+            (function () {
+                var blocker = {
+                    onready: function (bundle) {
+                        bundles.push(bundle);
+                    }
+                };
+                bundlesQueue.scheduleLast(blocker);
+                new libx.libapp.PackageWalker(entries[i].url).walk({
+                    onmodule: function (module) {
+                        libx.locale.getBundle({
+                            feed: module.id,
+                            success: function ( stringBundle ) {
+                                blocker.markReady(stringBundle);
+                            }
+                        });
+                    }
+                });
+            }) ();
+        }
+    }
+    
+    var bundlesReady = {
+        onready: function () {
+            var tmplData = {
+                /*
+                 * This function is used in preference.tmpl to get the locale
+                 * string associated with a preference. Here, we first look
+                 * under this entry for the locale property.  If not found, we 
+                 * search all child module bundles for the key.
+                 *
+                 * Note that for some property X, "[X]" is returned if X is not
+                 * a valid key in the string bundle.
+                 */
+                getMessage: function (node) {
+                    var key = node._idstr.replace("libx.prefs." + url + ".", "");
+                    for (var i = 0; i < bundles.length; i++) {
+                        var msg = bundles[i].getProperty(key);
+                        if (msg != "[" + key + "]")
+                            return msg;
+                    }
+                    return "[" + key + "]";
+                }
+            };
+            callback(tmplData);
+        }
+    };
+    bundlesQueue.scheduleLast(bundlesReady);
+    bundlesReady.markReady();
+
+}
+
+/*
+	<li> 
+	    <input type="checkbox" /> 
+	    <label>United States</label> 
+	    <ul> 
+			<li> 
+			<input type="checkbox" name="geo" value="pennsylvania" /> 
+	        <label>Pennsylvania</label> 
+		    </li> 
+		</ul> 
+	</li> 
+*/
+
+function makeNode(entry) {
+    var enabled = libx.prefs[entry.id]._enabled;
+    var checked = enabled._value ? 'checked="checked"' : "";
+    return $('<li>\n'
+           + '   <input type="checkbox" class="preference-checkbox" ' + checked + ' name="' + enabled._id + '" />\n'
+           + '   <label>' + entry.description + '</label>\n'
+           + '   <ul></ul>\n'
+           + '</li>\n');
+}
+    
+var aQ = new libx.utils.collections.ActivityQueue();
+var blocker = new libx.utils.collections.EmptyActivity();
+aQ.scheduleLast(blocker);
+aQueues.push(blocker);
+var $rightPanel = $('<div style="float: right; background-color: white;"></div>');
+
+function processPackages(packages, elem) {
+
+    for (var i = 0; i < packages.length; i++) {
+    
+        (function () {
+    
+            var blocker = new libx.utils.collections.EmptyActivity();
+            aQ.scheduleLast(blocker);
+        
+            new libx.libapp.PackageWalker(packages[i].url).walk({
+                onpackage: function (pkg) {
+                
+                    var node = makeNode(pkg);
+                    elem.append(node);
+                    var child = node.find("ul");
+                    
+                    processPackages(pkg.entries, child);
+                        
+                    blocker.markReady();
+                    
+                },
+                onlibapp: function (libapp) {
+                               
+                    elem.append(makeNode(libapp));
+                               
+                    getStringBundle(libapp.id, function (tmplData) {
+                        var aQueues = [];
+                        var $info = $('<div id="libapp-pref-' + libapp.id + '">' + process(aQueues, libx.prefs[libapp.id], null, tmplData) + "</div>");
+                        $rightPanel.append($info);
+                        aQueues[0].markReady();
+                        blocker.markReady();
+                    }, libapp.entries);
+                    
+                },
+                onmodule: function (module) {
+                        
+                    elem.append(makeNode(module));
+                    
+                    getStringBundle(module.id, function (tmplData) {
+                        var aQueues = [];
+                        var $info = $('<div id="libapp-pref-' + libapp.id + '">' + process(aQueues, libx.prefs[libapp.id], null, tmplData) + "</div>");
+                        $rightPanel.append($info);
+                        aQueues[0].markReady();
+                        blocker.markReady();
+                    });
+                    
+                }
+            });
+            
+        }) ();
+        
+    }
+
+}
+
+var rootPackages = [];
+for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++)
+    if (libx.prefs.libapps.feeds._items[i]._selected)
+        rootPackages.push({ url: libx.prefs.libapps.feeds._items[i]._value });
+var $checkTree = $('<ul class="checktree"></ul>');
+processPackages(rootPackages, $checkTree);
+
+function savePref($elem) {
+    var enabled = $elem.children(".checkbox").hasClass("checked");
+    var name = $elem.children(":checkbox").attr("name");
+    var pref = libx.preferences.getByID(name);
+    console.log($elem.find("label:first").text() + " checked = " + enabled + ", name = " + name);
+    if (pref._value != enabled) {
+        pref._setValue(enabled);
+        libx.preferences.save();
+    }
+}
+
+processCheckTree = {
+    onready: function () {
+        $checkTree
+            .find("ul:empty").remove()
+            .end().appendTo($("#libapps-tmpl"))
+            .checkTree({
+                onCheck:      savePref,
+                onUnCheck:    savePref,
+                onHalfCheck:  savePref,
+                labelAction:  "custom",
+                onLabelClick: function ($elem) {
+                    
+                }
+            });
+        $rightPanel.appendTo($("#libapps-tmpl"));
+    }
+};
+aQ.scheduleLast(processCheckTree);
+processCheckTree.markReady();
+
+!}
+
+<!-- libx.prefs.libapps.tmpl -->
+<div id="libapps-tmpl">
+    {P libx.prefs.libapps P}
+</div>

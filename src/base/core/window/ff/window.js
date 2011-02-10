@@ -11,9 +11,10 @@ libx.libappdata = {};
 var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;
 if (bootWindowUrls.length == 0) {
     // Fall back to local preference
-    bootWindowUrls.push({ url:
-        libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
-            "http://libx.org/libx-new/src/base/bootstrapped/bootstrapwindow.js") });
+    bootWindowUrls.push({
+        url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.window.url", 
+                libx.locale.getBootstrapURL("bootstrapwindow.js") )
+    });
 }
 
 var bootStrapper = new libx.bootstrap.BootStrapper();

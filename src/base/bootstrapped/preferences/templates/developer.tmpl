@@ -11,17 +11,23 @@
 !}
 
 {DefaultLocale=en_US}
+{BeginLocale=en_US}
+    {
+        "cache_control" :   { "message" : "Cache Control" },
+        "loaded_libapps" :  { "message" : "Loaded Libapps" }
+    }
+{EndLocale}
 
 <div style="font-size:.8em;" id="developer-tabs">
 	<ul>
 		<li>
 			<a href="#objectcache-tab">
-				<span>{L:template "cache_control" L}</span>
+				<span>{L "cache_control" L}</span>
 			</a>
 		</li>
 		<li>
 			<a href="#libapps-tab">
-				<span>{L:template "loaded_libapps" L}</span>
+				<span>{L "loaded_libapps" L}</span>
 			</a>
 		</li>
 	</ul>

@@ -32,6 +32,24 @@ libxTemp.addListener(function(request, sender, sendResponse) {
             libx.log.write(er);
             sendResponse({});
         }
+    } else if(request.type == "libappAutosense") {
+        
+        try {
+            var links = document.getElementsByTagName("link");
+            for (var i = 0; i < links.length; i++) {
+                if (links[i].getAttribute('name') == "temp_feed") {
+                    var url = links[i].getAttribute('href');
+                    sendResponse({
+                        url: url
+                    });
+                    break;
+                }
+            }
+        } catch (er) {
+            libx.log.write(er);
+            sendResponse({});
+        }
+        
     } else {
         sendResponse({});
     }

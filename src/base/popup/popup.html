@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="accordion.css" type="text/css" media="screen"></link>
     <script src="popup.js"></script>
     <script src="page_actions/autosense.js"></script>
+    <script src="page_actions/libappautosense.js"></script>
     <script src="page_actions/proxy.js"></script>
 </head>
 
@@ -27,6 +28,7 @@
                     <a href="#search-view" class="set-locale">tab_search</a>
                     <a href="#pageactions-view" class="set-locale">tab_pageactions</a>
                     <a href="#links-view" class="set-locale">tab_links</a>
+                    <a href="#proxy-view" class="set-locale">tab_proxy</a>
                     <a href="#dev-view">Developer</a>
                     <a href="#preferences" class="set-locale">tab_prefs</a>
                     <a href="#about-view" class="set-locale">tab_about</a>
@@ -37,6 +39,12 @@
             
                 <!-- search view -->
                 <div id="search-view">
+                
+                    <div class="proxy-notify-big">
+                        <div class="proxy-message"></div>
+                        <a href="#"></a>
+                    </div>
+                    
                     <form>
                         <div>
                             <span class="set-locale">label_search</span>
@@ -47,12 +55,21 @@
                             <table id="full-search-fields"></table>
                         </div>
                         <input class="set-locale" type="submit" value="button_search"></input>
+                        <input type="reset" class="set-locale" value="button_clear"></input>
                     </form>
                 </div>
             
                 <!-- links view -->
                 <div id="links-view">
                     <ul id="links"></ul>
+                </div>
+            
+                <!-- proxy view -->
+                <div id="proxy-view">
+                    <div class="proxy-template">
+                        <div class="proxy-msg">Proxy info</div>
+                        <a class="proxy-reload" href="#">Reload page</a>
+                    </div>
                 </div>
             
                 <!-- about view -->
@@ -120,6 +137,11 @@
     
 <form id="simple-search-form">
     <div id="simple-view">
+    
+        <div class="proxy-notify-small">
+            <a href="#"></a>
+        </div>
+        
         <input></input>
         <ul id="simple-menu" class="menu collapsible"> 
             <li id="simple-menu-catalogs"></li> 

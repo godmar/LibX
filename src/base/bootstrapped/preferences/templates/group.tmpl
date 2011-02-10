@@ -3,11 +3,11 @@
      *  Group Template
      *    Groups all children into a single group box 
      */
+     
 !}
 <!-- group.tmpl -->
 <div class="groupbox">
-    <!-- XXX: should we force these to always be specified in locale? -->
     <for each="child" in="data._children">
-        {P child P}
+        {P child, null, templateScope.data P}
     </for>
 </div>

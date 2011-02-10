@@ -1,7 +1,0 @@
-{
-    "adaptedby" :     { "message" : "Adapted By" },
-    "libxversion" :     { "message" : "LibX Version:" },
-    "builddate" :     { "message" : "Build Date:" },
-    "authors" :     { "message" : "Authors" },
-    "homepage" :     { "message" : "LibX Home Page" }
-}

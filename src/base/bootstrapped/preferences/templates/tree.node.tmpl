@@ -1,0 +1,34 @@
+{!
+    /**
+     *     Default Tree Template
+     *    We need access to the current preference, as well as its fullname
+     */
+     
+!}
+
+<!-- tree.tmpl -->
+<li>{+templateScope.data.nodeLocale(data)+}
+    <ul>
+        <for each="child" in="data._children">
+            {!
+                var childProcessedActivity = new libx.utils.collections.EmptyActivity();
+                templateScope.data.treeAQ.scheduleFirst(childProcessedActivity);
+                var tmplData = {};
+                libx.core.Class.mixin(tmplData, templateScope.data, true);
+                tmplData.activity = childProcessedActivity;
+            !}
+            <if test="(child._nodeType == 'category')">
+                {P child, "tree.node", tmplData P}
+            </if>
+            <if test="(child._nodeType == 'preference')">
+                {P child, "tree.preference", tmplData P}
+            </if>
+        </for>
+    </ul>
+</li>
+
+{!
+    templateScope.queueFunction(function () {
+        templateScope.data.activity.markReady();
+    });  
+!}

@@ -1,29 +1,60 @@
 
 popup.pageActions.proxy = function () {
 
-if(!libx.edition || !libx.edition.proxy.primary)
+if(!libx.edition)
     return;
     
-libx.ui.tabs.getSelected( function(tab) {
+libx.ui.tabs.getSelected( function (tab) {
+        
+    function addProxy(proxy) {
+        
+        function reloadTab() {
+            libx.ui.openSearchWindow(proxy.rewriteURL(tab.url), "sametab");
+            window.close();
+        }
+        
+        function cloneMsg(tmpl) {
+            var msg = tmpl.clone();
+            tmpl.after(msg);
+            return msg;
+        }
+        
+        cloneMsg($(".proxy-template"))
+            .show()
+            .find(".proxy-msg").text(libx.locale.defaultStringBundle.getProperty("proxy_message3", proxy.name, proxy.type))
+            .end().find(".proxy-reload")
+                .text(libx.locale.defaultStringBundle.getProperty("proxy_reload"))
+                .click(reloadTab);
+        
+        // add proxy autosense notification if supported
+        proxy.checkURL({
+            url: tab.url,
+            onsuccess: function () {
+            
+                var proxy_link_big = libx.locale.defaultStringBundle.getProperty("proxy_message1", proxy.name);
+                var proxy_link_small = libx.locale.defaultStringBundle.getProperty("proxy_message2", proxy.name);
+                
+                cloneMsg($(".proxy-notify-big"))
+                    .show()
+                    .find("a")
+                        .text(proxy_link_big)
+                        .click(reloadTab);
+                        
+                cloneMsg($(".proxy-notify-small"))
+                    .show()
+                    .find("a")
+                        .text(proxy_link_small)
+                        .click(reloadTab);
+            },
+            onfailure: libx.core.EmptyFunction
+        });
+    }
     
-    libx.edition.proxy.primary.checkURL({
-        url: tab.url,
-        onsuccess: function() {
-            var proxy_name = libx.edition.proxy.primary.name;
-            var proxy_type = libx.edition.proxy.primary.type;
-            var proxy_message = "<p>" + libx.locale.defaultStringBundle.getProperty("proxy_message1", proxy_name, proxy_type) + "</p>";
-            var proxy_link = libx.locale.defaultStringBundle.getProperty("proxy_message2");
-            var div = $('<div>' + proxy_message + '</div>');
-            $('<div><a href="#">' + proxy_link + '</a></div>').appendTo(div).click(function() {
-                libx.ui.tabs.update(tab.id, {url: libx.edition.proxy.primary.rewriteURL(tab.url)}, function() {
-                    // closes the popup; used only in Google Chrome
-                    window.close();
-                });
-            });
-            popup.addPageAction(div);
-        },
-        onfailure: libx.core.EmptyFunction
-    });
+    var numProxies = libx.edition.proxy.length;
+    $('a[href="#proxy-view"]').toggle(numProxies != 0);
+    
+    for (var i = 0; i < numProxies; i++)
+        addProxy(libx.edition.proxy[i]);
     
 });
 

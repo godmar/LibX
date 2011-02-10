@@ -8,33 +8,53 @@
 <!-- aboutlibx.tmpl -->
 <!-- Icon -->
 
+{DefaultLocale=en_US}
+{BeginLocale=en_US}
+    {
+        "adaptedby" :   { "message" : "Adapted By" },
+        "libxversion" : { "message" : "LibX Version:" },
+        "builddate" :   { "message" : "Build Date:" },
+        "authors" :     { "message" : "Authors" },
+        "homepage" :    { "message" : "LibX Home Page" }
+    }
+{EndLocale}
+
 <div style="float:right">
-    <!-- BRN: add img back in once config.xml files are updated -->
-    <!-- <img src="{+ libx.edition.options.logo +}"/> -->
+    <img id="edition-image"/>
     <h2>{+libx.edition.name.long+}</h2>
     <!-- Adapted -->
-    <h3>{L:template "adaptedby" L}</h3>
+    <h3>{L "adaptedby" L}</h3>
     <p>{+libx.edition.name.adaptedby+}</p>
         
 </div>
 
 <!-- Edition Name -->
 <h1 style="color:#800000;font-weight:bold;">LibX</h1>
-<p>{L:template "libxversion" L} {+ "LibX Version Goes HERE!" +}</p>
-<p>{L:template "builddate" L} {+ libx.buildDate +}</p>
+<p>{L "libxversion" L} {+ "LibX Version Goes HERE!" +}</p>
+<p>{L "builddate" L} {+ libx.buildDate +}</p>
 
 <!-- Authors -->
-<h3>{L:template "authors" L}</h3>
+<h3>{L "authors" L}</h3>
     <p> Annette Bailey </p>
     <p> Godmar Back </p>
     <p> Michael Doyle </p>
     <p> Tobias Wieschnowsky </p>
     <p> Brian Nicholson </p>
 
-
-
-
 <!-- Home Page -->
 <center>
-<a style="float:center" href="http://www.libx.org">{L:template "homepage" L}</a>
+<a style="float:center" href="http://www.libx.org">{L "homepage" L}</a>
 </center>
+
+{!
+
+templateScope.queueFunction(function () {
+    libx.utils.getEditionResource({
+        url: libx.edition.options.logo,
+        success: function (dataUri) {
+            $("#edition-image").attr("src", dataUri);
+        }
+    });
+});
+
+!}

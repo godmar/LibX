@@ -1,0 +1,127 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html> 
+<head> 
+<title>CheckTree v 0.2 by JJ Geewax</title> 
+<script src="../js/jquery-1.4.2.min.js" type="text/javascript"></script> 
+<script src="jquery.checktree.0.3b1.js" type="text/javascript"></script> 
+<script> 
+$(document).ready(function(){
+	$("ul.checktree").checkTree({
+		/*
+		// You can add callbacks to the expand, collapse, check, uncheck, and  halfcheck
+		// events of the tree. The element you use as the argument is the LI element of
+		// the object that fired the event.
+		onExpand: function(el) {
+			console.log("expanded ", el.find("label:first").text());
+		},
+		onCollapse: function(el) {
+			console.log("collapsed ", el.find("label:first").text());
+		},
+		onCheck: function(el) {
+			console.log("checked ", el.find("label:first").text());
+		},
+		onUnCheck: function(el) {
+			console.log("un checked ", el.find("label:first").text());
+		},
+		onHalfCheck: function(el) {
+			console.log("half checked ", el.find("label:first").text());
+		}*/
+		/*
+		// You can set the labelAction variable to either "check" or "expand" 
+		// to change what happens when you click on the label item.
+		// The default is expand, which expands the tree. Check will toggle
+		// the checked state of the items.
+		labelAction: "expand"
+		*/
+		/*
+		// You can also change what happens when you hover over a label (over and out)
+		onLabelHoverOver: function(el) { alert("You hovered over " + el.text()); },
+		onLabelHoverOut: function(el) { alert("You hovered out of " + el.text()); }
+		*/
+	});
+});
+</script> 
+ 
+<link type="text/css" rel="stylesheet" href="checktree.css" /> 
+ 
+</head> 
+<body> 
+<h1>CheckTree v 0.2</h1> 
+ 
+<div style="width: 600px; margin: 0 auto; padding: 15px; border: 1px solid #28f; background-color: #def; text-align: center; font-size: 20px; font-weight: bold;"> 
+CheckTree is on Google Code!
+<div style="font-weight: normal; font-size: 15px; margin-top: 10px;"> 
+Visit the CheckTree GoogleCode project page: <a href="http://jquery-checktree.googlecode.com">http://jquery-checktree.googlecode.com</a> 
+</div> 
+</div> 
+ 
+<h2>Demo</h2> 
+<p> 
+Here is a quick demo of the code which renders an unordered list and gives an example of how to format your 
+hierarchy to be rendered appropriately by CheckTree.
+</p> 
+ 
+<ul class="checktree" style="margin-left: 15px;"> 
+	<li> 
+	    <input type="checkbox"> 
+	    <label>United States</label> 
+	    <ul> 
+			<li> 
+			<input type="checkbox" name="geo" value="pennsylvania"> 
+	        <label>Pennsylvania</label> 
+		    </li> 
+		</ul> 
+	</li> 
+	<li> 
+		<input type="checkbox"> 
+		<label>Canadia</label> 
+		<ul> 
+			<li> 
+				<input type="checkbox" name="geo" value="province in canadia"> 
+				<label>Province In Canadia</label> 
+			</li> 
+		</ul> 
+	</li> 
+	<li> 
+		<input type="checkbox" name="geo" value="afghanistan"> 
+		<label>Afghanistan</label> 
+	</li> 
+	<li> 
+		<input type="checkbox"> 
+	    <label>Sealand</label> 
+		<ul> 
+			<li> 
+				<input type="checkbox" name="geo" value="tree_city"> 
+				<label>Tree City</label> 
+			</li> 
+			<li> 
+				<input type="checkbox" name="geo" value="oil_province"> 
+				<label>Oil Province</label> 
+				<ul> 
+					<li> 
+						<input type="checkbox" name="geo" value="oil_city"> 
+						<label>Oil City</label> 
+					</li> 
+				</ul> 
+			</li> 
+			<li> 
+				<input type="checkbox" value="fun_province_checkbox"> 
+				<label>Fun Province</label> 
+				<ul> 
+					<li> 
+						<input type="checkbox" name="geo" value="fun_city"> 
+						<label>Fun City</label> 
+					</li> 
+					<li> 
+						<input type="checkbox" name="geo" value="not_fun_city"> 
+						<label>Not Fun City</label> 
+					</li> 
+				</ul> 
+			</li> 
+		</ul> 
+    </li> 
+</ul> 
+ 
+</body> 
+</html> 

@@ -1,6 +1,4 @@
 
-//TODO: change storage from browserprefs to a libx.storage.Store
-
 var popup = (function() {
     
 $(function() {
@@ -144,7 +142,7 @@ return {
                             // reset catalog index when changing editions
                             libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
                             libx.log.write('Loading config from ' + selectedRevision);
-                            libx.loadConfig(selectedRevision);
+                            libx.initialize.reload();
                         });
                     }
                 });
@@ -154,8 +152,16 @@ return {
         /* Opens the search URL in a browser tab. */
         function doSearch(searchParams) {
             var catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
-            libx.ui.tabs.create(libx.edition.catalogs[catalog].search(searchParams));
+            libx.ui.openSearchWindow(libx.edition.catalogs[catalog].search(searchParams));
+            window.close();
         }
+        
+        // attach clear search fields event
+        $('#search-view form input[type="reset"]').click(function () {
+            fullSelectedOptions = [];
+            $('#full-search-fields').empty();
+            popup.addField();
+        });
         
         // attach full search event
         $('#search-view form').submit(function() {
@@ -198,6 +204,12 @@ return {
             $($(this).attr('href')).show();
         });
         
+        // bind preferences page to click
+        $("#tab-pane").find('a[href="#preferences"]').click(function () {
+            libx.ui.openSearchWindow(libx.locale.getExtensionURL("preferences/pref.xhtml"));
+            window.close();
+        });
+        
         // show change edition page when link is clicked
         $('#change-edition').click(function() {
             popup.showChangeEditionView();
@@ -217,19 +229,16 @@ return {
         }, undefined, 'popup_reload');
         
         $('#clearCache').click(function() {
-            var cache = new libx.storage.Store('cache');
-            var metacache = new libx.storage.Store('metacache');
-            metacache.clear();
-            cache.clear();
-            delete libx.edition;
-            // load config if user has one set
-            var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-            if(configUrl)
-                libx.loadConfig(configUrl);
+            libx.initialize.reload();
         });
     },
     
     saveFields: function () {
+    
+        // don't save fields if user disabled preference
+        if (!libx.prefs.browser.savesearches._value)
+            return;
+    
         var searchFields = [];
         $("#full-search-fields input").each(function (i) {
             searchFields.push({
@@ -324,30 +333,42 @@ return {
         fullSelectedOptions = [];
         
         // add a search field to the full view
-        function addField() {
+        popup.addField = function () {
         
-            fullSelectedOptions.push(optionsMap[0].value);
+            // select the next search option when another field is added
+            var nextOption = optionsMap[0];
+            if (fullSelectedOptions.length) {
+                var selected = fullSelectedOptions[fullSelectedOptions.length-1];
+                for (var i = 1; i < optionsMap.length; i++) {
+                    nextOption = optionsMap[i];
+                    if (optionsMap[i-1].value == selected)
+                        break;
+                }
+            }
+            fullSelectedOptions.push(nextOption.value);
             
             var field = $('<tr><td></td>'
                         + '<td><input class="search-field" type="text"/></td>'
-                        + '<td>'
-                        +     '<a class="search-field-add" href="#">' + libx.locale.defaultStringBundle.getProperty('search_more') + '</a>'
-                        +     '<span class="search-and">' + libx.locale.defaultStringBundle.getProperty('search_and') + '</span>'
-                        + '</td>'
-                        + '<td><a class="search-field-remove" href="#">[-]</a></td></tr>');
+                        + '<td><div class="search-add enabled"></div></td>'
+                        + '<td><div class="search-close disabled"></div></td>'
+                        + '</tr>');
             
-            // add another field when use clicks "more..." link
             field
                 .appendTo($("#full-search-fields"))
-                .find("a.search-field-add").click(function () {
+                .find(".search-add").click(function () {
                     
-                    // show "AND" once "more..." is clicked
-                    $(this).hide();
-                    $(this).next().show();
+                    if ($(this).hasClass("disabled"))
+                        return;
+                        
+                    $(this)
+                        .removeClass("enabled")
+                        .addClass("disabled");
                     
-                    addField();
+                    popup.addField();
+                    $(".search-close")
+                        .removeClass("disabled");
                     
-                }).end().find("a.search-field-remove").click(function () {
+                }).end().find(".search-close").click(function () {
                 
                     // don't allow removal of the last remaining field
                     if (fullSelectedOptions.length == 1)
@@ -356,19 +377,23 @@ return {
                     var fieldIndex = field.parent().children().index(field);
                     fullSelectedOptions.splice(fieldIndex, 1);
                     
-                    // if removing the field that shows the "more..." link, show the "more..." link next to a different field
-                    if (field.find(".search-field-add").is(":visible")) {
-                        field.prev()
-                            .find(".search-field-add").show()
-                            .end().find(".search-and").hide();
+                    if (field.find(".search-add").hasClass("enabled")) {
+                        field.prev().find(".search-add")
+                            .removeClass("disabled")
+                            .addClass("enabled");
                     }
                     
                     field.remove();
                     
+                    // hide close button if only one field remains
+                    if (fullSelectedOptions.length == 1)
+                        $(".search-close")
+                            .addClass("disabled");
+                    
                 });
 
             // create search options drop-down for this field
-            var link = $('<a href="#">' + optionsMap[0].text + '</a>');
+            var link = $('<a href="#">' + nextOption.text + '</a>');
             $('td:first', field).append(link);
             libx.ui.jquery.dropdown($, {
                 dropdown_items: optionsMap,
@@ -381,21 +406,26 @@ return {
             focus($('input', field));
             
         };
-        var savedFields = libx.utils.browserprefs.getStringPref("libx.popup.searchfields", null);
-        addField();
-        if (savedFields) {
-            savedFields = libx.utils.json.parse(savedFields);
-            for (var i = 1; i < savedFields.length; i++)
-                $("#full-search-fields a.search-field-add").last().click();
-            $("#full-search-fields input").each(function (i) {
-                $(this).val(savedFields[i].value);
-                // if search option is in newly selected catalog, keep this search option selected.
-                // otherwise, just use the first search option that the catalog supports
-                if ($.inArray(savedFields[i].option, optionsArray) != -1) {
-                    $(this).parent().prev().find("a").text(libx.edition.searchoptions[savedFields[i].option]);
-                    fullSelectedOptions[i] = savedFields[i].option;
-                }
-            });
+        
+        popup.addField();
+        
+        // load saved searches if preference is enabled
+        if (libx.prefs.browser.savesearches._value) {
+            var savedFields = libx.utils.browserprefs.getStringPref("libx.popup.searchfields", null);
+            if (savedFields) {
+                savedFields = libx.utils.json.parse(savedFields);
+                for (var i = 1; i < savedFields.length; i++)
+                    $("#full-search-fields .search-add").last().click();
+                $("#full-search-fields input").each(function (i) {
+                    $(this).val(savedFields[i].value);
+                    // if search option is in newly selected catalog, keep this search option selected.
+                    // otherwise, just use the first search option that the catalog supports
+                    if ($.inArray(savedFields[i].option, optionsArray) != -1) {
+                        $(this).parent().prev().find("a").text(libx.edition.searchoptions[savedFields[i].option]);
+                        fullSelectedOptions[i] = savedFields[i].option;
+                    }
+                });
+            }
         }
         
     },
@@ -477,14 +507,10 @@ return {
         $.each(libx.edition.links, function(i, elem) {
             var link = $('<li><a href="#">' + elem.label + '</a></li>');
             link.click(function() {
-                libx.ui.tabs.create(elem.href);
+                libx.ui.openSearchWindow(elem.href);
+                window.close();
             });
             $('#links').append(link);
-        });
-        
-        // bind preferences page to click
-        $("#tab-pane").find('a[href="#preferences"]').click(function () {
-            libx.ui.tabs.create("../preferences/pref.xhtml");
         });
         
         popup.showPreferredView();

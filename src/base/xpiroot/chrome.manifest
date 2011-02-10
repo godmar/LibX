@@ -18,8 +18,6 @@ locale  libx    ja      chrome/libx/locale/ja/
 locale  libx    it      chrome/libx/locale/it/
 locale  libx    fr      chrome/libx/locale/fr/
 
-content libxdefaultlocale chrome/libx/locale/en_US/
-
 # LibX documentation, if included, will be accessible at 
 # chrome://libxdoc/content/index.html
 content libxdoc jar:documentation.jar!/

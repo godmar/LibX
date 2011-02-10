@@ -16,6 +16,15 @@
 !}
 
 {DefaultLocale=en_US}
+{BeginLocale=en_US}
+    {
+        "browser_tabname" :     { "message" : "Browser" },
+        "contextmenu_tabname" : { "message" : "Context Menu" },
+        "libapps_tabname" :     { "message" : "Libapps" },
+        "developer_tabname" :   { "message" : "Developer" },
+        "about_tabname" :       { "message" : "About" }
+    }
+{EndLocale}
 
 <div id="libx-prefs-tabs">
     <ul>
@@ -23,39 +32,39 @@
         <if test="libx.prefs.browser != null">
 	        <li>
 	            <a href="#browser-maintab">
-	                <span>{L:template "browser_tabname" L}</span>
+	                <span>{L "browser_tabname" L}</span>
 	            </a>
 	        </li>
         </if>
         <if test="libx.prefs.contextmenu != null">
 	        <li>
 	            <a href="#contextmenu-maintab">
-	                <span>{L:template "contextmenu_tabname" L}</span>
+	                <span>{L "contextmenu_tabname" L}</span>
 	            </a>
 	        </li>
         </if>
         <li>
             <a href="#libapps-maintab">
-                <span>{L:template "libapps_tabname" L}</span>
+                <span>{L "libapps_tabname" L}</span>
             </a>
         </li>
         <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
 	        <li>
 	            <a href="#developer-maintab">
-	                <span>{L:template "developer_tabname" L}</span>
+	                <span>{L "developer_tabname" L}</span>
 	            </a>
 	        </li>
         </if>
         <li>
             <a href="#about-libx-maintab">
-                <span>{L:template "about_tabname" L}</span>
+                <span>{L "about_tabname" L}</span>
             </a>
         </li>
     </ul>
     <!-- Order down here doesnt matter -->
     <if test="libx.prefs.browser != null">
 	    <div id="browser-maintab">
-	        {P libx.prefs.browser P}
+	        {P libx.prefs.browser, "builtin" P}
 	    </div>
 	</if>
     <if test="libx.prefs.contextmenu != null">
@@ -64,7 +73,7 @@
 	    </div>
 	</if>
     <div id="libapps-maintab">
-        {P null, "libappprefs" P}
+        {P null, "libx.prefs.libapps" P}
     </div>
     <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
 	    <div id="developer-maintab">

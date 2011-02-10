@@ -4,6 +4,7 @@
  *
  * @return Window object for content window
  */
+
 libx.ui.getCurrentWindowContent = function() {
     return window;
 };
@@ -104,7 +105,6 @@ var imported = {};
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
     libxTemp.magicImport('libx.cache.defaultObjectCache.get');
     libxTemp.magicImport('libx.cache.defaultMemoryCache.get');
-    libxTemp.magicImport('libx.prefs.toXML', { returns: true, namespace: imported });
     libxTemp.magicImport('libx.preferences.initialize', { returns: true, namespace: imported });
 
     libx.libappdata = {};
@@ -124,9 +124,10 @@ var imported = {};
             var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;
             if (bootWindowUrls.length == 0) {
                 // Fall back to local preference
-                bootWindowUrls.push({ url:
-                    libx.utils.browserprefs.getStringPref("libx.bootstrap.window.url", 
-                        "http://libx.org/libx-new/src/base/bootstrapped/bootstrapwindow.js") });
+                bootWindowUrls.push({
+                    url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.window.url",
+                            libx.locale.getBootstrapURL("bootstrapwindow.js") )
+                });
             }
 
             var windowBootStrapper = new libx.bootstrap.BootStrapper();
@@ -143,15 +144,6 @@ var imported = {};
                     }
                 });
             }
-            
-            var blockUntilPreferencesReceived = new libx.utils.collections.EmptyActivity();
-            windowBootStrapper.scriptQueue.scheduleFirst(blockUntilPreferencesReceived);
-            
-            imported.libx.prefs.toXML(function(result) {
-                var xmlPrefs = libx.utils.xml.loadXMLDocumentFromString(result).documentElement;
-                libx.preferences.loadXML(xmlPrefs, { overwrite: true, base: "libx" }); 
-                blockUntilPreferencesReceived.markReady();
-            });
             
             for (var i = 0; i < bootWindowUrls.length; i++)
                 windowBootStrapper.loadScript(bootWindowUrls[i].url, true, {

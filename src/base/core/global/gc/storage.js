@@ -25,19 +25,20 @@ libx.storage = {
          *                                          errors
          */
         setItem: function(paramObj) {
+            var error = false;
             try {
                 localStorage.setItem(this.prefix + paramObj.key, paramObj.value);
-                if(paramObj.success)
-                    paramObj.success();
             } catch(e) {
+                error = true;
                 if(paramObj.error)
                     paramObj.error(e);
                 else
                     libx.log.write("Error in libx.storage.setItem(): " + e);
-            } finally {
-                if(paramObj.complete)
-                    paramObj.complete();
             }
+            if (!error && paramObj.success)
+                paramObj.success();
+            if(paramObj.complete)
+                paramObj.complete();
         },
         
         /**
@@ -63,22 +64,26 @@ libx.storage = {
          *                                          the store
          */
         getItem: function(paramObj) {
+            var error = false;
+            var value = null;
             try {
-                var value = localStorage.getItem(this.prefix + paramObj.key);
-                if(value == null) {
-                    if(paramObj.notfound)
-                        paramObj.notfound();
-                } else if(paramObj.success)
-                    paramObj.success(value);
+                value = localStorage.getItem(this.prefix + paramObj.key);
             } catch(e) {
+                error = true;
                 if(paramObj.error)
                     paramObj.error(e);
                 else
                     libx.log.write("Error in libx.storage.getItem(): " + e);
-            } finally {
-                if(paramObj.complete)
-                    paramObj.complete();
             }
+            if (!error) {
+                if (value == null) {
+                    if (paramObj.notfound)
+                        paramObj.notfound();
+                } else if (paramObj.success)
+                    paramObj.success(value);
+            }
+            if(paramObj.complete)
+                paramObj.complete();
         },
         
         /**
@@ -104,6 +109,7 @@ libx.storage = {
         find: function(paramObj) {
             var matches = [];
             var pattern = paramObj.pattern;
+            var error = false;
             if(!pattern)
                 pattern = /.*/;
             try {
@@ -114,17 +120,17 @@ libx.storage = {
                             matches.push(itemName);
                     }
                 }
-                if(paramObj.success)
-                    paramObj.success(matches);
             } catch(e) {
+                error = true;
                 if(paramObj.error)
                     paramObj.error(e);
                 else
                     libx.log.write("Error in libx.storage.find(): " + e);
-            } finally {
-                if(paramObj.complete)
-                    paramObj.complete();
             }
+            if (!error && paramObj.success)
+                paramObj.success(matches);
+            if(paramObj.complete)
+                paramObj.complete();
         },
         
         /**
@@ -142,21 +148,22 @@ libx.storage = {
          *                                          errors
          */
         clear: function(paramObj) {
+            var error = false;
             try {
                 for(var i in localStorage)
                     if(i.indexOf(this.prefix) == 0)
                         localStorage.removeItem(i);
-                if(paramObj && paramObj.success)
-                    paramObj.success();
             } catch(e) {
+                error = true;
                 if(paramObj && paramObj.error)
                     paramObj.error(e);
                 else
                     libx.log.write("Error in libx.storage.clear(): " + e);
-            } finally {
-                if(paramObj && paramObj.complete)
-                    paramObj.complete();
             }
+            if(!error && paramObj && paramObj.success)
+                paramObj.success();
+            if(paramObj && paramObj.complete)
+                paramObj.complete();
         }
     })
     

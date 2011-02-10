@@ -8,12 +8,12 @@
 /**
     @constructor
 */
-JsPlate = function(templateFileText, templateFile, aQueues, prefPrefix) {
+JsPlate = function(templateFileText, templateFile, aQueues, data) {
     this.template = templateFileText;
     this.templateFile = templateFile;
     this.aQueues = aQueues;
     this.code = "";
-    this.prefPrefix = prefPrefix;
+    this.data = data;
     this.parse();
 }
 
@@ -56,19 +56,17 @@ JsPlate.prototype.parse = function() {
         function (match, code) {
             code = code.replace(/"/g, "``"); // prevent quote-escaping of inline code
             code = code.replace(/(\r?\n)/g, " ");
-            return "``+ ( process ( aQueues, '" + self.prefPrefix + "', " + code + " ) ) +``";
+            return "``+ ( process ( aQueues, " + code + " ) ) +``";
         }
     );
     
-    // The {L propName, default L} for localized strings
+    // The {L propName, default L} for localized template strings
     this.code = this.code.replace(
-        /\{\L:(template|pref)\s*([\s\S]+?)\s*L\}/g,
-        function (match, type, code) {
+        /\{\L\s*([\s\S]+?)\s*L\}/g,
+        function (match, code) {
             code = code.replace(/"/g, "``"); // prevent quote-escaping of inline code
             code = code.replace(/(\r?\n)/g, " ");
-            if (type == "template")
-                return "``+ ( templateBundle.getProperty (" + code + " ) ) +``";
-            return "``+ ( prefBundle.getProperty ('" + self.prefPrefix + "', " + code + " ) ) +``";
+            return "``+ ( templateBundle.getProperty (" + code + " ) ) +``";
         }
     );
     
@@ -119,7 +117,16 @@ JsPlate.prototype.process = function(data) {
     var values = JsPlate.values;
         
     try {
-        var aQueues= this.aQueues;
+        var aQueues = this.aQueues;
+        var templateScope = {
+            data: this.data,
+            queueFunction: function (fn) {
+                var q = new libx.utils.collections.ActivityQueue();
+                fnAct = { onready: fn };
+                q.scheduleLast(fnAct);
+                aQueues.push(fnAct);
+            }
+        }
         var output = eval(this.code);
     }
     catch (e) {

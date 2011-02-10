@@ -52,6 +52,8 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 edition.name = { };
                 doc.copyAttributes(doc.getNode("/edition/name"), edition.name);
                 doc.copyAttributes(doc.getNode("/edition"), edition);
+                editionConfigReader.loadContextMenuPrefs("Google Scholar", "magicsearch",
+                edition.options.magicsearchincontextmenu ? "magicsearch" : "");
 
                 invofcc.onload ( edition );
             },
@@ -118,6 +120,16 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                     break;
                 }
             });
+        
+        for (var i = 0; i < localizationfeeds.package.length; i++) {
+            var pkg = localizationfeeds.package[i];
+            libx.prefs.libapps.feeds._addItem({
+                _value: pkg.url,
+                _type: "string",
+                _selected: true
+            });
+        }
+            
         return localizationfeeds;
     },
 
@@ -172,6 +184,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     },
 
     loadCatalogs : function ( doc, edition ) {
+        var self = this;
         return this.makeConfigurationItemArray (doc,
             "/edition/catalogs/*", libx.catalog.factory, 
             function (node) {
@@ -195,6 +208,12 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                     cat.xisbn = xisbnCopy;
             
                     doc.copyAttributes ( xisbnNode, cat.xisbn );
+                    
+                    if (node.nodeName != "bookmarklet") {
+                        self.loadContextMenuPrefs(cat.name, "xisbn", 
+                            cat.xisbn.includeincontextmenu ? "xisbn" : "");
+                    }
+                    
                 }
                         
                 cat.urlregexp = new RegExp( cat.urlregexp );
@@ -202,30 +221,62 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                     cat.__init(edition);
                 }
             
+                self.loadContextMenuPrefs(cat.name, cat.options, cat.contextmenuoptions);
                 libx.log.write("registered " + cat.name + " (type=" + node.nodeName + ", options=" + cat.options + ")");
             });
     },
 
     loadResolvers : function ( doc ) {
+        var self = this;
         return this.makeConfigurationItemArray (doc,
             "/edition/openurl/*", libx.openurl.factory, 
             function (node) {
                 return node.getAttribute("type");
             },
             function (node, resolver) {
+                var cmoptions = resolver.includeincontextmenu ? "enabled" : "";
+                self.loadContextMenuPrefs(resolver.name, "enabled", cmoptions);
                 libx.log.write("registered OpenURL resolver " + resolver.name 
                     + " (type=" + node.getAttribute('type') + ")");
             });
     },
 
     loadProxies : function ( doc ) {
+        var self = this;
         return this.makeConfigurationItemArray (doc,
             "/edition/proxy/*", libx.proxy.factory, 
             function (node) {
                 return node.nodeName;
             },
             function (node, proxy) {
+                var cmoptions = proxy.includeincontextmenu ? "enabled" : "";
+                self.loadContextMenuPrefs(proxy.name, "enabled", cmoptions);
                 proxy.type = node.nodeName;
             });
-    }
+    },
+    
+    loadContextMenuPrefs : function ( name, options, cmoptions ) {
+        var cat = libx.prefs.contextmenu._addCategory({
+            _name: name,
+            _layout: "tree"
+        });
+        options = options.split(";");
+        if (cmoptions)
+            cmoptions = cmoptions.split(";");
+        else
+            cmoptions = [];
+        for (var i = 0; i < options.length; i++) {
+            var option = options[i];
+            var enabled = false;
+            for (var j = 0; j < cmoptions.length; j++)
+                if (cmoptions[j] == option)
+                    enabled = true;
+            cat._addPreference({
+                _name: option,
+                _type: "boolean",
+                _value: enabled
+            });
+        }
+    },
+    
 } );

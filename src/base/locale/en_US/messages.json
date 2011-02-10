@@ -1,62 +1,101 @@
 {
-    "translator" :          { "message" : "" },
-    "extension_name" :      { "message" : "LibX for Google Chrome" },
-    "tab_search" :          { "message" : "Search" },
-    "tab_links" :           { "message" : "Links" },
-    "tab_about" :           { "message" : "About" },
-    "tab_change" :          { "message" : "Change Edition" },
-    "tab_prefs" :           { "message" : "Preferences" },
-    "tab_pageactions" :     { "message" : "Page Actions" },
-    "label_search" :        { "message" : "Search" },
-    "label_for" :           { "message" : "for..." },
-    "label_select" :        { "message" : "Select a LibX edition:" },
-    "label_error" :         { "message" : "Could not load configuration from" },
-    "about_adapted" :       { "message" : "Adapted by:" },
-    "about_writtenby" :     { "message" : "LibX was written by:" },
-    "about_contrib" :       { "message" : "Contributors:" },
-    "about_translator" :    { "message" : "This translation by:" },
-    "view_simple" :         { "message" : "Simple view" },
-    "view_full" :           { "message" : "Full view" },
-    "load_edition" :        { "message" : "Edition:" },
-    "load_maintainers" :    { "message" : "Maintainers:" },
-    "load_revision" :       { "message" : "Revision:" },
-    "load_link" :           { "message" : "Load this edition" },
-    "load_cancel" :         { "message" : "Cancel" },
-    "button_search" :       { "message" : "Search" },
-    "update_message1" :     { "message" : "The currently active LibX configuration is \"$name$\", revision $revision$ (id: $edition$).",
+    "translator":           { "message": "" },
+    "extension_name":       { "message": "LibX for Google Chrome" },
+    "tab_search":           { "message": "Search" },
+    "tab_links":            { "message": "Links" },
+    "tab_about":            { "message": "About" },
+    "tab_proxy":            { "message": "Proxies" },
+    "tab_change":           { "message": "Change Edition" },
+    "tab_prefs":            { "message": "Preferences" },
+    "tab_pageactions":      { "message": "Maintainer" },
+    "label_search":         { "message": "Search" },
+    "label_for":            { "message": "for..." },
+    "label_select":         { "message": "Select a LibX edition:" },
+    "label_error":          { "message": "Could not load configuration from" },
+    "about_adapted":        { "message": "Adapted by:" },
+    "about_writtenby":      { "message": "LibX was written by:" },
+    "about_contrib":        { "message": "Contributors:" },
+    "about_translator":     { "message": "This translation by:" },
+    "view_simple":          { "message": "Simple view" },
+    "view_full":            { "message": "Full view" },
+    "load_edition":         { "message": "Edition:" },
+    "load_maintainers":     { "message": "Maintainers:" },
+    "load_revision":        { "message": "Revision:" },
+    "load_link":            { "message": "Load this edition" },
+    "load_cancel":          { "message": "Cancel" },
+    "button_search":        { "message": "Search" },
+    "button_clear":         { "message": "Reset fields" },
+    "update_message1":      { "message": "The currently active LibX configuration is \"$name$\", revision $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
                                 "edition":    { "content": "$2" },
                                 "name":       { "content": "$3" }
                               }
                             },
-    "update_message2" :     { "message" : "The page you are looking at advertises LibX configuration \"$name$\", revision $revision$ (id: $edition$).",
+    "update_message2":      { "message": "The page you are looking at advertises LibX configuration \"$name$\", revision $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
                                 "edition":    { "content": "$2" },
                                 "name":       { "content": "$3" }
                               }
                             },
-    "update_message3" :     { "message" : "Click here to activate LibX configuration \"$name$\", revision $revision$ (id: $edition$).",
+    "update_message3":      { "message": "Click here to activate LibX configuration \"$name$\", revision $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
                                 "edition":    { "content": "$2" },
                                 "name":       { "content": "$3" }
                               }
                             },
-    "proxy_message1" :      { "message" : "This page can be reloaded using the \"$proxyname$\" proxy (type: $proxytype$).",
+    "proxy_message1":       { "message": "Click here to reload this page using the \"$proxyname$\" proxy.",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" }
+                              }
+                            },
+    "proxy_message2":       { "message": "Reload using \"$proxyname$\"",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" }
+                              }
+                            },
+    "proxy_message3":       { "message": "$proxyname$ (type: $proxytype$)",
                               "placeholders": {
                                 "proxyname":  { "content": "$1" },
                                 "proxytype":  { "content": "$2" }
                               }
                             },
-    "proxy_message2" :      { "message" : "Click here to reload this page using the proxy." },
-    "search_and" :          { "message" : "AND" },
-    "search_more" :         { "message" : "more..." },
-    "tooltip_search" :      { "message" : "LibX: Search $catalog$ for $item$",
+    "proxy_reload":         { "message": "Reload page with this proxy" },
+    "tooltip_search":       { "message": "LibX: Search $catalog$ for $item$",
                               "placeholders": {
-                                "catalog":   { "content": "$1" },
-                                "item":      { "content": "$2" }
+                                "catalog":    { "content": "$1" },
+                                "item":       { "content": "$2" }
                               }
-                            }
+                            },
+    "proxy_follow_label":   { "message": "Follow link via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+    "proxy_reload_label":   { "message": "Reload page via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+    "catalog_search_label": { "message": "Search $catalog$ for $type$ $searchstr$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "type":         { "content": "$2" },
+                                "searchstr":    { "content": "$3" }
+                              }
+                            },
+    "openurl_search_label": { "message": "Search $resolver$ for $searchstr$",
+                              "placeholders": {
+                                "resolver":      { "content": "$1" },
+                                "searchstr":    { "content": "$2" }
+                              }
+                            },
+    "scholarsearch_label": { "message": "Search Google Scholar for $searchstr$",
+                              "placeholders": {
+                                "searchstr":    { "content": "$1" }
+                              }
+                            },
+    "enabled_contextmenu":  { "message": "Enable in context menu" }
 }

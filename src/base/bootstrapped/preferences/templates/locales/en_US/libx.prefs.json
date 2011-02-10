@@ -1,7 +1,0 @@
-{
-    "browser_tabname" :     { "message" : "Browser" },
-    "contextmenu_tabname" : { "message" : "Context Menu" },
-    "libapps_tabname" : { "message" : "Libapps" },
-    "developer_tabname" : { "message" : "Developer" },
-    "about_tabname" : { "message" : "About" }
-}

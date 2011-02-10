@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE category SYSTEM "http://libx.org/xml/libxprefs.dtd">
-<category name="browser" layout="groups">
+<category name="browser" layout="group">
   <preference name="displaypref" type="choice">
     <item type="string" value="newtabswitch" selected="true"/>
     <item type="string" value="newtab"/>
     <item type="string" value="sametab"/>
     <item type="string" value="newwindow"/>
   </preference>
-  <preference name="feedurl" type="string" value="http://libx.org/libx2/libapps/"/>
+  <preference name="savesearches" type="boolean" value="true"/>
 </category>

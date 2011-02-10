@@ -3,11 +3,10 @@
 !}
 <!-- category.tmpl -->
 <div class="groupbox">
-    <!-- XXX: should we force these to always be specified in locale? -->
-    <label>{L:pref data._idstr + "-description", data._name L}</label>
+    <label>~category.tmpl label~</label>
     <for each="child" in="data._children">
         <div>
-            {P child P}
+            {P child, null, templateScope.data P}
         </div>
     </for>
 </div>

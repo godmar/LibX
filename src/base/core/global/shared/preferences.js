@@ -187,9 +187,9 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
         
         switch ( this._type ) {
             case 'choice' :
-                this._items = new Array();        
+                this._items = new Array();
                 break;
-            case 'multichoice' :                
+            case 'multichoice' :          
                 this._value = new Array();
                 this._items = new Array();
                 break;
@@ -253,8 +253,7 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                         return false;
                     }
                 }
-                // Next, we set the value, and set the appropriate selected properties
-                this._value = value;
+                // Next, we set the appropriate selected properties
                 for ( var i = 0; i < items.length; i++ ) {
                     items[i]._selected = false;
                 }
@@ -266,6 +265,9 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                         }
                     }
                 }
+                
+                this._value = value;
+                
                 return true;
                 break;
             default :
@@ -289,6 +291,11 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
     _addItem : function ( descriptor ) {
         var item = new prefFactory['item'] ( descriptor, this._idstr );
         
+        // don't add this item if it already exists
+        var existingItem = libx.preferences.get(this._idstr + "." + item._value)
+        if (existingItem)
+            return;
+        
         switch ( this._type ) {
             case 'choice' :
                 this._items.push ( item );
@@ -304,10 +311,8 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                 
             case 'multichoice' :
                 this._items.push ( item );
-                if ( item._selected ) {
-                    this._value.push ( item._value );
-                }
-                
+                if ( item._selected )
+                    this._value.push(item._value);
                 break;
                 
             default :
@@ -494,8 +499,12 @@ return /** @lends libx.preferences */ {
      * 
      */
     initialize : function () {
+    
         libx.prefs = new prefFactory["category"]({ _name: "prefs" }, "libx");
-        
+        libx.prefs._addCategory({ _name: "contextmenu", _layout: "tree" });
+        libx.prefs._addCategory({ _name: "libapps", _layout: "feeds" });
+        libx.prefs.libapps._addPreference({ _name: "feeds", _type: "multichoice" });
+                
         /**
          *  Gets a category for a given libapp or module URL.
          *  If the category does not exist, it is constructed with the specified templates.
@@ -542,7 +551,15 @@ return /** @lends libx.preferences */ {
             }
             return cat;
         };
+        
+        // initialize browser preferences
+        libx.preferences.load ( {
+            filename : libx.locale.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
+            overwrite : false,
+            base : "libx.prefs"
+        } );  
                 
+        // load saved user preferences
         var self = this;
         prefStore.getItem({
             key: USER_PREFS,
@@ -555,7 +572,8 @@ return /** @lends libx.preferences */ {
                 } );
             }
         });
-                    
+
+        
     },
     
     /**
@@ -612,6 +630,7 @@ return /** @lends libx.preferences */ {
         // var xmlRoot = xml.documentElement;
         
         var loadedPrefs =  new prefFactory[xmlNode.nodeName]( null, base, xmlNode );
+
         if ( descriptor.prefs == null ) {
             descriptor.prefs = loadedPrefs;
         }
@@ -649,6 +668,7 @@ return /** @lends libx.preferences */ {
          *    @private
          */
         function mergeHelper ( curPrefs, newPrefs, overwrite ) {
+        
             // add it to libx.prefs
             if ( curPrefs == null ) {
                 libx.prefs._addChild ( newPrefs );
@@ -708,6 +728,25 @@ return /** @lends libx.preferences */ {
                         }    
                     }
                     
+                    // Add items only present in newPrefs
+                    if (newPrefs._items && newPrefs._items.length > 0) {
+                        if (!curPrefs._items)
+                            curPrefs._items = [];
+                        for ( var i = 0; i < newPrefs._items.length; i++ ) {
+                            var newPrefsItem = newPrefs._items[i];
+                            var found = false;
+                            for ( var j = 0; j < curPrefs._items.length; j++ ) {
+                                var curPrefsItem = curPrefs._items[j];
+                                if ( curPrefsItem._id == newPrefsItem._id ) {
+                                    found = true;
+                                }
+                            }
+                            if ( found == false ) {
+                                curPrefs._items.push ( newPrefsItem );
+                            }
+                        }
+                    }
+                    
                     break;
                 case "item" : // make sure selected attributes match ( newPrefs overwrites curPrefs )
                     if ( overwrite ) {
@@ -719,6 +758,7 @@ return /** @lends libx.preferences */ {
                         "Invalid node type - " + curPrefs._nodeType );
             }
         }
+        
     },
     
     /**

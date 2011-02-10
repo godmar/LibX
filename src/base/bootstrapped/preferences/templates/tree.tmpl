@@ -1,28 +1,39 @@
 {!
     /**
-     *     Default Tree Template
-     *    We need access to the current preference, as well as its fullname
+     *    Default Tree Template
+     *    This template requires that the "calling" template define two functions:
+     *      - nodeLocale: returns a localized string for a given node
+     *      - leafLocale: returns a localized string for a given leaf
      */
-     
+    
+    var treeAQ = new libx.utils.collections.ActivityQueue();
+    templateScope.data.treeAQ = treeAQ;
 !}
+
 <!-- tree.tmpl -->
-<ul class="tree">
-    <li>
-    <label>{L:pref data._idstr + "-label" L}</label>
+<ul id="tree-{+data._id+}">
     <for each="child" in="data._children">
-        <ul class="{! child._layout == 'tree' ? 'tree' : '' !}">
-            <li>
-                <if test="(child._nodeType == 'category')">
-                    <input type="checkbox" />
-                    <!-- XXX: pull these from old bundles file -->
-                    <label>{L:pref child._idstr + "-label", child._name L}</label>
-                    {P child P}
-                </if>
-                <if test="(child._nodeType == 'preference')">
-                    {P child P}
-                </if>
-            </li>
-        </ul>
+        {!
+            var childProcessedActivity = new libx.utils.collections.EmptyActivity();
+            treeAQ.scheduleLast(childProcessedActivity);
+            var tmplData = {};
+            libx.core.Class.mixin(tmplData, templateScope.data, true);
+            tmplData.activity = childProcessedActivity;
+        !}
+        {P child, "tree.node", tmplData P}
     </for>
-    </li>
 </ul>
+
+{!
+
+    var createTreeActivity = {
+        onready: function (treeId) {
+            $("#tree-" + data._id).treeview({
+                collapsed: true
+            });
+        }
+    };
+    treeAQ.scheduleLast(createTreeActivity);
+    createTreeActivity.markReady(window.currentTreeId);
+    
+!}

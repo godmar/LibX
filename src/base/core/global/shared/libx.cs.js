@@ -37,7 +37,8 @@ libx.utils.browserprefs = {
     }
 };
 
-libx.ui.tabs.create = function (url) {
+libx.ui.tabs.create = function (createProperties) {
+    var url = createProperties.url;
     if (typeof url == "string") {
         /* GET */
         window.open(url);

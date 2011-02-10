@@ -15,9 +15,9 @@ function doAutoSense(response) {
                     var configUrl = json.revisions[response.revision].config;
                     libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
                     // reset catalog index when changing editions
-                    libx.utils.browserprefs.setIntPref('libx.edition.selectedcatalog', 0);
+                    libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
                     libx.log.write('Loading config from ' + configUrl);
-                    libx.loadConfig(configUrl);
+                    libx.initialize.reload();
                 } catch(e) {
                     libx.log.write("Error loading auto-sensed URL " +
                         "http://libx.org/editions/config/" + response.id + ": " + e);

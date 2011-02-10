@@ -10,8 +10,8 @@ libx.libapp.getStringBundle = function (url) {
 };
 
 var sbox = new libx.libapp.Sandbox(window, { libx: libx } );
-var libappBase = libx.prefs.browser.feedurl._value;
-var scriptBase = libappBase + "scripts/";
+//BRN: change this
+var scriptBase = "http://libx2.cs.vt.edu/libx.org/libx2_feed/scripts/";
 
 /*
  * Aliases for scripts
@@ -85,16 +85,12 @@ var requireURL2Activity = { };
 
 var textExplorer = new libx.libapp.TextExplorer();
 
-/* This URL will be read from the edition/user configuration.
- * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
- */
-var rootPackages = [ { url: libappBase + "1" } ];
-
+var rootPackages = [];
+for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++)
+    if (libx.prefs.libapps.feeds._items[i]._selected)
+        rootPackages.push({ url: libx.prefs.libapps.feeds._items[i]._value });
+    
 // This code recursively walks packages, executing all libapps.
-
-var feeds = libx.edition.localizationfeeds;
-rootPackages = feeds.package || rootPackages;
-
 function processPackages(packages) {
 
     for (var i = 0; i < packages.length; i++) {
@@ -108,13 +104,13 @@ function processPackages(packages) {
         
             new libx.libapp.PackageWalker(packages[i].url).walk({
                 onpackage: function (pkg) {
-                    if (libx.prefs[pkg.id].enabled._value)
+                    if (libx.prefs[pkg.id]._enabled._value)
                         processPackages(pkg.entries);
                     // all subpackages have been queued
                     activity.markReady();
                 },
                 onlibapp: function (libapp) {
-                    if (libx.prefs[libapp.id].enabled._value)
+                    if (libx.prefs[libapp.id]._enabled._value)
                         executeLibapp(libapp);
                     // all modules in this libapp have been queued
                     // since this libapp has been executed

@@ -83,8 +83,12 @@ function loadLibX() {
         "shared/ui/jquery/autocomplete.js",
         "shared/ui/jquery/dropdown.js",
         "shared/ui/jquery/accordionmenu.js",
-        "ff/ui/tabs.js",
-        "shared/utils/geteditionresource.js"
+        "shared/ui/magicsearch.js",
+        "shared/utils/geteditionresource.js",
+        "shared/ui.js",
+        "shared/ui/contextmenu.js",
+        "ff/ui.js"
+        
     ];
     
     for (var i = 0; i < globalScripts.length; i++) {

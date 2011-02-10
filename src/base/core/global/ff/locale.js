@@ -17,13 +17,18 @@
     
 }) ();
 
+libx.locale.bd.getExtensionURL = function (path) {
+    return "chrome://libx/content/" + path;
+};
+
 libx.locale.bd.initialize = function () {
     libx.locale.getBundle( {
-        //BRN: add defaultLocale
-        async: false,
+        defaultLocale: "en_US",
         url: "chrome://libx/locale/messages.json",
         success: function (bundle) {
             libx.locale.defaultStringBundle = bundle;
+            var localeLoadedEvent = new libx.events.Event("DefaultLocaleLoaded");
+            localeLoadedEvent.notify();
         }
     } );  
 };

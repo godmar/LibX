@@ -1,0 +1,29 @@
+
+<!-- tree.preference.tmpl -->
+<!--if test="data._name != '_enabled'"-->
+    <if test="data._type == 'boolean'">
+        <li>
+            <input type="checkbox" name="{+data._id+}" class="preference-checkbox" <if test="data._value">checked="checked"</if> />
+            <label>{+templateScope.data.leafLocale(data)+}</label>
+        </li>
+    </if>
+    <if test="data._type == 'choice'">
+        <for each="item" in="data._items">
+            <li>
+                <input type="radio" class="preference-radio" name="{+ data._id +}" value="{+ item._value +}" <if test="item._selected">checked="checked"</if> />
+                <label>{+templateScope.data.leafLocale(data)+}</label>
+            </li>
+        </for>
+    </if>
+    <if test="data._type == 'string'">
+        <li>
+            <div><input type="text" class="preference-text" name="{+ data._id +}" value="{+ data._value +}" style="width: 50em;" /></div>
+        </li>
+    </if>
+<!--/if-->
+
+{!
+    templateScope.queueFunction(function () {
+        templateScope.data.activity.markReady();
+    });  
+!}

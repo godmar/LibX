@@ -1,16 +1,9 @@
 /*
  * Support for running libapps.
  * Global component.
- */
-
+ */ 
+ 
 (function () {
-
-
-/* This URL will be read from the edition/user configuration.
- * For now, this is where I keep my feeds - ADJUST THIS FOR YOUR TESTING
- */
-var libappBase = libx.prefs.browser.feedurl._value;
-var rootPackages = [ { url: libappBase + "1" } ];
 
 // This code registers all libapps on browser startup
 // Registrations will progress as quickly as the package tree
@@ -23,7 +16,7 @@ var RegisterLibappsClass = new libx.core.Class.create(libx.libapp.PackageVisitor
     onpackage: function (pkg) {
     
         libx.prefs.getCategoryForUrl(pkg.id, [{
-            name: "enabled",
+            name: "_enabled",
             type: "boolean",
             value: "true"
         }]);
@@ -34,13 +27,13 @@ var RegisterLibappsClass = new libx.core.Class.create(libx.libapp.PackageVisitor
     onlibapp: function (libapp) {    
     
         libx.prefs.getCategoryForUrl(libapp.id, [{
-            name: "enabled",
+            name: "_enabled",
             type: "boolean",
             value: "true"
         }]);
     
         if (libapp.preferences) {
-            libx.preferences.loadXML(libapp.preferences, {});
+            libx.preferences.loadXML(libapp.preferences, { base: "libx.prefs" });
         }
     
         libx.log.write("registered libapp: " + libapp.description, "libapp");
@@ -50,7 +43,7 @@ var RegisterLibappsClass = new libx.core.Class.create(libx.libapp.PackageVisitor
     
     onmodule: function (module) {
         if(module.preferences) {
-            libx.preferences.loadXML(module.preferences, {});
+            libx.preferences.loadXML(module.preferences, { base: "libx.prefs" });
         }
         
         this.parent(module);
@@ -58,22 +51,27 @@ var RegisterLibappsClass = new libx.core.Class.create(libx.libapp.PackageVisitor
 });
 var registerLibapps = new RegisterLibappsClass();
 
-function loadLibapps(edition) {
-    var feeds = edition.localizationfeeds;
-    rootPackages = feeds.package || rootPackages;
+libx.libapp.loadLibapps = function (edition) {
+    //BRN: should there be a fallback for feeds if edition config.xml has none?
+    //should this check for feeds.package.length?
+    //e.g., Stanford edition has no feeds, but feeds.package = []
+    
+    var rootPackages = libx.prefs.libapps.feeds._items;
     
     for (var i = 0; i < rootPackages.length; i++) {
-        libx.log.write("Loading root feed from: " + rootPackages[i].url);
-        new libx.libapp.PackageWalker(rootPackages[i].url).walk(registerLibapps);
+        if (rootPackages[i]._selected) {
+            libx.log.write("Loading root feed from: " + rootPackages[i]._value);
+            new libx.libapp.PackageWalker(rootPackages[i]._value).walk(registerLibapps);
+        }
     }
 }
 
 if (libx.edition != null) {
-    loadLibapps(libx.edition);
+    libx.libapp.loadLibapps(libx.edition);
 } else {
     libx.events.addListener("EditionConfigurationLoaded", {
         onEditionConfigurationLoaded: function (event) {
-            loadLibapps(event.edition);
+            libx.libapp.loadLibapps(event.edition);
         }
     });
 }

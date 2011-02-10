@@ -4,7 +4,6 @@
 <script src="core/global/shared/core.js"></script>
 <script src="core/global/shared/libx.js"></script>
 <script src="core/global/shared/log.js"></script>
-<!--<script src="core/global/shared/io.js"></script>-->
 <script src="core/global/shared/utils/binary.js"></script>
 <script src="core/global/gc/storage.js"></script>
 <script src="core/global/shared/preferences.js"></script>
@@ -54,15 +53,14 @@
 <!-- <script src="core/global/shared/services/xisbn.js"></script> -->
 <!-- <script src="core/global/shared/services/pubmed.js"></script> -->
 <!-- <script src="core/global/shared/services/crossref.js"></script> -->
-<!-- <script src="core/global/ff/libapp/sandbox.js"></script> -->
 <script src="core/global/shared/ui/jquery/autocomplete.js"></script>
 <script src="core/global/shared/ui/jquery/dropdown.js"></script>
 <script src="core/global/shared/ui/jquery/accordionmenu.js"></script>
-<script src="core/global/gc/ui/tabs.js"></script>
+<script src="core/global/shared/ui/magicsearch.js"></script>
 <script src="core/global/shared/utils/geteditionresource.js"></script>
-<script src="core/window/gc/libx.js"></script>
-<script src="core/window/shared/ui.js"></script>
-<script src="core/window/shared/ui/basiccontextmenudescriptor.js"></script>
+<script src="core/global/shared/ui.js"></script>
+<script src="core/global/shared/ui/contextmenu.js"></script>
+<script src="core/global/gc/ui.js"></script>
 
 <script>
 
@@ -75,9 +73,6 @@ try {
 // show edition icon after config is loaded
 libx.events.addListener("EditionConfigurationLoaded", {
     onEditionConfigurationLoaded: function() {
-    
-        libx.browser = {};
-        libx.browser.contextMenu = new libx.ui.ContextMenu (libx.ui.basicContextMenuDescriptor, libx.edition);
     
         libx.utils.getEditionResource({
             url: libx.edition.options.icon,
@@ -158,15 +153,7 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
         
     } else if (request.type == "clearCache") {
         alert('Cleared Old Code, Will Download New Code');
-        var cache = new libx.storage.Store('cache');
-        var metacache = new libx.storage.Store('metacache');
-        metacache.clear();
-        cache.clear();
-        delete libx.edition;
-        // load config if user has one set
-        var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-        if(configUrl)
-            libx.loadConfig(configUrl);
+        libx.initialize.reload();
         sendResponse({});
 
     } else

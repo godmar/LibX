@@ -92,6 +92,15 @@ return /** @lends libx.locale */ {
         libx.locale.bd.initialize();
     },
     
+    getExtensionURL: function (path) {
+        return libx.locale.bd.getExtensionURL(path);
+    },
+    
+    getBootstrapURL: function (path) {
+        //BRN: change this
+        return "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/" + path;
+    },
+    
 	/**
 	 *	Gets a localization bundle.
      *  Bundles will be searched similar to Google Chrome's i18n rules (http://code.google.com/chrome/extensions/i18n.html#l10):
@@ -105,9 +114,9 @@ return /** @lends libx.locale */ {
 	 *	@param {Object} object parameter that contains the following:
      *      url             {String}    OPTIONAL - URL to load bundle from.  URL can contain
      *                                  a $locale$ placeholder, which will be replaced with
-     *                                  the user's current locale
-     *      feed            {String}    OPTIONAL - Feed to load bundle from.  Must be defined if
-     *                                  url option is not used.
+     *                                  the user's current locale.
+     *      feed            {String}    OPTIONAL - Feed to load bundle from.
+     *      object          {String}    OPTIONAL - Object to load bundle from.
      *      defaultLocale   {String}    OPTIONAL - the fallback locale bundle when either
      *                                      1) the user's preferred locale does not exist
      *                                      2) the user's locale exists, but a string is missing
@@ -182,6 +191,14 @@ return /** @lends libx.locale */ {
                         activity.markReady(libx.utils.json.parse(response));
                     }
                 } );
+            });
+        } else if (params.object) {
+            // get locales from object
+            scheduleLocales(function (locale, activity) {
+                if (locale in params.object)
+                    activity.markReady(params.object[locale]);
+                else
+                    activity.markReady();
             });
         } else {
             // get locales from feed
