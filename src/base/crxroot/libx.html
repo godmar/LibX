@@ -73,13 +73,7 @@ try {
 // show edition icon after config is loaded
 libx.events.addListener("EditionConfigurationLoaded", {
     onEditionConfigurationLoaded: function() {
-    
-        libx.utils.getEditionResource({
-            url: libx.edition.options.icon,
-            success: function (data) {
-                chrome.browserAction.setIcon( { path: data } );
-            }
-        });
+        chrome.browserAction.setIcon( { path: libx.edition.options.icon } );
     }
     
 });

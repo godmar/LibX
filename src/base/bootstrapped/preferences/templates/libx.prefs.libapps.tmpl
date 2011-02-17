@@ -1,3 +1,12 @@
+
+{BeginLocale=en_US}
+    {
+        "package_add": { "message": "Add a new package:" },
+        "package_whatis": { "message" : "What is a package?"},
+        "package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." }
+    }
+{EndLocale}
+
 {!
 
 /*
@@ -87,79 +96,197 @@ function getStringBundle(url, callback, entries) {
 
 }
 
-/*
-	<li> 
-	    <input type="checkbox" /> 
-	    <label>United States</label> 
-	    <ul> 
-			<li> 
-			<input type="checkbox" name="geo" value="pennsylvania" /> 
-	        <label>Pennsylvania</label> 
-		    </li> 
-		</ul> 
-	</li> 
-*/
-
-function makeNode(entry) {
-    var enabled = libx.prefs[entry.id]._enabled;
-    var checked = enabled._value ? 'checked="checked"' : "";
-    return $('<li>\n'
-           + '   <input type="checkbox" class="preference-checkbox" ' + checked + ' name="' + enabled._id + '" />\n'
-           + '   <label>' + entry.description + '</label>\n'
-           + '   <ul></ul>\n'
-           + '</li>\n');
-}
-    
 var aQ = new libx.utils.collections.ActivityQueue();
 var blocker = new libx.utils.collections.EmptyActivity();
 aQ.scheduleLast(blocker);
 aQueues.push(blocker);
-var $rightPanel = $('<div style="float: right; background-color: white;"></div>');
+var $rightPanel = $('<div style="margin-left: 25px; padding: 10px;" class="ui-state-default ui-corner-all">'
+                  + '<div>Select an entry in the tree to set its preferences.</div>'
+                  + '</div>');
 
-function processPackages(packages, elem) {
+var $checkTree = $('<ul class="checktree" style="float: left;">'
+                 + '<li class="checktree_separator"></li>'
+                 + '</ul>');
+
+function makeNode(entry, isModule) {
+    
+    var $node = $('<li>\n'
+                + '   <label>' + entry.description + '</label>\n'
+                + '   <ul></ul>\n'
+                + '</li>\n');
+    
+    if (!isModule) {
+        $node.data("id", entry.id);
+        var checked = libx.prefs[entry.id]._enabled._value ? 'checked="checked"' : "";
+        $node.prepend('<input type="checkbox" ' + checked + ' />\n');
+    }
+    
+    return $node;
+    
+}
+
+function reloadFeeds() {
+    var aQueues = [];
+    $("#libapps-tmpl").replaceWith(process(aQueues, null, "libx.prefs.libapps"));
+    aQueues[0].markReady();
+}
+
+processCheckTree = {
+    onready: function () {
+    
+        $("#libapps-tmpl")
+            .append($checkTree)
+            .append($rightPanel)
+            .append('<div style="clear: both"></div>')
+            .children("form").submit(function () {
+                var feed = $(this).children("input").val();
+                if (feed) {
+                    libx.libapp.loadLibapps(feed, function () {
+                        libx.prefs.libapps.feeds._addItem({
+                                _value: feed,
+                                _selected: false,
+                                _type: "string"
+                            });
+                        libx.preferences.save();
+                        reloadFeeds();
+                    });
+                }
+                return false;
+            });
+            
+        $checkTree
+            .find("ul:empty").remove()
+            .end().find(".checktree_separator").remove()
+            .end().checkTree({
+                onCheck:      savePref,
+                onUnCheck:    savePref,
+                onHalfCheck:  savePref,
+                labelAction:  "custom",
+                onLabelClick: function (e, $elem) {
+                    var pos = $elem.position();
+                    $rightPanel
+                        .show()
+                        .css("position", "absolute")
+                        .css("left", pos.left+50)
+                        .css("top", pos.top+30)
+                        .children().hide();
+                    $($elem.data("prefs")).show();
+                    e.stopPropagation();
+                }
+            });
+        
+        /* BRN: this gets rebound at each template reload */
+        $(document).click(function (e) {
+            if (!$(e.target).parents().andSelf().filter($rightPanel).length)
+                $rightPanel.hide();
+        });
+
+        $rightPanel.hide();
+    }
+};
+aQ.scheduleLast(processCheckTree);
+processCheckTree.markReady();
+
+function savePref($li) {
+    var enabled = $li.children(".checkbox").hasClass("checked");
+    var pref = libx.prefs[$li.data("id")]._enabled;
+    if (pref._value != enabled) {
+        pref._setValue(enabled);
+        libx.preferences.save();
+    }
+}
+
+function makePrefNode(entry, $node, tmplData) {
+
+    var $prefs = $("<div>\n"
+                 + entry.description + "<br/>\n"
+                 + '<span style="font-size: 0.9em;">' + entry.id + "</span><br/><br/>\n"
+                 + "</div>\n");
+    $node.data("prefs", $prefs);
+
+    var addToPanel = {
+        onready: function () {
+            var aQueues = [];
+            $prefs
+                .hide()
+                .append('<div style="font-size: 0.8em; font-weight: normal;">' + process(aQueues, libx.prefs[entry.id], null, tmplData) + '</div>')
+                .appendTo($rightPanel);
+            aQueues[0].markReady();
+        }
+    };
+    aQ.scheduleLast(addToPanel);
+    addToPanel.markReady();
+    
+    return $prefs;
+}
+
+function processPackages(packages, elem, isRoot, includedModules) {
 
     for (var i = 0; i < packages.length; i++) {
     
         (function () {
     
             var blocker = new libx.utils.collections.EmptyActivity();
-            aQ.scheduleLast(blocker);
+            processCheckTree.scheduleBefore(blocker);
         
             new libx.libapp.PackageWalker(packages[i].url).walk({
                 onpackage: function (pkg) {
                 
-                    var node = makeNode(pkg);
-                    elem.append(node);
-                    var child = node.find("ul");
-                    
-                    processPackages(pkg.entries, child);
-                        
+                    var $node = makeNode(pkg);
+                    $node
+                        .children("ul")
+                            .append('<li class="checktree_separator"></li>')
+                        .end().insertBefore(elem.children(".checktree_separator"));
+                    processPackages(pkg.entries, $node.children("ul"), false, []);
                     blocker.markReady();
+                    
+                    var $prefs = makePrefNode(pkg, $node);
+                    
+                    /* only show remove link for top level, user-added feeds */
+                    if (!isRoot)
+                        return;
+
+                    for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
+                        var editionPkg = libx.edition.localizationfeeds.package[i];
+                        if (editionPkg.url == pkg.id)
+                            return;
+                    }
+                    
+                    $('<a href="#" style="text-decoration: underline;">Remove from my packages</a>')
+                        .appendTo($prefs)
+                        .click(function () {
+                            libx.prefs.libapps.feeds._removeItem(pkg.id);
+                            libx.preferences.save();
+                            reloadFeeds();
+                        });
                     
                 },
                 onlibapp: function (libapp) {
                                
-                    elem.append(makeNode(libapp));
+                    var $node = makeNode(libapp);
+                    elem.children(".checktree_separator").after($node);
+                    processPackages(libapp.entries, elem, false, includedModules);
+                    blocker.markReady();
                                
                     getStringBundle(libapp.id, function (tmplData) {
-                        var aQueues = [];
-                        var $info = $('<div id="libapp-pref-' + libapp.id + '">' + process(aQueues, libx.prefs[libapp.id], null, tmplData) + "</div>");
-                        $rightPanel.append($info);
-                        aQueues[0].markReady();
-                        blocker.markReady();
+                        makePrefNode(libapp, $node, tmplData);
                     }, libapp.entries);
                     
                 },
                 onmodule: function (module) {
-                        
-                    elem.append(makeNode(module));
+                      
+                    if (!libx.prefs[module.id] || $.inArray(module.id, includedModules) != -1) {
+                        blocker.markReady();
+                        return;
+                    }
+                    includedModules.push(module.id);
+                    
+                    var $node = makeNode(module, true);
+                    elem.append($node);
+                    blocker.markReady();
                     
                     getStringBundle(module.id, function (tmplData) {
-                        var aQueues = [];
-                        var $info = $('<div id="libapp-pref-' + libapp.id + '">' + process(aQueues, libx.prefs[libapp.id], null, tmplData) + "</div>");
-                        $rightPanel.append($info);
-                        aQueues[0].markReady();
-                        blocker.markReady();
+                        makePrefNode(module, $node, tmplData);
                     });
                     
                 }
@@ -172,46 +299,27 @@ function processPackages(packages, elem) {
 }
 
 var rootPackages = [];
-for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++)
-    if (libx.prefs.libapps.feeds._items[i]._selected)
-        rootPackages.push({ url: libx.prefs.libapps.feeds._items[i]._value });
-var $checkTree = $('<ul class="checktree"></ul>');
-processPackages(rootPackages, $checkTree);
-
-function savePref($elem) {
-    var enabled = $elem.children(".checkbox").hasClass("checked");
-    var name = $elem.children(":checkbox").attr("name");
-    var pref = libx.preferences.getByID(name);
-    console.log($elem.find("label:first").text() + " checked = " + enabled + ", name = " + name);
-    if (pref._value != enabled) {
-        pref._setValue(enabled);
-        libx.preferences.save();
-    }
+for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
+    var pkg = libx.prefs.libapps.feeds._items[i]._value;
+    if (libx.prefs[pkg])
+        rootPackages.push({ url: pkg });
 }
+processPackages(rootPackages, $checkTree, true, []);
 
-processCheckTree = {
-    onready: function () {
-        $checkTree
-            .find("ul:empty").remove()
-            .end().appendTo($("#libapps-tmpl"))
-            .checkTree({
-                onCheck:      savePref,
-                onUnCheck:    savePref,
-                onHalfCheck:  savePref,
-                labelAction:  "custom",
-                onLabelClick: function ($elem) {
-                    
-                }
-            });
-        $rightPanel.appendTo($("#libapps-tmpl"));
-    }
-};
-aQ.scheduleLast(processCheckTree);
-processCheckTree.markReady();
+templateScope.queueFunction(function () {
+    $("#libapps-tmpl").find(".tooltip").tooltip({
+        delay: 0,
+        icon: true
+    });
+});
 
 !}
 
 <!-- libx.prefs.libapps.tmpl -->
 <div id="libapps-tmpl">
-    {P libx.prefs.libapps P}
+    <form style="margin-bottom: 20px;">
+        {L "package_add" L}
+        <input style="width: 500px;"></input><br/>
+        <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div>
+    </form>
 </div>

@@ -46,7 +46,7 @@ ul.checktree li .expanded {
 	background-image: url(expanded.gif);
 }
 
-ul.checktree li .checkbox {
+ul.checktree li .checkbox, ul.checktree li .uncheckable {
 	width: 20px;
 	height: 18px;
 	padding: 0;
@@ -60,4 +60,7 @@ ul.checktree li .checked {
 }
 ul.checktree li .half_checked {
 	background-image: url(check1.gif);
+}
+ul.checktree li .uncheckable {
+	background-image: url(check3.gif);
 }

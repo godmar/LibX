@@ -322,15 +322,26 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
     
     /**
      *    Removes an item with the specified value
-     *    The item must NOT be selected if it is to be removed
+     *    For "choice" preferences, the item must NOT be selected if it is to be removed
      *    @return {boolean} True if successful, else false if no item with provided value was found
      */
     _removeItem : function ( value ) {
         for ( var i = 0; i < this._items.length; i++ ) {
             var item = this._items[i];
-            if ( item._value == value && item._selected == false ) {
-                this._items.splice ( i, 1 );
-                return true;
+            if ( item._value == value ) {
+                if (this._type == "choice" && !item._selected) {
+                    this._items.splice ( i, 1 );
+                    return true;
+                } else if (this._type == "multichoice") {
+                    this._items.splice ( i, 1 );
+                    for (var j = 0; item._selected && j < this._value.length; j++) {
+                        if (this._value[j] == value) {
+                            this._value.splice(j, 1);
+                            break;
+                        }
+                    }
+                    return true;
+                }
             }
         }
         return false;
@@ -502,7 +513,7 @@ return /** @lends libx.preferences */ {
     
         libx.prefs = new prefFactory["category"]({ _name: "prefs" }, "libx");
         libx.prefs._addCategory({ _name: "contextmenu", _layout: "tree" });
-        libx.prefs._addCategory({ _name: "libapps", _layout: "feeds" });
+        libx.prefs._addCategory({ _name: "libapps", _layout: "category" });
         libx.prefs.libapps._addPreference({ _name: "feeds", _type: "multichoice" });
                 
         /**

@@ -7,7 +7,9 @@
 !}
 
 <!-- tree.tmpl -->
-<li>{+templateScope.data.nodeLocale(data)+}
+<li>
+    <input type="checkbox"></input>
+    <label>{+templateScope.data.nodeLocale(data)+}</label>
     <ul>
         <for each="child" in="data._children">
             {!

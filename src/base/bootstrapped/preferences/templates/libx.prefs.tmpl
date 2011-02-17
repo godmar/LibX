@@ -19,10 +19,15 @@
 {BeginLocale=en_US}
     {
         "browser_tabname" :     { "message" : "Browser" },
+        "browser_tooltip" :     { "message" : "Preferences related to the browser interface" },
         "contextmenu_tabname" : { "message" : "Context Menu" },
+        "contextmenu_tooltip" : { "message" : "Change which search options appear when right-clicking on a page" },
         "libapps_tabname" :     { "message" : "Libapps" },
+        "libapps_tooltip" :     { "message" : "Add/remove packages and configure current libapps" },
         "developer_tabname" :   { "message" : "Developer" },
-        "about_tabname" :       { "message" : "About" }
+        "developer_tooltip" :   { "message" : "Cache and libapp information" },
+        "about_tabname" :       { "message" : "About" },
+        "about_tooltip" :       { "message" : "See the authors of LibX" }
     }
 {EndLocale}
 
@@ -30,32 +35,32 @@
     <ul>
     	<!-- Switched to specifically loading tabs to force an ordering -->
         <if test="libx.prefs.browser != null">
-	        <li>
+	        <li title="{L 'browser_tooltip' L}">
 	            <a href="#browser-maintab">
 	                <span>{L "browser_tabname" L}</span>
 	            </a>
 	        </li>
         </if>
         <if test="libx.prefs.contextmenu != null">
-	        <li>
+	        <li title="{L 'contextmenu_tooltip' L}">
 	            <a href="#contextmenu-maintab">
 	                <span>{L "contextmenu_tabname" L}</span>
 	            </a>
 	        </li>
         </if>
-        <li>
+        <li title="{L 'libapps_tooltip' L}">
             <a href="#libapps-maintab">
                 <span>{L "libapps_tabname" L}</span>
             </a>
         </li>
         <if test="(true || libx.utils.browserprefs.getBoolPref('libx.developer'))">
-	        <li>
+	        <li title="{L 'developer_tooltip' L}">
 	            <a href="#developer-maintab">
 	                <span>{L "developer_tabname" L}</span>
 	            </a>
 	        </li>
         </if>
-        <li>
+        <li title="{L 'about_tooltip' L}">
             <a href="#about-libx-maintab">
                 <span>{L "about_tabname" L}</span>
             </a>

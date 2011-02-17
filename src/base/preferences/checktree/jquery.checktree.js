@@ -205,6 +205,10 @@ jQuery.fn.checkTree = function(settings) {
             jQuery(this).children(".checkbox").remove();
             jQuery(this).children("label").remove();
             
+            // Don't show checkbox if one doesn't exist
+            if (!jQuery(this).children(":checkbox").length)
+                $checkbox = jQuery("<div class=\"uncheckable\"></div>");
+            
             // Prepend the new arrow, label, and checkbox images to the front of the LI
             jQuery(this)
                 .prepend($label)
@@ -215,7 +219,7 @@ jQuery.fn.checkTree = function(settings) {
         
         .find("label")
             // Clicking the labels should do the labelAction (either expand or check)
-            .click(function() {
+            .click(function(event) {
                 var action = settings.labelAction;
                 switch(settings.labelAction) {
                     case "expand":
@@ -225,7 +229,7 @@ jQuery.fn.checkTree = function(settings) {
                         jQuery(this).siblings(".checkbox").click();
                         break;
                     case "custom":
-                        settings.onLabelClick(jQuery(this).parent());
+                        settings.onLabelClick(event, jQuery(this).parent());
                         break;
                 }
             })

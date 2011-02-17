@@ -10,14 +10,14 @@ function doAutoSense(response) {
     $('<div><a href="#">Load this feed</a></div>')
         .appendTo(div)
         .click(function () {
-            libx.prefs.libapps.feeds._setValue([]); // clears selected feeds
+            libx.prefs.libapps.feeds._setValue([]); //BRN: won't work anymore; clears selected feeds
             libx.prefs.libapps.feeds._addItem({
                 _value: response.url,
                 _type: "string",
                 _selected: true
             });
             libx.preferences.save();
-            libx.libapp.loadLibapps(libx.edition);
+            libx.libapp.loadLibapps();
         });
     popup.addPageAction(div);
     

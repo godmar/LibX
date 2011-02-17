@@ -88,7 +88,7 @@
                             },
     "openurl_search_label": { "message": "Search $resolver$ for $searchstr$",
                               "placeholders": {
-                                "resolver":      { "content": "$1" },
+                                "resolver":     { "content": "$1" },
                                 "searchstr":    { "content": "$2" }
                               }
                             },
@@ -97,5 +97,10 @@
                                 "searchstr":    { "content": "$1" }
                               }
                             },
-    "enabled_contextmenu":  { "message": "Enable in context menu" }
+    "enabled_contextmenu":  { "message": "Enable in context menu" },
+    "enabled_option_contextmenu":  { "message": "Enable $option$ in context menu",
+                                     "placeholders": {
+                                       "option":   { "content": "$1" }
+                                     }
+                                   }
 }

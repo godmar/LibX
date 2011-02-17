@@ -121,6 +121,8 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 }
             });
         
+        if (!localizationfeeds.package.length)
+            localizationfeeds.package.push({ url: "$defaultpkgURL$" });
         for (var i = 0; i < localizationfeeds.package.length; i++) {
             var pkg = localizationfeeds.package[i];
             libx.prefs.libapps.feeds._addItem({

@@ -1,36 +1,92 @@
 {!
-    
-    /* Update context menu on changes */
-    $("#context-prefs .preference-checkbox").live("click", function () {
-        /* use this string to access index in libx.ui.contextMenu.items */
-        var idstr = libx.preferences.getByID(this.name)._idstr;
-        var items = libx.ui.contextMenu.items;
-        for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            if ("libx.prefs.contextmenu." + item.item.prefkey == idstr) {
-                libx.ui.contextMenu.update(item.id, {
-                    visible: this.checked
-                });
-                break;
+  
+    function savePref($el) {
+        var id = $el.children(":checkbox").attr("name");
+        var checked = $el.children(".checkbox").hasClass("checked");
+        var pref = libx.preferences.getByID(id);
+        if (!pref)
+            return;
+        if (pref._value != checked) {
+        
+            /* save enabled preference */
+            pref._setValue(checked);
+            libx.preferences.save();
+            
+            /* update context menu */
+            var idstr = libx.preferences.getByID(id)._idstr;
+            for (var i = 0; i < libx.ui.contextMenu.items.length; i++) {
+                var cmItem = libx.ui.contextMenu.items[i];
+                if ("libx.prefs.contextmenu." + cmItem.item.prefkey == idstr) {
+                    libx.ui.contextMenu.update(cmItem.id, { visible: checked });
+                    break;
+                }
             }
+            
         }
-    } );
+    }
     
-    /* required functions for the tree template */
-    var tmplData = {
-        nodeLocale: function (node) {
-            return node._name;
-        },
-        leafLocale: function (node) {
-            var name = node._name;
+    function getContextEntry(entry) {
+        var $li = $('<li>'
+                  + '  <input type="checkbox"></input>'
+                  + '  <label>' + entry._name + '</label>'
+                  + '  <ul></ul>'
+                  + '</li>');
+        for (var j = 0; j < entry._children.length; j++) {
+            var option = entry._children[j];
+            var name = option._name;
             if (name in libx.edition.searchoptions)
-                return libx.edition.searchoptions[name];
-            return libx.locale.defaultStringBundle.getProperty(name + "_contextmenu");
+                name = libx.locale.defaultStringBundle.getProperty("enabled_option_contextmenu", libx.edition.searchoptions[name]);
+            else
+                name = libx.locale.defaultStringBundle.getProperty(name + "_contextmenu");
+            
+            $( '<li>'
+            + '  <input type="checkbox" name="' + option._id + '" class="preference-checkbox" '
+            + (option._value ? 'checked="checked"' : '') + '/>'
+            + '  <label>' + name + '</label>'
+            + '</li>').appendTo($li.children("ul"));
+                      
         }
-    };
+        return $li;
+    }
+    
+    var $tree = $('<ul id="context-menu-tree" class="checktree"></ul>');
+    
+    function addEntryType(type) {
+    
+        /* add primary first */
+        $tree.append(getContextEntry(libx.prefs.contextmenu[libx.edition[type].primary.name]));
+        
+        for (var i = 0; i < libx.edition[type].length; i++) {
+            var aType = libx.edition[type][i];
+            var $entry = getContextEntry(libx.prefs.contextmenu[aType.name]);
+            if (aType != libx.edition[type].primary)
+                $tree.append($entry);
+        }
+    }
+    
+    addEntryType("catalogs");
+    addEntryType("openurl");
+    /* if Google Scholar not in edition catalogs, add it for Magic Search */
+    var googleInCatalogs = false;
+    for (var i = 0; i < libx.edition.catalogs.length; i++) {
+        if (libx.edition.catalogs[i].name == "Google Scholar") {
+            googleInCatalogs = true;
+            break;
+        }
+    }
+    if (!googleInCatalogs)
+        $tree.append(getContextEntry(libx.prefs.contextmenu["Google Scholar"]));
+    addEntryType("proxy");
+    
+    templateScope.queueFunction(function () {
+        $("#context-prefs").replaceWith($tree);
+        $tree.checkTree({
+            onCheck: savePref,
+            onUnCheck: savePref,
+            onHalfCheck: savePref
+        });
+    });
     
 !}
 
-<div id="context-prefs">
-    {P libx.prefs.contextmenu, null, tmplData P}
-</div>
+<div id="context-prefs"></div>

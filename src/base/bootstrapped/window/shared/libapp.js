@@ -10,19 +10,17 @@ libx.libapp.getStringBundle = function (url) {
 };
 
 var sbox = new libx.libapp.Sandbox(window, { libx: libx } );
-//BRN: change this
-var scriptBase = "http://libx2.cs.vt.edu/libx.org/libx2_feed/scripts/";
 
 /*
  * Aliases for scripts
  */
 var requireAlias = {
-    "jquery" : scriptBase + "jquery-latest.js",
-    "jgrowl" : scriptBase + "jquery.jgrowl.js",
-    "jgrowl.css" : scriptBase + "jquery.jgrowl.css",
-    "legacy-cues" : scriptBase + "legacy-cues.js",
-    "jquery-ui" : scriptBase + "jquery-ui.js",
-    "jquery-ui.css" : scriptBase + "theme/ui.all.css"
+    "jquery" : "jquery-latest.js",
+    "jgrowl" : "jquery.jgrowl.js",
+    "jgrowl.css" : "jquery.jgrowl.css",
+    "legacy-cues" : "legacy-cues.js",
+    "jquery-ui" : "jquery-ui.js",
+    "jquery-ui.css" : "theme/ui.all.css"
 };
 
 /*
@@ -86,9 +84,11 @@ var requireURL2Activity = { };
 var textExplorer = new libx.libapp.TextExplorer();
 
 var rootPackages = [];
-for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++)
-    if (libx.prefs.libapps.feeds._items[i]._selected)
-        rootPackages.push({ url: libx.prefs.libapps.feeds._items[i]._value });
+for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
+    var pkg = libx.prefs.libapps.feeds._items[i]._value;
+    if (libx.prefs[pkg] && libx.prefs[pkg]._enabled)
+        rootPackages.push({ url: pkg });
+}
     
 // This code recursively walks packages, executing all libapps.
 function processPackages(packages) {
@@ -203,7 +203,7 @@ function executeLibapp(libapp) {
         for (var k = 0; k < module.require.length; k++) {
             var rUrl = module.require[k];
             if (rUrl in requireAlias)
-                rUrl = requireAlias[rUrl];
+                rUrl = libx.locale.getLibappScriptURL(requireAlias[rUrl]);
 
             if (rUrl in requireURL2Activity)
                 continue;

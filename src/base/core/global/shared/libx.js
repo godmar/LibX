@@ -476,10 +476,6 @@ libx.buildDate = "$builddate$";
  */
 libx.initialize = function (loadContentScripts, loadGlobalScripts) 
 {
-    libx.initialize.loadContentScripts = loadContentScripts;
-    libx.initialize.loadGlobalScripts = loadGlobalScripts;
-    libx.locale.initialize();
-    libx.preferences.initialize();
     
     libx.initialize.reload = function () {
     
@@ -529,6 +525,11 @@ libx.initialize = function (loadContentScripts, loadGlobalScripts)
         }
     });
     
+    libx.initialize.loadContentScripts = loadContentScripts;
+    libx.initialize.loadGlobalScripts = loadGlobalScripts;
+    libx.locale.initialize();
+    libx.preferences.initialize();
+    
 }
 
 /**
@@ -564,12 +565,39 @@ libx.loadConfig = function (configUrl) {
                 new libx.events.Event("GlobalBootstrapDone")
             );
             
-            var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
-            edLoadedEvent.edition = edition;
-            edLoadedEvent.notify();
+            var convertChromeURLsQueue = new libx.utils.collections.ActivityQueue();
+            function chromeURL2DataURI(item) {
+                if (libx.edition.options[item] == null)
+                    return;
+                var activity = new libx.utils.collections.EmptyActivity();
+                convertChromeURLsQueue.scheduleLast(activity);
+                libx.utils.getEditionResource({
+                    url: libx.edition.options[item],
+                    success: function (dataURI) {
+                        libx.edition.options[item] = dataURI;
+                    },
+                    complete: function () {
+                        activity.markReady();
+                    }
+                });
+            }
+            chromeURL2DataURI("icon");
+            chromeURL2DataURI("cueicon");
+            chromeURL2DataURI("logo");
+            
+            var chromeURLsConverted = {
+                onready: function () {
+                    var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
+                    edLoadedEvent.edition = edition;
+                    edLoadedEvent.notify();
 
-            for (var i = 0; i < bootGlobalUrls.length; i++)
-                globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
+                    for (var i = 0; i < bootGlobalUrls.length; i++)
+                        globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
+                }
+            };
+            convertChromeURLsQueue.scheduleLast(chromeURLsConverted);
+            chromeURLsConverted.markReady();
+            
         }
     });
 }

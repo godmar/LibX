@@ -92,11 +92,7 @@ function process( aQueues, pref, layout, data ) {
     // libx.log.write ( "Processing div id=" + divID + " with template " + templateFile );
 
     var q = new libx.utils.collections.ActivityQueue();
-    var delayTemplateProcessing = {
-        onready: function () {
-            console.log("processing " + divID);
-        }
-    };
+    var delayTemplateProcessing = new libx.utils.collections.EmptyActivity();
     q.scheduleLast(delayTemplateProcessing);
     aQueues.push(delayTemplateProcessing);
     

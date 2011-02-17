@@ -11,7 +11,7 @@
 !}
 
 <!-- tree.tmpl -->
-<ul id="tree-{+data._id+}">
+<ul class="checktree" id="tree-{+data._id+}">
     <for each="child" in="data._children">
         {!
             var childProcessedActivity = new libx.utils.collections.EmptyActivity();
@@ -26,10 +26,24 @@
 
 {!
 
+    function savePref($el) {
+        var id = $el.children(":checkbox").attr("name");
+        var checked = $el.children(".checkbox").hasClass("checked");
+        var pref = libx.preferences.getByID(id);
+        if (!pref)
+            return;
+        if (pref._value != checked) {
+            pref._setValue(checked);
+            libx.preferences.save();
+        }
+    }
+
     var createTreeActivity = {
         onready: function (treeId) {
-            $("#tree-" + data._id).treeview({
-                collapsed: true
+            $("#tree-" + data._id).checkTree({
+                onCheck: savePref,
+                onUnCheck: savePref,
+                onHalfCheck: savePref
             });
         }
     };

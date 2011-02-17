@@ -7,10 +7,13 @@
      
 var divId = "builtin-" + data._id;
      
-libx.locale.getBundle( {
-    defaultLocale: "en_US",
-    url: libx.locale.getBootstrapURL("preferences/builtin/locales/$locale$/" + data._name + ".json"),
-    success: function ( stringBundle ) {
+var templateProcessedQueue = new libx.utils.collections.ActivityQueue();
+var blocker = new libx.utils.collections.EmptyActivity();
+templateProcessedQueue.scheduleLast(blocker);
+aQueues.push(blocker);
+
+var bundleReadyActivity = {
+    onready: function (stringBundle) {
         var tmplData = {
             getMessage: function (node) {
                 return stringBundle.getProperty(node._idstr.replace(data._idstr + ".", ""));
@@ -19,6 +22,15 @@ libx.locale.getBundle( {
         var aQueues = [];
         $("#" + divId).replaceWith(process(aQueues, data, null, tmplData));
         aQueues[0].markReady();
+    }
+};
+templateProcessedQueue.scheduleLast(bundleReadyActivity);
+     
+libx.locale.getBundle( {
+    defaultLocale: "en_US",
+    url: libx.locale.getBootstrapURL("preferences/builtin/locales/$locale$/" + data._name + ".json"),
+    success: function ( stringBundle ) {
+        bundleReadyActivity.markReady(stringBundle);
     }
 } );
      

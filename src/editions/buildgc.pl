@@ -5,6 +5,13 @@ use XML::LibXML;
 use HTML::Entities;
 use Cwd;
 
+# directory from which files will be bootstrapped
+my $bootstrap_url = "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/";
+# directory that contains required libapp scripts (such as jquery)
+my $libapp_script_url = "http://libx2.cs.vt.edu/libx.org/libx2_feed/scripts/";
+# default package url for editions that have none specified
+my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
+
 # directory to which built files are output
 my $fs_base_dir = "/home/www/libx.org/releases/";
 # URL at which build is accessible
@@ -66,6 +73,9 @@ while(-f $updatepath . "/" . ($crxfile = $crxname . ($dailyrev ? "-" . $dailyrev
 $conf{'libxversion'} = "2.0." . int(time/86400) . "." . $dailyrev;
 $conf{'emupdateURL'} = $publish_base_url . "gc/updates.xml";
 $conf{'crxlocation'} = $publish_base_url . "gc/$crxfile";
+$conf{'bootstrapURL'} = $bootstrap_url;
+$conf{'libappscriptURL'} = $libapp_script_url;
+$conf{'defaultpkgURL'} = $default_package_url;
 #######################################################
 
 #

@@ -97,8 +97,11 @@ return /** @lends libx.locale */ {
     },
     
     getBootstrapURL: function (path) {
-        //BRN: change this
-        return "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/" + path;
+        return "$bootstrapURL$" + path;
+    },
+    
+    getLibappScriptURL: function (path) {
+        return "$libappscriptURL$" + path;
     },
     
 	/**
@@ -109,6 +112,7 @@ return /** @lends libx.locale */ {
      *      2) If the user's preferred locale has a region (that is, the locale has an underscore: _),
      *         search the locale without that region. For example, if the en_GB messages file doesn't exist
      *         or doesn't contain the message, the system looks in the en messages file.
+     *      ** NOTE: to save an extra XHR, (2) is not done since it is unlikely we will ever use this.
      *      3) Use the locale specified in defaultLocale. For example, if defaultLocale is set to "es",
      *         and neither the en_GB nor en versions of the URL contain the message, es is searched.
 	 *	@param {Object} object parameter that contains the following:
@@ -128,20 +132,22 @@ return /** @lends libx.locale */ {
     getBundle: function (params) {
         
         var localesToFind = [];
-        
-        // add locale to lookup list only if it isn't already in list
+
+        // add default locale if it is not already in list
         function addLocale(locale) {
-            for (var i = 0; i < localesToFind.length; i++) {
+            for (var i = 0; i < localesToFind.length; i++)
                 if (localesToFind[i] == locale)
                     return;
-            }
             localesToFind.push(locale);
         }
         
         addLocale(libx.locale.bd.currentLocale);
         var regionSeparatorPos = libx.locale.bd.currentLocale.indexOf('_')
-        if (regionSeparatorPos != -1)
-            addLocale(libx.locale.bd.currentLocale.substr(0, regionSeparatorPos));
+        
+        // uncomment this to enable option (2) described above
+        //if (regionSeparatorPos != -1)
+        //    addLocale(libx.locale.bd.currentLocale.substr(0, regionSeparatorPos));
+        
         if (params.defaultLocale)
             addLocale(params.defaultLocale);
         

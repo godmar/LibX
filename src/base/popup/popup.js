@@ -480,12 +480,7 @@ return {
 
         // load edition image
         var image = $('.edition-image');
-        libx.utils.getEditionResource({
-            url: libx.edition.options.logo,
-            success: function (data) {
-                image.attr('src', data);
-            }
-        });
+        image.attr('src', libx.edition.options.logo);
         image.load(function() {
             // reset image width/height if changing edition image
             image.width('');

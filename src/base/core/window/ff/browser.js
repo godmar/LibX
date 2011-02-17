@@ -132,12 +132,7 @@ return {
                 
             }
             
-            libx.utils.getEditionResource({
-                url: edition.options.icon,
-                success: function (data) {
-                    document.getElementById('libx-button').image = data;
-                }
-            });
+            document.getElementById("libx-button").image = edition.options.icon;
             
         }
         

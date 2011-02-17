@@ -20,7 +20,7 @@
 {EndLocale}
 
 <div style="float:right">
-    <img id="edition-image"/>
+    <img src="{+ libx.edition.options.logo +}"/>
     <h2>{+libx.edition.name.long+}</h2>
     <!-- Adapted -->
     <h3>{L "adaptedby" L}</h3>
@@ -45,16 +45,3 @@
 <center>
 <a style="float:center" href="http://www.libx.org">{L "homepage" L}</a>
 </center>
-
-{!
-
-templateScope.queueFunction(function () {
-    libx.utils.getEditionResource({
-        url: libx.edition.options.logo,
-        success: function (dataUri) {
-            $("#edition-image").attr("src", dataUri);
-        }
-    });
-});
-
-!}
