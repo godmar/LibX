@@ -399,7 +399,8 @@ return {
                 dropdown_items: optionsMap,
                 field: link,
                 select: function(key, val) {
-                    fullSelectedOptions[fullSelectedOptions.length-1] = key;
+                    var idx = $("#full-search-fields a").index(link);
+                    fullSelectedOptions[idx] = key;
                 }
             });
             
