@@ -62,8 +62,11 @@ var imported = {};
                 
                 var argsArray = [].slice.call(arguments);
                 var returnFunc = null;
-                if (options.returns)
+                if (options.returns) {
                     returnFunc = argsArray.pop();
+                    if (typeof returnFunc != "function")
+                        libx.log.write("Error: in magicImport, callback expected for return value");
+                }
                 var requestObj = serialize(argsArray, window);
                 
                 var request = {
@@ -105,7 +108,8 @@ var imported = {};
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
     libxTemp.magicImport('libx.cache.defaultObjectCache.get');
     libxTemp.magicImport('libx.cache.defaultMemoryCache.get');
-    libxTemp.magicImport('libx.preferences.initialize', { returns: true, namespace: imported });
+    libxTemp.magicImport('libx.preferences.initialize', { namespace: imported });
+    libxTemp.magicImport('libx.libapp.loadLibapps');
 
     libx.libappdata = {};
 
