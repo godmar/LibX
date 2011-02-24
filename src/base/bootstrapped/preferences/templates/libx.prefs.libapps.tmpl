@@ -1,7 +1,7 @@
 
 {BeginLocale=en_US}
     {
-        "package_add": { "message": "Add a new package:" },
+        "package_add": { "message": "Subscribe to a package:" },
         "package_whatis": { "message" : "What is a package?"},
         "package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." }
     }
@@ -144,7 +144,7 @@ processCheckTree = {
                     libx.libapp.loadLibapps(feed, function () {
                         libx.prefs.libapps.feeds._addItem({
                                 _value: feed,
-                                _selected: false,
+                                _selected: true,
                                 _type: "string"
                             });
                         libx.preferences.save();

@@ -110,6 +110,9 @@ var imported = {};
     libxTemp.magicImport('libx.cache.defaultMemoryCache.get');
     libxTemp.magicImport('libx.preferences.initialize', { namespace: imported });
     libxTemp.magicImport('libx.libapp.loadLibapps');
+    libxTemp.magicImport('libx.libapp.getEnabledPackages', { returns: true, namespace: imported } );
+    libxTemp.magicImport('libx.libapp.addTempPackage' );
+    libxTemp.magicImport('libx.libapp.clearTempPackages' );
 
     libx.libappdata = {};
 
@@ -148,6 +151,14 @@ var imported = {};
                     }
                 });
             }
+            
+            var blockUntilEnabledPackagesReceived = new libx.utils.collections.EmptyActivity();
+            windowBootStrapper.scriptQueue.scheduleFirst(blockUntilEnabledPackagesReceived);
+            
+            imported.libx.libapp.getEnabledPackages(function (packages) {
+                libx.libapp.getEnabledPackages = function () { return packages };
+                blockUntilEnabledPackagesReceived.markReady();
+            });
             
             for (var i = 0; i < bootWindowUrls.length; i++)
                 windowBootStrapper.loadScript(bootWindowUrls[i].url, true, {

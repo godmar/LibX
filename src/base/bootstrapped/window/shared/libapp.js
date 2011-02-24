@@ -82,13 +82,6 @@ var cachedTextTransformerModuleQueue = new libx.utils.collections.ActivityQueue(
 var requireURL2Activity = { };
 
 var textExplorer = new libx.libapp.TextExplorer();
-
-var rootPackages = [];
-for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
-    var pkg = libx.prefs.libapps.feeds._items[i]._value;
-    if (libx.prefs[pkg] && libx.prefs[pkg]._enabled)
-        rootPackages.push({ url: pkg });
-}
     
 // This code recursively walks packages, executing all libapps.
 function processPackages(packages) {
@@ -122,7 +115,8 @@ function processPackages(packages) {
     }
 
 }
-processPackages(rootPackages);
+
+processPackages(libx.libapp.getEnabledPackages());
 
 var traverseTextActivity = {
     onready: function () {

@@ -5,6 +5,39 @@
  
 (function () {
 
+var tmpPackages = [];
+
+libx.libapp.clearTempPackages = function () {
+    tmpPackages = [];
+};
+
+libx.libapp.addTempPackage = function (permUrl, tempUrl) {
+    for (var i = 0; i < tmpPackages.length; i++) {
+        // disallow duplicates
+        if (tmpPackages[i].tempUrl == tempUrl)
+            return;
+    }
+    tmpPackages.push({ permUrl: permUrl, tempUrl: tempUrl });
+};
+
+libx.libapp.getEnabledPackages = function () {
+    var packages = [];
+    for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
+        var pkg = libx.prefs.libapps.feeds._items[i]._value;
+        if (libx.prefs[pkg] && libx.prefs[pkg]._enabled._value) {
+            var disabled = false;
+            for (var j = 0; j < tmpPackages.length; j++)
+                if (tmpPackages[j].permUrl == pkg)
+                    disabled = true;
+            if (!disabled)
+                packages.push({ url: pkg });
+        }
+    }
+    for (var i = 0; i < tmpPackages.length; i++)
+        packages.push({ url: tmpPackages[i].tempUrl });
+    return packages;
+};
+
 // This code loads preferences associated with each entry in the user's
 // subscribed packages.  It also adds the "_enabled" preference to each
 // package/libapp.
@@ -32,6 +65,8 @@ libx.libapp.loadLibapps = function (feed, callback) {
                             value: "true"
                         }]);
                     
+                        libx.log.write("registered package: " + pkg.description + " (" + pkg.id + ")", "libapp");
+                    
                         scheduledWalk(pkg.entries);
                         blocker.markReady();
                     },
@@ -48,7 +83,7 @@ libx.libapp.loadLibapps = function (feed, callback) {
                             libx.preferences.loadXML(libapp.preferences, { base: "libx.prefs" });
                         }
                     
-                        libx.log.write("registered libapp: " + libapp.description, "libapp");
+                        libx.log.write("registered libapp: " + libapp.description + " (" + libapp.id + ")", "libapp");
                         
                         scheduledWalk(libapp.entries);
                         blocker.markReady();

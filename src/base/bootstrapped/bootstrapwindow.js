@@ -5,6 +5,7 @@
 libx.log.write("bootstrapping per-window libx from: " + bootStrapper.baseURL);
 var files = [
     "window/shared/libapp.js",
+    "window/shared/autosense.js"
 ];
 
 for (var i = 0; i < files.length; i++) {
