@@ -129,7 +129,7 @@ function formatSummonResult($p, i, d)
         addIf('PublicationYear');
     } else {
         if ('PublicationDate' in d)
-            add(w(d.PublicationDate).substring(0, 4));
+            add(w(d.PublicationDate).replace(/^c/, "").substring(0, 4));
         /* else? */
     }
 
