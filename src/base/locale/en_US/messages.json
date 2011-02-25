@@ -24,6 +24,7 @@
     "load_link":            { "message": "Load this edition" },
     "load_cancel":          { "message": "Cancel" },
     "button_search":        { "message": "Search" },
+    "button_preview":       { "message": "Preview" },
     "button_clear":         { "message": "Reset fields" },
     "update_message1":      { "message": "The currently active LibX configuration is \"$name$\", revision $revision$ (id: $edition$).",
                               "placeholders": {

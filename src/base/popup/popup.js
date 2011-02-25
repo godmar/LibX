@@ -1,7 +1,187 @@
 
 var popup = (function() {
     
+/* Temporary types */
+var docTypeIcons = {
+    "Architectual Drawing": { },
+    "Archival Material": { },
+    "Atlas": { },
+    "Audio Recording": { },
+    "Audio Tape": { },
+    "Book": { image: "Book.png" },
+    "Book Chapter": { },
+    "Book Review": { },
+    "Compact Disc": { image: "CompactDisc.png" },
+    "Computer File": { },
+    "Course Reading": { },
+    "Conference Proceeding": { image: "ConferenceProceedings.png" },
+    "eBook": { },
+    "eJournal": { },
+    "Film": { },
+    "Globe": { },
+    "Government Document": { },
+    "Image": { image: "Image.png" },
+    "Journal": { image: "JournalArticle.png" },
+    "Journal Article": { image: "JournalArticle.png" },
+    "Kit": { },
+    "Manuscript": { },
+    "Map": { image: "Map.png" },
+    "Microform": { },
+    "Microfilm": { },
+    "Music Score": { image: "MusicScore.png" },
+    "Music Manuscript": { },
+    "Music Recording": { },
+    "Newspaper": { image: "Newspaper.png" },
+    "Newspaper Article": { image: "Newspaper.png" },
+    "Photograph": { },
+    "Poster": { },
+    "Realia":  { },
+    "Sheet Music": { },
+    "Special Collection": { },
+    "Spoken Word Recording": { },
+    "Dissertation": { image: "Thesis.png" },
+    "Thesis": { image: "Thesis.png" },  /* ??? */
+    "Video Recording": { image: "VideoRecording.png" },
+    "Web Resource": { image: "Internet.png" },
+    "DVD": { image: "DVD.png" }
+};
+
+/* Format a single line of a Summon result */
+function formatSummonResult($p, i, d) 
+{
+    function join(arr, max, replacewith) {
+        if (arr == undefined)
+            return;
+
+        var f = "";
+        $.each(arr, function (idx, el) {
+            if (idx > max) {
+                f += replacewith;
+                replacewith = "";
+            } else {
+                if (idx > 0) f += ", ";
+                f += el;
+            }
+        });
+        return f;
+    }
+
+    var s = '<div style="clear: both">';
+    var sep = "";
+    function add(what) {
+        if (what != undefined) {
+            s += sep + what;
+            sep = ", ";
+        }
+    }
+
+    function addIf(prop, before, after) {
+        if (!(prop in d))
+            return;
+
+        if (before != undefined)
+            s += before;
+        switch (typeof d[prop]) {
+        case "boolean": 
+            break;
+        case "string":
+            break;
+        case "object":
+            if (d[prop] instanceof Array) {
+                s += d[prop][0];
+            }
+        }
+        if (after != undefined)
+            s += after;
+    }
+
+    /* Content Type */
+    var ctype = d.ContentType[0];
+    if (!(ctype in docTypeIcons && 'image' in docTypeIcons[ctype])) {
+        var imgFile = "Generic.png";
+    } else {
+        var imgFile = docTypeIcons[ctype].image;
+    }
+    s += '<img title="' + ctype + '" style="float: left; padding: 2px" src="ctimages/' 
+            + imgFile + '"></img>';
+
+    function w(f) {
+        if (f != undefined)
+            return f[0];
+    }
+    /* strip HTML tags */
+    function strip(s) {
+        return s.replace(/<[^>]*>/g, "");
+    }
+
+    var title = w(d.Title);
+
+    // what kind of hodgepodge is Summon sending?
+    var uri = w(d.uri) || w(d.URI) || w(d.url);
+    if (uri)
+        title = '<a target="_new" title="' + uri + '" href="' + uri + '">' + title + '</a>';
+
+    add(title);
+    add(join(d.Author, 3, " et al"));
+
+    /* do date - it's complicated, either PublicationDate, or PublicationDate_xml */
+    if ('PublicationYear' in d) {
+        addIf('PublicationYear');
+    } else {
+        if ('PublicationDate' in d)
+            add(w(d.PublicationDate).substring(0, 4));
+        /* else? */
+    }
+
+    switch (ctype) {
+    case "Journal Article":
+    case "Newspaper Article":
+    case "Book Chapter":
+        addIf('PublicationTitle', ' ', '.');
+        addIf('NewspaperSection', ' ');
+        addIf('Volume', ' ');
+        addIf('Issue', '(', ')');
+        addIf('Number', ':');
+        addIf('StartPage', ', ');
+        break;
+    }
+
+    add(' ');
+    addIf('Abstract', '<span title="', '"> (Abstract)</span> ');    // i18n
+
+    var $openUrlLink = "<span></span>";
+    if ('openUrl' in d && libx.edition.openurl.primary) {
+        var resolver = libx.edition.openurl.primary;
+        var openurl = resolver.completeOpenURL(d.openUrl);
+        if (false) {    // use openurl image
+            var image = resolver.image || libx.edition.options.icon;
+            $openUrlLink = $('<a target="_new" href="' + openurl + '">' 
+                + '<img height="16px" title="Retrieve via ' + resolver.name + '"></img>'    // i18n
+                + '</a>');
+
+            libx.utils.getEditionResource({
+                url: image,
+                success: function (data) {
+                    $openUrlLink.find('img').attr('src', data);
+                }
+            });
+        } else {    // use openurl name
+            $openUrlLink = $('&nbsp;<a target="_new" href="' + openurl + '"' 
+                + ' title="Retrieve via ' + resolver.name + '">'  + resolver.name + '</a>');    // i18n
+        }
+    }
+    s += "</div>";
+    var $s = $(s);
+    $s.append($openUrlLink);
+    $p.append($s);
+    $p.append('<div style="clear: both; border-style: none none dotted none; border-bottom: 1px dotted #808080;"></div>');
+}
+    
 $(function() {
+    /* Expandable class that toggles its right sibling. */
+    $('.expandable').live('click', function () {
+        $(this).next().toggle();
+    });
     
     popup.initialize();
 
@@ -40,6 +220,17 @@ function focus(node) {
     setTimeout(function() {
         node.focus();
     }, 100);
+}
+
+function getSearchParamsFromInputField() {
+    var searchParams = [];
+    $('#full-search-fields input').each(function(i) {
+        searchParams.push({
+            searchType: fullSelectedOptions[i],
+            searchTerms: $(this).val()
+        });
+    });
+    return searchParams;
 }
 
 return {
@@ -165,14 +356,7 @@ return {
         
         // attach full search event
         $('#search-view form').submit(function() {
-            var searchParams = [];
-            $('#full-search-fields input').each(function(i) {
-                searchParams.push({
-                    searchType: fullSelectedOptions[i],
-                    searchTerms: $(this).val()
-                });
-            });
-            doSearch(searchParams);
+            doSearch(getSearchParamsFromInputField());
         });
         
         // attach simple search event
@@ -353,6 +537,12 @@ return {
                         + '<td><div class="search-close disabled"></div></td>'
                         + '</tr>');
             
+            field.find('input.search-field').keyup(function (e) {
+                if (e.keyCode == 13 && (e.ctrlKey || e.shiftKey)) {
+                    $('#preview-button').trigger('click');
+                }
+            });
+
             field
                 .appendTo($("#full-search-fields"))
                 .find(".search-add").click(function () {
@@ -429,6 +619,28 @@ return {
             }
         }
         
+        var catalogNo = index;
+        var catalog = libx.edition.catalogs[catalogNo];
+        var havePreview = 'summonproxyurl' in catalog;
+        $('#preview-button').toggle(havePreview).click(function () {
+            var directSearchUrl = catalog.search(getSearchParamsFromInputField());
+            var queryString = directSearchUrl.replace(/^.*\?/, "");
+            var previewServer = libx.edition.catalogs[catalogNo].summonproxyurl;
+            var $lastInput = $('#full-search-fields input:last');
+            $lastInput.addClass("searchLoading");
+
+            $.getJSON(previewServer + "?" + queryString, function (data) {
+                $lastInput.removeClass("searchLoading");
+                // alert("got: " + libx.utils.json.stringify(data));
+                var $p = $('#preview-results-div');
+                $p.empty();
+                $p.append("<p>Found " + data.recordCount + " results in " + data.queryTime + "ms.</p>");    // XXX i18n
+
+                $.each(data.documents, function (idx, el) {
+                    formatSummonResult($p, idx, el);
+                });
+            });
+        });
     },
     
     /* Load the edition into the popup. */

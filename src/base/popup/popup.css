@@ -185,7 +185,7 @@ ul {
     padding-bottom: 10px;
 }
 
-#search-view input[type="reset"], input[type="submit"] {
+#search-view input[type="reset"], input[type="submit"], input[type="button"] {
     float: right;
     padding: 5px 15px;
 }
@@ -337,3 +337,10 @@ ul {
 .search-close.disabled {
     background-image:none;
 }
+
+/* circling icon when a search is underway. */
+.searchLoading {
+    background:window url("indicator.gif") no-repeat scroll right center !important;
+    color: black;
+}
+
