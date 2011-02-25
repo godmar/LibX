@@ -24,7 +24,7 @@ var imported = {};
         },
         
         sendRequest: function (request, callback) {
-            chrome.extension.sendRequest(request, callback);
+            chrome.extension.sendRequest.apply(this, arguments);
         },
         
         magicImport: function(str, options) {
