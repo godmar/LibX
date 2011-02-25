@@ -84,39 +84,39 @@ var requireURL2Activity = { };
 var textExplorer = new libx.libapp.TextExplorer();
     
 // This code recursively walks packages, executing all libapps.
-function processPackages(packages) {
+function processEntries(entries, parentPkg) {
 
-    for (var i = 0; i < packages.length; i++) {
+    for (var i = 0; i < entries.length; i++) {
         
-        // this activity is used to block traverseTextActivity (below)
-        // until every module in every libapp has been added to the queue
-        var activity = new libx.utils.collections.EmptyActivity();
-        cachedTextTransformerModuleQueue.scheduleFirst(activity);
+        (function (entry) {
         
-        (function (activity) {
+            // this activity is used to block traverseTextActivity (below)
+            // until every module in every libapp has been added to the queue
+            var activity = new libx.utils.collections.EmptyActivity();
+            cachedTextTransformerModuleQueue.scheduleFirst(activity);
         
-            new libx.libapp.PackageWalker(packages[i].url).walk({
+            new libx.libapp.PackageWalker(entry.url).walk({
                 onpackage: function (pkg) {
                     if (libx.prefs[pkg.id]._enabled._value)
-                        processPackages(pkg.entries);
+                        processEntries(pkg.entries, pkg);
                     // all subpackages have been queued
                     activity.markReady();
                 },
                 onlibapp: function (libapp) {
                     if (libx.prefs[libapp.id]._enabled._value)
-                        executeLibapp(libapp);
+                        executeLibapp(libapp, entry.args);
                     // all modules in this libapp have been queued
                     // since this libapp has been executed
                     activity.markReady();
                 }
             }, activity);
             
-        }) (activity);
+        }) (entries[i]);
     }
 
 }
 
-processPackages(libx.libapp.getEnabledPackages());
+processEntries(libx.libapp.getEnabledPackages());
 
 var traverseTextActivity = {
     onready: function () {
@@ -143,7 +143,7 @@ function prepLibappOrModule(libapp) {
 
 // function ends here.  Modules and libapps will continue executing asynchronously.
 
-function executeLibapp(libapp) {
+function executeLibapp(libapp, pkgArgs) {
     // alert("executing: " + libx.utils.json.stringify(libapp));
     prepLibappOrModule(libapp);
 
@@ -159,28 +159,30 @@ function executeLibapp(libapp) {
     log("include/exclude check complete, executing libapp: " + libapp.description);
     var libappSpace = new libx.libapp.TupleSpace();
     libappSpace.description = libapp.description;
-
+    
     for (var i = 0; i < libapp.entries.length; i++) {
     
-        // activity to block the text transformers.  if the module is in the
-        // cache, the module is added to the list of transformers.  
-        // if it is not in the cache, the transformation will not occur until
-        // the page is reloaded.
-        var moduleFinishedActivity = new libx.utils.collections.EmptyActivity();
-        cachedTextTransformerModuleQueue.scheduleFirst(moduleFinishedActivity);
-        
-        (function (activity) {
-            new libx.libapp.PackageWalker(libapp.entries[i].url).walk({
+        (function (entry) {
+    
+            // activity to block the text transformers.  if the module is in the
+            // cache, the module is added to the list of transformers.  
+            // if it is not in the cache, the transformation will not occur until
+            // the page is reloaded.
+            var moduleFinishedActivity = new libx.utils.collections.EmptyActivity();
+            cachedTextTransformerModuleQueue.scheduleFirst(moduleFinishedActivity);
+            
+            new libx.libapp.PackageWalker(entry.url).walk({
                 onmodule: function (module) {
                     if (module.regexptexttransformer.length == 0)
-                        activity.markReady();
-                    executeModule(module, activity);
+                        moduleFinishedActivity.markReady();
+                    executeModule(module, pkgArgs, entry.args, moduleFinishedActivity);
                 }
-            }, activity);
-        }) (moduleFinishedActivity);
+            }, moduleFinishedActivity);
+            
+        }) (libapp.entries[i]);
     }
     
-    function executeModule(module, moduleFinishedActivity) {
+    function executeModule(module, pkgArgs, libappArgs, moduleFinishedActivity) {
 
         prepLibappOrModule(module);
         var executeModule = checkIncludesExcludes(module, window.location.href);
@@ -215,7 +217,7 @@ function executeLibapp(libapp) {
                         var heads = doc.getElementsByTagName('head');
                         var sheet = doc.createElement('style');
                         sheet.setAttribute('type', 'text/css');
-                        sheet.innerText = scriptText;
+                        sheet.innerHTML = scriptText;
                         log("injecting stylesheet: " + metadata.originURL);
                         heads[0].appendChild(sheet);
                     }
@@ -242,17 +244,15 @@ function executeLibapp(libapp) {
           + "libx.space = libx.libappdata.space;\n";
         
         //TODO: type checking
-        //TODO: support {var} notation
         var setupArgs = "";
-        for ( var i = 0; i < libapp.entries.length; i++ ) {
-            if ( libapp.entries[i].url == module.id ) {
-                var args = libapp.entries[i].args;
-                if ( args ) {
-                    for ( var arg in args ) {
-                        setupArgs += "var " + arg + " = \"" + args[arg].value + "\";\n";
-                    }
+        if (libappArgs) {
+            for (var arg in libappArgs) {
+                var value = libappArgs[arg].value;
+                if (pkgArgs) {
+                    for (var pkgArg in pkgArgs)
+                        value = value.replace("{" + pkgArg + "}", pkgArgs[pkgArg].value);
                 }
-                break;
+                setupArgs += "var " + arg + " = \"" + value + "\";\n";
             }
         }
           
