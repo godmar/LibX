@@ -537,9 +537,10 @@ return {
                         + '<td><div class="search-close disabled"></div></td>'
                         + '</tr>');
             
-            field.find('input.search-field').keyup(function (e) {
+            field.find('input.search-field').keypress(function (e) {
                 if (e.keyCode == 13 && (e.ctrlKey || e.shiftKey)) {
                     $('#preview-button').trigger('click');
+                    return false;
                 }
             });
 
