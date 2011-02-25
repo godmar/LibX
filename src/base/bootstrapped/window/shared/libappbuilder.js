@@ -6,10 +6,17 @@ $(function () {
 
     // attach handler to cache clear button
     $('#clearCacheButton').live('click', function() {
+    
+        // show success button
+        var $this = $(this);
+        var $success = $('<button style="font-size: 0.8em; font-weight: bold; color: green;" disabled="disabled">Changes Downloaded!</button>');
+        $this.replaceWith($success);
+        setTimeout(function () {
+            $success.replaceWith($this);
+        }, 2000);
+    
         libxTemp.sendRequest({
             type: "clearCache"
-        }, function (response) {
-            alert("got " + response);
         });
     });
 
