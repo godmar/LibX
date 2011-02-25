@@ -152,20 +152,39 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                             popupWindow.innerWidth = width;
                             popupWindow.innerHeight = height;
                                 
+                            // screenX and screenY specify the coordinates of the
+                            // top left corner of the popup
                             var buttonBox = document.getElementById('libx-button').boxObject;
                             var screenX = buttonBox.screenX - popupWindow.outerWidth + buttonBox.width;
                             var screenY = buttonBox.screenY + buttonBox.height;
         
-                            // readjust popup position if it goes off the screen
-                            if(screenX < 0)
+                            // readjust popup position if it goes off the screen to the left
+                            if (screenX < 0)
                                 screenX = 0;
-                            if(screenY > screen.height - popupWindow.outerHeight)
-                                screenY = buttonBox.screenY - popupWindow.outerHeight;
+                                
+                            // if the popup is too long, shorten it and add scrolling
+                            iframe.style.overflow = "hidden";
+                            if (screenY > screen.height - popupWindow.outerHeight - 50) {
+                                setTimeout(function() {
+                                    height = screen.height - screenY - 50;
+                                    iframe.style.height = height +'px';
+                                    popupWindow.innerHeight = height;
+                                    libx.log.write("adjusted height: " + height);
+                                    iframe.style.overflow = "visible";
+                                }, 100);
+                            }
             
                             popupWindow.moveTo(screenX, screenY);
                         }
                         
-                        $('body').bind('DOMSubtreeModified', adjustPopupPosition);
+                        $('body').bind('DOMSubtreeModified', function () {
+                            adjustPopupPosition();
+                            // sometimes doesn't work, adjust again after a delay
+                            // to ensure correct positioning
+                            setTimeout(function() {
+                                adjustPopupPosition();
+                            }, 100);
+                        });
                         
                         // this timeout fixes a layout bug where the border for the change edition view
                         // is not set correctly
