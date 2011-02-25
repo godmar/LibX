@@ -23,6 +23,10 @@ var imported = {};
             chrome.extension.onRequest.addListener(listener);
         },
         
+        sendRequest: function (request, callback) {
+            chrome.extension.sendRequest(request, callback);
+        },
+        
         magicImport: function(str, options) {
         
             if (typeof(options) == "undefined")

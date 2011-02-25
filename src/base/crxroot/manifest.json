@@ -74,13 +74,7 @@
             
             "core/window/gc/window.js"
         ]
-    },
-    {
-        //BRN: change this URL after the builder is updated on libx.org
-        "matches": [ "http://top.cs.vt.edu/*/libappbuilder.zul" ],
-        "js": [ "core/window/shared/libappbuilder.js" ]
-    }
-    ],
+    }],
     "permissions": [
         "tabs",
         "contextMenus",

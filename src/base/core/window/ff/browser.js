@@ -172,6 +172,15 @@ return {
                                     });
                                 }
                             }, e.window, e.window);
+                        },
+                        sendRequest: function (request, callback) {
+                            var reqStr = libx.utils.json.stringify(request);
+                            new libx.events.Event('RequestFromContentScript').notify(reqStr, null, function (response) {
+                                if (callback) {
+                                    var resObj = libx.utils.json.parse(response);
+                                    callback(resObj);
+                                }
+                            });
                         }
                     }
                 };

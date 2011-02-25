@@ -87,8 +87,9 @@ function loadLibX() {
         "shared/utils/geteditionresource.js",
         "shared/ui.js",
         "shared/ui/contextmenu.js",
-        "ff/ui.js"
-        
+        "ff/ui.js",
+        "ff/extension.js",
+        "shared/backgroundlisteners.js"
     ];
     
     for (var i = 0; i < globalScripts.length; i++) {
