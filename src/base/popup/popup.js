@@ -117,7 +117,7 @@ function formatSummonResult($p, i, d)
     var title = w(d.Title);
 
     // what kind of hodgepodge is Summon sending?
-    var uri = w(d.uri) || w(d.URI) || w(d.url);
+    var uri = w(d.url) || w(d.uri) || w(d.URI);
     if (uri)
         title = '<a target="_new" title="' + uri + '" href="' + uri + '">' + title + '</a>';
 
