@@ -154,8 +154,9 @@ function formatSummonResult($p, i, d)
     case "Newspaper Article":
     case "Book Chapter":
         var ititle = "";
-        if ('ISSN' in d)
+        if ('ISSN' in d) {
             ititle = "ISSN: " + w(d.ISSN);
+        }
         if ('ISBN' in d)
             ititle = "ISBN: " + w(d.ISBN);
 
@@ -167,7 +168,7 @@ function formatSummonResult($p, i, d)
         if (isPeerReviewed)
             ititle += " (PeerReviewed)";
 
-        addIf('PublicationTitle', ' <i title=' + ititle + '>', '</i>.');
+        addIf('PublicationTitle', ' <i title="' + ititle + '">', '</i>.');
         addIf('NewspaperSection', ' ');
         addIf('Volume', ' ');
         addIf('Issue', '(', ')');
@@ -178,11 +179,6 @@ function formatSummonResult($p, i, d)
 
     add(' ');
     addIf('Abstract', '<span title="', '"> (Abstract)</span> ');    // i18n
-
-    if ('Language' in d) {
-        if (w(d.Language) != "English")
-            addIf('Language', ' ');
-    }
 
     var $openUrlLink = "<span></span>";
     if ('openUrl' in d && libx.edition.openurl.primary) {
