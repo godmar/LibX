@@ -103,7 +103,14 @@ function processEntries(entries, parentPkg) {
                     activity.markReady();
                 },
                 onlibapp: function (libapp) {
-                    if (libx.prefs[libapp.id]._enabled._value)
+                    
+                    var cat = libx.prefs.getCategoryForUrl(libapp.id, [{
+                        name: "_enabled",
+                        type: "boolean",
+                        value: "true"
+                    }]);
+                    
+                    if (cat._enabled._value)
                         executeLibapp(libapp, entry.args);
                     // all modules in this libapp have been queued
                     // since this libapp has been executed

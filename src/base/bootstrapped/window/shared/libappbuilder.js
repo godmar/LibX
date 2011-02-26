@@ -2,7 +2,9 @@
 // BRN: limit this to run only on libapp builder
 if (typeof jQuery != "undefined") {
     
-$(function () {
+jQuery(function () {
+
+    var $ = jQuery;
 
     // attach handler to cache clear button
     $('#clearCacheButton').live('click', function() {

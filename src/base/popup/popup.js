@@ -119,7 +119,7 @@ function formatSummonResult($p, i, d)
     // what kind of hodgepodge is Summon sending?
     var uri = d.url || w(d.uri) || w(d.URI);
     if (uri)
-        title = '<a target="_new" title="' + uri + '" href="' + uri + '">' + title + '</a>';
+        title = '<a title="' + uri + '" href="' + uri + '">' + title + '</a>';
 
     add(title);
     add(join(d.Author, 3, " et al"));
@@ -190,7 +190,7 @@ function formatSummonResult($p, i, d)
         var openurl = resolver.completeOpenURL(d.openUrl);
         if (false) {    // use openurl image
             var image = resolver.image || libx.edition.options.icon;
-            $openUrlLink = $('<a target="_new" href="' + openurl + '">' 
+            $openUrlLink = $('<a href="' + openurl + '">' 
                 + '<img height="16px" title="Retrieve via ' + resolver.name + '"></img>'    // i18n
                 + '</a>');
 
@@ -201,7 +201,7 @@ function formatSummonResult($p, i, d)
                 }
             });
         } else {    // use openurl name
-            $openUrlLink = $('&nbsp;<a target="_new" href="' + openurl + '"' 
+            $openUrlLink = $('&nbsp;<a href="' + openurl + '"' 
                 + ' title="Retrieve via ' + resolver.name + '">'  + resolver.name + '</a>');    // i18n
         }
     }
@@ -210,6 +210,16 @@ function formatSummonResult($p, i, d)
     $s.append($openUrlLink);
     $p.append($s);
     $p.append('<div style="clear: both; border-style: none none dotted none; border-bottom: 1px dotted #808080;"></div>');
+    
+    // ensure links open according to user prefs
+    $s.find("a").each(function () {
+        var href = $(this).attr("href");
+        $(this).click(function () {
+            libx.ui.openSearchWindow(href);
+        });
+        $(this).attr("href", "javascript:void(0);");
+    });
+    
 }
     
 $(function() {
