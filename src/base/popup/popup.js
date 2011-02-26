@@ -117,7 +117,7 @@ function formatSummonResult($p, i, d)
     var title = w(d.Title);
 
     // what kind of hodgepodge is Summon sending?
-    var uri = w(d.url) || w(d.uri) || w(d.URI);
+    var uri = d.url || w(d.uri) || w(d.URI);
     if (uri)
         title = '<a target="_new" title="' + uri + '" href="' + uri + '">' + title + '</a>';
 
@@ -133,11 +133,41 @@ function formatSummonResult($p, i, d)
         /* else? */
     }
 
+    /* weirdly enough, some information is sometimes expressed
+     * as an array, and sometimes as a boolean, e.g.
+     * IsScholarly : [ "true" ]
+     * IsScholarly : true
+     */
+    function getBool(d, label) {
+        if (!label in d)
+            return; 
+        switch (typeof d[label]) {
+        case "boolean":
+            return d[label];
+        case "object":
+            return d[label] == "true";
+        }
+    }
+
     switch (ctype) {
     case "Journal Article":
     case "Newspaper Article":
     case "Book Chapter":
-        addIf('PublicationTitle', ' ', '.');
+        var ititle = "";
+        if ('ISSN' in d)
+            ititle = "ISSN: " + w(d.ISSN);
+        if ('ISBN' in d)
+            ititle = "ISBN: " + w(d.ISBN);
+
+        var isScholarly = getBool(d, 'IsScholarly');
+        if (isScholarly)
+            ititle += " (Scholarly)";
+
+        var isPeerReviewed = getBool(d, 'IsPeerReviewed');
+        if (isPeerReviewed)
+            ititle += " (PeerReviewed)";
+
+        addIf('PublicationTitle', ' <i title=' + ititle + '>', '</i>.');
         addIf('NewspaperSection', ' ');
         addIf('Volume', ' ');
         addIf('Issue', '(', ')');
@@ -148,6 +178,11 @@ function formatSummonResult($p, i, d)
 
     add(' ');
     addIf('Abstract', '<span title="', '"> (Abstract)</span> ');    // i18n
+
+    if ('Language' in d) {
+        if (w(d.Language) != "English")
+            addIf('Language', ' ');
+    }
 
     var $openUrlLink = "<span></span>";
     if ('openUrl' in d && libx.edition.openurl.primary) {
