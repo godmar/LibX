@@ -6,9 +6,9 @@ use HTML::Entities;
 use Cwd;
 
 # directory from which files will be bootstrapped
-my $bootstrap_url = "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/base/bootstrapped/";
+my $bootstrap_url = "http://libx.org/libx2/bootstrapped/";
 # directory that contains required libapp scripts (such as jquery)
-my $libapp_script_url = "http://libx2.cs.vt.edu/libx.org/libx2_feed/scripts/";
+my $libapp_script_url = "http://libx.org/libx2/libapps/scripts/";
 # default package url for editions that have none specified
 my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
 

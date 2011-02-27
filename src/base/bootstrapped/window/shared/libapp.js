@@ -260,6 +260,21 @@ function executeLibapp(libapp, pkgArgs) {
                         value = value.replace("{" + pkgArg + "}", pkgArgs[pkgArg].value);
                 }
                 setupArgs += "var " + arg + " = \"" + value + "\";\n";
+                if (module.regexptexttransformer.length > 0) {
+                
+                    // escape any regular expression characters in the argument
+                    value = value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+                    
+                    // replace the argument
+                    var m = module.regexptexttransformer[0]
+                        .toString()                          // convert the regex to a string to change the filter
+                        .replace("${" + arg + "}", value)    // replace any parameters given
+                        .match(/^\/(.*)\/([^\/]*)$/)         // remove the surrounding slashes
+                    
+                    // convert the string back to a regex
+                    module.regexptexttransformer[0] = new RegExp(m[1], m[2]);
+                    
+                }
             }
         }
           
