@@ -53,13 +53,17 @@
     
     function addEntryType(type) {
     
+        var typeCollection = libx.edition[type];
+        if (!typeCollection.length)
+            return;
+    
         /* add primary first */
-        $tree.append(getContextEntry(libx.prefs.contextmenu[libx.edition[type].primary.name]));
+        $tree.append(getContextEntry(libx.prefs.contextmenu[typeCollection.primary.name]));
         
-        for (var i = 0; i < libx.edition[type].length; i++) {
+        for (var i = 0; i < typeCollection.length; i++) {
             var aType = libx.edition[type][i];
             var $entry = getContextEntry(libx.prefs.contextmenu[aType.name]);
-            if (aType != libx.edition[type].primary)
+            if (aType != typeCollection.primary)
                 $tree.append($entry);
         }
     }
