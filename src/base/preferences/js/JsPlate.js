@@ -36,7 +36,11 @@ JsPlate.prototype.parse = function() {
         function (match, code) {
             code = code.replace(/"/g, "``"); // prevent quote-escaping of inline code
             code = code.replace(/(\r?\n)/g, " ");
-            return "``+ ("+code+") +``";
+            
+            // this will encode any HTML special characters like (&, <, >) so that they
+            // are safe to inject.  The new String().toString() wrapper makes this safe
+            // to use with null, arrays, and objects.
+            return "``+ ($(``<div/>``).text(new String("+code+").toString()).html() ) +``";
         }
     );
     this.code = this.code.replace(
