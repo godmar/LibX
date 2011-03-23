@@ -1,8 +1,0 @@
-{
-    "displaypref" : { "message" : "Display Preferences" },
-    "displaypref.newtabswitch" : { "message" : "Open in a new tab and focus the tab" },
-    "displaypref.newtab" : { "message" : "Open in a new tab without focusing the tab" },
-    "displaypref.sametab" : { "message" : "Open in the current tab" },
-    "displaypref.newwindow" : { "message" : "Open in a new browser window" },
-    "savesearches" : { "message" : "Remember search fields when popup is closed" }
-}
