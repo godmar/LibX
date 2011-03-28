@@ -186,5 +186,12 @@ libx.catalog.Catalog = libx.core.Class.create(
      *	@abstract
      *	@return {URL} Search URL
      */
-    makeAdvancedSearch : function (fields) { }
+    makeAdvancedSearch : function (fields) { },
+
+	/**
+	 *	Supported previewer keys for this catalog
+	 *	@property previewers
+	 *	@type Object
+	 */
+    previewers : {}
 });

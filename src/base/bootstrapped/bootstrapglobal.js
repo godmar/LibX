@@ -3,6 +3,7 @@
  */
 libx.log.write("bootstrapping global libx from: " + bootStrapper.baseURL);
 var files = [
+    "global/shared/previewers/summon.js",
     "global/shared/libapp/atomparser.js",
     "global/shared/utils/collections/vector.js",
     "global/shared/services/link360.js",

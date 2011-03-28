@@ -93,6 +93,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
               }
 
               item = new factory[factoryKey]();
+              item.type = factoryKey;
             }
             doc.copyAttributes(node, item); 
             postAddFunc(node, item);
