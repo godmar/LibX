@@ -72,7 +72,8 @@
             "core/global/shared/utils/geteditionresource.js",
             "core/global/gc/locale.js",
             
-            "core/window/gc/window.js"
+            "core/window/gc/window.js",
+            "core/window/shared/autosense.js"
         ]
     }],
     "permissions": [

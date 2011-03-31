@@ -1,4 +1,7 @@
 
+// BRN: this file just wraps around libx.libapp.Sandbox now,
+// so we can probably remove it
+
 libx.bootstrap.fetchDataUri = false;
 
 /**

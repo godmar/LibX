@@ -2,7 +2,7 @@
 libxTemp.addListener(function(request, sender, sendResponse) {
     
     if(request.type == "pageEdition") {
-        
+            
         try {
             var meta = document.getElementsByTagName("meta");
             for (var i = 0; i < meta.length; i++) {

@@ -9,7 +9,7 @@ libx.libapp.getStringBundle = function (url) {
     return libx.libappdata.stringBundles[url];
 };
 
-var sbox = new libx.libapp.Sandbox(window, { libx: libx } );
+var sbox = new libx.libapp.Sandbox( window, { libx: libx } );
 
 /*
  * Aliases for scripts
@@ -217,7 +217,7 @@ function executeLibapp(libapp, pkgArgs) {
                         return;
                     if (/.*\.js$/.test(metadata.originURL)) {
                         log("injecting required script: " + metadata.originURL);
-                        sbox.evaluate(scriptText);
+                        sbox.evaluate(scriptText, metadata.originURL);
                     } else
                     if (/.*\.css$/.test(metadata.originURL)) {
                         var doc = window.document;
@@ -331,7 +331,7 @@ function executeLibapp(libapp, pkgArgs) {
                     + "}) (libx);\n";
             
                 logDetail("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
-                return sbox.evaluate(jsCode);
+                return sbox.evaluate(jsCode, module.id);
             }
             textExplorer.addTextTransformer(textTransformer);
         }
@@ -408,7 +408,7 @@ function executeLibapp(libapp, pkgArgs) {
             */
             logDetail("Module URL = '" + module.id + "'");
             logDetail("Running module '" + module.description + "': \n" + jsCode + "\nusing space: " + libappSpace.description);
-            sbox.evaluate(jsCode);
+            sbox.evaluate(jsCode, module.id);
             // getPrefValue(module.id, "autolinking");
         }
     }

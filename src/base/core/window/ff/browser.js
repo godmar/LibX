@@ -185,7 +185,10 @@ return {
                     }
                 };
                 var sbox = new libx.libapp.Sandbox(e.window, globalScope);
-                sbox.loadScript("chrome://libx/content/core/window/ff/window.js");
+                sbox.loadScript("chrome://libx/content/core/window/shared/autosense.js");
+                if (libx.global.edition != null) {
+                    sbox.loadScript("chrome://libx/content/core/window/ff/window.js");
+                }
             }
         }, window);
         

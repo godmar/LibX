@@ -48,29 +48,25 @@ libx.libapp.Sandbox = libx.core.Class.create(
      */
     initialize : function ( win, globalproperties ) {
     
-    	// XXX: We cannot use an XPCNativeWrapper here because
-    	// Firefox 3.6 does not support expando properties on
-		// wrappers.  This is necessary for jQuery and other
-		// libraries.  This should be fixed in Firefox 4
-		// according to:
-		// https://bugzilla.mozilla.org/show_bug.cgi?id=478529
-		
-        //var safeWin = new XPCNativeWrapper(win);
-        var safeWin = win;
+        // XPCNativeWrappers should be on, so win should implicitly
+        // be an XPCNativeWrapper'd window
 
-        this.sandBox = new Components.utils.Sandbox( safeWin );
-        this.sandBox.unsafeWindow = win;
-
-        this.sandBox.window = safeWin;
-        this.sandBox.document = safeWin.document;
+        // We use the system principal for all sandboxed code.
+        // All sandboxed code we execute is our own, so this
+        // is OK.
+        var systemPrincipal = Cc["@mozilla.org/systemprincipal;1"] 
+                             .createInstance(Ci.nsIPrincipal); 
+        
+        this.sandBox = new Components.utils.Sandbox( systemPrincipal );
 
         for (var prop in globalproperties) {
             this.sandBox[prop] = { };
             libx.core.Class.mixin(this.sandBox[prop], globalproperties[prop], true);
         }
 
-        // XPCNativeWrapper does not set the prototype chain
-        this.sandBox.__proto__ = safeWin; 
+        // Set the prototype chain.
+        // This will expose window, document, etc. to the sandboxed code.
+        this.sandBox.__proto__ = win; 
     },
     
     /**

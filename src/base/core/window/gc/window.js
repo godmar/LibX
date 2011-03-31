@@ -125,7 +125,8 @@ var imported = {};
         libx.utils.browserprefs.setStore(result);
         libx.initialize(true, false);
         var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-        libx.loadConfig(configUrl);
+        if (configUrl != null)
+            libx.loadConfig(configUrl);
     });
 
     libx.events.addListener("EditionConfigurationLoaded", {
@@ -166,8 +167,7 @@ var imported = {};
             
             for (var i = 0; i < bootWindowUrls.length; i++)
                 windowBootStrapper.loadScript(bootWindowUrls[i].url, true, {
-                    libx: libx,
-                    window: window,
+                    libx: libx
                 });
             
         }

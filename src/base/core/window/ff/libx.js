@@ -77,7 +77,7 @@ libx.ui.initialize = function() {
         var libxEvent = new libx.events.Event("ContentLoaded", window);
         libx.core.Class.mixin(libxEvent, {
             url : ev.originalTarget.location.href,
-            window : win.wrappedJSObject,
+            window : win,
             nativeEvent : nativeFFEvent
         }, true);
         libxEvent.notify();

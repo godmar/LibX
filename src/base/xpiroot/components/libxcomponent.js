@@ -72,7 +72,6 @@ function loadLibX() {
         "shared/cache/objectcache.js",
         "shared/locale.js",
         "ff/locale.js",
-        "shared/cache/scheduler.js",
         "ff/utils/browserprefs.js",
         "ff/utils/hash.js",
         "shared/openurl.js",
