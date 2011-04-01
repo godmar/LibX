@@ -8,6 +8,9 @@ var files = [
     "global/shared/utils/collections/vector.js",
     "global/shared/services/link360.js",
     "global/shared/services/oclcidentities.js",
+    "global/shared/services/crossref.js",
+    "global/shared/services/pubmed.js",
+    "global/shared/services/xisbn.js",
     "global/shared/libapp/textexplorer.js",
     "global/shared/libapp/texttransformer.js"
 ];
