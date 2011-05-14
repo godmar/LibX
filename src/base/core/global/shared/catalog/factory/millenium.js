@@ -33,8 +33,8 @@ libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog,
 {
 
 	xisbn: { opacid: "innovative" },
+    // we no longer provide a default for 'sort'
     // default values for millenium catalogs
-    sort: 'R',  //sort by relevance, use 'D' for date
     searchform: 1,
     advancedcode: 'X',
     keywordcode: 'Y',
@@ -72,20 +72,29 @@ libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog,
         var query = this.url + "/search" + this.language + "/";
 
         switch (this.searchform) {
-        case 1:
+        default:
+        case '1':
             query += stype + "?" + encodeURIComponent(sterm);
             break;
-        case 2:
+        case '2':
             query += stype + "?SEARCH=" + encodeURIComponent(sterm);
             break;
-        case 3:
+        case '3':
             query += "?/searchtype=" + stype + "&searcharg=" + encodeURIComponent(sterm);
             break;
         }
 
-        query += "&startLimit=" + (this.searchscope != null ? "&searchscope=" + this.searchscope : "")
-                + "&SORT=" + this.sort + "&endLimit="
-                + ((this.sid != null) ? "&sid=" + this.sid : "");
+        // 2011/01/06 - for author searches, including startLimit/endLimit screws up the
+        // reversal function - search for Smith, Joe instead of Joe, Smith
+        var includeLimit = stype != 'a';
+        if (includeLimit)
+            query += "&startLimit=";
+            
+        query += (this.searchscope != null ? "&searchscope=" + this.searchscope : "");
+        query += (this.sort != null ? "&SORT=" + this.sort : "");
+        if (includeLimit)
+            query += "&endLimit=";
+            
         return query;
 	},
 	makeAdvancedSearch: function(fields) {
