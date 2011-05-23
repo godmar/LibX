@@ -43,7 +43,6 @@ libx.libapp.getEnabledPackages = function () {
 // package/libapp.
 
 libx.libapp.loadLibapps = function (feed, callback) {
-    
     var aQ = new libx.utils.collections.ActivityQueue();
     
     function scheduledWalk(entries) {
@@ -65,8 +64,8 @@ libx.libapp.loadLibapps = function (feed, callback) {
                             value: "true"
                         }]);
                     
-                        libx.log.write("registered package: " + pkg.description + " (" + pkg.id + ")", "libapp");
-                    
+                        libx.log.write("registered package: " + pkg.description
+                                                              + " (" + pkg.id + ")", "libapp");
                         scheduledWalk(pkg.entries);
                         blocker.markReady();
                     },
@@ -79,20 +78,18 @@ libx.libapp.loadLibapps = function (feed, callback) {
                             value: "true"
                         }]);
                     
-                        if (libapp.preferences) {
+                        if (libapp.preferences)
                             libx.preferences.loadXML(libapp.preferences, { base: "libx.prefs" });
-                        }
                     
-                        libx.log.write("registered libapp: " + libapp.description + " (" + libapp.id + ")", "libapp");
-                        
+                        libx.log.write("registered libapp: " + libapp.description
+                                                             + " (" + libapp.id + ")", "libapp");
                         scheduledWalk(libapp.entries);
                         blocker.markReady();
                     },
                     
                     onmodule: function (module) {
-                        if(module.preferences) {
+                        if (module.preferences)
                             libx.preferences.loadXML(module.preferences, { base: "libx.prefs" });
-                        }
                         
                         scheduledWalk(module.entries);
                         blocker.markReady();
@@ -105,20 +102,54 @@ libx.libapp.loadLibapps = function (feed, callback) {
         
     }
     
-    scheduledWalk([{ url: feed }]);
+    try {
+        scheduledWalk([{ url: feed }]);
+    } catch (e) {
+        libx.log.write("Error in libx.libapp.loadLibapps(): " + e);
+    }
     
-    var callbackActivity = { onready: callback || libx.core.EmptyFunction };
+    var callbackActivity = {
+        onready: function () {
+            callback && callback();
+        }
+    };
 
     aQ.scheduleLast(callbackActivity);
     callbackActivity.markReady();
     
 };
 
-var rootPackages = [];
-for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
-    var pkg = libx.prefs.libapps.feeds._items[i]._value;
-    libx.log.write("Loading root feed from: " + pkg);
-    libx.libapp.loadLibapps(pkg);
-}
+var prereqQueue = new libx.utils.collections.ActivityQueue();
+
+// we need to wait for global scripts to use the atom parser
+var globalBootstrapAct = new libx.utils.collections.EmptyActivity();
+prereqQueue.scheduleLast(globalBootstrapAct);
+libx.events.addListener("GlobalBootstrapDone", {
+    onGlobalBootstrapDone: function () {
+        globalBootstrapAct.markReady();
+    }
+});
+
+// we need to wait for preferences to see which libapps to load
+var prefsLoadedAct = new libx.utils.collections.EmptyActivity();
+prereqQueue.scheduleLast(prefsLoadedAct);
+libx.events.addListener("PreferencesLoaded", {
+    onPreferencesLoaded: function () {
+        prefsLoadedAct.markReady();
+    }
+});
+
+var loadLibappsAct = {
+    onready: function () {
+        var rootPackages = [];
+        for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
+            var pkg = libx.prefs.libapps.feeds._items[i]._value;
+            libx.log.write("Loading root feed from: " + pkg);
+            libx.libapp.loadLibapps(pkg);
+        }
+    }
+};
+prereqQueue.scheduleLast(loadLibappsAct);
+loadLibappsAct.markReady();
 
 }) ();

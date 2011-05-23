@@ -2,13 +2,17 @@
 
 use JSON;
 
-my @files = `find -type f ! -regex '.*/CVS/.*' | xargs sha1sum`;
+#my @files = `find -type f ! -regex '.*/CVS/.*' | xargs sha1sum`;
+my @files = `find -type f ! -regex '.*/CVS/.*'`;
 
 my %filemap = ( 'files' => {} );
 foreach my $file ( @files ) {
-    $file =~ m/^(.*?)\s+\*\.\/(.*?)$/;
-    if ($2 ne "hashes.json" && $2 ne ".htaccess") {
-       $filemap{"files"}{$2}{'hash'} = $1;
+    $file =~ m/^(\.\/)?(.*)\s+/;
+    $file = $2;
+    my $hash = `sha1sum $file`;
+    $hash =~ m/^(.*?)\s+/;
+    if ($file ne "genhash.pl" && $file ne "updates.json" && $file ne ".htaccess") {
+       $filemap{"files"}{$file}{'hash'} = $1;
     }
 }
 

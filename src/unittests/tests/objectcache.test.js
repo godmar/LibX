@@ -41,21 +41,21 @@ suite.addUnitTest("Test object cache 1",
         /* Register update listener, trigger two updates, and check that
          * onUpdate events are fired. */
 
-        var numberOfUpdates = 0;
-        var evListener = {};
-        evListener["onUpdate" + file1Request.url] = function (ev) {
-            numberOfUpdates++;
-            if (numberOfUpdates == 1)
-                updateFile();
-        }
-        libx.events.addListener("Update" + file1Request.url, evListener);
+        //var numberOfUpdates = 0;
+        //var evListener = {};
+        //evListener["onUpdate" + file1Request.url] = function (ev) {
+        //    numberOfUpdates++;
+        //    if (numberOfUpdates == 1)
+        //        updateFile();
+        //}
+        //libx.events.addListener("Update" + file1Request.url, evListener);
 
         this.WAIT(3);
         updateFile();
         this.WAIT(3);
 
         this.ASSERT_TRUE(foundReferences, "Expected references");
-        this.ASSERT_EQUAL(numberOfUpdates, 2);
+        //this.ASSERT_EQUAL(numberOfUpdates, 2);
         this.ASSERT_EQUAL(numberOfCompletes, 1, "Expected 1 complete");
     },
     {

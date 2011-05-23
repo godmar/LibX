@@ -563,11 +563,28 @@ return /** @lends libx.preferences */ {
             return cat;
         };
         
+        var loadedQueue = new libx.utils.collections.ActivityQueue();
+        var browserPrefsAct = new libx.utils.collections.EmptyActivity();
+        loadedQueue.scheduleLast(browserPrefsAct);
+        var userPrefsAct = new libx.utils.collections.EmptyActivity();
+        loadedQueue.scheduleLast(userPrefsAct);
+        var doneAct = {
+            onready: function () {
+                var evt = new libx.events.Event("PreferencesLoaded");
+                evt.notify();
+            }
+        };
+        loadedQueue.scheduleLast(doneAct);
+        doneAct.markReady();
+        
         // initialize browser preferences
         libx.preferences.load ( {
             filename : libx.locale.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
             overwrite : false,
-            base : "libx.prefs"
+            base : "libx.prefs",
+            callback : function () {
+                browserPrefsAct.markReady();
+            }
         } );  
                 
         // load saved user preferences
@@ -581,6 +598,9 @@ return /** @lends libx.preferences */ {
                     overwrite: true,
                     base : "libx"
                 } );
+            },
+            complete : function () {
+                userPrefsAct.markReady();
             }
         });
 
@@ -597,6 +617,8 @@ return /** @lends libx.preferences */ {
      *        Determines whether or not these preferences should overwrite values of existing preferences
      *    @param XMLPreferenceDescriptor.base
      *        (optional)Base within preferences tree where subtree should be inserted ( ex, "libx.browser" for libx.browser.contextmenu )
+     *    @param XMLPreferenceDescriptor.callback
+     *        (optional) Callback to execute once load is complete
      */
     load : function ( descriptor ) {
         var filename = descriptor.filename;
@@ -617,6 +639,7 @@ return /** @lends libx.preferences */ {
             type     : "GET",
             complete : function (xml, stat, xhr) {
                 callbackFunct ( xml.documentElement, descriptor );
+                descriptor.callback && descriptor.callback();
             },
             bypassCache : true 
         } );
@@ -638,9 +661,7 @@ return /** @lends libx.preferences */ {
         var overwrite = descriptor.overwrite;
         var base = descriptor.base;
         
-        // var xmlRoot = xml.documentElement;
-        
-        var loadedPrefs =  new prefFactory[xmlNode.nodeName]( null, base, xmlNode );
+        var loadedPrefs = new prefFactory[xmlNode.nodeName]( null, base, xmlNode );
 
         if ( descriptor.prefs == null ) {
             descriptor.prefs = loadedPrefs;

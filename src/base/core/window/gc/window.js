@@ -15,12 +15,21 @@ var imported = {};
     
     var currFunc = 0;
     var funcArray = [];
-    var timestamp = new Date().getTime();
+    var listeners = {};
+    chrome.extension.onRequest.addListener(function (request, sender, sendResponse) {
+        for (var i in listeners) {
+            if (request.type == i) {
+                listeners[i].apply(this, arguments);
+                return;
+            }
+        }
+        sendResponse({});
+    });
 
     libxTemp = {
             
-        addListener: function(listener) {
-            chrome.extension.onRequest.addListener(listener);
+        addListener: function (type, listener) {
+            listeners[type] = listener;
         },
         
         sendRequest: function (request, callback) {
@@ -49,8 +58,7 @@ var imported = {};
                             thisRef: thisRef
                         };
                         return {
-                            _function_index: currFunc++,
-                            timestamp: timestamp
+                            _function_index: currFunc++
                         };
                     }
                 
@@ -88,10 +96,7 @@ var imported = {};
 
     };
     
-    chrome.extension.onRequest.addListener(function(request) {
-        if (request.type != "magicImportFunction" || request.timestamp != timestamp)
-            return;
-            
+    libxTemp.addListener("magicImportFunction", function (request, sender, sendResponse) {
         var funcObj = funcArray[request.index];
         
         // unserialize XML documents
@@ -101,6 +106,7 @@ var imported = {};
         }
         
         funcObj.func.apply(funcObj.thisRef, request.args);
+        sendResponse({});
     });
 
     /* prepare import of proxies */

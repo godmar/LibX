@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>http://localhost/libx.org/unittests/tests/resources/schedulers/libapps/alt/</id>
+  <title>LibX 2.0 Feed</title>
+  <updated>2011-04-01T17:20:06Z</updated>
+  <link href="http://localhost/libx.org/unittests/tests/resources/schedulers/libapps/alt/" type="application/atom+xml" rel="self"/>
+  <author>
+    <name>LibX Team</name>
+    <uri>http://libx.org</uri>
+    <email>libx.org@gmail.com</email>
+  </author>
+  <entry>
+    <id>http://localhost/libx.org/unittests/tests/resources/schedulers/libapps/alt/module</id>
+    <title>Play A New York Times Video</title>
+    <updated>2009-02-20T01:16:04Z</updated>
+    <author>
+      <name>LibX Team</name>
+      <uri>http://libx.org</uri>
+      <email>libx.org@gmail.com</email>
+    </author>
+    <content type="html">sample module</content>
+    <libx:module xmlns:libx="http://libx.org/xml/libx2">
+      <libx:include>/.*/</libx:include>
+      <libx:body><![CDATA[ ]]></libx:body>
+    </libx:module>
+  </entry>
+  <entry>
+    <id>http://localhost/libx.org/unittests/tests/resources/schedulers/libapps/alt/libapp</id>
+    <title>Alert users to ACM digital library subscription</title>
+    <updated>2009-02-20T13:31:15Z</updated>
+    <author>
+      <name>LibX Team</name>
+      <uri>http://libx.org</uri>
+      <email>libx.org@gmail.com</email>
+    </author>
+    <content type="html">sample libapp</content>
+    <libx:libapp xmlns:libx="http://libx.org/xml/libx2">
+      <libx:entry src="module"/>
+    </libx:libapp>
+  </entry>
+  <entry>
+    <id>http://localhost/libx.org/unittests/tests/resources/schedulers/libapps/alt/package</id>
+    <title>LibX Core Package</title>
+    <updated>2009-09-30T00:54:13Z</updated>
+    <author>
+      <name>LibX Team</name>
+      <uri>http://libx.org</uri>
+      <email>libx.org@gmail.com</email>
+    </author>
+    <content type="html">sample package</content>
+    <libx:package xmlns:libx="http://libx.org/xml/libx2">
+      <libx:entry src="libapp"/>
+    </libx:package>
+  </entry>
+</feed>

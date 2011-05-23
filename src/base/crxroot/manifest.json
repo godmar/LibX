@@ -79,8 +79,8 @@
     "permissions": [
         "tabs",
         "contextMenus",
-        "http://*/",
-        "https://*/"
+        "*://*/",
+        "cookies"
     ],
     "default_locale": "en_US"
 }

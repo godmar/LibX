@@ -210,6 +210,18 @@ libx.core = (function() {
          */
         'EmptyFunction': function () { },
         /**
+         * Function that always returns true.
+         *
+         * @name libx.core.TrueFunction
+         */
+        'TrueFunction': function () { return true; },
+        /**
+         * Function that always returns false.
+         *
+         * @name libx.core.TrueFunction
+         */
+        'FalseFunction': function () { return false;},
+        /**
          * Implement an abstract function
          *
          * @name libx.core.AbstractFunction

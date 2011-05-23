@@ -7,9 +7,9 @@
 
     suite.addUnitTest("Atom Parser Test",
         function () {
-            //var rootPackage = "http://libx.org/libx2/libapps/libxcore";
+            var rootPackage = "http://libx.org/libx2/libapps/libxcore";
             // the feed in ~tjwebb tests param passing also
-            var rootPackage = "http://libx.org/~tjwebb/dev/libx2/libapps/libxcore";
+            //var rootPackage = "http://libx.org/~tjwebb/dev/libx2/libapps/libxcore";
             var atomParser = new libx.libapp.PackageWalker(rootPackage);
             var test = this;
             var MyVisitorClass = libx.core.Class.create(libx.libapp.PackageVisitor, {

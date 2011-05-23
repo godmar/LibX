@@ -8,7 +8,7 @@ var files = [
     "global/shared/utils/collections/vector.js",
     // "global/shared/services/link360.js",
     // "global/shared/services/oclcidentities.js",
-    "global/shared/libapp.js"   // read loaded libapp list
+    // "global/shared/libapp.js"   // read loaded libapp list
 ];
 
 for (var i = 0; i < files.length; i++) {
@@ -17,3 +17,4 @@ for (var i = 0; i < files.length; i++) {
 
 bootStrapper.finish();
 
+// updated

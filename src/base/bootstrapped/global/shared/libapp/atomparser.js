@@ -233,6 +233,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
                 // URL entry was found in this feed
                 handleEntryBody(xmlDoc, pathDir, entry);
             } else {
+                // BRN: handle this case in scheduler
                 // URL entry not found in this feed; fetch the entry individually
                 libx.cache.defaultObjectCache.get({
                     cachehit: false, // used below

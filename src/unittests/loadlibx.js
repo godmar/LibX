@@ -319,10 +319,18 @@ function exec(cmd) {
 libx.log = {
     write : function (msg) { println (msg); },
 };
+
+libx.locale = {
+    getBootstrapURL: function (url) {
+        return "http://libx.org/libx2/bootstrapped/" + url;
+    }
+};
+
 var libxscripts2 = [
     "global/gc/utils/hash.js",
     "global/gc/storage.js",
     "global/shared/cache/objectcache.js",
+    "global/shared/cache/scheduler.js",
     "global/shared/services/crossref.js",
     "global/shared/services/pubmed.js",
     "global/shared/utils/stdnumsupport.js",

@@ -1,0 +1,18 @@
+making tasks ready in order: A B C D 
+A made ready at #0
+B made ready at #1
+C made ready at #2
+D made ready at #3
+
+making tasks ready in order: D C B A 
+A made ready at #3
+B made ready at #2
+C made ready at #1
+D made ready at #0
+
+making tasks ready in order: D A C B 
+A made ready at #1
+B made ready at #3
+C made ready at #2
+D made ready at #0
+

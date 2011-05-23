@@ -236,9 +236,28 @@ return {
             }
         }, undefined, 'popup_reload');
         
-        $('#clearCache').click(function() {
+        $('#clearCache').click(function () {
             libx.initialize.reload();
         });
+        
+        var debugLevels = [0, 1, 2, 3].map(function (val) {
+            return {text: val, value: val};
+        });
+        $('#libapp-debuglevel').text(libx.utils.browserprefs.getIntPref('libx.libapp.debuglevel', 0));
+        libx.ui.jquery.dropdown($, {
+            dropdown_items: debugLevels,
+            field: $('#libapp-debuglevel'),
+            select: function (level) {
+                libx.utils.browserprefs.setIntPref('libx.libapp.debuglevel', level);
+            }
+        });
+        $('#dev-prefs').click(function () {
+            libx.ui.openSearchWindow(libx.locale.getExtensionURL('dev/prefs.html'));
+        });
+        $('#dev-cache').click(function () {
+            libx.ui.openSearchWindow(libx.locale.getExtensionURL('dev/cache.html'));
+        });
+        
     },
     
     saveFields: function () {
@@ -429,18 +448,22 @@ return {
         if (libx.prefs.browser.savesearches._value) {
             var savedFields = libx.utils.browserprefs.getStringPref("libx.popup.searchfields", null);
             if (savedFields) {
-                savedFields = libx.utils.json.parse(savedFields);
-                for (var i = 1; i < savedFields.length; i++)
-                    $("#full-search-fields .search-add").last().click();
-                $("#full-search-fields input").each(function (i) {
-                    $(this).val(savedFields[i].value);
-                    // if search option is in newly selected catalog, keep this search option selected.
-                    // otherwise, just use the first search option that the catalog supports
-                    if ($.inArray(savedFields[i].option, optionsArray) != -1) {
-                        $(this).parent().prev().find("a").text(libx.edition.searchoptions[savedFields[i].option]);
-                        fullSelectedOptions[i] = savedFields[i].option;
-                    }
-                });
+                try {
+                    savedFields = libx.utils.json.parse(savedFields);
+                    for (var i = 1; i < savedFields.length; i++)
+                        $("#full-search-fields .search-add").last().click();
+                    $("#full-search-fields input").each(function (i) {
+                        $(this).val(savedFields[i].value);
+                        // if search option is in newly selected catalog, keep this search option selected.
+                        // otherwise, just use the first search option that the catalog supports
+                        if ($.inArray(savedFields[i].option, optionsArray) != -1) {
+                            $(this).parent().prev().find("a").text(libx.edition.searchoptions[savedFields[i].option]);
+                            fullSelectedOptions[i] = savedFields[i].option;
+                        }
+                    });
+                } catch (e) {
+                    libx.log.write("Error: Invalid saved fields in popup");
+                }
             }
         }
         
@@ -480,83 +503,82 @@ return {
     
     /* Load the edition into the popup. */
     loadPopup: function() {
-
-        // show error if edition is not set
-        if(!libx.edition) {
-            popup.showErrorView();
-            return;
-        }
         
-        // reset previously loaded page actions
-        $('a[href$="#pageactions-view"]', $('#tab-pane')).hide();
-        $('#pageactions-view').empty();
-        
-        // load the edition information
-        $('#edition-name-header').text(libx.edition.name.edition);
-        $('#about-name').text(libx.edition.name.long);
-        $('#about-desc').text(libx.edition.name.description);
-        $('#about-adaptedby').text(libx.edition.name.adaptedby);
+        try {
+            // reset previously loaded page actions
+            $('a[href$="#pageactions-view"]', $('#tab-pane')).hide();
+            $('#pageactions-view').empty();
+            
+            // load the edition information
+            $('#edition-name-header').text(libx.edition.name.edition);
+            $('#about-name').text(libx.edition.name.long);
+            $('#about-desc').text(libx.edition.name.description);
+            $('#about-adaptedby').text(libx.edition.name.adaptedby);
 
-        // load user's catalog preference (if it has been set)
-        var catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
-        popup.loadCatalog(catalog);
-        
-        // load catalog selection menus
-        var catalogs = [];
-        for(var i = 0; i < libx.edition.catalogs.length; i++) {
-            catalogs.push({
-                text: libx.edition.catalogs[i].name,
-                value: i
-            });
-        }
-        var link = $('<a href="#">' + libx.edition.catalogs[catalog].name + '</a>');
-        $('#full-catalogs').empty();
-        $('#full-catalogs').append(link);
-        function catalogChosen(num, name) {
-            popup.saveFields();
-            popup.loadCatalog(num);
-            $('#full-catalogs > a').text(name);
-            $('#simple-menu-catalogs > a').text(name);
-        }
-        libx.ui.jquery.dropdown($, {
-            dropdown_items: catalogs,
-            field: link,
-            select: catalogChosen
-        });
-        accordionMenu.setMenuItems($('#simple-menu-catalogs'),
-                libx.edition.catalogs[catalog].name, catalogs, catalogChosen);
-
-        // load edition image
-        var image = $('.edition-image');
-        image.attr('src', libx.edition.options.logo);
-        image.load(function() {
-            // reset image width/height if changing edition image
-            image.width('');
-            image.height('');
-            // reduce image if necessary, preserving aspect ratio
-            var img_width = image.attr('width');
-            var img_height = image.attr('height');
-            if(img_width > 75) {
-                image.css('width', '75px');
-                image.css('height', (75 * img_height / img_width) + 'px');
-            } else {
-                image.css('width', img_width + 'px');
-                image.css('height', img_height + 'px');
+            // load user's catalog preference (if it has been set)
+            var catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
+            popup.loadCatalog(catalog);
+            
+            // load catalog selection menus
+            var catalogs = [];
+            for(var i = 0; i < libx.edition.catalogs.length; i++) {
+                catalogs.push({
+                    text: libx.edition.catalogs[i].name,
+                    value: i
+                });
             }
-        });
-        
-        // load edition links
-        $('#links').empty();
-        $.each(libx.edition.links, function(i, elem) {
-            var link = $('<li><a href="#">' + elem.label + '</a></li>');
-            link.click(function() {
-                libx.ui.openSearchWindow(elem.href);
-                window.close();
+            var link = $('<a href="#">' + libx.edition.catalogs[catalog].name + '</a>');
+            $('#full-catalogs').empty();
+            $('#full-catalogs').append(link);
+            function catalogChosen(num, name) {
+                popup.saveFields();
+                popup.loadCatalog(num);
+                $('#full-catalogs > a').text(name);
+                $('#simple-menu-catalogs > a').text(name);
+            }
+            libx.ui.jquery.dropdown($, {
+                dropdown_items: catalogs,
+                field: link,
+                select: catalogChosen
             });
-            $('#links').append(link);
-        });
-        
-        popup.showPreferredView();
+            accordionMenu.setMenuItems($('#simple-menu-catalogs'),
+                    libx.edition.catalogs[catalog].name, catalogs, catalogChosen);
+
+            // load edition image
+            var image = $('.edition-image');
+            image.attr('src', libx.edition.options.logo);
+            image.load(function() {
+                // reset image width/height if changing edition image
+                image.width('');
+                image.height('');
+                // reduce image if necessary, preserving aspect ratio
+                var img_width = image.attr('width');
+                var img_height = image.attr('height');
+                if(img_width > 75) {
+                    image.css('width', '75px');
+                    image.css('height', (75 * img_height / img_width) + 'px');
+                } else {
+                    image.css('width', img_width + 'px');
+                    image.css('height', img_height + 'px');
+                }
+            });
+            
+            // load edition links
+            $('#links').empty();
+            $.each(libx.edition.links, function(i, elem) {
+                var link = $('<li><a href="#">' + elem.label + '</a></li>');
+                link.click(function() {
+                    libx.ui.openSearchWindow(elem.href);
+                    window.close();
+                });
+                $('#links').append(link);
+            });
+            
+            popup.showPreferredView();
+        } catch (e) {
+            libx.log.write("Error displaying popup: " + e + ", line " + e.lineNumber);
+            popup.showErrorView();
+        }
 
     },
     

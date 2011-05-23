@@ -41,7 +41,7 @@ libx.cache.MemoryCache = ( function () {
 function invokeCallbacks(xmlHttpReq, requests, result) {
     
     // local files always return 0
-    if (xmlHttpReq.status == 200 || (xmlHttpReq.status == 0 && result)) {
+    if (result != null && (xmlHttpReq.status == 200 || xmlHttpReq.status == 0)) {
         // 200 OK
         for (var i = 0; i < requests.length; ++i) {
             if (typeof requests[i].success == "function") {
@@ -277,7 +277,11 @@ var memoryCacheClass = libx.core.Class.create ( {
                         } else if (request.dataType == "text") {
                             result = xmlHttpReq.responseText;
                         } else if (request.dataType == "json") {
-                            result = libx.utils.json.parse(xmlHttpReq.responseText);
+                            try {
+                                result = libx.utils.json.parse(xmlHttpReq.responseText);
+                            } catch (e) {
+                                result = null;
+                            }
                         } else {
                             result = xmlHttpReq.responseBody || xmlHttpReq.responseText;
                         }

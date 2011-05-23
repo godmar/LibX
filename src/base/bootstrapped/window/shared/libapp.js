@@ -45,15 +45,31 @@ function checkIncludesExcludes(spec, url)
     return executeModule;
 }
 
-function log(msg) {
-    libx.log.write("(" + window.location.href + "):\n" + msg, "libapp");
+var debugLevel = libx.utils.browserprefs.getIntPref('libx.libapp.debuglevel', 0);
+libx.log.write("executing with a debug level of " + debugLevel);
+/*
+ * Log libapp activity.
+ * 0: no logging
+ * 1: show which modules execute
+ * 2: show which modules are not executed
+ * 3: show module bodies
+ */
+function logDetail(args) {
+    if (!args.length)
+        args = [ args ];
+    var msg = "";
+    args.forEach(function (arg) {
+        if (debugLevel >= arg.level)
+            msg += arg.msg;
+    });
+    msg && libx.log.write(msg);
 }
 
-function logDetail(msg) {
-    libx.log.write("(" + window.location.href + "):\n" + msg, "libappdetail");
-}
-
-log ("beginning page visit " + libx.edition.name.long + " time=" + new Date().getTime());
+logDetail({
+    msg: "beginning page visit " + libx.edition.name.long +
+        " time=" + new Date().getTime(),
+    level: 1
+});
 
 /*
 if (event.url.match("libx.cs.vt.edu") != null)
@@ -84,7 +100,7 @@ var requireURL2Activity = { };
 var textExplorer = new libx.libapp.TextExplorer();
     
 // This code recursively walks packages, executing all libapps.
-function processEntries(entries, parentPkg) {
+function processEntries(entries) {
 
     for (var i = 0; i < entries.length; i++) {
         
@@ -98,7 +114,7 @@ function processEntries(entries, parentPkg) {
             new libx.libapp.PackageWalker(entry.url).walk({
                 onpackage: function (pkg) {
                     if (libx.prefs[pkg.id]._enabled._value)
-                        processEntries(pkg.entries, pkg);
+                        processEntries(pkg.entries);
                     // all subpackages have been queued
                     activity.markReady();
                 },
@@ -129,7 +145,10 @@ var traverseTextActivity = {
     onready: function () {
         // at this point, all libapps and modules that were in the cache (and
         // whose dependencies were in the cache) have been loaded, synchronously.
-        log("#textTransformers: " + textExplorer.textTransformerList.length);
+        logDetail({
+            msg: "#textTransformers: " + textExplorer.textTransformerList.length,
+            level: 1
+        });
         textExplorer.traverse(window.document.documentElement);
     }
 };
@@ -158,12 +177,20 @@ function executeLibapp(libapp, pkgArgs) {
     if (libapp.include.length > 0) {
         var executeLibapp = checkIncludesExcludes(libapp, window.location.href);
         if (executeLibapp == null) {
-            logDetail(libapp.description + " not executed because it did not meet include/exclude: include=" + libapp.include + " exclude=" + libapp.exclude);
+            logDetail({
+                msg: "libapp '" + libapp.description
+                    + "' not executed because it did not meet include/exclude: include="
+                    + libapp.include + " exclude=" + libapp.exclude,
+                level: 2
+            });
             return;
         }
     }
 
-    log("include/exclude check complete, executing libapp: " + libapp.description);
+    logDetail({
+        msg: "executing libapp: " + libapp.description,
+        level: 1
+    });
     var libappSpace = new libx.libapp.TupleSpace();
     libappSpace.description = libapp.description;
     
@@ -194,13 +221,27 @@ function executeLibapp(libapp, pkgArgs) {
         prepLibappOrModule(module);
         var executeModule = checkIncludesExcludes(module, window.location.href);
         if (executeModule == null) {
+            logDetail({
+                msg: "module '" + module.description
+                    + "' not executed because it did not meet include/exclude: include="
+                    + module.include + " exclude=" + module.exclude,
+                level: 2
+            });
             moduleFinishedActivity.markReady();
             return;
         }
 
-        log("include/exclude check complete, executing module: " + module.description 
-            + "\nthis module requires: " + module.require 
-            + "\nmatching URL was: " + executeModule);
+        logDetail([
+            {
+                msg: "executing module: " + module.description,
+                level: 1
+            },
+            {
+                msg: "\nthis module requires: " + module.require 
+                    + "\nmatching URL was: " + executeModule,
+                level: 2
+            }
+        ]);
 
         /* schedule required scripts on which this module depends */
         for (var k = 0; k < module.require.length; k++) {
@@ -216,7 +257,10 @@ function executeLibapp(libapp, pkgArgs) {
                     if (metadata == null)
                         return;
                     if (/.*\.js$/.test(metadata.originURL)) {
-                        log("injecting required script: " + metadata.originURL);
+                        logDetail({
+                            msg: "injecting required script: " + metadata.originURL,
+                            level: 1
+                        });
                         sbox.evaluate(scriptText, metadata.originURL);
                     } else
                     if (/.*\.css$/.test(metadata.originURL)) {
@@ -225,7 +269,10 @@ function executeLibapp(libapp, pkgArgs) {
                         var sheet = doc.createElement('style');
                         sheet.setAttribute('type', 'text/css');
                         sheet.innerHTML = scriptText;
-                        log("injecting stylesheet: " + metadata.originURL);
+                        logDetail({
+                            msg: "injecting stylesheet: " + metadata.originURL,
+                            level: 1
+                        });
                         heads[0].appendChild(sheet);
                     }
                 }
@@ -250,7 +297,6 @@ function executeLibapp(libapp, pkgArgs) {
             "var libx = __libx.core.Class.mixin({ }, __libx, true); /* clone libx */\n"
           + "libx.space = libx.libappdata.space;\n";
         
-        //TODO: type checking
         var setupArgs = "";
         if (libappArgs) {
             for (var arg in libappArgs) {
@@ -267,9 +313,12 @@ function executeLibapp(libapp, pkgArgs) {
                     
                     // replace the argument
                     var m = module.regexptexttransformer[0]
-                        .toString()                          // convert the regex to a string to change the filter
-                        .replace("${" + arg + "}", value)    // replace any parameters given
-                        .match(/^\/(.*)\/([^\/]*)$/)         // remove the surrounding slashes
+                        // convert the regex to a string to change the filter
+                        .toString()
+                        // replace any parameters given
+                        .replace("${" + arg + "}", value)
+                         // remove the surrounding slashes
+                        .match(/^\/(.*)\/([^\/]*)$/)
                     
                     // convert the string back to a regex
                     module.regexptexttransformer[0] = new RegExp(m[1], m[2]);
@@ -312,7 +361,11 @@ function executeLibapp(libapp, pkgArgs) {
         getModuleStringBundle.markReady();
         
         function runTextTransformerModule(module) {
-            log("Adding RegexpTextTransformer Module: " + module.regexptexttransformer[0]);
+            logDetail({
+                msg: "Adding RegexpTextTransformer Module: "
+                    + module.regexptexttransformer[0],
+                level: 1
+            });
             var textTransformer = new libx.libapp.RegexpTextTransformer(module.regexptexttransformer[0]);
             textTransformer.onMatch = function (textNode, match) {
                 // Place textNode, match, and libapp.space into the sandbox.
@@ -330,7 +383,12 @@ function executeLibapp(libapp, pkgArgs) {
                     +       module.body
                     + "}) (libx);\n";
             
-                logDetail("found regular expression match for module '" + module.description + "': " + match[0] + " now evaling:\n" + jsCode);
+                logDetail({
+                    msg: "found regular expression match for module '"
+                        + module.description + "': " + match[0]
+                        + " now evaling:\n" + jsCode,
+                    level: 3
+                });
                 return sbox.evaluate(jsCode, module.id);
             }
             textExplorer.addTextTransformer(textTransformer);
@@ -406,10 +464,13 @@ function executeLibapp(libapp, pkgArgs) {
             jsCode += "}\n";
             jsCode += "delete this.p;\n";
             */
-            logDetail("Module URL = '" + module.id + "'");
-            logDetail("Running module '" + module.description + "': \n" + jsCode + "\nusing space: " + libappSpace.description);
+            logDetail({
+                msg: "Running module '" + module.description
+                    + "': \n" + jsCode + "\nusing space: "
+                    + libappSpace.description,
+                level: 3
+            });
             sbox.evaluate(jsCode, module.id);
-            // getPrefValue(module.id, "autolinking");
         }
     }
 }

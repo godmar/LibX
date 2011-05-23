@@ -525,6 +525,43 @@ libx.initialize = function (loadContentScripts, loadGlobalScripts)
         }
     });
     
+    libx.events.addListener("EditionConfigurationLoaded", {
+        onEditionConfigurationLoaded: function () {
+        
+            libx.cache.defaultHashScheduler && libx.cache.defaultHashScheduler.stopScheduling();
+            var jsonUrl = libx.locale.getBootstrapURL("updates.json");
+            // BRN: add libx edition and browser version to stats
+            jsonUrl += "?edition=" + libx.edition.id + "&version=" + libx.edition.version;
+            libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
+            libx.cache.defaultHashScheduler.scheduleUpdates();
+            
+            libx.cache.defaultConfigScheduler && libx.cache.defaultConfigScheduler.stopScheduling();
+            var configUrl = libx.utils.browserprefs.getStringPref("libx.edition.configurl");
+            libx.cache.defaultConfigScheduler = new libx.cache.ConfigScheduler(configUrl);
+            libx.cache.defaultConfigScheduler.scheduleUpdates();
+            
+        }
+    });
+
+    libx.cache.packageSchedulers = [];
+    // BRN: race condition waiting for atom parser?
+    libx.events.addListener("PreferencesLoaded", {
+        onPreferencesLoaded: function () {
+
+            for (var scheduler; scheduler = libx.cache.packageSchedulers.pop();)
+                scheduler.stopScheduling();
+            
+            var enabledPackages = libx.libapp.getEnabledPackages();
+            for (var i = 0; i < enabledPackages.length; i++) {
+                var url = enabledPackages[i].url;
+                var scheduler = new libx.cache.PackageScheduler(url);
+                libx.cache.packageSchedulers.push(scheduler);
+                scheduler.scheduleUpdates();
+            }
+        
+        }
+    });
+    
     libx.initialize.loadContentScripts = loadContentScripts;
     libx.initialize.loadGlobalScripts = loadGlobalScripts;
     libx.locale.initialize();
@@ -540,7 +577,7 @@ libx.loadConfig = function (configUrl) {
     new libx.config.EditionConfigurationReader({
         url: configUrl,
         onload: function (edition) {
-        
+            
             libx.edition = edition;
             libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
             
@@ -562,8 +599,8 @@ libx.loadConfig = function (configUrl) {
             var globalBootStrapper 
                 = libx.initialize.globalBootStrapper 
                 = new libx.bootstrap.BootStrapper( 
-                new libx.events.Event("GlobalBootstrapDone")
-            );
+                    new libx.events.Event("GlobalBootstrapDone")
+                );
             
             var convertChromeURLsQueue = new libx.utils.collections.ActivityQueue();
             function chromeURL2DataURI(item) {
@@ -591,8 +628,10 @@ libx.loadConfig = function (configUrl) {
                     edLoadedEvent.edition = edition;
                     edLoadedEvent.notify();
 
-                    for (var i = 0; i < bootGlobalUrls.length; i++)
+                    for (var i = 0; i < bootGlobalUrls.length; i++) {
+                        libx.log.write("Loading " + bootGlobalUrls[i].url);
                         globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
+                    }
                 }
             };
             convertChromeURLsQueue.scheduleLast(chromeURLsConverted);

@@ -45,6 +45,8 @@
 <script src="core/global/gc/bootstrap.js"></script>
 <script src="core/global/shared/cache/objectcache.js"></script>
 <script src="core/global/shared/locale.js"></script>
+<script src="core/global/shared/libapp.js"></script>
+<script src="core/global/shared/cache/scheduler.js"></script>
 <script src="core/global/gc/locale.js"></script>
 <script src="core/global/gc/utils/browserprefs.js"></script>
 <script src="core/global/gc/utils/hash.js"></script>
@@ -59,6 +61,7 @@
 <script src="core/global/shared/ui/jquery/accordionmenu.js"></script>
 <script src="core/global/shared/ui/magicsearch.js"></script>
 <script src="core/global/shared/utils/geteditionresource.js"></script>
+<script src="core/global/shared/utils/geteditionpath.js"></script>
 <script src="core/global/shared/ui.js"></script>
 <script src="core/global/shared/ui/contextmenu.js"></script>
 <script src="core/global/gc/ui.js"></script>
@@ -81,11 +84,27 @@ libx.events.addListener("EditionConfigurationLoaded", {
     
 });
 
-// load config if user has one set
 var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-if(configUrl)
+if (configUrl)
+    // load config if user has one set
     libx.loadConfig(configUrl);
-    
+
+// load edition from cookie if it exists
+var cookieData = {
+    url: '$crxlocation$gc',
+    name: 'libxedition'
+};
+chrome.cookies.get(cookieData, function (cookie) {
+    var edition = cookie && cookie.value;
+    if (!edition)
+        return;
+    chrome.cookies.remove(cookieData);
+
+    var path = libx.utils.getEditionPath(edition);
+    var configUrl = 'http:/libx.org/editions/' + path + '/config.xml';
+    libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
+    libx.loadConfig(configUrl);
+});
     
 libx.extension.addListener("magicImport", function (request, sender, sendResponse) {
         

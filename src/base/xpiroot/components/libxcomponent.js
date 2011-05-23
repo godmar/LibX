@@ -71,6 +71,8 @@ function loadLibX() {
         "ff/bootstrap.js",
         "shared/cache/objectcache.js",
         "shared/locale.js",
+        "shared/libapp.js",
+        "shared/cache/scheduler.js",
         "ff/locale.js",
         "ff/utils/browserprefs.js",
         "ff/utils/hash.js",
@@ -86,6 +88,7 @@ function loadLibX() {
         "shared/ui/jquery/accordionmenu.js",
         "shared/ui/magicsearch.js",
         "shared/utils/geteditionresource.js",
+        "shared/utils/geteditionpath.js",
         "shared/ui.js",
         "shared/ui/contextmenu.js",
         "ff/ui.js",
@@ -111,10 +114,29 @@ function loadLibX() {
     }
 
     try {
-        var configUrl = libx.utils.browserprefs.getStringPref(
-            "libx.edition.configurl", null);
-        if(configUrl != null) {
+        // load config if user has one set
+        var configUrl = libx.utils.browserprefs.getStringPref("libx.edition.configurl", null);
+        if (configUrl != null) {
             libx.log.write('Loading config from ' + configUrl);
+            libx.loadConfig(configUrl);
+        }
+        
+        // load edition from cookie if it exists
+        var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                    .getService(Components.interfaces.nsIIOService);
+        var uri = ios.newURI("$xpilocation$ff", null, null);
+        var cookieSvc = Components.classes["@mozilla.org/cookieService;1"]
+                          .getService(Components.interfaces.nsICookieService);
+        var cookie = cookieSvc.getCookieString(uri, null);
+        var match = cookie && cookie.match(/^libxedition=(.*)/, '');
+        var edition = match && match[1];
+        if (edition) {
+            Components.classes["@mozilla.org/cookiemanager;1"]
+                .getService(Components.interfaces.nsICookieManager)
+                .remove("libx.org", "libxedition", "/releases/ff/", false);
+            var path = libx.utils.getEditionPath(edition);
+            var configUrl = 'http:/libx.org/editions/' + path + '/config.xml';
+            libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
             libx.loadConfig(configUrl);
         }
     } catch (er) {
