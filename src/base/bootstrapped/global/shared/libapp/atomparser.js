@@ -214,17 +214,17 @@ function handleEntry(visitor, url, cacheMissActivity) {
     
     // get the entire feed (which should include the entry for this url)
     libx.cache.defaultObjectCache.get({
-        cachehit: false, // used below
+        isCacheHit: false, // used below
         url: pathDir,
-        cacheprobe: function (filecontent, metadata) {
+        cachehit: function (filecontent, metadata) {
             if (metadata) {
                 this.success(filecontent, metadata);
-                this.cachehit = true;
+                this.isCacheHit = true;
             } else if (cacheMissActivity)
                 cacheMissActivity.markReady();
         },
         success: function (filecontent, metadata) {
-            if (this.cachehit)
+            if (this.isCacheHit)
                 return;
             var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
             var xpathExpr = "//atom:entry[atom:id/text() = '" + url + "']";
@@ -236,12 +236,12 @@ function handleEntry(visitor, url, cacheMissActivity) {
                 // BRN: handle this case in scheduler
                 // URL entry not found in this feed; fetch the entry individually
                 libx.cache.defaultObjectCache.get({
-                    cachehit: false, // used below
+                    isCacheHit: false, // used below
                     url: url,
-                    cacheprobe: function (filecontent, metadata) {
+                    cachehit: function (filecontent, metadata) {
                         if (metadata) {
                             this.success(filecontent, metadata);
-                            this.cachehit = true;
+                            this.isCacheHit = true;
                         } else {
                             if (cacheMissActivity) {
                                 cacheMissActivity.markReady();
@@ -249,7 +249,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
                         }
                     },
                     success: function (filecontent, metadata) {
-                        if (this.cachehit)
+                        if (this.isCacheHit)
                             return;
                         var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
                         handleEntryBody(xmlDoc, pathDir, xmlDoc.documentElement);

@@ -106,6 +106,53 @@ chrome.cookies.get(cookieData, function (cookie) {
     libx.loadConfig(configUrl);
 });
     
+function scrub(args) {
+    args = [].slice.call(args);
+    for (var i = 0; i < args.length; i++) {
+        if (args[i] instanceof Object && args[i].xmlVersion)
+            args[i] = { _xml: libx.utils.xml.convertXMLDocumentToString(args[i]) };
+        try {
+            libx.utils.json.stringify(args[i]);
+        } catch (e) {
+            args[i] = {};
+        }
+    }
+    return args;
+}
+
+function cacheRequest(cache, args, sendResponse) {
+    var result = {};
+    args.success = function () {
+        result.success = scrub(arguments);
+    };
+    args.error = function () {
+        result.error = scrub(arguments);
+    };
+    args.complete = function () {
+        result.complete = scrub(arguments);
+        sendResponse(result);
+    };
+    cache.get.call(cache, args);
+}
+
+libx.extension.addListener("memoryCache", function (request, sender, sendResponse) {
+    cacheRequest(libx.cache.defaultMemoryCache, request.args, sendResponse);
+});
+
+libx.extension.addListener("objectCache", function (request, sender, sendResponse) {
+    cacheRequest(libx.cache.defaultObjectCache, request.args, sendResponse);
+});
+
+libx.extension.addListener("browserPrefs", function (request, sender, sendResponse) {
+    var prefs = {};
+    for (var item in localStorage) {
+        if (/^browserprefs/.test(item))
+            prefs[item] = localStorage[item];
+    }
+    sendResponse({ prefs: prefs });
+
+});
+
 libx.extension.addListener("magicImport", function (request, sender, sendResponse) {
         
     function unserialize(obj) {
@@ -115,26 +162,12 @@ libx.extension.addListener("magicImport", function (request, sender, sendRespons
             
         if (typeof(obj._function_index) != "undefined") {
             return function () {
-                var args = [].slice.call(arguments);
-                for (var i = 0; i < args.length; i++) {
-                    // serialize XML documents
-                    if (args[i] instanceof Object && args[i].xmlVersion) {
-                        args[i] = {
-                            _xml: libx.utils.xml.convertXMLDocumentToString(args[i])
-                        };
-                    }
-                    // avoid sending circular structures
-                    try {
-                        libx.utils.json.stringify(args[i]);
-                    } catch (e) {
-                        args[i] = {};
-                    }
-                }
+                var args = scrub(arguments);
                 chrome.tabs.sendRequest(sender.tab.id, {
                     type: "magicImportFunction",
                     index: obj._function_index,
                     args: args,
-                    timestamp: obj.timestamp
+                    timestamp: request.timestamp
                 });
             };
         }
@@ -154,14 +187,9 @@ libx.extension.addListener("magicImport", function (request, sender, sendRespons
     
     var prop = obj[request.func[request.func.length-1]];
     if (typeof(prop) == "function") {
-        // avoid sending circular structures
         var result = prop.apply(obj, args);
-        try {
-            libx.utils.json.stringify(result);
-        } catch (e) {
-            result = {};
-        }
-        sendResponse({ result: result });
+        result = scrub([result]);
+        sendResponse({ result: result[0] });
     } else {
         sendResponse({ result: prop });
     }

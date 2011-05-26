@@ -1,12 +1,12 @@
 (function () {
     var suite = libx.testing.createUnitTestSuite("Atom Parser Tests",
         function () {
-            load("../base/bootstrapped/global/shared/libapp/atomparser.js");
             return 0;
         });
 
     suite.addUnitTest("Atom Parser Test",
         function () {
+            load(this.basePath + "bootstrapped/global/shared/libapp/atomparser.js");
             var rootPackage = "http://libx.org/libx2/libapps/libxcore";
             // the feed in ~tjwebb tests param passing also
             //var rootPackage = "http://libx.org/~tjwebb/dev/libx2/libapps/libxcore";

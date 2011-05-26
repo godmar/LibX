@@ -23,7 +23,7 @@ var imported = {};
                 return;
             }
         }
-        sendResponse({});
+        sendResponse();
     });
 
     libxTemp = {
@@ -50,12 +50,15 @@ var imported = {};
             
             obj[chain[chain.length-1]] = function() {
                 
+                var timestamp = new Date().getTime();
+
                 function serialize(obj, thisRef) {
                 
                     if (typeof(obj) == "function") {
                         funcArray[currFunc] = {
                             func: obj,
-                            thisRef: thisRef
+                            thisRef: thisRef,
+                            timestamp: timestamp
                         };
                         return {
                             _function_index: currFunc++
@@ -84,7 +87,8 @@ var imported = {};
                 var request = {
                     type: "magicImport",
                     func: chain,
-                    requestObj: requestObj
+                    requestObj: requestObj,
+                    timestamp: timestamp
                 };
                 
                 chrome.extension.sendRequest(request, function (response) {
@@ -95,40 +99,76 @@ var imported = {};
         }
 
     };
-    
+
+    function unscrub(args) {
+        for (var i = 0; i < args.length; i++) {
+            if (args[i] && args[i]._xml)
+                args[i] = libx.utils.xml.loadXMLDocumentFromString(args[i]._xml);
+        }
+    }
+
     libxTemp.addListener("magicImportFunction", function (request, sender, sendResponse) {
         var funcObj = funcArray[request.index];
-        
-        // unserialize XML documents
-        for (var i = 0; i < request.args.length; i++) {
-            if (request.args[i] != null && request.args[i]._xml)
-                request.args[i] = libx.utils.xml.loadXMLDocumentFromString(request.args[i]._xml);
+
+        // verify the timestamp matches to prevent receiving stale callbacks
+        if (funcObj && funcObj.timestamp == request.timestamp) {
+            unscrub(request.args);
+            funcObj.func.apply(funcObj.thisRef, request.args);
         }
-        
-        funcObj.func.apply(funcObj.thisRef, request.args);
-        sendResponse({});
+
+        sendResponse();
     });
 
-    /* prepare import of proxies */
-    libxTemp.magicImport('localStorage', { returns: true, namespace: imported });
+    // prepare import of proxies
     libxTemp.magicImport('localStorage.getItem', { returns: true, namespace: imported });
     libxTemp.magicImport('localStorage.setItem', { namespace: imported });
     libxTemp.magicImport('libx.utils.browserprefs.setBoolPref');
     libxTemp.magicImport('libx.utils.browserprefs.setStringPref');
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
-    libxTemp.magicImport('libx.cache.defaultObjectCache.get');
-    libxTemp.magicImport('libx.cache.defaultMemoryCache.get');
+    //libxTemp.magicImport('libx.cache.defaultObjectCache.get');
+    //libxTemp.magicImport('libx.cache.defaultMemoryCache.get');
     libxTemp.magicImport('libx.preferences.initialize', { namespace: imported });
     libxTemp.magicImport('libx.libapp.loadLibapps');
     libxTemp.magicImport('libx.libapp.getEnabledPackages', { returns: true, namespace: imported } );
-    libxTemp.magicImport('libx.libapp.addTempPackage' );
-    libxTemp.magicImport('libx.libapp.clearTempPackages' );
+    libxTemp.magicImport('libx.libapp.addTempPackage');
+    libxTemp.magicImport('libx.libapp.clearTempPackages');
 
     libx.libappdata = {};
+    function fireCallbacks(request, response, doUnscrub) {
+        for (var i in response) {
+            if (doUnscrub)
+                unscrub(response[i]);
+            request[i] && request[i].apply(request, response[i]);
+        }
+    }
 
-    // receive entire localStorage as 'result' from background page (this is likely too expensive.)
-    imported.localStorage(function(result) {
-        libx.utils.browserprefs.setStore(result);
+    libx.cache = {
+        defaultMemoryCache: {
+            get: function (request) {
+                chrome.extension.sendRequest({ type: "memoryCache", args: request }, function (response) {
+                    fireCallbacks(request, response, true);
+                });
+            }
+        },
+        defaultObjectCache: {
+            // a per-page cache of object cache requests
+            cache: {},
+            get: function (request) {
+                if (this.cache[request.url]) {
+                    fireCallbacks(request, this.cache[args.url], false);
+                } else {
+                    chrome.extension.sendRequest({ type: "objectCache", args: request }, function (response) {
+                        fireCallbacks(request, response, true);
+                        this.cache[request.url] = response;
+                    });
+                }
+            }
+        }
+    };
+
+    // get browserprefs from background page
+    chrome.extension.sendRequest({ type: "browserPrefs" }, function (result) {
+        libx.utils.browserprefs.setStore(result.prefs);
         libx.initialize(true, false);
         var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
         if (configUrl != null)
@@ -136,7 +176,7 @@ var imported = {};
     });
 
     libx.events.addListener("EditionConfigurationLoaded", {
-        onEditionConfigurationLoaded: function() {
+        onEditionConfigurationLoaded: function () {
             
             // Load all URLs marked as @type = 'bootwindow' in configuration
             var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;

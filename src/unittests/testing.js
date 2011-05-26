@@ -31,7 +31,12 @@ var Test = libx.core.Class.create({
      *
      * XXX make it easier for this to be per-developer.
      */
-    baseUrl : "http://libx2.cs.vt.edu/libx.org/libxrestructuring/src/unittests/",
+    baseUrl : "http://localhost/libx.org/unittests/",
+
+    /**
+     * Path where LibX source files reside.
+     */
+    basePath : "../base/",
 
     /**
      * Runs and evaluates a single test. Can be called by a launcher, or

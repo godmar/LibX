@@ -240,7 +240,7 @@ return {
             libx.initialize.reload();
         });
         
-        var debugLevels = [0, 1, 2, 3].map(function (val) {
+        var debugLevels = [0, 1, 2, 9].map(function (val) {
             return {text: val, value: val};
         });
         $('#libapp-debuglevel').text(libx.utils.browserprefs.getIntPref('libx.libapp.debuglevel', 0));
