@@ -33,7 +33,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 -->
 <!DOCTYPE overlay>
 
-<overlay orient="vertical" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="libx-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <script type="application/x-javascript" src="chrome://global/content/utilityOverlay.js" />
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
@@ -68,6 +68,12 @@ Author: Annette Bailey <annette.bailey@gmail.com>
     <script type="application/javascript">
         <![CDATA[
 
+        // make sure libx button is visible
+        var navbar = document.getElementById("nav-bar");
+        var newset = navbar.currentSet + ",libx-button";
+        navbar.currentSet = newset;
+        navbar.setAttribute("currentset", newset);
+
         window.addEventListener('load', function() {
             
             var button = document.getElementById('libx-button');
@@ -80,7 +86,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                 var iframe = document.getElementById('libx-iframe'); 
                 
                 button.setAttribute('popup', 'libx-panel');
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function (e) {
+                    if (e.button != 0)
+                        return;
                     iframe.style.width = "0";
                     iframe.style.height = "0";
                     iframe.contentWindow.location = "chrome://libx/content/popup/popup.html";
@@ -88,12 +96,12 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                 
                 libx.events.addListener('PopupLoaded', {
                     onPopupLoaded: function() {
-                      
+
                         var $ = iframe.contentWindow.$;
                         $('body').css('border', '1px solid #666');
                 
                         function adjustPopupPosition(e) {
-                        
+
                             // this timeout is required to fix a bug in linux where
                             // switching between full/simple views occasionally makes
                             // the popup shrink too small
@@ -215,13 +223,17 @@ Author: Annette Bailey <annette.bailey@gmail.com>
             <iframe style="overflow: hidden;" id="libx-iframe"></iframe>
         </panel>
     </popupset>
-    
-    <toolbaritem id="urlbar-container">
-        <toolbarbutton id="libx-button" insertafter="urlbar-search-splitter" 
-            image="chrome://libx/skin/libx2-16.png"
-        />
-    </toolbaritem>
-    
+
+    <!-- button details -->
+    <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton id="libx-button"
+      label="LibX"
+      tooltiptext="LibX"
+      image="chrome://libx/skin/libx2-16.png"
+      class="toolbarbutton-1 chromeclass-toolbar-additional"
+      />
+  </toolbarpalette>
+
 </overlay>
 
 <!-- 
