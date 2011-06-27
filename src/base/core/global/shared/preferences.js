@@ -465,9 +465,7 @@ var SerializeVisitor = libx.core.Class.create ( DefaultVisitor, {
     },
     preference : function ( pref ) {
         this.str += "<preference name=\"" + libx.utils.xml.encodeEntities ( pref._name ) + "\" type=\"" + libx.utils.xml.encodeEntities( pref._type ) + "\" ";
-        if ( pref._type != 'choice' && pref._type != 'multichoice' ) {
-            this.str += "value=\"" + libx.utils.xml.encodeEntities ( pref._value ) + "\"";
-        }
+        this.str += "value=\"" + libx.utils.xml.encodeEntities ( pref._value ) + "\"";
         this.str += " >\n";
         this.parent ( pref );
         this.str += "</preference>\n";
@@ -577,6 +575,7 @@ return /** @lends libx.preferences */ {
         loadedQueue.scheduleLast(doneAct);
         doneAct.markReady();
         
+        // BRN: handle failures
         // initialize browser preferences
         libx.preferences.load ( {
             filename : libx.locale.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
@@ -633,15 +632,18 @@ return /** @lends libx.preferences */ {
             log ( "XMLPreferences.loadDefault", "Invalid filename: " + filename );
         }
         var callbackFunct = this.loadXML;
-        libx.cache.defaultMemoryCache.get ( {
+        libx.cache.defaultObjectCache.get ( {
             url : filename,
             dataType : "xml",
-            type     : "GET",
-            complete : function (xml, stat, xhr) {
+            success : function (xml) {
                 callbackFunct ( xml.documentElement, descriptor );
-                descriptor.callback && descriptor.callback();
             },
-            bypassCache : true 
+            error : function () {
+                libx.log.write('libx.preferences.load(): could not fetch file ' + filename);
+            },
+            complete : function () {
+                descriptor.callback && descriptor.callback();
+            }
         } );
     },
         

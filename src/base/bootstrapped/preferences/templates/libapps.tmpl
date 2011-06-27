@@ -5,6 +5,8 @@
  */
 
 function encode ( str ) {
+    if (typeof str == 'object')
+        str = libx.utils.json.stringify(str);
 	return libx.utils.xml.encodeEntities ( '' + str );
 }
 
@@ -126,7 +128,9 @@ function processEntries(entries) {
 
 }
 
-processEntries(libx.libapp.getEnabledPackages());
+processEntries(libx.libapp.getPackages(true).map(function (pkg) {
+    return { url: pkg };
+}));
 
 !}
 

@@ -98,13 +98,50 @@ var cachedTextTransformerModuleQueue = new libx.utils.collections.ActivityQueue(
 var requireURL2Activity = { };
 
 var textExplorer = new libx.libapp.TextExplorer();
-    
+
+var overridden;
+var overriddenAct = new libx.utils.collections.EmptyActivity();
+cachedTextTransformerModuleQueue.scheduleFirst(overriddenAct);
+libx.libapp.getOverridden(function (val) {
+    overridden = val;
+    overriddenAct.markReady();
+});
+
+/*
+ * libx.libapp.getOverridden() only returns items that are in the cache,
+ * meaning our list of overridden pairs may be incomplete.  As we execute
+ * libapps, check all loaded entries to see if they override others; it's
+ * possible that we may detect overriding libapps that weren't available when
+ * we called libx.libapp.getOverriden().  If so, we still need to be lucky in
+ * that the overriding libapp must be walked before the overridden one.  Blame
+ * Dr. Back for this extreme optimization.
+ */
+function addOverride(overridee, overrider) {
+    if (!overridden[overridee])
+        overridden[overridee] = {};
+    overridden[overridee][overrider] = 1;
+}
+
 // This code recursively walks packages, executing all libapps.
 function processEntries(entries) {
 
     for (var i = 0; i < entries.length; i++) {
         
         (function (entry) {
+
+            // if this entry is overridden, it will be processed later
+            // (or has already been processed)
+            if (overridden[entry.url]) {
+                var overriders = [];
+                for (var i in overridden[entry.url])
+                    overriders.push(i);
+                logDetail({
+                    msg: entry.url + " did not execute because it was overridden by "
+                                   + overriders.join(', '),
+                    level: 1
+                });
+                return;
+            }
         
             // this activity is used to block traverseTextActivity (below)
             // until every module in every libapp has been added to the queue
@@ -113,23 +150,29 @@ function processEntries(entries) {
         
             new libx.libapp.PackageWalker(entry.url).walk({
                 onpackage: function (pkg) {
-                    if (libx.prefs[pkg.id]._enabled._value)
+                    if (libx.prefs[pkg.id]._enabled._value) {
+                        if (pkg.override)
+                            addOverride(pkg.override, pkg.id);
                         processEntries(pkg.entries);
+                    }
                     // all subpackages have been queued
                     activity.markReady();
                 },
                 onlibapp: function (libapp) {
-                    
-                    var cat = libx.prefs.getCategoryForUrl(libapp.id, [{
-                        name: "_enabled",
-                        type: "boolean",
-                        value: "true"
-                    }]);
-                    
-                    if (cat._enabled._value)
+                    if (libx.prefs[libapp.id]._enabled._value) {
+                        if (libapp.override)
+                            addOverride(libapp.override, libapp.id);
                         executeLibapp(libapp, entry.args);
+                    }
                     // all modules in this libapp have been queued
                     // since this libapp has been executed
+                    activity.markReady();
+                },
+                error: function () {
+                    logDetail({
+                        msg: "Error: entry '" + entry.url + "' could not be loaded",
+                        level: 1
+                    });
                     activity.markReady();
                 }
             }, activity);
@@ -139,7 +182,15 @@ function processEntries(entries) {
 
 }
 
-processEntries(libx.libapp.getEnabledPackages());
+var doWalk = {
+    onready: function () {
+        processEntries(libx.libapp.getPackages(true).map(function (pkg) {
+            return { url: pkg };
+        }));
+    }
+};
+cachedTextTransformerModuleQueue.scheduleLast(doWalk);
+doWalk.markReady();
 
 var traverseTextActivity = {
     onready: function () {
@@ -306,6 +357,8 @@ function executeLibapp(libapp, pkgArgs) {
                         value = value.replace("{" + pkgArg + "}", pkgArgs[pkgArg].value);
                 }
                 setupArgs += "var " + arg + " = \"" + value + "\";\n";
+
+                // allow libapp arguments in text transformers
                 if (module.regexptexttransformer.length > 0) {
                 
                     // escape any regular expression characters in the argument
@@ -315,7 +368,7 @@ function executeLibapp(libapp, pkgArgs) {
                     var m = module.regexptexttransformer[0]
                         // convert the regex to a string to change the filter
                         .toString()
-                        // replace any parameters given
+                        // replace any arguments given
                         .replace("${" + arg + "}", value)
                          // remove the surrounding slashes
                         .match(/^\/(.*)\/([^\/]*)$/)

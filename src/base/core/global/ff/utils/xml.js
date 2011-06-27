@@ -8,7 +8,10 @@
 libx.utils.xml.loadXMLDocumentFromString = function (xmlstring) {
     var parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
              .createInstance(Components.interfaces.nsIDOMParser);
-    return parser.parseFromString(xmlstring, "text/xml");
+    var xml = parser.parseFromString(xmlstring, "text/xml");
+    if (xml.documentElement.nodeName == "parsererror")
+        throw new Error("Error parsing XML string");
+    return xml;
 }
 
 /*

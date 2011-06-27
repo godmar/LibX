@@ -100,6 +100,7 @@ var imported = {};
 
     };
 
+    // converts XML strings to documents
     function unscrub(args) {
         for (var i = 0; i < args.length; i++) {
             if (args[i] && args[i]._xml)
@@ -125,22 +126,24 @@ var imported = {};
     libxTemp.magicImport('libx.utils.browserprefs.setBoolPref');
     libxTemp.magicImport('libx.utils.browserprefs.setStringPref');
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
-    //libxTemp.magicImport('libx.cache.defaultObjectCache.get');
-    //libxTemp.magicImport('libx.cache.defaultMemoryCache.get');
     libxTemp.magicImport('libx.preferences.initialize', { namespace: imported });
-    libxTemp.magicImport('libx.libapp.loadLibapps');
-    libxTemp.magicImport('libx.libapp.getEnabledPackages', { returns: true, namespace: imported } );
+    libxTemp.magicImport('libx.libapp.getPackages', { returns: true, namespace: imported });
     libxTemp.magicImport('libx.libapp.addTempPackage');
     libxTemp.magicImport('libx.libapp.clearTempPackages');
+    libxTemp.magicImport('libx.libapp.getOverridden');
 
     libx.libappdata = {};
     function fireCallbacks(request, response, doUnscrub) {
-        for (var i in response) {
-            if (doUnscrub)
-                unscrub(response[i]);
-            request[i] && request[i].apply(request, response[i]);
-        }
+        ['success', 'error', 'complete'].forEach(function (callback) {
+            if (!response[callback])
+                return;
+            doUnscrub && unscrub(response[callback]);
+            request[callback] && request[callback].apply(request, response[callback]);
+        });
     }
+
+    // a per-page cache of object cache requests
+    var ocCache = {};
 
     libx.cache = {
         defaultMemoryCache: {
@@ -151,15 +154,15 @@ var imported = {};
             }
         },
         defaultObjectCache: {
-            // a per-page cache of object cache requests
-            cache: {},
             get: function (request) {
-                if (this.cache[request.url]) {
-                    fireCallbacks(request, this.cache[args.url], false);
+                if (ocCache[request.url]) {
+                    fireCallbacks(request, ocCache[request.url], false);
                 } else {
                     chrome.extension.sendRequest({ type: "objectCache", args: request }, function (response) {
+                        var saveToCache = !request.cacheOnly;
                         fireCallbacks(request, response, true);
-                        this.cache[request.url] = response;
+                        if (saveToCache)
+                            ocCache[request.url] = response;
                     });
                 }
             }
@@ -169,7 +172,7 @@ var imported = {};
     // get browserprefs from background page
     chrome.extension.sendRequest({ type: "browserPrefs" }, function (result) {
         libx.utils.browserprefs.setStore(result.prefs);
-        libx.initialize(true, false);
+        libx.initialize(false);
         var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
         if (configUrl != null)
             libx.loadConfig(configUrl);
@@ -183,8 +186,8 @@ var imported = {};
             if (bootWindowUrls.length == 0) {
                 // Fall back to local preference
                 bootWindowUrls.push({
-                    url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.window.url",
-                            libx.locale.getBootstrapURL("bootstrapwindow.js") )
+                    url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.contentscript.url",
+                            libx.locale.getBootstrapURL("bootstrapcontentscript.js") )
                 });
             }
 
@@ -206,8 +209,12 @@ var imported = {};
             var blockUntilEnabledPackagesReceived = new libx.utils.collections.EmptyActivity();
             windowBootStrapper.scriptQueue.scheduleFirst(blockUntilEnabledPackagesReceived);
             
-            imported.libx.libapp.getEnabledPackages(function (packages) {
-                libx.libapp.getEnabledPackages = function () { return packages };
+            imported.libx.libapp.getPackages(true, function (enabledPackages) {
+                libx.libapp.getPackages = function (enabledOnly) {
+                    if (!enabledOnly)
+                        libx.log.write('libx.libapp.getPackages(false) not supported in content script');
+                    return enabledPackages
+                };
                 blockUntilEnabledPackagesReceived.markReady();
             });
             

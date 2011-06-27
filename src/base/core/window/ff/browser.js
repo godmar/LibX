@@ -138,8 +138,8 @@ return {
         
         /* Register listener with immediate fire function in case the global
          * libx edition loaded after we cloned the libx object. */        
-        libx.events.registerEventListener("EditionAndLocaleLoaded", {
-            onEditionAndLocaleLoaded: function (event) {
+        libx.events.registerEventListener("EditionConfigurationLoaded", {
+            onEditionConfigurationLoaded: function (event) {
                 activateConfiguration(event.edition);
             }
         }, function (eventType) {

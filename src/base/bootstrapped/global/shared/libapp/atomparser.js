@@ -30,7 +30,7 @@ var ns = {
     libx2:	"http://libx.org/xml/libx2"
 };
 
-var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body", "regexptexttransformer" ];
+var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body", "regexptexttransformer", "override" ];
 var libx2ArrayClauses = { include : 1, exclude : 1, guardedby : 1, require : 1, regexptexttransformer : 1 };
 var libx2RegexpClauses = [ "include", "exclude", "regexptexttransformer" ];
 
@@ -95,6 +95,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
 
         if (libx2Node == null) {
             libx.log.write(baseURL + ": entry " + atomid + " does not contain any libx2:* node");
+            visitor.error && visitor.error();
             return;
         }
 
@@ -131,11 +132,19 @@ function handleEntry(visitor, url, cacheMissActivity) {
             }
         };
         
+        // add enabled preference
+        libx.prefs.getCategoryForUrl(atomid, [{
+            name: "_enabled",
+            type: "boolean",
+            value: "true"
+        }]);
+
         // add preference attribute
         var prefNode = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:preferences/*", libx2Node, ns);
-        if (prefNode != null)
-            nodeInfo["preferences"] = prefNode[0];
+        if (prefNode != null && prefNode.length) {
+            libx.preferences.loadXML(prefNode[0], { base: "libx.prefs" });
+        }
             
         // verify that 'include', 'exclude', etc. look like regular expressions
         for (var i = 0; i < libx2RegexpClauses.length; i++) {
@@ -176,12 +185,10 @@ function handleEntry(visitor, url, cacheMissActivity) {
         var params = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:params/libx2:param", libx2Node, ns);
         nodeInfo.params = {};
-        if ( params != null ) {
-            for (var i = 0; i < params.length; i++) {
-                nodeInfo.params[params[i].getAttribute("name")] = {
-                    type: params[i].getAttribute("type")
-                };
-            }
+        for (var i = 0; params != null && i < params.length; i++) {
+            nodeInfo.params[params[i].getAttribute("name")] = {
+                type: params[i].getAttribute("type")
+            };
         }
             
         // add localizations
@@ -213,51 +220,60 @@ function handleEntry(visitor, url, cacheMissActivity) {
     if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);
     
     // get the entire feed (which should include the entry for this url)
-    libx.cache.defaultObjectCache.get({
-        isCacheHit: false, // used below
+    var success = false;
+    var pathRequest = {
+        dataType: "xml",
         url: pathDir,
-        cachehit: function (filecontent, metadata) {
-            if (metadata) {
-                this.success(filecontent, metadata);
-                this.isCacheHit = true;
-            } else if (cacheMissActivity)
-                cacheMissActivity.markReady();
-        },
-        success: function (filecontent, metadata) {
-            if (this.isCacheHit)
-                return;
-            var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
+        cacheOnly: cacheMissActivity && true,
+        success: function (xmlDoc, metadata) {
+            success = true;
             var xpathExpr = "//atom:entry[atom:id/text() = '" + url + "']";
             var entry = libx.utils.xpath.findSingleXML(xmlDoc, xpathExpr, xmlDoc, ns);
             if (entry != null) {
                 // URL entry was found in this feed
                 handleEntryBody(xmlDoc, pathDir, entry);
             } else {
+                success = false;
                 // BRN: handle this case in scheduler
                 // URL entry not found in this feed; fetch the entry individually
-                libx.cache.defaultObjectCache.get({
-                    isCacheHit: false, // used below
+                var urlRequest = {
+                    dataType: "xml",
                     url: url,
-                    cachehit: function (filecontent, metadata) {
-                        if (metadata) {
-                            this.success(filecontent, metadata);
-                            this.isCacheHit = true;
-                        } else {
-                            if (cacheMissActivity) {
-                                cacheMissActivity.markReady();
-                            }
-                        }
-                    },
-                    success: function (filecontent, metadata) {
-                        if (this.isCacheHit)
-                            return;
-                        var xmlDoc = libx.utils.xml.loadXMLDocumentFromString(filecontent);
+                    cacheOnly: pathRequest.cacheOnly,
+                    success: function (xmlDoc, metadata) {
+                        success = true;
                         handleEntryBody(xmlDoc, pathDir, xmlDoc.documentElement);
+                    },
+                    error: function (err) {
+                        libx.log.write("atomparser.js: Error status " + err + " when walking " + url);
+                        visitor.error && visitor.error(err);
+                    },
+                    complete: function () {
+                        if (urlRequest.cacheOnly && !success) {
+                            cacheMissActivity.markReady();
+                            urlRequest.cacheOnly = false;
+                            libx.cache.defaultObjectCache.get(urlRequest);
+                        }
                     }
-                });
+                };
+                libx.cache.defaultObjectCache.get(urlRequest);
             }
+        },
+        complete: function () {
+            if (pathRequest.cacheOnly && !success) {
+                cacheMissActivity.markReady();
+                pathRequest.cacheOnly = false;
+                libx.cache.defaultObjectCache.get(pathRequest);
+            }
+        },
+        error: function (err) {
+            libx.log.write("atomparser.js: Error status " + err + " when walking " + pathDir);
+            visitor.error && visitor.error(err);
         }
-    });
+    };
+
+
+    libx.cache.defaultObjectCache.get(pathRequest);
 
 }
 

@@ -6,6 +6,10 @@
 (function () {
 
 var tmpPackages = [];
+var overridden = null;
+var allPackages = null;
+var enabledPackages = null;
+var packageSchedulers = [];
 
 libx.libapp.clearTempPackages = function () {
     tmpPackages = [];
@@ -20,117 +24,140 @@ libx.libapp.addTempPackage = function (permUrl, tempUrl) {
     tmpPackages.push({ permUrl: permUrl, tempUrl: tempUrl });
 };
 
-libx.libapp.getEnabledPackages = function () {
-    var packages = [];
-    for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
-        var pkg = libx.prefs.libapps.feeds._items[i]._value;
-        if (libx.prefs[pkg] && libx.prefs[pkg]._enabled._value) {
-            var disabled = false;
-            for (var j = 0; j < tmpPackages.length; j++)
-                if (tmpPackages[j].permUrl == pkg)
-                    disabled = true;
-            if (!disabled)
-                packages.push({ url: pkg });
-        }
-    }
-    for (var i = 0; i < tmpPackages.length; i++)
-        packages.push({ url: tmpPackages[i].tempUrl });
-    return packages;
+libx.libapp.removeUserPackage = function (pkg) {
+    var userPackages = libx.utils.json.parse(
+        libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
+    var idx = userPackages.indexOf(pkg);
+    if (idx < 0)
+        return false;
+    userPackages.splice(idx, 1);
+    libx.utils.browserprefs.setStringPref("libx.libapp.userpackages",
+        libx.utils.json.stringify(userPackages));
+    libx.libapp.reloadPackages();
+    return true;
 };
 
-// This code loads preferences associated with each entry in the user's
-// subscribed packages.  It also adds the "_enabled" preference to each
-// package/libapp.
+libx.libapp.addUserPackage = function (pkg) {
+    if (this.getPackages().indexOf(pkg) >= 0)
+        return false;
+    var userPackages = libx.utils.json.parse(
+        libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
+    userPackages.push(pkg);
+    libx.utils.browserprefs.setStringPref("libx.libapp.userpackages",
+        libx.utils.json.stringify(userPackages));
+    libx.libapp.reloadPackages();
+    return true;
+};
 
-libx.libapp.loadLibapps = function (feed, callback) {
-    var aQ = new libx.utils.collections.ActivityQueue();
-    
-    function scheduledWalk(entries) {
-    
-        for (var i = 0; i < entries.length; i++) {
-            
-            (function () {
-            
-                var blocker = new libx.utils.collections.EmptyActivity();
-                aQ.scheduleFirst(blocker);
-                
-                new libx.libapp.PackageWalker(entries[i].url).walk({
-                
-                    onpackage: function (pkg) {
-                    
-                        libx.prefs.getCategoryForUrl(pkg.id, [{
-                            name: "_enabled",
-                            type: "boolean",
-                            value: "true"
-                        }]);
-                    
-                        libx.log.write("registered package: " + pkg.description
-                                                              + " (" + pkg.id + ")", "libapp");
-                        scheduledWalk(pkg.entries);
-                        blocker.markReady();
-                    },
+libx.libapp.getPackages = function (enabledOnly) {
 
-                    onlibapp: function (libapp) {    
-                    
-                        libx.prefs.getCategoryForUrl(libapp.id, [{
-                            name: "_enabled",
-                            type: "boolean",
-                            value: "true"
-                        }]);
-                    
-                        if (libapp.preferences)
-                            libx.preferences.loadXML(libapp.preferences, { base: "libx.prefs" });
-                    
-                        libx.log.write("registered libapp: " + libapp.description
-                                                             + " (" + libapp.id + ")", "libapp");
-                        scheduledWalk(libapp.entries);
-                        blocker.markReady();
-                    },
-                    
-                    onmodule: function (module) {
-                        if (module.preferences)
-                            libx.preferences.loadXML(module.preferences, { base: "libx.prefs" });
-                        
-                        scheduledWalk(module.entries);
-                        blocker.markReady();
-                    }
-                    
-                });
-                
-            }) ();
-        }
+    if (!allPackages) {
+        allPackages = [];
+        libx.edition.localizationfeeds.package.forEach(function (pkg) {
+            allPackages.push(pkg.url);
+        });
+        var userPackages = libx.utils.json.parse(
+            libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
+        userPackages.forEach(function (pkg) {
+            // prevent duplicates
+            if (allPackages.indexOf(pkg) < 0)
+                allPackages.push(pkg);
+        });
+    }
+
+    if (!enabledOnly)
+        return allPackages;
+
+    if (!enabledPackages) {
+         enabledPackages = allPackages.filter(function (pkg) {
+            // if a packages's preferences don't exist, it's enabled
+            return !libx.prefs[pkg] || libx.prefs[pkg]._enabled._value;
+        });
+
+        // BRN: make sure tmp packages still work
+        for (var i = 0; i < tmpPackages.length; i++)
+            enabledPackages.push(tmpPackages[i].tempUrl);
+    }
+    return enabledPackages;
+
+};
+
+libx.libapp.reloadPackages = function () {
+    allPackages = null;
+    enabledPackages = null;
+    libx.libapp.clearOverridden();
+    for (var scheduler; scheduler = packageSchedulers.pop();)
+        scheduler.stopScheduling();
+    this.getPackages(true).forEach(function (pkg) {
+        var scheduler = new libx.cache.PackageScheduler(pkg);
+        scheduler.scheduleUpdates();
+        packageSchedulers.push(scheduler);
+    });
+};
+
+function addOverride(overridee, overrider) {
+    if (!overridden[overridee])
+        overridden[overridee] = {};
+    overridden[overridee][overrider] = 1;
+}
+
+libx.libapp.clearOverridden = function () {
+    overridden = null;
+};
+
+// find overriding libapps and packages
+libx.libapp.getOverridden = function (callback) {
+
+    var overrideQueue = new libx.utils.collections.ActivityQueue();
+
+    function findOverrides(entries) {
         
+        entries.forEach(function (entry) {
+            var activity = new libx.utils.collections.EmptyActivity();
+            overrideQueue.scheduleFirst(activity);
+        
+            new libx.libapp.PackageWalker(entry.url).walk({
+                onpackage: function (pkg) {
+                    if (libx.prefs[pkg.id]._enabled._value) {
+                        if (pkg.override)
+                            addOverride(pkg.override, pkg.id);
+                        findOverrides(pkg.entries);
+                    }
+                    activity.markReady();
+                },
+                onlibapp: function (libapp) {
+                    if (libx.prefs[libapp.id]._enabled._value && libapp.override)
+                        addOverride(libapp.override, libapp.id);
+                    activity.markReady();
+                },
+                error: function () {
+                    activity.markReady();
+                }
+            }, activity);
+            
+        });
     }
-    
-    try {
-        scheduledWalk([{ url: feed }]);
-    } catch (e) {
-        libx.log.write("Error in libx.libapp.loadLibapps(): " + e);
-    }
-    
-    var callbackActivity = {
-        onready: function () {
-            callback && callback();
-        }
-    };
 
-    aQ.scheduleLast(callbackActivity);
-    callbackActivity.markReady();
-    
+    if (overridden)
+        callback(overridden);
+    else {
+        overridden = {};
+        var enabled = this.getPackages(true).map(function (pkg) {
+            return { url: pkg };
+        });
+        findOverrides(enabled);
+        callbackAct = {
+            onready: function () { callback(overridden); }
+        };
+        overrideQueue.scheduleLast(callbackAct);
+        callbackAct.markReady();
+    }
+
 };
 
 var prereqQueue = new libx.utils.collections.ActivityQueue();
 
-// we need to wait for global scripts to use the atom parser
-var globalBootstrapAct = new libx.utils.collections.EmptyActivity();
-prereqQueue.scheduleLast(globalBootstrapAct);
-libx.events.addListener("GlobalBootstrapDone", {
-    onGlobalBootstrapDone: function () {
-        globalBootstrapAct.markReady();
-    }
-});
-
-// we need to wait for preferences to see which libapps to load
+// wait for preferences to see which packages are subscribed to
 var prefsLoadedAct = new libx.utils.collections.EmptyActivity();
 prereqQueue.scheduleLast(prefsLoadedAct);
 libx.events.addListener("PreferencesLoaded", {
@@ -139,17 +166,20 @@ libx.events.addListener("PreferencesLoaded", {
     }
 });
 
-var loadLibappsAct = {
-    onready: function () {
-        var rootPackages = [];
-        for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
-            var pkg = libx.prefs.libapps.feeds._items[i]._value;
-            libx.log.write("Loading root feed from: " + pkg);
-            libx.libapp.loadLibapps(pkg);
-        }
+// wait for global scripts so we can use the package walker.
+// also, reload package schedulers whenever the edition configuration changes.
+// this event takes care of both cases.
+libx.events.addListener("GlobalBootstrapDone", {
+    onGlobalBootstrapDone: function () {
+        var bootstrapAct = {
+            onready: function () {
+                libx.libapp.reloadPackages();
+            }
+        };
+        prereqQueue.scheduleLast(bootstrapAct);
+        bootstrapAct.markReady();
     }
-};
-prereqQueue.scheduleLast(loadLibappsAct);
-loadLibappsAct.markReady();
+});
 
 }) ();
+

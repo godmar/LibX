@@ -297,7 +297,6 @@ return libx.core.Class.create (
      *  Initializes this context menu object
      *  Takes a paramater indicating the groupLists and groups to initialize
      *  @constructs
-     *  @see menuobjects.js for an example contextMenuObject
      */
     initialize : function () {
     
@@ -355,8 +354,8 @@ return libx.core.Class.create (
 
 }) ();
 
-libx.events.addListener("EditionAndLocaleLoaded", {
-    onEditionAndLocaleLoaded: function () {
+libx.events.addListener("EditionConfigurationLoaded", {
+    onEditionConfigurationLoaded: function () {
         libx.ui.contextMenu = new libx.ui.ContextMenu();
     }
 });

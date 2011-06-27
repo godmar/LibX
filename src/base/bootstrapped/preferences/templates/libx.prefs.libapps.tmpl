@@ -31,7 +31,7 @@ function getStringBundle(url, callback, entries) {
     /* fetch the string bundle for this URL */
     var blocker = {
         onready: function (bundle) {
-            bundles.push(bundle);
+            bundle && bundles.push(bundle);
         }
     };
     bundlesQueue.scheduleLast(blocker);
@@ -60,6 +60,9 @@ function getStringBundle(url, callback, entries) {
                                 blocker.markReady(stringBundle);
                             }
                         });
+                    },
+                    error: function () {
+                        blocker.markReady();
                     }
                 });
             }) ();
@@ -125,7 +128,7 @@ function makeNode(entry, isModule) {
     
 }
 
-function reloadFeeds() {
+function reloadPackages() {
     var aQueues = [];
     $("#libapps-tmpl").replaceWith(process(aQueues, null, "libx.prefs.libapps"));
     aQueues[0].markReady();
@@ -140,17 +143,8 @@ processCheckTree = {
             .append('<div style="clear: both"></div>')
             .children("form").submit(function () {
                 var feed = $(this).children("input").val();
-                if (feed) {
-                    libx.libapp.loadLibapps(feed, function () {
-                        libx.prefs.libapps.feeds._addItem({
-                                _value: feed,
-                                _selected: true,
-                                _type: "string"
-                            });
-                        libx.preferences.save();
-                        reloadFeeds();
-                    });
-                }
+                if (feed && libx.libapp.addUserPackage(feed))
+                    reloadPackages();
                 return false;
             });
             
@@ -170,7 +164,7 @@ processCheckTree = {
                         .css("left", pos.left+50)
                         .css("top", pos.top+30)
                         .children().hide();
-                    $($elem.data("prefs")).show();
+                    $($elem.data("popup")).show();
                     e.stopPropagation();
                 }
             });
@@ -188,6 +182,7 @@ aQ.scheduleLast(processCheckTree);
 processCheckTree.markReady();
 
 function savePref($li) {
+    libx.libapp.clearOverridden();
     var enabled = $li.children(".checkbox").hasClass("checked");
     var pref = libx.prefs[$li.data("id")]._enabled;
     if (pref._value != enabled) {
@@ -196,28 +191,28 @@ function savePref($li) {
     }
 }
 
-function makePrefNode(entry, $node, tmplData) {
+function makePopupNode(entry, $node, tmplData) {
 
-    var $prefs = $("<div>\n"
+    var $popup = $("<div>\n"
                  + entry.description + "<br/>\n"
                  + '<span style="font-size: 0.9em;">' + entry.id + "</span><br/><br/>\n"
                  + "</div>\n");
-    $node.data("prefs", $prefs);
+    $node.data("popup", $popup);
 
     var addToPanel = {
         onready: function () {
             var aQueues = [];
-            $prefs
-                .hide()
-                .append('<div style="font-size: 0.8em; font-weight: normal;">' + process(aQueues, libx.prefs[entry.id], null, tmplData) + '</div>')
-                .appendTo($rightPanel);
+            $popup.hide().appendTo($rightPanel);
+            if (libx.prefs[entry.id])
+                $popup.append('<div style="font-size: 0.8em; font-weight: normal;">'
+                    + process(aQueues, libx.prefs[entry.id], null, tmplData) + '</div>');
             aQueues[0].markReady();
         }
     };
     aQ.scheduleLast(addToPanel);
     addToPanel.markReady();
     
-    return $prefs;
+    return $popup;
 }
 
 function processPackages(packages, elem, isRoot, includedModules) {
@@ -226,10 +221,28 @@ function processPackages(packages, elem, isRoot, includedModules) {
     
         (function () {
     
+            var packageUrl = packages[i].url;
             var blocker = new libx.utils.collections.EmptyActivity();
             processCheckTree.scheduleBefore(blocker);
         
-            new libx.libapp.PackageWalker(packages[i].url).walk({
+            function addRemoveLink($node, id) {
+                /* only show remove link for top level, user-added feeds */
+                if (!isRoot)
+                    return;
+                for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
+                    var editionPkg = libx.edition.localizationfeeds.package[i];
+                    if (editionPkg.url == id)
+                        return;
+                }
+                $('<a href="#" style="text-decoration: underline;">Remove from my packages</a>')
+                    .appendTo($node)
+                    .click(function () {
+                        if (libx.libapp.removeUserPackage(id))
+                            reloadPackages();
+                    });
+            }
+
+            new libx.libapp.PackageWalker(packageUrl).walk({
                 onpackage: function (pkg) {
                 
                     var $node = makeNode(pkg);
@@ -240,25 +253,8 @@ function processPackages(packages, elem, isRoot, includedModules) {
                     processPackages(pkg.entries, $node.children("ul"), false, []);
                     blocker.markReady();
                     
-                    var $prefs = makePrefNode(pkg, $node);
-                    
-                    /* only show remove link for top level, user-added feeds */
-                    if (!isRoot)
-                        return;
-
-                    for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
-                        var editionPkg = libx.edition.localizationfeeds.package[i];
-                        if (editionPkg.url == pkg.id)
-                            return;
-                    }
-                    
-                    $('<a href="#" style="text-decoration: underline;">Remove from my packages</a>')
-                        .appendTo($prefs)
-                        .click(function () {
-                            libx.prefs.libapps.feeds._removeItem(pkg.id);
-                            libx.preferences.save();
-                            reloadFeeds();
-                        });
+                    var $prefs = makePopupNode(pkg, $node);
+                    addRemoveLink($prefs, pkg.id);
                     
                 },
                 onlibapp: function (libapp) {
@@ -269,12 +265,11 @@ function processPackages(packages, elem, isRoot, includedModules) {
                     blocker.markReady();
                                
                     getStringBundle(libapp.id, function (tmplData) {
-                        makePrefNode(libapp, $node, tmplData);
+                        makePopupNode(libapp, $node, tmplData);
                     }, libapp.entries);
                     
                 },
                 onmodule: function (module) {
-                      
                     if (!libx.prefs[module.id] || $.inArray(module.id, includedModules) != -1) {
                         blocker.markReady();
                         return;
@@ -286,9 +281,17 @@ function processPackages(packages, elem, isRoot, includedModules) {
                     blocker.markReady();
                     
                     getStringBundle(module.id, function (tmplData) {
-                        makePrefNode(module, $node, tmplData);
+                        makePopupNode(module, $node, tmplData);
                     });
                     
+                },
+                error: function (err) {
+                    var entry = { id: packageUrl, description: "(Unknown Entry)" };
+                    var $node = makeNode(entry, true);
+                    elem.children(".checktree_separator").before($node);
+                    var $prefs = makePopupNode(entry, $node);
+                    addRemoveLink($prefs, packageUrl);
+                    blocker.markReady();
                 }
             });
             
@@ -298,12 +301,9 @@ function processPackages(packages, elem, isRoot, includedModules) {
 
 }
 
-var rootPackages = [];
-for (var i = 0; i < libx.prefs.libapps.feeds._items.length; i++) {
-    var pkg = libx.prefs.libapps.feeds._items[i]._value;
-    if (libx.prefs[pkg])
-        rootPackages.push({ url: pkg });
-}
+var rootPackages = libx.libapp.getPackages().map(function (pkg) {
+    return { url: pkg };
+});
 processPackages(rootPackages, $checkTree, true, []);
 
 templateScope.queueFunction(function () {

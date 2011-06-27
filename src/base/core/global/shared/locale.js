@@ -186,6 +186,8 @@ return /** @lends libx.locale */ {
             // get locales from url
             scheduleLocales(function (locale, activity) {
                 libx.cache.defaultObjectCache.get( {
+                    // BRN: is async still used?
+                    dataType: "json",
                     async: params.async,
                     url: params.url.replace(/\$locale\$/, locale),
                     error: function ( status ) {
@@ -194,7 +196,7 @@ return /** @lends libx.locale */ {
                             params.error(status);
                     },
                     success: function (response) {
-                        activity.markReady(libx.utils.json.parse(response));
+                        activity.markReady(response);
                     }
                 } );
             });

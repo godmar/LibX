@@ -301,6 +301,12 @@ var memoryCacheClass = libx.core.Class.create ( {
                     } // end if readyState complete
                 } // end onreadystatechange function
 
+                // In FF, after doing an XHR that results in a 304, all subsequent XHRs
+                // seem to result in status 304 (even if they don't include an
+                // If-Modified-Since header).  Setting If-Modified-Since to 0 fixes this bug.
+                if (!request.header || !request.header['If-Modified-Since'])
+                    xmlHttpReq.setRequestHeader('If-Modified-Since', '0');
+
                 //Set additional headers
                 if (request.header !== undefined) {
                     for (headerName in request.header) {

@@ -107,8 +107,7 @@ function loadLibX() {
     }
  
     try {
-        
-        libx.initialize(true, true);
+        libx.initialize(true);
     } catch (er) {
         log("Error in libx.initialize(): " + er);
     }

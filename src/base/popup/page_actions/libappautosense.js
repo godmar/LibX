@@ -17,7 +17,7 @@ function doAutoSense(response) {
                 _selected: true
             });
             libx.preferences.save();
-            libx.libapp.loadLibapps();
+            libx.libapp.loadPackage();
         });
     popup.addPageAction(div);
     

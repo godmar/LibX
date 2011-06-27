@@ -50,7 +50,7 @@ jQuery(function () {
             libx.log.write("Registering temp package: " + tempUrl + ", disabling permanent package: " + permUrl);
             
             libx.libapp.addTempPackage(permUrl, tempUrl);
-            libx.libapp.loadLibapps(tempUrl);
+            libx.libapp.loadPackage(tempUrl);
         }
         
     }

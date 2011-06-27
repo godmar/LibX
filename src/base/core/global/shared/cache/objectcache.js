@@ -39,14 +39,30 @@ var metaStore = new libx.storage.Store('metacache');
  * Retrieve a cached item from cacheStore. 
  * Called only after hit in metaStore.
  */
-function getCachedItem (request, metadata, initialHit) {
+function getCachedItem (request, metadata) {
     cacheStore.getItem({
         key: trimQuery(request.ignoreQuery, metadata.originURL),
-        success: function(text) {
-            if (request.cachehit && initialHit)
-                request.cachehit(text, metadata);
-            if (request.success)
-                request.success(text, metadata);
+        success: function (text) {
+            if (request.success) {
+                var data = text;
+                if (request.dataType == 'xml') {
+                    try {
+                        data = libx.utils.xml.loadXMLDocumentFromString(text);
+                    } catch (e) {
+                        request.error && request.error('parsererror');
+                        return;
+                    }
+                }
+                else if (request.dataType == 'json') {
+                    try {
+                        data = libx.utils.json.parse(text);
+                    } catch (e) {
+                        request.error && request.error('parsererror');
+                        return;
+                    }
+                }
+                request.success(data, metadata);
+            }
         },
         complete: request.complete
     });
@@ -72,16 +88,21 @@ function retrieveRequest(request, retrievalType) {
     if (retrievalType == RetrievalType.UPDATE && request.lastModified != null)
         headers["If-Modified-Since"] = request.lastModified;
 
+    // For 304 responses, FF throws "No element found" errors; overriding the MIME
+    // type fixes this
+    var mimeType = "text/plain";
+
     // for some reason, images can only be converted to data URIs if this mime type is given
     if (/\.(jpg|gif|ico|bmp)$/i.test(request.url) && !request.serverMIMEType)
-        request.serverMIMEType = "text/plain; charset=x-user-defined";
+        mimeType = "text/plain; charset=x-user-defined";
         
     var url = trimQuery(request.ignoreQuery, request.url);
-        
+       
     libx.cache.defaultMemoryCache.get({
+        dataType: 'text',
         header: headers,
         url: request.url,
-        serverMIMEType: request.serverMIMEType,
+        serverMIMEType: request.serverMIMEType || mimeType,
         bypassCache: true,
         error: function(data, status, xhr) {    
 
@@ -101,7 +122,6 @@ function retrieveRequest(request, retrievalType) {
                 lastModified : xhr.getResponseHeader('Last-Modified'),
                 mimeType : contentType,
                 originURL : url,
-                // BRN: generate SHA1 for every file?
                 sha1 : libx.utils.hash.hashString(data)
             };
     
@@ -109,8 +129,7 @@ function retrieveRequest(request, retrievalType) {
                 data = 'data:' + contentType + ';base64,' + libx.utils.binary.binary2Base64(data);
             }
             
-            // write the data first, then the metadata
-            // this should be safe in case we are interrupted
+            // write the data first, then its metadata
             cacheStore.setItem({
                 key: url,
                 value: data,
@@ -168,13 +187,13 @@ libx.cache.ObjectCache = libx.core.Class.create(
         BRN: OBSOLETE
      *  @param {Boolean} request.fetchDataUri: if true, data is returned
      *      and stored as a data URI instead of raw data
+     *  @param {Boolean} request.cacheOnly: if true, success will only be called if the object
+     *      is in the cache.  If the object is not in the cache, request.complete() is immediately
+     *      fired.  No XHRs are triggered.
      *
      *  @param {String} extension (optional) required extension, if any.  If not given, the
      *      extension is computed from the returned Content-Type.
      *
-     *  @param {Function} cachehit (optional) callback function containing the result of the
-     *      cache lookup.  If the object was not found in the cache, the callback is called
-     *      using null as the arguments.
      */
     get : function (request) {
     
@@ -189,12 +208,13 @@ libx.cache.ObjectCache = libx.core.Class.create(
         this.getMetadata({
             url: request.url,
             success: function(metadata) {
-                getCachedItem (request, metadata, true);
+                getCachedItem (request, metadata);
             },
             notfound: function() {
-                if (request.cachehit)
-                    request.cachehit(null, null);
-                retrieveRequest.call(self, request, RetrievalType.GET);
+                if (request.cacheOnly)
+                    request.complete && request.complete();
+                else
+                    retrieveRequest.call(self, request, RetrievalType.GET);
             }
         });
         

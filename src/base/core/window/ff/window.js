@@ -12,8 +12,8 @@ var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;
 if (bootWindowUrls.length == 0) {
     // Fall back to local preference
     bootWindowUrls.push({
-        url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.window.url", 
-                libx.locale.getBootstrapURL("bootstrapwindow.js") )
+        url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.contentscript.url", 
+                libx.locale.getBootstrapURL("bootstrapcontentscript.js") )
     });
 }
 

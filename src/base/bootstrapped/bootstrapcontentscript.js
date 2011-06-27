@@ -12,7 +12,8 @@ var files = [
     "global/shared/services/pubmed.js",
     "global/shared/services/xisbn.js",
     "global/shared/libapp/textexplorer.js",
-    "global/shared/libapp/texttransformer.js"
+    "global/shared/libapp/texttransformer.js",
+    "window/shared/libapp.js",
 ];
 
 for (var i = 0; i < files.length; i++) {

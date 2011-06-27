@@ -27,6 +27,8 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
                         
+(function () {
+
 /**
  * @namespace
  * Support for built-in access to services such 
@@ -470,11 +472,19 @@ libx.utils.collections.EmptyActivity = libx.core.Class.create({
 libx.buildDate = "$builddate$";
 
 /**
+ * Store the version here. 
+ */
+libx.version = "$libxversion$";
+
+var localeQueue = new libx.utils.collections.ActivityQueue();
+var localeLoaded = new libx.utils.collections.EmptyActivity();
+
+/**
  *
  * Initialize LibX
  *
  */
-libx.initialize = function (loadContentScripts, loadGlobalScripts) 
+libx.initialize = function (loadGlobalScripts) 
 {
     
     libx.initialize.reload = function () {
@@ -499,32 +509,7 @@ libx.initialize = function (loadContentScripts, loadGlobalScripts)
             
     }
     
-    var editionAndLocaleLoadedQueue = new libx.utils.collections.ActivityQueue();
-    var localeLoaded = new libx.utils.collections.EmptyActivity();
-    editionAndLocaleLoadedQueue.scheduleLast(localeLoaded);
-    
-    // locale bundle only gets loaded once
-    libx.events.addListener("DefaultLocaleLoaded", {
-        onDefaultLocaleLoaded: function () {
-            localeLoaded.markReady();
-        }
-    });
-    
-    // edition can be loaded multiple times
-    libx.events.addListener("EditionConfigurationLoaded", {
-        onEditionConfigurationLoaded: function (event) {
-            var notifyActivity = {
-                onready: function () {
-                    var loadedEvent = new libx.events.Event("EditionAndLocaleLoaded");
-                    loadedEvent.edition = event.edition;
-                    loadedEvent.notify();
-                }
-            };
-            editionAndLocaleLoadedQueue.scheduleLast(notifyActivity);
-            notifyActivity.markReady();
-        }
-    });
-    
+    // BRN: move this to scheduler.js?
     libx.events.addListener("EditionConfigurationLoaded", {
         onEditionConfigurationLoaded: function () {
         
@@ -542,27 +527,19 @@ libx.initialize = function (loadContentScripts, loadGlobalScripts)
             
         }
     });
-
-    libx.cache.packageSchedulers = [];
-    // BRN: race condition waiting for atom parser?
-    libx.events.addListener("PreferencesLoaded", {
-        onPreferencesLoaded: function () {
-
-            for (var scheduler; scheduler = libx.cache.packageSchedulers.pop();)
-                scheduler.stopScheduling();
-            
-            var enabledPackages = libx.libapp.getEnabledPackages();
-            for (var i = 0; i < enabledPackages.length; i++) {
-                var url = enabledPackages[i].url;
-                var scheduler = new libx.cache.PackageScheduler(url);
-                libx.cache.packageSchedulers.push(scheduler);
-                scheduler.scheduleUpdates();
-            }
-        
+    
+    /**
+     * Block until the default locale is fetched.
+     * The default locale is packaged with the extension, so this
+     * wait should be negligible.
+     */
+    localeQueue.scheduleLast(localeLoaded);
+    libx.events.addListener("DefaultLocaleLoaded", {
+        onDefaultLocaleLoaded: function () {
+            localeLoaded.markReady();
         }
     });
-    
-    libx.initialize.loadContentScripts = loadContentScripts;
+
     libx.initialize.loadGlobalScripts = loadGlobalScripts;
     libx.locale.initialize();
     libx.preferences.initialize();
@@ -581,33 +558,25 @@ libx.loadConfig = function (configUrl) {
             libx.edition = edition;
             libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
             
-            // Load all URLs marked as @type = 'bootglobal' in configuration
-            var bootGlobalUrls = libx.edition.localizationfeeds.bootglobal;
-            if (bootGlobalUrls.length == 0) {
-                if (libx.initialize.loadContentScripts)
-                    bootGlobalUrls.push({
-                        url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.contentscript.url", 
-                                libx.locale.getBootstrapURL("bootstrapcontentscript.js") )
-                    });
-                if (libx.initialize.loadGlobalScripts)
-                    bootGlobalUrls.push({
-                        url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.global.url",
-                                libx.locale.getBootstrapURL("bootstrapglobal.js") )
-                    });
-            }
-        
+            var bootGlobalUrls = [];
+            if (libx.initialize.loadGlobalScripts)
+                bootGlobalUrls.push({
+                    url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.global.url",
+                            libx.locale.getBootstrapURL("bootstrapglobal.js") )
+                });
+
             var globalBootStrapper 
                 = libx.initialize.globalBootStrapper 
                 = new libx.bootstrap.BootStrapper( 
                     new libx.events.Event("GlobalBootstrapDone")
                 );
             
-            var convertChromeURLsQueue = new libx.utils.collections.ActivityQueue();
+            // BRN: remove this requirement
             function chromeURL2DataURI(item) {
                 if (libx.edition.options[item] == null)
                     return;
                 var activity = new libx.utils.collections.EmptyActivity();
-                convertChromeURLsQueue.scheduleLast(activity);
+                localeQueue.scheduleLast(activity);
                 libx.utils.getEditionResource({
                     url: libx.edition.options[item],
                     success: function (dataURI) {
@@ -622,23 +591,23 @@ libx.loadConfig = function (configUrl) {
             chromeURL2DataURI("cueicon");
             chromeURL2DataURI("logo");
             
-            var chromeURLsConverted = {
+            var loadScriptsAct = {
                 onready: function () {
                     var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
                     edLoadedEvent.edition = edition;
                     edLoadedEvent.notify();
 
-                    for (var i = 0; i < bootGlobalUrls.length; i++) {
-                        libx.log.write("Loading " + bootGlobalUrls[i].url);
+                    for (var i = 0; i < bootGlobalUrls.length; i++)
                         globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
-                    }
                 }
             };
-            convertChromeURLsQueue.scheduleLast(chromeURLsConverted);
-            chromeURLsConverted.markReady();
+            localeQueue.scheduleLast(loadScriptsAct );
+            loadScriptsAct.markReady();
             
         }
     });
 }
+
+}) ();
 
 // vim: ts=4

@@ -29,9 +29,7 @@ var initialRetryInterval = 5 * 1000;
 var maxRetryInterval = 60 * 1000;
 var maxRandDelay = 10 * 1000;
 
-// BRN: make object cache generic
-// BRN: change this
-var updateInterval = defaultUpdateInterval;
+var DISABLE_SCHEDULERS = false;
 
 function getFeedPath(url) {
     try {
@@ -45,12 +43,14 @@ libx.cache.Scheduler = libx.core.Class.create({
 
     initialize: function (rootUrl) {
         this.rootUrl = rootUrl;
-        this.defaultUpdateInterval = defaultUpdateInterval;
+        this.updateInterval = defaultUpdateInterval;
         this.initialRetryInterval = initialRetryInterval;
         this.maxRetryInterval = maxRetryInterval;
         this.maxRandDelay = maxRandDelay;
     },
 
+    objectCache: libx.cache.defaultObjectCache,
+    
     rootDataType: "text",
 
     // set to "root" or "always"
@@ -65,7 +65,9 @@ libx.cache.Scheduler = libx.core.Class.create({
     },
     
     scheduleUpdates: function () {
-    
+   
+        if (DISABLE_SCHEDULERS)
+            return;
         var self = this;
     
         function setRootExpiration(interval, retry, callback) {
@@ -75,7 +77,7 @@ libx.cache.Scheduler = libx.core.Class.create({
             metadataMixin["expires"] = new Date().getTime() + interval;
             retry && (metadataMixin["retry"] = interval);
             
-            libx.cache.defaultObjectCache.getMetadata({
+            self.objectCache.getMetadata({
                 ignoreQuery: true,
                 url: self.rootUrl,
                 success: function (m) {
@@ -83,13 +85,13 @@ libx.cache.Scheduler = libx.core.Class.create({
                 },
                 complete: function () {
                     libx.core.Class.mixin(metadata, metadataMixin, true);
-                    libx.cache.defaultObjectCache.putMetadata({
+                    self.objectCache.putMetadata({
                         ignoreQuery: true,
                         url: self.rootUrl,
                         metadata: metadata,
                         complete: function () {
                             libx.utils.timer.setTimeout(function () {
-                                updateRoot(metadata);
+                                updateRoot();
                             }, interval);
                             libx.log.write("Scheduling update in " + Math.round(interval / 1000) + " seconds");
                             callback && callback();
@@ -102,7 +104,7 @@ libx.cache.Scheduler = libx.core.Class.create({
         /*
          * Check for update to root file, then update children if necessary
          */
-        function updateRoot(rootMetadata) {
+        function updateRoot() {
 
             if (self.cancelUpdates)
                 return;
@@ -121,11 +123,12 @@ libx.cache.Scheduler = libx.core.Class.create({
                 };
 
                 function update(metadata) {
-                    // libx.log.write("Updating " + url);
-                    libx.cache.defaultObjectCache.update({
+                    var updated = false;
+                    self.objectCache.update({
                         lastModified: metadata && metadata.lastModified,
                         url: url,
                         success: function () {
+                            updated = true;
                             libx.log.write(url + " updated");
                             activity.markReady(true);
                         },
@@ -135,14 +138,14 @@ libx.cache.Scheduler = libx.core.Class.create({
                         },
                         complete: function () {
                             activity.markReady(true);
-                            callback && callback();
+                            callback && callback(updated);
                         }
                     });
                 }
                 
                 libx.log.write("Checking for updates to " + url);
                 updateQueue.scheduleLast(activity);
-                libx.cache.defaultObjectCache.getMetadata({
+                self.objectCache.getMetadata({
                     url: url,
                     success: function (metadata) {
                         if (shouldUpdate(metadata))
@@ -150,88 +153,97 @@ libx.cache.Scheduler = libx.core.Class.create({
                         else
                             activity.markReady(true);
                     },
-                    //BRN: should we only update if it exists?
                     notfound: function () {
                         update();
                         activity.markReady(true);
-                        // libx.log.write(url + " not found; skipping update");
                     }
                 });
             }
 
-            libx.cache.defaultObjectCache.update({
-                ignoreQuery: true,
-                lastModified: rootMetadata.lastModified,
+            var rootMetadata = {};
+            self.objectCache.getMetadata({
                 url: self.rootUrl,
-                dataType: self.rootDataType,
-                success: function (data, status, xhr) {
-                    if (self.updateChildrenRule == "root")
-                        self.updateChildren(checkForUpdates, data);
+                ignoreQuery: true,
+                success: function (metadata) {
+                    rootMetadata = metadata;
                 },
-                
-                error: function (status) {
-                    libx.log.write("Error status " + status + " updating " + self.rootUrl);
-                    noErrors = false;
-                },
-                
                 complete: function () {
-                    if (self.updateChildrenRule == "always" && noErrors)
-                        self.updateChildren(checkForUpdates, null, updateQueue);
-                    var updatesFinished = {
-                        onready: function () {
+                    self.objectCache.update({
+                        ignoreQuery: true,
+                        lastModified: rootMetadata.lastModified,
+                        url: self.rootUrl,
+                        dataType: self.rootDataType,
+                        success: function (data, status, xhr) {
+                            libx.log.write(self.rootUrl + " updated");
+                            if (self.updateChildrenRule == "root")
+                                self.updateChildren(checkForUpdates, data);
+                        },
                         
-                            if (!noErrors) {
-                                // double retry interval on each failure until max retry interval is reached
-                                var retry = 2 * rootMetadata.retry || self.initialRetryInterval;
-                                if (retry > self.maxRetryInterval)
-                                    retry = self.maxRetryInterval;
+                        error: function (status) {
+                            libx.log.write("Error status " + status + " updating " + self.rootUrl);
+                            noErrors = false;
+                        },
+                        
+                        complete: function () {
+                            if (self.updateChildrenRule == "always" && noErrors)
+                                self.updateChildren(checkForUpdates, null, updateQueue, function () {
+                                    noErrors = false;
+                                });
+                            var updatesFinished = {
+                                onready: function () {
                                 
-                                setRootExpiration(retry, true);
-                                return;
-                            }
-                            
-                            // add random delay to update interval to reduce server load
-                            var delay = Math.floor(self.maxRandDelay * Math.random());
-                            setRootExpiration(self.defaultUpdateInterval + delay, false, function () {
-                                libx.log.write("All updates completed successfully.");
-                                // BRN: reload global bootstrapped components
-                            });
-                            
+                                    if (!noErrors) {
+                                        // double retry interval on each failure until max retry interval is reached
+                                        var retry = 2 * rootMetadata.retry || self.initialRetryInterval;
+                                        if (retry > self.maxRetryInterval)
+                                            retry = self.maxRetryInterval;
+                                        
+                                        setRootExpiration(retry, true);
+                                        return;
+                                    }
+                                    
+                                    // add random delay to update interval to reduce server load
+                                    var delay = Math.floor(self.maxRandDelay * Math.random());
+                                    setRootExpiration(self.updateInterval + delay, false, function () {
+                                        libx.log.write("All updates completed successfully.");
+                                    });
+                                    
+                                }
+                            };
+                            updateQueue.scheduleLast(updatesFinished);
+                            updatesFinished.markReady();
                         }
-                    };
-                    updateQueue.scheduleLast(updatesFinished);
-                    updatesFinished.markReady();
+                    });
                 }
             });
-                                
         }
     
-        libx.cache.defaultObjectCache.getMetadata({
+        self.objectCache.getMetadata({
             url: self.rootUrl,
             success: function (metadata) {
                 var now = new Date().getTime();
                 if (!metadata.expires) {
                     // first time checking this item; set expiration
                     var delay = Math.floor(self.maxRandDelay * Math.random());
-                    setRootExpiration(self.defaultUpdateInterval + delay, false);
+                    setRootExpiration(self.updateInterval + delay, false);
                     return;
                 }
                 if (metadata.expires > now) {
                     // cache hasn't expired yet; schedule update
                     var timeDiff = metadata.expires - now;
                     libx.utils.timer.setTimeout(function () {
-                        updateRoot(metadata);
+                        updateRoot();
                     }, timeDiff);
                     libx.log.write(self.rootUrl + " metadata found; scheduling update in " + Math.round(timeDiff / 1000) + " seconds");
                     return;
                 }
                 libx.log.write(self.rootUrl + " metadata found; updating now")
                 // cache has expired; update now
-                updateRoot(metadata);
+                updateRoot();
             },
             notfound: function () {
                 libx.log.write(self.rootUrl + " metadata not found; updating now");
-                updateRoot({});
+                updateRoot();
             }
         });
     }
@@ -267,15 +279,16 @@ libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     }
 });
 
+//BRN: handle case where each entry is hosted at static URL
 libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     initialize: function (rootUrl) {
         this.fullRootUrl = rootUrl;
 
-        // the actual update URL is the feed's path, not its entry
+        // the actual update URL is the feed's path, not its full id
         this.parent(getFeedPath(rootUrl));
     },
     updateChildrenRule: "always",
-    updateChildren: function (checkForUpdates, data, updateQueue) {
+    updateChildren: function (checkForUpdates, data, updateQueue, markError) {
 
         // As we recursively walk the packages, we need to keep track of the
         // entries we have already visited to prevent updating them more than
@@ -305,7 +318,11 @@ libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
                     new libx.libapp.PackageWalker(entry.url).walk({
                         onpackage: onitem, 
                         onlibapp: onitem, 
-                        onmodule: onitem
+                        onmodule: onitem,
+                        error: function () {
+                            markError();
+                            walkerAct.markReady();
+                        }
                     });
                 }
 
@@ -317,7 +334,9 @@ libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
                 } else {
                     visited[entryPath] = new libx.utils.collections.ActivityQueue();
                     visited[entryPath].scheduleLast(updateAct);
-                    checkForUpdates(entryPath, libx.core.TrueFunction, function () {
+                    checkForUpdates(entryPath, libx.core.TrueFunction, function (updated) {
+                        if (updated)
+                            libx.libapp.clearOverridden();
                         updateAct.markReady();
                     });
                 }

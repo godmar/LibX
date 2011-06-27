@@ -37,8 +37,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             type     : "GET",
             url      : invofcc.url,
 
-            success : function (text, metadata) {
-                var xml = libx.utils.xml.loadXMLDocumentFromString(text);
+            success : function (xml, metadata) {
                 var doc = new libx.config.XMLConfigWrapper(xml);
 
                 var edition = {};
@@ -124,14 +123,6 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
         
         if (!localizationfeeds.package.length)
             localizationfeeds.package.push({ url: "$defaultpkgURL$" });
-        for (var i = 0; i < localizationfeeds.package.length; i++) {
-            var pkg = localizationfeeds.package[i];
-            libx.prefs.libapps.feeds._addItem({
-                _value: pkg.url,
-                _type: "string",
-                _selected: true
-            });
-        }
             
         return localizationfeeds;
     },
