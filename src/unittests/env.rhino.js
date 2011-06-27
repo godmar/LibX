@@ -1625,6 +1625,8 @@ Envjs.connection = function(xhr, responseHandler, data){
                 console.log('failed to open connection stream \n %s %s',
                             e.toString(), e);
             }
+            outstream = new java.io.ByteArrayOutputStream();
+            buffer = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
             instream = connection.getErrorStream();
         }
 

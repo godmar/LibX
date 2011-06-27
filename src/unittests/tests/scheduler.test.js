@@ -5,8 +5,8 @@ var suite = libx.testing.createUnitTestSuite("Tests for schedulers",
         return 0;
     });
 
-//TODO: test failures (nonexistent resources, etc);
 //TODO: test individually hosted libapps
+//TODO: test config.xml updating libapps
 function startScheduler(scheduler) {
     scheduler.defaultUpdateInterval = 2 * 1000;
     scheduler.initialRetryInterval = 1 * 1000;
@@ -120,3 +120,21 @@ suite.addUnitTest("Test package scheduler",
     {
         timeout: 30
     });
+
+suite.addUnitTest("Test missing files",
+    function () {
+        var resourceUrl = this.baseUrl + "tests/resources/schedulers/";
+        var configUrl = resourceUrl + "invalid_config.xml";
+        var files = ["invalid_config.xml", "missing_file1.js", "config_file2.js"];
+
+        configScheduler = new libx.cache.ConfigScheduler(configUrl);
+        startScheduler(configScheduler);
+
+        this.WAIT(10);
+
+        configScheduler.stopScheduling();
+    },
+    {
+        timeout: 30
+    });
+
