@@ -15,6 +15,8 @@
                 metaCache.getItem({
                     key: filepaths[i],
                     success: function(text) {
+                        libx.log.write(filepaths[i]);
+                        libx.log.write(text);
                         var metadata = libx.utils.json.parse(text);
                         /* Calculate the name of the file, this is used to sort */
                         var urlparts = metadata.originURL.split ( '/' );
@@ -42,7 +44,6 @@
 {BeginLocale=en_US}
     {
         "flushcache_button" :   { "message" : "Flush Global Memory Cache" },
-        "updatenow_button" :    { "message" : "Update Now!" },
         "purgeall_button" :     { "message" : "Purge All" },
         "refresh_button" :      { "message" : "Refresh" },
         "opencachedcopy" :      { "message" : "(Open Cached Copy)" },
@@ -54,7 +55,6 @@
 <div id="objectcache-content" style="font-size:.8em;">
     <div id="actions">
         <button id="link-flush">{L "flushcache_button" L}</button>
-        <button id="link-update">{L "updatenow_button" L}</button>
         <button id="link-purgeall">{L "purgeall_button" L}</button>
         <button id="link-refresh">{L "refresh_button" L}</button>
     </div>
@@ -95,9 +95,17 @@ $('.accordion > div > span').click(function() {
 
 $('.purgebutton').click(function() {
     var filename = $(this).attr('href').substr(1);
-    cache.removeItem({ key: filename });
-    metaCache.removeItem({ key: filename });
-    $(this).parent().parent().remove();
+    cache.removeItem({
+        key: filename,
+        complete: function () {
+            metaCache.removeItem({
+                key: filename,
+                complete: function () {
+                    $("#link-refresh").click();
+                }
+            });
+        }
+    });
     return false;
 });
 
@@ -105,17 +113,21 @@ $('#link-flush').click(function() {
     libx.cache.defaultMemoryCache.flush();
 });
 
-$('#link-update').click(function() {
-    libx.cache.defaultObjectCache.updateRequests();
-});
-
 $('#link-purgeall').click(function() {
-    $(".purgebutton").click();
+    cache.clear({
+        complete: function () {
+            metaCache.clear({
+                complete: function () {
+                    $("#link-refresh").click();
+                }
+            });
+        }
+    });
 });
 
 $('#link-refresh').click(function() {
     var aQueues = [];
-    $("#objectcache-content").replaceWith( process( blockers, null, "objectcache" ) );
+    $("#objectcache-content").replaceWith( process( aQueues, null, "objectcache" ) );
     aQueues[0].markReady();
 });
 

@@ -134,6 +134,40 @@ libx.storage = {
         },
         
         /**
+         * Removes an object from storage with the given key.
+         *
+         * @param {Object}      paramObj contains properties used for retrieval
+         * 
+         * @param {String}      paramObj.key        (REQUIRED) key to look up
+         * 
+         * @param {Function}    paramObj.complete   function to execute upon
+         *                                          call completion
+         *                                          
+         * @param {Function}    paramObj.error      function to execute upon
+         *                                          errors
+         *                                          
+         * @param {Function}    paramObj.success    function to execute upon
+         *                                          success
+         */
+        removeItem: function(paramObj) {
+            var error = false;
+            var value = null;
+            try {
+                localStorage.removeItem(this.prefix + paramObj.key);
+            } catch(e) {
+                error = true;
+                if(paramObj.error)
+                    paramObj.error(e);
+                else
+                    libx.log.write("Error in libx.storage.getItem(): " + e);
+            }
+            if (!error && paramObj.success)
+                paramObj.success();
+            if(paramObj.complete)
+                paramObj.complete();
+        },
+
+        /**
          * Clears the local storage.
          *
          * @param {Object}      paramObj contains properties used for retrieval
