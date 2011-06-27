@@ -80,7 +80,7 @@ a:hover {
 }
 
 #content-pane {
-    border: 1px solid #35b;
+    border-left: 2px solid #ddd;
     padding: 10px;
 }
 
@@ -90,36 +90,31 @@ a:hover {
 }
 
 #tab-pane a {
-    border: 1px solid #ccc;
-    border-right: 1px solid #35b;
-    padding: 5px;
-    margin-right: -1px;
-    background-color: #888;
-    cursor: pointer;
-    color: white;
+    padding: 8px 8px 3px 0;
+    text-align: right;
     white-space: nowrap;
-    margin-top: -1px;
     z-index: 0;
     position: relative;
-    color: #ddd;
+    color: black;
     display: block;
     text-decoration: none;
+    color: #666;
+    margin-right: -2px;
 }
 
 #tab-pane a:hover {
-    border-left: 1px solid white;
+    color: black;
+    /*border-left: 1px solid white;
     border-top: 1px solid white;
     border-bottom: 1px solid white;
     z-index: 1;
-    color: white;
+    color: white;*/
 }
 
 #tabs #tab-pane .selected {
-    background-color: white;
-    border: 1px solid #35b;
-    border-right: 1px solid white;
+    border-bottom: 2px solid black;
     color: black;
-    z-index: 2;
+    padding-bottom: 1px;
 }
 
 .edition-image {
@@ -134,12 +129,6 @@ a:hover {
     min-width: 300px;
 }
 
-#change-edition {
-    display: block;
-    padding: 5px;
-    white-space: nowrap;
-}
-
 #change-edition-view {
     min-height: 350px;
     width: 600px;
@@ -147,6 +136,7 @@ a:hover {
 }
 
 ul {
+    padding: 0;
     list-style-type: none;
 }
 
@@ -188,6 +178,7 @@ ul {
 #search-view input[type="reset"], input[type="submit"], input[type="button"] {
     float: right;
     padding: 5px 15px;
+    margin-top: 3px;
 }
 
 #full-search-fields {
@@ -271,6 +262,10 @@ ul {
     bottom: 5px;
     right: 5px;
     font-size: 10px;
+}
+
+#simple-view {
+    width: 175px;
 }
 
 #simple-view input {

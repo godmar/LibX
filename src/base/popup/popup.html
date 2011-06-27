@@ -29,11 +29,10 @@
                     <a href="#pageactions-view" class="set-locale">tab_pageactions</a>
                     <a href="#links-view" class="set-locale">tab_links</a>
                     <a href="#proxy-view" class="set-locale">tab_proxy</a>
-                    <a href="#dev-view">Developer</a>
                     <a href="#preferences" class="set-locale">tab_prefs</a>
+                    <a href="#dev-view">Developer</a>
                     <a href="#about-view" class="set-locale">tab_about</a>
                 </div>
-                <a href="#" class="set-locale" id="change-edition">tab_change</a>
             </td>
             <td id="content-pane" valign="top">
             
@@ -79,6 +78,12 @@
                     <h1 id="about-name"></h1>
                     <h2 id="about-desc"></h2>
                     <h3><span class="set-locale">about_adapted</span> <span id="about-adaptedby"></span></h3>
+                    <p>
+                        <div id="about-edition-version"></div>
+                        <div id="about-libx-version"></div>
+                    </p>
+                    <p><a href="#" class="set-locale" id="change-edition">tab_change</a></p>
+                    <p><input type="checkbox" id="developer-enabled-checkbox" />Show Developer tab</p>
                     <div class="about-footer">
                         <div><span class="set-locale">about_writtenby</span> Annette Bailey, Godmar Back, Michael Doyle, Brian Nicholson</div>
                         <div><span class="set-locale">about_contrib</span> Nathan Baker, Tobias Wieschnowsky, Travis Webb, Arif Khokar</div>
@@ -95,7 +100,7 @@
                 <div id="dev-view">
                     <div><a id="dev-cache" href="#">View cache</a></div>
                     <div><a id="dev-prefs" href="#">View user prefs</a></div>
-                    <div><a id="clearCache" href="#">Clear cache</a></div>
+                    <div><a class="clearCache" href="#">Clear cache</a></div>
                     <!-- BRN: localize -->
                     Libapp debug level: <a href="javascript:void(0);" id="libapp-debuglevel">0</a>
                 </div>      
@@ -136,7 +141,10 @@
     <!-- error view -->
     <div id="error-view">
         <span class="set-locale">label_error</span> <span id="error-url"></span>
-        <p><a href="#" id="error-change-edition" class="set-locale">tab_change</a></p>
+        <p>
+            <div><a href="#" id="error-change-edition" class="set-locale">tab_change</a></div>
+            <div><a class="clearCache" href="#">Clear cache</a></div>
+        </p>
     </div>
     
 </div>

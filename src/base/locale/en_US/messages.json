@@ -10,12 +10,22 @@
     "tab_pageactions":      { "message": "Maintainer" },
     "label_search":         { "message": "Search" },
     "label_for":            { "message": "for..." },
-    "label_select":         { "message": "Select a LibX edition:" },
+    "label_select":         { "message": "Search for a LibX edition:" },
     "label_error":          { "message": "Could not load configuration from" },
     "about_adapted":        { "message": "Adapted by:" },
     "about_writtenby":      { "message": "LibX was written by:" },
     "about_contrib":        { "message": "Contributors:" },
     "about_translator":     { "message": "This translation by:" },
+    "about_editionversion": { "message": "Edition version: $version$",
+                              "placeholders": {
+                                "version":    { "content": "$1" }
+                              }
+                            },
+    "about_libxversion":    { "message": "LibX version: $version$",
+                              "placeholders": {
+                                "version":    { "content": "$1" }
+                              }
+                            },
     "view_simple":          { "message": "Simple view" },
     "view_full":            { "message": "Full view" },
     "load_edition":         { "message": "Edition:" },

@@ -236,7 +236,16 @@ return {
             }
         }, undefined, 'popup_reload');
         
-        $('#clearCache').click(function () {
+        var devchecked = libx.utils.browserprefs.getBoolPref('libx.popup.developer', false);
+        $('a[href="#dev-view"]').toggle(devchecked);
+        $('#developer-enabled-checkbox').attr('checked', (devchecked ? 'checked' : ''));
+        $('#developer-enabled-checkbox').click(function () {
+            var checked = $(this).attr('checked');
+            libx.utils.browserprefs.setBoolPref('libx.popup.developer', checked);
+            $('a[href="#dev-view"]').toggle('fast');
+        });
+
+        $('.clearCache').click(function () {
             libx.initialize.reload();
         });
         
@@ -250,6 +259,10 @@ return {
             select: function (level) {
                 libx.utils.browserprefs.setIntPref('libx.libapp.debuglevel', level);
             }
+        });
+        $('#error-change-edition').click(function() {
+            $('#error-view').hide();
+            popup.showChangeEditionView();
         });
         $('#dev-prefs').click(function () {
             libx.ui.openSearchWindow(libx.locale.getExtensionURL('dev/prefs.html'));
@@ -304,10 +317,6 @@ return {
         $('#change-edition-view').hide();
         $('#tabs').hide();
         $('#error-view').show();
-        $('#error-change-edition').click(function() {
-            $('#error-view').hide();
-            popup.showChangeEditionView();
-        });
     },
     
     showChangeEditionView: function() {
@@ -389,6 +398,8 @@ return {
 
             field
                 .appendTo($("#full-search-fields"))
+                .hide()
+                .fadeIn()
                 .find(".search-add").click(function () {
                     
                     if ($(this).hasClass("disabled"))
@@ -512,6 +523,8 @@ return {
             // load the edition information
             $('#edition-name-header').text(libx.edition.name.edition);
             $('#about-name').text(libx.edition.name.long);
+            $('#about-libx-version').text(libx.locale.defaultStringBundle.getProperty('about_libxversion', libx.version));
+            $('#about-edition-version').text(libx.locale.defaultStringBundle.getProperty('about_editionversion', libx.edition.version));
             $('#about-desc').text(libx.edition.name.description);
             $('#about-adaptedby').text(libx.edition.name.adaptedby);
 
