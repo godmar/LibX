@@ -79,7 +79,7 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
                     }
                 };
                 libx.core.Class.mixin(globalTargetScope, globalProperties, true);
-                libx.bootstrap.loadSubScript(script, metadata, globalTargetScope, window);
+                libx.bootstrap.loadSubScript(scriptURL, script, metadata, globalTargetScope, window);
             }
         };
         this.scriptQueue.scheduleLast(runScriptActivity);

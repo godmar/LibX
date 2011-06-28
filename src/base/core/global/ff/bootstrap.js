@@ -15,7 +15,7 @@ libx.bootstrap.loadSubScript = (function() {
     var systemPrincipal = Cc["@mozilla.org/systemprincipal;1"] 
                              .createInstance(Ci.nsIPrincipal); 
     
-    return function (scriptStr, metadata, globalScope, window) {
+    return function (url, scriptStr, metadata, globalScope, window) {
     
         var win;
         if(window)
@@ -23,11 +23,11 @@ libx.bootstrap.loadSubScript = (function() {
         else
             win = systemPrincipal;
     
-        libx.log.write("loading (" + metadata.originURL + ")", "bootstrap");
+        libx.log.write("loading (" + url + ")", "bootstrap");
         
         var sbox = new libx.libapp.Sandbox(win, globalScope);
-        sbox.evaluate(scriptStr, metadata.originURL);
-        libx.log.write("done loading (" + metadata.originURL + ")");
+        sbox.evaluate(scriptStr, url);
+        libx.log.write("done loading (" + url + ")");
     };
     
 }) ();

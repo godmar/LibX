@@ -295,8 +295,7 @@ function executeLibapp(libapp, pkgArgs) {
         ]);
 
         /* schedule required scripts on which this module depends */
-        for (var k = 0; k < module.require.length; k++) {
-            var rUrl = module.require[k];
+        module.require.forEach(function (rUrl) {
             if (rUrl in requireAlias)
                 rUrl = libx.locale.getLibappScriptURL(requireAlias[rUrl]);
 
@@ -307,21 +306,21 @@ function executeLibapp(libapp, pkgArgs) {
                 onready : function (scriptText, metadata) {
                     if (metadata == null)
                         return;
-                    if (/.*\.js$/.test(metadata.originURL)) {
+                    if (/.*\.js$/.test(rUrl)) {
                         logDetail({
-                            msg: "injecting required script: " + metadata.originURL,
+                            msg: "injecting required script: " + rUrl,
                             level: 1
                         });
-                        sbox.evaluate(scriptText, metadata.originURL);
+                        sbox.evaluate(scriptText, rUrl);
                     } else
-                    if (/.*\.css$/.test(metadata.originURL)) {
+                    if (/.*\.css$/.test(rUrl)) {
                         var doc = window.document;
                         var heads = doc.getElementsByTagName('head');
                         var sheet = doc.createElement('style');
                         sheet.setAttribute('type', 'text/css');
                         sheet.innerHTML = scriptText;
                         logDetail({
-                            msg: "injecting stylesheet: " + metadata.originURL,
+                            msg: "injecting stylesheet: " + rUrl,
                             level: 1
                         });
                         heads[0].appendChild(sheet);
@@ -335,9 +334,12 @@ function executeLibapp(libapp, pkgArgs) {
                 url: rUrl,
                 success: function (scriptText, metadata) {
                     requireURL2Activity[this.url].markReady(scriptText, metadata);
+                },
+                complete: function () {
+                    requireURL2Activity[this.url].markReady(null, null);
                 }
             });
-        }
+        });
 
         /* code to set up the sandbox by shallow-cloning libx and setting the 
          * correct libx.space property.  Assumes that libxDotLibappData was

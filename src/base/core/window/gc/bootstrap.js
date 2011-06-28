@@ -7,9 +7,9 @@
  * @param {metadata.originURL} originURL Script URL
  * @param {metadata.chromeURL} chromeURL internal chrome URL
  */
-libx.bootstrap.loadSubScript = function (scriptData, metadata, globalScope) {
+libx.bootstrap.loadSubScript = function (url, scriptData, metadata, globalScope) {
     
-    libx.log.write("loading (" + metadata.originURL + ")");
+    libx.log.write("loading (" + url + ")");
 
     (function() {
         // make all properties of globalScope visible to the background page

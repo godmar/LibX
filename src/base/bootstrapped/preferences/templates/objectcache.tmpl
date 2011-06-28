@@ -10,31 +10,36 @@
     metaCache.find({
         success: function(filepaths) {
             var fetchedFiles = 0;
-            for ( var i = 0; i < filepaths.length; i++ ) {
+            filepaths.forEach(function (filepath) {
                 /* get the metadata */
                 metaCache.getItem({
-                    key: filepaths[i],
+                    key: filepath,
                     success: function(text) {
-                        libx.log.write(filepaths[i]);
-                        libx.log.write(text);
                         var metadata = libx.utils.json.parse(text);
                         /* Calculate the name of the file, this is used to sort */
-                        var urlparts = metadata.originURL.split ( '/' );
+                        var urlparts = filepath.split ( '/' );
                         var name = urlparts[urlparts.length - 1].length > 0 
                             ? urlparts[urlparts.length - 1] : urlparts[urlparts.length - 2];
-                        cachedObjects.push ( {
-                            url : metadata.originURL,
-                            filename : filepaths[i],
-                            lastmod : metadata.lastModified,
-                            mimetype : metadata.mimeType,
-                            name : name
-                        } );
+                        try {
+                            cachedObjects.push ( {
+                                url : filepath,
+                                lastmod : metadata.lastModified,
+                                mimetype : metadata.mimeType,
+                                name : name
+                            } );
+                        } catch (e) {
+                            libx.log.write("objectcache.tmpl: invalid metadata for " + filepath);
+                            cachedObjects.push({
+                                url: filepath,
+                                name: name
+                            });
+                        }
                         cachedObjects.sort( function ( a, b ) { 
                             return a.name > b.name; 
                         } );
                     }
                 });
-            }
+            });
         }
     });
     
@@ -71,8 +76,8 @@
                     </a>
                 </h3>
                 <div class="ui-widget-content">
-                    <a class="link-opencache" href="#{+obj.filename+}" data-mimetype="{+obj.mimetype+}" target="_blank">{L "opencachedcopy" L}</a>
-                    <a href="#{+obj.filename+}" class="purgebutton" style="float:right"> {L "purge" L}</a>
+                    <a class="link-opencache" href="#{+obj.url+}" data-mimetype="{+obj.mimetype+}" target="_blank">{L "opencachedcopy" L}</a>
+                    <a href="#{+obj.url+}" class="purgebutton" style="float:right"> {L "purge" L}</a>
                     <p>{L "mimetype" L} {+ obj.mimetype +} </p>	
                 </div>
             </div>

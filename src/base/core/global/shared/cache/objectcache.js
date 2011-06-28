@@ -41,7 +41,7 @@ var metaStore = new libx.storage.Store('metacache');
  */
 function getCachedItem (request, metadata) {
     cacheStore.getItem({
-        key: trimQuery(request.ignoreQuery, metadata.originURL),
+        key: trimQuery(request.ignoreQuery, request.url),
         success: function (text) {
             if (request.success) {
                 var data = text;
@@ -121,7 +121,6 @@ function retrieveRequest(request, retrievalType) {
             var metadata = {
                 lastModified : xhr.getResponseHeader('Last-Modified'),
                 mimeType : contentType,
-                originURL : url,
                 sha1 : libx.utils.hash.hashString(data)
             };
     

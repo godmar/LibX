@@ -46,7 +46,7 @@ cache.get({
 
 var evHandler = { };
 evHandler['onUpdate' + testUrl] = function (ev) {
-    println("saw update for " + ev.metadata.originURL 
+    println("saw update for " + testUrl,
         + " -> " + ev.metadata.localPath 
         + " " + ev.metadata.lastModified);
 }
