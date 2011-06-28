@@ -26,6 +26,7 @@ $(function() {
     // save search fields when popup is closed
     $(window).unload(function () { 
         popup.saveFields();
+        popup = null;
     })
     
 });
@@ -231,8 +232,10 @@ return {
         // automatically reload the page if edition changes
         libx.events.addListener("EditionConfigurationLoaded", {
             onEditionConfigurationLoaded: function() {
-                popup.firstLoad = false;
-                popup.loadPopup();
+                if (popup) {
+                    popup.firstLoad = false;
+                    popup.loadPopup();
+                }
             }
         }, undefined, 'popup_reload');
         

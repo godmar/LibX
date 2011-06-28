@@ -10,7 +10,7 @@ package scheduler:
 * go through feeds with package walker, check all unmarked feeds, then mark them.
 
 /*
-TODO:
+BRN:
 - add "resource" tags so packages can include images, etc
 - need to start/stop PackageSchedulers in libapp template when they are added/removed
 */
@@ -59,6 +59,8 @@ libx.cache.Scheduler = libx.core.Class.create({
     updateChildrenRule: "root",
     
     updateChildren: libx.core.AbstractFunction("libx.cache.Scheduler.updateChildren"),
+
+    updatesFinished: libx.core.EmptyFunction,
     
     stopScheduling: function () {
         this.cancelUpdates = true;
@@ -93,7 +95,7 @@ libx.cache.Scheduler = libx.core.Class.create({
                             libx.utils.timer.setTimeout(function () {
                                 updateRoot();
                             }, interval);
-                            libx.log.write("Scheduling update in " + Math.round(interval / 1000) + " seconds");
+                            libx.log.write("scheduling update in " + Math.round(interval / 1000) + " seconds for " + self.rootUrl);
                             callback && callback();
                         }
                     });
@@ -109,8 +111,8 @@ libx.cache.Scheduler = libx.core.Class.create({
             if (self.cancelUpdates)
                 return;
 
-            libx.log.write("Updating files in: " + self.rootUrl);
-            
+            libx.log.write("checking for updates to root: " + self.rootUrl);
+            var rootUpdated = false;
             var updateQueue = new libx.utils.collections.ActivityQueue();
             var noErrors = true;
             
@@ -143,7 +145,7 @@ libx.cache.Scheduler = libx.core.Class.create({
                     });
                 }
                 
-                libx.log.write("Checking for updates to " + url);
+                libx.log.write("checking for updates to child: " + url);
                 updateQueue.scheduleLast(activity);
                 self.objectCache.getMetadata({
                     url: url,
@@ -174,13 +176,14 @@ libx.cache.Scheduler = libx.core.Class.create({
                         url: self.rootUrl,
                         dataType: self.rootDataType,
                         success: function (data, status, xhr) {
+                            rootUpdated = true;
                             libx.log.write(self.rootUrl + " updated");
                             if (self.updateChildrenRule == "root")
                                 self.updateChildren(checkForUpdates, data);
                         },
                         
                         error: function (status) {
-                            libx.log.write("Error status " + status + " updating " + self.rootUrl);
+                            libx.log.write("error status " + status + " updating " + self.rootUrl);
                             noErrors = false;
                         },
                         
@@ -202,10 +205,12 @@ libx.cache.Scheduler = libx.core.Class.create({
                                         return;
                                     }
                                     
+                                    self.updatesFinished(rootUpdated);
+
                                     // add random delay to update interval to reduce server load
                                     var delay = Math.floor(self.maxRandDelay * Math.random());
                                     setRootExpiration(self.updateInterval + delay, false, function () {
-                                        libx.log.write("All updates completed successfully.");
+                                        libx.log.write("all updates completed successfully for " + self.rootUrl);
                                     });
                                     
                                 }
@@ -219,6 +224,7 @@ libx.cache.Scheduler = libx.core.Class.create({
         }
     
         self.objectCache.getMetadata({
+            ignoreQuery: true,
             url: self.rootUrl,
             success: function (metadata) {
                 var now = new Date().getTime();
@@ -264,18 +270,20 @@ libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     }
 });
 
-//BRN: if updated, call packagescheduler
 libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     updateChildren: function (checkForUpdates, xml) {
         var doc = libx.utils.xml.loadXMLDocumentFromString(xml);
         var configPath = this.rootUrl.replace('/config.xml', '')
         var xmlItems = libx.utils.xpath.findNodesXML(doc, "/edition/additionalfiles/*");
-        for (var i = 0; i < xmlItems.length; i++) {
-            var node = xmlItems[i];
+        xmlItems.forEach(function (node) {
             var name = node.getAttribute("name");
             var url = configPath + "/" + name;
             checkForUpdates(url, libx.core.TrueFunction);
-        }
+        });
+    },
+    updatesFinished: function (updated) {
+        if (updated)
+            libx.loadConfig(this.rootUrl);
     }
 });
 
