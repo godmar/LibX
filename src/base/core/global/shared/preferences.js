@@ -39,7 +39,7 @@ var ELEMENT_NODE = 1;
 var USER_PREFS = "userprefs.xml";
 
 function log ( functName, msg ) {
-    libx.log.write ( "prefs.js: (" + functName + ") - " + msg );  
+    libx.log.write("preferences.js: " + msg, "preferences");
 } 
 
 var prefFactory = new Object();
@@ -231,8 +231,7 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                     }
                     return true;
                 } else {
-                    log ( "XMLPreferences.set",
-                        "Invalid value for choice preference: " + this._name + " = " + value );
+                    log ( "Invalid value for choice preference: " + this._name + " = " + value );
                     return false;
                 }
                 
@@ -248,8 +247,7 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                         }
                     }
                     if ( valueValid == false ) {
-                        log ( "XMLPreferences.set",
-                        "Invalid value for multichoice preference: " + this._name + " = " + value[i] );
+                        log ( "Invalid value for multichoice preference: " + this._name + " = " + value[i] );
                         return false;
                     }
                 }
@@ -275,8 +273,7 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                     this._value = value;
                     return true;
                 } else {
-                    log ( "XMLPreferences.set",
-                        "Invalid value for preference: Expected " + typeof ( this._value ) + " but recieved " + typeof ( value ) );
+                    log ( "Invalid value for preference: Expected " + typeof ( this._value ) + " but recieved " + typeof ( value ) );
                     return false;
                 }
         }
@@ -575,7 +572,6 @@ return /** @lends libx.preferences */ {
         loadedQueue.scheduleLast(doneAct);
         doneAct.markReady();
         
-        // BRN: handle failures
         // initialize browser preferences
         libx.preferences.load ( {
             filename : libx.locale.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
@@ -585,12 +581,21 @@ return /** @lends libx.preferences */ {
                 browserPrefsAct.markReady();
             }
         } );  
-                
-        // load saved user preferences
+        
+        // load saved preferences
+        this.loadUserPrefs(function () {
+            userPrefsAct.markReady();
+        });
+    },
+
+    /**
+     * Load preferences saved to the userprefs XML.
+     */
+    loadUserPrefs : function (callback) {
         var self = this;
         prefStore.getItem({
             key: USER_PREFS,
-            success: function(text) {
+            success: function (text) {
                 var userPrefsDoc = libx.utils.xml.loadXMLDocumentFromString(text).documentElement;
                 self.loadXML (userPrefsDoc, {
                     filename : USER_PREFS,
@@ -599,11 +604,9 @@ return /** @lends libx.preferences */ {
                 } );
             },
             complete : function () {
-                userPrefsAct.markReady();
+                callback && callback();
             }
         });
-
-        
     },
     
     /**
@@ -629,7 +632,7 @@ return /** @lends libx.preferences */ {
         log ( "loading: " + filename + " overwrite=" + overwrite + " and base=" + base );
         
         if ( filename == null ) {
-            log ( "XMLPreferences.loadDefault", "Invalid filename: " + filename );
+            log ( "Invalid filename: " + filename );
         }
         var callbackFunct = this.loadXML;
         // BRN: use object cache here? causes unit test failures

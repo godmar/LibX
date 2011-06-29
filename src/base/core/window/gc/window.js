@@ -126,7 +126,7 @@ var imported = {};
     libxTemp.magicImport('libx.utils.browserprefs.setBoolPref');
     libxTemp.magicImport('libx.utils.browserprefs.setStringPref');
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
-    libxTemp.magicImport('libx.preferences.initialize', { namespace: imported });
+    libxTemp.magicImport('libx.preferences.loadUserPrefs', { namespace: imported });
     libxTemp.magicImport('libx.libapp.getPackages', { returns: true, namespace: imported });
     libxTemp.magicImport('libx.libapp.addTempPackage');
     libxTemp.magicImport('libx.libapp.clearTempPackages');
@@ -215,14 +215,13 @@ var imported = {};
 
     // Aside from saving preferences to the background page localStorage, the
     // libx.prefs object in the background page should also be refreshed to reflect
-    // the newly saved preferences.  This is done by reinitializing the prefs.
+    // the newly saved preferences.
     var savePrefs = libx.preferences.save;
     libx.preferences.save = function () {
         savePrefs.apply(libx.preferences);
-        // XXX: we aren't using a callback for the above call (which will do an async
-        // request through libx.storage), so we are assuming it has executed already.
-        // is this a safe assumption?
-        imported.libx.preferences.initialize();
+        // we aren't using a callback for the above call (which will do an async
+        // request through libx.storage), and we are assuming it has executed already.
+        imported.libx.preferences.loadUserPrefs();
     }
     
     // set up the cross-browser sandbox wrapper
