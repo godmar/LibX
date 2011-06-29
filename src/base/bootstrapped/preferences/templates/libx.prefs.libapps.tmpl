@@ -244,7 +244,9 @@ function processPackages(packages, elem, isRoot, includedModules) {
 
             new libx.libapp.PackageWalker(packageUrl).walk({
                 onpackage: function (pkg) {
-                
+
+                    libx.prefs.getCategoryForUrl(pkg.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
                     var $node = makeNode(pkg);
                     $node
                         .children("ul")
@@ -259,6 +261,8 @@ function processPackages(packages, elem, isRoot, includedModules) {
                 },
                 onlibapp: function (libapp) {
                                
+                    libx.prefs.getCategoryForUrl(libapp.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
                     var $node = makeNode(libapp);
                     elem.children(".checktree_separator").after($node);
                     processPackages(libapp.entries, elem, false, includedModules);
@@ -270,6 +274,9 @@ function processPackages(packages, elem, isRoot, includedModules) {
                     
                 },
                 onmodule: function (module) {
+
+                    libx.prefs.getCategoryForUrl(module.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
                     if (!libx.prefs[module.id] || $.inArray(module.id, includedModules) != -1) {
                         blocker.markReady();
                         return;

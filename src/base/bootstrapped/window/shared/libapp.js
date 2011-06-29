@@ -116,10 +116,19 @@ libx.libapp.getOverridden(function (val) {
  * that the overriding libapp must be walked before the overridden one.  Blame
  * Dr. Back for this extreme optimization.
  */
-function addOverride(overridee, overrider) {
-    if (!overridden[overridee])
-        overridden[overridee] = {};
-    overridden[overridee][overrider] = 1;
+function checkOverride(entry, callback) {
+    libx.prefs.getCategoryForUrl(entry.id,
+        [{ name: "_enabled", type: "boolean", value: "true" }]);
+    if (libx.prefs[entry.id]._enabled._value) {
+        if (entry.override) {
+            var overridee = entry.override;
+            var overrider = entry.id;
+            if (!overridden[overridee])
+                overridden[overridee] = {};
+            overridden[overridee][overrider] = 1;
+        }
+        callback();
+    }
 }
 
 // This code recursively walks packages, executing all libapps.
@@ -150,20 +159,16 @@ function processEntries(entries) {
         
             new libx.libapp.PackageWalker(entry.url).walk({
                 onpackage: function (pkg) {
-                    if (libx.prefs[pkg.id]._enabled._value) {
-                        if (pkg.override)
-                            addOverride(pkg.override, pkg.id);
+                    checkOverride(pkg, function () {
                         processEntries(pkg.entries);
-                    }
+                    });
                     // all subpackages have been queued
                     activity.markReady();
                 },
                 onlibapp: function (libapp) {
-                    if (libx.prefs[libapp.id]._enabled._value) {
-                        if (libapp.override)
-                            addOverride(libapp.override, libapp.id);
+                    checkOverride(libapp, function () {
                         executeLibapp(libapp, entry.args);
-                    }
+                    });
                     // all modules in this libapp have been queued
                     // since this libapp has been executed
                     activity.markReady();
@@ -258,6 +263,8 @@ function executeLibapp(libapp, pkgArgs) {
             
             new libx.libapp.PackageWalker(entry.url).walk({
                 onmodule: function (module) {
+                    libx.prefs.getCategoryForUrl(module.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
                     if (module.regexptexttransformer.length == 0)
                         moduleFinishedActivity.markReady();
                     executeModule(module, pkgArgs, entry.args, moduleFinishedActivity);
@@ -300,7 +307,7 @@ function executeLibapp(libapp, pkgArgs) {
                 rUrl = libx.locale.getLibappScriptURL(requireAlias[rUrl]);
 
             if (rUrl in requireURL2Activity)
-                continue;
+                return;
 
             var rAct = requireURL2Activity[rUrl] = {
                 onready : function (scriptText, metadata) {

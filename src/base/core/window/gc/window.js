@@ -193,19 +193,6 @@ var imported = {};
 
             var windowBootStrapper = new libx.bootstrap.BootStrapper();
             
-            if (!libx.initialize.globalBootStrapper.hasFinished) {
-                /* Global boot strapping still in progress.  Delay bootstrapping
-                 * of window scripts until this is done. */
-                var blockUntilGlobalBootstrapDone = new libx.utils.collections.EmptyActivity();
-                windowBootStrapper.scriptQueue.scheduleFirst(blockUntilGlobalBootstrapDone);
-                
-                libx.events.addListener("GlobalBootstrapDone", {
-                    onGlobalBootstrapDone: function (globalBootstrapDoneEvent) {
-                        blockUntilGlobalBootstrapDone.markReady();
-                    }
-                });
-            }
-            
             var blockUntilEnabledPackagesReceived = new libx.utils.collections.EmptyActivity();
             windowBootStrapper.scriptQueue.scheduleFirst(blockUntilEnabledPackagesReceived);
             

@@ -25,6 +25,8 @@ var libxscripts1 = [
     "global/shared/libx.js",
     "global/shared/cache/memorycache.js",
     "global/shared/config.js",
+    "global/shared/config/xmlconfigwrapper.js",
+    "global/shared/config/editionconfigurationreader.js",
     "global/shared/events.js",
     "global/shared/utils/json.js",
     "global/shared/catalog.js",
@@ -336,6 +338,7 @@ var libxscripts2 = [
     "global/shared/utils/stdnumsupport.js",
     "global/shared/preferences.js",
     // "window/shared/ui/magicsearch.js",
+	"global/shared/libapp.js",
 ];
 
 loadScript(libxscripts2);

@@ -131,13 +131,6 @@ function handleEntry(visitor, url, cacheMissActivity) {
                 }
             }
         };
-        
-        // add enabled preference
-        libx.prefs.getCategoryForUrl(atomid, [{
-            name: "_enabled",
-            type: "boolean",
-            value: "true"
-        }]);
 
         // add preference attribute
         var prefNode = libx.utils.xpath.findNodesXML(

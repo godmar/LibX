@@ -53,7 +53,7 @@ libx.libapp.getPackages = function (enabledOnly) {
 
     if (!allPackages) {
         allPackages = [];
-        libx.edition.localizationfeeds.package.forEach(function (pkg) {
+        libx.edition.localizationfeeds['package'].forEach(function (pkg) {
             allPackages.push(pkg.url);
         });
         var userPackages = libx.utils.json.parse(
@@ -95,10 +95,19 @@ libx.libapp.reloadPackages = function () {
     });
 };
 
-function addOverride(overridee, overrider) {
-    if (!overridden[overridee])
-        overridden[overridee] = {};
-    overridden[overridee][overrider] = 1;
+function checkOverride(entry, callback) {
+    libx.prefs.getCategoryForUrl(entry.id,
+        [{ name: "_enabled", type: "boolean", value: "true" }]);
+    if (libx.prefs[entry.id]._enabled._value) {
+        if (entry.override) {
+            var overridee = entry.override;
+            var overrider = entry.id;
+            if (!overridden[overridee])
+                overridden[overridee] = {};
+            overridden[overridee][overrider] = 1;
+        }
+        callback && callback();
+    }
 }
 
 libx.libapp.clearOverridden = function () {
@@ -118,16 +127,13 @@ libx.libapp.getOverridden = function (callback) {
         
             new libx.libapp.PackageWalker(entry.url).walk({
                 onpackage: function (pkg) {
-                    if (libx.prefs[pkg.id]._enabled._value) {
-                        if (pkg.override)
-                            addOverride(pkg.override, pkg.id);
+                    checkOverride(pkg, function () {
                         findOverrides(pkg.entries);
-                    }
+                    });
                     activity.markReady();
                 },
                 onlibapp: function (libapp) {
-                    if (libx.prefs[libapp.id]._enabled._value && libapp.override)
-                        addOverride(libapp.override, libapp.id);
+                    checkOverride(libapp);
                     activity.markReady();
                 },
                 error: function () {

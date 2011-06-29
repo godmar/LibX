@@ -632,7 +632,9 @@ return /** @lends libx.preferences */ {
             log ( "XMLPreferences.loadDefault", "Invalid filename: " + filename );
         }
         var callbackFunct = this.loadXML;
-        libx.cache.defaultObjectCache.get ( {
+        // BRN: use object cache here? causes unit test failures
+        libx.cache.defaultMemoryCache.get ( {
+            type: 'GET',
             url : filename,
             dataType : "xml",
             success : function (xml) {

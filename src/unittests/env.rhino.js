@@ -13186,6 +13186,9 @@ XMLHttpRequest.prototype = {
         }
         return returnedHeaders.join("\r\n");
     },
+    overrideMimeType: function () {
+        // not yet implemented
+    },
     async: true,
     readyState: 0,
     responseText: "",

@@ -121,8 +121,8 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 }
             });
         
-        if (!localizationfeeds.package.length)
-            localizationfeeds.package.push({ url: "$defaultpkgURL$" });
+        if (!localizationfeeds['package'].length)
+            localizationfeeds['package'].push({ url: "$defaultpkgURL$" });
             
         return localizationfeeds;
     },

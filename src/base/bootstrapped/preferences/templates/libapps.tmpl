@@ -68,7 +68,8 @@ function addLibapp(libapp) {
         (function (blocker) {
             new libx.libapp.PackageWalker(entry.url).walk({
                 onmodule: function (module) {
-                    
+                    libx.prefs.getCategoryForUrl(module.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
                     newDiv += '<li style="list-style-type:none;">\n';
                     if (module != null) {
                         idnum++;
@@ -113,10 +114,14 @@ function processEntries(entries) {
             new libx.libapp.PackageWalker(entries[i].url).walk({
             
                 onpackage: function (pkg) {
+                    libx.prefs.getCategoryForUrl(pkg.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
                     processEntries(pkg.entries);
                     blocker.markReady();
                 },
                 onlibapp: function (libapp) {
+                    libx.prefs.getCategoryForUrl(libapp.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
                     addLibapp(libapp);
                     blocker.markReady();
                 }

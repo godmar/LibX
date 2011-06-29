@@ -1,14 +1,18 @@
 var ocache;
+var configLoads = 0;
 var suite = libx.testing.createUnitTestSuite("Tests for schedulers",
     function () {
+        libx.loadConfig = function () {
+            libx.log.write('edition configuration loaded');
+            configLoads++;
+        };
         resourcePath = "tests/resources/schedulers/";
         return 0;
     });
 
 //TODO: test individually hosted libapps
-//TODO: test config.xml updating libapps
 function startScheduler(scheduler) {
-    scheduler.defaultUpdateInterval = 2 * 1000;
+    scheduler.updateInterval = 2 * 1000;
     scheduler.initialRetryInterval = 1 * 1000;
     scheduler.maxRandDelay = 0;
     scheduler.scheduleUpdates();
@@ -36,17 +40,22 @@ suite.addUnitTest("Test config scheduler",
         var configUrl = resourceUrl + "config.xml";
         var files = ["config.xml", "config_file1.js", "config_file2.js"];
 
+        exec("touch " + resourcePath + files[1]);
+        exec("touch " + resourcePath + files[2]);
         configScheduler = new libx.cache.ConfigScheduler(configUrl);
+        this.ASSERT_EQUAL(configLoads, 0);
         startScheduler(configScheduler);
 
         this.WAIT(3);
 
+        this.ASSERT_EQUAL(configLoads, 1);
         var beforeUpdates = getModifiedDates(resourceUrl, files);
         exec("touch " + resourcePath + files[0]);
         exec("touch " + resourcePath + files[2]);
 
         this.WAIT(3);
 
+        this.ASSERT_EQUAL(configLoads, 2);
         var afterUpdates = getModifiedDates(resourceUrl, files);
         this.ASSERT_TRUE(beforeUpdates[0] < afterUpdates[0]);
         this.ASSERT_EQUAL(beforeUpdates[1], afterUpdates[1]);

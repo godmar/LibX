@@ -1,7 +1,7 @@
 /* 
  * Files to be included in content script (Chrome) and sandbox (Firefox)
  */
-libx.log.write("bootstrapping content-script global libx from: " + bootStrapper.baseURL);
+libx.log.write("bootstrapping content-script libx from: " + bootStrapper.baseURL);
 var files = [
     "global/shared/libapp/tuplespace.js",
     "global/shared/libapp/atomparser.js",
