@@ -38,8 +38,8 @@ var ELEMENT_NODE = 1;
 
 var USER_PREFS = "userprefs.xml";
 
-function log ( functName, msg ) {
-    libx.log.write("preferences.js: " + msg, "preferences");
+function log ( msg ) {
+    libx.log.write(msg, "preferences");
 } 
 
 var prefFactory = new Object();
@@ -462,7 +462,8 @@ var SerializeVisitor = libx.core.Class.create ( DefaultVisitor, {
     },
     preference : function ( pref ) {
         this.str += "<preference name=\"" + libx.utils.xml.encodeEntities ( pref._name ) + "\" type=\"" + libx.utils.xml.encodeEntities( pref._type ) + "\" ";
-        this.str += "value=\"" + libx.utils.xml.encodeEntities ( pref._value ) + "\"";
+        if (pref._type != "choice")
+            this.str += "value=\"" + libx.utils.xml.encodeEntities ( pref._value ) + "\"";
         this.str += " >\n";
         this.parent ( pref );
         this.str += "</preference>\n";
