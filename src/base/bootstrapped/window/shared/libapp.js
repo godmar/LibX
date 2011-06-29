@@ -337,13 +337,16 @@ function executeLibapp(libapp, pkgArgs) {
 
             requiredScripts.scheduleLast(rAct);
 
+            var success = false;
             libx.cache.defaultObjectCache.get({
                 url: rUrl,
                 success: function (scriptText, metadata) {
-                    requireURL2Activity[this.url].markReady(scriptText, metadata);
+                    success= true;
+                    requireURL2Activity[rUrl].markReady(scriptText, metadata);
                 },
                 complete: function () {
-                    requireURL2Activity[this.url].markReady(null, null);
+                    if (!success)
+                        requireURL2Activity[rUrl].markReady(null, null);
                 }
             });
         });
