@@ -150,11 +150,27 @@ return {
             }
             return e;
         });
-        
+       
+        var windowListeners = {};
+
         libx.events.addListener('ContentLoaded', {
             onContentLoaded: function(e) {
                 if(e.window.top != e.window.self)
                     return;
+                var listeners = windowListeners[e.window] = {};
+                libx.events.addListener('RequestToContentScript', {
+                    onRequestToContentScript: function(e, request, sender, sendResponse) {
+                        var reqObj = libx.utils.json.parse(request);
+                        if (! reqObj.type in listeners) {
+                            libx.log.write("invalid request type: " + reqObj.type);
+                            return;
+                        }
+                        listeners[reqObj.type](reqObj, sender, function(response) {
+                            var resStr = libx.utils.json.stringify(response);
+                            sendResponse(resStr);
+                        });
+                    }
+                }, e.window, e.window);
                 var globalScope = {
                 
                     // libx.edition may be loaded after this libx clone, so use
@@ -162,16 +178,8 @@ return {
                     libx: libx.global,
                     
                     libxTemp: {
-                        addListener : function(listener) {
-                            libx.events.addListener('RequestToContentScript', {
-                                onRequestToContentScript: function(e, request, sender, sendResponse) {
-                                    var reqObj = libx.utils.json.parse(request);
-                                    listener(reqObj, sender, function(response) {
-                                        var resStr = libx.utils.json.stringify(response);
-                                        sendResponse(resStr);
-                                    });
-                                }
-                            }, e.window, e.window);
+                        addListener : function (name, listener) {
+                            listeners[name] = listener;
                         },
                         sendRequest: function (request, callback) {
                             var reqStr = libx.utils.json.stringify(request);
@@ -196,6 +204,7 @@ return {
         function removeListeners(event) {
             var browser = gBrowser.getBrowserForTab(event.target);
             libx.events.removeListener('RequestToContentScript', browser.contentWindow);
+            delete windowListeners[browser.contentWindow];
         }
         var container = gBrowser.tabContainer;
         container.addEventListener("TabClose", removeListeners, false);

@@ -227,6 +227,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
     <!-- button details -->
     <toolbarpalette id="BrowserToolbarPalette">
     <toolbarbutton id="libx-button"
+      ondragenter="event.stopPropagation(); event.preventDefault();"
+      ondragover="event.stopPropagation(); event.preventDefault();"
+      ondrop="event.stopPropagation(); event.preventDefault(); libx.ui.magicSearch(event.dataTransfer.getData('text/plain'));"
       label="LibX"
       tooltiptext="LibX"
       image="chrome://libx/skin/libx2-16.png"

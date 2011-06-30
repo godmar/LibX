@@ -51,9 +51,10 @@ libx.libapp.Sandbox = libx.core.Class.create(
         // XPCNativeWrappers should be on, so win should implicitly
         // be an XPCNativeWrapper'd window
 
-        // We use the system principal for all sandboxed code.
-        // All sandboxed code we execute is our own, so this
-        // is OK.
+        // We use the system principal for all sandboxed code, since exposing
+        // the LibX object to the page principal would require setting the
+        // __exposedProps__ attribute.  This is described at:
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=630779.
         var systemPrincipal = Cc["@mozilla.org/systemprincipal;1"] 
                              .createInstance(Ci.nsIPrincipal); 
         
