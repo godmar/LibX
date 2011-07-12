@@ -18,10 +18,28 @@ libx.utils.getEditionResource = function(paramObj) {
         return;
     }
 
-    paramObj.url = libx.utils.browserprefs.getStringPref('libx.edition.configurl', '')
+    var url = libx.utils.browserprefs.getStringPref('libx.edition.configurl', '')
         .replace('/config.xml', '') + paramObj.url.replace(chromePrefix, '');
-    paramObj.serverMIMEType = "text/plain; charset=x-user-defined";
-    paramObj.fetchDataUri = true;
-    libx.cache.defaultObjectCache.get(paramObj);
+    var inCache = false;
+
+    // use the image's data URI if it is in the cache.
+    // if not, use the image's URL
+    libx.cache.defaultObjectCache.get({
+        url: url,
+        serverMIMEType: "text/plain; charset=x-user-defined",
+        fetchDataUri: true,
+        cacheOnly: true,
+        success: function () {
+            inCache = true;
+            paramObj.success && paramObj.success(arguments);
+        },
+        error: paramObj.error,
+        complete: function () {
+            if (!inCache)
+                paramObj.success && paramObj.success(url);
+            paramObj.complete && paramObj.complete(arguments);
+        }
+    });
+
 };
 

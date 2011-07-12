@@ -571,19 +571,14 @@ libx.loadConfig = function (configUrl) {
                     new libx.events.Event("GlobalBootstrapDone")
                 );
             
-            // BRN: remove this requirement
+            // replace chrome with URLs with the actual images (data URIs)
             function chromeURL2DataURI(item) {
                 if (libx.edition.options[item] == null)
                     return;
-                var activity = new libx.utils.collections.EmptyActivity();
-                localeQueue.scheduleLast(activity);
                 libx.utils.getEditionResource({
                     url: libx.edition.options[item],
                     success: function (dataURI) {
                         libx.edition.options[item] = dataURI;
-                    },
-                    complete: function () {
-                        activity.markReady();
                     }
                 });
             }

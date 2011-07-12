@@ -41,7 +41,7 @@ libx.cache.MemoryCache = ( function () {
 function invokeCallbacks(xmlHttpReq, requests, result) {
     
     // local files always return 0
-    if (result != null && (xmlHttpReq.status == 200 || xmlHttpReq.status == 0)) {
+    if (result && (xmlHttpReq.status == 200 || xmlHttpReq.status == 0)) {
         // 200 OK
         for (var i = 0; i < requests.length; ++i) {
             if (typeof requests[i].success == "function") {

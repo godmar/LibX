@@ -562,7 +562,12 @@ return {
 
             // load edition image
             var image = $('.edition-image');
-            image.attr('src', libx.edition.options.logo);
+            libx.utils.getEditionResource({
+                url: libx.edition.options.logo,
+                success: function (dataUri) {
+                    image.attr('src', libx.edition.options.logo);
+                }
+            });
             image.load(function() {
                 // reset image width/height if changing edition image
                 image.width('');
