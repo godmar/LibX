@@ -134,61 +134,59 @@ function checkOverride(entry, callback) {
 // This code recursively walks packages, executing all libapps.
 function processEntries(entries) {
 
-    for (var i = 0; i < entries.length; i++) {
-        
-        (function (entry) {
+    entries.forEach(function (entry) {
 
-            // if this entry is overridden, it will be processed later
-            // (or has already been processed)
-            if (overridden[entry.url]) {
-                var overriders = [];
-                for (var i in overridden[entry.url])
-                    overriders.push(i);
+        // if this entry is overridden, it will be processed later
+        // (or has already been processed)
+        if (overridden[entry.url]) {
+            var overriders = [];
+            for (var i in overridden[entry.url])
+                overriders.push(i);
+            logDetail({
+                msg: entry.url + " did not execute because it was overridden by "
+                               + overriders.join(', '),
+                level: 1
+            });
+            return;
+        }
+    
+        // this activity is used to block traverseTextActivity (below)
+        // until every module in every libapp has been added to the queue
+        var activity = new libx.utils.collections.EmptyActivity();
+        cachedTextTransformerModuleQueue.scheduleFirst(activity);
+    
+        new libx.libapp.PackageWalker(entry.url).walk({
+            onpackage: function (pkg) {
+                checkOverride(pkg, function () {
+                    processEntries(pkg.entries);
+                });
+                // all subpackages have been queued
+                activity.markReady();
+            },
+            onlibapp: function (libapp) {
+                checkOverride(libapp, function () {
+                    executeLibapp(libapp, entry.args);
+                });
+                // all modules in this libapp have been queued
+                // since this libapp has been executed
+                activity.markReady();
+            },
+            error: function () {
                 logDetail({
-                    msg: entry.url + " did not execute because it was overridden by "
-                                   + overriders.join(', '),
+                    msg: "Error: entry '" + entry.url + "' could not be loaded",
                     level: 1
                 });
-                return;
+                activity.markReady();
             }
+        }, activity);
         
-            // this activity is used to block traverseTextActivity (below)
-            // until every module in every libapp has been added to the queue
-            var activity = new libx.utils.collections.EmptyActivity();
-            cachedTextTransformerModuleQueue.scheduleFirst(activity);
-        
-            new libx.libapp.PackageWalker(entry.url).walk({
-                onpackage: function (pkg) {
-                    checkOverride(pkg, function () {
-                        processEntries(pkg.entries);
-                    });
-                    // all subpackages have been queued
-                    activity.markReady();
-                },
-                onlibapp: function (libapp) {
-                    checkOverride(libapp, function () {
-                        executeLibapp(libapp, entry.args);
-                    });
-                    // all modules in this libapp have been queued
-                    // since this libapp has been executed
-                    activity.markReady();
-                },
-                error: function () {
-                    logDetail({
-                        msg: "Error: entry '" + entry.url + "' could not be loaded",
-                        level: 1
-                    });
-                    activity.markReady();
-                }
-            }, activity);
-            
-        }) (entries[i]);
-    }
+    });
 
 }
 
 var doWalk = {
     onready: function () {
+        libx.log.write('calling process entries');
         processEntries(libx.libapp.getPackages(true).map(function (pkg) {
             return { url: pkg };
         }));

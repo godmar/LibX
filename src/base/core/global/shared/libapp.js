@@ -69,7 +69,7 @@ libx.libapp.getPackages = function (enabledOnly) {
         return allPackages;
 
     if (!enabledPackages) {
-         enabledPackages = allPackages.filter(function (pkg) {
+        enabledPackages = allPackages.filter(function (pkg) {
             // if a packages's preferences don't exist, it's enabled
             return !libx.prefs[pkg] || libx.prefs[pkg]._enabled._value;
         });
