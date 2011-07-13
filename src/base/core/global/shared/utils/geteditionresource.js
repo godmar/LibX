@@ -18,10 +18,17 @@ libx.utils.getEditionResource = function(paramObj) {
         return;
     }
 
-    paramObj.url = libx.utils.browserprefs.getStringPref('libx.edition.configurl', '')
+    var url = libx.utils.browserprefs.getStringPref('libx.edition.configurl', '')
         .replace('/config.xml', '') + paramObj.url.replace(chromePrefix, '');
-    paramObj.serverMIMEType = "text/plain; charset=x-user-defined";
-    paramObj.fetchDataUri = true;
-    libx.cache.defaultObjectCache.get(paramObj);
+
+    libx.cache.defaultObjectCache.get({
+        url: url,
+        dataType: "text",
+        serverMIMEType: "text/plain; charset=x-user-defined",
+        fetchDataUri: true,
+        success: paramObj.success,
+        error: paramObj.error,
+        complete: paramObj.complete
+    });
 };
 

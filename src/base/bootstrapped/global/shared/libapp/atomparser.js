@@ -135,8 +135,8 @@ function handleEntry(visitor, url, cacheMissActivity) {
         // add preference attribute
         var prefNode = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:preferences/*", libx2Node, ns);
-        if (prefNode != null && prefNode.length) {
-            libx.preferences.loadXML(prefNode[0], { base: "libx.prefs" });
+        if (prefNode != null && prefNode.length && libx.prefs[url]) {
+            libx.preferences.loadXML(prefNode[0], { base: "libx.prefs." + url });
         }
             
         // verify that 'include', 'exclude', etc. look like regular expressions

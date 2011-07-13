@@ -186,7 +186,6 @@ function processEntries(entries) {
 
 var doWalk = {
     onready: function () {
-        libx.log.write('calling process entries');
         processEntries(libx.libapp.getPackages(true).map(function (pkg) {
             return { url: pkg };
         }));

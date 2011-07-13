@@ -129,6 +129,7 @@ function makeNode(entry, isModule) {
 }
 
 function reloadPackages() {
+    libx.libapp.reloadPackages();
     var aQueues = [];
     $("#libapps-tmpl").replaceWith(process(aQueues, null, "libx.prefs.libapps"));
     aQueues[0].markReady();
@@ -182,12 +183,18 @@ aQ.scheduleLast(processCheckTree);
 processCheckTree.markReady();
 
 function savePref($li) {
-    libx.libapp.clearOverridden();
+    
     var enabled = $li.children(".checkbox").hasClass("checked");
     var pref = libx.prefs[$li.data("id")]._enabled;
     if (pref._value != enabled) {
         pref._setValue(enabled);
         libx.preferences.save();
+        
+        /* if this entry is a root package, reloadPackages() will reset the package schedulers */
+        if ($.inArray($li.data('id'), libx.libapp.getPackages()) >= 0)
+            libx.libapp.reloadPackages();
+        else
+            libx.libapp.clearOverridden();
     }
 }
 
