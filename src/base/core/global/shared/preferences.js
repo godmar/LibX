@@ -57,8 +57,8 @@ prefFactory.XMLPreferenceObject = libx.core.Class.create ( {
         var descriptor = {};
         
         for ( var i = 0; i < node.attributes.length; i++ ) {
-            var attr = node.attributes[i];
-            descriptor['_' + attr.nodeName] = attr.nodeValue;
+            var attr = node.attributes.item(i);
+            descriptor['_' + attr.localName] = attr.nodeValue;
         }
         
         return descriptor;    
@@ -107,9 +107,9 @@ prefFactory["category"] = libx.core.Class.create ( prefFactory.XMLPreferenceObje
         // Used during the initial loading process
         if ( node != null ) {
             for ( var i = 0; i < node.childNodes.length; i++ ) {
-                var childNode = node.childNodes[i];
+                var childNode = node.childNodes.item(i);
                 if ( childNode.nodeType == ELEMENT_NODE ) {
-                    this._addChild ( null, childNode.nodeName, childNode );
+                    this._addChild ( null, childNode.localName, childNode );
                 }
             }
         }
@@ -185,22 +185,19 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
         this._idstr = parentName + "." + this._name;
         this._id = libx.utils.hash.hashString ( this._idstr );
         
-        switch ( this._type ) {
-            case 'choice' :
-                this._items = new Array();
-                break;
-            case 'multichoice' :          
-                this._value = new Array();
-                this._items = new Array();
-                break;
-            default :
-                this._value = convert ( childDescriptor._value, this._type );
+        if (this._type == 'choice') {
+            this._items = new Array();
+        } else if (this._type == 'multichoice') {
+            this._value = new Array();
+            this._items = new Array();
+        } else {
+            this._value = convert ( childDescriptor._value, this._type );
         }
         
         // Only choice and multichoice should have child nodes
         if ( node != null ) {
             for ( var i = 0; i < node.childNodes.length; i++ ) {
-                var childNode = node.childNodes[i];
+                var childNode = node.childNodes.item(i);
                 if ( childNode.nodeType == ELEMENT_NODE ) {
                     // Items dont have children, so no need to pass the node along
                     this._addItem ( this._nodeToDescriptor ( childNode ) );
@@ -210,65 +207,61 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
     },
     _setValue : function ( value ) {
         var valid = false;
-        switch ( this._type ) {
-            case "choice" :
-                var items = this._items;
-                // check if the item is valid
+        if (this._type == 'choice') {
+            var items = this._items;
+            // check if the item is valid
+            for ( var i = 0; i < items.length; i++ ) {
+                if ( value == items[i]._value ) {
+                    items[i]._selected = true;
+                    this._value = value;
+                    valid = true;
+                }
+            }
+            
+            if ( valid ) {
+                // If it is valid, ensure all other items are not selected
                 for ( var i = 0; i < items.length; i++ ) {
-                    if ( value == items[i]._value ) {
-                        items[i]._selected = true;
-                        this._value = value;
-                        valid = true;
+                    if ( value != items[i]._value ) {
+                        items[i]._selected = false;
                     }
                 }
-                
-                if ( valid ) {
-                    // If it is valid, ensure all other items are not selected
-                    for ( var i = 0; i < items.length; i++ ) {
-                        if ( value != items[i]._value ) {
-                            items[i]._selected = false;
-                        }
+                return true;
+            } else {
+                log ( "Invalid value for choice preference: " + this._name + " = " + value );
+                return false;
+            }
+        } else if (this._type == 'multichoice') {
+            var items = this._items;
+            // First, we ensure all values are valid
+            for ( var i = 0; i < value.length; i++ ) {
+                var valueValid = false;
+                for ( var j = 0; j < items.length; j++ ) {
+                    if ( value[i] == items[j] ) {
+                        valueValid = true;
                     }
-                    return true;
-                } else {
-                    log ( "Invalid value for choice preference: " + this._name + " = " + value );
+                }
+                if ( valueValid == false ) {
+                    log ( "Invalid value for multichoice preference: " + this._name + " = " + value[i] );
                     return false;
                 }
-                
-                break;
-            case "multichoice" :
-                var items = this._items;
-                // First, we ensure all values are valid
-                for ( var i = 0; i < value.length; i++ ) {
-                    var valueValid = false;
-                    for ( var j = 0; j < items.length; j++ ) {
-                        if ( value[i] == items[j] ) {
-                            valueValid = true;
-                        }
-                    }
-                    if ( valueValid == false ) {
-                        log ( "Invalid value for multichoice preference: " + this._name + " = " + value[i] );
-                        return false;
+            }
+            // Next, we set the appropriate selected properties
+            for ( var i = 0; i < items.length; i++ ) {
+                items[i]._selected = false;
+            }
+            
+            for ( var i = 0; i < value.length; i++ ) {
+                for ( var j = 0; j < items.length; j++ ) {
+                    if ( value[i] == items[j] ) {
+                        items[j]._selected = true;
                     }
                 }
-                // Next, we set the appropriate selected properties
-                for ( var i = 0; i < items.length; i++ ) {
-                    items[i]._selected = false;
-                }
-                
-                for ( var i = 0; i < value.length; i++ ) {
-                    for ( var j = 0; j < items.length; j++ ) {
-                        if ( value[i] == items[j] ) {
-                            items[j]._selected = true;
-                        }
-                    }
-                }
-                
-                this._value = value;
-                
-                return true;
-                break;
-            default :
+            }
+            
+            this._value = value;
+            
+            return true;
+        } else {
                 if ( typeof ( value ) == typeof ( this._value ) ) {
                     this._value = value;
                     return true;
@@ -293,28 +286,22 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
         if (existingItem)
             return;
         
-        switch ( this._type ) {
-            case 'choice' :
-                this._items.push ( item );
-                if ( item._selected ) {
-                    if ( this._value != null ) {
-                        log ( "Error: Multiple selected items found for preference: " + this._name );
-                        
-                        item._selected = false;
-                    }
-                    this._value = item._value;
+        if (this._type == 'choice') {
+            this._items.push ( item );
+            if ( item._selected ) {
+                if ( this._value != null ) {
+                    log ( "Error: Multiple selected items found for preference: " + this._name );
+                    
+                    item._selected = false;
                 }
-                break;
-                
-            case 'multichoice' :
-                this._items.push ( item );
-                if ( item._selected )
-                    this._value.push(item._value);
-                break;
-                
-            default :
-                log ( "Error: An attempt was made to add an item to a " + this._type + " preference." );
-        }
+                this._value = item._value;
+            }
+        } else if (this._type == 'multichoice') {
+            this._items.push ( item );
+            if ( item._selected )
+                this._value.push(item._value);
+        } else
+            log ( "Error: An attempt was made to add an item to a " + this._type + " preference." );
     },
     
     /**
@@ -400,20 +387,16 @@ prefFactory["item"] = libx.core.Class.create ( prefFactory.XMLPreferenceObject,
  */
 function convert ( value, type ) {
     var val;
-    switch ( type ) {
-        case 'int' : 
-            val = new Number ( value );
-            break;
-        case 'boolean' :
-            if ( value == 'true' || value == true ) {
-                val = true;
-            } else {
-                val = false;
-            }
-            break;
-        case 'string' :
-        default :
-            val = value;
+    if (type == 'int') {
+        val = new Number ( value );
+    } else if (type == 'boolean') {
+        if ( value == 'true' || value == true ) {
+            val = true;
+        } else {
+            val = false;
+        }
+    } else {
+        val = value;
     }
     
     return val;
@@ -637,7 +620,7 @@ return /** @lends libx.preferences */ {
         }
         var callbackFunct = this.loadXML;
         // BRN: use object cache here? causes unit test failures
-        libx.cache.defaultMemoryCache.get ( {
+        libx.cache.defaultObjectCache.get ( {
             type: 'GET',
             url : filename,
             dataType : "xml",
@@ -669,7 +652,9 @@ return /** @lends libx.preferences */ {
         var overwrite = descriptor.overwrite;
         var base = descriptor.base;
         
-        var loadedPrefs = new prefFactory[xmlNode.nodeName]( null, base, xmlNode );
+        if (xmlNode.nodeName == 'libx:preference')
+            libx.preff = xmlNode;
+        var loadedPrefs = new prefFactory[xmlNode.localName]( null, base, xmlNode );
 
         if ( descriptor.prefs == null ) {
             descriptor.prefs = loadedPrefs;
@@ -719,83 +704,78 @@ return /** @lends libx.preferences */ {
                 "Mismatching node types detected. [" + curPrefs._nodeType + ", " + newPrefs._nodeType + "]" );
             }
              
-            switch ( curPrefs._nodeType ) {
-                case "category" : 
-                    // Call recursively on children present in both
-                    for ( var i = 0; i < curPrefs._children.length; i++ ) {
-                        var curPrefsChild = curPrefs._children[i];
-                        for ( var j = 0; j < newPrefs._children.length; j++ ) {
-                            var newPrefsChild = newPrefs._children[j];
-                            if ( curPrefsChild._id == newPrefsChild._id ) {
-                                mergeHelper ( curPrefsChild, newPrefsChild, overwrite );
-                            }    
+            if (curPrefs._nodeType == 'category') {
+                // Call recursively on children present in both
+                for ( var i = 0; i < curPrefs._children.length; i++ ) {
+                    var curPrefsChild = curPrefs._children[i];
+                    for ( var j = 0; j < newPrefs._children.length; j++ ) {
+                        var newPrefsChild = newPrefs._children[j];
+                        if ( curPrefsChild._id == newPrefsChild._id ) {
+                            mergeHelper ( curPrefsChild, newPrefsChild, overwrite );
+                        }    
+                    }
+                }
+                
+                // Add children only present in newPrefs
+                for ( var i = 0; i < newPrefs._children.length; i++ ) {
+                    var newPrefsChild = newPrefs._children[i];
+                    var found = false;
+                    for ( var j =0; j < curPrefs._children.length; j++ ) {
+                        var curPrefsChild = curPrefs._children[j];
+                        if ( curPrefsChild._id == newPrefsChild._id ) {
+                            found = true;
                         }
                     }
-                    
-                    // Add children only present in newPrefs
-                    for ( var i = 0; i < newPrefs._children.length; i++ ) {
-                        var newPrefsChild = newPrefs._children[i];
+                    if ( found == false ) {
+                        curPrefs._children.push ( newPrefsChild );
+                        curPrefs[newPrefsChild._name] = newPrefsChild;
+                    }
+                }
+            } else if (curPrefs._nodeType == 'preference') {
+                // make sure values match ( newPrefs overwrites curPrefs )
+                if ( overwrite ) {
+                    curPrefs._value = newPrefs._value;
+                    curPrefs._type = newPrefs._type; // allows for changing types
+                }
+                
+                if ( curPrefs._items && curPrefs._items.length > 0 ) {
+                    for ( var i = 0; i < curPrefs._items.length; i++ ) {
+                        var curPrefsItem = curPrefs._items[i];
+                        for ( var j = 0; j < newPrefs._items.length; j++ ) {
+                            var newPrefsItem = newPrefs._items[j];
+                            if ( curPrefsItem._id == newPrefsItem._id ) {
+                                mergeHelper ( curPrefsItem, newPrefsItem, overwrite );
+                            }
+                        }
+                    }    
+                }
+                
+                // Add items only present in newPrefs
+                if (newPrefs._items && newPrefs._items.length > 0) {
+                    if (!curPrefs._items)
+                        curPrefs._items = [];
+                    for ( var i = 0; i < newPrefs._items.length; i++ ) {
+                        var newPrefsItem = newPrefs._items[i];
                         var found = false;
-                        for ( var j =0; j < curPrefs._children.length; j++ ) {
-                            var curPrefsChild = curPrefs._children[j];
-                            if ( curPrefsChild._id == newPrefsChild._id ) {
+                        for ( var j = 0; j < curPrefs._items.length; j++ ) {
+                            var curPrefsItem = curPrefs._items[j];
+                            if ( curPrefsItem._id == newPrefsItem._id ) {
                                 found = true;
                             }
                         }
                         if ( found == false ) {
-                            curPrefs._children.push ( newPrefsChild );
-                            curPrefs[newPrefsChild._name] = newPrefsChild;
+                            curPrefs._items.push ( newPrefsItem );
                         }
                     }
-                    
-                    break;
-                case "preference" : // make sure values match ( newPrefs overwrites curPrefs )
-                    // make sure values match ( newPrefs overwrites curPrefs )
-                    if ( overwrite ) {
-                        curPrefs._value = newPrefs._value;
-                        curPrefs._type = newPrefs._type; // allows for changing types
-                    }
-                    
-                    if ( curPrefs._items && curPrefs._items.length > 0 ) {
-                        for ( var i = 0; i < curPrefs._items.length; i++ ) {
-                            var curPrefsItem = curPrefs._items[i];
-                            for ( var j = 0; j < newPrefs._items.length; j++ ) {
-                                var newPrefsItem = newPrefs._items[j];
-                                if ( curPrefsItem._id == newPrefsItem._id ) {
-                                    mergeHelper ( curPrefsItem, newPrefsItem, overwrite );
-                                }
-                            }
-                        }    
-                    }
-                    
-                    // Add items only present in newPrefs
-                    if (newPrefs._items && newPrefs._items.length > 0) {
-                        if (!curPrefs._items)
-                            curPrefs._items = [];
-                        for ( var i = 0; i < newPrefs._items.length; i++ ) {
-                            var newPrefsItem = newPrefs._items[i];
-                            var found = false;
-                            for ( var j = 0; j < curPrefs._items.length; j++ ) {
-                                var curPrefsItem = curPrefs._items[j];
-                                if ( curPrefsItem._id == newPrefsItem._id ) {
-                                    found = true;
-                                }
-                            }
-                            if ( found == false ) {
-                                curPrefs._items.push ( newPrefsItem );
-                            }
-                        }
-                    }
-                    
-                    break;
-                case "item" : // make sure selected attributes match ( newPrefs overwrites curPrefs )
-                    if ( overwrite ) {
-                        curPrefs._selected = newPrefs._selected;
-                    }
-                    break;
-                default:
-                    log ( "XMLPreferences.loadUser.loadUserHelper",
-                        "Invalid node type - " + curPrefs._nodeType );
+                }
+            } else if (curPrefs._nodeType == 'item') {
+                // make sure selected attributes match ( newPrefs overwrites curPrefs )
+                if ( overwrite ) {
+                    curPrefs._selected = newPrefs._selected;
+                }
+            } else {
+                log ( "XMLPreferences.loadUser.loadUserHelper",
+                    "Invalid node type - " + curPrefs._nodeType );
             }
         }
         
