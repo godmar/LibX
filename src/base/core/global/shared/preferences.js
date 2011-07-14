@@ -281,11 +281,6 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
     _addItem : function ( descriptor ) {
         var item = new prefFactory['item'] ( descriptor, this._idstr );
         
-        // don't add this item if it already exists
-        var existingItem = libx.preferences.get(this._idstr + "." + item._value)
-        if (existingItem)
-            return;
-        
         if (this._type == 'choice') {
             this._items.push ( item );
             if ( item._selected ) {
@@ -481,8 +476,7 @@ var SearchVisitor = libx.core.Class.create ( DefaultVisitor, {
 } );
 
 return /** @lends libx.preferences */ {
-    roots : new Array(),
-    
+
     /**
      *    Initializes the preferences, loading the user preferences from file
      *
@@ -573,7 +567,7 @@ return /** @lends libx.preferences */ {
     },
 
     /**
-     * Load preferences saved to the userprefs XML.
+     * Load preferences from the userprefs XML.
      */
     loadUserPrefs : function (callback) {
         var self = this;
@@ -611,15 +605,12 @@ return /** @lends libx.preferences */ {
         var overwrite = descriptor.overwrite;
         var base = descriptor.base;
 
-        libx.preferences.roots.push ( descriptor );
-        
         log ( "loading: " + filename + " overwrite=" + overwrite + " and base=" + base );
         
         if ( filename == null ) {
             log ( "Invalid filename: " + filename );
         }
         var callbackFunct = this.loadXML;
-        // BRN: use object cache here? causes unit test failures
         libx.cache.defaultObjectCache.get ( {
             type: 'GET',
             url : filename,
@@ -652,8 +643,6 @@ return /** @lends libx.preferences */ {
         var overwrite = descriptor.overwrite;
         var base = descriptor.base;
         
-        if (xmlNode.nodeName == 'libx:preference')
-            libx.preff = xmlNode;
         var loadedPrefs = new prefFactory[xmlNode.localName]( null, base, xmlNode );
 
         if ( descriptor.prefs == null ) {
