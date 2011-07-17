@@ -178,61 +178,6 @@ libx.utils.hash = {
     }
 }
 
-libx.io = { }
-var iodir = "libx";
-function getPath(fname, createDirs) {
-    var f = new File(fname);
-    if (f.isAbsolute())
-        throw "Absolute path " + fname + " not allowed";
-
-    var path = new File(iodir + File.separator + f.getParentFile());
-    if (createDirs)
-        path.mkdirs();
-    return new File(path, f.getName());
-}
-
-libx.io.fileExists = function (fname) {
-    return getPath(fname, false).exists();
-}
-
-libx.io.writeToFile = function (fname, data, create, append) {
-    // println("writeToFile: fname=" + fname + " create=" + create + " append=" + append + " data.length=" + data.length);
-    if (append)
-        throw "Append not supported";
-
-    var file = getPath(fname, true);
-    try {
-        var out = new java.io.FileOutputStream(file);
-        for (var i = 0; i < data.length; i++) {
-            out.write(data.charCodeAt(i));
-        }
-    } finally {
-        out.close();
-    }
-}
-
-libx.io.getFileText = function (fname) {
-    var file = getPath(fname, false);
-    return readFile(file);
-};
-/*
-libx.io.getFileText = function (fname) {
-    // println("getFileText: path=" + fname);
-    var file = getPath(fname, false);
-    try {
-        var stream = new java.io.FileInputStream(file);
-        var c;
-        var sb = new java.lang.StringBuilder();
-        while ((c = stream.read()) != -1)
-            sb.append(new java.lang.Character(c));
-
-        return String(sb.toString());
-    } finally {
-        stream.close();
-    }
-    return "could not read data";
-}
-*/
 libx.utils.timer = {
     setTimeout: setTimeout,
     setInterval: setInterval
@@ -307,6 +252,64 @@ localStorage.dump = function () {
     }
 }
 
+/**
+ * Implement LibX storage using localStorage.
+ */
+libx.storage = {
+    Store: libx.core.Class.create({
+        
+        initialize: function(prefix) {
+            this.prefix = prefix + '.';
+        },
+        
+        setItem: function(paramObj) {
+            localStorage.setItem(this.prefix + paramObj.key, paramObj.value);
+            paramObj.success && paramObj.success();
+        },
+        
+        getItem: function(paramObj) {
+            var value = localStorage.getItem(this.prefix + paramObj.key);
+            if (value == null)
+                paramObj.notfound && paramObj.notfound();
+            else
+                paramObj.success && paramObj.success(value);
+        },
+        
+        find: function(paramObj) {
+            var matches = [];
+            var pattern = paramObj.pattern;
+            if (!pattern)
+                pattern = /.*/;
+            for (var i in localStorage) {
+                if (i.indexOf(this.prefix) == 0) {
+                    var itemName = i.substr(this.prefix.length);
+                    if (pattern.test(itemName))
+                        matches.push(itemName);
+                }
+            }
+            paramObj.success && paramObj.success(matches);
+        },
+        
+        removeItem: function(paramObj) {
+            var value = null;
+            localStorage.removeItem(this.prefix + paramObj.key);
+            paramObj.success && paramObj.success();
+        },
+
+        clear: function(paramObj) {
+            for (var i in localStorage)
+                if (i.indexOf(this.prefix) == 0)
+                    localStorage.removeItem(i);
+            paramObj && paramObj.success && paramObj.success();
+        }
+    })
+    
+};
+
+libx.storage.metacacheStore = new libx.storage.Store('metacache');
+libx.storage.cacheStore = new libx.storage.Store('cache');
+libx.storage.prefsStore = new libx.storage.Store('prefs');
+
 function exec(cmd) {
     var process = java.lang.Runtime.getRuntime().exec(cmd);
     var inp = new DataInputStream(process.getInputStream());
@@ -330,7 +333,6 @@ libx.locale = {
 
 var libxscripts2 = [
     "global/gc/utils/hash.js",
-    "global/gc/storage.js",
     "global/shared/cache/objectcache.js",
     "global/shared/cache/scheduler.js",
     "global/shared/services/crossref.js",
