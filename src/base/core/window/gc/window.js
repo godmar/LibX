@@ -121,8 +121,6 @@ var imported = {};
     });
 
     // prepare import of proxies
-    libxTemp.magicImport('localStorage.getItem', { returns: true, namespace: imported });
-    libxTemp.magicImport('localStorage.setItem', { namespace: imported });
     libxTemp.magicImport('libx.utils.browserprefs.setBoolPref');
     libxTemp.magicImport('libx.utils.browserprefs.setStringPref');
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
@@ -131,6 +129,11 @@ var imported = {};
     libxTemp.magicImport('libx.libapp.addTempPackage');
     libxTemp.magicImport('libx.libapp.clearTempPackages');
     libxTemp.magicImport('libx.libapp.getOverridden');
+    libxTemp.magicImport('libx.storage.prefsStore.getItem');
+    libxTemp.magicImport('libx.storage.prefsStore.setItem');
+    libxTemp.magicImport('libx.storage.prefsStore.removeItem');
+    libxTemp.magicImport('libx.storage.prefsStore.clear');
+    libxTemp.magicImport('libx.storage.prefsStore.find');
 
     libx.libappdata = {};
     function fireCallbacks(request, response, doUnscrub) {

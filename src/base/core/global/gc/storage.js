@@ -1,11 +1,23 @@
 
-libx.storage = {
+libx.storage = (function () {
+
+// LibX database connection
+var dbConn = openDatabase('libx', '1.0', 'LibX storage', 10 * 1024 * 1024);
+
+return {
+
     Store: libx.core.Class.create({
         
-        initialize: function(prefix) {
-            this.prefix = prefix + '.';
+        initialize: function (storeName) {
+            this.storeName = storeName;
+            dbConn.transaction(function (t) {
+                t.executeSql('CREATE TABLE IF NOT EXISTS ' + storeName + ' (key TEXT  PRIMARY KEY NOT NULL  UNIQUE, value TEXT)',
+                    [], libx.core.EmptyFunction, function (t, err) {
+                        libx.log.write('Error creating table ' + storeName + ': ' + err.message);
+                    });
+            });
         },
-        
+
         /**
          * Retrieves an object from storage with the given key.
          *
@@ -25,20 +37,19 @@ libx.storage = {
          *                                          errors
          */
         setItem: function(paramObj) {
-            var error = false;
-            try {
-                localStorage.setItem(this.prefix + paramObj.key, paramObj.value);
-            } catch(e) {
-                error = true;
-                if(paramObj.error)
-                    paramObj.error(e);
+
+            var storeName = this.storeName;
+            var error = function (t, err) {
+                if (paramObj.error)
+                    paramObj.error(err.message);
                 else
-                    libx.log.write("Error in libx.storage.setItem(): " + e);
-            }
-            if (!error && paramObj.success)
-                paramObj.success();
-            if(paramObj.complete)
-                paramObj.complete();
+                    libx.log.write('Error in libx.storage.setItem(): ' + err.message);
+            };
+
+            dbConn.transaction(function (t) {
+                t.executeSql("INSERT OR REPLACE INTO " + storeName + " (key, value) VALUES(?, ?)",
+                    [paramObj.key, paramObj.value], paramObj.success, error);
+            });
         },
         
         /**
@@ -64,26 +75,30 @@ libx.storage = {
          *                                          the store
          */
         getItem: function(paramObj) {
-            var error = false;
-            var value = null;
-            try {
-                value = localStorage.getItem(this.prefix + paramObj.key);
-            } catch(e) {
-                error = true;
-                if(paramObj.error)
-                    paramObj.error(e);
+
+            var storeName = this.storeName;
+            var error = function (t, err) {
+                if (paramObj.error)
+                    paramObj.error(err.message);
                 else
-                    libx.log.write("Error in libx.storage.getItem(): " + e);
-            }
-            if (!error) {
-                if (value == null) {
-                    if (paramObj.notfound)
-                        paramObj.notfound();
-                } else if (paramObj.success)
-                    paramObj.success(value);
-            }
-            if(paramObj.complete)
-                paramObj.complete();
+                    libx.log.write('Error in libx.storage.getItem(): ' + err.message);
+            };
+
+            var success = function (t, results) {
+                if (paramObj.success) {
+                    switch (results.rows.length) {
+                        case 0: paramObj.notfound && paramObj.notfound(); break;
+                        case 1: paramObj.success && paramObj.success(results.rows.item(0).value); break;
+                        default: libx.log.write('Error in libx.storage: multiple values returned for statement');
+                    }
+                }
+            };
+
+            dbConn.readTransaction(function (t) {
+                t.executeSql("SELECT value FROM " + storeName + " WHERE key = ?",
+                    [paramObj.key], success, error);
+            });
+
         },
         
         /**
@@ -106,31 +121,39 @@ libx.storage = {
          *                                          single parameter which will
          *                                          be all matched items
          */
+        // BRN: redo this to be efficient with SQL
         find: function(paramObj) {
-            var matches = [];
-            var pattern = paramObj.pattern;
-            var error = false;
-            if(!pattern)
-                pattern = /.*/;
-            try {
-                for(var i in localStorage) {
-                    if(i.indexOf(this.prefix) == 0) {
-                        var itemName = i.substr(this.prefix.length);
-                        if(pattern.test(itemName))
-                            matches.push(itemName);
-                    }
-                }
-            } catch(e) {
-                error = true;
-                if(paramObj.error)
-                    paramObj.error(e);
+
+            var storeName = this.storeName;
+            var error = function (t, err) {
+                if (paramObj.error)
+                    paramObj.error(err.message);
                 else
-                    libx.log.write("Error in libx.storage.find(): " + e);
-            }
-            if (!error && paramObj.success)
-                paramObj.success(matches);
-            if(paramObj.complete)
-                paramObj.complete();
+                    libx.log.write('Error in libx.storage.find(): ' + err.message);
+            };
+
+            var success = function (t, results) {
+                if (paramObj.success) {
+
+                    var pattern = paramObj.pattern;
+                    if(!pattern)
+                        pattern = /.*/;
+                    var matches = [];
+
+                    for (var i = 0; i < results.rows.length; i++) {
+                        var key = results.rows.item(i).key;
+                        if (pattern.test(key))
+                            matches.push(key);
+                    }
+                    paramObj.success(matches);
+
+                }
+            };
+
+            dbConn.readTransaction(function (t) {
+                t.executeSql("SELECT key FROM " + storeName, [], success, error);
+            });
+
         },
         
         /**
@@ -150,21 +173,20 @@ libx.storage = {
          *                                          success
          */
         removeItem: function(paramObj) {
-            var error = false;
-            var value = null;
-            try {
-                localStorage.removeItem(this.prefix + paramObj.key);
-            } catch(e) {
-                error = true;
-                if(paramObj.error)
-                    paramObj.error(e);
+
+            var storeName = this.storeName;
+            var error = function (t, err) {
+                if (paramObj.error)
+                    paramObj.error(err.message);
                 else
-                    libx.log.write("Error in libx.storage.getItem(): " + e);
-            }
-            if (!error && paramObj.success)
-                paramObj.success();
-            if(paramObj.complete)
-                paramObj.complete();
+                    libx.log.write('Error in libx.storage.removeItem(): ' + err.message);
+            };
+
+            dbConn.transaction(function (t) {
+                t.executeSql("DELETE FROM " + storeName + " WHERE key = ?",
+                    [paramObj.key], paramObj.success, error);
+            });
+
         },
 
         /**
@@ -182,23 +204,28 @@ libx.storage = {
          *                                          errors
          */
         clear: function(paramObj) {
-            var error = false;
-            try {
-                for(var i in localStorage)
-                    if(i.indexOf(this.prefix) == 0)
-                        localStorage.removeItem(i);
-            } catch(e) {
-                error = true;
-                if(paramObj && paramObj.error)
-                    paramObj.error(e);
+
+            var storeName = this.storeName;
+            var error = function (t, err) {
+                if (paramObj.error)
+                    paramObj.error(err.message);
                 else
-                    libx.log.write("Error in libx.storage.clear(): " + e);
-            }
-            if(!error && paramObj && paramObj.success)
-                paramObj.success();
-            if(paramObj && paramObj.complete)
-                paramObj.complete();
+                    libx.log.write('Error in libx.storage.clear(): ' + err);
+            };
+
+            dbConn.transaction(function (t) {
+                t.executeSql("DELETE FROM " + storeName,
+                    [], paramObj && paramObj.success, error);
+            });
+
         }
     })
     
 };
+
+}) ();
+
+libx.storage.metacacheStore = new libx.storage.Store('metacache');
+libx.storage.cacheStore = new libx.storage.Store('cache');
+libx.storage.prefsStore = new libx.storage.Store('prefs');
+

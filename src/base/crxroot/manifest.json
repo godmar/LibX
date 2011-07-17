@@ -26,8 +26,6 @@
             "core/global/shared/libx.js",
             "core/global/shared/log.js",
             "core/global/shared/utils/binary.js",
-            // "core/global/gc/storage.js",
-            "core/window/gc/storage.js",
             "core/global/shared/preferences.js",
             "core/global/shared/locale.js",
             "core/global/shared/config.js",

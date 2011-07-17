@@ -31,8 +31,6 @@
  */
 libx.preferences = (function () {
 
-var prefStore = new libx.storage.Store('prefs');
-    
 // Used to determine if the node is an element node, or a text node
 var ELEMENT_NODE = 1;
 
@@ -486,8 +484,6 @@ return /** @lends libx.preferences */ {
     
         libx.prefs = new prefFactory["category"]({ _name: "prefs" }, "libx");
         libx.prefs._addCategory({ _name: "contextmenu", _layout: "tree" });
-        libx.prefs._addCategory({ _name: "libapps", _layout: "category" });
-        libx.prefs.libapps._addPreference({ _name: "feeds", _type: "multichoice" });
                 
         /**
          *  Gets a category for a given libapp or module URL.
@@ -571,7 +567,7 @@ return /** @lends libx.preferences */ {
      */
     loadUserPrefs : function (callback) {
         var self = this;
-        prefStore.getItem({
+        libx.storage.prefsStore.getItem({
             key: USER_PREFS,
             success: function (text) {
                 var userPrefsDoc = libx.utils.xml.loadXMLDocumentFromString(text).documentElement;
@@ -580,8 +576,9 @@ return /** @lends libx.preferences */ {
                     overwrite: true,
                     base : "libx"
                 } );
+                callback && callback();
             },
-            complete : function () {
+            notfound: function () {
                 callback && callback();
             }
         });
@@ -776,7 +773,7 @@ return /** @lends libx.preferences */ {
     save : function () {
         var sv = new SerializeVisitor();
         sv.visit ( libx.prefs ); 
-        prefStore.setItem({
+        libx.storage.prefsStore.setItem({
             key: USER_PREFS,
             value: sv.str
         });

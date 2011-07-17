@@ -124,7 +124,7 @@ ContextMenuItem.factory['catalog'] = libx.core.Class.create (
     initialize : function ( name, searchType ) {
         this.searcher = libx.edition.catalogs.getByName(name);
         this.searchType = searchType; 
-        this.title = libx.locale.defaultStringBundle.getProperty("catalog_search_label", name,
+        this.title = libx.locale.defaultStringBundle.getProperty("label_search_catalog_type_str", name,
                         libx.edition.searchoptions[searchType], '"%s"');
         this.prefkey = name + "." + searchType;
         this.visible = libx.prefs.contextmenu[name][searchType]._value;
@@ -171,7 +171,7 @@ ContextMenuItem.factory['openurl'] = libx.core.Class.create (
      */
     initialize : function (name) {
         this.searcher = libx.edition.openurl.getByName(name);
-        this.title = libx.locale.defaultStringBundle.getProperty("openurl_search_label", name, '"%s"');
+        this.title = libx.locale.defaultStringBundle.getProperty("label_search_catalog_str", name, '"%s"');
         this.prefkey = name + ".enabled";
         this.visible = libx.prefs.contextmenu[name]["enabled"]._value;
     },
@@ -271,7 +271,7 @@ ContextMenuItem.factory['scholar'] = libx.core.Class.create (
 {
     initialize : function () {
         this.parent();
-        this.title = libx.locale.defaultStringBundle.getProperty("scholarsearch_label", '"%s"');
+        this.title = libx.locale.defaultStringBundle.getProperty("label_search_scholar", '"%s"');
         this.prefkey = "Google Scholar.magicsearch";
     },
 

@@ -31,16 +31,12 @@
  */
 (function () {
 
-/* XXX these should not be global. They should be instance fields on ObjectCache */
-var cacheStore = new libx.storage.Store('cache');
-var metaStore = new libx.storage.Store('metacache');
-
 /* 
  * Retrieve a cached item from cacheStore. 
  * Called only after hit in metaStore.
  */
 function getCachedItem (request, metadata) {
-    cacheStore.getItem({
+    libx.storage.cacheStore.getItem({
         key: trimQuery(request.ignoreQuery, request.url),
         success: function (text) {
             if (request.success) {
@@ -50,6 +46,7 @@ function getCachedItem (request, metadata) {
                         data = libx.utils.xml.loadXMLDocumentFromString(text);
                     } catch (e) {
                         request.error && request.error('parsererror');
+                        request.complete && request.complete();
                         return;
                     }
                 }
@@ -58,13 +55,15 @@ function getCachedItem (request, metadata) {
                         data = libx.utils.json.parse(text);
                     } catch (e) {
                         request.error && request.error('parsererror');
+                        request.complete && request.complete();
                         return;
                     }
                 }
                 request.success(data, metadata);
+                request.complete && request.complete();
             }
         },
-        complete: request.complete
+        notfound: request.complete
     });
 }
 
@@ -129,14 +128,14 @@ function retrieveRequest(request, retrievalType) {
             }
             
             // write the data first, then its metadata
-            cacheStore.setItem({
+            libx.storage.cacheStore.setItem({
                 key: url,
                 value: data,
-                complete: function () {
+                success: function () {
                     self.putMetadata({
                         url: url,
                         metadata: metadata,
-                        complete: function () {
+                        success: function () {
                             getCachedItem(request, metadata);
                         }
                     });
@@ -224,15 +223,12 @@ libx.cache.ObjectCache = libx.core.Class.create(
      */
     getMetadata : function (paramObj) {
         var url = trimQuery(paramObj.ignoreQuery, paramObj.url);
-        metaStore.getItem({
+        libx.storage.metacacheStore.getItem({
             key: url,
             success: function(text) {
-                if(paramObj.success)
-                    paramObj.success(libx.utils.json.parse(text));
+                paramObj.success && paramObj.success(libx.utils.json.parse(text));
             },
             notfound: paramObj.notfound,
-            complete: paramObj.complete
-            
         });
     },
 
@@ -241,10 +237,10 @@ libx.cache.ObjectCache = libx.core.Class.create(
      */
     putMetadata : function (paramObj) {
         var url = trimQuery(paramObj.ignoreQuery, paramObj.url);
-        metaStore.setItem({
+        libx.storage.metacacheStore.setItem({
             key: url,
             value: libx.utils.json.stringify(paramObj.metadata),
-            complete: paramObj.complete
+            success: paramObj.success
         });
     },
 
@@ -252,7 +248,7 @@ libx.cache.ObjectCache = libx.core.Class.create(
      * Remove all cached files
      */
     purgeAll : function () {
-        cacheStore.clear();
+        libx.storage.cacheStore.clear();
     },
 
     // BRN: change this!

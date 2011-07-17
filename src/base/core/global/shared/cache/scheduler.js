@@ -12,7 +12,6 @@ package scheduler:
 /*
 BRN:
 - add "resource" tags so packages can include images, etc
-- need to start/stop PackageSchedulers in libapp template when they are added/removed
 */
 
 (function () {
@@ -79,27 +78,29 @@ libx.cache.Scheduler = libx.core.Class.create({
             metadataMixin["expires"] = new Date().getTime() + interval;
             retry && (metadataMixin["retry"] = interval);
             
+            var complete = function () {
+                libx.core.Class.mixin(metadata, metadataMixin, true);
+                self.objectCache.putMetadata({
+                    ignoreQuery: true,
+                    url: self.rootUrl,
+                    metadata: metadata,
+                    success: function () {
+                        libx.utils.timer.setTimeout(function () {
+                            updateRoot();
+                        }, interval);
+                        libx.log.write("scheduling update in " + Math.round(interval / 1000) + " seconds for " + self.rootUrl);
+                        callback && callback();
+                    }
+                });
+            };
             self.objectCache.getMetadata({
                 ignoreQuery: true,
                 url: self.rootUrl,
                 success: function (m) {
                     metadata = m;
+                    complete();
                 },
-                complete: function () {
-                    libx.core.Class.mixin(metadata, metadataMixin, true);
-                    self.objectCache.putMetadata({
-                        ignoreQuery: true,
-                        url: self.rootUrl,
-                        metadata: metadata,
-                        complete: function () {
-                            libx.utils.timer.setTimeout(function () {
-                                updateRoot();
-                            }, interval);
-                            libx.log.write("scheduling update in " + Math.round(interval / 1000) + " seconds for " + self.rootUrl);
-                            callback && callback();
-                        }
-                    });
-                }
+                notfound: complete
             });
         }
         
@@ -163,63 +164,65 @@ libx.cache.Scheduler = libx.core.Class.create({
             }
 
             var rootMetadata = {};
+            var complete = function () {
+                self.objectCache.update({
+                    ignoreQuery: true,
+                    lastModified: rootMetadata.lastModified,
+                    url: self.rootUrl,
+                    dataType: self.rootDataType,
+                    success: function (data, status, xhr) {
+                        rootUpdated = true;
+                        libx.log.write(self.rootUrl + " updated");
+                        if (self.updateChildrenRule == "root")
+                            self.updateChildren(checkForUpdates, data);
+                    },
+                    
+                    error: function (status) {
+                        libx.log.write("error status " + status + " updating " + self.rootUrl);
+                        noErrors = false;
+                    },
+                    
+                    complete: function () {
+                        if (self.updateChildrenRule == "always" && noErrors)
+                            self.updateChildren(checkForUpdates, null, updateQueue, function () {
+                                noErrors = false;
+                            });
+                        var updatesFinished = {
+                            onready: function () {
+                            
+                                if (!noErrors) {
+                                    // double retry interval on each failure until max retry interval is reached
+                                    var retry = 2 * rootMetadata.retry || self.initialRetryInterval;
+                                    if (retry > self.maxRetryInterval)
+                                        retry = self.maxRetryInterval;
+                                    
+                                    setRootExpiration(retry, true);
+                                    return;
+                                }
+                                
+                                self.updatesFinished(rootUpdated);
+
+                                // add random delay to update interval to reduce server load
+                                var delay = Math.floor(self.maxRandDelay * Math.random());
+                                setRootExpiration(self.updateInterval + delay, false, function () {
+                                    libx.log.write("all updates completed successfully for " + self.rootUrl);
+                                });
+                                
+                            }
+                        };
+                        updateQueue.scheduleLast(updatesFinished);
+                        updatesFinished.markReady();
+                    }
+                });
+            };
             self.objectCache.getMetadata({
                 url: self.rootUrl,
                 ignoreQuery: true,
                 success: function (metadata) {
                     rootMetadata = metadata;
+                    complete();
                 },
-                complete: function () {
-                    self.objectCache.update({
-                        ignoreQuery: true,
-                        lastModified: rootMetadata.lastModified,
-                        url: self.rootUrl,
-                        dataType: self.rootDataType,
-                        success: function (data, status, xhr) {
-                            rootUpdated = true;
-                            libx.log.write(self.rootUrl + " updated");
-                            if (self.updateChildrenRule == "root")
-                                self.updateChildren(checkForUpdates, data);
-                        },
-                        
-                        error: function (status) {
-                            libx.log.write("error status " + status + " updating " + self.rootUrl);
-                            noErrors = false;
-                        },
-                        
-                        complete: function () {
-                            if (self.updateChildrenRule == "always" && noErrors)
-                                self.updateChildren(checkForUpdates, null, updateQueue, function () {
-                                    noErrors = false;
-                                });
-                            var updatesFinished = {
-                                onready: function () {
-                                
-                                    if (!noErrors) {
-                                        // double retry interval on each failure until max retry interval is reached
-                                        var retry = 2 * rootMetadata.retry || self.initialRetryInterval;
-                                        if (retry > self.maxRetryInterval)
-                                            retry = self.maxRetryInterval;
-                                        
-                                        setRootExpiration(retry, true);
-                                        return;
-                                    }
-                                    
-                                    self.updatesFinished(rootUpdated);
-
-                                    // add random delay to update interval to reduce server load
-                                    var delay = Math.floor(self.maxRandDelay * Math.random());
-                                    setRootExpiration(self.updateInterval + delay, false, function () {
-                                        libx.log.write("all updates completed successfully for " + self.rootUrl);
-                                    });
-                                    
-                                }
-                            };
-                            updateQueue.scheduleLast(updatesFinished);
-                            updatesFinished.markReady();
-                        }
-                    });
-                }
+                notfound: complete
             });
         }
     
@@ -287,7 +290,8 @@ libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     }
 });
 
-//BRN: handle case where each entry is hosted at static URL
+/*BRN: handle case where each entry is hosted at static URL; that is, getFeedPath()
+       cannot be used for static files */
 libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     initialize: function (rootUrl) {
         this.fullRootUrl = rootUrl;
@@ -357,4 +361,21 @@ libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     }
 });
 
+libx.events.addListener("EditionConfigurationLoaded", {
+    onEditionConfigurationLoaded: function () {
+    
+        libx.cache.defaultHashScheduler && libx.cache.defaultHashScheduler.stopScheduling();
+        var jsonUrl = libx.locale.getBootstrapURL("updates.json");
+        jsonUrl += "?edition=" + libx.edition.id + "&editionversion=" + libx.edition.version + "&libxversion=" + libx.version;
+        libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
+        libx.cache.defaultHashScheduler.scheduleUpdates();
+        
+        libx.cache.defaultConfigScheduler && libx.cache.defaultConfigScheduler.stopScheduling();
+        var configUrl = libx.utils.browserprefs.getStringPref("libx.edition.configurl");
+        libx.cache.defaultConfigScheduler = new libx.cache.ConfigScheduler(configUrl);
+        libx.cache.defaultConfigScheduler.scheduleUpdates();
+        
+    }
+});
+    
 }) ();

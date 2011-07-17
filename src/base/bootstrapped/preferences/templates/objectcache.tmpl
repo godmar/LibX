@@ -1,18 +1,20 @@
 {!
+
+    /* BRN: this file currently will not work in Google Chrome because WebSQL cannot be synchronous */
+
     /**
      *    Template for the object cache tab in the preferences menu
      *
      */
     var cachedObjects = [];
 
-    var metaCache = new libx.storage.Store('metacache');
-    metaCache.async = false;
-    metaCache.find({
+    libx.storage.metacacheStore.async = false;
+    libx.storage.metacacheStore.find({
         success: function(filepaths) {
             var fetchedFiles = 0;
             filepaths.forEach(function (filepath) {
                 /* get the metadata */
-                metaCache.getItem({
+                libx.storage.metacacheStore.getItem({
                     key: filepath,
                     success: function(text) {
                         var metadata = libx.utils.json.parse(text);
@@ -91,21 +93,18 @@ $('#actions').buttonset();
 
 $(".accordion").accordion({ header: "h3" });
 
-var cache = new libx.storage.Store('cache');
-var metaCache = new libx.storage.Store('metacache');
-
 $('.accordion > div > span').click(function() {
     $(this).next().toggle();
 }).next().hide();
 
 $('.purgebutton').click(function() {
     var filename = $(this).attr('href').substr(1);
-    cache.removeItem({
+    libx.storage.cacheStore.removeItem({
         key: filename,
-        complete: function () {
-            metaCache.removeItem({
+        success: function () {
+            libx.storage.metacacheStore.removeItem({
                 key: filename,
-                complete: function () {
+                success: function () {
                     $("#link-refresh").click();
                 }
             });
@@ -119,10 +118,10 @@ $('#link-flush').click(function() {
 });
 
 $('#link-purgeall').click(function() {
-    cache.clear({
-        complete: function () {
-            metaCache.clear({
-                complete: function () {
+    libx.storage.cacheStore.clear({
+        success: function () {
+            libx.storage.metacacheStore.clear({
+                success: function () {
                     $("#link-refresh").click();
                 }
             });
@@ -138,7 +137,7 @@ $('#link-refresh').click(function() {
 
 $('.link-opencache').each(function(i, elem) {
     var filename = $(this).attr('href').substr(1);
-    cache.getItem( {
+    libx.storage.cacheStore.getItem( {
         key: filename,
         success: function (text) {
             if(text.substr(0, 5) != 'data:')

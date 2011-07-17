@@ -53,9 +53,6 @@ libx.storage = (function () {
              * 
              * @param {Function}    paramObj.success    function to execute upon
              *                                          success
-             * @param {Function}    paramObj.complete   function to execute upon
-             *                                          call completion
-             *                                          
              * @param {Function}    paramObj.error      function to execute upon
              *                                          errors
              */
@@ -65,13 +62,11 @@ libx.storage = (function () {
                 statement.params.value = paramObj.value;
                 
                 if(this.async)
-                    this.executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete); 
+                    this.executeStatement(statement, paramObj.success, paramObj.error); 
                 else {
                     statement.execute();
                     if(paramObj.success)
                         paramObj.success();
-                    if(paramObj.complete)
-                        paramObj.complete();
                 }
             },
             
@@ -82,9 +77,6 @@ libx.storage = (function () {
              * 
              * @param {String}      paramObj.key        key to look up (required)
              * 
-             * @param {Function}    paramObj.complete   function to execute upon
-             *                                          call completion
-             *                                          
              * @param {Function}    paramObj.error      function to execute upon
              *                                          errors
              *                                          
@@ -114,8 +106,6 @@ libx.storage = (function () {
                         if(paramObj.notfound && !resultFound &&
                                 aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
                             paramObj.notfound();
-                        if(paramObj.complete)
-                            paramObj.complete();
                     }
                     
                     this.executeStatement(statement, success, paramObj.error, complete);
@@ -125,8 +115,6 @@ libx.storage = (function () {
                             paramObj.success(statement.row.value);
                     } else if (paramObj.notfound)
                         paramObj.notfound();
-                    if(paramObj.complete)
-                        paramObj.complete();
                 }
             },
             
@@ -137,9 +125,6 @@ libx.storage = (function () {
              * 
              * @param {String}      paramObj.key        (REQUIRED) key to look up
              * 
-             * @param {Function}    paramObj.complete   function to execute upon
-             *                                          call completion
-             *                                          
              * @param {Function}    paramObj.error      function to execute upon
              *                                          errors
              *                                          
@@ -151,13 +136,11 @@ libx.storage = (function () {
                 statement.params.key = paramObj.key;
                 
                 if(this.async) {
-                    this.executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete);
+                    this.executeStatement(statement, paramObj.success, paramObj.error);
                 } else {
                     statement.execute();
                     if(paramObj.success)
                         paramObj.success();
-                    if(paramObj.complete)
-                        paramObj.complete();
                 }
             },
             
@@ -171,9 +154,6 @@ libx.storage = (function () {
              *                                          provided, all items will be
              *                                          returned
              * 
-             * @param {Function}    paramObj.complete   function to execute upon
-             *                                          call completion
-             *                                          
              * @param {Function}    paramObj.error      function to execute upon
              *                                          errors
              *                                          
@@ -182,6 +162,7 @@ libx.storage = (function () {
              *                                          single parameter which will
              *                                          be all matched items
              */
+            // BRN: remove sync code?
             find: function(paramObj) {
                 var matches = [];
                 var pattern = paramObj.pattern;
@@ -207,8 +188,6 @@ libx.storage = (function () {
                         if(aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED &&
                                 paramObj.success)
                             paramObj.success(matches);
-                        if(paramObj.complete)
-                            paramObj.complete();
                     };
                     
                     this.executeStatement(statement, success, paramObj.error, complete);
@@ -219,8 +198,6 @@ libx.storage = (function () {
                     }  
                     if(paramObj.success)
                         paramObj.success(matches);
-                    if(paramObj.complete)
-                        paramObj.complete();
                 }
                 
             },
@@ -230,10 +207,9 @@ libx.storage = (function () {
              *
              * @param {Object}      paramObj            contains properties used
              *                                          for retrieval
+             *
+             * @param {Function}    paramObj.success    success callback
              * 
-             * @param {Function}    paramObj.complete   function to execute upon
-             *                                          call completion
-             *                                          
              * @param {Function}    paramObj.error      function to execute upon
              *                                          errors
              */
@@ -243,14 +219,18 @@ libx.storage = (function () {
                 if(this.async) {
                     if(!paramObj)
                         paramObj = {};
-                    this.executeStatement(statement, paramObj.success, paramObj.error, paramObj.complete);
+                    this.executeStatement(statement, paramObj.success, paramObj.error);
                 } else {
                     statement.execute();
-                    if(paramObj.complete)
-                        paramObj.complete();
+                    paramObj.success && paramObj.success();
                 }
             }
         })
     };
     
 }) ();
+
+libx.storage.metacacheStore = new libx.storage.Store('metacache');
+libx.storage.cacheStore = new libx.storage.Store('cache');
+libx.storage.prefsStore = new libx.storage.Store('prefs');
+

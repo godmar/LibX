@@ -490,14 +490,11 @@ libx.initialize = function (loadGlobalScripts)
     libx.initialize.reload = function () {
     
         // clear the object cache
-        var cache = new libx.storage.Store('cache');
-        var metacache = new libx.storage.Store('metacache');
-        metacache.clear();
-        cache.clear();
+        libx.storage.metacacheStore.clear();
+        libx.storage.cacheStore.clear();
         
         // clear preferences and stale data
-        var prefstore = new libx.storage.Store("prefs");
-        prefstore.clear();
+        libx.storage.prefsStore.clear();
         delete libx.edition;
         delete libx.prefs;
         libx.preferences.initialize();
@@ -508,25 +505,6 @@ libx.initialize = function (loadGlobalScripts)
             libx.loadConfig(configUrl);
             
     }
-    
-    // BRN: move this to scheduler.js?
-    libx.events.addListener("EditionConfigurationLoaded", {
-        onEditionConfigurationLoaded: function () {
-        
-            libx.cache.defaultHashScheduler && libx.cache.defaultHashScheduler.stopScheduling();
-            var jsonUrl = libx.locale.getBootstrapURL("updates.json");
-            // BRN: add libx edition and browser version to stats
-            jsonUrl += "?edition=" + libx.edition.id + "&version=" + libx.edition.version;
-            libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
-            libx.cache.defaultHashScheduler.scheduleUpdates();
-            
-            libx.cache.defaultConfigScheduler && libx.cache.defaultConfigScheduler.stopScheduling();
-            var configUrl = libx.utils.browserprefs.getStringPref("libx.edition.configurl");
-            libx.cache.defaultConfigScheduler = new libx.cache.ConfigScheduler(configUrl);
-            libx.cache.defaultConfigScheduler.scheduleUpdates();
-            
-        }
-    });
     
     /**
      * Block until the default locale is fetched.

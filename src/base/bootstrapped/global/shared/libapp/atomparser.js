@@ -227,7 +227,6 @@ function handleEntry(visitor, url, cacheMissActivity) {
                 handleEntryBody(xmlDoc, pathDir, entry);
             } else {
                 success = false;
-                // BRN: handle this case in scheduler
                 // URL entry not found in this feed; fetch the entry individually
                 var urlRequest = {
                     dataType: "xml",

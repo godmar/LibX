@@ -6,9 +6,7 @@
 <script>
 $(function() {
     var filename = null;
-    var cache = new libx.storage.Store('cache');
-    var metacache = new libx.storage.Store('metacache');
-    cache.find({
+    libx.storage.cacheStore.find({
         success: function(files) {
             files.sort();
             for(var i = 0; i < files.length; i++) {
@@ -25,8 +23,8 @@ $(function() {
                             }
                         });
                     }
-                    getItem(cache, 'item');
-                    getItem(metacache, 'meta-item');
+                    getItem(libx.storage.cacheStore, 'item');
+                    getItem(libx.storage.metacacheStore, 'meta-item');
                 });
                 $('#cached-items').append(link);
             }
@@ -41,12 +39,12 @@ $(function() {
                 value: $('#' + elemId).val()
             });
         }
-        setItem(cache, 'item');
-        setItem(metacache, 'meta-item');
+        setItem(libx.storage.cacheStore, 'item');
+        setItem(libx.storage.metacacheStore, 'meta-item');
     });
     $('#clear-cache').click(function() {
-        metacache.clear();
-        cache.clear();
+        libx.storage.metacacheStore.clear();
+        libx.storage.cacheStore.clear();
     });
 });
 </script>

@@ -150,13 +150,8 @@ libx.extension.addListener("objectCache", function (request, sender, sendRespons
 });
 
 libx.extension.addListener("browserPrefs", function (request, sender, sendResponse) {
-    var prefs = {};
-    for (var item in localStorage) {
-        if (/^browserprefs/.test(item))
-            prefs[item] = localStorage[item];
-    }
-    sendResponse({ prefs: prefs });
-
+    // the localStorage should only contain browserprefs
+    sendResponse({ prefs: localStorage });
 });
 
 libx.extension.addListener("magicImport", function (request, sender, sendResponse) {

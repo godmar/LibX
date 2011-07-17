@@ -124,7 +124,6 @@ return /** @lends libx.locale */ {
      *      defaultLocale   {String}    OPTIONAL - the fallback locale bundle when either
      *                                      1) the user's preferred locale does not exist
      *                                      2) the user's locale exists, but a string is missing
-     *      async           {bool}      whether the locale will be retrieved asynchronously
      *      success         {Function}  REQUIRED - success callback function; takes a parameter
      *                                  which is the returned string bundle
      *      error           {Function}  error callback function
@@ -186,9 +185,7 @@ return /** @lends libx.locale */ {
             // get locales from url
             scheduleLocales(function (locale, activity) {
                 libx.cache.defaultObjectCache.get( {
-                    // BRN: is async still used?
                     dataType: "json",
-                    async: params.async,
                     url: params.url.replace(/\$locale\$/, locale),
                     error: function ( status ) {
                         activity.markReady();

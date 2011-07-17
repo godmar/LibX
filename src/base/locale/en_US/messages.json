@@ -74,12 +74,6 @@
                               }
                             },
     "proxy_reload":         { "message": "Reload page with this proxy" },
-    "tooltip_search":       { "message": "LibX: Search $catalog$ for $item$",
-                              "placeholders": {
-                                "catalog":    { "content": "$1" },
-                                "item":       { "content": "$2" }
-                              }
-                            },
     "proxy_follow_label":   { "message": "Follow link via $proxy$",
                               "placeholders": {
                                 "proxy":      { "content": "$1" }
@@ -90,28 +84,36 @@
                                 "proxy":      { "content": "$1" }
                               }
                             },
-    "catalog_search_label": { "message": "Search $catalog$ for $type$ $searchstr$",
+    "enabled_contextmenu":  { "message": "Enable in context menu" },
+    "enabled_option_contextmenu":  { "message": "Enable $option$ in context menu",
+                                     "placeholders": {
+                                       "option":   { "content": "$1" }
+                                     }
+                                   },
+    "label_search_catalog":
+                            { "message": "Search $catalog$ for this item",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" }
+                              }
+                            },
+    "label_search_catalog_str":
+                            { "message": "Search $catalog$ for $searchstr$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "searchstr":    { "content": "$2" }
+                              }
+                            },
+    "label_search_catalog_type_str":
+                            { "message": "Search $catalog$ for $type$ $searchstr$",
                               "placeholders": {
                                 "catalog":      { "content": "$1" },
                                 "type":         { "content": "$2" },
                                 "searchstr":    { "content": "$3" }
                               }
                             },
-    "openurl_search_label": { "message": "Search $resolver$ for $searchstr$",
-                              "placeholders": {
-                                "resolver":     { "content": "$1" },
-                                "searchstr":    { "content": "$2" }
-                              }
-                            },
-    "scholarsearch_label": { "message": "Search Google Scholar for $searchstr$",
+    "label_search_scholar": { "message": "Search Google Scholar for $searchstr$",
                               "placeholders": {
                                 "searchstr":    { "content": "$1" }
                               }
-                            },
-    "enabled_contextmenu":  { "message": "Enable in context menu" },
-    "enabled_option_contextmenu":  { "message": "Enable $option$ in context menu",
-                                     "placeholders": {
-                                       "option":   { "content": "$1" }
-                                     }
-                                   }
+                            }
 }
