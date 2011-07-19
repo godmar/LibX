@@ -7,8 +7,6 @@ use Cwd;
 
 # directory from which files will be bootstrapped
 my $bootstrap_url = "http://libx.org/libx2/bootstrapped/";
-# directory that contains required libapp scripts (such as jquery)
-my $libapp_script_url = "http://libx.org/libx2/libapps/scripts/";
 # default package url for editions that have none specified
 my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
 
@@ -90,7 +88,6 @@ $conf{'libxversion'} = "2.0." . int(time/86400) . "." . $dailyrev;
 $conf{'emupdateURL'} = $publish_base_url . "ff/update.rdf";
 $conf{'xpilocation'} = $publish_base_url . "ff/$xpifile";
 $conf{'bootstrapURL'} = $bootstrap_url;
-$conf{'libappscriptURL'} = $libapp_script_url;
 $conf{'defaultpkgURL'} = $default_package_url;
 #######################################################
 

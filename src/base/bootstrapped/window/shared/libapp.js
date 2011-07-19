@@ -301,7 +301,7 @@ function executeLibapp(libapp, pkgArgs) {
         /* schedule required scripts on which this module depends */
         module.require.forEach(function (rUrl) {
             if (rUrl in requireAlias)
-                rUrl = libx.locale.getLibappScriptURL(requireAlias[rUrl]);
+                rUrl = libx.locale.getBootstrapURL('scripts/' + requireAlias[rUrl]);
 
             if (rUrl in requireURL2Activity)
                 return;

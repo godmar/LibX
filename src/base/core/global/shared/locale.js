@@ -100,10 +100,6 @@ return /** @lends libx.locale */ {
         return "$bootstrapURL$" + path;
     },
     
-    getLibappScriptURL: function (path) {
-        return "$libappscriptURL$" + path;
-    },
-    
 	/**
 	 *	Gets a localization bundle.
      *  Bundles will be searched similar to Google Chrome's i18n rules (http://code.google.com/chrome/extensions/i18n.html#l10):
