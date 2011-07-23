@@ -571,7 +571,7 @@ libx.loadConfig = function (configUrl) {
                     edLoadedEvent.notify();
 
                     for (var i = 0; i < bootGlobalUrls.length; i++)
-                        globalBootStrapper.loadScript(bootGlobalUrls[i].url, true, { libx: libx });
+                        globalBootStrapper.loadScript(bootGlobalUrls[i].url, { libx: libx });
                 }
             };
             localeQueue.scheduleLast(loadScriptsAct );

@@ -34,9 +34,8 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
 
         libx.cache.defaultObjectCache.get({
             dataType : "xml",
-            type     : "GET",
             url      : invofcc.url,
-
+            validator: libx.cache.defaultObjectCache.validators.config,
             success : function (xml, metadata) {
                 var doc = new libx.config.XMLConfigWrapper(xml);
 
@@ -57,9 +56,8 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 invofcc.onload ( edition );
             },
 
-            error : function (xml, stat, xhr) {
-                if (invofcc.onerror)
-                    invofcc.onerror ( stat );
+            error : function (status) {
+                libx.log.write('error ' + status + ' loading configuration file ' + invofcc.url);
             }
         });
     },

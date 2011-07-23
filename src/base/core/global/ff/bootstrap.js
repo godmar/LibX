@@ -2,8 +2,6 @@
 // BRN: this file just wraps around libx.libapp.Sandbox now,
 // so we can probably remove it
 
-libx.bootstrap.fetchDataUri = false;
-
 /**
  * Load a script in Firefox via jssubscript-loader.
  *

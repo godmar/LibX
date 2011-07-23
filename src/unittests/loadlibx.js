@@ -322,12 +322,14 @@ function exec(cmd) {
 }
 
 libx.log = {
-    write : function (msg) { println (msg); },
+    write : function (msg) {
+        println(msg);
+    },
 };
 
 libx.locale = {
     getBootstrapURL: function (url) {
-        return "http://libx.org/libx2/bootstrapped/" + url;
+        return "http://localhost/libx.org/unittests/tests/resources/" + url;
     }
 };
 

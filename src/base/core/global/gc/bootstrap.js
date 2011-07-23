@@ -1,6 +1,4 @@
 
-//libx.bootstrap.fetchDataUri = true;
-
 /**
  * Load a script in Google Chrome.
  *

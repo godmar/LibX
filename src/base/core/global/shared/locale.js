@@ -181,6 +181,19 @@ return /** @lends libx.locale */ {
             // get locales from url
             scheduleLocales(function (locale, activity) {
                 libx.cache.defaultObjectCache.get( {
+                    validator: function (params) {
+                        function validateMessages() {
+                            for (var i in params.data) {
+                                if (!params.data[i].message)
+                                    return false;
+                            }
+                            return true;
+                        }
+                        if (/json/.test(params.metadata.mimeType) && validateMessages())
+                            params.success();
+                        else
+                            params.error();
+                    },
                     dataType: "json",
                     url: params.url.replace(/\$locale\$/, locale),
                     error: function ( status ) {

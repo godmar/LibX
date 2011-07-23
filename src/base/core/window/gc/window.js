@@ -168,6 +168,13 @@ var imported = {};
                             ocCache[request.url] = response;
                     });
                 }
+            },
+            validators: {
+                config: 'config',
+                bootstrapped: 'bootstrapped',
+                feed: 'feed',
+                image: 'image',
+                preference: 'preference'
             }
         }
     };
@@ -209,7 +216,7 @@ var imported = {};
             });
             
             for (var i = 0; i < bootWindowUrls.length; i++)
-                windowBootStrapper.loadScript(bootWindowUrls[i].url, true, {
+                windowBootStrapper.loadScript(bootWindowUrls[i].url, {
                     libx: libx
                 });
             

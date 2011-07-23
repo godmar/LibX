@@ -43,12 +43,12 @@
 <script src="core/global/gc/utils/timer.js"></script>
 <script src="core/global/gc/utils/xml.js"></script>
 <script src="core/global/gc/bootstrap.js"></script>
+<script src="core/global/gc/utils/browserprefs.js"></script>
 <script src="core/global/shared/cache/objectcache.js"></script>
 <script src="core/global/shared/locale.js"></script>
 <script src="core/global/shared/libapp.js"></script>
 <script src="core/global/shared/cache/scheduler.js"></script>
 <script src="core/global/gc/locale.js"></script>
-<script src="core/global/gc/utils/browserprefs.js"></script>
 <script src="core/global/gc/utils/hash.js"></script>
 <script src="core/global/shared/openurl.js"></script>
 <script src="core/global/shared/utils/stdnumsupport.js"></script>
@@ -146,6 +146,9 @@ libx.extension.addListener("memoryCache", function (request, sender, sendRespons
 });
 
 libx.extension.addListener("objectCache", function (request, sender, sendResponse) {
+    var validator = request.args.validator;
+    if (validator)
+        request.args.validator = libx.cache.defaultObjectCache.validators[validator];
     cacheRequest(libx.cache.defaultObjectCache, request.args, sendResponse);
 });
 

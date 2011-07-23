@@ -1,22 +1,13 @@
 
 var suite = libx.testing.createUnitTestSuite("Tests for preferences",
     function () {
+        // initialize browser preferences
         libx.preferences.initialize();
-        /* nothing */
         return 0;
     });
 
 suite.addUnitTest("Test preferences 1",
     function () {
-        var resourceUrl = this.baseUrl + "tests/resources/";
-        var file1 = resourceUrl + "pref.xml";
-        
-        // initialize browser preferences
-        libx.preferences.load ( {
-            filename : file1,
-            overwrite : false,
-            base : "libx.prefs"
-        } );  
         
         this.WAIT(3);
         

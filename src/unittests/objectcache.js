@@ -7,8 +7,7 @@ cache.get({
     success : function (data, metadata) {
         println("success: " + metadata.mimeType + " " + metadata.lastModified);
         println("data.length: " + data.length);
-    },
-    keepUpdated : true
+    }
 });
 
 queue.scheduleFirst(req1 = {
@@ -31,8 +30,7 @@ cache.get({
         req1.data = data;
         req1.metadata = metadata;
         req1.markReady();
-    },
-    keepUpdated : true
+    }
 });
 
 cache.get({

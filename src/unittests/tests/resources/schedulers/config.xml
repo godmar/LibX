@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <edition version="1.5.20" id="vt">
+  <name edition="Unit Test Edition"/>
   <additionalfiles>
     <file name="config_file1.js" substitutevars="false"/>
     <file name="config_file2.js" substitutevars="false"/>

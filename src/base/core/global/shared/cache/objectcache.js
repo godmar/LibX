@@ -31,40 +31,19 @@
  */
 (function () {
 
-/* 
- * Retrieve a cached item from cacheStore. 
- * Called only after hit in metaStore.
- */
-function getCachedItem (request, metadata) {
-    libx.storage.cacheStore.getItem({
-        key: trimQuery(request.ignoreQuery, request.url),
-        success: function (text) {
-            if (request.success) {
-                var data = text;
-                if (request.dataType == 'xml') {
-                    try {
-                        data = libx.utils.xml.loadXMLDocumentFromString(text);
-                    } catch (e) {
-                        request.error && request.error('parsererror');
-                        request.complete && request.complete();
-                        return;
-                    }
-                }
-                else if (request.dataType == 'json') {
-                    try {
-                        data = libx.utils.json.parse(text);
-                    } catch (e) {
-                        request.error && request.error('parsererror');
-                        request.complete && request.complete();
-                        return;
-                    }
-                }
-                request.success(data, metadata);
-                request.complete && request.complete();
-            }
-        },
-        notfound: request.complete
-    });
+function parseText(params) {
+    try {
+        var data;
+        switch (params.type) {
+            case 'xml': data = libx.utils.xml.loadXMLDocumentFromString(params.text); break;
+            case 'json': data = libx.utils.json.parse(params.text); break;
+            default: data = params.text;
+        }
+        params.success && params.success(data);
+    } catch (e) {
+        libx.log.write(e);
+        params.error && params.error('parsererror');
+    }
 }
 
 var RetrievalType = { 
@@ -84,19 +63,21 @@ function retrieveRequest(request, retrievalType) {
     var headers = {};
     var self = this;
 
-    if (retrievalType == RetrievalType.UPDATE && request.lastModified != null)
-        headers["If-Modified-Since"] = request.lastModified;
+    if (retrievalType == RetrievalType.UPDATE && request.metadata && request.metadata.lastModified != null)
+        headers["If-Modified-Since"] = request.metadata.lastModified;
 
     // For 304 responses, FF throws "No element found" errors; overriding the MIME
     // type fixes this
     var mimeType = "text/plain";
+    
+    var isImage = /\.(jpg|jpeg|tiff|gif|ico|bmp|png|webp)$/i.test(request.url);
 
-    // for some reason, images can only be converted to data URIs if this mime type is given
-    if (/\.(jpg|gif|ico|bmp)$/i.test(request.url) && !request.serverMIMEType)
+    // for images, we must use the raw data, which we get by setting this mime type
+    if (isImage && !request.serverMIMEType)
         mimeType = "text/plain; charset=x-user-defined";
         
     var url = trimQuery(request.ignoreQuery, request.url);
-       
+
     libx.cache.defaultMemoryCache.get({
         dataType: 'text',
         header: headers,
@@ -104,44 +85,88 @@ function retrieveRequest(request, retrievalType) {
         serverMIMEType: request.serverMIMEType || mimeType,
         bypassCache: true,
         error: function(data, status, xhr) {    
-
-            if (!(RetrievalType.UPDATE && status == 304)) {
-                if (request.error)
-                    request.error(status);
+            // if we get a 304, update the lastAccessed field in the metadata
+            if (RetrievalType.UPDATE && status == 304) {
+                request.metadata.lastAccessed = Date.now();
+                request.metadata.expired = false;
+                self.putMetadata({
+                    url: url,
+                    metadata: request.metadata,
+                    success: function () {
+                        request.complete && request.complete();
+                    }
+                });
+            } else {
+                request.error && request.error(status);
+                request.complete && request.complete();
             }
-
-            if (request.complete)
-                request.complete();
         },
-        success: function (data, status, xhr) {
+        success: function (text, status, xhr) {
 
             var contentType = xhr.getResponseHeader("Content-Type");
-            // XXX store 'expires' date on disk
-            var metadata = {
-                lastModified : xhr.getResponseHeader('Last-Modified'),
-                mimeType : contentType,
-                sha1 : libx.utils.hash.hashString(data)
-            };
     
-            if (/image/.test(contentType)) {
-                data = 'data:' + contentType + ';base64,' + libx.utils.binary.binary2Base64(data);
-            }
-            
-            // write the data first, then its metadata
-            libx.storage.cacheStore.setItem({
-                key: url,
-                value: data,
-                success: function () {
-                    self.putMetadata({
-                        url: url,
-                        metadata: metadata,
-                        success: function () {
-                            getCachedItem(request, metadata);
-                        }
-                    });
+            isImage && (text = libx.utils.binary.binary2Base64(text));
+
+            var metadata = {
+                lastAccessed: Date.now(),
+                lastModified: xhr.getResponseHeader('Last-Modified'),
+                mimeType: contentType,
+                sha1: libx.utils.hash.hashString(text),
+                expired: false
+            };
+
+            isImage && (text = 'data:' + contentType + ';base64,' + text);
+
+            parseText({
+                text: text,
+                type: request.dataType,
+                success: function (data) {
+                    function writeToCache(success, complete) {
+                        libx.storage.cacheStore.setItem({
+                            key: url,
+                            value: text,
+                            success: function () {
+                                self.putMetadata({
+                                    url: url,
+                                    metadata: metadata,
+                                    success: function () {
+                                        success && success(data, metadata, xhr);
+                                        complete && complete();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    if (request.validator) {
+                        request.validator({
+                            url: url,
+                            metadata: metadata,
+                            data: data,
+                            success: function () {
+                                // BRN: document this
+                                if (request.delayWrite) {
+                                    request.delayWrite(writeToCache);
+                                    request.success && request.success(data, metadata, xhr);
+                                    request.complete && request.complete();
+                                } else
+                                    writeToCache(request.success, request.complete);
+                            },
+                            error: function () {
+                                // if the data is not valid, do not write to cache
+                                request.error && request.error('failedvalidation');
+                                request.complete && request.complete();
+                            }
+                        });
+                    } else {
+                        libx.log.write('warning: ' + url + ' added to object cache with no validation function');
+                        writeToCache(request.success, request.complete);
+                    }
+                },
+                error: function (err) {
+                    request.error && request.error(err);
+                    request.complete && request.complete();
                 }
             });
-            
 
         }
     });
@@ -168,12 +193,10 @@ function retrieveRequest(request, retrievalType) {
  * @namespace
  */
 libx.cache.ObjectCache = libx.core.Class.create(
+
     /** @lends libx.cache.ObjectCache.prototype */ {
     initialize: function () {
-
-        var self = this;
         this.cachedRequests = new Array();
-
     },
 
     /**
@@ -181,17 +204,11 @@ libx.cache.ObjectCache = libx.core.Class.create(
      *  @param {Options} request 
      *      Modeled after <a href="http://docs.jquery.com/Ajax/jQuery.ajax#options">jQuery._ajax</a>
      *      with the following additions:
-     *
-        BRN: OBSOLETE
-     *  @param {Boolean} request.fetchDataUri: if true, data is returned
-     *      and stored as a data URI instead of raw data
      *  @param {Boolean} request.cacheOnly: if true, success will only be called if the object
      *      is in the cache.  If the object is not in the cache, request.complete() is immediately
      *      fired.  No XHRs are triggered.
-     *
-     *  @param {String} extension (optional) required extension, if any.  If not given, the
-     *      extension is computed from the returned Content-Type.
-     *
+     *  @param {Function} validator: function to validate the object's data and
+     *      metadata before it is stored in the cache
      */
     get : function (request) {
     
@@ -205,17 +222,61 @@ libx.cache.ObjectCache = libx.core.Class.create(
 
         this.getMetadata({
             url: request.url,
-            success: function(metadata) {
-                getCachedItem (request, metadata);
+            success: function (metadata) {
+
+                function getFromCache() {
+                    libx.storage.cacheStore.getItem({
+                        key: trimQuery(request.ignoreQuery, request.url),
+                        success: function (text) {
+                            parseText({
+                                text: text,
+                                type: request.dataType,
+                                success: function (data) {
+                                    request.success && request.success(data, metadata);
+                                },
+                                error: request.error
+                            });
+                            request.complete && request.complete();
+                        },
+                        notfound: function () {
+                            retrieveRequest.call(self, request, RetrievalType.GET);
+                        }
+                    });
+                }
+
+                // if the object is marked as expired, update it.  if the update fails, or if
+                // the object hasn't been modified, return the cached version.
+                if (metadata.expired && !request.cacheOnly) {
+                    var updated = false;
+                    self.update({
+                        url: request.url,
+                        metadata: metadata,
+                        ignoreQuery: request.ignoreQuery,
+                        validator: request.validator,
+                        success: function (data, status, xhr) {
+                            updated = true;
+                            request.success && request.success(data, status, xhr);
+                        },
+                        error: getFromCache,
+                        complete: function () {
+                            if (updated) {
+                                request.complete && request.complete();
+                                return;
+                            }
+                            getFromCache();
+                        }
+                    });
+                } else
+                    getFromCache();
+
             },
-            notfound: function() {
+            notfound: function () {
                 if (request.cacheOnly)
                     request.complete && request.complete();
                 else
                     retrieveRequest.call(self, request, RetrievalType.GET);
             }
         });
-        
     },
 
     /*
@@ -233,7 +294,7 @@ libx.cache.ObjectCache = libx.core.Class.create(
     },
 
     /*
-     * Write metadata to disk
+     * Write metadata to storage
      */
     putMetadata : function (paramObj) {
         var url = trimQuery(paramObj.ignoreQuery, paramObj.url);
@@ -251,14 +312,6 @@ libx.cache.ObjectCache = libx.core.Class.create(
         libx.storage.cacheStore.clear();
     },
 
-    // BRN: change this!
-    /**
-     * Update all requests that have the 'keepUpdated' flag set.
-     */
-    updateRequests : function () {
-        updateRequests(this.cachedRequests);
-    },
-
     update : function (request) {
         retrieveRequest.call(this, request, RetrievalType.UPDATE);
     }
@@ -266,5 +319,75 @@ libx.cache.ObjectCache = libx.core.Class.create(
 });
 
 libx.cache.defaultObjectCache = new libx.cache.ObjectCache();
+
+/**
+ * Set of functions used to validate response data before storing in the cache.
+ * This is necessary to detect the fake responses returned by captive portals
+ * (such as web authentication login screens).
+ */
+libx.cache.defaultObjectCache.validators = {
+    config: function (params) {
+        if (/xml/.test(params.metadata.mimeType)
+                && libx.utils.xpath.findSingleXML(params.data, '//edition/name'))
+            params.success();
+        else
+            params.error();
+    },
+    bootstrapped: function (params) {
+        function doValidation(updates) {
+            libx.cache.defaultObjectCache.validators.bootstrapped.updates = updates;
+            var bootstrapPath = libx.locale.getBootstrapURL('');
+            var relPath = params.url.replace(bootstrapPath, '');
+            if (updates.files && updates.files[relPath]
+                    && updates.files[relPath].hash == params.metadata.sha1)
+                params.success();
+            else
+                params.error();
+        }
+
+        // keep the updates object in memory so we don't need to fire an XHR for
+        // each bootstrapped item to be validated.  this will also be updated in 
+        // the scheduler when updates.json has changed.
+        var updates = libx.cache.defaultObjectCache.validators.bootstrapped.updates;
+
+        if (updates)
+            doValidation(updates);
+        else {
+            // writing updates.json to the object cache here would incorrectly
+            // indicate that all of its children have been successfully fetched
+            // (since updates.json is the root), so use the memory cache instead
+            libx.cache.defaultMemoryCache.get({
+                url: libx.locale.getBootstrapURL('updates.json'),
+                dataType: 'json',
+                success: doValidation,
+                error: function (status) {
+                    libx.log.write('error ' + status + ' when fetching updates.json');
+                    params.error();
+                }
+            });
+        }
+    },
+    feed: function (params) {
+        if (/xml/.test(params.metadata.mimeType) && libx.utils.xpath.findSingleXML(params.data,
+                '//libx:package|//libx:libapp|//libx:module', null, { libx: 'http://libx.org/xml/libx2' } ))
+            params.success();
+        else
+            params.error();
+    },
+    preference: function (params) {
+        if (/xml/.test(params.metadata.mimeType)
+                && libx.utils.xpath.findSingleXML(params.data, '//item|//preference|//category'))
+            params.success();
+        else
+            params.error();
+    },
+    image: function (params) {
+        if (/image/.test(params.metadata.mimeType))
+            params.success();
+        else
+            params.error();
+    }
+
+};
 
 }) ();

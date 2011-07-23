@@ -604,19 +604,17 @@ return /** @lends libx.preferences */ {
 
         log ( "loading: " + filename + " overwrite=" + overwrite + " and base=" + base );
         
-        if ( filename == null ) {
-            log ( "Invalid filename: " + filename );
-        }
         var callbackFunct = this.loadXML;
         libx.cache.defaultObjectCache.get ( {
+            validator: libx.cache.defaultObjectCache.validators.preference,
             type: 'GET',
             url : filename,
             dataType : "xml",
             success : function (xml) {
                 callbackFunct ( xml.documentElement, descriptor );
             },
-            error : function () {
-                libx.log.write('libx.preferences.load(): could not fetch file ' + filename);
+            error : function (status) {
+                libx.log.write('libx.preferences.load(): error ' + status + ' loading preference file ' + filename);
             },
             complete : function () {
                 descriptor.callback && descriptor.callback();

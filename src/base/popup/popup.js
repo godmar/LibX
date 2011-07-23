@@ -58,6 +58,12 @@ function getSearchParamsFromInputField() {
     return searchParams;
 }
 
+function getSavedSearchPref() {
+    if (libx.prefs.browser && libx.prefs.browser.savesearches)
+        return libx.prefs.browser.savesearches._value;
+    return false;
+}
+
 return {
     
     // flag to indicate whether this is the first popup load since the user has
@@ -279,7 +285,7 @@ return {
     saveFields: function () {
     
         // don't save fields if user disabled preference
-        if (!libx.prefs.browser.savesearches._value)
+        if (!getSavedSearchPref())
             return;
     
         var searchFields = [];
@@ -459,7 +465,7 @@ return {
         popup.addField();
         
         // load saved searches if preference is enabled
-        if (libx.prefs.browser.savesearches._value) {
+        if (getSavedSearchPref()) {
             var savedFields = libx.utils.browserprefs.getStringPref("libx.popup.searchfields", null);
             if (savedFields) {
                 try {

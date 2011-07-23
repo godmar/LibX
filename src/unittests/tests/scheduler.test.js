@@ -3,7 +3,6 @@ var configLoads = 0;
 var suite = libx.testing.createUnitTestSuite("Tests for schedulers",
     function () {
         libx.loadConfig = function () {
-            libx.log.write('edition configuration loaded');
             configLoads++;
         };
         resourcePath = "tests/resources/schedulers/";
@@ -78,8 +77,12 @@ suite.addUnitTest("Test hash scheduler",
             fileWriter.close();
         }
 
+        var schedulersUrl = libx.locale.getBootstrapURL('schedulers/');
+        libx.locale.getBootstrapURL = function (relPath) {
+            return schedulersUrl + relPath;
+        };
+
         hashScheduler = new libx.cache.HashScheduler(hashUrl);
-        hashScheduler.bootstrapBase = resourceUrl;
         writeToFile(1, "before");
         writeToFile(2, "before");
         exec("tests/resources/schedulers/genhash.pl");

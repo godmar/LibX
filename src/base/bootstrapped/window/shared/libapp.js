@@ -336,9 +336,10 @@ function executeLibapp(libapp, pkgArgs) {
 
             var success = false;
             libx.cache.defaultObjectCache.get({
+                validator: libx.cache.defaultObjectCache.validators.bootstrapped,
                 url: rUrl,
                 success: function (scriptText, metadata) {
-                    success= true;
+                    success = true;
                     requireURL2Activity[rUrl].markReady(scriptText, metadata);
                 },
                 complete: function () {

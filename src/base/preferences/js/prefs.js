@@ -120,6 +120,12 @@ function process( aQueues, pref, layout, data ) {
     q.scheduleLast(processTemplateActivity);
     
     libx.cache.defaultObjectCache.get( {
+        validator: function (params) {
+            if (/^\s*{libxtemplate}/i.test(params.data))
+                params.success();
+            else
+                params.error();
+        },
         dataType: "text",
         url: templateFile,
         error: function ( result, status, xhr ) {
@@ -127,6 +133,9 @@ function process( aQueues, pref, layout, data ) {
         },
         success: function (result, status, xhr) {
         
+            // remove libxtemplate header used for validation
+            result = result.replace(/^\s*{libxtemplate}/, '');
+
             // get string bundles for this template
             var localeObj = {};
             result = result.replace(

@@ -59,10 +59,9 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
      * Load a script.
      *
      * @param {String} scriptURL  URL
-     * @param {boolean} keepUpdated  if true, reexecute script when it was updated
      * @param {Object} globalProperties  set of properties to place in global scope
      */
-    loadScript : function (scriptURL, keepUpdated, globalProperties, window) {
+    loadScript : function (scriptURL, globalProperties, window) {
 
         var self = this;
         var runScriptActivity = {
@@ -74,7 +73,7 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
                             self.finish(); 
                         },
                         loadScript  : function (scriptURL) { 
-                            return self.loadScript(scriptURL, keepUpdated, globalTargetScope, window); 
+                            return self.loadScript(scriptURL, globalTargetScope, window); 
                         }
                     }
                 };
@@ -85,27 +84,17 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
         this.scriptQueue.scheduleLast(runScriptActivity);
 
         libx.cache.defaultObjectCache.get({
+            validator: libx.cache.defaultObjectCache.validators.bootstrapped, 
             url: scriptURL,
-            fetchDataUri: libx.bootstrap.fetchDataUri,
-            keepUpdated: keepUpdated,
             success: function (scriptText, metadata) { 
                 runScriptActivity.markReady(scriptText, metadata);
+            },
+            error: function (status) {
+                libx.log.write('error ' + status + ' loading global script ' + scriptURL);
             }
         });
 
         var self = this;
-        if (keepUpdated) {
-            // on update, reschedule activity
-            if (this.url2UpdateListener[scriptURL] == undefined) {
-                var evListener = {};
-                evListener["onUpdate" + scriptURL] = function (ev) {
-                    self.scriptQueue.scheduleLast(runScriptActivity);
-                    runScriptActivity.markReady(ev.metadata);
-                }
-                this.url2UpdateListener[scriptURL] = evListener;
-                libx.events.addListener("Update" + scriptURL, evListener);
-            }
-        }
     },
 
     /**
