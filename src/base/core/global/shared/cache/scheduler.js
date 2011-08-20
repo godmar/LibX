@@ -367,7 +367,7 @@ libx.cache.TemplateScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     scheduleUpdates: function () {
         var self = this;
 
-        if (this.cancelUpdates)
+        if (DISABLE_SCHEDULERS || this.cancelUpdates)
             return;
         
         log('checking for expired template files');

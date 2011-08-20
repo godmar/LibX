@@ -46,7 +46,7 @@ function checkIncludesExcludes(spec, url)
 }
 
 var debugLevel = libx.utils.browserprefs.getIntPref('libx.libapp.debuglevel', 0);
-libx.log.write("executing with a debug level of " + debugLevel);
+libx.log.write("executing with a debug level of " + debugLevel + ": " + window.location.href);
 /*
  * Log libapp activity.
  * 0: no logging
@@ -390,6 +390,28 @@ function executeLibapp(libapp, pkgArgs) {
             }
         }
           
+        /* schedule string bundles */
+        function loadStringBundle(url) {
+            var bundle = libx.libappdata.stringBundles[url];
+            if (bundle) return;
+            else {
+                var stringBundleActivity = new libx.utils.collections.EmptyActivity();
+                requiredScripts.scheduleLast(stringBundleActivity);
+                libx.locale.getBundle({
+                    feed: url,
+                    success: function (bundle) {
+                        libx.libappdata.stringBundles[url] = bundle;
+                        stringBundleActivity.markReady();
+                    },
+                    error: function () {
+                        libx.log.write("error: could not load string bundle for " + url);
+                        stringBundleActivity.markReady();
+                    }
+                });
+            }
+        }
+        loadStringBundle(module.id);
+
         /* now schedule the module itself */
         var runModuleActivity = {
             onready: function () {
@@ -401,27 +423,8 @@ function executeLibapp(libapp, pkgArgs) {
                 }
             }
         };
-
-        /* schedule the module's string bundle */
-        var getModuleStringBundle = {
-            onready: function () {
-                var stringBundle = libx.libappdata.stringBundles[module.id];
-                if (stringBundle) {
-                    runModuleActivity.markReady();
-                } else {
-                    libx.locale.getBundle({
-                        feed: module.id,
-                        success: function (bundle) {
-                            libx.libappdata.stringBundles[module.id] = bundle;
-                            runModuleActivity.markReady();
-                        }
-                    });
-                }
-            }
-        };
-        requiredScripts.scheduleLast(getModuleStringBundle);
         requiredScripts.scheduleLast(runModuleActivity);
-        getModuleStringBundle.markReady();
+        runModuleActivity.markReady();
         
         function runTextTransformerModule(module) {
             logDetail({

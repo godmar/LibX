@@ -1,4 +1,5 @@
 
+// BRN: remove sync parts?
 libx.storage = (function () {
     
     // LibX database connection
@@ -16,6 +17,8 @@ libx.storage = (function () {
         // will also create the file if it does not exist
         dbConn = storageService.openDatabase(file);
     } ());
+    
+    var SUCCESS = Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED;
     
     return {
         Store: libx.core.Class.create({
@@ -62,11 +65,15 @@ libx.storage = (function () {
                 statement.params.value = paramObj.value;
                 
                 if(this.async)
-                    this.executeStatement(statement, paramObj.success, paramObj.error); 
+                    this.executeStatement(statement, null, null, function (stat) {
+                        if (stat == SUCCESS)
+                            paramObj.success && paramObj.success();
+                        else
+                            paramObj.error && paramObj.error();
+                    }); 
                 else {
                     statement.execute();
-                    if(paramObj.success)
-                        paramObj.success();
+                    paramObj.success && paramObj.success();
                 }
             },
             
@@ -94,25 +101,23 @@ libx.storage = (function () {
                 statement.params.key = paramObj.key;
                 var resultFound = false;
                 
-                if(this.async) {
+                if (this.async) {
                     var success = function(aResultSet) {
                         resultFound = true;
-                        if(paramObj.success) {
+                        if (paramObj.success) {
                             var row = aResultSet.getNextRow();
                             paramObj.success(row.getResultByName("value"));
                         }
                     };
                     var complete = function(aReason) {
-                        if(paramObj.notfound && !resultFound &&
-                                aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
+                        if (paramObj.notfound && !resultFound && aReason == SUCCESS)
                             paramObj.notfound();
                     }
                     
                     this.executeStatement(statement, success, paramObj.error, complete);
                 } else {
                     if (statement.executeStep()) {
-                        if (paramObj.success)
-                            paramObj.success(statement.row.value);
+                        paramObj.success && paramObj.success(statement.row.value);
                     } else if (paramObj.notfound)
                         paramObj.notfound();
                 }
@@ -136,11 +141,15 @@ libx.storage = (function () {
                 statement.params.key = paramObj.key;
                 
                 if(this.async) {
-                    this.executeStatement(statement, paramObj.success, paramObj.error);
+                    this.executeStatement(statement, null, null, function (stat) {
+                        if (stat == SUCCESS)
+                            paramObj.success && paramObj.success();
+                        else
+                            paramObj.error && paramObj.error();
+                    });
                 } else {
                     statement.execute();
-                    if(paramObj.success)
-                        paramObj.success();
+                    paramObj.success && paramObj.success();
                 }
             },
             
@@ -162,7 +171,6 @@ libx.storage = (function () {
              *                                          single parameter which will
              *                                          be all matched items
              */
-            // BRN: remove sync code?
             find: function(paramObj) {
                 var matches = [];
                 var pattern = paramObj.pattern;
@@ -171,33 +179,31 @@ libx.storage = (function () {
                 
                 var statement = dbConn.createStatement("SELECT key FROM " + this.storeName);
                 
-                if(this.async) {
+                if (this.async) {
                     // multiple partial result sets are returned; wait until
                     // complete callback to signal success so all results can be
                     // received simultaneously
                     var success = function(aResultSet) {
                         for (var row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {  
                             var itemName = row.getResultByName("key");
-                            if(pattern.test(itemName))
+                            if (pattern.test(itemName))
                                 matches.push(itemName);
                         }
                     };
                     
-                    var complete = function(aReason) {
+                    var complete = function (aReason) {
                         // query neither encountered an error nor was aborted
-                        if(aReason == Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED &&
-                                paramObj.success)
+                        if (aReason == SUCCESS && paramObj.success)
                             paramObj.success(matches);
                     };
                     
                     this.executeStatement(statement, success, paramObj.error, complete);
                 } else {
                     while (statement.executeStep()) {
-                        if(pattern.test(statement.row.key))
+                        if (pattern.test(statement.row.key))
                             matches.push(statement.row.key);
                     }  
-                    if(paramObj.success)
-                        paramObj.success(matches);
+                    paramObj.success && paramObj.success(matches);
                 }
                 
             },
@@ -216,10 +222,15 @@ libx.storage = (function () {
             clear: function(paramObj) {
                 var statement = dbConn.createStatement("DELETE FROM " + this.storeName);
                 
-                if(this.async) {
-                    if(!paramObj)
+                if (this.async) {
+                    if (!paramObj)
                         paramObj = {};
-                    this.executeStatement(statement, paramObj.success, paramObj.error);
+                    this.executeStatement(statement, null, null, function (stat) {
+                        if (stat == SUCCESS)
+                            paramObj.success && paramObj.success();
+                        else
+                            paramObj.error && paramObj.error();
+                    });
                 } else {
                     statement.execute();
                     paramObj.success && paramObj.success();

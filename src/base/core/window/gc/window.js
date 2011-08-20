@@ -158,14 +158,26 @@ var imported = {};
         },
         defaultObjectCache: {
             get: function (request) {
-                if (ocCache[request.url]) {
-                    fireCallbacks(request, ocCache[request.url], false);
+                var cacheEntry = ocCache[request.url];
+                if (cacheEntry) {
+                    if (cacheEntry.success)
+                        fireCallbacks(request, cacheEntry.value, false);
+                    else
+                        cacheEntry.queue.push(request);
                 } else {
+                    cacheEntry = ocCache[request.url] = { success: false, queue: [] };
                     chrome.extension.sendRequest({ type: "objectCache", args: request }, function (response) {
-                        var saveToCache = !request.cacheOnly;
                         fireCallbacks(request, response, true);
-                        if (saveToCache)
-                            ocCache[request.url] = response;
+                        if (response.success) {
+                            cacheEntry.success = true
+                            cacheEntry.value = response;
+                        } else {
+                            ocCache[request.url] = null;
+                        }
+                        while (cacheEntry.queue.length) {
+                            var queued = cacheEntry.queue.pop();
+                            fireCallbacks(queued, response, false);
+                        }
                     });
                 }
             },

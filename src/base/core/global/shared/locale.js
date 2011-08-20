@@ -167,8 +167,7 @@ return /** @lends libx.locale */ {
             var createBundleActivity = {
                 onready: function () {
                     params.success(new StringBundle(bundles));
-                    if (!bundles.length && params.error)
-                        params.error('Could not load any bundles from: ' + (params.url||params.feed));
+                    //!bundles.length && params.error && params.error();
                 }
             };
             
@@ -181,18 +180,18 @@ return /** @lends libx.locale */ {
             // get locales from url
             scheduleLocales(function (locale, activity) {
                 libx.cache.defaultObjectCache.get( {
-                    validator: function (params) {
+                    validator: function (vParams) {
                         function validateMessages() {
-                            for (var i in params.data) {
-                                if (!params.data[i].message)
+                            for (var i in vParams.data) {
+                                if (!vParams.data[i].message)
                                     return false;
                             }
                             return true;
                         }
-                        if (/json/.test(params.metadata.mimeType) && validateMessages())
-                            params.success();
+                        if (/json/.test(vParams.metadata.mimeType) && validateMessages())
+                            vParams.success();
                         else
-                            params.error();
+                            vParams.error();
                     },
                     dataType: "json",
                     url: params.url.replace(/\$locale\$/, locale),

@@ -92,7 +92,10 @@ libx.catalog.preview.registerPreviewer({
             case "string":
                 break;
             case "object":
-                if (d[prop] instanceof Array) {
+                // the line below does not work as of FF6 due to bug
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=645130
+                //if (d[prop] instanceof Array) {
+                if (d[prop].length) {
                     s += d[prop][0];
                 }
             }
