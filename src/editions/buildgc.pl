@@ -128,17 +128,16 @@ foreach my $key ( keys %filemap ) {
     }
 }
 
-system("cd $tmpdir; " .
-       "find . -name CVS -type d | xargs /bin/rm -fr ; " .
-       "crxmake --pack-extension=. --extension-output=$updatepath/$crxfile --pack-extension-key=$keypath") == 0 || die "crxmake failed";
-system("chmod g+w $updatepath/$crxfile") == 0 || die "chmod g+w failed";
-
 ############################################################
 
-# replace updates.xml
+system("cd $tmpdir; find . -name CVS -type d | xargs /bin/rm -fr");
 if ($localbuild eq "") {
+    system("crxmake --pack-extension=. --extension-output=$updatepath/$crxfile --pack-extension-key=$keypath") == 0 || die "crxmake failed";
     system("mv $tmpdir/updates.xml $updatepath/updates.xml") == 0 || die "could not move updates.xml";
+} else {
+    system("crxmake --pack-extension=. --extension-output=$updatepath/$crxfile") == 0 || die "crxmake failed";
 }
+system("chmod g+w $updatepath/$crxfile") == 0 || die "chmod g+w failed";
 
 system ("/bin/rm -rf $tmpdir");
 

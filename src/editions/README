@@ -1,14 +1,33 @@
 Build instructions:
 
+
 Firefox:
-./xcreateextension.pl
+
+LibX for Firefox can be built using the following:
+
+    ./xcreateextension.pl
+
+The Firefox build script requires spock for extension signing.  This is
+available at: 
+
+    https://github.com/bard/spock
+
 
 Chrome:
-./buildgc.pl
+
+LibX for Chrome can be built using the following:
+
+    ./buildgc.pl
+
+The Chrome build script requires crxmake.  This is available at:
+
+    https://github.com/Constellation/crxmake
+
 
 If run on libx.org, this script will build, sign, and publish the extension.
-A localbuild argument can be specified to build a test version.  With this
-argument, the script will not sign the extension or modify the update manifest
-file.  Example:
+Signing is only required if publishing the extension for other users.  If
+building locally, specify the -localbuild argument.  The localbuild argument
+can be specified to build a test version.  With this argument, the script will
+not sign the extension or modify the update manifest file.  Example:
 ./xcreateextension.pl -localbuild test
 
