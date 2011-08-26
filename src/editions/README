@@ -1,93 +1,14 @@
-To create a new edition, you must create a new directory in here first.
+Build instructions:
 
-Let's say you want to create an edition for Academic University, acu
+Firefox:
+./xcreateextension.pl
 
-You create a directory:
+Chrome:
+./buildgc.pl
 
-# mkdir acu
-# cd acu
-
-Then, copy into this directory the following files:
-
-# cp ../vt/config .
-# cp ../vt/files .
-
-Then, get a small logo (http://yourlibrary.edu/favicon.ico works really well)
-that shows well at 16x16 and get a large logo and copy those into the acu directory. 
-See footnote 1.
-.gif, .jpg, .png, .ico all seem to work.
-
-# wget http://yourlibrary.edu/yourimage/smalllogo.gif
-# wget http://yourlibrary.edu/yourimage/largelogo.jpg
-
-Next, edit files and replace the last two lines:
-Replace shield50.gif with the filename of your large logo.
-Replace virginiatech.ico with the filename of your small logo.
-
-Adapt all entries in acu/config as needed.
-(If you don't have openurl support or ezproxy support, set the variables to empty, 
-as in proxy.type=        
-)
-
-Finally, run
-
-# cd ..
-# ./c2x.pl acu > acu/config.xml
-# xmllint --noout --valid acu/config.xml
-# ./xcreateextension.pl acu
-
-acu/libx-acu.xpi will have your extension for installation.
-
-
--------------------
-The following files control customization:
-
-config 
-------
-    sets a list of variables key=value, one per line. 
-    All files in the base subdirectory will be copied into the xpi 
-    All occurrences of $key$ will be replaced with value.  
-    c2x.pl converts this file to config.xml
-
-files
-------
-    consists of a list of files that need to be copied into the xpi file.
-    Each entry is of the form file destination-directory-relative-to-top
-    Those files will ALSO be subject to config substitution from config files.
-    The "files" file is now listed also in config.xml
-
-
-ONLY if hosted at libx.org:
-After running "xcreateextension.pl", the files can be made "live" by copying
-them to the libx.org editions directory (ONLY if hosted at libx.org)
-See makelive.sh for what's being copied.
-Adjust xcreateextension.pl if you want to host your edition yourself.
-
--------------------------------------------------------------------------------------
-
-The libx.org/editions directory contains the editions hosted at libx.org.
-Each edition is in a subdirectory, for instance libx.org/editions/vt/
-hosts the VT edition.  
-
-Each hosted edition must contain the .xpi file, the update.rdf files, and, optionally, 
-a libx.html file.
-
-The libx.html can alternatively be made part of the library's home site so the
-offering will appear to come directly from the offering library.
-
------------
-Footnote 1:
-
-Ideally is a so-called multiresolution icon that contains a 16x16 and a 48x48 image.
-Note that the 48x48 does not replace the large logo for LibX.
-The 48x48-stretched version is displayed when the user clicks "Tools -> Extensions".
-
-Multiresolution icon files are a single .ico file that is a container for the different resolution.
-A free program to create those can be downloaded from http://sourceforge.net/projects/geniconxp/
-Notice that the installation is somewhat screwy, but it works:
-You have to first install 'ImageMagick-6.1.6-Q16-windows-dll.exe', during installation
-check option 'Install ImageMagickobject control'
-Then install GenIconXP and ignore the registration error.
-ImageMagick can be downloaded here:
-http://www.imagemagick.org/download/binaries/ImageMagick-6.2.5-2-Q16-windows-dll.exe
+If run on libx.org, this script will build, sign, and publish the extension.
+A localbuild argument can be specified to build a test version.  With this
+argument, the script will not sign the extension or modify the update manifest
+file.  Example:
+./xcreateextension.pl -localbuild test
 
