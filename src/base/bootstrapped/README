@@ -1,0 +1,4 @@
+genhash.pl needs to be run whenever a file in this bootstrapped directory has
+changed.  genhash.pl generates updates.json, a JSON file that is used by the
+object cache to determine whether files have changed.  updates.json is also used
+to validate bootstrapped files before they are saved to the object cache.
