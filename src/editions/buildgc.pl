@@ -130,12 +130,14 @@ foreach my $key ( keys %filemap ) {
 
 ############################################################
 
-system("cd $tmpdir; find . -name CVS -type d | xargs /bin/rm -fr");
+my $keyarg = "";
 if ($localbuild eq "") {
-    system("crxmake --pack-extension=. --extension-output=$updatepath/$crxfile --pack-extension-key=$keypath") == 0 || die "crxmake failed";
+    $keyarg = "--pack-extension-key=$keypath";
+}
+system("cd $tmpdir; find . -name CVS -type d | xargs /bin/rm -fr ; " .
+       "crxmake --pack-extension=. --extension-output=$updatepath/$crxfile $keyarg") == 0 || die "crxmake failed";
+if ($localbuild eq "") {
     system("mv $tmpdir/updates.xml $updatepath/updates.xml") == 0 || die "could not move updates.xml";
-} else {
-    system("crxmake --pack-extension=. --extension-output=$updatepath/$crxfile") == 0 || die "crxmake failed";
 }
 system("chmod g+w $updatepath/$crxfile") == 0 || die "chmod g+w failed";
 
