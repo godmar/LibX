@@ -83,6 +83,7 @@ while(-f $updatepath . "/" . ($xpifile = $xpiname . ($dailyrev ? "-" . $dailyrev
     $dailyrev++;
 }
 
+$conf{'maxversion'} = "7.0.*";
 # use days since epoch for versioning due to chrome's strict versioning rules
 $conf{'libxversion'} = "2.0." . int(time/86400) . "." . $dailyrev;
 $conf{'emupdateURL'} = $publish_base_url . "ff/update.rdf";
