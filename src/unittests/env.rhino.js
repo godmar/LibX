@@ -13126,8 +13126,15 @@ XMLHttpRequest.prototype = {
                     }catch(e){
                         console.warn("Failed to set cookie");
                     }
+                    var responseText = _this.responseText;
+                    var responseXML = null;
                     _this.__defineGetter__("responseXML", function(){
-                        return doc;
+                        // was: return doc;
+                        // which would return a functionally incomplete XMLDocument
+                        // implementation
+                        if (responseXML == null)
+                            responseXML = libx.utils.xml.loadXMLDocumentFromString(responseText);
+                        return responseXML;
                     });
                 }
             }, data);

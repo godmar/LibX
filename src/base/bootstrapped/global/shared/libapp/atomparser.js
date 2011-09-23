@@ -217,7 +217,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
     var pathRequest = {
         dataType: "xml",
         url: pathDir,
-        validator: libx.cache.defaultObjectCache.validators.feed,
+        validator: libx.cache.defaultMemoryCache.validators.feed,
         cacheOnly: cacheMissActivity && true,
         success: function (xmlDoc, metadata) {
             success = true;
@@ -232,7 +232,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
                 var urlRequest = {
                     dataType: "xml",
                     url: url,
-                    validator: libx.cache.defaultObjectCache.validators.feed,
+                    validator: libx.cache.defaultMemoryCache.validators.feed,
                     cacheOnly: pathRequest.cacheOnly,
                     success: function (xmlDoc, metadata) {
                         success = true;

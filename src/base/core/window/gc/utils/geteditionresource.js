@@ -25,7 +25,7 @@ libx.utils.getEditionResource = function(paramObj) {
     // use the image's data URI if it is in the cache.
     // if not, use the image's URL
     libx.cache.defaultObjectCache.get({
-        validator: libx.cache.defaultObjectCache.validators.image,
+        validator: libx.cache.defaultMemoryCache.validators.image,
         url: url,
         cacheOnly: true,
         success: function () {

@@ -84,17 +84,16 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
         this.scriptQueue.scheduleLast(runScriptActivity);
 
         libx.cache.defaultObjectCache.get({
-            validator: libx.cache.defaultObjectCache.validators.bootstrapped, 
+            validator: libx.cache.defaultMemoryCache.validators.bootstrapped, 
             url: scriptURL,
             success: function (scriptText, metadata) { 
                 runScriptActivity.markReady(scriptText, metadata);
             },
             error: function (status) {
-                libx.log.write('error ' + status + ' loading global script ' + scriptURL);
+                libx.log.write('error ' + status + ' loading script ' + scriptURL);
             }
         });
 
-        var self = this;
     },
 
     /**

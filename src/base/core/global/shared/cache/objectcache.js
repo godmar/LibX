@@ -31,21 +31,6 @@
  */
 (function () {
 
-function parseText(params) {
-    try {
-        var data;
-        switch (params.type) {
-            case 'xml': data = libx.utils.xml.loadXMLDocumentFromString(params.text); break;
-            case 'json': data = libx.utils.json.parse(params.text); break;
-            default: data = params.text;
-        }
-        params.success && params.success(data);
-    } catch (e) {
-        libx.log.write(e);
-        params.error && params.error('parsererror');
-    }
-}
-
 var RetrievalType = { 
     GET : 1,    // get an item and invoke 'success'
     UPDATE : 2  // check for updates
@@ -66,24 +51,15 @@ function retrieveRequest(request, retrievalType) {
     if (retrievalType == RetrievalType.UPDATE && request.metadata && request.metadata.lastModified != null)
         headers["If-Modified-Since"] = request.metadata.lastModified;
 
-    // For 304 responses, FF throws "No element found" errors; overriding the MIME
-    // type fixes this
-    var mimeType = "text/plain";
-    
-    var isImage = /\.(jpg|jpeg|tiff|gif|ico|bmp|png|webp)$/i.test(request.url);
-
-    // for images, we must use the raw data, which we get by setting this mime type
-    if (isImage && !request.serverMIMEType)
-        mimeType = "text/plain; charset=x-user-defined";
-        
     var url = trimQuery(request.ignoreQuery, request.url);
 
     libx.cache.defaultMemoryCache.get({
-        dataType: 'text',
         header: headers,
         url: request.url,
-        serverMIMEType: request.serverMIMEType || mimeType,
-        bypassCache: true,
+        dataType: request.dataType,
+        validator: request.validator,
+        serverMIMEType: request.serverMIMEType,
+        bypassCache: retrievalType == RetrievalType.UPDATE,
         error: function(data, status, xhr) {    
             // if we get a 304, update the lastAccessed field in the metadata
             if (RetrievalType.UPDATE && status == 304) {
@@ -101,12 +77,10 @@ function retrieveRequest(request, retrievalType) {
                 request.complete && request.complete();
             }
         },
-        success: function (text, status, xhr) {
+        success: function (data, status, xhr, text) {
 
             var contentType = xhr.getResponseHeader("Content-Type");
     
-            isImage && (text = libx.utils.binary.binary2Base64(text));
-
             var metadata = {
                 lastAccessed: Date.now(),
                 lastModified: xhr.getResponseHeader('Last-Modified'),
@@ -115,59 +89,32 @@ function retrieveRequest(request, retrievalType) {
                 expired: false
             };
 
-            isImage && (text = 'data:' + contentType + ';base64,' + text);
+            var isImage = /\.(jpg|jpeg|tiff|gif|ico|bmp|png|webp)$/i.test(request.url);
+            isImage && (data = text = 'data:' + contentType + ';base64,' + text);
 
-            parseText({
-                text: text,
-                type: request.dataType,
-                success: function (data) {
-                    function writeToCache(success, complete) {
-                        libx.storage.cacheStore.setItem({
-                            key: url,
-                            value: text,
-                            success: function () {
-                                self.putMetadata({
-                                    url: url,
-                                    metadata: metadata,
-                                    success: function () {
-                                        success && success(data, metadata, xhr);
-                                        complete && complete();
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    if (request.validator) {
-                        request.validator({
+            function writeToCache(success, complete) {
+                libx.storage.cacheStore.setItem({
+                    key: url,
+                    value: text,
+                    success: function () {
+                        self.putMetadata({
                             url: url,
                             metadata: metadata,
-                            data: data,
                             success: function () {
-                                // BRN: document this
-                                if (request.delayWrite) {
-                                    request.delayWrite(writeToCache);
-                                    request.success && request.success(data, metadata, xhr);
-                                    request.complete && request.complete();
-                                } else
-                                    writeToCache(request.success, request.complete);
-                            },
-                            error: function () {
-                                // if the data is not valid, do not write to cache
-                                request.error && request.error('failedvalidation');
-                                request.complete && request.complete();
+                                success && success(data, metadata, xhr);
+                                complete && complete();
                             }
                         });
-                    } else {
-                        libx.log.write('warning: ' + url + ' added to object cache with no validation function');
-                        writeToCache(request.success, request.complete);
                     }
-                },
-                error: function (err) {
-                    request.error && request.error(err);
-                    request.complete && request.complete();
-                }
-            });
-
+                });
+            }
+            // BRN: document this
+            if (request.delayWrite) {
+                request.delayWrite(writeToCache);
+                request.success && request.success(data, metadata, xhr);
+                request.complete && request.complete();
+            } else
+                writeToCache(request.success, request.complete);
         }
     });
 }
@@ -207,8 +154,6 @@ libx.cache.ObjectCache = libx.core.Class.create(
      *  @param {Boolean} request.cacheOnly: if true, success will only be called if the object
      *      is in the cache.  If the object is not in the cache, request.complete() is immediately
      *      fired.  No XHRs are triggered.
-     *  @param {Function} validator: function to validate the object's data and
-     *      metadata before it is stored in the cache
      */
     get : function (request) {
     
@@ -228,14 +173,17 @@ libx.cache.ObjectCache = libx.core.Class.create(
                     libx.storage.cacheStore.getItem({
                         key: trimQuery(request.ignoreQuery, request.url),
                         success: function (text) {
-                            parseText({
-                                text: text,
-                                type: request.dataType,
-                                success: function (data) {
-                                    request.success && request.success(data, metadata);
-                                },
-                                error: request.error
-                            });
+
+                            // all objects are stored as text, so we must parse
+                            // them according to the specified dataType
+                            var data;
+                            switch (request.dataType) {
+                            case 'json': data = libx.utils.json.parse(text); break;
+                            case 'xml':  data = libx.utils.xml.loadXMLDocumentFromString(text); break;
+                            default:     data = text;
+                            }
+
+                            request.success && request.success(data, metadata);
                             request.complete && request.complete();
                         },
                         notfound: function () {
@@ -319,75 +267,5 @@ libx.cache.ObjectCache = libx.core.Class.create(
 });
 
 libx.cache.defaultObjectCache = new libx.cache.ObjectCache();
-
-/**
- * Set of functions used to validate response data before storing in the cache.
- * This is necessary to detect the fake responses returned by captive portals
- * (such as web authentication login screens).
- */
-libx.cache.defaultObjectCache.validators = {
-    config: function (params) {
-        if (/xml/.test(params.metadata.mimeType)
-                && libx.utils.xpath.findSingleXML(params.data, '//edition/name'))
-            params.success();
-        else
-            params.error();
-    },
-    bootstrapped: function (params) {
-        function doValidation(updates) {
-            libx.cache.defaultObjectCache.validators.bootstrapped.updates = updates;
-            var bootstrapPath = libx.locale.getBootstrapURL('');
-            var relPath = params.url.replace(bootstrapPath, '');
-            if (updates.files && updates.files[relPath]
-                    && updates.files[relPath].hash == params.metadata.sha1)
-                params.success();
-            else
-                params.error();
-        }
-
-        // keep the updates object in memory so we don't need to fire an XHR for
-        // each bootstrapped item to be validated.  this will also be updated in 
-        // the scheduler when updates.json has changed.
-        var updates = libx.cache.defaultObjectCache.validators.bootstrapped.updates;
-
-        if (updates)
-            doValidation(updates);
-        else {
-            // writing updates.json to the object cache here would incorrectly
-            // indicate that all of its children have been successfully fetched
-            // (since updates.json is the root), so use the memory cache instead
-            libx.cache.defaultMemoryCache.get({
-                url: libx.locale.getBootstrapURL('updates.json'),
-                dataType: 'json',
-                success: doValidation,
-                error: function (status) {
-                    libx.log.write('error ' + status + ' when fetching updates.json');
-                    params.error();
-                }
-            });
-        }
-    },
-    feed: function (params) {
-        if (/xml/.test(params.metadata.mimeType) && libx.utils.xpath.findSingleXML(params.data,
-                '//libx:package|//libx:libapp|//libx:module', null, { libx: 'http://libx.org/xml/libx2' } ))
-            params.success();
-        else
-            params.error();
-    },
-    preference: function (params) {
-        if (/xml/.test(params.metadata.mimeType)
-                && libx.utils.xpath.findSingleXML(params.data, '//item|//preference|//category'))
-            params.success();
-        else
-            params.error();
-    },
-    image: function (params) {
-        if (/image/.test(params.metadata.mimeType))
-            params.success();
-        else
-            params.error();
-    }
-
-};
 
 }) ();

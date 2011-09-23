@@ -79,6 +79,8 @@ libx.core.Class.mixin(libx.utils.xml, {
             /*DocumentBuilder*/var builder = domFactory.newDocumentBuilder();
             /*Document*/var doc = builder.parse(input);
             return doc;
+        } catch (e) {
+            return null;
         } finally {
             this.saxParserLock.unlock();
         }
@@ -330,7 +332,8 @@ libx.log = {
 libx.locale = {
     getBootstrapURL: function (url) {
         return "http://localhost/libx.org/unittests/tests/resources/" + url;
-    }
+    },
+    initialize: function () {}
 };
 
 var libxscripts2 = [
@@ -346,3 +349,5 @@ var libxscripts2 = [
 ];
 
 loadScript(libxscripts2);
+
+libx.initialize();

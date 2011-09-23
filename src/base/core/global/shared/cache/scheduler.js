@@ -16,17 +16,17 @@ BRN:
 
 (function () {
 
-// 10 sec for testing - please, if you activate that, don't leave your browser running.
-var defaultUpdateInterval = 10 * 1000; 
-// 24 hours
-//var defaultUpdateInterval = 24 * 60 * 60 * 1000;    
+// testing intervals - please, if you activate them, don't leave your browser running.
+// var defaultUpdateInterval = 10 * 1000; 
+// var initialRetryInterval = 10 * 1000;
+// var maxRetryInterval = 60 * 1000;
+// var maxRandDelay = 10 * 1000;
 
-// var initialRetryInterval = 60 * 1000;
-// var maxRetryInterval = 4 * 60 * 60 * 1000;
-// var maxRandDelay = 4 * 60 * 60 * 1000;
-var initialRetryInterval = 10 * 1000;
-var maxRetryInterval = 60 * 1000;
-var maxRandDelay = 10 * 1000;
+// normal intervals
+var defaultUpdateInterval = 24 * 60 * 60 * 1000;    
+var initialRetryInterval = 60 * 1000;
+var maxRetryInterval = 4 * 60 * 60 * 1000;
+var maxRandDelay = 4 * 60 * 60 * 1000;
 
 var DISABLE_SCHEDULERS = false;
 
@@ -247,15 +247,14 @@ libx.cache.Scheduler = libx.core.Class.create({
 libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     rootDataType: "json",
     rootValidator: function (params) {
-        if (/json/.test(params.metadata.mimeType) && params.data.files)
+        if (/json/.test(params.mimeType) && params.data.files)
             params.success();
         else
             params.error();
     },
-    childValidator: libx.cache.defaultObjectCache.validators.bootstrapped,
+    childValidator: libx.cache.defaultMemoryCache.validators.bootstrapped,
     updateChildren: function (checkForUpdates, updateHashes) {
         var bootstrapBase = libx.locale.getBootstrapURL("");
-        libx.cache.defaultObjectCache.validators.bootstrapped.updates = updateHashes;
         for (var relUrl in updateHashes.files) {
             var absUrl = bootstrapBase + relUrl;
             checkForUpdates(absUrl, function (metadata) {
@@ -268,7 +267,7 @@ libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler, {
 
 libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     rootDataType: 'xml',
-    rootValidator: libx.cache.defaultObjectCache.validators.config,
+    rootValidator: libx.cache.defaultMemoryCache.validators.config,
     childValidator: function (params) {
         // we know nothing about the config.xml additionalfiles, so we can't validate them
         params.success();
@@ -299,8 +298,8 @@ libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     },
     rootDataType: 'xml',
     childDataType: 'xml',
-    rootValidator: libx.cache.defaultObjectCache.validators.feed,
-    childValidator: libx.cache.defaultObjectCache.validators.feed,
+    rootValidator: libx.cache.defaultMemoryCache.validators.feed,
+    childValidator: libx.cache.defaultMemoryCache.validators.feed,
     updateChildrenRule: "always",
     updateChildren: function (checkForUpdates, feedDoc, updateQueue, markError) {
 

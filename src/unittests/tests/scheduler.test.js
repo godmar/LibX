@@ -88,13 +88,13 @@ suite.addUnitTest("Test hash scheduler",
         exec("tests/resources/schedulers/genhash.pl");
         startScheduler(hashScheduler);
 
-        this.WAIT(3);
+        this.WAIT(6);
 
         var beforeUpdates = getModifiedDates(resourceUrl, files);
         writeToFile(2, "after");
         exec("tests/resources/schedulers/genhash.pl");
 
-        this.WAIT(3);
+        this.WAIT(6);
 
         var afterUpdates = getModifiedDates(resourceUrl, files);
         this.ASSERT_TRUE(beforeUpdates[0] < afterUpdates[0]);
@@ -116,12 +116,12 @@ suite.addUnitTest("Test package scheduler",
         packageScheduler = new libx.cache.PackageScheduler(packageUrl);
         startScheduler(packageScheduler);
 
-        this.WAIT(3);
+        this.WAIT(6);
 
         var beforeUpdates = getModifiedDates(resourceUrl, files);
         exec("touch " + resourcePath + files[2] + "index.xml");
 
-        this.WAIT(3);
+        this.WAIT(6);
 
         var afterUpdates = getModifiedDates(resourceUrl, files);
         this.ASSERT_EQUAL(beforeUpdates[0], afterUpdates[0]);

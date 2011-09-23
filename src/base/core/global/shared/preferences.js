@@ -606,7 +606,7 @@ return /** @lends libx.preferences */ {
         
         var callbackFunct = this.loadXML;
         libx.cache.defaultObjectCache.get ( {
-            validator: libx.cache.defaultObjectCache.validators.preference,
+            validator: libx.cache.defaultMemoryCache.validators.preference,
             type: 'GET',
             url : filename,
             dataType : "xml",

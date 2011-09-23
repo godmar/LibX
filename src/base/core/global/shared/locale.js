@@ -188,7 +188,7 @@ return /** @lends libx.locale */ {
                             }
                             return true;
                         }
-                        if (/json/.test(vParams.metadata.mimeType) && validateMessages())
+                        if (/json/.test(vParams.mimeType) && validateMessages())
                             vParams.success();
                         else
                             vParams.error();

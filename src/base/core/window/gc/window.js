@@ -154,6 +154,13 @@ var imported = {};
                 chrome.extension.sendRequest({ type: "memoryCache", args: request }, function (response) {
                     fireCallbacks(request, response, true);
                 });
+            },
+            validators: {
+                config: 'config',
+                bootstrapped: 'bootstrapped',
+                feed: 'feed',
+                image: 'image',
+                preference: 'preference'
             }
         },
         defaultObjectCache: {
@@ -180,13 +187,6 @@ var imported = {};
                         }
                     });
                 }
-            },
-            validators: {
-                config: 'config',
-                bootstrapped: 'bootstrapped',
-                feed: 'feed',
-                image: 'image',
-                preference: 'preference'
             }
         }
     };

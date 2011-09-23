@@ -336,7 +336,7 @@ function executeLibapp(libapp, pkgArgs) {
 
             var success = false;
             libx.cache.defaultObjectCache.get({
-                validator: libx.cache.defaultObjectCache.validators.bootstrapped,
+                validator: libx.cache.defaultMemoryCache.validators.bootstrapped,
                 url: rUrl,
                 success: function (scriptText, metadata) {
                     success = true;

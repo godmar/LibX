@@ -127,6 +127,10 @@ function scrub(args) {
 }
 
 function cacheRequest(cache, args, sendResponse) {
+
+    if (args.validator)
+        args.validator = libx.cache.defaultMemoryCache.validators[args.validator];
+
     var result = {};
     args.success = function () {
         result.success = scrub(arguments);
@@ -146,9 +150,6 @@ libx.extension.addListener("memoryCache", function (request, sender, sendRespons
 });
 
 libx.extension.addListener("objectCache", function (request, sender, sendResponse) {
-    var validator = request.args.validator;
-    if (validator)
-        request.args.validator = libx.cache.defaultObjectCache.validators[validator];
     cacheRequest(libx.cache.defaultObjectCache, request.args, sendResponse);
 });
 

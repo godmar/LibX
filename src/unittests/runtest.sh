@@ -36,5 +36,5 @@ fi
 
 # add -opt -1 to this
 echo "print('Loading environment, one moment...');load('loadlibx.js');load('testing.js');${LOADTESTS}${SETFLAGS}libx.testing.runAllUnitTests();" \
-    | java -classpath $CLASSPATH org.mozilla.javascript.tools.shell.Main
+    | java -classpath $CLASSPATH org.mozilla.javascript.tools.shell.Main -opt -1
     

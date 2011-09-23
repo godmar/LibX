@@ -35,7 +35,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
         libx.cache.defaultObjectCache.get({
             dataType : "xml",
             url      : invofcc.url,
-            validator: libx.cache.defaultObjectCache.validators.config,
+            validator: libx.cache.defaultMemoryCache.validators.config,
             success : function (xml, metadata) {
                 var doc = new libx.config.XMLConfigWrapper(xml);
 
