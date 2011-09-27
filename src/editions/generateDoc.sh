@@ -1,7 +1,8 @@
 #!/bin/sh
 
 
-files="../base/chrome/libx/content/libx ../base/chrome/libx/content/libx/catalogs ../libx2 ../libx2/base"
+#files="../base/chrome/libx/content/libx ../base/chrome/libx/content/libx/catalogs ../libx2 ../libx2/base"
+files=`find ../base -name '*.js' -and -not -name '*jquery*' | sort | uniq`
 outdir="doc"
 defopts="-p"
 opts=""
