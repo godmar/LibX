@@ -133,10 +133,12 @@ function handleEntry(visitor, url, cacheMissActivity) {
         };
 
         // add preference attribute
-        var prefNode = libx.utils.xpath.findNodesXML(
+        var prefNodes = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:preferences/*", libx2Node, ns);
-        if (prefNode != null && prefNode.length && libx.prefs[url]) {
-            libx.preferences.loadXML(prefNode[0], { base: "libx.prefs." + url });
+        if (prefNodes != null && prefNodes.length && libx.prefs[url]) {
+            prefNodes.forEach(function (node) { 
+                libx.preferences.loadXML(node, { base: "libx.prefs." + url });
+            });
         }
             
         // verify that 'include', 'exclude', etc. look like regular expressions

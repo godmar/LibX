@@ -12,11 +12,13 @@
     <if test="data._type == 'choice'">
         <label>{+templateScope.data.getMessage(data)+}</label>
         <div style="padding-left: 20px;">
+            <form>
             <for each="item" in="data._items">
                 <input type="radio" class="preference-radio" name="{+ data._id +}" value="{+ item._value +}" <if test="item._selected">checked="checked"</if> />
                 <label>{+templateScope.data.getMessage(item)+}</label>
                 <br/>
             </for>
+            </form>
         </div>
     </if>
     <if test="data._type == 'string'">

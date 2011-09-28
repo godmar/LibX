@@ -177,6 +177,36 @@ processCheckTree = {
                 $rightPanel.hide();
         });
 
+        /* synchronize preferences among duplicate textboxes */
+        $(".preference-text").live("change", function () {
+            var val = this.value;
+            $('input[name="' + this.name + '"]').each(function () {
+                this.value = val;
+            });
+            libx.preferences.getByID(this.name)._setValue(val);
+            libx.preferences.save();
+        } );
+
+        /* synchronize preferences among duplicate checkboxes */
+        $(".preference-checkbox").live("click", function () {
+            var val = this.checked;
+            $('input[name="' + this.name + '"]').each(function () {
+                this.checked = val;
+            });
+            libx.preferences.getByID(this.name)._setValue(val);
+            libx.preferences.save();
+        } );
+
+        /* synchronize preferences among duplicate radios */
+        $(".preference-radio").live("click", function () {
+            var val = this.checked;
+            $('input[name="' + this.name + '"][value="' + this.value + '"]').each(function () {
+                this.checked = val;
+            });
+            libx.preferences.getByID(this.name)._setValue(val);
+            libx.preferences.save();
+        } );
+
         $rightPanel.hide();
     }
 };
@@ -223,7 +253,7 @@ function makePopupNode(entry, $node, tmplData) {
     return $popup;
 }
 
-function processPackages(packages, elem, isRoot, includedModules) {
+function processPackages(packages, elem, isRoot) {
 
     for (var i = 0; i < packages.length; i++) {
     
@@ -260,7 +290,7 @@ function processPackages(packages, elem, isRoot, includedModules) {
                         .children("ul")
                             .append('<li class="checktree_separator"></li>')
                         .end().insertBefore(elem.children(".checktree_separator"));
-                    processPackages(pkg.entries, $node.children("ul"), false, []);
+                    processPackages(pkg.entries, $node.children("ul"), false);
                     blocker.markReady();
                     
                     var $prefs = makePopupNode(pkg, $node);
@@ -273,7 +303,7 @@ function processPackages(packages, elem, isRoot, includedModules) {
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
                     var $node = makeNode(libapp);
                     elem.children(".checktree_separator").after($node);
-                    processPackages(libapp.entries, elem, false, includedModules);
+                    processPackages(libapp.entries, $node.children("ul"), false);
                     blocker.markReady();
                                
                     getStringBundle(libapp.id, function (tmplData) {
@@ -285,11 +315,10 @@ function processPackages(packages, elem, isRoot, includedModules) {
 
                     libx.prefs.getCategoryForUrl(module.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-                    if (!libx.prefs[module.id] || $.inArray(module.id, includedModules) != -1) {
+                    if (!libx.prefs[module.id]) {
                         blocker.markReady();
                         return;
                     }
-                    includedModules.push(module.id);
                     
                     var $node = makeNode(module, true);
                     elem.append($node);
@@ -319,7 +348,7 @@ function processPackages(packages, elem, isRoot, includedModules) {
 var rootPackages = libx.libapp.getPackages().map(function (pkg) {
     return { url: pkg };
 });
-processPackages(rootPackages, $checkTree, true, []);
+processPackages(rootPackages, $checkTree, true);
 
 templateScope.queueFunction(function () {
     $("#libapps-tmpl").find(".tooltip").tooltip({
