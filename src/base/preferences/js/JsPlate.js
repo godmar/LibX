@@ -8,13 +8,21 @@
 /**
     @constructor
 */
-JsPlate = function(templateFileText, templateFile, aQueues, data) {
+JsPlate = function(templateFileText, templateFile, data) {
     this.template = templateFileText;
     this.templateFile = templateFile;
-    this.aQueues = aQueues;
+    // this is an array of "blockers"; each element in the array is the first
+    // element of a different activity queue. here, each activity queue
+    // being blocked represents a different template that needs to be processed
+    this.postProcessingActions = [];
     this.code = "";
     this.data = data;
     this.parse();
+}
+
+JsPlate.prototype.doPostInsertionProcessing = function() {
+    for (var i = 0; i < this.postProcessingActions.length; i++)
+        this.postProcessingActions[i].markReady();
 }
 
 JsPlate.prototype.parse = function() {
@@ -60,7 +68,15 @@ JsPlate.prototype.parse = function() {
         function (match, code) {
             code = code.replace(/"/g, "``"); // prevent quote-escaping of inline code
             code = code.replace(/(\r?\n)/g, " ");
-            return "``+ ( process ( aQueues, " + code + " ) ) +``";
+            return "``; (function () { var subpr = process ( " + code + " ); "
+                    + "output += subpr.html; "
+                    + "templateScope.queueFunction(" 
+                    + "  function () { "
+                    + "     subpr.doPostInsertionProcessing(); "
+                    + "  } "
+                    + "); "
+                    + "})();" 
+                    + "\routput+=``";
         }
     );
     
@@ -121,16 +137,21 @@ JsPlate.prototype.process = function(data) {
     var values = JsPlate.values;
         
     try {
-        var aQueues = this.aQueues;
+        var self = this;
         var templateScope = {
             data: this.data,
+            /* schedule a function to be executed after the template has been processed. */
             queueFunction: function (fn) {
-                var q = new libx.utils.collections.ActivityQueue();
-                fnAct = { onready: fn };
-                q.scheduleLast(fnAct);
-                aQueues.push(fnAct);
-            }
+                /* mimic an activity by supporting a markReady function */
+                self.postProcessingActions.push({
+                    markReady: function () {
+                        fn();
+                    }
+                });
+            },
+            postProcessingActions: self.postProcessingActions
         }
+        /* templateScope is accessible in templates. */
         var output = eval(this.code);
     }
     catch (e) {

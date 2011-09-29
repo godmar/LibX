@@ -19,10 +19,8 @@ var idnum = 0;
 
 /************/
 
-var templateProcessedAQ = new libx.utils.collections.ActivityQueue();
-var blocker = new libx.utils.collections.EmptyActivity();
-templateProcessedAQ.scheduleLast(blocker);
-aQueues.push(blocker);
+var templateProcessedAQ = new libx.utils.collections.DelayedActivityQueue();
+templateScope.postProcessingActions.push(templateProcessedAQ);
 
 registerHandlers = {
     onready: function () {

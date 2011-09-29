@@ -132,9 +132,9 @@ $('#link-purgeall').click(function() {
 });
 
 $('#link-refresh').click(function() {
-    var aQueues = [];
-    $("#objectcache-content").replaceWith( process( aQueues, null, "objectcache" ) );
-    aQueues[0].markReady();
+    var p = process(null, "objectcache");
+    $("#objectcache-content").replaceWith( p.html );
+    p.doPostInsertionProcessing();
 });
 
 $('.link-opencache').each(function(i, elem) {

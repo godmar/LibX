@@ -9,10 +9,8 @@
      
 var divId = "builtin-" + data._id;
      
-var templateProcessedQueue = new libx.utils.collections.ActivityQueue();
-var blocker = new libx.utils.collections.EmptyActivity();
-templateProcessedQueue.scheduleLast(blocker);
-aQueues.push(blocker);
+var templateProcessedQueue = new libx.utils.collections.DelayedActivityQueue();
+templateScope.postProcessingActions.push(templateProcessedQueue);
 
 var bundleReadyActivity = {
     onready: function (stringBundle) {
@@ -21,9 +19,9 @@ var bundleReadyActivity = {
                 return stringBundle.getProperty(node._idstr.replace(data._idstr + ".", ""));
             }
         };
-        var aQueues = [];
-        $("#" + divId).replaceWith(process(aQueues, data, null, tmplData));
-        aQueues[0].markReady();
+        var p = process(data, null, tmplData);
+        $("#" + divId).replaceWith(p.html);
+        p.doPostInsertionProcessing();
     }
 };
 templateProcessedQueue.scheduleLast(bundleReadyActivity);

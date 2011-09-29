@@ -404,7 +404,7 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
         var queue = this;
         activity.markReady = function () {
             var myArgs = [].splice.call(arguments, 0);
-            queue.markReady.apply(queue, [activity].concat(myArgs));
+            queue.markActivityReady.apply(queue, [activity].concat(myArgs));
         }
         /* insert another activity that must be done before this one. */
         activity.scheduleBefore = function (beforeActivity) {
@@ -439,7 +439,7 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
      * Alternatively, activity.markReady() may be called.
      * @param {Object} activity
      */
-    markReady : function (activity) {
+    markActivityReady : function (activity) {
         activity._isReady = true;
         activity._readyArgs = [].splice.call(arguments, 1);
         while (activity == this.front() && activity._isReady) {
@@ -449,6 +449,23 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
             activity = this.front();
         }
     }
+});
+
+/**
+ * @class
+ *
+ * An ActivityQueue that is itself an activity.
+ * Any activity in the queue won't be executed
+ * until the queue is marked ready.
+ */
+libx.utils.collections.DelayedActivityQueue = libx.core.Class.create(libx.utils.collections.ActivityQueue, 
+    /** @lends libx.utils.collections.DelayedActivityQueue.prototype */ {
+    /** @lends libx.utils.collections.DelayedActivityQueue */
+    initialize: function () {
+        this.parent();
+        this.scheduleLast(this);
+    },
+    onready: function () {  /* empty */ }
 });
 
 /**
@@ -462,6 +479,22 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
  */
 libx.utils.collections.EmptyActivity = libx.core.Class.create({
     onready: function () { /* empty */ }
+});
+
+/**
+ * An activity that executes a function when ready.
+ *
+ * @see libx.utils.collections.ActivityQueue
+ *
+ * @static
+ */
+libx.utils.collections.FunctionActivity = libx.core.Class.create({
+    initialize: function (fn) {
+        this.fn = fn;
+    },
+    onready: function () {
+        this.fn();
+    }
 });
 
 /**

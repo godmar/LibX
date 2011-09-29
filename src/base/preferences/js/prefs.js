@@ -12,21 +12,16 @@ $(document).ready ( function () {
     //   2) the template's locale has been fetched
     //   3) the template file itself has been fetched
     
-    // this is an array of "blockers"; each element in the array is the first
-    // element of a different activity queue
-    var aQueues = [];
-    
     // Process the first template, which will create tabs and recursively process
     // each subsequent template
-    var result = process ( aQueues, libx.prefs, "libx.prefs" );
+    var result = process ( libx.prefs, "libx.prefs" );
 
     // Clone and append to main document
     // This evaluates scripts and style sheets ( setting the innerHTML does not seem to )
-    
-    $('#content-div').append ( $( result ) );
+    $('#content-div').append ( $( result.html ) );
     
     // the template placeholder now exists in the DOM
-    aQueues[0].markReady();
+    result.doPostInsertionProcessing();
     
     // Set event handlers for textboxes
     $(".preference-text").live("change", function () {
@@ -56,14 +51,11 @@ $(document).ready ( function () {
    
 /**
  *    Processes a template.
- *    @param aQueues - array for adding activity queues
- *    The activity queues added to this array will delay processing until these
- *    activities have completed:
- *        1. The template's placeholder is added to the DOM
- *        2. The template's localization has been fetched and processed
- *        3. The template itself has been fetched
- *    This function returns the template placeholder, meaning it is the caller's
- *    responsibility to add it to the DOM and mark activity #1 ready.
+ *
+ *    This function returns a combination of template placeholder (.html), 
+ *    and a function doPostInsertionProcessing() that the caller calls
+ *    when the HTML has been added to the DOM.
+ *
  *    @param pref - object to be passed into template
  *    @param layout - optional, used to specify a specific layout
  *    If layout is not specified, we will look for the template as follows
@@ -71,8 +63,14 @@ $(document).ready ( function () {
  *        2. We will look for a template matching the preferences _nodeType attribute
  *    @param data - any additional data given to a child template by its parent
 */
-function process( aQueues, pref, layout, data ) {
-    
+function process( pref, layout, data ) {
+    /*
+     *    This array contains activities that block processing in their
+     *    respective activity queues until these activities have completed:
+     *        1. The template's placeholder is added to the DOM
+     *        2. The template's localization has been fetched and processed
+     *        3. The template itself has been fetched
+     */
     var templateFile = null;
     
     // find corresponding layout in order described above
@@ -91,11 +89,6 @@ function process( aQueues, pref, layout, data ) {
     
     // libx.log.write ( "Processing div id=" + divID + " with template " + templateFile );
 
-    var q = new libx.utils.collections.ActivityQueue();
-    var delayTemplateProcessing = new libx.utils.collections.EmptyActivity();
-    q.scheduleLast(delayTemplateProcessing);
-    aQueues.push(delayTemplateProcessing);
-    
     var processTemplateActivity = {
         onready: function (result, bundle) {
             var tmpdiv = $("#" + divID);
@@ -104,20 +97,15 @@ function process( aQueues, pref, layout, data ) {
             // set the global templateBundle variable to the bundle for this template
             templateBundle = bundle;
             
-            // this is an array of "blockers"; each element in the array is the first
-            // element of a different activity queue. here, each activity queue
-            // being blocked represents a different template that needs to be processed
-            var blockers = [];
-            
-            var jsPlate = new JsPlate ( result, templateFile, blockers, data );
+            var jsPlate = new JsPlate ( result, templateFile, data );
             
             tmpdiv.replaceWith ( jsPlate.process(pref) );
-            for (var i = 0; i < blockers.length; i++)
-                blockers[i].markReady();
+            jsPlate.doPostInsertionProcessing();
         }
     };
     
-    q.scheduleLast(processTemplateActivity);
+    var delayTemplateProcessing = new libx.utils.collections.DelayedActivityQueue();
+    delayTemplateProcessing.scheduleLast(processTemplateActivity);
     
     libx.cache.defaultObjectCache.get( {
         validator: function (params) {
@@ -174,5 +162,10 @@ function process( aQueues, pref, layout, data ) {
         }
     } );
 
-    return "<div id='" + divID + "'/>";
+    return {
+        html: "<div id='" + divID + "'/>",
+        doPostInsertionProcessing: function () {
+            delayTemplateProcessing.markReady();
+        }
+    }
 }

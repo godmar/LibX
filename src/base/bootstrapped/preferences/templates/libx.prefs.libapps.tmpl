@@ -100,10 +100,8 @@ function getStringBundle(url, callback, entries) {
 
 }
 
-var aQ = new libx.utils.collections.ActivityQueue();
-var blocker = new libx.utils.collections.EmptyActivity();
-aQ.scheduleLast(blocker);
-aQueues.push(blocker);
+var aQ = new libx.utils.collections.DelayedActivityQueue();
+templateScope.postProcessingActions.push(aQ);
 var $rightPanel = $('<div style="margin-left: 25px; padding: 10px;" class="ui-state-default ui-corner-all">'
                   + '<div>Select an entry in the tree to set its preferences.</div>'
                   + '</div>');
@@ -131,9 +129,9 @@ function makeNode(entry, isModule) {
 
 function reloadPackages() {
     libx.libapp.reloadPackages();
-    var aQueues = [];
-    $("#libapps-tmpl").replaceWith(process(aQueues, null, "libx.prefs.libapps"));
-    aQueues[0].markReady();
+    var p = process(null, "libx.prefs.libapps");
+    $("#libapps-tmpl").replaceWith(p.html);
+    p.doPostInsertionProcessing();
 }
 
 processCheckTree = {
@@ -239,12 +237,13 @@ function makePopupNode(entry, $node, tmplData) {
 
     var addToPanel = {
         onready: function () {
-            var aQueues = [];
             $popup.hide().appendTo($rightPanel);
-            if (libx.prefs[entry.id])
+            if (libx.prefs[entry.id]) {
+                var r = process(libx.prefs[entry.id], null, tmplData);
                 $popup.append('<div style="font-size: 0.8em; font-weight: normal;">'
-                    + process(aQueues, libx.prefs[entry.id], null, tmplData) + '</div>');
-            aQueues[0].markReady();
+                    + r.html + '</div>');
+                r.doPostInsertionProcessing();
+            }
         }
     };
     aQ.scheduleLast(addToPanel);
