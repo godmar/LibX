@@ -42,12 +42,13 @@ registerHandlers.markReady();
 function addLibapp(libapp) {
     var newDiv = '<div class="ui-state-default ui-corner-all" style="margin-bottom: 5px;">\n'
            + '<span>\n'
-           + '<div style="font-weight: bold;">' + encode(libapp.description) + '</div>\n';
+           + '<div style="text-align: center font-weight: bold;">' + encode(libapp.title) + '</div>\n'
+           + '<div style="color: black;">' + encode(libapp.description) +'</div>\n';
     if (libapp.id != null)
         newDiv += '<div>' + libapp.id + '</div>\n';
     for (var i = 0; i < appProps.length; i++) {
         for (var j = 0; j < libapp[appProps[i]].length; j++)
-            newDiv += "<p>" + appProps[i] + ":" + libapp[appProps[i]][j] + "</p>\n";
+            newDiv += "<p>" + appProps[i] + ":" + encode(libapp[appProps[i]][j]) + "</p>\n";
     }
     newDiv += '</span>\n'
             + '<ul style="list-style-type:none; text-decoration: underline;">\n';
@@ -75,9 +76,10 @@ function addLibapp(libapp) {
                         idnum++;
                         var linkstr = "link-" + idnum;
                         var divstr = "div-" + idnum;
-                        newDiv += '<a class="libapplink" id="' + linkstr + '" href="#' + divstr + '">' + encode(module.description) + '</a>\n'
+                        newDiv += '<a class="libapplink" id="' + linkstr + '" href="#' + divstr + '">' + encode(module.title) + '</a>\n'
                                 + '<div id="' + divstr + '" class="module-info" style="display:none;">\n'
                                 + '<div class="ui-state-default ui-corner-all" style="font-weight: normal; font-size: 0.8em; color: black; padding: 5px;">\n'
+                                + '<div>Description: ' + encode(module.description) + '</div>\n'
                                 + '<div>URL: ' + encode(entry.url) + '</div>\n';
                         for (var j = 0; j < modProps.length; j++) {
                             for (var k = 0; k < module[modProps[j]].length; k++)
