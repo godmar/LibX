@@ -33,6 +33,8 @@ var ns = {
 var libx2Clauses = [ "include", "exclude", "require", "guardedby", "body", "regexptexttransformer", "override" ];
 var libx2ArrayClauses = { include : 1, exclude : 1, guardedby : 1, require : 1, regexptexttransformer : 1 };
 var libx2RegexpClauses = [ "include", "exclude", "regexptexttransformer" ];
+var authorInfo = ["name", "uri", "email" ];
+var entryInfo = { updated: [], author: authorInfo };
 
 /**
  * Resolver 'url' relative to 'base'
@@ -86,9 +88,12 @@ function handleEntry(visitor, url, cacheMissActivity) {
             xmlDoc, "./libx2:*", entryNode, ns
         );
 
-        var desc = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:title/text()",
+        var title = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:title/text()",
+            entryNode,ns);
+        title = title != null ? title.nodeValue : "atom:title is missing";
+        var desc = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:content/text()",
             entryNode, ns);
-        desc = desc != null ? desc.nodeValue : "atom:title is missing";
+        desc = desc != null ? desc.nodeValue : "atom:content is missing";
         var atomid = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:id/text()",
             entryNode, ns);
         atomid = atomid != null ? atomid.nodeValue : "atom:id is missing";
@@ -102,9 +107,31 @@ function handleEntry(visitor, url, cacheMissActivity) {
         var nodeInfo = { 
             baseURL: baseURL,
             id: atomid,
+            title: title,
+            type: libx2Node.localName,
             description: desc,
             entries: []
         };
+
+        var tempNode;
+        for (infoItem in entryInfo) {
+           if (entryInfo[infoItem].length == 0) {
+               tempNode = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:"+infoItem+"/text()",
+                   entryNode,ns);
+               tempNode = tempNode != null ? tempNode.nodeValue : "atom:"+infoItem+" is missing";
+               nodeInfo[infoItem] = tempNode;
+           }
+           else {
+              var itemInfoArr = entryInfo[infoItem];
+              nodeInfo[infoItem] = {};
+              for (item in itemInfoArr) {
+                tempNode = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:"+infoItem+"/atom:"+itemInfoArr[item]+"/text()",
+                entryNode,ns);
+                tempNode = tempNode != null ? tempNode.nodeValue : "atom:"+infoItem+"//"+itemInfoArr[item]+" is missing";
+                nodeInfo[infoItem][itemInfoArr[item]] = tempNode;
+              }
+           }  
+        }
 
         var clauses = libx2Clauses;
         for (var i = 0; i < clauses.length; i++) {
