@@ -128,6 +128,7 @@ var imported = {};
     libxTemp.magicImport('libx.libapp.getPackages', { returns: true, namespace: imported });
     libxTemp.magicImport('libx.libapp.addTempPackage');
     libxTemp.magicImport('libx.libapp.clearTempPackages');
+    libxTemp.magicImport('libx.libapp.reloadPackages');
     libxTemp.magicImport('libx.libapp.getOverridden');
     libxTemp.magicImport('libx.storage.prefsStore.getItem');
     libxTemp.magicImport('libx.storage.prefsStore.setItem');
@@ -174,13 +175,13 @@ var imported = {};
                 } else {
                     cacheEntry = ocCache[request.url] = { success: false, queue: [] };
                     chrome.extension.sendRequest({ type: "objectCache", args: request }, function (response) {
-                        fireCallbacks(request, response, true);
                         if (response.success) {
-                            cacheEntry.success = true
+                            cacheEntry.success = true;
                             cacheEntry.value = response;
                         } else {
                             ocCache[request.url] = null;
                         }
+                        fireCallbacks(request, response, true);
                         while (cacheEntry.queue.length) {
                             var queued = cacheEntry.queue.pop();
                             fireCallbacks(queued, response, false);

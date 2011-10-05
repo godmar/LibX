@@ -527,7 +527,7 @@ libx.initialize = function (loadGlobalScripts)
         libx.storage.cacheStore.clear();
         
         // clear preferences and stale data
-        libx.storage.prefsStore.clear();
+        //libx.storage.prefsStore.clear();
         delete libx.edition;
         delete libx.prefs;
         libx.preferences.initialize();

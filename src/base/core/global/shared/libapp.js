@@ -22,6 +22,7 @@ libx.libapp.addTempPackage = function (permUrl, tempUrl) {
             return;
     }
     tmpPackages.push({ permUrl: permUrl, tempUrl: tempUrl });
+    libx.libapp.reloadPackages();
 };
 
 libx.libapp.removeUserPackage = function (pkg) {
@@ -70,13 +71,16 @@ libx.libapp.getPackages = function (enabledOnly) {
 
     if (!enabledPackages) {
         enabledPackages = allPackages.filter(function (pkg) {
+            for (var i = 0; i < tmpPackages.length; i++)
+                if (tmpPackages[i].permUrl == pkg)
+                    return false;
             // if a packages's preferences don't exist, it's enabled
             return !libx.prefs[pkg] || libx.prefs[pkg]._enabled._value;
         });
 
-        // BRN: make sure tmp packages still work
-        for (var i = 0; i < tmpPackages.length; i++)
+        for (var i = 0; i < tmpPackages.length; i++) {
             enabledPackages.push(tmpPackages[i].tempUrl);
+        }
     }
     return enabledPackages;
 
@@ -90,7 +94,7 @@ libx.libapp.reloadPackages = function () {
         scheduler.stopScheduling();
     this.getPackages(true).forEach(function (pkg) {
         var scheduler = new libx.cache.PackageScheduler(pkg);
-        scheduler.scheduleUpdates();
+        scheduler.scheduleUpdates(true);
         packageSchedulers.push(scheduler);
     });
 };
