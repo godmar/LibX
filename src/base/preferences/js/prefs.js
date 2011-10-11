@@ -14,7 +14,7 @@ $(document).ready ( function () {
     
     // Process the first template, which will create tabs and recursively process
     // each subsequent template
-    var result = process ( libx.prefs, "libx.prefs" );
+    var result = process ( libx.prefs, "libx.showpkg" );
 
     // Clone and append to main document
     // This evaluates scripts and style sheets ( setting the innerHTML does not seem to )
