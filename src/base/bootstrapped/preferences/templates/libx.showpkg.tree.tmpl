@@ -1,0 +1,467 @@
+{libxtemplate}
+
+{BeginLocale=en_US}
+    {
+        "package_add": { "message": "Subscribe to a package:" },
+        "package_whatis": { "message" : "What is a package?"},
+        "package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." }
+    }
+{EndLocale}
+
+{!
+
+var entryType = { "package": "Package", "libapp": "Libapp", "module": "Module" };
+/*
+ * Gets a string bundle for a given entry before processing that entry.
+ *
+ * If an array of child entries are given, they are all also retrieved before
+ * the entry is processed, and they are used as a fall-back when the entry does
+ * not contain the locale property being fetched.
+ *
+ * This is used in the case where a module may store a preference under the 
+ * currently executing libapp.  In this case, the module (not the libapp) will
+ * contain the locale information for the preference.  Therefore, if processing
+ * a libapp's preferences, we may only find locale properties for certain
+ * preferences under the libapp's module entries.
+ */
+function getStringBundle(url, callback, entries) {
+
+    var bundles = [];
+    
+    var bundlesQueue = new libx.utils.collections.ActivityQueue();
+    
+    /* fetch the string bundle for this URL */
+    var blocker = {
+        onready: function (bundle) {
+            bundle && bundles.push(bundle);
+        }
+    };
+    bundlesQueue.scheduleLast(blocker);
+    libx.locale.getBundle({
+        feed: url,
+        success: function ( stringBundle ) {
+            blocker.markReady(stringBundle);
+        }
+    });
+    
+    /* also fetch all string bundles for all child modules */
+    if (entries) {
+        for (var i = 0; i < entries.length; i++) {
+            (function () {
+                var blocker = {
+                    onready: function (bundle) {
+                        bundles.push(bundle);
+                    }
+                };
+                bundlesQueue.scheduleLast(blocker);
+                new libx.libapp.PackageWalker(entries[i].url).walk({
+                    onmodule: function (module) {
+                        libx.locale.getBundle({
+                            feed: module.id,
+                            success: function ( stringBundle ) {
+                                blocker.markReady(stringBundle);
+                            }
+                        });
+                    },
+                    error: function () {
+                        blocker.markReady();
+                    }
+                });
+            }) ();
+        }
+    }
+    
+    var bundlesReady = {
+        onready: function () {
+            var tmplData = {
+                /*
+                 * This function is used in preference.tmpl to get the locale
+                 * string associated with a preference. Here, we first look
+                 * under this entry for the locale property.  If not found, we 
+                 * search all child module bundles for the key.
+                 *
+                 * Note that for some property X, "[X]" is returned if X is not
+                 * a valid key in the string bundle.
+                 */
+                getMessage: function (node) {
+                    var key = node._idstr.replace("libx.prefs." + url + ".", "");
+                    for (var i = 0; i < bundles.length; i++) {
+                        var msg = bundles[i].getProperty(key);
+                        if (msg != "[" + key + "]")
+                            return msg;
+                    }
+                    return "[" + key + "]";
+                }
+            };
+            callback(tmplData);
+        }
+    };
+    bundlesQueue.scheduleLast(bundlesReady);
+    bundlesReady.markReady();
+
+}
+
+var aQ = new libx.utils.collections.DelayedActivityQueue();
+templateScope.postProcessingActions.push(aQ);
+var $rightPanel = $('<div style="margin-left: 25px; padding: 10px;" class="ui-state-default ui-corner-all">'
+                  + '<div>Select an entry in the tree to set its preferences.</div>'
+                  + '</div>');
+
+var $checkTree = $('<ul class="checktree" style="float: left;">'
+                 + '<li class="checktree_separator"></li>'
+                 + '</ul>');
+
+function makeNode(entry) {
+    
+    var $node = $('<li>\n'
+                + '   <label>' + entry.title + '</label>\n'
+                + '   <ul></ul>\n'
+                + '</li>\n');
+    
+    if (entry.type != 'module') {
+        $node.data("id", entry.id);
+        var checked = libx.prefs[entry.id]._enabled._value ? 'checked="checked"' : "";
+        $node.prepend('<input type="checkbox" ' + checked + ' />\n');
+    }
+    
+    return $node;
+    
+}
+
+function encode ( str ) {
+   if (typeof str == 'object')
+      str = libx.utils.json.stringify(str);
+   return libx.utils.xml.encodeEntities ( '' + str );
+}
+
+
+function reloadPackages() {
+    libx.libapp.reloadPackages();
+    var p = process(null, "libx.prefs.libapps");
+    $("#libapps-tmpl").replaceWith(p.html);
+    p.doPostInsertionProcessing();
+}
+
+processCheckTree = {
+    onready: function () {
+    
+        $("#libapps-tmpl")
+            .append($checkTree)
+            .append($rightPanel)
+            .append('<div style="clear: both"></div>')
+            .children("form").submit(function () {
+                var feed = $(this).children("input").val();
+                if (feed && libx.libapp.addUserPackage(feed))
+                    reloadPackages();
+                return false;
+            });
+            
+        $checkTree
+            .find("ul:empty").remove()
+            .end().find(".checktree_separator").remove()
+            .end().checkTree({
+                onCheck:      savePref,
+                onUnCheck:    savePref,
+                onHalfCheck:  savePref,
+                labelAction:  "custom",
+                onLabelHoverOver: function ($elem) {
+                    var pos = $elem.position();
+                    $rightPanel
+                        .show()
+                        .css("position", "absolute")
+                        .css("left", pos.left+50)
+                        .css("top", pos.top+30)
+                        .children().hide();
+                    $($elem.data("popup")).show();
+                    e.stopPropagation();
+                },
+                onLabelHoverOut: function(e,$elem) {
+                    $rightPanel.hide();
+                    e.stopPropagation();
+                },
+                onLabelClick: function (e, $elem) {
+                    $rightPanel.hide();
+                    $(".info-panel").parent()
+                                          .find("label:first")
+                                          .removeClass("selected");
+                    $(".info-panel").hide();
+                    $elem.find("label:first")
+                                        .addClass("selected");
+                    $elem.children(".info-panel")
+                                            .each( function () {
+                                                    insertPreferences($(this));
+                                                 });
+                    $elem.children(".info-panel")
+                                             .show();
+                    e.stopPropagation();
+                }
+            });
+        
+        /* BRN: this gets rebound at each template reload */
+        /*$(document).click(function (e) {
+            if (!$(e.target).parents().andSelf().filter($rightPanel).length)
+                $rightPanel.hide();
+        });*/
+
+        /* Show|Hide logic for info panel of each node in tree */
+        $(".toggle-info-panel-details").live("click", function () {
+            if ($(this).text() == 'Show Details') {
+                $(this).text("Hide Details");
+                $(this).parent().siblings(".info-panel-details").show();
+            }
+            else if ($(this).text() == 'Hide Details') {
+                $(this).text("Show Details");
+                $(this).parent().siblings(".info-panel-details").hide();
+            }
+            return false;
+        } );
+
+         $(".toggle-info-panel-prefs").live("click", function () {
+            if ($(this).text() == 'Show Preferences') {
+                $(this).text("Hide Preferences");
+                $(this).parent().siblings(".info-panel-prefs").show();
+            }
+            else if ($(this).text() == 'Hide Preferences') {
+                $(this).text("Show Preferences");
+                $(this).parent().siblings(".info-panel-prefs").hide();
+            }
+            return false;
+         } );
+
+          $(".toggle-info-panel-codebody").live("click", function () {
+            if ($(this).text() == 'Show Code') {
+                $(this).text("Hide Code");
+                $(this).parent().siblings(".info-panel-codebody").show();
+            }else if($(this).text() == 'Hide Code') {
+                $(this).text("Show Code");
+                $(this).parent().siblings(".info-panel-codebody").hide();
+            }
+            return false;
+          } );
+
+        $rightPanel.hide();
+    }
+};
+aQ.scheduleLast(processCheckTree);
+processCheckTree.markReady();
+
+function savePref($li) {
+    
+    var enabled = $li.children(".checkbox").hasClass("checked");
+    var pref = libx.prefs[$li.data("id")]._enabled;
+    if (pref._value != enabled) {
+        pref._setValue(enabled);
+        libx.preferences.save();
+        
+        /* if this entry is a root package, reloadPackages() will reset the package schedulers */
+        if ($.inArray($li.data('id'), libx.libapp.getPackages()) >= 0)
+            libx.libapp.reloadPackages();
+        else
+            libx.libapp.clearOverridden();
+    }
+}
+
+function makePopupNode(entry, $node, tmplData) {
+    var $infoPanel = $('<div class="ui-state-default ui-corner-all info-panel">'
+                     +      '<div class="info-panel-heading">'
+                     +         '<span class="field-label-name">'
+                     +              'entryType[entry.type] 
+                     +         ': </span>'
+                     +         encode(entry.description)
+                     +         '<br/>'
+                     +      '</div>'
+                     +      '<div class="toggle-info-panel-links">'
+                     +          '<a class="toggle-info-panel-details info-panel-hyperlinks" href="#">Show Details</a>'
+                     +       '</div>'
+                     +       '<div class="info-panel-details hide">'
+                     +           '<ul>'
+                     +               '<li>'
+                     +                  '<span class="field-label-name">Id: </span>'
+                     +                  '<span class="field-content">' + entry.id + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                  '<span class="field-label-name">Last Updated On: </span>'
+                     +                  '<span class="field-content"> + encode(entry.updated) + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                 '<span class="field-label-name">Author: </span>'
+                     +                 '<span class="field-content">' + encode(entry.author.name) + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                  '<span class="field-label-name">Weblink: '</span>'
+                     +                  '<span style="field-content">' + encode(entry.author.uri) + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                   '<span class="field-label-name">Email: </span>'
+                     +                   '<span class="field-content">' + encode(entry.author.email) + '</span>'
+                     +               '</li>'
+                     +            '</ul>'
+                     +       '</div>'
+                     +    '</div>');
+    if(entry.type == "module")
+    {
+       $infoPanel
+                .append( '<div class="info-panel-codebody">
+                        +    '<pre>'
+                        +       encode(entry.body)
+                        +    '</pre>'
+                        +'</div>');
+       $infoPanel
+                .children('.toggle-info-panel-links')
+                .append(' | <a class="toggle-info-panel-codebody info-panel-hyperlinks" href="#">'
+                        + 'Show Code'
+                        +   '</a>');
+    }
+    var $popup = $('<div>' + entry.description + '</div>');
+    $node.data("popup", $popup);
+    $node.data("tmplData",tmplData);
+    var addToPanel = {
+        onready: function () {
+            $popup.hide().appendTo($rightPanel);
+            $node.children("label:first").after($infoPanel);
+            if (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1) {
+               $infoPanel
+                        .children(".toggle-info-panel-links")
+                        .find(".toggle-info-panel-details")
+                        .after(' | <a class="toggle-info-panel-prefs info-panel-hyperlinks" href="#">'
+                               + 'Show Preferences'
+                               + '</a>');
+            }
+        }
+    };
+    aQ.scheduleLast(addToPanel);
+    addToPanel.markReady();
+    
+    return $infoPanel;
+}
+
+function insertPreferences ($infoPanel)
+{
+   if (libx.prefs[$infoPanel.parent().data("id")] && libx.prefs[$infoPanel.parent().data("id")]._children.length > 1) {
+        $infoPanel.children(".info-panel-prefs").remove();
+        var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel-links").children("a.toggle-info-panel-prefs:first");
+        if($toggle_Prefs.text() == "Hide Preferences")
+            $toggle_Prefs.text("Show Preferences");
+
+        var r = process(libx.prefs[$infoPanel.parent().data("id")], null, $infoPanel.parent().data("tmplData"));
+        $infoPanel.append( '<div class="info-panel-prefs hide">'
+                         +    r.html 
+                         + '</div>');
+        r.doPostInsertionProcessing();
+    }
+}
+
+function processPackages(packages, elem, isRoot) {
+
+    for (var i = 0; i < packages.length; i++) {
+    
+        (function () {
+    
+            var packageUrl = packages[i].url;
+            var blocker = new libx.utils.collections.EmptyActivity();
+            processCheckTree.scheduleBefore(blocker);
+        
+            function addRemoveLink($node, id) {
+                /* only show remove link for top level, user-added feeds */
+                if (!isRoot)
+                    return;
+                for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
+                    var editionPkg = libx.edition.localizationfeeds.package[i];
+                    if (editionPkg.url == id)
+                        return;
+                }
+                $('<a href="#" style="text-decoration: underline;">Remove from my packages</a>')
+                    .appendTo($node)
+                    .click(function () {
+                        if (libx.libapp.removeUserPackage(id))
+                            reloadPackages();
+                    });
+            }
+
+            new libx.libapp.PackageWalker(packageUrl).walk({
+                onpackage: function (pkg) {
+
+                    libx.prefs.getCategoryForUrl(pkg.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
+                    var $node = makeNode(pkg);
+                    $node
+                        .children("ul")
+                            .append('<li class="checktree_separator"></li>')
+                        .end().insertBefore(elem.children(".checktree_separator"));
+                    processPackages(pkg.entries, $node.children("ul"), false);
+                    blocker.markReady();
+                    
+                    var $prefs = makePopupNode(pkg, $node);
+                    addRemoveLink($prefs, pkg.id);
+                    
+                },
+                onlibapp: function (libapp) {
+                               
+                    libx.prefs.getCategoryForUrl(libapp.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
+                    var $node = makeNode(libapp);
+                    elem.children(".checktree_separator").after($node);
+                    processPackages(libapp.entries, $node.children("ul"), false);
+                    blocker.markReady();
+                               
+                    getStringBundle(libapp.id, function (tmplData) {
+                        makePopupNode(libapp, $node, tmplData);
+                    }, libapp.entries);
+                    
+                },
+                onmodule: function (module) {
+
+                    libx.prefs.getCategoryForUrl(module.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
+                    if (!libx.prefs[module.id]) {
+                        blocker.markReady();
+                        return;
+                    }
+                    
+                    var $node = makeNode(module);
+                    elem.append($node);
+                    blocker.markReady();
+                    
+                    getStringBundle(module.id, function (tmplData) {
+                        makePopupNode(module, $node, tmplData);
+                    });
+                    
+                },
+                error: function (err) {
+                    var entry = { id: packageUrl, description: "(Unknown Entry)" };
+                    var $node = makeNode(entry);
+                    elem.children(".checktree_separator").before($node);
+                    var $prefs = makePopupNode(entry, $node);
+                    addRemoveLink($prefs, packageUrl);
+                    blocker.markReady();
+                }
+            });
+            
+        }) ();
+        
+    }
+
+}
+
+var rootPackages = libx.libapp.getPackages().map(function (pkg) {
+    return { url: pkg };
+});
+processPackages(rootPackages, $checkTree, true);
+
+templateScope.queueFunction(function () {
+    $("#libapps-tmpl").find(".tooltip").tooltip({
+        delay: 0,
+        icon: true
+    });
+});
+
+!}
+
+<!-- libx.prefs.libapps.tmpl -->
+<div id="libapps-tmpl">
+    <form style="margin-bottom: 20px;">
+        {L "package_add" L}
+        <input style="width: 500px;"></input><br/>
+        <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div>
+    </form>
+</div>
