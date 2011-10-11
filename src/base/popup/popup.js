@@ -255,6 +255,10 @@ return {
         });
 
         $('.clearCache').click(function () {
+            // clear the object cache
+            libx.storage.metacacheStore.clear();
+            libx.storage.cacheStore.clear();
+
             libx.initialize.reload();
         });
         

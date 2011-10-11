@@ -1,20 +1,15 @@
 
 /*
  * FF-specific implementation of logging.
+ * implements abstract functions in core/global/shared/log.js
  */
 libx.log.bd = {
-    /*
-     * @see libx.log.bd.write
-     */
     write : function (msg) {
         var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
             .getService(Components.interfaces.nsIConsoleService);
         consoleService.logStringMessage(msg);
     },
 
-    /*
-     * @see libx.log.bd.backtrace
-     */
     backtrace : function (msg) {
         var stack = Components.stack;
         this.write(msg);

@@ -1,20 +1,26 @@
 
-/**
- * Returns a Window object for the primary content window.
- *
- * @return Window object for content window
- */
-
 libx.ui.getCurrentWindowContent = function() {
     return window;
 };
 
+// namespace for importing magicImport functions without having to replace the originals
 var imported = {};
 
 (function () {
     
-    var currFunc = 0;
+    // array of function references.  each time a callback function is sent to the
+    // background page using magicImport, the callback is added to this array so it can
+    // be referenced and executed later.
     var funcArray = [];
+
+    // unique function ID sent for each RMI callback stub.  when the background page
+    // wants to call the callback, it sends this same ID back to the content script.  the
+    // content script then locates the function in the funcArray to execute the callback
+    // function.
+    var currFunc = 0;
+
+    // object containing all of the listeners that have been registered for this window.
+    // listeners are registered using libxTemp.addListener().
     var listeners = {};
     chrome.extension.onRequest.addListener(function (request, sender, sendResponse) {
         for (var i in listeners) {
@@ -26,6 +32,7 @@ var imported = {};
         sendResponse();
     });
 
+    // BRN: figure out a way to document this with jsdoc
     libxTemp = {
             
         addListener: function (type, listener) {
@@ -36,10 +43,30 @@ var imported = {};
             chrome.extension.sendRequest.apply(this, arguments);
         },
         
+        // Chrome-only logic for RMI.  the main libx object resides in a
+        // different process (the background page), so we use magicImport as a
+        // generic means to expose the API to the content script.
+        // the options object can have the following properties:
+        //   namespace: where to create the imported function.  if not given,
+        //     the global window object is used.
+        //   returns: boolean that indicates whether the function synchronously 
+        //     returns a value.  if true, an additional callback argument must be
+        //     given to this imported function (this must be the last argument
+        //     given).  this callback must accept exactly one argument - this
+        //     will be the return value.
+        //       example:
+        //         libxTemp.magicImport("libx.importedFunction", { returns: true });
+        //         ...
+        //         libx.importedFunction(arg1, arg2, function (returnVal) {
+        //           alert("importedFunction returned " + returnVal);
+        //         });
         magicImport: function(str, options) {
         
             if (typeof(options) == "undefined")
                 options = [];
+
+            // given the function name string, attach a function stub to the
+            // namespace
             var chain = str.split('.');
             var obj = (options.namespace ? options.namespace : window);
             for (var i = 0; i < chain.length-1; i++) {
@@ -48,12 +75,19 @@ var imported = {};
                 obj = obj[chain[i]];
             }
             
+            // create the function stub
             obj[chain[chain.length-1]] = function() {
                 
                 var timestamp = new Date().getTime();
 
                 function serialize(obj, thisRef) {
                 
+                    // replace callback functions with callback stubs.
+                    // functions are converted to an object with the following
+                    // form: { _function_index: <ID> }.  when the server wants
+                    // to execute this function, it sends the ID back to the
+                    // content script.  also see comments for funcArray and
+                    // currFunc above.
                     if (typeof(obj) == "function") {
                         funcArray[currFunc] = {
                             func: obj,
@@ -100,7 +134,11 @@ var imported = {};
 
     };
 
-    // converts XML strings to documents
+    // we can't send actual XML documents, so we pass them as strings.  objects
+    // representing "scrubbed" XML documents are of the form: { _xml:
+    // <stringified XML> }.  thus, if the arguments list contains an object
+    // with the _xml property, unscrub this object and replace it with the
+    // actual XML document from the string.
     function unscrub(args) {
         for (var i = 0; i < args.length; i++) {
             if (args[i] && args[i]._xml)
@@ -108,10 +146,19 @@ var imported = {};
         }
     }
 
+    // the background page sends a "magicImportFunction" message whenever it
+    // executes callbacks that exist on the content script side.  these
+    // messages must contain the ID of the function being called (see comments
+    // for currFunc and funcArray above); this ID is returned as the "index"
+    // property of the request.
     libxTemp.addListener("magicImportFunction", function (request, sender, sendResponse) {
         var funcObj = funcArray[request.index];
 
-        // verify the timestamp matches to prevent receiving stale callbacks
+        // if the user goes to a new page, the background page may still try to
+        // execute callbacks for previously visited pages.  to handle this, we
+        // pass a timestamp with each callback stub so we don't execute stale
+        // callbacks.
+        //BRN: we can probably use the timestamp itself as the ID
         if (funcObj && funcObj.timestamp == request.timestamp) {
             unscrub(request.args);
             funcObj.func.apply(funcObj.thisRef, request.args);
@@ -120,7 +167,6 @@ var imported = {};
         sendResponse();
     });
 
-    // prepare import of proxies
     libxTemp.magicImport('libx.utils.browserprefs.setBoolPref');
     libxTemp.magicImport('libx.utils.browserprefs.setStringPref');
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
@@ -136,61 +182,91 @@ var imported = {};
     libxTemp.magicImport('libx.storage.prefsStore.clear');
     libxTemp.magicImport('libx.storage.prefsStore.find');
 
-    libx.libappdata = {};
-    function fireCallbacks(request, response, doUnscrub) {
-        ['success', 'error', 'complete'].forEach(function (callback) {
-            if (!response[callback])
-                return;
-            doUnscrub && unscrub(response[callback]);
-            request[callback] && request[callback].apply(request, response[callback]);
-        });
-    }
+    // because the object cache and memory cache are used frequently,
+    // magicImporting them can consume a lot of memory.  this is because each
+    // success/error/complete callback sent with each get() request are stored
+    // in the funcArray - meaning the functions never get garbage collected.
+    // thus, we handle these as special cases.
+    (function () {
 
-    // a per-page cache of object cache requests
-    var ocCache = {};
+        // chrome's request/response model allows only one response per
+        // request.  since the success/error/complete callbacks are executed
+        // separately at different times, we must batch them all together into
+        // a single response.  here, we fire each individual
+        // success/error/complete callback in the batched response.
+        function fireCallbacks(request, response, doUnscrub) {
+            ['success', 'error', 'complete'].forEach(function (callback) {
+                if (!response[callback])
+                    return;
+                doUnscrub && unscrub(response[callback]);
+                request[callback] && request[callback].apply(request, response[callback]);
+            });
+        }
 
-    libx.cache = {
-        defaultMemoryCache: {
-            get: function (request) {
-                chrome.extension.sendRequest({ type: "memoryCache", args: request }, function (response) {
-                    fireCallbacks(request, response, true);
-                });
-            },
-            validators: {
-                config: 'config',
-                bootstrapped: 'bootstrapped',
-                feed: 'feed',
-                image: 'image',
-                preference: 'preference'
-            }
-        },
-        defaultObjectCache: {
-            get: function (request) {
-                var cacheEntry = ocCache[request.url];
-                if (cacheEntry) {
-                    if (cacheEntry.success)
-                        fireCallbacks(request, cacheEntry.value, false);
-                    else
-                        cacheEntry.queue.push(request);
-                } else {
-                    cacheEntry = ocCache[request.url] = { success: false, queue: [] };
-                    chrome.extension.sendRequest({ type: "objectCache", args: request }, function (response) {
-                        if (response.success) {
-                            cacheEntry.success = true;
-                            cacheEntry.value = response;
-                        } else {
-                            ocCache[request.url] = null;
-                        }
+        // a per-page cache of object cache requests.  sending huge amounts of
+        // data via messaging can be expensive, so we cache responses to reduce
+        // the load.  specifically, this is useful for the subscribed feed XML files.
+        var ocCache = {};
+
+        libx.cache = {
+            defaultMemoryCache: {
+                get: function (request) {
+                    chrome.extension.sendRequest({ type: "memoryCache", args: request }, function (response) {
                         fireCallbacks(request, response, true);
-                        while (cacheEntry.queue.length) {
-                            var queued = cacheEntry.queue.pop();
-                            fireCallbacks(queued, response, false);
-                        }
                     });
+                },
+
+                // we can't pass the actual validator function via RMI, so we
+                // send the name of the validator we want to use and look it up
+                // on the server side.
+                validators: {
+                    config: 'config',
+                    bootstrapped: 'bootstrapped',
+                    feed: 'feed',
+                    image: 'image',
+                    preference: 'preference'
+                }
+            },
+            defaultObjectCache: {
+                get: function (request) {
+
+                    var cacheEntry = ocCache[request.url];
+                    if (cacheEntry) {
+                        if (cacheEntry.success)
+                            fireCallbacks(request, cacheEntry.value, false);
+                        else {
+                            // if we fire multiple requests for the same resource in a
+                            // short timespan, only send one message.  when the
+                            // response is received, send the response to all queued
+                            // requests.
+                            cacheEntry.queue.push(request);
+                        }
+                    } else {
+                        cacheEntry = ocCache[request.url] = { success: false, queue: [] };
+                        chrome.extension.sendRequest({ type: "objectCache", args: request }, function (response) {
+
+                            // if the request succeeded, add the response to
+                            // the local cache; future requests for this
+                            // resource will use the cached response.
+                            if (response.success) {
+                                cacheEntry.success = true;
+                                cacheEntry.value = response;
+                            } else {
+                                ocCache[request.url] = null;
+                            }
+                            fireCallbacks(request, response, true);
+
+                            // send the response to all queued requests
+                            while (cacheEntry.queue.length) {
+                                var queued = cacheEntry.queue.pop();
+                                fireCallbacks(queued, response, false);
+                            }
+                        });
+                    }
                 }
             }
-        }
-    };
+        };
+    }) ();
 
     // get browserprefs from background page
     chrome.extension.sendRequest({ type: "browserPrefs" }, function (result) {
@@ -256,4 +332,6 @@ var imported = {};
         }
     });
     
+    libx.libappdata = {};
+
 }) ();

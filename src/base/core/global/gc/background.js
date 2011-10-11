@@ -3,7 +3,7 @@
 
     var listeners = {};
 
-    libx.extension = {
+    libx.background = {
         addListener: function (type, callback) {
             listeners[type] = callback;
         }

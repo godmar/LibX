@@ -1,4 +1,9 @@
 
+/*
+ * Detects which edition the user is looking at by inspecting the page's
+ * metadata.  If the user opens the LibX popup, the popup will give the option
+ * of switching to that edition.
+ */
 libxTemp.addListener("pageEdition", function (request, sender, sendResponse) {
             
     try {
@@ -33,22 +38,3 @@ libxTemp.addListener("pageEdition", function (request, sender, sendResponse) {
         
 });
 
-libxTemp.addListener("libappAutosense", function (request, sender, sendResponse) {
-        
-    try {
-        var links = document.getElementsByTagName("link");
-        for (var i = 0; i < links.length; i++) {
-            if (links[i].getAttribute('name') == "temp_feed") {
-                var url = links[i].getAttribute('href');
-                sendResponse({
-                    url: url
-                });
-                break;
-            }
-        }
-    } catch (er) {
-        libx.log.write(er);
-        sendResponse({});
-    }
-        
-});

@@ -1,11 +1,4 @@
 
-/**
- * Browser-dependent implementation of a bundle of strings representing
- * properties.
- *
- * @class
- */
-
 libx.locale.bd.currentLocale = chrome.i18n.getMessage("@@ui_locale");
 
 libx.locale.bd.getExtensionURL = function (path) {

@@ -79,9 +79,6 @@ function loadLibX() {
         "shared/openurl.js",
         "shared/utils/stdnumsupport.js",
         "ff/utils/xpath.js",
-        "shared/services/xisbn.js",
-        "shared/services/pubmed.js",
-        "shared/services/crossref.js",
         "ff/libapp/sandbox.js",
         "shared/ui/jquery/autocomplete.js",
         "shared/ui/jquery/dropdown.js",
@@ -92,8 +89,7 @@ function loadLibX() {
         "shared/ui.js",
         "shared/ui/contextmenu.js",
         "ff/ui.js",
-        "ff/extension.js",
-        "shared/backgroundlisteners.js"
+        "ff/background.js",
     ];
     
     for (var i = 0; i < globalScripts.length; i++) {

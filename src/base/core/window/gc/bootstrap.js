@@ -1,11 +1,5 @@
 
-/**
- * Load a script in Google Chrome.
- *
- * @param {metadata.originURL} originURL Script URL
- * @param {metadata.chromeURL} chromeURL internal chrome URL
- */
-libx.bootstrap.loadSubScript = function (url, scriptData, metadata, globalScope) {
+libx.bootstrap.loadSubScript = function (url, scriptData, globalScope) {
     
     libx.log.write("loading (" + url + ")");
 

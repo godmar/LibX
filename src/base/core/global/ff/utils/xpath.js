@@ -29,6 +29,7 @@
 if (XPathResult == null)
     var XPathResult = Components.interfaces.nsIDOMXPathResult;
 
+// implements abstract functions in core/global/shared/libx.js
 libx.utils.xpath = {
     /* See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
      * and http://www.xulplanet.com/references/objref/XPathResult.html
@@ -44,19 +45,6 @@ libx.utils.xpath = {
      * the URI is the value.  It's encapsulated in an anonymous function.
      */
 
-    /*
-     * Evaluates an XPath expression and returns a single DOM node or null
-     *
-     * @param {DOM Tree} doc               document (used if root is undefined)
-     * @param {String}   xpathexpr         XPath expression
-     * @param {DOM Tree} root              root of DOM to execute search (used
-     *                                     instead of doc if defined)
-     * @param {Object}   namespaceresolver Object keys are namespace prefixes,
-     *                                     values are corresponding URIs
-     *
-     * @returns DOM node or null if not found
-     *
-     */
     findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
         var r;
         try {
@@ -74,19 +62,6 @@ libx.utils.xpath = {
         //If there's no result, this is set to null
         return r.singleNodeValue;
     },
-
-    /*
-     * Evaluates an XPath expression and returns an array of DOM nodes
-     *
-     * @param {DOM Tree} doc               document (used if root is undefined)
-     * @param {String}   xpathexpr         XPath expression
-     * @param {DOM Tree} root              root of DOM to execute search (used
-     *                                     instead of doc if defined)
-     * @param {Object}   namespaceresolver Object keys are namespace prefixes,
-     *                                     values are corresponding URIs
-     *
-     * @returns array of nodes, possibly empty
-     */
 
     findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
         var r;

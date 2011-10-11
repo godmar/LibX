@@ -1,5 +1,8 @@
 
-// BRN: remove sync parts?
+/**
+ * Namespace for storage utilities.
+ * @namespace
+ */
 libx.storage = (function () {
     
     // LibX database connection
@@ -21,16 +24,29 @@ libx.storage = (function () {
     var SUCCESS = Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED;
     
     return {
-        Store: libx.core.Class.create({
+        Store: libx.core.Class.create(
+            /** @lends libx.storage.Store.prototype */ {
             
+            /**
+             * Whether the operations are asynchronous.
+             * @deprecated this is currently only supported in Firefox and only
+             *             used in the cache template; it should likely be
+             *             removed.
+             * @default true
+             */
             async: true,
             
+            /**
+             * @param {String} storeName  the ID of this store
+             * @constructs
+             */
             initialize: function(storeName) {
                 this.storeName = storeName;
                 if(!dbConn.tableExists(storeName))
                     dbConn.createTable(storeName, 'key TEXT  PRIMARY KEY  NOT NULL  UNIQUE, value TEXT');
             },
         
+            // firefox only helper method
             executeStatement: function(statement, success, error, complete) {
                 var callbackObj = {
                     handleCompletion: libx.core.EmptyFunction,
@@ -45,19 +61,13 @@ libx.storage = (function () {
             },
         
             /**
-             * Retrieves an object from storage with the given key.
+             * Sets an object in storage.
              *
-             * @param {Object}      paramObj            contains properties
-             *                                          used for retrieval
-             * 
-             * @param {String}      paramObj.key        (REQUIRED) key to store
-             * 
-             * @param {String}      paramObj.value      (REQUIRED) value to store
-             * 
-             * @param {Function}    paramObj.success    function to execute upon
-             *                                          success
-             * @param {Function}    paramObj.error      function to execute upon
-             *                                          errors
+             * @param  {Object}   paramObj  contains properties used for retrieval
+             * @config {String}   key       (REQUIRED) key to store
+             * @config {String}   value     (REQUIRED) value to store
+             * @config {Function} success   function to execute upon success
+             * @config {Function} error     function to execute upon errors
              */
             setItem: function(paramObj) {
                 var statement = dbConn.createStatement("INSERT OR REPLACE INTO " + this.storeName + " (key, value) VALUES(:key, :value)");
@@ -80,21 +90,14 @@ libx.storage = (function () {
             /**
              * Retrieves an object from storage with the given key.
              *
-             * @param {Object}      paramObj            contains properties used for retrieval
-             * 
-             * @param {String}      paramObj.key        key to look up (required)
-             * 
-             * @param {Function}    paramObj.error      function to execute upon
-             *                                          errors
-             *                                          
-             * @param {Function}    paramObj.success    function to execute when
-             *                                          value is returned; takes a
-             *                                          single parameter which will
-             *                                          be the returned value
-             *                                          
-             * @param {Function}    paramObj.notfound   function to execute if the
-             *                                          given key was not found in
-             *                                          the store
+             * @param  {Object} paramObj      contains properties used for retrieval
+             * @config {String} key           (REQUIRED) key to store
+             * @config {Function(result)} success  function to execute upon
+             *         success.  accepts one argument, which is the fetched
+             *         result string.
+             * @config {Function()} error     function to execute upon errors
+             * @config {Function()} notfound  function to execute if the given
+             *                                key is not in storage
              */
             getItem: function(paramObj) {
                 var statement = dbConn.createStatement("SELECT value FROM " + this.storeName + " WHERE key = :key");
@@ -126,15 +129,10 @@ libx.storage = (function () {
             /**
              * Removes an object from storage with the given key.
              *
-             * @param {Object}      paramObj contains properties used for retrieval
-             * 
-             * @param {String}      paramObj.key        (REQUIRED) key to look up
-             * 
-             * @param {Function}    paramObj.error      function to execute upon
-             *                                          errors
-             *                                          
-             * @param {Function}    paramObj.success    function to execute upon
-             *                                          success
+             * @param  {Object} paramObj     contains properties used for retrieval
+             * @config {String} key          (REQUIRED) key to store
+             * @config {Function()} success  function to execute upon success
+             * @config {Function()} error    function to execute upon errors
              */
             removeItem: function(paramObj) {
                 var statement = dbConn.createStatement("DELETE FROM " + this.storeName + " WHERE key = :key");
@@ -154,22 +152,18 @@ libx.storage = (function () {
             },
             
             /**
-             * Retrieves all items matching a given pattern.
+             * Retrieves all keys in this store matching a given pattern.
              *
-             * @param {Object}      paramObj            contains properties used
-             *                                          for retrieval
-             * 
-             * @param {String}      paramObj.pattern    pattern to search; if not
-             *                                          provided, all items will be
-             *                                          returned
-             * 
-             * @param {Function}    paramObj.error      function to execute upon
-             *                                          errors
-             *                                          
-             * @param {Function}    paramObj.success    function to execute when
-             *                                          value is returned; takes a
-             *                                          single parameter which will
-             *                                          be all matched items
+             * @param {Object}    paramObj  contains properties used
+             *                              for retrieval
+             * @config {String}   pattern   pattern to search. by default, all
+             *                              keys will be returned.
+             * @config {Function()} error   function to execute upon
+             *                              errors
+             * @config {Function(result)} success  function to execute when
+             *                              results are returned; takes a single
+             *                              parameter which is an array of
+             *                              strings of each matched item key.
              */
             find: function(paramObj) {
                 var matches = [];
@@ -211,13 +205,11 @@ libx.storage = (function () {
             /**
              * Clears the local storage.
              *
-             * @param {Object}      paramObj            contains properties used
-             *                                          for retrieval
-             *
-             * @param {Function}    paramObj.success    success callback
-             * 
-             * @param {Function}    paramObj.error      function to execute upon
-             *                                          errors
+             * @param  {Object}   paramObj    contains properties used
+             *                                for retrieval
+             * @config {Function()} success   executed after store is cleared
+             * @config {Function()} error     function to execute upon
+             *                                errors
              */
             clear: function(paramObj) {
                 var statement = dbConn.createStatement("DELETE FROM " + this.storeName);

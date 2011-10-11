@@ -1,10 +1,17 @@
 /**
  * Accordion menu
- * 
  * Based off of Marco van Hylckama Vlieg's menu
  * http://www.i-marco.nl/weblog/
+ *
+ * @param  {Object} $        the jQuery object
+ * @param  {Object} options  parameter object
+ * @config {Object} menu     a jQuery-selected UL element.  this element will
+ *                           be transformed into the accordion menu.
+ * @example
+ * var accordionMenu = libx.ui.jquery.accordionmenu($, {
+ *     menu: $('#simple-menu')
+ * });
  */
-
 libx.ui.jquery.accordionmenu = function ($, options) {
 
     var theMenu = options.menu;
@@ -14,12 +21,13 @@ libx.ui.jquery.accordionmenu = function ($, options) {
         /**
          * Set up a single menu item.
          *
-         * @param {Object}   jQuery reference to the menu element
-         * @param {String}   name of this menu item
-         * @param {Array}    array of subitems for this menu; each array element
+         * @param {Object} itemRef   jQuery reference to the menu element
+         * @param {String} itemName  name of this menu item
+         * @param {Array}  subItems  array of subitems for this menu; each array element
          *                   must be an object containing a "text" and "value"
-         *                   property
-         * @param {Function} callback when a subitem is chosen
+         *                   property.  these properties will be passed to the selection
+         *                   callback when the item is selected.
+         * @param {Function(value, text)} selection callback when a subitem is chosen.
          */
         setMenuItems: function(itemRef, itemName, subItems, selection) {
         

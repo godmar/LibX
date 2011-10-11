@@ -28,15 +28,12 @@
  * Author: Annette Bailey <annette.bailey@gmail.com>
  */ 
  
- /*
-  * @fileoverview Firefox-specific code for the Libx extension
-  */
+/*
+* @fileoverview Firefox-specific code for the LibX UI.
+*/
 
 (function () {
   
-/**
- * Initialize Firefox-specific parts.
- */
 libx.ui.initialize = function() {
 
     // fire LibX 'onContentChange' event for various FF-events related to tabs

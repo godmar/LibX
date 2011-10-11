@@ -227,7 +227,7 @@ var memoryCacheClass = libx.core.Class.create ( {
      *                                            object's data before it
      *                                            is stored in the cache
      *
-     * @return {Object} XML HTTP request 
+     * @returns {Object} XML HTTP request 
      */
     get : function ( request ) {
 
@@ -650,11 +650,12 @@ return memoryCacheClass;
 
 /**
  * Browser-dependent aspects of memory and file caching implementation
+ * @namespace
  */
 libx.cache.bd = {
     /**
      * Browser-dependent - create an XHR object
-     * @return {XMLHttpRequest}
+     * @returns {XMLHttpRequest} a new instance of an XMLHttpRequest
      */
     getXMLHttpReqObj : libx.core.AbstractFunction('libx.cache.bd.getXMLHttpReqObj')
 }

@@ -40,6 +40,8 @@ jQuery(function () {
             
             libx.libapp.addTempPackage(permUrl, tempUrl);
         }
+
+        libx.libapp.reloadPackages();
         
     }
     

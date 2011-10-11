@@ -11,10 +11,24 @@ var allPackages = null;
 var enabledPackages = null;
 var packageSchedulers = [];
 
+/**
+ * Clears any temporary packages the user has subscribed to.
+ * Note: {@link libx.libapp.reloadPackages} must be called for changes to take effect.
+ */
 libx.libapp.clearTempPackages = function () {
     tmpPackages = [];
 };
 
+/**
+ * Add a package that temporarily replaces an existing package.
+ * The temporary package is lost when the browser is closed.
+ * Note: {@link libx.libapp.reloadPackages} must be called for changes to take effect.
+ * 
+ * @param {String} permUrl  the permanent package URL.  this package
+ *                          is disabled while the temporary package is active.
+ * @param {String} tempUrl  the temporary package URL.  this package
+ *                          is temporarily active for the browsing session.
+ */
 libx.libapp.addTempPackage = function (permUrl, tempUrl) {
     for (var i = 0; i < tmpPackages.length; i++) {
         // disallow duplicates
@@ -22,9 +36,15 @@ libx.libapp.addTempPackage = function (permUrl, tempUrl) {
             return;
     }
     tmpPackages.push({ permUrl: permUrl, tempUrl: tempUrl });
-    libx.libapp.reloadPackages();
 };
 
+/**
+ * Unsubscribes from a user-subscribed package.
+ * Note: {@link libx.libapp.reloadPackages} must be called for changes to take effect.
+ *
+ * @param {String} pkg  URL of package to unsubscribe from
+ * @returns {Boolean} whether the package was successfully unsubscribed
+ */
 libx.libapp.removeUserPackage = function (pkg) {
     var userPackages = libx.utils.json.parse(
         libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
@@ -34,10 +54,17 @@ libx.libapp.removeUserPackage = function (pkg) {
     userPackages.splice(idx, 1);
     libx.utils.browserprefs.setStringPref("libx.libapp.userpackages",
         libx.utils.json.stringify(userPackages));
-    libx.libapp.reloadPackages();
     return true;
 };
 
+/**
+ * Subscribe to a user-chosen package.
+ * Note: {@link libx.libapp.reloadPackages} must be called for changes to take effect.
+ *
+ * @param {String} pkg  URL of package to subscribe to
+ * @returns {Boolean} false if the user is already subscribed to the given
+ *                    package
+ */
 libx.libapp.addUserPackage = function (pkg) {
     if (this.getPackages().indexOf(pkg) >= 0)
         return false;
@@ -46,10 +73,15 @@ libx.libapp.addUserPackage = function (pkg) {
     userPackages.push(pkg);
     libx.utils.browserprefs.setStringPref("libx.libapp.userpackages",
         libx.utils.json.stringify(userPackages));
-    libx.libapp.reloadPackages();
     return true;
 };
 
+/**
+ * Get an array of packages the user is subscribed to.
+ *
+ * @param {Boolean} enabledOnly  if true, only returns the packages that are enabled
+ * @returns {Array} array of strings; each string is a package URL
+ */
 libx.libapp.getPackages = function (enabledOnly) {
 
     if (!allPackages) {
@@ -86,6 +118,11 @@ libx.libapp.getPackages = function (enabledOnly) {
 
 };
 
+/**
+ * Reloads all packages.
+ * This stops all running {@link libx.cache.PackageScheduler}s and starts a new
+ * {@link libx.cache.PackageScheduler} for each enabled package.
+ */
 libx.libapp.reloadPackages = function () {
     allPackages = null;
     enabledPackages = null;
@@ -99,7 +136,8 @@ libx.libapp.reloadPackages = function () {
     });
 };
 
-function checkOverride(entry, callback) {
+// if this entry has an overrides field, update the overridden mapping
+function setOverride(entry, callback) {
     libx.prefs.getCategoryForUrl(entry.id,
         [{ name: "_enabled", type: "boolean", value: "true" }]);
     if (libx.prefs[entry.id]._enabled._value) {
@@ -114,11 +152,21 @@ function checkOverride(entry, callback) {
     }
 }
 
+/**
+ * Clear the cached overridden entries mapping.
+ */
 libx.libapp.clearOverridden = function () {
     overridden = null;
 };
 
-// find overriding libapps and packages
+/**
+ * Get overriding LibApps and packages.
+ * 
+ * @param {Function(overridden)} callback  callback function that returns an
+ *        overridden mapping.  the mapping is a two-dimensional keyset; the
+ *        first key is the entry being overridden, and the second key is an
+ *        overrider.
+ */
 libx.libapp.getOverridden = function (callback) {
 
     var overrideQueue = new libx.utils.collections.ActivityQueue();
@@ -131,13 +179,13 @@ libx.libapp.getOverridden = function (callback) {
         
             new libx.libapp.PackageWalker(entry.url).walk({
                 onpackage: function (pkg) {
-                    checkOverride(pkg, function () {
+                    setOverride(pkg, function () {
                         findOverrides(pkg.entries);
                     });
                     activity.markReady();
                 },
                 onlibapp: function (libapp) {
-                    checkOverride(libapp);
+                    setOverride(libapp);
                     activity.markReady();
                 },
                 error: function () {

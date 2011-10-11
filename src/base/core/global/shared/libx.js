@@ -62,6 +62,11 @@ libx.cache = { };
  */
 libx.ui = {
     bd : {},
+    
+    /** 
+     * Namespace for jQuery-based UI components.
+     * @namespace
+     */
     jquery : {}
 };
 
@@ -99,12 +104,22 @@ libx.utils = {
      */
     xml: {
         /**
-         * Parse an XML document from a string
+         * Parse an XML document from a string.
          *
+         * @function
          * @param {String} input source 
          * @return {Document} an XML document
          */
         loadXMLDocumentFromString : libx.core.AbstractFunction('libx.utils.xml.loadXMLDocumentFromString'),
+
+        /**
+         * Convert XML Document to string.
+         *
+         * @function
+         * @param {DOMDocument} XML document
+         * @return {String} string representation of document
+         */
+        convertXMLDocumentToString : libx.core.AbstractFunction('libx.utils.xml.convertXMLDocumentToString'),
 
         /**
          * Encode characters into valid HTML 
@@ -147,6 +162,7 @@ libx.utils = {
         /**
          * Evaluates an XPath expression and returns a single DOM node or null
          *
+         * @function
          * @param {DOM Tree} doc               document (used if root is undefined)
          * @param {String}   xpathexpr         XPath expression
          * @param {DOM Tree} root              root of DOM to execute search (used
@@ -162,6 +178,7 @@ libx.utils = {
         /**
          * Evaluates an XPath expression and returns an array of DOM nodes
          *
+         * @function
          * @param {DOM Tree} doc               document (used if root is undefined)
          * @param {String}   xpathexpr         XPath expression
          * @param {DOM Tree} root              root of DOM to execute search (used
@@ -247,7 +264,7 @@ libx.utils = {
          * in multiple lists.
          */
         LinkedList: libx.core.Class.create(
-            /** @lends libx.utils.collections.LinkedList */{
+            /** @lends libx.utils.collections.LinkedList.prototype */{
             initialize: function () {
                 this.head = { prev: null };
                 this.tail = { next: null };
@@ -460,7 +477,6 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
  */
 libx.utils.collections.DelayedActivityQueue = libx.core.Class.create(libx.utils.collections.ActivityQueue, 
     /** @lends libx.utils.collections.DelayedActivityQueue.prototype */ {
-    /** @lends libx.utils.collections.DelayedActivityQueue */
     initialize: function () {
         this.parent();
         this.scheduleLast(this);
@@ -474,8 +490,7 @@ libx.utils.collections.DelayedActivityQueue = libx.core.Class.create(libx.utils.
  * Place in an activity queue to control when other activities fire.
  *
  * @see libx.utils.collections.ActivityQueue
- *
- * @static
+ * @class
  */
 libx.utils.collections.EmptyActivity = libx.core.Class.create({
     onready: function () { /* empty */ }
@@ -485,8 +500,7 @@ libx.utils.collections.EmptyActivity = libx.core.Class.create({
  * An activity that executes a function when ready.
  *
  * @see libx.utils.collections.ActivityQueue
- *
- * @static
+ * @class
  */
 libx.utils.collections.FunctionActivity = libx.core.Class.create({
     initialize: function (fn) {
@@ -513,19 +527,20 @@ var localeQueue = new libx.utils.collections.ActivityQueue();
 var localeLoaded = new libx.utils.collections.EmptyActivity();
 
 /**
+ * Initialize LibX.
  *
- * Initialize LibX
- *
+ * @namespace
+ * @function
+ * @param {Boolean} loadGlobalScripts  whether global scripts should be loaded
  */
 libx.initialize = function (loadGlobalScripts) 
 {
     
+    /**
+     * Reloads the in-memory edition.
+     */
     libx.initialize.reload = function () {
     
-        // clear the object cache
-        libx.storage.metacacheStore.clear();
-        libx.storage.cacheStore.clear();
-        
         // clear preferences and stale data
         //libx.storage.prefsStore.clear();
         delete libx.edition;
@@ -539,7 +554,7 @@ libx.initialize = function (loadGlobalScripts)
             
     }
     
-    /**
+    /*
      * Block until the default locale is fetched.
      * The default locale is packaged with the extension, so this
      * wait should be negligible.
@@ -558,7 +573,8 @@ libx.initialize = function (loadGlobalScripts)
 }
 
 /**
- * Load edition configuration.
+ * Load an edition configuration.
+ * @param {String} configUrl  URL of the edition configuration
  */
 libx.loadConfig = function (configUrl) {
     

@@ -24,8 +24,9 @@
 
 /**
  * This file contains the logic for storing/retrieving preferences
- *    Once initialized, preferences may also be accessed from this namespace
- *    either by using the get ( prefName ) method, or by libx.prefs.path.to.preference
+ * Once initialized, preferences may also be accessed from this namespace
+ * either by using libx.preferences.get(prefName), or by
+ * libx.prefs.path.to.preference.
  *
  * @namespace
  */
@@ -40,17 +41,39 @@ function log ( msg ) {
     libx.log.write(msg, "preferences");
 } 
 
-var prefFactory = new Object();
+var XMLPreferenceObject = libx.core.Class.create(
+    /** @lends libx.preferences.XMLPreferenceObject.prototype */ {
 
-/**
- *    Base class for the category, preference, and item classes
- */
-prefFactory.XMLPreferenceObject = libx.core.Class.create ( {
-    initialize : function ( childDescriptor ) {
-        for ( var k in childDescriptor ) {
-            this[k] = childDescriptor[k];
+    /**
+     * Base class for the category, preference, and item classes.
+     *
+     * @constructs
+     * @param {Object} descriptor  mixin descriptor.  all properties in the
+     *                             descriptor are mixed into this preference
+     *                             object.
+     */
+    initialize : function ( descriptor ) {
+        for ( var k in descriptor ) {
+            this[k] = descriptor[k];
         }        
     },
+
+    /**
+     * The type of this preference node.
+     *
+     * @type String
+     * @private
+     */
+    _nodeType: null,
+
+    /**
+     * Builds a descriptor object based on an XML node.  All property names are
+     * prepended with an underscore.  For example, an XML node with a single id
+     * attribute with the value "prefid" will return the descriptor { _id: "prefid" }.
+     *
+     * @param {Node} node  the XML node to process
+     * @returns {Object}   a descriptor object from the node's attributes
+     */
     _nodeToDescriptor : function ( node ) {
         var descriptor = {};
         
@@ -61,6 +84,12 @@ prefFactory.XMLPreferenceObject = libx.core.Class.create ( {
         
         return descriptor;    
     },
+
+    /**
+     * Serializes this preference object to an XML string.
+     *
+     * @returns {String}  the serialized preference object
+     */
     toXML : function ( ) {
         var sv = new SerializeVisitor();
         sv.visit ( this ); 
@@ -69,30 +98,34 @@ prefFactory.XMLPreferenceObject = libx.core.Class.create ( {
 } );
 
 /**
- *    Javascript representation for a category XML node in the preferences file 
+ * Used to instantiate various preference node types.
+ * @name libx.preferences.XMLPreferenceObject.factory
+ * @namespace
  */
-prefFactory["category"] = libx.core.Class.create ( prefFactory.XMLPreferenceObject, 
-/** @lends libx.preferences.Category.prototype */ {
+var prefFactory = XMLPreferenceObject.factory = {};
+
+prefFactory["category"] = libx.core.Class.create ( XMLPreferenceObject, 
+    /** @lends libx.preferences.XMLPreferenceObject.factory.category.prototype */ {
     _nodeType : "category",
     
     /**
-     *    Initializes a category node
-     *    @constructs
-     *    @private
+     * Javascript representation for a category XML node in the preferences file.
      *
-     *    @param childDescriptor - Descriptor used to create the category
-     *    @param childDescriptor.name - name of the category
-     *    @param childDescriptor.layout - layout of the category
-     *    @param parent - parent of this category ( should be another category )
-     *    @param node - Used Internally
+     * @constructs
+     * @augments libx.preferences.XMLPreferenceObject
+     * @param  {Object} descriptor  descriptor used to create the category
+     * @config {String} _name    name of the category
+     * @config {String} _layout  (optional) layout of the category
+     * @param  {String} parent   parent of this category ( should be another category )
+     * @param  {Node} node       (optional) DOM Node used when loading from XML 
      */
-    initialize : function ( childDescriptor, parentName, node ) {
+    initialize : function ( descriptor, parentName, node ) {
         this._children = new Array();
-        if ( childDescriptor == null && node != null ) {
-            childDescriptor = this._nodeToDescriptor ( node );
+        if ( descriptor == null && node != null ) {
+            descriptor = this._nodeToDescriptor ( node );
         }
         
-        this.parent ( childDescriptor );
+        this.parent ( descriptor );
         
         if ( parentName != null ) {
             this._idstr = parentName + "." + this._name;
@@ -114,31 +147,38 @@ prefFactory["category"] = libx.core.Class.create ( prefFactory.XMLPreferenceObje
     },
     
     /**
-     *    Adds a preference to this category
-     *    @param descriptor 
-     *    @see libx.preferences.Preference constructor for a description of the descriptor
+     *    Adds a preference to this category.
+     *
+     *    @param descriptor  descriptor object
+     *    @see libx.preferences.XMLPreferenceObject.factory.category constructor for a description of the descriptor
+     *    @returns {libx.preferences.XMLPreferenceObject} the added preference object
      */
     _addPreference : function ( descriptor ) {
         return this._addChild ( descriptor, "preference" );
     },
     
     /**
-     *    Adds a category to this category
-     *    @param descriptor 
-     *    @see libx.preferences.Catalog constructor for a description of the descriptor
+     *    Adds a category to this category.
+     *
+     *    @param descriptor  descriptor object
+     *    @see libx.preferences.XMLPreferenceObject.factory.category constructor for a description of the descriptor
+     *    @returns {libx.preferences.XMLPreferenceObject} the added preference object
      */    
     _addCategory : function ( descriptor ) {
         return this._addChild ( descriptor, "category" );
     },
     
     /**
-     *    Used to add children to this category
-     *    Either the descriptor or the node is required
+     *    Used to add children to this category.
+     *    Either the descriptor or the node is required.
      *
      *    @private
-     *    @param descriptor : Descriptor for the child element
-     *    @param type : Type of the child, must be either "category" or "preference"
+     *    @param {Object} descriptor  descriptor object
+     *    @see libx.preferences.XMLPreferenceObject.factory.category constructor for a description of the descriptor
+     *    @param {String} type  type of the child, must be either "category" or "preference"
+     *    @returns {libx.preferences.XMLPreferenceObject} the added preference object
      */
+     // node parameter is used internally
     _addChild : function ( descriptor, type, node ) {
         if ( type == null ) {
             type = descriptor._nodeType;
@@ -152,33 +192,30 @@ prefFactory["category"] = libx.core.Class.create ( prefFactory.XMLPreferenceObje
     }
 } );
 
-/**
- *    Javascript representation for a preference XML node in the preferences file 
- */
-prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceObject, 
-/** @lends libx.preferences.Preference.prototype */ {
+prefFactory["preference"] = libx.core.Class.create ( XMLPreferenceObject, 
+    /** @lends libx.preferences.XMLPreferenceObject.factory.preference.prototype */ {
+
     _nodeType : "preference",
+
     /**
-     *    @constructs
-     *    
-     *    Initializes a preference object
+     * Javascript representation for a preference XML node in the preferences file.
      *
-     *    @param {Object} childDescriptor Descriptor containing information about this preference
-     *    @param {String} childDescriptor.name   Name of the preference
-     *    @param {String} childDescriptor.layout (Optional) Layout attribute of the preference
-     *    @param {String} childDescriptor.type   Type of the preference
-     *    @param {String|Number|Boolean} childDescriptor.value  (Optional) Value of the preference
-     *
-     *    @param {String} parentName Name of the parent category
-     *    @param {DOMNode} node  (Optional) Used when loading from XML 
+     * @constructs
+     * @param  {Object} descriptor  descriptor object
+     * @config {String} _name       name of the preference
+     * @config {String} _layout     (optional) layout of the preference
+     * @config {String} _type       type of the preference
+     * @config {String|Number|Boolean} _value  (optional) value of the preference
+     * @param  {String} parentName  name of the parent category
+     * @param  {Node} node          (optional) DOM Node used when loading from XML 
      */
-    initialize : function ( childDescriptor, parentName, node ) {
+    initialize : function ( descriptor, parentName, node ) {
         
-        if ( childDescriptor == null && node != null ) {
-            childDescriptor = this._nodeToDescriptor ( node );
+        if ( descriptor == null && node != null ) {
+            descriptor = this._nodeToDescriptor ( node );
         }
         
-        this.parent( childDescriptor );
+        this.parent( descriptor );
         
         this._idstr = parentName + "." + this._name;
         this._id = libx.utils.hash.hashString ( this._idstr );
@@ -189,7 +226,7 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
             this._value = new Array();
             this._items = new Array();
         } else {
-            this._value = convert ( childDescriptor._value, this._type );
+            this._value = convert ( descriptor._value, this._type );
         }
         
         // Only choice and multichoice should have child nodes
@@ -203,6 +240,14 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
             }
         }
     },
+
+    /**
+     * Sets the value for this preference.
+     * Value type must coincide with preference type.
+     *
+     * @param {String|Number|Boolean} value  the new value
+     * @returns {Boolean}  whether the value was successfully set
+     */
     _setValue : function ( value ) {
         var valid = false;
         if (this._type == 'choice') {
@@ -269,12 +314,13 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
                 }
         }
     },
-    
-    /** 
-     *    Adds an item to this preference. Only valid if this is a choice or a multichoice preference
-     *    @param {Object}                descriptor        Object containing the following properties
-     *    @param {Number|Boolean|String} descriptor.value  Value of the item
-     *    @param {String}                descriptor.type  (Optional) Type of the item, will be inferred from value if not present
+
+    /**
+     *    Adds an item to this preference.
+     *    Only valid if this is a choice or multichoice preference.
+     *
+     *    @param {Object} descriptor  descriptor object
+     *    @see libx.preferences.XMLPreferenceObject.factory.item constructor for a description of the descriptor
      */
     _addItem : function ( descriptor ) {
         var item = new prefFactory['item'] ( descriptor, this._idstr );
@@ -300,7 +346,9 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
     /**
      *    Removes an item with the specified value
      *    For "choice" preferences, the item must NOT be selected if it is to be removed
-     *    @return {boolean} True if successful, else false if no item with provided value was found
+     *
+     *    @param {String|Number|Boolean} value   the value of the item to be removed
+     *    @return {Boolean}  true if successful, else false if no item with provided value was found
      */
     _removeItem : function ( value ) {
         for ( var i = 0; i < this._items.length; i++ ) {
@@ -324,28 +372,33 @@ prefFactory["preference"] = libx.core.Class.create ( prefFactory.XMLPreferenceOb
         return false;
     },
     
+    /**
+     * Get this preference's value.
+     *
+     * @returns {String}  this preference's value
+     */
     toString : function () {
         return this._value;    
     }
 } );
 
-/**
- *    Javascript representation for a item XML node in the preferences file 
- */
-prefFactory["item"] = libx.core.Class.create ( prefFactory.XMLPreferenceObject, 
-/** @lends libx.preferences.Item.prototype */{
+prefFactory["item"] = libx.core.Class.create ( XMLPreferenceObject, 
+    /** @lends libx.preferences.XMLPreferenceObject.factory.item.prototype */ {
+
     _value : null,
     _type : null,
     _selected : null,
     _nodeType : "item",
     
     /**
-     *    Initializes the item class
-     *    @private
+     *    Javascript representation for a item XML node in the preferences file 
+     *
      *    @constructs
-     *    @param descriptor - descriptor for initializing the item
-     *    @param descriptor.value : Value of the preference
-     *    @param descriptor.type : Type of the item, optional
+     *    @param  {Object} descriptor  descriptor for initializing the item
+     *    @config {String} _value      value of the preference
+     *    @config {String} _type       (optional) type of the item
+     *    @param  {String} parentName  name of the parent category
+     *    @param  {Node} node          (optional) DOM Node used when loading from XML 
      */
     initialize : function ( descriptor, parentName, node ) {
         if ( descriptor == null && node != null ) {
@@ -367,16 +420,17 @@ prefFactory["item"] = libx.core.Class.create ( prefFactory.XMLPreferenceObject,
         // Our selected attribute should be a boolean
         this._selected = convert ( this._selected, 'boolean' );
     },
+
     /**
-     *    @return Value of this preference
+     *    @return {String} value of this item
      */
     toString : function () {
         return this._value;
     }
 } );
 
-/**
- *    Internal Helper function to convert value to correct type
+/*
+ * Internal Helper function to convert value to correct type
  */
 function convert ( value, type ) {
     var val;
@@ -395,8 +449,8 @@ function convert ( value, type ) {
     return val;
 }
 
-/**
- *    Default visitor class from which the other visitors inherit
+/*
+ *  Default visitor class from which the other visitors inherit
  */
 var DefaultVisitor = libx.core.Class.create ( {
     visit : function ( obj ) {
@@ -419,7 +473,7 @@ var DefaultVisitor = libx.core.Class.create ( {
     }
 } );
 
-/**
+/*
  *    Serializes a preference tree into an XML document
  */
 var SerializeVisitor = libx.core.Class.create ( DefaultVisitor, {
@@ -446,7 +500,7 @@ var SerializeVisitor = libx.core.Class.create ( DefaultVisitor, {
     }
 } );
 
-/**
+/*
  *    Searches a preference tree for all entries that satisfy the provided match function
  */
 var SearchVisitor = libx.core.Class.create ( DefaultVisitor, {
@@ -476,12 +530,16 @@ var SearchVisitor = libx.core.Class.create ( DefaultVisitor, {
 return /** @lends libx.preferences */ {
 
     /**
-     *    Initializes the preferences, loading the user preferences from file
-     *
-     * 
+     *    Initializes the preferences, loading the user preferences from LibX storage.
      */
     initialize : function () {
     
+        /**
+         * The in-memory representation of the user preferences.
+         *
+         * @type libx.preferences.XMLPreferenceObject.factory.category
+         * @namespace
+         */
         libx.prefs = new prefFactory["category"]({ _name: "prefs" }, "libx");
         libx.prefs._addCategory({ _name: "contextmenu", _layout: "tree" });
                 
@@ -490,12 +548,17 @@ return /** @lends libx.preferences */ {
          *  If the category does not exist, it is constructed with the specified templates.
          *  If the category exists, the templates not found in the category are merged.
          *
-         *  @param {String} URL of libapp/module
-         *  @param {Array} array of child descriptors for this category
-         *  @param {String} childDescriptor.name   Name of the preference
-         *  @param {String} childDescriptor.type   Type of the preference
-         *  @param {String|Number|Boolean} childDescriptor.value  (Optional) Value of the preference
-         *  @param {Object} childDescriptor.options Used for choice type
+         *  @function
+         *  @param {String} url       URL of libapp/module
+         *  @param {Array[template]}  templates array of child descriptors for this
+         *                            category.  the following describes each object in this array:
+         *  @param {String} template.name     name of the preference
+         *  @param {String} template.type     type of the preference
+         *  @param {String|Number|Boolean} template.value  (optional) value of the preference
+         *  @param {Array[option]} template.options   array of item descriptor objects; used for choice types.
+         *                            each descriptor must have a "value" property which will become
+         *                            the Item's string.  each descriptor may optionally have a "selected"
+         *                            boolean property to indicated whether the item is selected.
          */         
         libx.prefs.getCategoryForUrl = function (url, templates) {
             var cat = this[url];
@@ -532,6 +595,9 @@ return /** @lends libx.preferences */ {
             return cat;
         };
         
+        // load the external browser preferences XML file and the user
+        // preferences from LibX storage before notifying the PreferencesLoaded
+        // event
         var loadedQueue = new libx.utils.collections.ActivityQueue();
         var browserPrefsAct = new libx.utils.collections.EmptyActivity();
         loadedQueue.scheduleLast(browserPrefsAct);
@@ -563,7 +629,9 @@ return /** @lends libx.preferences */ {
     },
 
     /**
-     * Load preferences from the userprefs XML.
+     * Load preferences from the userprefs XML in LibX storage.
+     * 
+     * @param {Function()} callback  callback to execute once the XML has been loaded
      */
     loadUserPrefs : function (callback) {
         var self = this;
@@ -586,16 +654,15 @@ return /** @lends libx.preferences */ {
     
     /**
      *    Loads an XML file into its javascript representation
-     *    @param {XMLPreferenceDescriptor} XMLPreferencesDescriptor
-     *        An XMLPreferenceDescriptor, or an array of them
-     *    @param XMLPreferenceDescriptor.filename  
-     *        Filename of XML preferences file to load
-     *    @param XMLPReferenceDescriptor.overwrite 
-     *        Determines whether or not these preferences should overwrite values of existing preferences
-     *    @param XMLPreferenceDescriptor.base
-     *        (optional)Base within preferences tree where subtree should be inserted ( ex, "libx.browser" for libx.browser.contextmenu )
-     *    @param XMLPreferenceDescriptor.callback
-     *        (optional) Callback to execute once load is complete
+     *    @param  {Object}  descriptor  descriptor object
+     *    @config {String}  filename    filename of XML preferences file to load
+     *    @config {Boolean} overwrite   determines whether or not these
+     *                                  preferences should overwrite values of
+     *                                  existing preferences
+     *    @config {String}  base        (optional) base within preferences tree
+     *                                  where subtree should be inserted ( ex, "libx.browser" for
+     *                                  libx.browser.contextmenu )
+     *    @config {Function()} callback (optional) callback to execute once load is complete
      */
     load : function ( descriptor ) {
         var filename = descriptor.filename;
@@ -623,16 +690,19 @@ return /** @lends libx.preferences */ {
     },
         
     /**
-     *    Loads an XML Preferences file
-     *    @param node an XML node to parse
-     *    @param {XMLPreferenceDescriptor} XMLPreferencesDescriptor
-     *        An XMLPreferenceDescriptor, or an array of them
-     *    @param XMLPreferenceDescriptor.filename  
-     *        (Optional for loadXML ) - Filename of XML preferences file to load
-     *    @param XMLPReferenceDescriptor.overwrite 
-     *        Determines whether or not these preferences should overwrite values of existing preferences
-     *    @param XMLPreferenceDescriptor.base
-     *        (optional)Base within preferences tree where subtree should be inserted ( ex, "libx.prefs.browser" for libx.browser.contextmenu )
+     *    Load an XML preferences file.
+     *    The document will be merged into the in-memory LibX preferences.
+     *
+     *    @param  {Node}       xmlNode     an XML node to load
+     *    @param  {Object}     descriptor  descriptor object
+     *    @config {String}     filename    (optional) filename of XML preferences file to load
+     *    @config {Boolean}    overwrite   determines whether or not these
+     *                                     preferences should overwrite values
+     *                                     of existing preferences
+     *    @config {String}     base        (optional) base within preferences
+     *                                     tree where subtree should be
+     *                                     inserted ( ex, "libx.prefs.browser"
+     *                                     for libx.browser.contextmenu )
      */
     loadXML : function ( xmlNode, descriptor ) {
         var overwrite = descriptor.overwrite;
@@ -669,7 +739,7 @@ return /** @lends libx.preferences */ {
             }
         }
             
-        /**
+        /*
          *    Helper function to merge other preference trees with this one
          *    @param curPrefs - Represents an entry in the current preference tree
          *    @param newPrefs - Represents an entry in the new preference tree
@@ -766,7 +836,8 @@ return /** @lends libx.preferences */ {
     },
     
     /**
-     *    Iterates through all of the loaded roots, and saves them to file...
+     *    Saves the in-memory libx.prefs object to storage.
+     *    The object is saved as a serialized XML document.
      */
     save : function () {
         var sv = new SerializeVisitor();
@@ -778,14 +849,12 @@ return /** @lends libx.preferences */ {
     },
     
     /**
-     *    Finds and returns an entry by name
-     *    Note that this returns the object, not the value of the preference
-     *    Use getValue to retrieve the value of a preference
+     *    Finds and returns an entry by name.
+     *    Note that this returns the object, not the value of the preference.
+     *    Use {@link libx.preferences.getValue} to retrieve the value of a preference
      *
-     *    @param 
-     *        name of the preference object to retrieve
-     *    @return {Category|Preference|Item} 
-     *        Entry w/ specified name, or null if it doesnt exist
+     *    @param {String} name  name of the preference object to retrieve
+     *    @return {libx.preferences.XMLPreferenceObject} entry w/ specified name, or null if it doesnt exist
      */
     get : function ( name ) {
         if ( name == "libx.prefs" ) {
@@ -797,9 +866,11 @@ return /** @lends libx.preferences */ {
     
     /**
      *    Finds and returns the value of a preference, or the default value if
-     *    the preference cannot be found
-     *    @param name of the preference to look for
-     *    @param default value of the preference
+     *    the preference cannot be found.
+     *
+     *    @param {String} name  name of the preference to look for
+     *    @param {String|Boolean|Number} defValue  value to return if the preference does not exist
+     *    @returns {String|Boolean|Number} the value of the preference
      */
     getValue : function ( name, defValue ) {
         var pref = this.get ( name );
@@ -812,12 +883,13 @@ return /** @lends libx.preferences */ {
         }
         return defValue;
     },
+
     /**
-     *    Finds and returns an entry by ID
-     *    @param 
-     *        ID of the value to retrieve
-     *    @return {Category|Preference|Item} 
-     *        Entry w/ specified ID, or null if it doesnt exist
+     *    Finds and returns a preference node by ID.
+     *
+     *    @param {String} id  ID of the value to retrieve
+     *    @return {libx.preferences.XMLPreferenceObject} entry with the
+     *            specified ID, or null if it doesnt exist
      */
     getByID : function ( id ) {
         if ( id == libx.utils.hash.hashString ( "libx.prefs" ) ) {
@@ -831,6 +903,9 @@ return /** @lends libx.preferences */ {
             log ( "getByID", "More then one match found for id: " + id );
         }
         return searchVisitor.matches[0];
-    }
+    },
+
+    XMLPreferenceObject: XMLPreferenceObject
+
 }
 })();
