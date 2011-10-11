@@ -16,62 +16,6 @@ ul {
     list-style-type: none;
 }
 
-.info-panel {
-    padding-left:3px;
-    min-width:300px;
-}
-
-.info-panel-heading {
-    font-weight:normal;
-    font-size:0.9em;
-    padding:.4em .3em 0.0em;
-}
-
-.info-panel-prefs {
-    font-size:0.8em;
-    font-weight:normal;
-    padding 09.7em 0.3em 0.0em;
-}
-
-.field-label-name {
-    color:grey;
-    padding-right:.2em;
-    font-weight:normal;
-}
-
-.field-content {
-    font-size:0.9em;
-    font-weight:normal;
-    padding-right:.4em;
-}
-
-.toggle-info-panel-links {
-    font-size:0.7em;
-    padding:0.5em 0.7em;
-}
-
-.info-panel-hyperlinks {
-    color:#0B559B;
-    margin:0 0.4em;
-    cursor:pointer;
-}
-
-.info-panel-codebody{
-    font-weight:normal;
-    font-size:0.8em;
-    color:black;
-    padding:5px;
-}
-
-.info-panel-details {
-    font-weight:normal;
-    font-size:0.7em;
-}
-
-.hide {
-  display:none;
-}
-
 /* fixes bug that prevents components from working inside tab
 http://docs.jquery.com/UI/Tabs#...my_slider.2C_Google_Map.2C_sIFR_etc._not_work_when_placed_in_a_hidden_.28inactive.29_tab.3F */
 .ui-tabs .ui-tabs-hide { display: block !important; position: absolute; left: -10000px; }

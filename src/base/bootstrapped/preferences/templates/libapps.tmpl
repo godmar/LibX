@@ -42,7 +42,7 @@ registerHandlers.markReady();
 function addLibapp(libapp) {
     var newDiv = '<div class="ui-state-default ui-corner-all" style="margin-bottom: 5px;">\n'
            + '<span>\n'
-           + '<div style="text-align:center; font-weight: bold;">' + encode(libapp.title) + '</div>\n'
+           + '<div style="text-align: center font-weight: bold;">' + encode(libapp.title) + '</div>\n'
            + '<div style="color: black;">' + encode(libapp.description) +'</div>\n';
     if (libapp.id != null)
         newDiv += '<div>' + libapp.id + '</div>\n';
