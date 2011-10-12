@@ -23,6 +23,11 @@ ul.checktree label {
 ul.checktree label.hover {
 	color: red;
 }
+
+ul.checktree label.selected {
+    color:green;
+}
+
 p {
 	margin: 5px 15px;
 }

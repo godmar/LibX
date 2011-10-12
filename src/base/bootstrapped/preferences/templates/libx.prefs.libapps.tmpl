@@ -10,6 +10,7 @@
 
 {!
 
+var entryType = { "package": "Package", "libapp": "Libapp", "module": "Module" };
 /*
  * Gets a string bundle for a given entry before processing that entry.
  *
@@ -110,14 +111,14 @@ var $checkTree = $('<ul class="checktree" style="float: left;">'
                  + '<li class="checktree_separator"></li>'
                  + '</ul>');
 
-function makeNode(entry, isModule) {
+function makeNode(entry) {
     
     var $node = $('<li>\n'
-                + '   <label>' + entry.description + '</label>\n'
+                + '   <label>' + entry.title + '</label>\n'
                 + '   <ul></ul>\n'
                 + '</li>\n');
     
-    if (!isModule) {
+    if (entry.type != 'module') {
         $node.data("id", entry.id);
         var checked = libx.prefs[entry.id]._enabled._value ? 'checked="checked"' : "";
         $node.prepend('<input type="checkbox" ' + checked + ' />\n');
@@ -126,6 +127,13 @@ function makeNode(entry, isModule) {
     return $node;
     
 }
+
+function encode ( str ) {
+   if (typeof str == 'object')
+      str = libx.utils.json.stringify(str);
+   return libx.utils.xml.encodeEntities ( '' + str );
+}
+
 
 function reloadPackages() {
     libx.libapp.reloadPackages();
@@ -156,7 +164,7 @@ processCheckTree = {
                 onUnCheck:    savePref,
                 onHalfCheck:  savePref,
                 labelAction:  "custom",
-                onLabelClick: function (e, $elem) {
+                onLabelHoverOver: function ($elem) {
                     var pos = $elem.position();
                     $rightPanel
                         .show()
@@ -166,44 +174,70 @@ processCheckTree = {
                         .children().hide();
                     $($elem.data("popup")).show();
                     e.stopPropagation();
+                },
+                onLabelHoverOut: function(e,$elem) {
+                    $rightPanel.hide();
+                    e.stopPropagation();
+                },
+                onLabelClick: function (e, $elem) {
+                    $rightPanel.hide();
+                    $(".info-panel").parent()
+                                          .find("label:first")
+                                          .removeClass("selected");
+                    $(".info-panel").hide();
+                    $elem.find("label:first")
+                                        .addClass("selected");
+                    $elem.children(".info-panel")
+                                            .each( function () {
+                                                    insertPreferences($(this));
+                                                 });
+                    $elem.children(".info-panel")
+                                             .show();
+                    e.stopPropagation();
                 }
             });
         
         /* BRN: this gets rebound at each template reload */
-        $(document).click(function (e) {
+        /*$(document).click(function (e) {
             if (!$(e.target).parents().andSelf().filter($rightPanel).length)
                 $rightPanel.hide();
-        });
+        });*/
 
-        /* synchronize preferences among duplicate textboxes */
-        $(".preference-text").live("change", function () {
-            var val = this.value;
-            $('input[name="' + this.name + '"]').each(function () {
-                this.value = val;
-            });
-            libx.preferences.getByID(this.name)._setValue(val);
-            libx.preferences.save();
+        /* Show|Hide logic for info panel of each node in tree */
+        $(".toggle-info-panel-details").live("click", function () {
+            if ($(this).text() == 'Show Details') {
+                $(this).text("Hide Details");
+                $(this).parent().siblings(".info-panel-details").show();
+            }
+            else if ($(this).text() == 'Hide Details') {
+                $(this).text("Show Details");
+                $(this).parent().siblings(".info-panel-details").hide();
+            }
+            return false;
         } );
 
-        /* synchronize preferences among duplicate checkboxes */
-        $(".preference-checkbox").live("click", function () {
-            var val = this.checked;
-            $('input[name="' + this.name + '"]').each(function () {
-                this.checked = val;
-            });
-            libx.preferences.getByID(this.name)._setValue(val);
-            libx.preferences.save();
-        } );
+         $(".toggle-info-panel-prefs").live("click", function () {
+            if ($(this).text() == 'Show Preferences') {
+                $(this).text("Hide Preferences");
+                $(this).parent().siblings(".info-panel-prefs").show();
+            }
+            else if ($(this).text() == 'Hide Preferences') {
+                $(this).text("Show Preferences");
+                $(this).parent().siblings(".info-panel-prefs").hide();
+            }
+            return false;
+         } );
 
-        /* synchronize preferences among duplicate radios */
-        $(".preference-radio").live("click", function () {
-            var val = this.checked;
-            $('input[name="' + this.name + '"][value="' + this.value + '"]').each(function () {
-                this.checked = val;
-            });
-            libx.preferences.getByID(this.name)._setValue(val);
-            libx.preferences.save();
-        } );
+          $(".toggle-info-panel-codebody").live("click", function () {
+            if ($(this).text() == 'Show Code') {
+                $(this).text("Hide Code");
+                $(this).parent().siblings(".info-panel-codebody").show();
+            }else if($(this).text() == 'Hide Code') {
+                $(this).text("Show Code");
+                $(this).parent().siblings(".info-panel-codebody").hide();
+            }
+            return false;
+          } );
 
         $rightPanel.hide();
     }
@@ -228,28 +262,93 @@ function savePref($li) {
 }
 
 function makePopupNode(entry, $node, tmplData) {
-
-    var $popup = $("<div>\n"
-                 + entry.description + "<br/>\n"
-                 + '<span style="font-size: 0.9em;">' + entry.id + "</span><br/><br/>\n"
-                 + "</div>\n");
+    var $infoPanel = $('<div class="ui-state-default ui-corner-all info-panel">'
+                     +      '<div class="info-panel-heading">'
+                     +         '<span class="field-label-name">'
+                     +              'entryType[entry.type] 
+                     +         ': </span>'
+                     +         encode(entry.description)
+                     +         '<br/>'
+                     +      '</div>'
+                     +      '<div class="toggle-info-panel-links">'
+                     +          '<a class="toggle-info-panel-details info-panel-hyperlinks" href="#">Show Details</a>'
+                     +       '</div>'
+                     +       '<div class="info-panel-details hide">'
+                     +           '<ul>'
+                     +               '<li>'
+                     +                  '<span class="field-label-name">Id: </span>'
+                     +                  '<span class="field-content">' + entry.id + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                  '<span class="field-label-name">Last Updated On: </span>'
+                     +                  '<span class="field-content"> + encode(entry.updated) + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                 '<span class="field-label-name">Author: </span>'
+                     +                 '<span class="field-content">' + encode(entry.author.name) + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                  '<span class="field-label-name">Weblink: '</span>'
+                     +                  '<span style="field-content">' + encode(entry.author.uri) + '</span>'
+                     +               '</li>'
+                     +               '<li>'
+                     +                   '<span class="field-label-name">Email: </span>'
+                     +                   '<span class="field-content">' + encode(entry.author.email) + '</span>'
+                     +               '</li>'
+                     +            '</ul>'
+                     +       '</div>'
+                     +    '</div>');
+    if(entry.type == "module")
+    {
+       $infoPanel
+                .append( '<div class="info-panel-codebody">
+                        +    '<pre>'
+                        +       encode(entry.body)
+                        +    '</pre>'
+                        +'</div>');
+       $infoPanel
+                .children('.toggle-info-panel-links')
+                .append(' | <a class="toggle-info-panel-codebody info-panel-hyperlinks" href="#">'
+                        + 'Show Code'
+                        +   '</a>');
+    }
+    var $popup = $('<div>' + entry.description + '</div>');
     $node.data("popup", $popup);
-
+    $node.data("tmplData",tmplData);
     var addToPanel = {
         onready: function () {
             $popup.hide().appendTo($rightPanel);
-            if (libx.prefs[entry.id]) {
-                var r = process(libx.prefs[entry.id], null, tmplData);
-                $popup.append('<div style="font-size: 0.8em; font-weight: normal;">'
-                    + r.html + '</div>');
-                r.doPostInsertionProcessing();
+            $node.children("label:first").after($infoPanel);
+            if (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1) {
+               $infoPanel
+                        .children(".toggle-info-panel-links")
+                        .find(".toggle-info-panel-details")
+                        .after(' | <a class="toggle-info-panel-prefs info-panel-hyperlinks" href="#">'
+                               + 'Show Preferences'
+                               + '</a>');
             }
         }
     };
     aQ.scheduleLast(addToPanel);
     addToPanel.markReady();
     
-    return $popup;
+    return $infoPanel;
+}
+
+function insertPreferences ($infoPanel)
+{
+   if (libx.prefs[$infoPanel.parent().data("id")] && libx.prefs[$infoPanel.parent().data("id")]._children.length > 1) {
+        $infoPanel.children(".info-panel-prefs").remove();
+        var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel-links").children("a.toggle-info-panel-prefs:first");
+        if($toggle_Prefs.text() == "Hide Preferences")
+            $toggle_Prefs.text("Show Preferences");
+
+        var r = process(libx.prefs[$infoPanel.parent().data("id")], null, $infoPanel.parent().data("tmplData"));
+        $infoPanel.append( '<div class="info-panel-prefs hide">'
+                         +    r.html 
+                         + '</div>');
+        r.doPostInsertionProcessing();
+    }
 }
 
 function processPackages(packages, elem, isRoot) {
@@ -319,7 +418,7 @@ function processPackages(packages, elem, isRoot) {
                         return;
                     }
                     
-                    var $node = makeNode(module, true);
+                    var $node = makeNode(module);
                     elem.append($node);
                     blocker.markReady();
                     
@@ -330,7 +429,7 @@ function processPackages(packages, elem, isRoot) {
                 },
                 error: function (err) {
                     var entry = { id: packageUrl, description: "(Unknown Entry)" };
-                    var $node = makeNode(entry, true);
+                    var $node = makeNode(entry);
                     elem.children(".checktree_separator").before($node);
                     var $prefs = makePopupNode(entry, $node);
                     addRemoveLink($prefs, packageUrl);
