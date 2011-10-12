@@ -181,26 +181,22 @@ processCheckTree = {
                 },
                 onLabelClick: function (e, $elem) {
                     $rightPanel.hide();
-                    $(".info-panel").parent()
-                                          .find("label:first")
-                                          .removeClass("selected");
+                    $(".info-panel").parent().find("label:first").removeClass("selected");
                     $(".info-panel").hide();
-                    $elem.find("label:first")
-                                        .addClass("selected");
+                    $elem.find("label:first").addClass("selected");
                     $elem.children(".info-panel")
                                             .each( function () {
                                                     insertPreferences($(this));
                                                  });
-                    $elem.children(".info-panel")
-                                             .show();
+                    $elem.children(".info-panel").show();
                     e.stopPropagation();
                 }
             });
         
         /* BRN: this gets rebound at each template reload */
         /*$(document).click(function (e) {
-            if (!$(e.target).parents().andSelf().filter($rightPanel).length)
-                $rightPanel.hide();
+            if (!$(e.target).parents().andSelf().filter(".info-panel").length)
+                $(".info-panel").hide();
         });*/
 
         /* Show|Hide logic for info panel of each node in tree */
@@ -265,7 +261,7 @@ function makePopupNode(entry, $node, tmplData) {
     var $infoPanel = $('<div class="ui-state-default ui-corner-all info-panel">'
                      +      '<div class="info-panel-heading">'
                      +         '<span class="field-label-name">'
-                     +              'entryType[entry.type] 
+                     +              entryType[entry.type] 
                      +         ': </span>'
                      +         encode(entry.description)
                      +         '<br/>'
