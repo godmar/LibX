@@ -69,3 +69,12 @@ ul.checktree li .half_checked {
 ul.checktree li .uncheckable {
 	background-image: url(check3.gif);
 }
+
+ul.checktree li .checkbox, ul.checktree li .bullet-point {
+    width: 20px;
+    height: 14px;
+    padding: 0;
+    margin: 0;
+    float: left;  
+    background: url(bullet.gif) 0 0px;
+}
