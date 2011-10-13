@@ -9,6 +9,11 @@
 {EndLocale}
 
 {!
+/*
+ * Template can be run in two modes:
+ * For just displaying libapp/package/module (such as in client-side libappdisplay)
+ * do not display box to subscribe; do not display preferences.
+ */
 
 var entryType = { "package": "Package", "libapp": "Libapp", "module": "Module" };
 /*
@@ -137,7 +142,7 @@ function encode ( str ) {
 
 function reloadPackages() {
     libx.libapp.reloadPackages();
-    var p = process(null, "libx.prefs.libapps");
+    var p = process(null, "libx.prefs.libapps",data);
     $("#libapps-tmpl").replaceWith(p.html);
     p.doPostInsertionProcessing();
 }
@@ -204,8 +209,7 @@ processCheckTree = {
             if ($(this).text() == 'Show Details') {
                 $(this).text("Hide Details");
                 $(this).parent().siblings(".info-panel-details").show();
-            }
-            else if ($(this).text() == 'Hide Details') {
+            }else if ($(this).text() == 'Hide Details') {
                 $(this).text("Show Details");
                 $(this).parent().siblings(".info-panel-details").hide();
             }
@@ -216,8 +220,7 @@ processCheckTree = {
             if ($(this).text() == 'Show Preferences') {
                 $(this).text("Hide Preferences");
                 $(this).parent().siblings(".info-panel-prefs").show();
-            }
-            else if ($(this).text() == 'Hide Preferences') {
+            }else if ($(this).text() == 'Hide Preferences') {
                 $(this).text("Show Preferences");
                 $(this).parent().siblings(".info-panel-prefs").hide();
             }
@@ -257,94 +260,89 @@ function savePref($li) {
     }
 }
 
-function makePopupNode(entry, $node, tmplData) {
-    var $infoPanel = $('<div class="ui-state-default ui-corner-all info-panel">'
-                     +      '<div class="info-panel-heading">'
-                     +         '<span class="field-label-name">'
-                     +              entryType[entry.type] 
-                     +         ': </span>'
-                     +         encode(entry.description)
-                     +         '<br/>'
-                     +      '</div>'
-                     +      '<div class="toggle-info-panel-links">'
-                     +          '<a class="toggle-info-panel-details info-panel-hyperlinks" href="#">Show Details</a>'
-                     +       '</div>'
-                     +       '<div class="info-panel-details hide">'
-                     +           '<ul>'
-                     +               '<li>'
-                     +                  '<span class="field-label-name">Id: </span>'
-                     +                  '<span class="field-content">' + entry.id + '</span>'
-                     +               '</li>'
-                     +               '<li>'
-                     +                  '<span class="field-label-name">Last Updated On: </span>'
-                     +                  '<span class="field-content"> + encode(entry.updated) + '</span>'
-                     +               '</li>'
-                     +               '<li>'
-                     +                 '<span class="field-label-name">Author: </span>'
-                     +                 '<span class="field-content">' + encode(entry.author.name) + '</span>'
-                     +               '</li>'
-                     +               '<li>'
-                     +                  '<span class="field-label-name">Weblink: '</span>'
-                     +                  '<span style="field-content">' + encode(entry.author.uri) + '</span>'
-                     +               '</li>'
-                     +               '<li>'
-                     +                   '<span class="field-label-name">Email: </span>'
-                     +                   '<span class="field-content">' + encode(entry.author.email) + '</span>'
-                     +               '</li>'
-                     +            '</ul>'
-                     +       '</div>'
-                     +    '</div>');
-    if(entry.type == "module")
-    {
-       $infoPanel
-                .append( '<div class="info-panel-codebody">
-                        +    '<pre>'
-                        +       encode(entry.body)
-                        +    '</pre>'
-                        +'</div>');
-       $infoPanel
-                .children('.toggle-info-panel-links')
-                .append(' | <a class="toggle-info-panel-codebody info-panel-hyperlinks" href="#">'
-                        + 'Show Code'
-                        +   '</a>');
-    }
-    var $popup = $('<div>' + entry.description + '</div>');
+function makeInfoPanel(entry,$node,tmplData){
+    var $infoPanel = $(  '<div class="ui-state-default ui-corner-all info-panel">'
+                       +     '<div class="info-panel-heading" style="padding: .4em .3em 0.0em">' 
+                       +          '<span class="entry-label-name" style="padding-right:0.2em;">' + entryType[entry.type] + ': </span>'
+                       +             encode(entry.description) + '<br/>'
+                       +     '</div>'
+                       +     '<div class="toggle-info-panel-links">'
+                       +           '<a class="toggle-info-panel-details" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">Show Details</a>'
+                       +     '</div>'
+                       +     '<div class="info-panel-details">'
+                       +           '<ul>'
+                       +               '<li>'
+                       +                  '<span class="entry-label-name" style="padding-right:0.2em;" >Id: ' + '</span>'
+                       +                  '<span class="entry-text">' + entry.id + '</span>'
+                       +                '</li>'
+                       +                '<li>'
+                       +                  '<span class="entry-label-name" style="padding-right:0.2em;">Last Updated On: ' + '</span>'
+                       +                  '<span ass="entry-text">' + encode(entry.updated) + '</span>'
+                       +                '</li>'
+                       +                '<li>'
+                       +                  '<span class="entry-label-name" style="padding-right:0.2em;">Author: ' + '</span>'
+                       +                  '<span class="entry-text">' + encode(entry.author.name) + '</span>'
+                       +                '</li>'
+                       +                '<li>'
+                       +                  '<span class="entry-label-name" style="padding-right:0.2em;">Weblink: ' + '</span>'
+                       +                  '<span class="entry-text">' + encode(entry.author.uri) + '</span>'
+                       +                '</li>'
+                       +                '<li>'
+                       +                   '<span class="entry-label-name" style="padding-right:0.2em;">Email: ' + '</span>'
+                       +                   '<span class="entry-text">' + encode(entry.author.email) + '</span>'
+                       +                '</li>'
+                       +           '</ul>'
+                       +     '</div>'
+                       + '</div>');
+    if( entry.type == 'module')
+	{
+		$infoPanel
+		        .append('<div class="info-panel-codebody" >'
+                      + '<pre>' + encode(entry.body) + '</pre>\n'
+                      + '</div>\n');
+        $infoPanel
+		        .children('.toggle-info-panel-links')
+				.append(' | <a class="toggle-info-panel-codebody" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
+						    + 'Show Code'
+						+ '</a>');
+	}
+	var $popup = $("<div>\n" + entry.description + "</div>\n");
     $node.data("popup", $popup);
-    $node.data("tmplData",tmplData);
-    var addToPanel = {
-        onready: function () {
-            $popup.hide().appendTo($rightPanel);
-            $node.children("label:first").after($infoPanel);
-            if (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1) {
-               $infoPanel
-                        .children(".toggle-info-panel-links")
-                        .find(".toggle-info-panel-details")
-                        .after(' | <a class="toggle-info-panel-prefs info-panel-hyperlinks" href="#">'
-                               + 'Show Preferences'
-                               + '</a>');
-            }
-        }
-    };
+	$node.data("tmplData",tmplData);
+	var addToPanel = {
+		onready: function () {
+		    $popup.hide().appendTo($rightPanel);
+		    $node.children("label:first").after($infoPanel); 
+		    if (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1) {
+				$infoPanel
+				        .children(".toggle-info-panel-links")
+						.find('.toggle-info-panel-details')
+						.after(' | <a class="toggle-info-panel-prefs" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
+						        + 'Show Preferences'
+								+ '</a>');		    
+		    }
+		}
+       };
     aQ.scheduleLast(addToPanel);
     addToPanel.markReady();
-    
-    return $infoPanel;
+	
+	return $infoPanel;
 }
 
 function insertPreferences ($infoPanel)
 {
-   if (libx.prefs[$infoPanel.parent().data("id")] && libx.prefs[$infoPanel.parent().data("id")]._children.length > 1) {
-        $infoPanel.children(".info-panel-prefs").remove();
-        var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel-links").children("a.toggle-info-panel-prefs:first");
-        if($toggle_Prefs.text() == "Hide Preferences")
-            $toggle_Prefs.text("Show Preferences");
-
-        var r = process(libx.prefs[$infoPanel.parent().data("id")], null, $infoPanel.parent().data("tmplData"));
-        $infoPanel.append( '<div class="info-panel-prefs hide">'
-                         +    r.html 
+	if (libx.prefs[$infoPanel.parent().data("id")] && libx.prefs[$infoPanel.parent().data("id")]._children.length > 1) {
+		$infoPanel.children(".info-panel-prefs").remove();
+		var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel-links").children("a.toggle-info-panel-prefs:first");
+		if($toggle_Prefs.text() == "Hide Preferences")
+			$toggle_Prefs.text("Show Preferences");
+			
+		var r = process(libx.prefs[$infoPanel.parent().data("id")], null, $infoPanel.parent().data("tmplData"));
+		$infoPanel.append( '<div class="info-panel-prefs">'
+                         +   r.html 
                          + '</div>');
-        r.doPostInsertionProcessing();
-    }
+		r.doPostInsertionProcessing();
+	}
 }
 
 function processPackages(packages, elem, isRoot) {
@@ -387,7 +385,7 @@ function processPackages(packages, elem, isRoot) {
                     processPackages(pkg.entries, $node.children("ul"), false);
                     blocker.markReady();
                     
-                    var $prefs = makePopupNode(pkg, $node);
+                    var $prefs = makeInfoPanel(pkg, $node);
                     addRemoveLink($prefs, pkg.id);
                     
                 },
@@ -401,7 +399,7 @@ function processPackages(packages, elem, isRoot) {
                     blocker.markReady();
                                
                     getStringBundle(libapp.id, function (tmplData) {
-                        makePopupNode(libapp, $node, tmplData);
+                        makeInfoPanel(libapp, $node, tmplData);
                     }, libapp.entries);
                     
                 },
@@ -414,12 +412,13 @@ function processPackages(packages, elem, isRoot) {
                         return;
                     }
                     
+                    
                     var $node = makeNode(module);
                     elem.append($node);
                     blocker.markReady();
                     
                     getStringBundle(module.id, function (tmplData) {
-                        makePopupNode(module, $node, tmplData);
+                        makeInfoPanel(module, $node, tmplData);
                     });
                     
                 },
@@ -427,7 +426,7 @@ function processPackages(packages, elem, isRoot) {
                     var entry = { id: packageUrl, description: "(Unknown Entry)" };
                     var $node = makeNode(entry);
                     elem.children(".checktree_separator").before($node);
-                    var $prefs = makePopupNode(entry, $node);
+                    var $prefs = makeInfoPanel(entry, $node);
                     addRemoveLink($prefs, packageUrl);
                     blocker.markReady();
                 }
@@ -449,13 +448,18 @@ templateScope.queueFunction(function () {
         delay: 0,
         icon: true
     });
+    if(data.libappdisplaymode)
+       alert("true");
+    if (true || data && data.libappdisplaymode) {
+        $("#libapps-subscribe-form").hide();
+    }
 });
 
 !}
 
 <!-- libx.prefs.libapps.tmpl -->
 <div id="libapps-tmpl">
-    <form style="margin-bottom: 20px;">
+    <form id="libapps-subscribe-form" style="margin-bottom: 20px;">
         {L "package_add" L}
         <input style="width: 500px;"></input><br/>
         <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div>
