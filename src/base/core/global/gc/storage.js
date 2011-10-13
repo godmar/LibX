@@ -116,7 +116,7 @@ return {
 
             var storeName = this.storeName;
             var error = function (t, err) {
-                if (paramObj.error)
+                if (paramObj && paramObj.error)
                     paramObj.error(err.message);
                 else
                     libx.log.write('Error in libx.storage.clear(): ' + err);

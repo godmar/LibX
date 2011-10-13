@@ -64,10 +64,10 @@ libx.storage = (function () {
              * Sets an object in storage.
              *
              * @param  {Object}   paramObj  contains properties used for retrieval
-             * @config {String}   key       (REQUIRED) key to store
-             * @config {String}   value     (REQUIRED) value to store
-             * @config {Function} success   function to execute upon success
-             * @config {Function} error     function to execute upon errors
+             * @config {String}   key       key to store
+             * @config {String}   value     value to store
+             * @config {Function} success   (optional) function to execute upon success
+             * @config {Function} error     (optional) function to execute upon errors
              */
             setItem: function(paramObj) {
                 var statement = dbConn.createStatement("INSERT OR REPLACE INTO " + this.storeName + " (key, value) VALUES(:key, :value)");
@@ -91,12 +91,12 @@ libx.storage = (function () {
              * Retrieves an object from storage with the given key.
              *
              * @param  {Object} paramObj      contains properties used for retrieval
-             * @config {String} key           (REQUIRED) key to store
-             * @config {Function(result)} success  function to execute upon
+             * @config {String} key           key to store
+             * @config {Function(result)} success  (optional) function to execute upon
              *         success.  accepts one argument, which is the fetched
              *         result string.
-             * @config {Function()} error     function to execute upon errors
-             * @config {Function()} notfound  function to execute if the given
+             * @config {Function()} error     (optional) function to execute upon errors
+             * @config {Function()} notfound  (optional) function to execute if the given
              *                                key is not in storage
              */
             getItem: function(paramObj) {
@@ -130,9 +130,9 @@ libx.storage = (function () {
              * Removes an object from storage with the given key.
              *
              * @param  {Object} paramObj     contains properties used for retrieval
-             * @config {String} key          (REQUIRED) key to store
-             * @config {Function()} success  function to execute upon success
-             * @config {Function()} error    function to execute upon errors
+             * @config {String} key          key to store
+             * @config {Function()} success  (optional) function to execute upon success
+             * @config {Function()} error    (optional) function to execute upon errors
              */
             removeItem: function(paramObj) {
                 var statement = dbConn.createStatement("DELETE FROM " + this.storeName + " WHERE key = :key");
@@ -158,7 +158,7 @@ libx.storage = (function () {
              *                              for retrieval
              * @config {String}   pattern   pattern to search. by default, all
              *                              keys will be returned.
-             * @config {Function()} error   function to execute upon
+             * @config {Function()} error   (optional) function to execute upon
              *                              errors
              * @config {Function(result)} success  function to execute when
              *                              results are returned; takes a single
@@ -205,10 +205,10 @@ libx.storage = (function () {
             /**
              * Clears the local storage.
              *
-             * @param  {Object}   paramObj    contains properties used
+             * @param  {Object}   paramObj    (optional) contains properties used
              *                                for retrieval
-             * @config {Function()} success   executed after store is cleared
-             * @config {Function()} error     function to execute upon
+             * @config {Function()} success   (optional) executed after store is cleared
+             * @config {Function()} error     (optional) function to execute upon
              *                                errors
              */
             clear: function(paramObj) {
@@ -225,7 +225,7 @@ libx.storage = (function () {
                     });
                 } else {
                     statement.execute();
-                    paramObj.success && paramObj.success();
+                    paramObj && paramObj.success && paramObj.success();
                 }
             }
         })
