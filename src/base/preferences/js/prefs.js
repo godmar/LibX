@@ -5,50 +5,6 @@ var templateID = 0;
 var base = libx.locale.getBootstrapURL("preferences/templates/");
 var ext = ".tmpl";
 
-$(document).ready ( function () {
-
-    // the following conditions must be true for a template to be processed:
-    //   1) the placeholder for the template exists in the DOM
-    //   2) the template's locale has been fetched
-    //   3) the template file itself has been fetched
-    
-    // Process the first template, which will create tabs and recursively process
-    // each subsequent template
-    var result = process ( libx.prefs, "libx.prefs" );
-
-    // Clone and append to main document
-    // This evaluates scripts and style sheets ( setting the innerHTML does not seem to )
-    $('#content-div').append ( $( result.html ) );
-    
-    // the template placeholder now exists in the DOM
-    result.doPostInsertionProcessing();
-    
-    // Set event handlers for textboxes
-    $(".preference-text").live("change", function () {
-        libx.preferences.getByID ( this.name )._setValue ( this.value );
-        libx.preferences.save();
-    } );
-
-    // Set event handlers for checkboxes
-    $(".preference-checkbox").live("click", function () {
-        libx.preferences.getByID ( this.name )._setValue ( this.checked );
-        libx.preferences.save();
-    } );
-    
-    // Set event handlers for multichoice preferences
-    $(".preference-multichoice").live("click", function () {
-        libx.preferences.getByID ( this.name )._selected = this.checked;
-        libx.preferences.save();
-    } );
-
-    // Set event handlers for radio buttons
-    $(".preference-radio").live("click", function () {
-        libx.preferences.getByID ( this.name )._setValue ( this.value );
-        libx.preferences.save();
-    } );
-    
-} );
-   
 /**
  *    Processes a template.
  *
