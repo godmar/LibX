@@ -1,12 +1,4 @@
 
-/**
- * Fetch a remote resource from a local URL.  Temporary solution until chrome://
- * urls are replaced in edition configurations.
- *
- * @param {Object} an object containing the same properties accepted by
- *          libx.cache.ObjectCache.get().  The url specified must point to a
- *          local resource that will be translated and fetched.
- */
 libx.utils.getEditionResource = function(paramObj) {
     var chromePrefix = 'chrome://libx/skin';
 

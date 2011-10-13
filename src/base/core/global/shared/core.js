@@ -218,7 +218,7 @@ libx.core = (function() {
         /**
          * Function that always returns false.
          *
-         * @name libx.core.TrueFunction
+         * @name libx.core.FalseFunction
          */
         'FalseFunction': function () { return false;},
         /**

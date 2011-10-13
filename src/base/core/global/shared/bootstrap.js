@@ -65,7 +65,7 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
 
         var self = this;
         var runScriptActivity = {
-            onready : function (script, metadata) {
+            onready : function (script) {
         		var globalTargetScope = {
                     bootStrapper : { 
                         baseURL : scriptURL.match (/.*\//),
@@ -78,7 +78,7 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
                     }
                 };
                 libx.core.Class.mixin(globalTargetScope, globalProperties, true);
-                libx.bootstrap.loadSubScript(scriptURL, script, metadata, globalTargetScope, window);
+                libx.bootstrap.loadSubScript(scriptURL, script, globalTargetScope, window);
             }
         };
         this.scriptQueue.scheduleLast(runScriptActivity);
@@ -86,8 +86,8 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
         libx.cache.defaultObjectCache.get({
             validator: libx.cache.defaultMemoryCache.validators.bootstrapped, 
             url: scriptURL,
-            success: function (scriptText, metadata) { 
-                runScriptActivity.markReady(scriptText, metadata);
+            success: function (scriptText) { 
+                runScriptActivity.markReady(scriptText);
             },
             error: function (status) {
                 libx.log.write('error ' + status + ' loading script ' + scriptURL);

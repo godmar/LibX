@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="accordion.css" type="text/css" media="screen"></link>
     <script src="popup.js"></script>
     <script src="page_actions/autosense.js"></script>
-    <script src="page_actions/libappautosense.js"></script>
     <script src="page_actions/proxy.js"></script>
 </head>
 
@@ -98,11 +97,13 @@
                 
                 <!-- developer view -->
                 <div id="dev-view">
-                    <div><a id="dev-cache" href="#">View cache</a></div>
-                    <div><a id="dev-prefs" href="#">View user prefs</a></div>
-                    <div><a class="clearCache" href="#">Clear cache</a></div>
                     <!-- BRN: localize -->
-                    Libapp debug level: <a href="javascript:void(0);" id="libapp-debuglevel">0</a>
+                    <div>Libapp debug level: <a href="javascript:void(0);" id="libapp-debuglevel">0</a></div>
+                    <br/>
+                    <div><a id="dev-cache" href="#">View cache</a></div>
+                    <div><a class="clearCache" href="#">Clear cache</a></div>
+                    <br/>
+                    <div><a class="factoryReset" href="#">Factory reset</a></div>
                 </div>      
                 
             </td>
@@ -144,6 +145,7 @@
         <p>
             <div><a href="#" id="error-change-edition" class="set-locale">tab_change</a></div>
             <div><a class="clearCache" href="#">Clear cache</a></div>
+            <div><a class="factoryReset" href="#">Factory reset</a></div>
         </p>
     </div>
     

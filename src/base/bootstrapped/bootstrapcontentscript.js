@@ -14,6 +14,7 @@ var files = [
     "global/shared/libapp/textexplorer.js",
     "global/shared/libapp/texttransformer.js",
     "window/shared/libapp.js",
+    "window/shared/libappbuilder.js"
 ];
 
 for (var i = 0; i < files.length; i++) {

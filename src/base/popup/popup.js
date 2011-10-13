@@ -254,7 +254,31 @@ return {
             $('a[href="#dev-view"]').toggle('fast');
         });
 
+        $('.factoryReset').click(function () {
+            // clear all storage
+            libx.storage.metacacheStore.clear();
+            libx.storage.cacheStore.clear();
+            libx.storage.prefsStore.clear();
+            
+            // clear config url and package list
+            libx.utils.browserprefs.setStringPref("libx.edition.configurl", "");
+            libx.utils.browserprefs.setStringPref("libx.libapp.userpackages", "[]");
+
+            // reset any temporarily subscribed packages
+            libx.libapp.clearTempPackages();
+
+            // reset the LibX button icon
+            libx.ui.setIcon();
+
+            libx.initialize.reload();
+            popup.showChangeEditionView();
+        });
+
         $('.clearCache').click(function () {
+            // clear the object cache
+            libx.storage.metacacheStore.clear();
+            libx.storage.cacheStore.clear();
+
             libx.initialize.reload();
         });
         

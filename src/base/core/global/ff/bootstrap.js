@@ -3,20 +3,25 @@
 // so we can probably remove it
 
 /**
- * Load a script in Firefox via jssubscript-loader.
+ * Load a script.
  *
- * @param {metadata.originURL} originURL Script URL
- * @param {metadata.chromeURL} chromeURL internal chrome URL
+ * @function
+ * @param {String} url          URL of script (used for debugging)
+ * @param {String} scriptStr    the script string to evaluate
+ * @param {Object} globalScope  used as the global object in the execution
+ *                              context
+ * @param {Object} window       if supplied, specifies the security principal
+ *                              (firefox only)
  */
 libx.bootstrap.loadSubScript = (function() {
     
     var systemPrincipal = Cc["@mozilla.org/systemprincipal;1"] 
                              .createInstance(Ci.nsIPrincipal); 
     
-    return function (url, scriptStr, metadata, globalScope, window) {
+    return function (url, scriptStr, globalScope, window) {
     
         var win;
-        if(window)
+        if (window)
             win = window;
         else
             win = systemPrincipal;

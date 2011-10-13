@@ -8,7 +8,7 @@ jQuery(function () {
 
     // attach handler to cache clear button
     $('#clearCacheButton').live('click', function() {
-    
+
         // show success button
         var $this = $(this);
         var $success = $('<button style="font-size: 0.8em; font-weight: bold; color: green;" disabled="disabled">Changes Downloaded!</button>');
@@ -17,9 +17,7 @@ jQuery(function () {
             $success.replaceWith($this);
         }, 2000);
     
-        libxTemp.sendRequest({
-            type: "clearCache"
-        });
+        libx.libapp.reloadPackages();
     });
 
     function loadFeeds(span) {
@@ -38,20 +36,12 @@ jQuery(function () {
              var permUrl = feeds[i].permUrl,
                  tempUrl = feeds[i].tempUrl;
             
-            var packages = libx.libapp.getEnabledPackages();
-            for (var j = 0; j < packages.length; j++) {
-                if (packages[j].url == permUrl) {
-                    if (libx.prefs[permUrl]) {
-                        libx.prefs[permUrl]._enabled._setValue(false);
-                    }
-                }
-            }
-            
             libx.log.write("Registering temp package: " + tempUrl + ", disabling permanent package: " + permUrl);
             
             libx.libapp.addTempPackage(permUrl, tempUrl);
-            libx.libapp.loadPackage(tempUrl);
         }
+
+        libx.libapp.reloadPackages();
         
     }
     

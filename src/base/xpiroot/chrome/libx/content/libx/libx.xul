@@ -50,8 +50,8 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
         ]]>
     </script>
-    <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/browser.js" />
-    <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/libx.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/window.js" />
+    <script type="application/x-javascript" src="chrome://libx/content/core/window/ff/ui.js" />
 
     <script type="application/x-javascript">
     <![CDATA[
@@ -60,7 +60,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         // delay LibX initialization until after all other handlers have executed
         // improves startup speed and avoids triggering bugs in Firefox proper on MacOS
         // suggested by Fritz Anderson (fritza@uchicago.edu)
-        window.setTimeout(libx.browser.initialize, 0); 
+        window.setTimeout(libx.ffwindow.initialize, 0); 
       }, false);
     ]]>
     </script>
@@ -232,7 +232,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
       ondrop="event.stopPropagation(); event.preventDefault(); libx.ui.magicSearch(event.dataTransfer.getData('text/plain'));"
       label="LibX"
       tooltiptext="LibX"
-      image="chrome://libx/skin/libx2-16.png"
+      image="chrome://libx/skin/$libxicon$"
       class="toolbarbutton-1 chromeclass-toolbar-additional"
       />
   </toolbarpalette>

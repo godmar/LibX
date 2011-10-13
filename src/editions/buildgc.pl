@@ -73,6 +73,7 @@ $conf{'emupdateURL'} = $publish_base_url . "gc/updates.xml";
 $conf{'crxlocation'} = $publish_base_url . "gc/$crxfile";
 $conf{'bootstrapURL'} = $bootstrap_url;
 $conf{'defaultpkgURL'} = $default_package_url;
+$conf{'libxicon'} = "libx2-16.png";
 #######################################################
 
 #

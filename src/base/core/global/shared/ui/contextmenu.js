@@ -24,74 +24,106 @@
  * ***** END LICENSE BLOCK ***** */
  
 /**
- * Namespace for Browser abstractions
- * @namespace
+ * Class that creates the browser's context menu items.
+ * @class
  */
- 
-libx.ui.ContextMenu = ( function () 
-{ 
+libx.ui.ContextMenu = (function () { 
 
 /**
  *  Represents a single entry in the context menu
  *  This class represents the base class from which other
- *  items will inherit
- *  
- *  Items should implement the following functions
- *
- *  onshowing (p)
- *  - Called when this menu item is supposed to be shown
- *  - p: PoupHelper object
- *
- *  initialize (args)
- *  - Called once to initialize the object
- *  - Args are up to implementor to define
- *  
- *  Additionaly, Items should have the following properties
- *  contexts: an array of contexts for when the menu should appear
- *  onclick: function to execute upon click
- *  type: unique type attribute for all items of this class
- *  name: unique name attribute for this item
+ *  items will inherit.
+ *  @name libx.ui.ContextMenu.ContextMenuItem
+ *  @class
  */
-var ContextMenuItem = libx.ui.ContextMenuItem = libx.core.Class.create (
-/** @lends libx.ui.ContextMenu.ContextMenuItem.prototype */ 
-{
-    /**
-     *  @private
-     *  @constructs
-     */
+var ContextMenuItem = libx.core.Class.create (
+    /** @lends libx.ui.ContextMenu.ContextMenuItem.prototype */ {
+
     initialize : function () { },
     
+    /**
+     * Whether this entry is shown in the context menu.
+     * @type Boolean
+     * @default true
+     */
     visible : true,
     
+    /**
+     * The string that will appear in the context menu.
+     * @type String
+     */
     title : "Context Menu Item",
     
+    /**
+     * Array of contexts in which this item should be shown.
+     * Supported contexts are "all", "page", "selection", and "link".
+     * @see http://code.google.com/chrome/extensions/contextMenus.html#method-create
+     * @default ["all"]
+     */
     contexts : ["all"],
     
-    // used in the preferences page to update this context menu item
+    /**
+     * String that maps this entry to its boolean preference.
+     * This is required so the entry can be enabled/disabled in the preferences UI.
+     * This value can be determined by looking at the _idstr for the corresponding
+     * preference in the libx.prefs.contextmenu.  The prefkey will be "libx.prefs.contextmenu.<prefkey>".
+     * @type String
+     * @example
+     * The preference _idstr for "Get VText" is "libx.prefs.contextmenu.Get VText.enabled".
+     * Therefore, the prefkey in this case would be "Get VText.enabled".
+     */
     prefkey: "prefkey",
     
+    /**
+     * Action to perform when this context menu item is clicked.
+     * @abstract
+     * @param {Object} info             parameter object with context-sensitive information
+     * @config {String} selectionText   the text selected on the page
+     * @config {String} pageUrl         the page the item is on
+     * @config {String} linkUrl         the URL of the link clicked (if applicable)
+     */
     onclick : function (info) { },
     
+    /**
+     * Action to perform before this context menu item is displayed.
+     * @abstract
+     * @param {Object} info             parameter object with context-sensitive information
+     * @config {String} selectionText   the text selected on the page
+     * @config {String} pageUrl         the page the item is on
+     * @config {String} linkUrl         the URL of the link clicked (if applicable)
+     */
     onshowing : function (info) { },
     
+    /**
+     * Filter function that uses context-sensitive information to determine whether this item should be shown.
+     * If not overridden, this function will always return true.
+     * @param {Object} info             parameter object with context-sensitive information
+     * @config {String} selectionText   the text selected on the page
+     * @config {String} pageUrl         the page the item is on
+     * @config {String} linkUrl         the URL of the link clicked (if applicable)
+     * @returns {Boolean}               true if the item should be shown; false otherwise
+     */
     match : function () { return true; }
     
 
 } );
 
-// Factory to store all types of Items
-ContextMenuItem.factory = new Array();
+/**
+ *	Used to instantiate the various context menu item types.
+ *  @name libx.ui.ContextMenu.ContextMenuItem.factory
+ *  @namespace
+ */
+ContextMenuItem.factory = {};
 
 /**
- *  ContextMenuItem implementation for catalog objects
+ *  ContextMenuItem implementation for catalog objects.
+ *  @name libx.ui.ContextMenu.ContextMenuItem.factory.catalog
+ *  @class
+ *  @augments libx.ui.ContextMenu.ContextMenuItem
  */
-ContextMenuItem.factory['catalog'] = libx.core.Class.create ( 
-    ContextMenuItem,
-/**
- *  @lends libx.ui.ContextMenu.CatalogItem.prototype
- */ 
-{
-    /** @field */
+ContextMenuItem.factory['catalog'] = libx.core.Class.create(ContextMenuItem,
+    /** @lends libx.ui.ContextMenu.ContextMenuItem.factory.catalog.prototype */ {
+
     type : 'catalog',
     
     matchFuncs : {
@@ -112,15 +144,6 @@ ContextMenuItem.factory['catalog'] = libx.core.Class.create (
         }
     },
     
-    /**
-     *  @private
-     *  @augments libx.ui.ContextMenu.ContextMenuItem
-     *  @constructs
-     *  @see libx.ui.ContextMenu.Group.createItem
-     *  @param args Object containing the following fields  
-     *  @param {String} args.name  Name of this item
-     *  @param {String} args.searchType  Search Type for this item
-     */
     initialize : function ( name, searchType ) {
         this.searcher = libx.edition.catalogs.getByName(name);
         this.searchType = searchType; 
@@ -153,22 +176,16 @@ ContextMenuItem.factory['catalog'] = libx.core.Class.create (
 });
 
 /**
- *  Implementation of the ContextMenuItem class for openurl objects
- *  Derived from the factory['catalog'] class
+ *  Implementation of the ContextMenuItem class for openurl objects.
+ *  @name libx.ui.ContextMenu.ContextMenuItem.factory.openurl
+ *  @class
+ *  @augments libx.ui.ContextMenu.ContextMenuItem
  */
-ContextMenuItem.factory['openurl'] = libx.core.Class.create ( 
-    ContextMenuItem.factory['catalog'],
-/** @lends libx.ui.ContextMenu.OpenUrlItem.prototype */
-{
-    /**@field openurl*/
+ContextMenuItem.factory['openurl'] = libx.core.Class.create(ContextMenuItem.factory['catalog'],
+    /** @lends libx.ui.ContextMenu.ContextMenuItem.factory.openurl.prototype */ {
+
     type : 'openurl',
     
-    /**
-     *  @private
-     *  @constructs
-     *  @see libx.ui.ContextMenu.Group.createItem
-     *  @augments libx.ui.ContextMenu.CatalogItem
-     */
     initialize : function (name) {
         this.searcher = libx.edition.openurl.getByName(name);
         this.title = libx.locale.defaultStringBundle.getProperty("label_search_catalog_str", name, '"%s"');
@@ -200,22 +217,18 @@ ContextMenuItem.factory['openurl'] = libx.core.Class.create (
 });
             
 /**
- *  Implementation of the ContextMenuItem class for proxy objets
+ *  Implementation of the ContextMenuItem class for proxy objects.
+ *  @name libx.ui.ContextMenu.ContextMenuItem.factory.proxy
+ *  @class
+ *  @augments libx.ui.ContextMenu.ContextMenuItem
  */
-ContextMenuItem.factory['proxy'] = libx.core.Class.create ( 
-    ContextMenuItem, 
-/** @lends libx.ui.ContextMenu.ProxyItem.prototype */
-{
+ContextMenuItem.factory['proxy'] = libx.core.Class.create(ContextMenuItem, 
+    /** @lends libx.ui.ContextMenu.ContextMenuItem.factory.proxy.prototype */ {
+
     type : 'proxy',
+
     searchType : 'enabled',
-    /**
-     *  @private
-     *  @constructs
-     *  @augments libx.ui.ContextMenu.ContextMenuItem
-     *  @see libx.ui.ContextMenu.Group.createItem
-     *  @param args Object containing fields below
-     *  @param {String} args.name Name of this object
-     */
+
     initialize : function (name) {
         this.parent ( name );
         this.proxy = libx.edition.proxy.getByName ( name );
@@ -233,22 +246,16 @@ ContextMenuItem.factory['proxy'] = libx.core.Class.create (
 });
 
 /**
- *  Implementation of the ContextMenuItem class for openurl objects
- *  Derived from the factory['catalog'] class
+ *  Implementation of the ContextMenuItem class for proxying via links.
+ *  @name libx.ui.ContextMenu.ContextMenuItem.factory.proxy_link
+ *  @class
+ *  @augments libx.ui.ContextMenu.ContextMenuItem
  */
-ContextMenuItem.factory['proxy_link'] = libx.core.Class.create ( 
-    ContextMenuItem.factory['proxy'], 
-/** @lends libx.ui.ContextMenu.OpenUrlItem.prototype */
-{
-    /**@field openurl*/
+ContextMenuItem.factory['proxy_link'] = libx.core.Class.create(ContextMenuItem.factory['proxy'], 
+    /** @lends libx.ui.ContextMenu.ContextMenuItem.factory.proxy_link.prototype */ {
+
     type : 'proxy',
     
-    /**
-     *  @private
-     *  @constructs
-     *  @see libx.ui.ContextMenu.Group.createItem
-     *  @augments libx.ui.ContextMenu.CatalogItem
-     */
     initialize : function (name) {
         this.parent(name);
         this.title = libx.locale.defaultStringBundle.getProperty("proxy_follow_label", this.proxy.name);
@@ -263,12 +270,14 @@ ContextMenuItem.factory['proxy_link'] = libx.core.Class.create (
 });
 
 /**
- *  Implementation of the ContextMenuItem class for scholar magic search
+ *  Implementation of the ContextMenuItem class for scholar magic search.
+ *  @name libx.ui.ContextMenu.ContextMenuItem.factory.scholar
+ *  @class
+ *  @augments libx.ui.ContextMenu.ContextMenuItem
  */
-ContextMenuItem.factory['scholar'] = libx.core.Class.create ( 
-    ContextMenuItem, 
-/** @lends libx.ui.ContextMenu.ScholarItem.prototype */
-{
+ContextMenuItem.factory['scholar'] = libx.core.Class.create(ContextMenuItem, 
+    /** @lends libx.ui.ContextMenu.ContextMenuItem.factory.scholar.prototype */ {
+
     initialize : function () {
         this.parent();
         this.title = libx.locale.defaultStringBundle.getProperty("label_search_scholar", '"%s"');
@@ -276,6 +285,7 @@ ContextMenuItem.factory['scholar'] = libx.core.Class.create (
     },
 
     type : 'scholar',
+
     contexts : ["selection"],
     
     onclick : function (info) {
@@ -284,20 +294,9 @@ ContextMenuItem.factory['scholar'] = libx.core.Class.create (
 
 });
 
-/**
- *  This class allows items to be added dynamically to the ContextMenu.
- *  Note that this item must manually be registered with the browsers
- *  event listeners
- */
-return libx.core.Class.create (
-/** @lends libx.ui.ContextMenu.prototype */ 
-{
+return libx.core.Class.create(
+    /** @lends libx.ui.ContextMenu.prototype */ {
 
-    /**
-     *  Initializes this context menu object
-     *  Takes a paramater indicating the groupLists and groups to initialize
-     *  @constructs
-     */
     initialize : function () {
     
         this.items = [];
@@ -330,6 +329,12 @@ return libx.core.Class.create (
         
     },
     
+    /**
+     * Registers an ID with a context menu item.
+     * Once this is done, the item can be retrieved with its ID using {@link lookupItemId}.
+     * @param {Integer}  id  the ID to map the item to
+     * @param {libx.ui.ContextMenu.ContextMenuItem}  item  the item to register
+     */
     registerItem: function (id, item) {
         this.items.push({
             id: id,
@@ -337,6 +342,11 @@ return libx.core.Class.create (
         });
     },
     
+    /**
+     * Gets a context menu item by ID.
+     * @param {Integer}  id  the ID of the item to find
+     * @returns {libx.ui.ContextMenu.ContextMenuItem} the item with the given ID; null if invalid ID given
+     */
     lookupItemId: function (id) {
         for (var i = 0; i < this.items.length; i++) {
             if (this.items[i].id == id)
@@ -344,12 +354,32 @@ return libx.core.Class.create (
         }
     },
     
+    /**
+     * Browser-specific function that adds the context menu item to the browser UI.
+     * @abstract
+     * @param {libx.ui.ContextMenu.ContextMenuItem}  item  ContextMenuItem to add
+     */
     addItem: libx.core.AbstractFunction("libx.ui.ContextMenu.addItem"),
 
+    /**
+     * Browser-specific function that removes the context menu item from the browser UI.
+     * @abstract
+     * @param {libx.ui.ContextMenu.ContextMenuItem}  item  ContextMenuItem to remove
+     */
     removeItem: libx.core.AbstractFunction("libx.ui.ContextMenu.removeItem"),
     
-    update: libx.core.AbstractFunction("libx.ui.ContextMenu.update")
+    /**
+     * Browser-specific function that update the context menu item in the browser UI.
+     * @abstract
+     * @param {Integer}  id  ID of item to update
+     * @param {libx.ui.ContextMenu.ContextMenuItem}  params  update parameters
+     * @config {Boolean}  visible  whether this item should be shown
+     */
+    update: libx.core.AbstractFunction("libx.ui.ContextMenu.update"),
     
+    // add ContextMenuItem to ContextMenu namespace
+    ContextMenuItem: ContextMenuItem
+
 });
 
 }) ();

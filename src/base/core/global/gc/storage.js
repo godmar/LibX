@@ -18,24 +18,6 @@ return {
             });
         },
 
-        /**
-         * Retrieves an object from storage with the given key.
-         *
-         * @param {Object}      paramObj contains properties used for retrieval
-         * 
-         * @param {String}      paramObj.key        (REQUIRED) key to store
-         * 
-         * @param {String}      paramObj.value      (REQUIRED) value to store
-         * 
-         * @param {Function}    paramObj.success    function to execute upon
-         *                                          success
-         * 
-         * @param {Function}    paramObj.complete   function to execute upon
-         *                                          call completion
-         *                                          
-         * @param {Function}    paramObj.error      function to execute upon
-         *                                          errors
-         */
         setItem: function(paramObj) {
 
             var storeName = this.storeName;
@@ -52,28 +34,6 @@ return {
             });
         },
         
-        /**
-         * Retrieves an object from storage with the given key.
-         *
-         * @param {Object}      paramObj contains properties used for retrieval
-         * 
-         * @param {String}      paramObj.key        (REQUIRED) key to look up
-         * 
-         * @param {Function}    paramObj.complete   function to execute upon
-         *                                          call completion
-         *                                          
-         * @param {Function}    paramObj.error      function to execute upon
-         *                                          errors
-         *                                          
-         * @param {Function}    paramObj.success    function to execute when
-         *                                          value is returned; takes a
-         *                                          single parameter which will
-         *                                          be the returned value
-         *                                          
-         * @param {Function}    paramObj.notfound   function to execute if the
-         *                                          given key was not found in
-         *                                          the store
-         */
         getItem: function(paramObj) {
 
             var storeName = this.storeName;
@@ -101,27 +61,6 @@ return {
 
         },
         
-        /**
-         * Retrieves all items matching a given pattern.
-         *
-         * @param {Object}      paramObj contains properties used for retrieval
-         * 
-         * @param {String}      paramObj.pattern    pattern to search; if not
-         *                                          provided, all items will be
-         *                                          returned
-         * 
-         * @param {Function}    paramObj.complete   function to execute upon
-         *                                          call completion
-         *                                          
-         * @param {Function}    paramObj.error      function to execute upon
-         *                                          errors
-         *                                          
-         * @param {Function}    paramObj.success    function to execute when
-         *                                          value is returned; takes a
-         *                                          single parameter which will
-         *                                          be all matched items
-         */
-        // BRN: redo this to be efficient with SQL
         find: function(paramObj) {
 
             var storeName = this.storeName;
@@ -156,22 +95,6 @@ return {
 
         },
         
-        /**
-         * Removes an object from storage with the given key.
-         *
-         * @param {Object}      paramObj contains properties used for retrieval
-         * 
-         * @param {String}      paramObj.key        (REQUIRED) key to look up
-         * 
-         * @param {Function}    paramObj.complete   function to execute upon
-         *                                          call completion
-         *                                          
-         * @param {Function}    paramObj.error      function to execute upon
-         *                                          errors
-         *                                          
-         * @param {Function}    paramObj.success    function to execute upon
-         *                                          success
-         */
         removeItem: function(paramObj) {
 
             var storeName = this.storeName;
@@ -189,25 +112,11 @@ return {
 
         },
 
-        /**
-         * Clears the local storage.
-         *
-         * @param {Object}      paramObj contains properties used for retrieval
-         * 
-         * @param {Function}    paramObj.success    function to execute upon
-         *                                          success
-         * 
-         * @param {Function}    paramObj.complete   function to execute upon
-         *                                          call completion
-         *                                          
-         * @param {Function}    paramObj.error      function to execute upon
-         *                                          errors
-         */
         clear: function(paramObj) {
 
             var storeName = this.storeName;
             var error = function (t, err) {
-                if (paramObj.error)
+                if (paramObj && paramObj.error)
                     paramObj.error(err.message);
                 else
                     libx.log.write('Error in libx.storage.clear(): ' + err);

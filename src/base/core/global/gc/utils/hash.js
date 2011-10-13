@@ -22,11 +22,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
-/**
- * @namespace 
- * Support for cryptographic hashes - SHA1
- */
 libx.utils.hash = (function() {
 
 /**
@@ -205,10 +200,6 @@ function SHA1 (msg) {
 }
 
 return {
-    /**
-     * hashes the given text into a sha1 hashing
-     * @name libx.utils.hash.hashString
-     */
     hashString : function ( text )
     {
         return SHA1( text );

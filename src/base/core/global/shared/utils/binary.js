@@ -1,20 +1,24 @@
 
+/**
+ * Namespace for binary file handling.
+ * @namespace
+ */
 libx.utils.binary = (function() {
 
-/*****
-*
-*   Base64.js
-*
-*   copyright 2003, Kevin Lindsey
-*   licensing info available at: http://www.kevlindev.com/license.txt
-*
-*****/
+/*
+ *
+ *   Base64.js
+ *
+ *   copyright 2003, Kevin Lindsey
+ *   licensing info available at: http://www.kevlindev.com/license.txt
+ *
+ */
 
-/*****
-*
-*   encoding table
-*
-*****/
+/*
+ *
+ *   encoding table
+ *
+ */
 Base64.encoding = [
     "A", "B", "C", "D", "E", "F", "G", "H",
     "I", "J", "K", "L", "M", "N", "O", "P",
@@ -27,19 +31,19 @@ Base64.encoding = [
 ];
 
 
-/*****
-*
-*   constructor
-*
-*****/
+/*
+ *
+ *   constructor
+ *
+ */
 function Base64() {}
 
 
-/*****
-*
-*   encode
-*
-*****/
+/*
+ *
+ *   encode
+ *
+ */
 Base64.encode = function(data) {
     var result = [];
     var ip57   = Math.floor(data.length / 57);
@@ -172,6 +176,13 @@ var BinaryFile = function(strData, iDataOffset, iDataLength) {
 };
 
 return {
+    /**
+     * Converts binary to its base 64 string representation.
+     *
+     * @name libx.utils.binary.binary2Base64
+     * @param {Binary}  raw binary data
+     * @returns {String}  base 64 encoded string of binary data
+     */
     binary2Base64: function(binary) {
         var binaryResponse = new BinaryFile(binary);
         var binArr = [];

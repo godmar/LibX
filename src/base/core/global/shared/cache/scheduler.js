@@ -71,7 +71,7 @@ libx.cache.Scheduler = libx.core.Class.create({
         this.cancelUpdates = true;
     },
     
-    scheduleUpdates: function () {
+    scheduleUpdates: function (force) {
    
         if (DISABLE_SCHEDULERS)
             return;
@@ -226,7 +226,7 @@ libx.cache.Scheduler = libx.core.Class.create({
                 var now = Date.now();
                 var delay = Math.floor(self.maxRandDelay * Math.random());
                 var expires = metadata.lastAccessed + self.updateInterval + delay;
-                if (now < expires) {
+                if (!force && now < expires) {
                     // cache hasn't expired yet; schedule update
                     scheduleNextUpdate(expires - now);
                 } else {

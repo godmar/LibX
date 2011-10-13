@@ -65,8 +65,7 @@
 <script src="core/global/shared/ui.js"></script>
 <script src="core/global/shared/ui/contextmenu.js"></script>
 <script src="core/global/gc/ui.js"></script>
-<script src="core/global/gc/extension.js"></script>
-<script src="core/global/shared/backgroundlisteners.js"></script>
+<script src="core/global/gc/background.js"></script>
 
 <script>
 
@@ -83,7 +82,7 @@ libx.events.addListener("EditionConfigurationLoaded", {
         libx.utils.getEditionResource({
             url: libx.edition.options.icon,
             success: function (dataUri) {
-                chrome.browserAction.setIcon({ path: dataUri });
+                libx.ui.setIcon(dataUri);
             }
         });
     }
@@ -145,20 +144,20 @@ function cacheRequest(cache, args, sendResponse) {
     cache.get.call(cache, args);
 }
 
-libx.extension.addListener("memoryCache", function (request, sender, sendResponse) {
+libx.background.addListener("memoryCache", function (request, sender, sendResponse) {
     cacheRequest(libx.cache.defaultMemoryCache, request.args, sendResponse);
 });
 
-libx.extension.addListener("objectCache", function (request, sender, sendResponse) {
+libx.background.addListener("objectCache", function (request, sender, sendResponse) {
     cacheRequest(libx.cache.defaultObjectCache, request.args, sendResponse);
 });
 
-libx.extension.addListener("browserPrefs", function (request, sender, sendResponse) {
+libx.background.addListener("browserPrefs", function (request, sender, sendResponse) {
     // the localStorage should only contain browserprefs
     sendResponse({ prefs: localStorage });
 });
 
-libx.extension.addListener("magicImport", function (request, sender, sendResponse) {
+libx.background.addListener("magicImport", function (request, sender, sendResponse) {
         
     function unserialize(obj) {
     

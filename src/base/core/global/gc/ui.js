@@ -1,11 +1,12 @@
 
+libx.ui.setIcon = function (path) {
+    if (!path)
+        path = libx.locale.getExtensionURL("$libxicon$");
+    chrome.browserAction.setIcon({ path: path });
+};
+
 libx.ui.tabs = {
 
-    /**
-     * Create a tab with the specified URL.
-     * 
-     * @param {String} URL of page to open
-     */
     create: function (createData) {
         chrome.tabs.create(createData);
     },
@@ -59,10 +60,6 @@ libx.ui.ContextMenu = libx.core.Class.create( libx.ui.ContextMenu,
             documentUrlPatterns: getVisibilityPattern(item.visible)
         });
         this.registerItem(id, item);
-    },
-    
-    removeItem: function (itemId) {
-        chrome.contextMenus.remove(itemId);
     },
     
     update: function (itemId, updateProperties) {

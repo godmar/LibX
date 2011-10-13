@@ -22,15 +22,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
  
-/**
- * Support for creating a sandbox.
- *
- * Evaluates in global FF context.
- *
- * @see libx.libapp.createSandbox
- *
- * @class
- */
 libx.libapp.Sandbox = libx.core.Class.create(
     /** @lends libx.libapp.Sandbox.prototype */{
     /** 
@@ -43,8 +34,9 @@ libx.libapp.Sandbox = libx.core.Class.create(
      *
      * 'unsafeWindow' may be used to access the actual window object.
      *
-     * @param {Window} win - window to be wrapped
-     * @param {Object} globalproperties - properties to be included in global scope
+     * @constructs
+     * @param {Window} win  window to be wrapped
+     * @param {Object} globalproperties  properties to be included in global scope
      */
     initialize : function ( win, globalproperties ) {
     
@@ -73,9 +65,9 @@ libx.libapp.Sandbox = libx.core.Class.create(
     /**
      * Evaluate a given piece of JavaScript
      *
-     * @param {String}  code to be evaluated
-     * @param {String}  name of file or identifier for code being evaluated
-     *                  (used for debugging details)
+     * @param {String}  code  code to be evaluated
+     * @param {String}  name  name of file or identifier for code being evaluated
+     *                        (used for debugging details)
      */
     evaluate : function ( code, fname ) {
         try {
@@ -89,7 +81,7 @@ libx.libapp.Sandbox = libx.core.Class.create(
     /**
      * Load a script from a given URL
      * 
-     * @param {String}  location of script
+     * @param {String} url  location of script
      */
     loadScript : function ( url ) {
         var self = this;
