@@ -36,7 +36,7 @@ libx.ui.ContextMenu = (function () {
  *  @name libx.ui.ContextMenu.ContextMenuItem
  *  @class
  */
-var ContextMenuItem = libx.ui.ContextMenu.ContextMenuItem = libx.core.Class.create (
+var ContextMenuItem = libx.core.Class.create (
     /** @lends libx.ui.ContextMenu.ContextMenuItem.prototype */ {
 
     initialize : function () { },
@@ -375,8 +375,11 @@ return libx.core.Class.create(
      * @param {libx.ui.ContextMenu.ContextMenuItem}  params  update parameters
      * @config {Boolean}  visible  whether this item should be shown
      */
-    update: libx.core.AbstractFunction("libx.ui.ContextMenu.update")
+    update: libx.core.AbstractFunction("libx.ui.ContextMenu.update"),
     
+    // add ContextMenuItem to ContextMenu namespace
+    ContextMenuItem: ContextMenuItem
+
 });
 
 }) ();
