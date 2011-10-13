@@ -38,9 +38,13 @@ libx.cache.bd = {
                         origOpen.apply(this,[sMethod, sUrl, bAsync, sUser, sPassword]);
                 else
                         origOpen.apply(this,[sMethod, 
-                        "libxrestructuring/src/base/core/global/cs/proxy.php?url="+ encodeURIComponent(sUrl),
-                        bAsync, sUser, sPassword]);
-            }
+                                             libx.cs.proxy(sUrl),
+                                             bAsync,
+                                             sUser,
+                                             sPassword
+                                            ]
+                                      );
+                            } 
         }
         return xmlhttp;
     }
