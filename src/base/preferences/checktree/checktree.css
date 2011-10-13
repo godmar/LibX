@@ -70,7 +70,7 @@ ul.checktree li .uncheckable {
 	background-image: url(check3.gif);
 }
 
-ul.checktree li .checkbox, ul.checktree li .bullet-point {
+li .bullet-point {
     width: 20px;
     height: 14px;
     padding: 0;
