@@ -16,6 +16,9 @@
  */
 
 var entryType = { "package": "Package", "libapp": "Libapp", "module": "Module" };
+var appProps = [ "include","exclude" ];
+var modProps = [ "include","exclude", "guardedby", "regexptexttransformer", "require" ];
+
 /*
  * Gets a string bundle for a given entry before processing that entry.
  *
@@ -147,9 +150,14 @@ function reloadPackages() {
     p.doPostInsertionProcessing();
 }
 
-processCheckTree = {
+var displaymode = false;
+
+if(self.data && self.data.libappdisplaymode)
+  displaymode = true;
+
+processCheckTree = {    
     onready: function () {
-    
+
         $("#libapps-tmpl")
             .append($checkTree)
             .append($rightPanel)
@@ -189,14 +197,40 @@ processCheckTree = {
                     $(".info-panel").parent().find("label:first").removeClass("selected");
                     $(".info-panel").hide();
                     $elem.find("label:first").addClass("selected");
-                    $elem.children(".info-panel")
+                    if(!displaymode) {
+                      $elem.children(".info-panel")
                                             .each( function () {
                                                     insertPreferences($(this));
                                                  });
+                    }
                     $elem.children(".info-panel").show();
                     e.stopPropagation();
                 }
             });
+         
+        if(displaymode)
+        {
+            $checkTree.find(".checked").hide()
+                                       .end()
+                                       .find(".uncheckable")
+                                       .removeClass("uncheckable")
+                                       .addClass("bullet-point");
+            $("#libapps-tmpl")
+                          .addClass("ui-tabs ui-widget ui-widget-content ui-corner-all")
+                          .css("background","transparent");
+
+        }else {
+           $(".toggle-info-panel-prefs").live("click", function () {
+            if ($(this).text() == 'Show Preferences') {
+                $(this).text("Hide Preferences");
+                $(this).parent().siblings(".info-panel-prefs").show();
+            }else if ($(this).text() == 'Hide Preferences') {
+                $(this).text("Show Preferences");
+                $(this).parent().siblings(".info-panel-prefs").hide();
+            }
+            return false;
+           } );
+        }
         
         /* BRN: this gets rebound at each template reload */
         /*$(document).click(function (e) {
@@ -215,17 +249,6 @@ processCheckTree = {
             }
             return false;
         } );
-
-         $(".toggle-info-panel-prefs").live("click", function () {
-            if ($(this).text() == 'Show Preferences') {
-                $(this).text("Hide Preferences");
-                $(this).parent().siblings(".info-panel-prefs").show();
-            }else if ($(this).text() == 'Hide Preferences') {
-                $(this).text("Show Preferences");
-                $(this).parent().siblings(".info-panel-prefs").hide();
-            }
-            return false;
-         } );
 
           $(".toggle-info-panel-codebody").live("click", function () {
             if ($(this).text() == 'Show Code') {
@@ -260,13 +283,65 @@ function savePref($li) {
     }
 }
 
+function formatDate(dtStr)
+{
+  dtStr = new Date(dtStr);
+  var dt = dtStr.toDateString().split(" ");
+  dt = dt[0]+", "+dt[2]+" "+dt[1]+" "+dt[3];
+  dtStr = dtStr.toTimeString().split(" ");
+  dtStr = dt+" "+dtStr[0]+" EST";
+   
+  return dtStr;
+}
+
 function makeInfoPanel(entry,$node,tmplData){
+    var $props = '';
+    if(entry.type == "libapp")
+    {
+      for(var i = 0; i < appProps.length; ++i)
+         for(var j =0; j < entry[appProps[i]].length; ++j)
+         {
+           if( j == 0 ){
+             $props = $props +  '<li>'
+                             +    '<span class="entry-label-name" style="padding-right:0.2em;">'
+                             +       appProps[i] + ': </span>';
+          }
+                      $props +=   '<span class="entry-text">' + encode(entry[appProps[i]][j]) + '</span>';
+          if( j == entry[appProps[i]].length - 1){
+                      $props += '</li>';
+           }else{
+                      $props += '<br/>';
+                    for(var k =0; k < appProps[i].length; ++k)/*TODO: Remove hack for indenting*/
+                      $props += '&nbsp;&nbsp;';
+           }
+         }
+    }else if(entry.type == "module")
+    {
+       for(var i = 0; i < modProps.length; ++i)
+         for(var j =0; j < entry[modProps[i]].length; ++j)
+         {
+           if( j == 0 ){
+             $props = $props +  '<li>'
+                             +    '<span class="entry-label-name" style="padding-right:0.2em;">'
+                             +       modProps[i] + ': </span>';
+          }
+                      $props +=   '<span class="entry-text">' + encode(entry[modProps[i]][j]) + '</span>';
+           if( j == entry[modProps[i]].length - 1){
+                      $props += '</li>';
+           }else{
+                      $props += '<br/>';
+                    for(var k =0; k < modProps[i].length; ++k)
+                      $props += '&nbsp;&nbsp;';
+           }
+         } 
+    }
+ 
     var $infoPanel = $(  '<div class="ui-state-default ui-corner-all info-panel">'
-                       +     '<div class="info-panel-heading" style="padding: .4em .3em 0.0em">' 
+                       +     '<div class="info-panel-heading" style="padding: .6em .6em 0.4em">' 
                        +          '<span class="entry-label-name" style="padding-right:0.2em;">' + entryType[entry.type] + ': </span>'
                        +             encode(entry.description) + '<br/>'
                        +     '</div>'
-                       +     '<div class="toggle-info-panel-links">'
+                       +     '<div class="toggle-info-panel-links" style="padding-left:0.5em;padding-bottom:1em;">'
                        +           '<a class="toggle-info-panel-details" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">Show Details</a>'
                        +     '</div>'
                        +     '<div class="info-panel-details">'
@@ -277,7 +352,7 @@ function makeInfoPanel(entry,$node,tmplData){
                        +                '</li>'
                        +                '<li>'
                        +                  '<span class="entry-label-name" style="padding-right:0.2em;">Last Updated On: ' + '</span>'
-                       +                  '<span ass="entry-text">' + encode(entry.updated) + '</span>'
+                       +                  '<span ass="entry-text">' + formatDate(encode(entry.updated)) + '</span>'
                        +                '</li>'
                        +                '<li>'
                        +                  '<span class="entry-label-name" style="padding-right:0.2em;">Author: ' + '</span>'
@@ -285,22 +360,26 @@ function makeInfoPanel(entry,$node,tmplData){
                        +                '</li>'
                        +                '<li>'
                        +                  '<span class="entry-label-name" style="padding-right:0.2em;">Weblink: ' + '</span>'
-                       +                  '<span class="entry-text">' + encode(entry.author.uri) + '</span>'
+                       +                  '<span class="entry-text">'
+                       +                     '<a href="' +encode(entry.author.uri)+ '" target="_blank" style="text-decoration:underline">'
+                       +                         encode(entry.author.uri)
+                       +                     '</a>'
+                       +                 '</span>'
                        +                '</li>'
                        +                '<li>'
                        +                   '<span class="entry-label-name" style="padding-right:0.2em;">Email: ' + '</span>'
                        +                   '<span class="entry-text">' + encode(entry.author.email) + '</span>'
                        +                '</li>'
+                       +                $props
                        +           '</ul>'
                        +     '</div>'
                        + '</div>');
     if( entry.type == 'module')
 	{
 		$infoPanel
-		        .append('<div class="info-panel-codebody" >'
+		        .append('<div class="info-panel-codebody" style="padding:12px 12px 12px 12px;" >'
                       + '<pre>' + encode(entry.body) + '</pre>\n'
-                      + '</div>\n');
-        $infoPanel
+                      + '</div>\n')
 		        .children('.toggle-info-panel-links')
 				.append(' | <a class="toggle-info-panel-codebody" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
 						    + 'Show Code'
@@ -313,7 +392,7 @@ function makeInfoPanel(entry,$node,tmplData){
 		onready: function () {
 		    $popup.hide().appendTo($rightPanel);
 		    $node.children("label:first").after($infoPanel); 
-		    if (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1) {
+		    if (!(displaymode) && (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1)) {
 				$infoPanel
 				        .children(".toggle-info-panel-links")
 						.find('.toggle-info-panel-details')
@@ -448,10 +527,9 @@ templateScope.queueFunction(function () {
         delay: 0,
         icon: true
     });
-    if(data.libappdisplaymode)
-       alert("true");
-    if (true || data && data.libappdisplaymode) {
-        $("#libapps-subscribe-form").hide();
+    
+    if (displaymode) {
+        $("#libapps-subscribe-form").hide();                      
     }
 });
 

@@ -158,7 +158,7 @@ JsPlate.prototype.process = function(data) {
         var erstr = "";
         erstr += (">> There was an error evaluating the compiled code from template: "+this.templateFile) + "\n";
         erstr += ("   The error was on line "+e.lineNumber+" "+e.name+": "+e.message) + "\n";
-        var lines = this.template.split("\r");
+        var lines = this.template.split("\n");
         if (e.lineNumber-2 >= 0) erstr+=("line "+(e.lineNumber-1)+": "+lines[e.lineNumber-2]) + "\n";
         erstr += ("line "+e.lineNumber+": "+lines[e.lineNumber-1]) + "\n";
         erstr += ("this.code: " + this.template) + "\n";
