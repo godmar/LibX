@@ -1,4 +1,10 @@
 
+libx.ui.setIcon = function (path) {
+    if (!path)
+        path = libx.locale.getExtensionURL("$libxicon$");
+    chrome.browserAction.setIcon({ path: path });
+};
+
 libx.ui.tabs = {
 
     create: function (createData) {

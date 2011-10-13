@@ -90,6 +90,7 @@ $conf{'emupdateURL'} = $publish_base_url . "ff/update.rdf";
 $conf{'xpilocation'} = $publish_base_url . "ff/$xpifile";
 $conf{'bootstrapURL'} = $bootstrap_url;
 $conf{'defaultpkgURL'} = $default_package_url;
+$conf{'libxicon'} = "libx2-16.png";
 #######################################################
 
 #

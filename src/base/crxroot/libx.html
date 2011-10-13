@@ -82,7 +82,7 @@ libx.events.addListener("EditionConfigurationLoaded", {
         libx.utils.getEditionResource({
             url: libx.edition.options.icon,
             success: function (dataUri) {
-                chrome.browserAction.setIcon({ path: dataUri });
+                libx.ui.setIcon(dataUri);
             }
         });
     }

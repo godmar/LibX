@@ -232,7 +232,7 @@ Author: Annette Bailey <annette.bailey@gmail.com>
       ondrop="event.stopPropagation(); event.preventDefault(); libx.ui.magicSearch(event.dataTransfer.getData('text/plain'));"
       label="LibX"
       tooltiptext="LibX"
-      image="chrome://libx/skin/libx2-16.png"
+      image="chrome://libx/skin/$libxicon$"
       class="toolbarbutton-1 chromeclass-toolbar-additional"
       />
   </toolbarpalette>

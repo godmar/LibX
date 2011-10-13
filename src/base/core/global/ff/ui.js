@@ -28,6 +28,28 @@
     }
 
     /**
+     * Set the icon for the LibX button.
+     * 
+     * @param {String} path  (optional) the data URI or file path. if null,
+     *                       sets the generic LibX icon.
+     */
+    libx.ui.setIcon = function (path) {
+        if (!path)
+            path = "chrome://libx/skin/$libxicon$";
+
+        // enumerate each browser chrome window
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]  
+                           .getService(Components.interfaces.nsIWindowMediator);  
+        var enumerator = wm.getEnumerator("navigator:browser");  
+        while (enumerator.hasMoreElements()) {  
+            var win = enumerator.getNext();  
+            var libxButton = win.document.getElementById("libx-button")
+            if (libxButton)
+                libxButton.setAttribute("image", path);
+        }  
+    };
+
+    /**
      * Namespace for interacting with browser tabs.
      * Based partially on Chrome API at http://code.google.com/chrome/extensions/tabs.html
      * @namespace

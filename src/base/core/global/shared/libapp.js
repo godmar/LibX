@@ -11,6 +11,18 @@ var allPackages = null;
 var enabledPackages = null;
 var packageSchedulers = [];
 
+function getUserPackages() {
+    var userPackages;
+    try {
+        userPackages = libx.utils.json.parse(
+            libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
+    } catch (e) {
+        userPackages = [];
+        libx.utils.browserprefs.setStringPref("libx.libapp.userpackages", "[]");
+    }
+    return userPackages;
+}
+
 /**
  * Clears any temporary packages the user has subscribed to.
  * Note: {@link libx.libapp.reloadPackages} must be called for changes to take effect.
@@ -46,8 +58,7 @@ libx.libapp.addTempPackage = function (permUrl, tempUrl) {
  * @returns {Boolean} whether the package was successfully unsubscribed
  */
 libx.libapp.removeUserPackage = function (pkg) {
-    var userPackages = libx.utils.json.parse(
-        libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
+    var userPackages = getUserPackages();
     var idx = userPackages.indexOf(pkg);
     if (idx < 0)
         return false;
@@ -68,8 +79,7 @@ libx.libapp.removeUserPackage = function (pkg) {
 libx.libapp.addUserPackage = function (pkg) {
     if (this.getPackages().indexOf(pkg) >= 0)
         return false;
-    var userPackages = libx.utils.json.parse(
-        libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
+    var userPackages = getUserPackages();
     userPackages.push(pkg);
     libx.utils.browserprefs.setStringPref("libx.libapp.userpackages",
         libx.utils.json.stringify(userPackages));
@@ -89,8 +99,7 @@ libx.libapp.getPackages = function (enabledOnly) {
         libx.edition.localizationfeeds['package'].forEach(function (pkg) {
             allPackages.push(pkg.url);
         });
-        var userPackages = libx.utils.json.parse(
-            libx.utils.browserprefs.getStringPref("libx.libapp.userpackages", "[]"));
+        var userPackages = getUserPackages();
         userPackages.forEach(function (pkg) {
             // prevent duplicates
             if (allPackages.indexOf(pkg) < 0)
