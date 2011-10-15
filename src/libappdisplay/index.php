@@ -110,15 +110,15 @@ libx.edition = {
  * in the cache.
  * Simulate the process that would be done in the actual plug-in.
  */
-/*var jsonUrl = libx.locale.getBootstrapURL("updates.json");
+var jsonUrl = libx.locale.getBootstrapURL("updates.json");
 libx.log.write("bootstrapurl is " + jsonUrl);
 libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
-*//*var pageProcessingQueue = new libx.utils.collections.DelayedActivityQueue();
+var pageProcessingQueue = new libx.utils.collections.DelayedActivityQueue();
 libx.cache.defaultHashScheduler.updatesFinished = function () {
     // now we know that cache contains up-to-date versions of all templates
     pageProcessingQueue.markReady(); 
+}
 libx.cache.defaultHashScheduler.scheduleUpdates(true);
-*/
 
 </script>
 
