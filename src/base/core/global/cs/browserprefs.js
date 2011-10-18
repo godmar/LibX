@@ -31,6 +31,9 @@
      * default value. */
 	function getPref(prefName, defValue) {
 	    var pref = store[prefix + prefName];
+        /* RP: FF's store obj has a small quirk, unlike chrome sets pref var to null
+           instead of 'undefined'...hence the additional check for null   
+        */
 		if(typeof(pref) != 'undefined' && pref != null)
 			return pref;
 		return defValue;
