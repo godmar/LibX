@@ -31,7 +31,7 @@
      * default value. */
 	function getPref(prefName, defValue) {
 	    var pref = store[prefix + prefName];
-		if(typeof(pref) != 'undefined')
+		if(typeof(pref) != 'undefined' && pref != null)
 			return pref;
 		return defValue;
 	}

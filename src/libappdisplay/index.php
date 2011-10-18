@@ -49,7 +49,7 @@
 <script src="<? echo $base; ?>/src/base/core/global/cs/timer.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/xml.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/bootstrap.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/gc/utils/browserprefs.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/browserprefs.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/objectcache.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/locale.js"></script>
 <script src="locale.js"></script>
