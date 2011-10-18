@@ -42,23 +42,23 @@
 <!-- 
     see http://truetalkdev.blogspot.com/2007/09/how-to-put-log-messages-in-firefox.html
 -->
-<script src="<? echo $base; ?>/src/base/core/global/gc/log.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/log.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/cache.js"></script>
 <!--<script src="libx2/src/base/core/window/cs/utils/xmlhttpreqwrapper.js"></script> -->
 <!--<script src="libx2/src/base/core/global/shared/libx.cs.js"></script> -->
-<script src="<? echo $base; ?>/src/base/core/global/gc/utils/timer.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/gc/utils/xml.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/gc/bootstrap.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/timer.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/xml.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/bootstrap.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/gc/utils/browserprefs.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/objectcache.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/locale.js"></script>
 <script src="locale.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/libapp.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/scheduler.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/gc/utils/hash.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/hash.js"></script>
 <!--script src="libx2/src/base/core/global/shared/openurl.js"></script-->
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/stdnumsupport.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/gc/utils/xpath.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/xpath.js"></script>
 <!-- <script src="libx2/src/base/core/global/shared/services/xisbn.js"></script> -->
 <!-- <script src="libx2/src/base/core/global/shared/services/pubmed.js"></script> -->
 <!-- <script src="libx2/src/base/core/global/shared/services/crossref.js"></script> -->
@@ -71,7 +71,7 @@
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/contextmenu.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/gc/ui.js"></script>
-<!--script src="libx2/src/base/core/global/gc/extension.js"></script>
+<!--script src="libx2/src/base/core/global/gc.js"></script>
 <script src="libx2/src/base/core/global/shared/backgroundlisteners.js"></script-->
 <script src="<? echo $base; ?>/src/base/bootstrapped/global/shared/libapp/atomparser.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
