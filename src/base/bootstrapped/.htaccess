@@ -1,1 +1,2 @@
 Header set Cache-Control "max-age=0,must-revalidate"
+AddType application/json json
