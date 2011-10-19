@@ -33,8 +33,9 @@ libx.cache.bd = {
         if(xmlhttp) {
             var origOpen = xmlhttp.open;
             xmlhttp.open = function(sMethod, sUrl, bAsync, sUser, sPassword) {
-                var reqdomain = sUrl.match(/:\/\/(.[^/]+)/)[1];
-                if (reqdomain == document.domain)
+                var reqdomainMatch = sUrl.match(/:\/\/(.[^/]+)/);
+                // reqdomainMatch is null for relative URLs, which are same-domain
+                if (reqdomainMatch == null || reqdomainMatch[1] == document.domain)
                         origOpen.apply(this,[sMethod, sUrl, bAsync, sUser, sPassword]);
                 else
                         origOpen.apply(this,[sMethod, 

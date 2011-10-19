@@ -4,6 +4,17 @@
 <? $base = "../../"; ?>
 <script src="<? echo $base; ?>/src/base/core/global/shared/core.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/libx.js"></script>
+
+<script type="text/javascript">
+/* special client-side setup */
+libx.cs = {
+    proxy: function (sUrl) {
+        return "<? echo $base; ?>/src/base/core/global/cs/proxy.php?url="+ encodeURIComponent(sUrl);
+    },
+    baseurl : "<? echo $base; ?>"
+};
+</script>
+
 <script src="<? echo $base; ?>/src/base/core/global/shared/log.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/binary.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/storage.js"></script>
@@ -136,15 +147,8 @@ libx.cache.defaultHashScheduler.scheduleUpdates(true);
 <script src="<? echo $base; ?>/src/base/preferences/jquery-tooltip/jquery.tooltip.js" type="text/javascript"></script>
 <script type="text/javascript" src="<? echo $base; ?>/src/base/preferences/js/jquery-ui-1.8.4.custom.min.js"></script>
 <script type="text/javascript" src="<? echo $base; ?>/src/base/preferences/js/prefs.js"></script>
-<script type="text/javascript">
-/* special client-side setup */
-libx.cs = {
-    proxy: function (sUrl) {
-        return "<? echo $base; ?>/src/base/core/global/cs/proxy.php?url="+ encodeURIComponent(sUrl);
-    },
-    baseurl : "<? echo $base; ?>"
-};
 
+<script type="text/javascript">
 $(document).ready ( function () {
     var result = process ( null, "libx.prefs.libapps", { libappdisplaymode: true });
     $('#content-div').append ( $( result.html ) );
