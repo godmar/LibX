@@ -1,16 +1,17 @@
+
 /**
- * Drop-down box
- *
+ * Drop-down box.
  * This code is based on sample source code provided by fromvega.
  * http://fromvega.com/wordpress/2007/05/05/auto-complete-field-with-jquery-json-php/
  * Search for the complete article at http://www.fromvega.com
  *
- * Enjoy!
- *
- * @author fromvega
- *
+ * @param  {Object} $               the jQuery object
+ * @param  {Object} options         parameter object
+ * @config {Object} field           jQuery link element where the dropdown will be created
+ * @config {Array} dropdown_items   array of dropdown entry objects.  each
+ *                                  object has a "text" and "value" property.
+ * @config {Function(value, text)} select  callback function when an item is selected
  */
-
 libx.ui.jquery.dropdown = function ($, options)
 {
 	

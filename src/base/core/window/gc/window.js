@@ -209,22 +209,21 @@ var imported = {};
         var ocCache = {};
 
         libx.cache = {
+            // we can't pass the actual validator function via RMI, so we
+            // send the name of the validator we want to use and look it up
+            // on the server side.
+            validators: {
+                config: 'config',
+                bootstrapped: 'bootstrapped',
+                feed: 'feed',
+                image: 'image',
+                preference: 'preference'
+            },
             defaultMemoryCache: {
                 get: function (request) {
                     chrome.extension.sendRequest({ type: "memoryCache", args: request }, function (response) {
                         fireCallbacks(request, response, true);
                     });
-                },
-
-                // we can't pass the actual validator function via RMI, so we
-                // send the name of the validator we want to use and look it up
-                // on the server side.
-                validators: {
-                    config: 'config',
-                    bootstrapped: 'bootstrapped',
-                    feed: 'feed',
-                    image: 'image',
-                    preference: 'preference'
                 }
             },
             defaultObjectCache: {
@@ -286,7 +285,7 @@ var imported = {};
                 // Fall back to local preference
                 bootWindowUrls.push({
                     url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.contentscript.url",
-                            libx.locale.getBootstrapURL("bootstrapcontentscript.js") )
+                            libx.utils.getBootstrapURL("bootstrapcontentscript.js") )
                 });
             }
 

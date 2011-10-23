@@ -23,19 +23,26 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-/**
- * Read an edition's configuration from a config.xml file.
- * @class
- */
 libx.config.EditionConfigurationReader = libx.core.Class.create ( 
     /** @lends libx.config.EditionConfigurationReader.prototype */{
+
+    /**
+     * Read an edition's configuration from a config.xml file.
+     *
+     * @constructs
+     * @param  {Object} invofcc  object for argument parameters
+     * @config {String} url      URL of edition configuration
+     * @config {Function(edition)} onload   callback after edition has been
+     *         loaded. accepts one argument, which is the loaded edition
+     *         object.
+     */
     initialize: function ( invofcc ) {
         var editionConfigReader = this;
 
         libx.cache.defaultObjectCache.get({
             dataType : "xml",
             url      : invofcc.url,
-            validator: libx.cache.defaultMemoryCache.validators.config,
+            validator: libx.cache.validators.config,
             success : function (xml, metadata) {
                 var doc = new libx.config.XMLConfigWrapper(xml);
 
@@ -65,7 +72,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     /**
      * Iterates over nodes given by an xpath Expression and turn them into
      * a NameableItemArray.
-     * @param {XMLConfigWrapper} doc configuration document
+     * @param {libx.config.XMLConfigWrapper} doc configuration document
      * @param {String} xpathExpr XPath expression describing nodes to be added
      * @param {Factory} factory Factory - a map of keys to constructors
      * @param {Function} getFactoryKey Function to obtain the key used for the factory from the node

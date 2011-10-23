@@ -21,20 +21,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/**
- * An in-memory cache implementation for documents.
- *
- * Interface is compatible with $._ajax described here:
- * http://docs.jquery.com/Ajax/jQuery.ajax#options
- *
- * Supports multiple pending requests for the same document
- * simultaneously.
- * 
- * @namespace
- */
 libx.cache.MemoryCache = ( function () {
 
-/**
+/*
  * Helper:
  * Invoke success/complete/error callbacks on an array of requests
  */
@@ -68,14 +57,21 @@ function invokeCallbacks(params) {
     }
 }
 
-var memoryCacheClass = libx.core.Class.create ( {
-    /** @lends libx.cache.MemoryCache.prototype */
+var memoryCacheClass = libx.core.Class.create (
+    /** @lends libx.cache.MemoryCache.prototype */ {
 
     /**
-     * Initializes this MemoryCache object
+     * An in-memory cache implementation for documents.
      *
+     * Interface is compatible with $._ajax described here:
+     * http://docs.jquery.com/Ajax/jQuery.ajax#options
+     *
+     * Supports multiple pending requests for the same document
+     * simultaneously.
+     * 
      * @param {Integer} cacheCapacity Sets the capacity of the cache used to store
      *                                xmlhttprequests.  Default value of 50 is used.
+     * @constructs
      */
     initialize : function (cacheCapacity) {
         if (cacheCapacity == null)
@@ -92,11 +88,12 @@ var memoryCacheClass = libx.core.Class.create ( {
     },
 
     /**
-     * @private
-     *
      * Builds the string that serves as the key to the cache
-     *
      * String delimited by commas (,)
+     *
+     * @private
+     * @param {Object} request  the request object given to get()
+     * @returns {String} the key string from this request
      */
     buildKeyString : function (request) {
         var toReturn = "";
@@ -121,11 +118,11 @@ var memoryCacheClass = libx.core.Class.create ( {
     },
 
     /**
-     * @private
-     *
      * Checks whether we have a valid object parameter
      *
+     * @private
      * @throws description of error
+     * @param {Object} paramObj  the request object given to get()
      */
      validateParameter : function(paramObj) {
 
@@ -160,10 +157,9 @@ var memoryCacheClass = libx.core.Class.create ( {
     },
 
     /**
-     * Removes a given request from the cache
+     * Removes a given request from the cache.
      *
-     * @param request
-     *
+     * @param {Object} request  the request object
      * @see get for documentation of request
      */
     removeFromCache : function ( request ) {
@@ -181,55 +177,67 @@ var memoryCacheClass = libx.core.Class.create ( {
      * Will issue an XMLHTTPRequest or read the cache to get the
      * information needed.
      *
-     * @param {Object}   paramObj contains properties used to configure
-     *                            xmlhttprequest 
+     * @param {Object}   paramObj        contains properties used to configure
+     *                                   xmlhttprequest 
      *
-     * @param {Boolean}  paramObj.async           boolean (defaults to true)
+     * @config {Boolean}  async           boolean (defaults to true)
      *
-     * @param {Function} paramObj.complete        function to execute upon
-     *                                            call completion (after
-     *                                            success or error
-     *                                            functions) parameters
-     *                                            (result, status, XMLHttpRequest)
-     *                                            
-     * @param {String}   paramObj.serverMIMEType  type of data expected
-     *                                            from server 
+     * @config {Function} complete        function to execute upon
+     *                                   call completion (after
+     *                                   success or error
+     *                                   functions) parameters
+     *                                   (result, status, XMLHttpRequest)
+     *                                   
+     * @config {String}   serverMIMEType  type of data expected
+     *                                   from server 
      *
-     * @param {String}   paramObj.data            data to send to
-     *                                            server
+     * @config {String}   data            data to send to
+     *                                   server
      *
-     * @param {String}   paramObj.dataType        (REQUIRED) data type
-     *                                            expected from server (text,
-     *                                            xml, or json)
+     * @config {String}   dataType        (REQUIRED) data type
+     *                                   expected from server (text,
+     *                                   xml, or json)
      *
-     * @param {String}   paramObj.type            type of request "POST" or
-     *                                            "GET" (defaults to "GET")
+     * @config {String}   type            type of request "POST" or
+     *                                   "GET" (defaults to "GET")
      *
-     * @param {String}   paramObj.url             (REQUIRED) url to request
+     * @config {String}   url             (REQUIRED) url to request
      *
-     * @param {Object}   paramObj.header          object key = header name,
-     *                                            value = header value
+     * @config {Object}   header          object key = header name,
+     *                                   value = header value
      *
-     * @param {Function} paramObj.error           function to execute on
-     *                                            request failure parameters
-     *                                            (result, status, XMLHttpRequest)
+     * @config {Function} error           function to execute on
+     *                                   request failure parameters
+     *                                   (result, status, XMLHttpRequest)
      *
-     * @param {Function} paramObj.success         function to execute on
-     *                                            request success parameters
-     *                                            (result, status, XMLHttpRequest)
+     * @config {Function} success         function to execute on
+     *                                   request success parameters
+     *                                   (result, status, XMLHttpRequest)
      *
-     * @param {Boolean}  paramObj.bypassCache     boolean which will ignore
-     *                                            cache and always send
-     *                                            request if set to true
-     *                                            (defaults to false).
+     * @config {Boolean}  bypassCache     boolean which will ignore
+     *                                   cache and always send
+     *                                   request if set to true
+     *                                   (defaults to false).
      *
-     * @param {Function} validator                function to validate the
-     *                                            object's data before it
-     *                                            is stored in the cache
+     * @config {Function} validator       function to validate the
+     *                                   object's data before it
+     *                                   is stored in the cache. accepts one
+     *                                   params object with the following
+     *                                   properties:<br/>
+     *                                     url: {String} the url of the resource<br/>
+     *                                     data: {Object} the resource's data<br/>
+     *                                     text: {String} the stringified data<br/>
+     *                                     mimeType: {String} the resource's mime-type<br/>
+     *                                     success: {Function} callback function for successful validation<br/>
+     *                                     error: {Function} callback function for failed validation
+     *
+     * @see libx.cache.validators for common validators.
      *
      * @returns {Object} XML HTTP request 
      */
     get : function ( request ) {
+
+        var self = this;
 
         this.validateParameter(request);
 
@@ -352,7 +360,7 @@ var memoryCacheClass = libx.core.Class.create ( {
 
                     // don't validate chrome URLs or errors
                     if (!/^chrome.*:\/\//.test(request.url) && xmlHttpReq.status == 200 && request.validator) {
-                        request.validator({
+                        request.validator.call(self, {
                             url: request.url,
                             data: result,
                             text: text,
@@ -415,88 +423,17 @@ var memoryCacheClass = libx.core.Class.create ( {
         } // end if result not in cache
     },
 
-    /**
-     * Set of functions used to validate response data before storing in the cache.
-     * This is necessary to detect the fake responses returned by captive portals
-     * (such as web authentication login screens).
-     */
-    validators: {
-        config: function (params) {
-            if (/xml/.test(params.mimeType)
-                    && libx.utils.xpath.findSingleXML(params.data, '//edition/name'))
-                params.success();
-            else
-                params.error();
-        },
-        bootstrapped: function (params) {
-
-            var bootstrapPath = libx.locale.getBootstrapURL('');
-
-            // if we are fetching a third party resource (i.e., not in the LibX
-            // bootstrapped directory), skip validation
-            if (params.url.indexOf(bootstrapPath) != 0) {
-                params.success();
-                return;
-            }
-
-            // XXX: use this instance, not necessarily defaultMemoryCache
-            libx.cache.defaultMemoryCache.get({
-                url: libx.locale.getBootstrapURL('updates.json'),
-                dataType: 'json',
-                success: function (updates) {
-
-                    // get a relative path as used in updates.json
-                    var relPath = params.url.replace(bootstrapPath, '');
-
-                    // calculate SHA1 of text
-                    var sha1 = libx.utils.hash.hashString(params.text);
-
-                    if (updates.files && updates.files[relPath]
-                            && updates.files[relPath].hash == sha1) {
-                        params.success();
-                    } else {
-                        params.error();
-                    }
-
-                },
-                error: function (status) {
-                    libx.log.write('error ' + status + ' when fetching updates.json');
-                    params.error();
-                }
-            });
-
-        },
-        feed: function (params) {
-            if (/xml/.test(params.mimeType) && libx.utils.xpath.findSingleXML(params.data,
-                    '//libx:package|//libx:libapp|//libx:module', null, { libx: 'http://libx.org/xml/libx2' } ))
-                params.success();
-            else
-                params.error();
-        },
-        preference: function (params) {
-            if (/xml/.test(params.mimeType)
-                    && libx.utils.xpath.findSingleXML(params.data, '//item|//preference|//category'))
-                params.success();
-            else
-                params.error();
-        },
-        image: function (params) {
-            if (/image/.test(params.mimeType))
-                params.success();
-            else
-                params.error();
-        }
-
-    }
-
 });
-/*
- * Serves as private cache
- */
-var InternalCache = libx.core.Class.create ( {
 
-    /*
-     * @param size integer representing maximum size of cache
+var InternalCache = libx.core.Class.create (
+    /** @lends libx.cache.MemoryCache.xhrCache.prototype */ {
+
+    /**
+     * Internal cache.
+     *
+     * @param {Integer} maxSize  integer representing maximum size of cache
+     * @constructs
+     * @private
      */
     initialize : function (maxSize) {
         this.maxSize = maxSize;
@@ -506,9 +443,10 @@ var InternalCache = libx.core.Class.create ( {
         this.cacheLength = 0;
     },
 
-   /*
+   /**
     * Removes a given node from the cache.  Useful for cases where the result
     * wasn't valid, but the request had a 200 http code anyway.
+    * @param {Object} node  node to remove
     */
     removeFromCache : function (node) {
 
@@ -520,7 +458,7 @@ var InternalCache = libx.core.Class.create ( {
         --this.cacheLength;
     },
 
-    /*
+    /**
      * Attempts to add an element to the cache with a given key.  If an
      * element with the same key is already stored in the cache, then we
      * add the handler functions to the queue associated with the element.
@@ -530,7 +468,7 @@ var InternalCache = libx.core.Class.create ( {
      * @param xhr          xmlhttprequest object
      * @param request      request object
      *
-     * @returns node associated with that key
+     * @returns {Object} node associated with that key
      */
     addToCache : function (keyContents, xhr, request) {
 
@@ -607,27 +545,27 @@ var InternalCache = libx.core.Class.create ( {
      *
      * @param {String} keyValue key associated with node
      *
-     * @returns node or undefined if not found
+     * @returns {Object} node or undefined if not found
      */
     findNode : function (keyValue) {
         return this.cacheTable[keyValue];
     },
     
-    /*
-     * Moves given node to front of list
+    /**
+     * Moves given node to front of list.
      *
-     * @param {Object} node node to move to front of list
+     * @param {Object} node  node to move to front of list
      */
     moveToFront : function (node) {
         this.cacheList.remove(node);
         this.cacheList.pushFront(node);
     },
 
-    /*
-     * Add request to cache
+    /**
+     * Add request to cache.
      *
-     * @param {Object} node node to which to add this request
-     * @param {Object} request to be added
+     * @param {Object} node     node to which to add this request
+     * @param {Object} request  request to be added
      */
     addRequest : function (node, request) {
 
@@ -636,7 +574,7 @@ var InternalCache = libx.core.Class.create ( {
         this.moveToFront(node);
     },
 
-    /*
+    /**
      * Flush cache
      */
     flush : function () {

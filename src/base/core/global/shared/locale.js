@@ -23,29 +23,47 @@
  * ***** END LICENSE BLOCK ***** */
 
 /** 
- * @namespace 
- *
  * Support for internationalization.
+ *
+ * @namespace 
  */
 libx.locale = ( function () { 
 
-var StringBundle = libx.core.Class.create( {
+StringBundle = libx.core.Class.create(
+    /** @lends libx.locale.StringBundle.prototype */ {
 
-    initialize: function( bundles ) {
-        this.bundles = bundles;
+    /**
+     * Bundle class for localization.
+     *
+     * @constructs
+     * @param {Array[bundle]} l10ns  localization objects to associate with
+     *  this string bundle. each l10n object holds messages that follow the
+     *  formats described in:
+     *  http://code.google.com/chrome/extensions/i18n-messages.html
+     */
+    initialize: function( l10ns ) {
+        this.l10ns = l10ns;
     },
     
 	/**
-	 *	Returns a LibX property with specified name 
-	 *	@param {String} name of property
-	 *	@param {Objects} variable number of arguments
+	 *	Returns a message with the specified name.
+     *  Beginning at the first element in the l10ns array given to
+     *  libx.locale.StringBundle(), each l10n object is checked for a message
+     *  with the given name. Consequently, subsequent elements in the array
+     *  serve as fallback objects.
+     *
+	 *	@param {String} name  name property to find
+	 *	@param {Strings} arg1...argn  variable number of replacement strings.
+     *      messages with replacement strings follow the format described in:
+     *      http://code.google.com/chrome/extensions/i18n-messages.html#placeholders
+     *  @returns {String} localized message
 	 */	
 	getProperty : function ( name /*, arg0, arg1, arg2, .... */) {
         
         var propertyObj = null;
         
-        for (var i = 0; i < this.bundles.length; i++) {
-            propertyObj = this.bundles[i][name];
+        for (var i = 0; i < this.l10ns.length; i++) {
+            propertyObj = this.l10ns[i][name];
             if (propertyObj)
                 break;
         }
@@ -85,44 +103,43 @@ var StringBundle = libx.core.Class.create( {
 
 return /** @lends libx.locale */ {
 
-    /** @namespace libx.locale.bd */
+    // attach StringBundle to libx.locale namespace
+    StringBundle: StringBundle,
+
+    /**
+     * Namespace for browser-specific localization functionality.
+     * @namespace libx.locale.bd
+     */
     bd : { },
     
+    /**
+     * Initialize the localization framework.
+     */
     initialize: function () {
         libx.locale.bd.initialize();
     },
     
-    getExtensionURL: function (path) {
-        return libx.locale.bd.getExtensionURL(path);
-    },
-    
-    getBootstrapURL: function (path) {
-        return "$bootstrapURL$" + path;
-    },
-    
 	/**
 	 *	Gets a localization bundle.
-     *  Bundles will be searched similar to Google Chrome's i18n rules (http://code.google.com/chrome/extensions/i18n.html#l10):
-     *      1) Search the messages file (if any) for the user's preferred locale.
+     *  Localizations will be searched similar to Google Chrome's i18n rules
+     *  (http://code.google.com/chrome/extensions/i18n.html#l10):
+     *      1. Search the messages file (if any) for the user's preferred locale.
      *         For example, if user's locale is en_GB, the en_GB locale will be searched first.
-     *      2) If the user's preferred locale has a region (that is, the locale has an underscore: _),
-     *         search the locale without that region. For example, if the en_GB messages file doesn't exist
-     *         or doesn't contain the message, the system looks in the en messages file.
-     *      ** NOTE: to save an extra XHR, (2) is not done since it is unlikely we will ever use this.
-     *      3) Use the locale specified in defaultLocale. For example, if defaultLocale is set to "es",
-     *         and neither the en_GB nor en versions of the URL contain the message, es is searched.
-	 *	@param {Object} object parameter that contains the following:
-     *      url             {String}    OPTIONAL - URL to load bundle from.  URL can contain
-     *                                  a $locale$ placeholder, which will be replaced with
-     *                                  the user's current locale.
-     *      feed            {String}    OPTIONAL - Feed to load bundle from.
-     *      object          {String}    OPTIONAL - Object to load bundle from.
-     *      defaultLocale   {String}    OPTIONAL - the fallback locale bundle when either
-     *                                      1) the user's preferred locale does not exist
-     *                                      2) the user's locale exists, but a string is missing
-     *      success         {Function}  REQUIRED - success callback function; takes a parameter
-     *                                  which is the returned string bundle
-     *      error           {Function}  error callback function
+     *      2. Use the locale specified in defaultLocale. For example, if defaultLocale is set to "es",
+     *         and the en_GB version of the URL does not contain the message, es is searched.
+	 *	@param {Object}  params          object parameter. either url|feed|object
+     *                                   should be supplied.
+     *  @config {String} url             (optional) URL to load bundle from.  URL can contain
+     *                                   a $locale$ placeholder, which will be replaced with
+     *                                   the user's current locale.
+     *  @config {String} feed            (optional) feed to load bundle from
+     *  @config {String} object          (optional) object to load bundle from
+     *  @config {String} defaultLocale   (optional) the fallback locale bundle when either
+     *                                      1. the user's preferred locale does not exist
+     *                                      2. the user's locale exists, but a string is missing
+     *  @config {Function(libx.locale.StringBundle)} success  success callback function;
+     *                                   takes a parameter which is the returned string bundle
+     *  @config {Function()} error       error callback function
 	 */	
     getBundle: function (params) {
         
@@ -139,15 +156,11 @@ return /** @lends libx.locale */ {
         addLocale(libx.locale.bd.currentLocale);
         var regionSeparatorPos = libx.locale.bd.currentLocale.indexOf('_')
         
-        // uncomment this to enable option (2) described above
-        //if (regionSeparatorPos != -1)
-        //    addLocale(libx.locale.bd.currentLocale.substr(0, regionSeparatorPos));
-        
         if (params.defaultLocale)
             addLocale(params.defaultLocale);
         
         var queue = new libx.utils.collections.ActivityQueue();
-        var bundles = [];
+        var l10ns = [];
         
         // schedule possible locales, executing callback for each to mark them ready
         function scheduleLocales(callback) {
@@ -156,7 +169,7 @@ return /** @lends libx.locale */ {
                 var addBundleActivity = {
                     onready: function (json) {
                         if (json)
-                            bundles.push(json);
+                            l10ns.push(json);
                     }
                 };
                 
@@ -166,8 +179,8 @@ return /** @lends libx.locale */ {
             
             var createBundleActivity = {
                 onready: function () {
-                    params.success(new StringBundle(bundles));
-                    //!bundles.length && params.error && params.error();
+                    params.success(new StringBundle(l10ns));
+                    //!l10ns.length && params.error && params.error();
                 }
             };
             

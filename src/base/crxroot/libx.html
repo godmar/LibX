@@ -8,10 +8,12 @@
 <script src="core/global/gc/storage.js"></script>
 <script src="core/global/shared/preferences.js"></script>
 <script src="core/global/shared/cache/memorycache.js"></script>
+<script src="core/global/shared/cache/validators.js"></script>
 <script src="core/global/shared/config.js"></script>
 <script src="core/global/shared/config/xmlconfigwrapper.js"></script>
 <script src="core/global/shared/config/editionconfigurationreader.js"></script>
 <script src="core/global/shared/events.js"></script>
+<script src="core/global/shared/utils.js"></script> 
 <script src="core/global/shared/utils/json.js"></script> 
 <script src="core/global/shared/catalog.js"></script>
 <script src="core/global/shared/catalog/catalog.js"></script>
@@ -42,6 +44,7 @@
 <script src="core/global/gc/cache.js"></script>
 <script src="core/global/gc/utils/timer.js"></script>
 <script src="core/global/gc/utils/xml.js"></script>
+<script src="core/global/gc/utils/getextensionurl.js"></script>
 <script src="core/global/gc/bootstrap.js"></script>
 <script src="core/global/gc/utils/browserprefs.js"></script>
 <script src="core/global/shared/cache/objectcache.js"></script>
@@ -128,7 +131,7 @@ function scrub(args) {
 function cacheRequest(cache, args, sendResponse) {
 
     if (args.validator)
-        args.validator = libx.cache.defaultMemoryCache.validators[args.validator];
+        args.validator = libx.cache.validators[args.validator];
 
     var result = {};
     args.success = function () {

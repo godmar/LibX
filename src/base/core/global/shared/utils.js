@@ -1,5 +1,15 @@
 
 /**
+ * Get the bootstrap URL for a path.
+ *
+ * @param {String} path  the relative path of the resource
+ * @returns {String} the absolute bootstrap URL for the resource
+ */
+libx.utils.getBootstrapURL = function (path) {
+    return "$bootstrapURL$" + path;
+};
+
+/**
  * Fetch a remote resource from a local URL.  Temporary solution until chrome://
  * urls are replaced in edition configurations.
  * This function assumes all resources being fetched are images.
@@ -28,10 +38,21 @@ libx.utils.getEditionResource = function(paramObj) {
     libx.cache.defaultObjectCache.get({
         url: url,
         dataType: "text",
-        validator: libx.cache.defaultMemoryCache.validators.image,
+        validator: libx.cache.validators.image,
         success: paramObj.success,
         error: paramObj.error,
         complete: paramObj.complete
     });
 };
 
+
+/**
+ * Returns the URL to a given edition's directory.
+ * @param {String} editionId  ID of the edition
+ * @returns {String} URL of the edition
+ */
+libx.utils.getEditionPath = function (editionId) {
+    if (editionId[0] >= 'a' && editionId[0] <= 'z')
+        return editionId;
+    return editionId.substr(0, 2) + "/" + editionId.substr(2, 2) + "/" + editionId;
+};

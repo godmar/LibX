@@ -16,7 +16,7 @@ libx.ui.openSearchWindow = function (url, override) {
     
     // performs a POST search with the given query
     if (typeof url != "string") {
-        url = libx.locale.getExtensionURL("popup/post.html") + "?" 
+        url = libx.utils.getExtensionURL("popup/post.html") + "?" 
             + libx.utils.json.stringify({ url: url[0], data: url[1]});
     }
     

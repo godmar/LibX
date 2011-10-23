@@ -15,16 +15,6 @@
 }) ();
 
 /**
- * Browser-dependent function for getting the extension URL for a resource.
- * 
- * @param   {String} path  resource name
- * @returns {String} absolute extension URL for the given resource
- */
-libx.locale.bd.getExtensionURL = function (path) {
-    return "chrome://libx/content/" + path;
-};
-
-/**
  * Browser-dependent initialization function for locales.
  */
 libx.locale.bd.initialize = function () {
