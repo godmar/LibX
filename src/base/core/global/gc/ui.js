@@ -1,7 +1,7 @@
 
 libx.ui.setIcon = function (path) {
     if (!path)
-        path = libx.locale.getExtensionURL("$libxicon$");
+        path = libx.utils.getExtensionURL("$libxicon$");
     chrome.browserAction.setIcon({ path: path });
 };
 

@@ -1,16 +1,19 @@
 /**
- * AutoComplete Field - JavaScript Code
- *
+ * Auto-complete field.
  * This code is based on sample source code provided by fromvega.
  * http://fromvega.com/wordpress/2007/05/05/auto-complete-field-with-jquery-json-php/
  * Search for the complete article at http://www.fromvega.com
  *
- * Enjoy!
- *
- * @author fromvega
- *
+ * @param  {Object} $               the jQuery object
+ * @param  {Object} options         parameter object
+ * @config {Object} field           jQuery link element where the dropdown will be created
+ * @config {Function} make_url      function executed when the user has inputted a partial search.
+ *                                  takes one parameter, the search string, and
+ *                                  returns a url containing JSON results for
+ *                                  the search.
+ * @config {Array} formatter        formatter function that accepts a single result to format
+ * @config {Function(item)} select  callback function when an item is selected
  */
-
 libx.ui.jquery.autocomplete = function ($, options)
 {
 	

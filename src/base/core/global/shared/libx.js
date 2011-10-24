@@ -589,7 +589,7 @@ libx.loadConfig = function (configUrl) {
             if (libx.initialize.loadGlobalScripts)
                 bootGlobalUrls.push({
                     url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.global.url",
-                            libx.locale.getBootstrapURL("bootstrapglobal.js") )
+                            libx.utils.getBootstrapURL("bootstrapglobal.js") )
                 });
 
             var globalBootStrapper 

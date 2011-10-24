@@ -31,7 +31,7 @@
  *
  * Ignores doi: prefix
  *
- * @return {String} null if the string doesn't appear to be a DOI, else the DOI.
+ * @returns {String} null if the string doesn't appear to be a DOI, else the DOI.
  */
 libx.utils.stdnumsupport.isDOI = function (/**String */str) {
     var s = str.replace(/\s*doi:?\s*/i, "");
@@ -127,7 +127,7 @@ libx.utils.stdnumsupport.isDOI = function (/**String */str) {
  * If convertEANtoISBN is true, convert EAN to ISBN by 
  * extracting digits 4-12 and recomputing the checkdigit
  *
- * @return {String} null if string does not an ISBN, else returns
+ * @returns {String} null if string does not an ISBN, else returns
  *          ISBN (possibly converted)
  */
 libx.utils.stdnumsupport.isISBN = function (/**String*/s, /**Boolean*/ convertEANtoISBN) {
@@ -148,7 +148,7 @@ libx.utils.stdnumsupport.isISBN = function (/**String*/s, /**Boolean*/ convertEA
  * takes a text that may contain a ISSN, possibly including hyphens,
  * and retrieves the ISSN from it
  *
- * @return {String} null if string does not an ISSN, else returns
+ * @returns {String} null if string does not an ISSN, else returns
  *          ISSN in normal form 0000-0000
  */
 libx.utils.stdnumsupport.isISSN = function (/**String*/ s) {

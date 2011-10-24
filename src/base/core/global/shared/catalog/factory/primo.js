@@ -21,6 +21,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+/**
+ *	Primo catalog implementation.
+ *
+ *	@name libx.catalog.factory.primo
+ *	@augments libx.catalog.Catalog
+ *  @class 
+ */
 libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.primo.prototype */
 {

@@ -28,7 +28,7 @@ templateProcessedQueue.scheduleLast(bundleReadyActivity);
      
 libx.locale.getBundle( {
     defaultLocale: "en_US",
-    url: libx.locale.getBootstrapURL("preferences/builtin/locales/$locale$/" + data._name + ".json"),
+    url: libx.utils.getBootstrapURL("preferences/builtin/locales/$locale$/" + data._name + ".json"),
     success: function ( stringBundle ) {
         bundleReadyActivity.markReady(stringBundle);
     }

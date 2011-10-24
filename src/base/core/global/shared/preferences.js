@@ -614,7 +614,7 @@ return /** @lends libx.preferences */ {
         
         // initialize browser preferences
         libx.preferences.load ( {
-            filename : libx.locale.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
+            filename : libx.utils.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
             overwrite : false,
             base : "libx.prefs",
             callback : function () {
@@ -673,7 +673,7 @@ return /** @lends libx.preferences */ {
         
         var callbackFunct = this.loadXML;
         libx.cache.defaultObjectCache.get ( {
-            validator: libx.cache.defaultMemoryCache.validators.preference,
+            validator: libx.cache.validators.preference,
             type: 'GET',
             url : filename,
             dataType : "xml",

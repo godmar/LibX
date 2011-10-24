@@ -84,7 +84,7 @@ libx.bootstrap.BootStrapper = libx.core.Class.create(
         this.scriptQueue.scheduleLast(runScriptActivity);
 
         libx.cache.defaultObjectCache.get({
-            validator: libx.cache.defaultMemoryCache.validators.bootstrapped, 
+            validator: libx.cache.validators.bootstrapped, 
             url: scriptURL,
             success: function (scriptText) { 
                 runScriptActivity.markReady(scriptText);

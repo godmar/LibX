@@ -82,10 +82,15 @@ function retrieveRequest(request, retrievalType) {
             var contentType = xhr.getResponseHeader("Content-Type");
     
             var metadata = {
+                // when the item was last fetched from the server
                 lastAccessed: Date.now(),
+                // when the item was last modified on the server
                 lastModified: xhr.getResponseHeader('Last-Modified'),
+                // the data's mimetype
                 mimeType: contentType,
+                // a SHA1 hash of the data used for validation and updating
                 sha1: libx.utils.hash.hashString(text),
+                // if true, this item will be lazily updated on the next get()
                 expired: false
             };
 
@@ -108,7 +113,6 @@ function retrieveRequest(request, retrievalType) {
                     }
                 });
             }
-            // BRN: document this
             if (request.delayWrite) {
                 request.delayWrite(writeToCache);
                 request.success && request.success(data, metadata, xhr);
@@ -124,19 +128,6 @@ function retrieveRequest(request, retrievalType) {
  * JavaScript files, and other resources such as images.
  * Resources are addressed by a URL.
  *
- * Automatic update functionality: a resource can be "auto-updated,"
- * in which case the cache will periodically check if a newer version
- * is available.  If a newer version is available, it will be fetched,
- * added to the cache, and an onUpdate event for that resource will
- * be fired.
- *
- * Dependent resources: resources may have dependent resources.
- * If a newer version of a resource that has dependent resources is available,
- * dependent resources are checked.  This process is repeated transivitely
- * until all resources have been checked.  Then the 'onUpdate' event is
- * fired.  This ensures that a new version of all dependent resources is
- * available when the onUpdate event for a resource with dependents is fired.
- *
  * @namespace
  */
 libx.cache.ObjectCache = libx.core.Class.create(
@@ -148,12 +139,23 @@ libx.cache.ObjectCache = libx.core.Class.create(
 
     /**
      *  Get an object, based on its URL.
-     *  @param {Options} request 
+     *  Once retrieved, the object will be stored in the object cache.
+     *
+     *  @param {Object} request 
      *      Modeled after <a href="http://docs.jquery.com/Ajax/jQuery.ajax#options">jQuery._ajax</a>
      *      with the following additions:
-     *  @param {Boolean} request.cacheOnly: if true, success will only be called if the object
+     *  @config {Boolean} cacheOnly  if true, success will only be called if the object
      *      is in the cache.  If the object is not in the cache, request.complete() is immediately
      *      fired.  No XHRs are triggered.
+     *  @config {Boolean} ignoreQuery  if true, the get parameters for this
+     *      request will not be used in the key for storing this item in the cache
+     *  @config {Function(params)} validator  validator function used to prevent caching of captive portals.
+     *      see {@link libx.cache.MemoryCache.validators} for examples.
+     *  @config {Function(writeToCache)} delayWrite  callback function that is
+     *      executed when the data would normally be written to cache.  this
+     *      allows the caller to control when/if the data is written to the cache.
+     *      accepts one argument, writeToCache, which is a function that writes
+     *      the data to the cache.
      */
     get : function (request) {
     
@@ -227,8 +229,17 @@ libx.cache.ObjectCache = libx.core.Class.create(
         });
     },
 
-    /*
+    /**
      * Get metadata associated with a URL, or null if URL is not (or no longer!) cached
+     * @config {String} url  the item to look up
+     * @param {Object} paramObj  parameter object
+     * @config {Boolean} ignoreQuery  whether the get query should be ignored
+     *      when looking up this cached item
+     * @config {Function(json)} success  callback function executed when the
+     *      metadata has been found.  takes one argument, which is the JSON
+     *      metadata.
+     * @config {Function()} notfound  callback function executed if the URL was
+     *      not found in the object cache
      */
     getMetadata : function (paramObj) {
         var url = trimQuery(paramObj.ignoreQuery, paramObj.url);
@@ -241,8 +252,14 @@ libx.cache.ObjectCache = libx.core.Class.create(
         });
     },
 
-    /*
-     * Write metadata to storage
+    /**
+     * Write metadata to storage.
+     * @config {String} url  the item to look up
+     * @param {Object} paramObj  parameter object
+     * @config {Boolean} ignoreQuery  whether the get query should be ignored
+     *      for the key of this cached item
+     * @config {Function()} success  callback function executed when the
+     *      metadata has been written
      */
     putMetadata : function (paramObj) {
         var url = trimQuery(paramObj.ignoreQuery, paramObj.url);
@@ -254,12 +271,16 @@ libx.cache.ObjectCache = libx.core.Class.create(
     },
 
     /**
-     * Remove all cached files
+     * Remove all cached files.
      */
     purgeAll : function () {
         libx.storage.cacheStore.clear();
     },
 
+    /**
+     * Updates an item in the cache.
+     * Accepts the same parameter object as {@link libx.cache.ObjectCache.get}.
+     */
     update : function (request) {
         retrieveRequest.call(this, request, RetrievalType.UPDATE);
     }

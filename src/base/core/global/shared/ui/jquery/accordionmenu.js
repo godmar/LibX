@@ -19,15 +19,15 @@ libx.ui.jquery.accordionmenu = function ($, options) {
     return {
         
         /**
-         * Set up a single menu item.
+         * Populate an accordion menu.
          *
          * @param {Object} itemRef   jQuery reference to the menu element
-         * @param {String} itemName  name of this menu item
+         * @param {String} itemName  text to be displayed on the accordion menu
          * @param {Array}  subItems  array of subitems for this menu; each array element
          *                   must be an object containing a "text" and "value"
          *                   property.  these properties will be passed to the selection
          *                   callback when the item is selected.
-         * @param {Function(value, text)} selection callback when a subitem is chosen.
+         * @param {Function(value, text)} selection callback when an item is chosen
          */
         setMenuItems: function(itemRef, itemName, subItems, selection) {
         

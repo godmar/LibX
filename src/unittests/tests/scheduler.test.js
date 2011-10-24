@@ -77,8 +77,8 @@ suite.addUnitTest("Test hash scheduler",
             fileWriter.close();
         }
 
-        var schedulersUrl = libx.locale.getBootstrapURL('schedulers/');
-        libx.locale.getBootstrapURL = function (relPath) {
+        var schedulersUrl = libx.utils.getBootstrapURL('schedulers/');
+        libx.utils.getBootstrapURL = function (relPath) {
             return schedulersUrl + relPath;
         };
 

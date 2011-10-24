@@ -36,7 +36,7 @@ var libx2RegexpClauses = [ "include", "exclude", "regexptexttransformer" ];
 var authorInfo = ["name", "uri", "email" ];
 var entryInfo = { updated: [], author: authorInfo };
 
-/**
+/*
  * Resolver 'url' relative to 'base'
  */
 function resolveURL(baseURL, url)
@@ -241,12 +241,16 @@ function handleEntry(visitor, url, cacheMissActivity) {
 
     if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);
     
-    // get the entire feed (which should include the entry for this url)
+    // Get the entire feed (which should include the entry for this url).
+    // If a cacheMissActivity was given to the PackageWalker, our initial
+    // request must check the cache only, so if it is not in the cache, we can
+    // mark it ready immediately.  If there is a cache miss, we repeat the
+    // request without restricting results to cached items.
     var success = false;
     var pathRequest = {
         dataType: "xml",
         url: pathDir,
-        validator: libx.cache.defaultMemoryCache.validators.feed,
+        validator: libx.cache.validators.feed,
         cacheOnly: cacheMissActivity && true,
         success: function (xmlDoc, metadata) {
             success = true;
@@ -261,7 +265,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
                 var urlRequest = {
                     dataType: "xml",
                     url: url,
-                    validator: libx.cache.defaultMemoryCache.validators.feed,
+                    validator: libx.cache.validators.feed,
                     cacheOnly: pathRequest.cacheOnly,
                     success: function (xmlDoc, metadata) {
                         success = true;
@@ -275,6 +279,8 @@ function handleEntry(visitor, url, cacheMissActivity) {
                         if (urlRequest.cacheOnly && !success) {
                             cacheMissActivity.markReady();
                             urlRequest.cacheOnly = false;
+
+                            // issue the same request, but don't require the item to be cached
                             libx.cache.defaultObjectCache.get(urlRequest);
                         }
                     }
@@ -319,9 +325,9 @@ libx.libapp.PackageWalker = libx.core.Class.create(
      *
      * @see libx.libapp.PackageVisitor
      *
-     * @param {libx.libapp.PackageVisitor} visitor
-     * @param {Object} cacheMissActivity - activity to mark ready if the libapp
-     *         is not in the object cache (optional)
+     * @param {libx.libapp.PackageVisitor} visitor  visitor class
+     * @param {Object} cacheMissActivity  (optional) activity to mark ready if
+     *    the entry is not in the object cache
      */
     walk : function (visitor, cacheMissActivity) {
         handleEntry(visitor, this.rootPackage, cacheMissActivity);

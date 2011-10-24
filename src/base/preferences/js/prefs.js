@@ -2,7 +2,7 @@
 var templateBundle = null;
 
 var templateID = 0;
-var base = libx.locale.getBootstrapURL("preferences/templates/");
+var base = libx.utils.getBootstrapURL("preferences/templates/");
 var ext = ".tmpl";
 
 /**

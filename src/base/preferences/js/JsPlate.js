@@ -1,11 +1,11 @@
 
-/**
+/*
  *  Original code from the jsdoc-toolkit project: code.google.com/p/jsdoc-toolkit
  *
  *  Heavily modified for use with the LibX Preferences system by Michael Doyle (doylem@vt.edu)
  */
  
-/**
+/*
     @constructor
 */
 JsPlate = function(templateFileText, templateFile, data) {

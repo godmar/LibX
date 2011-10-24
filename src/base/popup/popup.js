@@ -221,7 +221,7 @@ return {
         
         // bind preferences page to click
         $("#tab-pane").find('a[href="#preferences"]').click(function () {
-            libx.ui.openSearchWindow(libx.locale.getExtensionURL("preferences/pref.xhtml"));
+            libx.ui.openSearchWindow(libx.utils.getExtensionURL("preferences/pref.xhtml"));
             window.close();
         });
         
@@ -298,10 +298,10 @@ return {
             popup.showChangeEditionView();
         });
         $('#dev-prefs').click(function () {
-            libx.ui.openSearchWindow(libx.locale.getExtensionURL('dev/prefs.html'));
+            libx.ui.openSearchWindow(libx.utils.getExtensionURL('dev/prefs.html'));
         });
         $('#dev-cache').click(function () {
-            libx.ui.openSearchWindow(libx.locale.getExtensionURL('dev/cache.html'));
+            libx.ui.openSearchWindow(libx.utils.getExtensionURL('dev/cache.html'));
         });
         
     },

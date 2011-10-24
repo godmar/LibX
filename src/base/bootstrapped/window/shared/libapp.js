@@ -1,9 +1,14 @@
 
-// stores the string bundle for each module that is run
+/*
+ * Internal storage of string bundles.
+ * String bundles should be accessed using {@link libx.libapp.getStringBundle}.
+ */
 libx.libappdata.stringBundles = {};
 
-/*
- * Return the string bundle for the the specified module.
+/**
+ * Return the string bundle for the the specified URL.
+ * Available only to content scripts and LibApps.
+ * @param {String} url  url of a libapp or module
  */
 libx.libapp.getStringBundle = function (url) {
     return libx.libappdata.stringBundles[url];
@@ -301,7 +306,7 @@ function executeLibapp(libapp, pkgArgs) {
         /* schedule required scripts on which this module depends */
         module.require.forEach(function (rUrl) {
             if (rUrl in requireAlias)
-                rUrl = libx.locale.getBootstrapURL('scripts/' + requireAlias[rUrl]);
+                rUrl = libx.utils.getBootstrapURL('scripts/' + requireAlias[rUrl]);
 
             if (rUrl in requireURL2Activity)
                 return;
@@ -336,7 +341,7 @@ function executeLibapp(libapp, pkgArgs) {
 
             var success = false;
             libx.cache.defaultObjectCache.get({
-                validator: libx.cache.defaultMemoryCache.validators.bootstrapped,
+                validator: libx.cache.validators.bootstrapped,
                 url: rUrl,
                 success: function (scriptText, metadata) {
                     success = true;

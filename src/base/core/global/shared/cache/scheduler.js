@@ -1,14 +1,4 @@
 
-/* Algorithm:
-
-updates.json:
-* if updates.json does not exist, fetch it and process all children immediately
-* if all files successfully update, schedule next update for current time + interval + random interval
-* if there is a failure, set expires time for updates.json to current time + 1 min, 2 min, 4 min, 8 min, 16 min, etc, up to 4 hours
-
-package scheduler:
-* go through feeds with package walker, check all unmarked feeds, then mark them.
-
 /*
 BRN:
 - add "resource" tags so packages can include images, etc
@@ -42,8 +32,19 @@ function log(msg) {
     libx.log.write(msg, 'scheduler');
 }
 
-libx.cache.Scheduler = libx.core.Class.create({
+libx.cache.Scheduler = libx.core.Class.create(
+    /** @lends libx.cache.Scheduler.prototype */ {
 
+    /**
+     * Generic scheduler class.
+     * @constructs
+     * @param {String} rootUrl  url of the root object for scheduling.  the
+     *     "root" is the highest-level resource that contains other dependencies.
+     *     for instance, the root for the config scheduler would be the edition
+     *     config.xml, the root for the bootstrap scheduler would be the
+     *     updates.json file, and the root for a feed scheduler would be a
+     *     subscribed feed.
+     */
     initialize: function (rootUrl) {
         this.rootUrl = rootUrl;
         this.updateInterval = defaultUpdateInterval;
@@ -52,25 +53,98 @@ libx.cache.Scheduler = libx.core.Class.create({
         this.maxRandDelay = maxRandDelay;
     },
 
+    /**
+     * The object cache to use.
+     * @type libx.cache.ObjectCache
+     */
     objectCache: libx.cache.defaultObjectCache,
 
+    /**
+     * The data type of the root element.
+     * Used for object cache request.  Options are "text", "xml", and "json".
+     * @type String
+     * @default "text"
+     */
     rootDataType: "text",
 
+    /**
+     * The data type of the child elements.
+     * Used for object cache request.  Options are "text", "xml", and "json".
+     * @type String
+     * @default "text"
+     */
     childDataType: "text",
 
-    // set to "root" or "always"
-    // "root" updates children only if root updated
-    // "always" will update children unconditionally
+    /**
+     * Update rule for children.
+     * This determines when updateChildren() is called.  Options are "root" and "always".
+     *   "root" updates children only if root updated
+     *   "always" will update children unconditionally
+     * @type String
+     * @default "root"
+     */
     updateChildrenRule: "root",
-    
+
+    /**
+     * Function called when the children should be updated.
+     * Abstract function.
+     * @function
+     * @param {Function(url, shouldUpdate, callback)} checkForUpdates
+     *    callback function that should be executed for each child to check for
+     *    updates.  url is a string for the child url.  shouldUpdate is a
+     *    callback function that accepts metadata to determine whether the item
+     *    should be updated (returns true or false).  callback is a callback
+     *    function executed once the request has completed, and it accepts a
+     *    boolean indicating whether the child was updated.
+     * @param {Object} data
+     *    the root data; will be the type specified by rootDataType
+     * @param {libx.utils.collections.ActivityQueue} updateQueue
+     *    activity queue for updates.  whenever checkForUpdates() is called,
+     *    the request for that child is added to the queue.
+     * @param {Function()} markError
+     *    callback function that should be executed to indicate an error
+     */
     updateChildren: libx.core.AbstractFunction("libx.cache.Scheduler.updateChildren"),
 
+    /**
+     * Function called once this root and children have been successfully
+     * checked for updates.
+     * Defaults to {@link libx.core.EmptyFunction}.
+     * @function
+     * @param {Boolean} updated  whether an update occurred
+     */
     updatesFinished: libx.core.EmptyFunction,
     
+    /**
+     * Stops this scheduler.
+     * Once called, this scheduler will no longer periodically check for updates.
+     */
     stopScheduling: function () {
         this.cancelUpdates = true;
     },
+
+    /**
+     * Validator function for root item.
+     * @see libx.cache.validators
+     * @type Function
+     * @default null
+     */
+    rootValidator: null,
     
+    /**
+     * Validator function for child items.
+     * @see libx.cache.validators
+     * @type Function
+     * @default null
+     */
+    childValidator: null,
+
+    /** 
+     * Schedule updates for root entry and children.
+     * @param {Boolean} force  whether the update should occur immediately.  if
+     *                         false, the next update will be scheduled based
+     *                         on when the last update occurred.
+     */
     scheduleUpdates: function (force) {
    
         if (DISABLE_SCHEDULERS)
@@ -82,9 +156,7 @@ libx.cache.Scheduler = libx.core.Class.create({
             log("scheduling update in " + Math.round(timeout / 1000) + " seconds for " + self.rootUrl);
         }
 
-        /*
-         * Check for update to root file, then update children if necessary
-         */
+        // check for update to root file, then update children if necessary
         function updateRoot() {
 
             if (self.cancelUpdates)
@@ -244,7 +316,16 @@ libx.cache.Scheduler = libx.core.Class.create({
     
 });
 
-libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler, {
+/**
+ * Scheduler for bootstrapped files.
+ * First checks for updates to updates.json.  If updates.json has been updated,
+ * each bootstrapped child's SHA1 is compared with the SHA1s in updates.json.
+ * for each child whose SHA1 does not match, an update is triggered.
+ * @augments libx.cache.Scheduler
+ * @class
+ */
+libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler,
+    /** @lends libx.cache.HashScheduler.prototype */ {
     rootDataType: "json",
     rootValidator: function (params) {
         if (/json/.test(params.mimeType) && params.data.files)
@@ -252,9 +333,9 @@ libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler, {
         else
             params.error();
     },
-    childValidator: libx.cache.defaultMemoryCache.validators.bootstrapped,
+    childValidator: libx.cache.validators.bootstrapped,
     updateChildren: function (checkForUpdates, updateHashes) {
-        var bootstrapBase = libx.locale.getBootstrapURL("");
+        var bootstrapBase = libx.utils.getBootstrapURL("");
         for (var relUrl in updateHashes.files) {
             var absUrl = bootstrapBase + relUrl;
             checkForUpdates(absUrl, function (metadata) {
@@ -265,9 +346,17 @@ libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     }
 });
 
-libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler, {
+/**
+ * Scheduler for edition configuration file.
+ * First checks for updates to config.xml.  If config.xml has been updated,
+ * each dependent file is checked for updates.
+ * @augments libx.cache.Scheduler
+ * @class
+ */
+libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler,
+    /** @lends libx.cache.ConfigScheduler.prototype */ {
     rootDataType: 'xml',
-    rootValidator: libx.cache.defaultMemoryCache.validators.config,
+    rootValidator: libx.cache.validators.config,
     childValidator: function (params) {
         // we know nothing about the config.xml additionalfiles, so we can't validate them
         params.success();
@@ -289,7 +378,14 @@ libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler, {
 
 /*BRN: handle case where each entry is hosted at static URL; that is, getFeedPath()
        cannot be used for static files */
-libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
+/**
+ * Scheduler for LibApp feeds.
+ * All referenced feeds are also checked for updates.
+ * @augments libx.cache.Scheduler
+ * @class
+ */
+libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler,
+    /** @lends libx.cache.PackageScheduler.prototype */ {
     initialize: function (rootUrl) {
         this.fullRootUrl = rootUrl;
 
@@ -298,8 +394,8 @@ libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     },
     rootDataType: 'xml',
     childDataType: 'xml',
-    rootValidator: libx.cache.defaultMemoryCache.validators.feed,
-    childValidator: libx.cache.defaultMemoryCache.validators.feed,
+    rootValidator: libx.cache.validators.feed,
+    childValidator: libx.cache.validators.feed,
     updateChildrenRule: "always",
     updateChildren: function (checkForUpdates, feedDoc, updateQueue, markError) {
 
@@ -362,7 +458,15 @@ libx.cache.PackageScheduler = libx.core.Class.create(libx.cache.Scheduler, {
     }
 });
 
-libx.cache.TemplateScheduler = libx.core.Class.create(libx.cache.Scheduler, {
+/**
+ * Primitive scheduler for third party templates.
+ * Iterates through each third party template in the object cache and marks it
+ * as expired.  The template will be updated the next time it is used.
+ * @augments libx.cache.Scheduler
+ * @class
+ */
+libx.cache.TemplateScheduler = libx.core.Class.create(libx.cache.Scheduler,
+    /** @lends libx.cache.TemplateScheduler.prototype */ {
     scheduleUpdates: function () {
         var self = this;
 
@@ -370,13 +474,13 @@ libx.cache.TemplateScheduler = libx.core.Class.create(libx.cache.Scheduler, {
             return;
         
         log('checking for expired template files');
-        var bootstrapBase = libx.locale.getBootstrapURL("");
+        var bootstrapBase = libx.utils.getBootstrapURL("");
         libx.storage.metacacheStore.find({
             // find all templates that are not included in the LibX bootstrapped items
             pattern: new RegExp('^(?!' + bootstrapBase + ').+\\.tmpl$'),
             success: function (templates) {
                 templates.forEach(function (template) {
-                    libx.cache.defaultObjectCache.getMetadata({
+                    self.objectCache.getMetadata({
                         url: template,
                         success: function (metadata) {
                             if (metadata.expired) {
@@ -412,7 +516,7 @@ libx.events.addListener("EditionConfigurationLoaded", {
     onEditionConfigurationLoaded: function () {
     
         libx.cache.defaultHashScheduler && libx.cache.defaultHashScheduler.stopScheduling();
-        var jsonUrl = libx.locale.getBootstrapURL("updates.json");
+        var jsonUrl = libx.utils.getBootstrapURL("updates.json");
         jsonUrl += "?edition=" + libx.edition.id + "&editionversion=" + libx.edition.version + "&libxversion=" + libx.version;
         libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
         libx.cache.defaultHashScheduler.scheduleUpdates();
