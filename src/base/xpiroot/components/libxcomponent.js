@@ -87,8 +87,6 @@ function loadLibX() {
         "shared/ui/jquery/dropdown.js",
         "shared/ui/jquery/accordionmenu.js",
         "shared/ui/magicsearch.js",
-        "shared/utils/geteditionresource.js",
-        "shared/utils/geteditionpath.js",
         "shared/ui.js",
         "shared/ui/contextmenu.js",
         "ff/ui.js",
