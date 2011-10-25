@@ -6,24 +6,24 @@ use HTML::Entities;
 use Cwd;
 
 # directory from which files will be bootstrapped
-my $bootstrap_url = "http://libx.org/libx2/bootstrapped/";
+my $bootstrap_url = "http://theta.cs.vt.edu/~rupen/libx2/src/base/bootstrapped/";
 # default package url for editions that have none specified
 my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
 
 # directory to which built files are output
-my $fs_base_dir = "/home/www/libx.org/releases/";
+my $fs_base_dir = "/home/rupen/public_html/releases/";
 # URL at which build is accessible
-my $publish_base_url = "http://libx.org/releases/";
+my $publish_base_url = "http://theta.cs.vt.edu/~rupen/releases/";
 
 # path to private key file
-my $keypath = "/home/www/libxprivatekey/libx.pem";
+my $keypath = "/home/rupen/libxprivatekey/libx2rupen.pem";
 
 # XXX fix this ridiculous dependency
 -d "../base" || die "This script must be run inside libx/src/editions";
 
 # Change this to build, say "libx2-experimental-<edition>.crx",
 # If set to non-empty, will suppress creation of updates.xml file
-my $localbuild = "";
+my $localbuild = "rupen";
 
 # process cmdline args
 # this loop courtesy of Pat Tullmann, 1997 
@@ -111,7 +111,8 @@ my %filemap = (
     "$basedir/popup"     	=> "$tmpdir/popup",
     "$basedir/locale"    	=> "$tmpdir/_locales",
     "$basedir/preferences"  => "$tmpdir/preferences",
-    "$basedir/bootstrapped"	=> "$tmpdir/bootstrapped"
+    "$basedir/bootstrapped"	=> "$tmpdir/bootstrapped",
+    "../libappdisplay"      => "$tmpdir/libappdisplay"
 );
 
 foreach my $key ( keys %filemap ) {
