@@ -6,8 +6,7 @@
  * @returns {String} the absolute bootstrap URL for the resource
  */
 libx.utils.getBootstrapURL = function (path) {
-    /*return "$bootstrapURL$" + path;*/
-    return libx.cs.baseurl + "src/base/bootstrapped/" + path;
+    return "$bootstrapURL$" + path;
 };
 
 /**

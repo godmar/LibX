@@ -63,10 +63,12 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/cs/browserprefs.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/objectcache.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/locale.js"></script>
-<script src="locale.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/cs/locale.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/libapp.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/validators.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils.js"></script>
+<!--redefining getBootstrapurl here for cs implementation -->
+<script src="<? echo $base; ?>/src/base/core/global/cs/utils.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/scheduler.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/hash.js"></script>
 <!--script src="libx2/src/base/core/global/shared/openurl.js"></script-->
@@ -121,7 +123,7 @@ libx.edition = {
  * in the cache.
  * Simulate the process that would be done in the actual plug-in.
  */
-var jsonUrl = libx.locale.getBootstrapURL("updates.json");
+var jsonUrl = libx.utils.getBootstrapURL("updates.json");
 libx.log.write("bootstrapurl is " + jsonUrl);
 libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
 var pageProcessingQueue = new libx.utils.collections.DelayedActivityQueue();
