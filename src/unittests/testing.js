@@ -27,11 +27,9 @@ var Test = libx.core.Class.create({
         this.output += msg;
     },
     /**
-     * Enter a URL where the files in this directory can be accessed.
-     *
-     * XXX make it easier for this to be per-developer.
+     * A URL where the files in this directory can be accessed.
      */
-    baseUrl : "http://localhost/libx.org/unittests/",
+    baseUrl : libx.testsetup.baseUrl,
 
     /**
      * Path where LibX source files reside.
