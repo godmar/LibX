@@ -24,6 +24,7 @@ var libxscripts1 = [
     "global/shared/core.js",
     "global/shared/libx.js",
     "global/shared/cache/memorycache.js",
+    "global/shared/cache/validators.js",
     "global/shared/config.js",
     "global/shared/config/xmlconfigwrapper.js",
     "global/shared/config/editionconfigurationreader.js",
@@ -330,10 +331,29 @@ libx.log = {
 };
 
 libx.locale = {
-    getBootstrapURL: function (url) {
-        return "http://localhost/libx.org/unittests/tests/resources/" + url;
-    },
     initialize: function () {}
+};
+
+
+libx.testsetup = {
+    /**
+     * Enter a URL where the files in this directory can be accessed.
+     * Must be running a web server.
+     */
+    baseUrl : "http://theta.cs.vt.edu/~gback/libx2/src/unittests/",
+}
+
+var testConn = new java.net.URL(libx.testsetup.baseUrl + "loadlibx.js").openConnection();
+testConn.connect();
+if (testConn.responseCode != "200") {
+    println("\n\nSetup Error: I expected to access loadlibx.js at " + testConn.getURL());
+    println("But couldn't.  Please adjust libx.testsetup.baseUrl. ");
+    java.lang.System.exit(1);
+}
+
+
+libx.utils.getBootstrapURL = function (path) {
+    return libx.testsetup.baseUrl + "tests/resources/" + path;
 };
 
 var libxscripts2 = [
