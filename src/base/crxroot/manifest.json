@@ -66,7 +66,7 @@
             "core/global/shared/openurl.js",
             "core/global/shared/utils/stdnumsupport.js",
             "core/global/gc/utils/xpath.js",
-            "core/global/shared/utils/geteditionresource.js",
+            "core/global/shared/utils.js",
             "core/global/gc/locale.js",
             
             "core/window/gc/window.js",
