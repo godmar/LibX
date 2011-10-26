@@ -337,8 +337,9 @@ libx.locale = {
 
 libx.testsetup = {
     /**
-     * Enter a URL where the files in this directory can be accessed.
-     * Must be running a web server.
+     * Enter a local URL where this directory can be accessed via HTTP.  This
+     * exact directory must be served (for instance, by using a symbolic link
+     * to this directory) so that the unit tests can modify the files.
      */
     baseUrl : "http://theta.cs.vt.edu/~gback/libx2/src/unittests/",
 }
