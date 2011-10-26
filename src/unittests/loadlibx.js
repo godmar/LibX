@@ -340,7 +340,7 @@ libx.testsetup = {
      * Enter a URL where the files in this directory can be accessed.
      * Must be running a web server.
      */
-    baseUrl : "http://theta.cs.vt.edu/~gback/libx2/src/unittests/",
+    baseUrl : "http://theta.cs.vt.edu/~rupen/libx2/src/unittests/",
 }
 
 var testConn = new java.net.URL(libx.testsetup.baseUrl + "loadlibx.js").openConnection();
