@@ -295,24 +295,22 @@ function formatDate(dtStr)
 }
 
 function makeInfoPanel(entry,$node,tmplData){
-    var $props = '';
+    var props = '';
     if(entry.type == "libapp")
     {
       for(var i = 0; i < appProps.length; ++i)
          for(var j =0; j < entry[appProps[i]].length; ++j)
          {
            if( j == 0 ){
-             $props = $props +  '<li>'
+             props = props +  '<li>'
                              +    '<span class="entry-label-name" style="padding-right:0.2em;">'
                              +       appProps[i] + ': </span>';
           }
-                      $props +=   '<span class="entry-text">' + encode(entry[appProps[i]][j]) + '</span>';
+                      props +=   '<span class="entry-text">' + encode(entry[appProps[i]][j]) + '</span>';
           if( j == entry[appProps[i]].length - 1){
-                      $props += '</li>';
+                      props += '</li>';
            }else{
-                      $props += '<br/>';
-                    for(var k =0; k < appProps[i].length; ++k)/*TODO: Remove hack for indenting*/
-                      $props += '&nbsp;&nbsp;';
+                      props += '<br/>';
            }
          }
     }else if(entry.type == "module")
@@ -321,17 +319,15 @@ function makeInfoPanel(entry,$node,tmplData){
          for(var j =0; j < entry[modProps[i]].length; ++j)
          {
            if( j == 0 ){
-             $props = $props +  '<li>'
+             props = props +  '<li>'
                              +    '<span class="entry-label-name" style="padding-right:0.2em;">'
                              +       modProps[i] + ': </span>';
           }
-                      $props +=   '<span class="entry-text">' + encode(entry[modProps[i]][j]) + '</span>';
+                      props +=   '<span class="entry-text">' + encode(entry[modProps[i]][j]) + '</span>';
            if( j == entry[modProps[i]].length - 1){
-                      $props += '</li>';
+                      props += '</li>';
            }else{
-                      $props += '<br/>';
-                    for(var k =0; k < modProps[i].length; ++k)
-                      $props += '&nbsp;&nbsp;';
+                      props += '<br/>';
            }
          } 
     }
@@ -370,7 +366,7 @@ function makeInfoPanel(entry,$node,tmplData){
                        +                   '<span class="entry-label-name" style="padding-right:0.2em;">Email: ' + '</span>'
                        +                   '<span class="entry-text">' + encode(entry.author.email) + '</span>'
                        +                '</li>'
-                       +                $props
+                       +                props
                        +           '</ul>'
                        +     '</div>'
                        + '</div>');
