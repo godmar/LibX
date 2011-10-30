@@ -112,7 +112,7 @@ function loadLibX() {
     try {
         // load config if user has one set
         var configUrl = libx.utils.browserprefs.getStringPref("libx.edition.configurl", null);
-        if (configUrl != null) {
+        if (configUrl) {
             libx.log.write('Loading config from ' + configUrl);
             libx.loadConfig(configUrl);
         }

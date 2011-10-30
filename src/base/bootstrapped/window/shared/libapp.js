@@ -23,9 +23,7 @@ var requireAlias = {
     "jquery" : "jquery-latest.js",
     "jgrowl" : "jquery.jgrowl.js",
     "jgrowl.css" : "jquery.jgrowl.css",
-    "legacy-cues" : "legacy-cues.js",
-    "jquery-ui" : "jquery-ui.js",
-    "jquery-ui.css" : "theme/ui.all.css"
+    "legacy-cues" : "legacy-cues.js"
 };
 
 /*

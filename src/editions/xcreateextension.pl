@@ -122,12 +122,13 @@ if (-d $tmpdir) {
 my $basedir = "../base";
 
 my %filemap = (
-    "$basedir/xpiroot"   => "$tmpdir",
-    "$basedir/core"      => "$tmpdir/chrome/libx/content/libx/core",
-    "$basedir/dev"       => "$tmpdir/chrome/libx/content/libx/dev",
-    "$basedir/popup"     => "$tmpdir/chrome/libx/content/libx/popup",
-    "$basedir/locale"    => "$tmpdir/chrome/libx/locale",
-    "$basedir/preferences"=>"$tmpdir/chrome/libx/content/libx/preferences"
+    "$basedir/xpiroot"      => "$tmpdir",
+    "$basedir/core"         => "$tmpdir/chrome/libx/content/libx/core",
+    "$basedir/dev"          => "$tmpdir/chrome/libx/content/libx/dev",
+    "$basedir/popup"        => "$tmpdir/chrome/libx/content/libx/popup",
+    "$basedir/locale"       => "$tmpdir/chrome/libx/locale",
+    "$basedir/preferences"  => "$tmpdir/chrome/libx/content/libx/preferences",
+    "$basedir/bootstrapped" => "$tmpdir/chrome/libx/content/libx/bootstrapped"
 );
 
 foreach my $key ( keys %filemap ) {

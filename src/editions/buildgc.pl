@@ -6,12 +6,12 @@ use HTML::Entities;
 use Cwd;
 
 # directory from which files will be bootstrapped
-my $bootstrap_url = "http://libx.org/libx2/bootstrapped/";
+my $bootstrap_url = "http://localhost/libx.org/bootstrapped/";
 # default package url for editions that have none specified
 my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
 
 # directory to which built files are output
-my $fs_base_dir = "/home/www/libx.org/releases/";
+my $fs_base_dir = "/var/www/libx.org/releases/";
 # URL at which build is accessible
 my $publish_base_url = "http://libx.org/releases/";
 

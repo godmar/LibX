@@ -51,7 +51,7 @@ function retrieveRequest(request, retrievalType) {
     if (retrievalType == RetrievalType.UPDATE && request.metadata && request.metadata.lastModified != null)
         headers["If-Modified-Since"] = request.metadata.lastModified;
 
-    var url = trimQuery(request.ignoreQuery, request.url);
+    var url = trimQuery(request.ignoreQuery, request.alias || request.url);
 
     libx.cache.defaultMemoryCache.get({
         header: headers,
@@ -144,6 +144,8 @@ libx.cache.ObjectCache = libx.core.Class.create(
      *  @param {Object} request 
      *      Modeled after <a href="http://docs.jquery.com/Ajax/jQuery.ajax#options">jQuery._ajax</a>
      *      with the following additions:
+     *  @config {String} alias  (optional) if set, the item will be stored in
+     *      the cache under this alias URL instead of its actual URL
      *  @config {Boolean} cacheOnly  if true, success will only be called if the object
      *      is in the cache.  If the object is not in the cache, request.complete() is immediately
      *      fired.  No XHRs are triggered.
@@ -159,21 +161,22 @@ libx.cache.ObjectCache = libx.core.Class.create(
      */
     get : function (request) {
     
+        var self = this;
+        var url = request.alias || request.url;
+
         // don't cache chrome URLs
-        if (/^chrome.*:\/\//.test(request.url)) {
+        if (/^chrome.*:\/\//.test(url)) {
             libx.cache.defaultMemoryCache.get(request);
             return;
         }
     
-        var self = this;
-
         this.getMetadata({
-            url: request.url,
+            url: url,
             success: function (metadata) {
 
                 function getFromCache() {
                     libx.storage.cacheStore.getItem({
-                        key: trimQuery(request.ignoreQuery, request.url),
+                        key: trimQuery(request.ignoreQuery, url),
                         success: function (text) {
 
                             // all objects are stored as text, so we must parse
@@ -200,6 +203,7 @@ libx.cache.ObjectCache = libx.core.Class.create(
                     var updated = false;
                     self.update({
                         url: request.url,
+                        alias: request.alias,
                         metadata: metadata,
                         ignoreQuery: request.ignoreQuery,
                         validator: request.validator,

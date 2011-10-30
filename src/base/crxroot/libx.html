@@ -92,9 +92,10 @@ libx.events.addListener("EditionConfigurationLoaded", {
 });
 
 var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-if (configUrl)
+if (configUrl) {
     // load config if user has one set
     libx.loadConfig(configUrl);
+}
 
 // load edition from cookie if it exists
 var cookieData = {

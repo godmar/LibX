@@ -342,6 +342,7 @@ libx.testsetup = {
      * to this directory) so that the unit tests can modify the files.
      */
     baseUrl : "http://theta.cs.vt.edu/~gback/libx2/src/unittests/",
+    //baseUrl : "http://localhost/libx.org/unittests/",
 }
 
 var testConn = new java.net.URL(libx.testsetup.baseUrl + "loadlibx.js").openConnection();
