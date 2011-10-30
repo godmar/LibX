@@ -19,8 +19,6 @@
             "https://*/*"
         ],
         "js": [
-            "popup/jquery.js",
-
             // reinclude all of libx for each page visited
             "core/global/shared/core.js",
             "core/global/shared/libx.js",
