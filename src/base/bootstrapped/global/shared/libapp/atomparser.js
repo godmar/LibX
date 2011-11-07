@@ -209,7 +209,8 @@ function handleEntry(visitor, url, cacheMissActivity) {
         nodeInfo.params = {};
         for (var i = 0; params != null && i < params.length; i++) {
             nodeInfo.params[params[i].getAttribute("name")] = {
-                type: params[i].getAttribute("type")
+                type: params[i].getAttribute("type"),
+                desc: params[i].textContent
             };
         }
             
