@@ -68,6 +68,50 @@ ul {
     display:none;
 }
 
+.info-panel-params {
+    font-weight:normal;
+    font-size:0.8em;
+}
+
+.arg-name {
+    font-size:1.0em;
+    font-weight:normal;
+    padding-right:.4em;
+}
+
+.arg-type {
+    color:green;
+}
+
+.arg-desc {
+    color:black;
+    word-wrap:break-word;
+}
+
+.arg-desc a:hover {
+    color: red;
+    text-decoration:underline;
+}
+
+.arg-value a:hover {
+    color:red;
+    text-decoration:underline;
+}
+
+li .err {
+    width: 16px;
+    height: 11px;
+    padding: 0;
+    margin: 0;
+    float: left;  
+    background: url(iconErr16x16.gif) 0 0px;
+
+}
+
+.err-text {
+    color:red;
+}
+
 /* fixes bug that prevents components from working inside tab
 http://docs.jquery.com/UI/Tabs#...my_slider.2C_Google_Map.2C_sIFR_etc._not_work_when_placed_in_a_hidden_.28inactive.29_tab.3F */
 .ui-tabs .ui-tabs-hide { display: block !important; position: absolute; left: -10000px; }

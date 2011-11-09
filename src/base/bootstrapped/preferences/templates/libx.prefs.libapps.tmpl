@@ -207,11 +207,12 @@ processCheckTree = {
                     
                     if($infoPanelElem.show().hasClass("module"))
                     {
-                       var $toggleArgLink = $infoPanelElem.find("div.toggle-info-panel-links a.toggle-info-panel-args");
+                       /*var $toggleArgLink = $infoPanelElem.find("div.toggle-info-panel-links a.toggle-info-panel-args");
                       
                        if($toggleArgLink.length > 0){
                          toggleInfoPanelArgs($toggleArgLink,true);
-                       }
+                       }*/
+                      displayModuleArguments($infoPanelElem.parent()); 
                     }
                     e.stopPropagation();
                 }
@@ -281,9 +282,9 @@ processCheckTree = {
 aQ.scheduleLast(processCheckTree);
 processCheckTree.markReady();
 
-function toggleInfoPanelArgs($argsLink,defaultShow)
+function toggleInfoPanelArgs($argsLink)
 {   
-    if($argsLink.text() == 'Show Input Arguments' || defaultShow) {         
+    if($argsLink.text() == 'Show Input Arguments') {         
          $argsLink.text("Hide Input Arguments");
          displayModuleArguments($argsLink.parent().parent().parent());
     }else if($argsLink.text() == 'Hide Input Arguments') {
@@ -326,61 +327,128 @@ function insertLinks(text) {
     return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
 }
 
+function insertArgToggleLink($Info_Panel)
+{
+    $Info_Panel
+              .children(".toggle-info-panel-links")
+              .find('.toggle-info-panel-details')
+              .after(' | <a class="toggle-info-panel-args" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
+                                + 'Hide Input Arguments'
+                                + '</a>');
+}
+
 function displayModuleArguments($li_module)
 {
+  var $_infoPanel = $li_module.children(".info-panel:first");
+  var $_infoPanelParams = $_infoPanel.find(".info-panel-params:first");
+  if($_infoPanelParams.length > 0)
+  {
+     $_infoPanelParams.show();
+     return;
+  }
+  
   var params = $li_module.data("params");
-  var s= ObjectSize(params);
-  if( s > 0)
-  {    
-    $infoPanel = $li_module.children(".info-panel:first");
-    $infoPanelParamsArr = $infoPanel.find(".info-panel-params:first");
-    if($infoPanelParamsArr.length > 0){
-      $infoPanelParamsArr.show();
-    }else{
-      var m_id = $li_module.data("id");
-      var libapp_m_args = $li_module.parent().parent().data("_"+m_id);
-      var infoPanelParams = '';
-      var count = 0;
-      for( param in params)
-      {         
-         var pDesc = params[param].desc;
-         var pType = params[param].type;
-         var pVal = 'unknown';
-         if( ObjectSize(libapp_m_args) > 0)
-         {
-           try {
-             pType = libapp_m_args[param].type;
-             pVal = libapp_m_args[param].value;
-             ++count;
-           }catch (e)
-           {
-              pType = "unknown";pVal = "unknown";
-           }
-           
-           infoPanelParams += '<li>'
-                            +    '<span class="entry-label-name">'+count+'. </span>'
-                            +    '<span class="arg-name">'+param+'</span>'
-                            +    '<span class="entry-label-name"> ('
-                            +       '<span class="arg-type">'+pType+'</span>) : '
-                            +    '</span>'
-                            +    '<span class="arg-desc">'+insertLinks(pDesc)+'</span><br />  '
-                            +    '<span class="entry-label-name">Value: </span>'
-                            +    '<span class="entry-text arg-value">'+insertLinks(pVal)+'</span>'                            
-                            + '</li>';
-         }
-         else{
-           infoPanelParams += '<li> Error fetching input arguments </li>';
-         }
+  var m_id = $li_module.data("id");
+  var libapp_m_args = $li_module.parent().parent().data("_"+m_id);
+  
+  var paramLen = ObjectSize(params);
+  var argLen = ObjectSize(libapp_m_args);
+
+  if(paramLen <= 0 && argLen <= 0)
+  {
+    return;
+  }
+  insertArgToggleLink($_infoPanel);
+  var infoPanelParams = '';
+  var count = 0;
+  var pDesc,pType,pVal,_pType,_name;
+  if(paramLen > 0)
+  {
+    for( param in params)
+    {
+      pDesc = params[param].desc;
+      pType = params[param].type;
+      ++count;
+      pVal = 'unknown';
+      if( (argLen > 0) && libapp_m_args[param] != null && libapp_m_args[param] != "undefined" ) {
+        _pType = libapp_m_args[param].type;
+        pVal = libapp_m_args[param].value;
+      }else
+      {
+        _pType = "unknown";
+        pVal = "unknown";
       }
-      var pDiv = '<div class="info-panel-params"  style="padding:12px 12px 12px 12px;" >'
-               +    '<ul>'
-               +       infoPanelParams
-               +    '</ul>'
-               + '</div>';
-     
-      $infoPanel.children(".info-panel-details:first").after(pDiv);
+        
+      infoPanelParams += '<li>'
+                      +    '<span class="entry-label-name">'+count+'. </span>'
+                      +    '<span class="arg-name">'+param+'</span>'
+                      +    '<span class="entry-label-name"> ('
+                      +       '<span class="arg-type">'+pType+'</span>) : '
+                      +    '</span>'
+                      +    '<span class="arg-desc">'+insertLinks(pDesc)+'</span><br />  '
+                      +    '<span class="entry-label-name">Value: </span>'
+                      +    '<span class="entry-text arg-value">'+insertLinks(pVal)+'</span>'                            
+                      + '</li>';
+        
+      if(pVal ==  "unknown"){
+         infoPanelParams += '<li>'
+                         +    '<span class="err"></span>'
+                         +    '<span class="err-text">'
+                         +       'No matching argument was found in Libapp'
+                         +    '</span>'
+                         +  '</li>';
+      }
+      else if(_pType != pType){
+         infoPanelParams += '<li>'
+                         +     '<span class="err"></span>'
+                         +     '<span class="err-text">'
+                         +        'Parameter type mismatch: Module parameter type is '
+                         +        '<span class="arg-type">'+pType+'</span>'
+                         +        ' and Libapp argument type is '
+                         +        '<span class="arg-type">'+_pType+'</span>'
+                         +     '</span>'
+                         +  '</li>';
+      }
     }
-  }else { console.log(s); }
+  }
+
+  if(argLen > 0)
+  {
+     for(arg in libapp_m_args)
+     {
+        if( (paramLen > 0) && params[arg] != null && params[arg] != "undefined")
+        {
+           continue;
+        }else {
+           pDesc = "unknown";
+           _pType = libapp_m_args[arg].type;
+           pVal = libapp_m_args[arg].value;
+           ++count;
+           infoPanelParams += '<li>'
+                           +     '<span class="entry-label-name">'+count+'. </span>'
+                           +     '<span class="arg-name">'+arg+'</span>'
+                           +     '<span class="entry-label-name"> ('
+                           +       '<span class="arg-type">'+_pType+'</span>) : '
+                           +     '</span>'
+                           +    '<span class="arg-desc">'+pDesc+'</span><br />  '
+                           +    '<span class="entry-label-name">Value: </span>'
+                           +    '<span class="entry-text arg-value">'+insertLinks(pVal)+'</span>'                            
+                           +  ' </li>'
+                           +  '<li>'
+                           +    '<span class="err"></span>'
+                           +    '<span class="err-text"> No matching parameter was found in module.</span>'
+                           +  '</li>';
+        }
+     }
+  }
+  
+  var pDiv = '<div class="info-panel-params"  style="padding:12px 12px 12px 12px;" >'
+           +    '<ul>'
+           +       infoPanelParams
+           +    '</ul>'
+           + '</div>';
+     
+  $_infoPanel.children(".info-panel-details:first").after(pDiv);
 }
 
 function formatDate(dtStr)
@@ -397,7 +465,6 @@ function formatDate(dtStr)
 function makeInfoPanel(entry,$node,tmplData){
     var props = '';
     var isModule = false;
-    var moduleHasParams = false;
     var nodeType = entry.type;
     if(nodeType == "libapp")
     {
@@ -448,15 +515,9 @@ function makeInfoPanel(entry,$node,tmplData){
            }
          }
        }
-       var s = 0;var p;
-       for ( p in entry.params)
-       {
-         if(entry.params.hasOwnProperty(p)) ++s;
-       }
-       
-       if(s > 0)
-       {          
-          moduleHasParams = true;
+      
+       if(ObjectSize(entry.params) > 0)
+       {  console.log("found oarams");        
           $node.data("params", entry.params); 
        }
     }
@@ -528,18 +589,6 @@ function makeInfoPanel(entry,$node,tmplData){
 						        + 'Show Preferences'
 								+ '</a>');		    
 		    }
-
-            if( moduleHasParams )
-            {
-                $infoPanel
-                        .children(".toggle-info-panel-links")
-                        .find('.toggle-info-panel-details')
-                        .after(' | <a class="toggle-info-panel-args" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
-
-                                + 'Show Input Arguments'
-                                + '</a>');
-            }
-
 		}
        };
     aQ.scheduleLast(addToPanel);
