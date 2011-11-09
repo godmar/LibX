@@ -370,7 +370,7 @@ function displayModuleArguments($li_module)
       pType = params[param].type;
       ++count;
       pVal = 'unknown';
-      if( (argLen > 0) && libapp_m_args[param] != null && libapp_m_args[param] != "undefined" ) {
+      if( (argLen > 0) && libapp_m_args[param] != null && libapp_m_args[param] != undefined ) {
         _pType = libapp_m_args[param].type;
         pVal = libapp_m_args[param].value;
       }else
@@ -517,7 +517,7 @@ function makeInfoPanel(entry,$node,tmplData){
        }
       
        if(ObjectSize(entry.params) > 0)
-       {  console.log("found oarams");        
+       {         
           $node.data("params", entry.params); 
        }
     }
@@ -612,6 +612,112 @@ function insertPreferences ($infoPanel)
 		r.doPostInsertionProcessing();
 	}
 }
+
+function addRemoveLink($node, id, isRoot) {
+   /* only show remove link for top level, user-added feeds */
+   if(!isRoot)
+     return;
+
+   for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
+       var editionPkg = libx.edition.localizationfeeds.package[i];
+       if (editionPkg.url == id)
+            return;
+   }
+   $('<a href="#" style="text-decoration: underline;">Remove from my packages</a>')
+      .appendTo($node)
+      .click(function () {
+              if (libx.libapp.removeUserPackage(id))
+                   reloadPackages();
+      });
+}
+
+var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
+     initialize: function ($checkTree, isRoot) {
+       this.$elem =  $checkTree;
+       
+       this.isRoot = isRoot;
+     },
+     onpackage: function(pkg,prep) {
+       
+       libx.prefs.getCategoryForUrl(pkg.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
+       var $node = makeNode(pkg);
+          $node
+           .children("ul")
+           .append('<li class="checktree_separator"></li>')
+           .end()
+           .insertBefore(this.$elem.children(".checktree_separator"));
+
+       
+       var $oldelem = this.$elem; 
+       this.$elem = $node.children("ul");
+       var _isRoot = this.isRoot;
+       this.isRoot = false;
+       this.parent(pkg);
+       this.$elem = $oldelem;
+       
+       prep.blocker.markReady();
+        
+       var $prefs = makeInfoPanel(pkg, $node);
+       addRemoveLink($prefs, pkg.id,_isRoot);
+       
+     },
+     onlibapp: function(libapp,prep) {
+       
+       libx.prefs.getCategoryForUrl(libapp.id,
+                        [{ name: "_enabled", type: "boolean", value: "true" }]);
+       var $node = makeNode(libapp);
+       this.$elem.children(".checktree_separator").after($node);
+       
+       var $oldelem = this.$elem;
+       this.$elem = $node.children("ul");
+       this.isRoot = false;
+       this.parent(libapp);
+       this.$elem = $oldelem;
+       prep.blocker.markReady();                    
+       getStringBundle(libapp.id, 
+                       function (tmplData) {
+                          makeInfoPanel(libapp, $node, tmplData);
+                       },
+                       libapp.entries);
+     },
+     onmodule: function(module,prep) {
+              libx.prefs.getCategoryForUrl(module.id,
+           [{ name: "_enabled", type: "boolean", value: "true" }]);
+       if (!libx.prefs[module.id]) {
+             prep.blocker.markReady();
+             return;
+       }
+                   
+       var $node = makeNode(module);
+       this.$elem.append($node);
+       prep.blocker.markReady();
+                    
+       getStringBundle(module.id, function (tmplData) {
+                                    makeInfoPanel(module, $node, tmplData);
+                                  });
+      
+     },
+     beforeentry: function(entryUrl) {
+      var prep = {
+             /* activity logic */
+             blocker: new libx.utils.collections.EmptyActivity(),
+             packageUrl: entryUrl
+        }; 
+       processCheckTree.scheduleBefore(prep.blocker);
+       return prep;
+       
+     },
+     error: function(err,prep) {
+       var entry = { id: prep.packageUrl, description: "(Unknown Entry)" };
+       var $node = makeNode(entry);
+       this.elem.children(".checktree_separator").before($node);
+       var $prefs = makeInfoPanel(entry, $node);
+       addRemoveLink($prefs, prep.packageUrl,this.isRoot);
+       prep.blocker.markReady();
+     }
+});
+    
 
 function processPackages(packages, elem, isRoot) {
 
@@ -709,7 +815,12 @@ function processPackages(packages, elem, isRoot) {
 var rootPackages = libx.libapp.getPackages().map(function (pkg) {
     return { url: pkg };
 });
+/*
 processPackages(rootPackages, $checkTree, true);
+*/
+
+var renderEntriesWalker = new RenderEntriesWalker($checkTree, true);
+new libx.libapp.PackageWalker(rootPackages[0].url).walk(renderEntriesWalker);
 
 templateScope.queueFunction(function () {
     $("#libapps-tmpl").find(".tooltip").tooltip({
@@ -719,6 +830,8 @@ templateScope.queueFunction(function () {
     
     if (displaymode) {
         $("#libapps-subscribe-form").hide();                      
+    }else {
+       $("#libapps-banner").hide();
     }
 });
 
@@ -731,4 +844,11 @@ templateScope.queueFunction(function () {
         <input style="width: 500px;"></input><br/>
         <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div>
     </form>
+    <div id="libapps-banner" class="libapps-banner">
+      <p><span class="libapps-banner-header">Libapps Display Tree:</span></p>
+      <ul>
+      <li>- <span class="libapps-banner-sub-header">To explore packages/libapps, expand the tree</span></li>
+      <li>- <span class="libapps-banner-sub-header">To see details click on any label</span></li>
+      </ul>
+    </div>
 </div>

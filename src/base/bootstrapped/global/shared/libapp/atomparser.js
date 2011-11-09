@@ -69,6 +69,9 @@ libx.libapp.nsResolver = ns;
  */
 libx.libapp.PackageVisitor = libx.core.Class.create(
     /** @lends libx.libapp.PackageVisitor.prototype */{
+    /*isRoot: false,
+    elem: null,
+    _elem:null,*/
     onpackage: function (pkg) {
         for (var i = 0; i < pkg.entries.length; i++)
             handleEntry(this, pkg.entries[i].url);
@@ -78,6 +81,8 @@ libx.libapp.PackageVisitor = libx.core.Class.create(
             handleEntry(this, libapp.entries[i].url);
     },
     onmodule: function (module) {
+    },
+    beforeentry: function(entryUrl) {
     }
 });
 
@@ -229,13 +234,15 @@ function handleEntry(visitor, url, cacheMissActivity) {
             
         var visitorMethodName = "on" + String(libx2Node.localName);
         if (visitor[visitorMethodName])
-            visitor[visitorMethodName](nodeInfo);
+            visitor[visitorMethodName](nodeInfo,prep);
             
         var params = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:params/libx2:param", libx2Node, ns);
             
     }
-
+    if(visitor["beforeentry"]){
+      var prep =  visitor["beforeentry"](url);
+    }
     var pathComp = url.split(/\//);
     var pathDir = String(url.match(/.*\//));
     var pathBase = url.replace(/.*\//, "");
@@ -274,7 +281,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
                     },
                     error: function (err) {
                         libx.log.write("atomparser.js: Error status " + err + " when walking " + url);
-                        visitor.error && visitor.error(err);
+                        visitor.error && visitor.error(err,prep);
                     },
                     complete: function () {
                         if (urlRequest.cacheOnly && !success) {
@@ -298,7 +305,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
         },
         error: function (err) {
             libx.log.write("atomparser.js: Error status " + err + " when walking " + pathDir);
-            visitor.error && visitor.error(err);
+            visitor.error && visitor.error(err,prep);
         }
     };
 
