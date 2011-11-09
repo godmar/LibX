@@ -152,9 +152,15 @@ libx.cache.defaultHashScheduler.scheduleUpdates(true);
 
 <script type="text/javascript">
 $(document).ready ( function () {
-    var result = process ( null, "libx.prefs.libapps", { libappdisplaymode: true });
-    $('#content-div').append ( $( result.html ) );
-    result.doPostInsertionProcessing();
+    var processPage = {
+        onready: function () {
+            var result = process ( null, "libx.prefs.libapps", { libappdisplaymode: true });
+            $('#content-div').append ( $( result.html ) );
+            result.doPostInsertionProcessing();
+        }
+    };
+    pageProcessingQueue.scheduleLast(processPage);
+    processPage.markReady();
 } );
 
 </script>
