@@ -16,6 +16,11 @@ ul {
     list-style-type: none;
 }
 
+.right-panel {
+  margin-left: 25px !important;
+  padding: 10px !important;
+}
+
 .info-panel {
     padding-left:3px;
     min-width:400px;
@@ -25,6 +30,7 @@ ul {
 .info-panel-heading {
     font-weight:normal;
     font-size:0.9em;
+    padding: .6em .6em .4em !important;
 }
 
 .info-panel-prefs {
@@ -37,6 +43,7 @@ ul {
 .entry-label-name {
     color:grey;
     font-weight:normal;
+    padding-right:0.2em !important;
 }
 
 .entry-text {
@@ -48,8 +55,33 @@ ul {
 .toggle-info-panel-links {
     font-size:0.7em;
     padding:0.5em 0.7em;
+    padding-left:0.5em !important;
+    padding-bottom:1em !important;
 }
 
+.toggle-info-panel-args {
+  color:#0B559B !important;
+  margin:0 0.4em !important;
+  cursor:pointer !important;
+}
+
+.toggle-info-panel-details {
+  color:#0B559B !important;
+  margin:0 0.4em !important;
+  cursor:pointer !important;
+}
+
+.toggle-info-panel-codebody {
+  color:#0B559B !important;
+  margin:0 0.4em !important;
+  cursor:pointer !important;
+}
+
+.toggle-info-panel-prefs{
+  color:#0B559B !important;
+  margin:0 0.4em !important;
+  cursor:pointer !important;
+}
 .info-panel-codebody{
     font-weight:normal;
     font-size:0.8em;
@@ -60,6 +92,7 @@ ul {
     word-wrap:break-word;
     max-height:500px;
     overflow:auto;
+    padding:12px 12px 12px 12px !important;
 }
 
 .info-panel-details {
@@ -71,6 +104,7 @@ ul {
 .info-panel-params {
     font-weight:normal;
     font-size:0.8em;
+    padding: 12px 12px 12px 12px !important;
 }
 
 .arg-name {
