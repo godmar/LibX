@@ -112,6 +112,15 @@ li .err {
     color:red;
 }
 
+.libapps-banner {
+    margin-bottom: 30px;
+}
+
+.libapps-banner-header {
+   font-size: x-large;
+   color: #0B559B;
+}
+
 /* fixes bug that prevents components from working inside tab
 http://docs.jquery.com/UI/Tabs#...my_slider.2C_Google_Map.2C_sIFR_etc._not_work_when_placed_in_a_hidden_.28inactive.29_tab.3F */
 .ui-tabs .ui-tabs-hide { display: block !important; position: absolute; left: -10000px; }
