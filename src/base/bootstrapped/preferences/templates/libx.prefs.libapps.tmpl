@@ -111,19 +111,19 @@ function getStringBundle(url, callback, entries) {
 
 var aQ = new libx.utils.collections.DelayedActivityQueue();
 templateScope.postProcessingActions.push(aQ);
-var $rightPanel = $('<div style="margin-left: 25px; padding: 10px;" class="ui-state-default ui-corner-all">'
+var $rightPanel = $('<div class="ui-state-default ui-corner-all right-panel">'
                   + '<div>Select an entry in the tree to set its preferences.</div>'
                   + '</div>');
 
-var $checkTree = $('<ul class="checktree" style="float: left;">'
+var $checkTree = $('<ul id="root" class="checktree" style="float: left;">'
                  + '<li class="checktree_separator"></li>'
                  + '</ul>');
 
-function makeNode(entry) {
+function makeNode(entry, id) {
     
     var $node = $('<li>\n'
                 + '   <label>' + entry.title + '</label>\n'
-                + '   <ul></ul>\n'
+                + '   <ul id="' + id + '"></ul>\n'
                 + '</li>\n');
     $node.data("id",entry.id);
     if (entry.type != 'module') {
@@ -332,7 +332,7 @@ function insertArgToggleLink($Info_Panel)
     $Info_Panel
               .children(".toggle-info-panel-links")
               .find('.toggle-info-panel-details')
-              .after(' | <a class="toggle-info-panel-args" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
+              .after(' | <a class="toggle-info-panel-args" href="#">'
                                 + 'Hide Input Arguments'
                                 + '</a>');
 }
@@ -369,8 +369,8 @@ function displayModuleArguments($li_module)
       pDesc = params[param].desc;
       pType = params[param].type;
       ++count;
-      pVal = 'unknown';
-      if( (argLen > 0) && libapp_m_args[param] != null && libapp_m_args[param] != undefined ) {
+      
+      if( (argLen > 0) && libapp_m_args[param] != undefined ) {
         _pType = libapp_m_args[param].type;
         pVal = libapp_m_args[param].value;
       }else
@@ -416,7 +416,7 @@ function displayModuleArguments($li_module)
   {
      for(arg in libapp_m_args)
      {
-        if( (paramLen > 0) && params[arg] != null && params[arg] != "undefined")
+        if( (paramLen > 0) && params[arg] != undefined)
         {
            continue;
         }else {
@@ -442,7 +442,7 @@ function displayModuleArguments($li_module)
      }
   }
   
-  var pDiv = '<div class="info-panel-params"  style="padding:12px 12px 12px 12px;" >'
+  var pDiv = '<div class="info-panel-params">'
            +    '<ul>'
            +       infoPanelParams
            +    '</ul>'
@@ -473,7 +473,7 @@ function makeInfoPanel(entry,$node,tmplData){
          {
            if( j == 0 ){
              props = props +  '<li>'
-                             +    '<span class="entry-label-name" style="padding-right:0.2em;">'
+                             +    '<span class="entry-label-name">'
                              +       appProps[i] + ': </span>';
           }
                       props +=   '<span class="entry-text">' + encode(entry[appProps[i]][j]) + '</span>';
@@ -504,7 +504,7 @@ function makeInfoPanel(entry,$node,tmplData){
          {
            if( j == 0 ){
              props = props +  '<li>'
-                             +    '<span class="entry-label-name" style="padding-right:0.2em;">'
+                             +    '<span class="entry-label-name">'
                              +       modProps[i] + ': </span>';
           }
                       props +=   '<span class="entry-text">' + encode(entry[modProps[i]][j]) + '</span>';
@@ -523,37 +523,37 @@ function makeInfoPanel(entry,$node,tmplData){
     }
  
     var $infoPanel = $(  '<div class="ui-state-default ui-corner-all info-panel ' + nodeType + '">'
-                       +     '<div class="info-panel-heading" style="padding: .6em .6em 0.4em">' 
-                       +          '<span class="entry-label-name" style="padding-right:0.2em;">' + entryType[nodeType] + ': </span>'
+                       +     '<div class="info-panel-heading">' 
+                       +          '<span class="entry-label-name">' + entryType[nodeType] + ': </span>'
                        +             encode(entry.description) + '<br/>'
                        +     '</div>'
-                       +     '<div class="toggle-info-panel-links" style="padding-left:0.5em;padding-bottom:1em;">'
-                       +           '<a class="toggle-info-panel-details" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">Show Details</a>'
+                       +     '<div class="toggle-info-panel-links">'
+                       +           '<a class="toggle-info-panel-details" href="#">Show Details</a>'
                        +     '</div>'
                        +     '<div class="info-panel-details">'
                        +           '<ul>'
                        +               '<li>'
-                       +                  '<span class="entry-label-name" style="padding-right:0.2em;" >Id: ' + '</span>'
+                       +                  '<span class="entry-label-name">Id: ' + '</span>'
                        +                  '<span class="entry-text">' + entry.id + '</span>'
                        +                '</li>'
                        +                '<li>'
-                       +                  '<span class="entry-label-name" style="padding-right:0.2em;">Last Updated On: ' + '</span>'
-                       +                  '<span ass="entry-text">' + formatDate(encode(entry.updated)) + '</span>'
+                       +                  '<span class="entry-label-name">Last Updated On: ' + '</span>'
+                       +                  '<span class="entry-text">' + formatDate(encode(entry.updated)) + '</span>'
                        +                '</li>'
                        +                '<li>'
-                       +                  '<span class="entry-label-name" style="padding-right:0.2em;">Author: ' + '</span>'
+                       +                  '<span class="entry-label-name">Author: ' + '</span>'
                        +                  '<span class="entry-text">' + encode(entry.author.name) + '</span>'
                        +                '</li>'
                        +                '<li>'
-                       +                  '<span class="entry-label-name" style="padding-right:0.2em;">Weblink: ' + '</span>'
+                       +                  '<span class="entry-label-name">Weblink: ' + '</span>'
                        +                  '<span class="entry-text">'
-                       +                     '<a href="' +encode(entry.author.uri)+ '" target="_blank" style="text-decoration:underline">'
+                       +                     '<a href="' +encode(entry.author.uri)+ '" target="_blank">'
                        +                         encode(entry.author.uri)
                        +                     '</a>'
                        +                 '</span>'
                        +                '</li>'
                        +                '<li>'
-                       +                   '<span class="entry-label-name" style="padding-right:0.2em;">Email: ' + '</span>'
+                       +                   '<span class="entry-label-name">Email: ' + '</span>'
                        +                   '<span class="entry-text">' + encode(entry.author.email) + '</span>'
                        +                '</li>'
                        +                props
@@ -564,11 +564,11 @@ function makeInfoPanel(entry,$node,tmplData){
     if( isModule )
 	{
 		$infoPanel
-		        .append('<div class="info-panel-codebody" style="padding:12px 12px 12px 12px;" >'
+		        .append('<div class="info-panel-codebody">'
                       + '<pre>' + encode(entry.body) + '</pre>\n'
                       + '</div>\n')
 		        .children('.toggle-info-panel-links')
-				.append(' | <a class="toggle-info-panel-codebody" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
+				.append(' | <a class="toggle-info-panel-codebody" href="#">'
 						    + 'Show Code'
 						+ '</a>');
 
@@ -585,7 +585,7 @@ function makeInfoPanel(entry,$node,tmplData){
 				$infoPanel
 				        .children(".toggle-info-panel-links")
 						.find('.toggle-info-panel-details')
-						.after(' | <a class="toggle-info-panel-prefs" style="color:#0B559B;margin:0 0.4em;cursor:pointer;" href="#">'
+						.after(' | <a class="toggle-info-panel-prefs" href="#">'
 						        + 'Show Preferences'
 								+ '</a>');		    
 		    }
@@ -630,32 +630,30 @@ function addRemoveLink($node, id, isRoot) {
                    reloadPackages();
       });
 }
-
+var errCount = 0;
 var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
-     initialize: function ($checkTree, isRoot) {
-       this.$elem =  $checkTree;
-       
-       this.isRoot = isRoot;
+     initialize: function (isRoot) {
+      this.isRoot = isRoot;
      },
      onpackage: function(pkg,prep) {
-       
-       libx.prefs.getCategoryForUrl(pkg.id,
+       var _id = libx.utils.hash.hashString(pkg.id);
+       var $parent = $checkTree.find("#"+prep.parentId.toString());
+       if(this.isRoot){
+        $parent = $checkTree;
+       }
+      libx.prefs.getCategoryForUrl(pkg.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(pkg);
-          $node
+       var $node = makeNode(pkg,_id);
+       $node
            .children("ul")
            .append('<li class="checktree_separator"></li>')
            .end()
-           .insertBefore(this.$elem.children(".checktree_separator"));
-
-       
-       var $oldelem = this.$elem; 
-       this.$elem = $node.children("ul");
+           .insertBefore($parent.children(".checktree_separator"));
+      
        var _isRoot = this.isRoot;
        this.isRoot = false;
-       this.parent(pkg);
-       this.$elem = $oldelem;
-       
+       this.parent(pkg,_id);
+              
        prep.blocker.markReady();
         
        var $prefs = makeInfoPanel(pkg, $node);
@@ -663,18 +661,18 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        
      },
      onlibapp: function(libapp,prep) {
-       
+       var _id = libx.utils.hash.hashString(libapp.id);
+       var $parent = $checkTree.find("#"+prep.parentId.toString());
        libx.prefs.getCategoryForUrl(libapp.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(libapp);
-       this.$elem.children(".checktree_separator").after($node);
-       
-       var $oldelem = this.$elem;
-       this.$elem = $node.children("ul");
+       var $node = makeNode(libapp,_id);
+       $parent.children(".checktree_separator").after($node);
+     
        this.isRoot = false;
-       this.parent(libapp);
-       this.$elem = $oldelem;
+       this.parent(libapp,_id);
+       
        prep.blocker.markReady();                    
+       
        getStringBundle(libapp.id, 
                        function (tmplData) {
                           makeInfoPanel(libapp, $node, tmplData);
@@ -682,144 +680,50 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
                        libapp.entries);
      },
      onmodule: function(module,prep) {
-              libx.prefs.getCategoryForUrl(module.id,
+       var _id = libx.utils.hash.hashString(module.id);
+       var $parent = $checkTree.find("#"+prep.parentId.toString());
+       libx.prefs.getCategoryForUrl(module.id,
            [{ name: "_enabled", type: "boolean", value: "true" }]);
        if (!libx.prefs[module.id]) {
              prep.blocker.markReady();
              return;
        }
                    
-       var $node = makeNode(module);
-       this.$elem.append($node);
+       var $node = makeNode(module,_id);
+       $parent.append($node);
        prep.blocker.markReady();
                     
        getStringBundle(module.id, function (tmplData) {
                                     makeInfoPanel(module, $node, tmplData);
                                   });
       
-     },
-     beforeentry: function(entryUrl) {
-      var prep = {
-             /* activity logic */
+    },
+    beforeentry: function(entryUrl,parentid) {
+      var prep = {            
              blocker: new libx.utils.collections.EmptyActivity(),
-             packageUrl: entryUrl
+             packageUrl: entryUrl,
+             parentId: parentid
         }; 
        processCheckTree.scheduleBefore(prep.blocker);
        return prep;
-       
-     },
-     error: function(err,prep) {
+    },
+    error: function(err,prep) {
+       ++errCount;
+       var _id = libx.utils.hash.hashString(errCount.toString()+prep.packageUrl);
+       var $parent = $checkTree.find("#"+prep.parentId.toString());
        var entry = { id: prep.packageUrl, description: "(Unknown Entry)" };
-       var $node = makeNode(entry);
-       this.elem.children(".checktree_separator").before($node);
+       var $node = makeNode(entry,_id);
+       $parent.children(".checktree_separator").before($node);
        var $prefs = makeInfoPanel(entry, $node);
        addRemoveLink($prefs, prep.packageUrl,this.isRoot);
        prep.blocker.markReady();
      }
 });
     
-
-function processPackages(packages, elem, isRoot) {
-
-    for (var i = 0; i < packages.length; i++) {
-    
-        (function () {
-    
-            var packageUrl = packages[i].url;
-            var blocker = new libx.utils.collections.EmptyActivity();
-            processCheckTree.scheduleBefore(blocker);
-        
-            function addRemoveLink($node, id) {
-                /* only show remove link for top level, user-added feeds */
-                if (!isRoot)
-                    return;
-                for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
-                    var editionPkg = libx.edition.localizationfeeds.package[i];
-                    if (editionPkg.url == id)
-                        return;
-                }
-                $('<a href="#" style="text-decoration: underline;">Remove from my packages</a>')
-                    .appendTo($node)
-                    .click(function () {
-                        if (libx.libapp.removeUserPackage(id))
-                            reloadPackages();
-                    });
-            }
-
-            new libx.libapp.PackageWalker(packageUrl).walk({
-                onpackage: function (pkg) {
-
-                    libx.prefs.getCategoryForUrl(pkg.id,
-                        [{ name: "_enabled", type: "boolean", value: "true" }]);
-                    var $node = makeNode(pkg);
-                    $node
-                        .children("ul")
-                            .append('<li class="checktree_separator"></li>')
-                        .end().insertBefore(elem.children(".checktree_separator"));
-                    processPackages(pkg.entries, $node.children("ul"), false);
-                    blocker.markReady();
-                    
-                    var $prefs = makeInfoPanel(pkg, $node);
-                    addRemoveLink($prefs, pkg.id);
-                    
-                },
-                onlibapp: function (libapp) {
-                               
-                    libx.prefs.getCategoryForUrl(libapp.id,
-                        [{ name: "_enabled", type: "boolean", value: "true" }]);
-                    var $node = makeNode(libapp);
-                    elem.children(".checktree_separator").after($node);
-                    processPackages(libapp.entries, $node.children("ul"), false);
-                    blocker.markReady();
-                               
-                    getStringBundle(libapp.id, function (tmplData) {
-                        makeInfoPanel(libapp, $node, tmplData);
-                    }, libapp.entries);
-                    
-                },
-                onmodule: function (module) {
-
-                    libx.prefs.getCategoryForUrl(module.id,
-                        [{ name: "_enabled", type: "boolean", value: "true" }]);
-                    if (!libx.prefs[module.id]) {
-                        blocker.markReady();
-                        return;
-                    }
-                    
-                    
-                    var $node = makeNode(module);
-                    elem.append($node);
-                    blocker.markReady();
-                    
-                    getStringBundle(module.id, function (tmplData) {
-                        makeInfoPanel(module, $node, tmplData);
-                    });
-                    
-                },
-                error: function (err) {
-                    var entry = { id: packageUrl, description: "(Unknown Entry)" };
-                    var $node = makeNode(entry);
-                    elem.children(".checktree_separator").before($node);
-                    var $prefs = makeInfoPanel(entry, $node);
-                    addRemoveLink($prefs, packageUrl);
-                    blocker.markReady();
-                }
-            });
-            
-        }) ();
-        
-    }
-
-}
-
 var rootPackages = libx.libapp.getPackages().map(function (pkg) {
     return { url: pkg };
 });
-/*
-processPackages(rootPackages, $checkTree, true);
-*/
-
-var renderEntriesWalker = new RenderEntriesWalker($checkTree, true);
+var renderEntriesWalker = new RenderEntriesWalker(true);
 new libx.libapp.PackageWalker(rootPackages[0].url).walk(renderEntriesWalker);
 
 templateScope.queueFunction(function () {

@@ -69,16 +69,13 @@ libx.libapp.nsResolver = ns;
  */
 libx.libapp.PackageVisitor = libx.core.Class.create(
     /** @lends libx.libapp.PackageVisitor.prototype */{
-    /*isRoot: false,
-    elem: null,
-    _elem:null,*/
-    onpackage: function (pkg) {
+   onpackage: function (pkg,pkg_id) {
         for (var i = 0; i < pkg.entries.length; i++)
-            handleEntry(this, pkg.entries[i].url);
+            handleEntry(this, pkg.entries[i].url,pkg_id);
     },
-    onlibapp: function (libapp) {
+    onlibapp: function (libapp,libapp_id) {
         for (var i = 0; i < libapp.entries.length; i++)
-            handleEntry(this, libapp.entries[i].url);
+            handleEntry(this, libapp.entries[i].url,libapp_id);
     },
     onmodule: function (module) {
     },
@@ -86,7 +83,7 @@ libx.libapp.PackageVisitor = libx.core.Class.create(
     }
 });
 
-function handleEntry(visitor, url, cacheMissActivity) {
+function handleEntry(visitor, url, parentid, cacheMissActivity) {
 
     function handleEntryBody(xmlDoc, baseURL, entryNode) {
         var libx2Node = libx.utils.xpath.findSingleXML(
@@ -241,7 +238,7 @@ function handleEntry(visitor, url, cacheMissActivity) {
             
     }
     if(visitor["beforeentry"]){
-      var prep =  visitor["beforeentry"](url);
+      var prep =  visitor["beforeentry"](url,parentid);
     }
     var pathComp = url.split(/\//);
     var pathDir = String(url.match(/.*\//));
@@ -338,7 +335,7 @@ libx.libapp.PackageWalker = libx.core.Class.create(
      *    the entry is not in the object cache
      */
     walk : function (visitor, cacheMissActivity) {
-        handleEntry(visitor, this.rootPackage, cacheMissActivity);
+        handleEntry(visitor, this.rootPackage, "root", cacheMissActivity);
     }
 });
 

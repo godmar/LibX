@@ -52,6 +52,11 @@ ul {
     padding-right:.4em;
 }
 
+.entry-text a:hover {
+    color: red;
+    text-decoration:underline;
+}
+
 .toggle-info-panel-links {
     font-size:0.7em;
     padding:0.5em 0.7em;
