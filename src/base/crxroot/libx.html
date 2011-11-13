@@ -35,6 +35,7 @@
 <script src="core/global/shared/catalog/factory/talisprism.js"></script>
 <script src="core/global/shared/catalog/factory/polaris.js"></script>
 <script src="core/global/shared/catalog/factory/openurlresolver.js"></script>
+<script src="core/global/shared/catalog/factory/primo.js"></script>
 <!-- <script src="core/global/shared/citeulike.js"></script> -->
 <script src="core/global/shared/proxy.js"></script>
 <script src="core/global/shared/proxy/factory/ezproxy.js"></script>
@@ -91,9 +92,10 @@ libx.events.addListener("EditionConfigurationLoaded", {
 });
 
 var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-if (configUrl)
+if (configUrl) {
     // load config if user has one set
     libx.loadConfig(configUrl);
+}
 
 // load edition from cookie if it exists
 var cookieData = {

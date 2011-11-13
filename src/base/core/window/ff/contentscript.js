@@ -35,6 +35,5 @@ if (!libx.initialize.globalBootStrapper.hasFinished) {
 for (var i = 0; i < bootWindowUrls.length; i++)
     bootStrapper.loadScript(bootWindowUrls[i].url, {
         "libx": libx,
-        "libxTemp": libxTemp,
-        //"window": window
+        "libxTemp": libxTemp
     }, window);

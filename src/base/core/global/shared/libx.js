@@ -549,7 +549,7 @@ libx.initialize = function (loadGlobalScripts)
         
         // load config if user has one set
         var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
-        if(configUrl)
+        if (configUrl)
             libx.loadConfig(configUrl);
             
     }
@@ -570,6 +570,41 @@ libx.initialize = function (loadGlobalScripts)
     libx.locale.initialize();
     libx.preferences.initialize();
     
+    if (loadGlobalScripts) {
+        /*
+         * Prime the object cache with local copies of bootstrapped files. This
+         * saves us from unnecessary xhr after initial LibX installation. We store
+         * the local updates.json as updates.json.local to flag that we have
+         * already done this processing.
+         */
+        var dummyName = 'updates.json.local';
+        var found = false;
+        libx.cache.defaultObjectCache.get({
+            url: dummyName,
+            cacheOnly: true,
+            success: function () {
+                found = true;
+            },
+            complete: function () {
+                if (!found) {
+                    libx.cache.defaultObjectCache.get({
+                        url: libx.utils.getExtensionURL('bootstrapped/updates.json'),
+                        alias: dummyName,
+                        dataType: 'json',
+                        success: function (updates) {
+                           for (var file in updates.files) {
+                               libx.cache.defaultObjectCache.get({
+                                   url: libx.utils.getExtensionURL('bootstrapped/' + file),
+                                   alias: libx.utils.getBootstrapURL(file),
+                                   dataType: 'text'
+                               });
+                           }
+                        }
+                    });
+                }
+            }
+        });
+    }
 }
 
 /**

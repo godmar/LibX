@@ -335,13 +335,14 @@ libx.cache.HashScheduler = libx.core.Class.create(libx.cache.Scheduler,
     },
     childValidator: libx.cache.validators.bootstrapped,
     updateChildren: function (checkForUpdates, updateHashes) {
-        var bootstrapBase = libx.utils.getBootstrapURL("");
         for (var relUrl in updateHashes.files) {
-            var absUrl = bootstrapBase + relUrl;
-            checkForUpdates(absUrl, function (metadata) {
-                var hash = updateHashes.files[relUrl].hash;
-                return metadata.sha1 != hash;
-            });
+            (function (relUrl) {
+                var absUrl = libx.utils.getBootstrapURL(relUrl);
+                checkForUpdates(absUrl, function (metadata) {
+                    var hash = updateHashes.files[relUrl].hash;
+                    return metadata.sha1 != hash;
+                });
+            }) (relUrl);
         }    
     }
 });

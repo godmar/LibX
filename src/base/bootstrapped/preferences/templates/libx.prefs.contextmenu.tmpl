@@ -30,7 +30,7 @@
     function getContextEntry(entry) {
         var $li = $('<li>'
                   + '  <input type="checkbox"></input>'
-                  + '  <label>' + entry._name + '</label>'
+                  + '  <label>' + libx.utils.xml.encodeEntities(entry._name) + '</label>'
                   + '  <ul></ul>'
                   + '</li>');
         for (var j = 0; j < entry._children.length; j++) {
