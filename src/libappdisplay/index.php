@@ -124,7 +124,7 @@ libx.edition = {
  * Simulate the process that would be done in the actual plug-in.
  */
 var jsonUrl = libx.utils.getBootstrapURL("updates.json");
-libx.log.write("bootstrapurl is " + jsonUrl);
+/*libx.log.write("bootstrapurl is " + jsonUrl);*/
 libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
 var pageProcessingQueue = new libx.utils.collections.DelayedActivityQueue();
 libx.cache.defaultHashScheduler.updatesFinished = function () {
