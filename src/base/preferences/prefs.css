@@ -87,6 +87,7 @@ ul {
   margin:0 0.4em !important;
   cursor:pointer !important;
 }
+
 .info-panel-codebody{
     font-weight:normal;
     font-size:0.8em;
@@ -112,29 +113,34 @@ ul {
     padding: 12px 12px 12px 12px !important;
 }
 
-.arg-name {
+.param-name {
     font-size:1.0em;
     font-weight:normal;
     padding-right:.4em;
 }
 
-.arg-type {
+.param-type {
     color:green;
 }
 
-.arg-desc {
+.param-desc {
     color:black;
     word-wrap:break-word;
 }
 
-.arg-desc a:hover {
+.param-desc a:hover {
     color: red;
     text-decoration:underline;
 }
 
-.arg-value a:hover {
+.param-value a:hover {
     color:red;
     text-decoration:underline;
+}
+
+ul .info-panel-params-list li {
+    margin-top: 1em;
+    line-height: 150%;
 }
 
 li .err {
