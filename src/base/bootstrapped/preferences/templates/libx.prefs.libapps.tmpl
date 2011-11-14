@@ -12,7 +12,7 @@
 /*
  * Template can be run in two modes:
  * For just displaying libapp/package/module (such as in client-side libappdisplay)
- * do not display box to subscribe; do not display preferences.
+ * In a stand-alone (Cleint Side) mode: we do not display box to subscribe; do not display preferences.
  */
 
 var entryType = { "package": "Package", "libapp": "Libapp", "module": "Module" };
@@ -119,6 +119,11 @@ var $checkTree = $('<ul id="root" class="checktree" style="float: left;">'
                  + '<li class="checktree_separator"></li>'
                  + '</ul>');
 
+/*
+* Creates a node in display tree
+* @param {object} entry - Contains info describing each entry
+* @param {number} id - unique id of the entry
+*/
 function makeNode(entry, id) {
     
     var $node = $('<li>\n'
@@ -134,6 +139,7 @@ function makeNode(entry, id) {
     return $node;
     
 }
+
 
 function encode ( str ) {
    if (typeof str == 'object')
@@ -206,18 +212,15 @@ processCheckTree = {
                     }
                     
                     if($infoPanelElem.show().hasClass("module"))
-                    {
-                       /*var $toggleArgLink = $infoPanelElem.find("div.toggle-info-panel-links a.toggle-info-panel-args");
-                      
-                       if($toggleArgLink.length > 0){
-                         toggleInfoPanelArgs($toggleArgLink,true);
-                       }*/
-                      displayModuleArguments($infoPanelElem.parent()); 
-                    }
+                        displayModuleArguments($infoPanelElem.parent()); 
+
                     e.stopPropagation();
                 }
             });
-         
+        /*
+         * Stand-Alone mode == displaymode, If true remove checkboxes from
+         * our display tree
+         */
         if(displaymode)
         {
             $checkTree.find(".checked").hide()
@@ -229,7 +232,7 @@ processCheckTree = {
                           .addClass("ui-tabs ui-widget ui-widget-content ui-corner-all")
                           .css("background","transparent");
 
-        }else {
+        }else {/*display preferences toggle option*/
            $(".toggle-info-panel-prefs").live("click", function () {
             if ($(this).text() == 'Show Preferences') {
                 $(this).text("Hide Preferences");
@@ -341,6 +344,7 @@ function displayModuleArguments($li_module)
 {
   var $_infoPanel = $li_module.children(".info-panel:first");
   var $_infoPanelParams = $_infoPanel.find(".info-panel-params:first");
+  /*if arg panel for this module already exists..simply unhide it ..and return*/
   if($_infoPanelParams.length > 0)
   {
      $_infoPanelParams.show();
@@ -349,15 +353,22 @@ function displayModuleArguments($li_module)
   
   var params = $li_module.data("params");
   var m_id = $li_module.data("id");
+  /*Parent Libapp stores all arguments for each module, identified by "_[moduleId]" */
   var libapp_m_args = $li_module.parent().parent().data("_"+m_id);
-  
+  /*Ideal Scenario: #params declared in module should be equal 
+   * to number of corresponding arguments in libapps
+   * But incases where user has ill-defined xml, we handle those cases
+   * and report back those errors to users
+   */
   var paramLen = ObjectSize(params);
   var argLen = ObjectSize(libapp_m_args);
-
+  /* If both #params & #args are zero. Its understood no input 
+   * arguments exist in this case. Simply return !*/
   if(paramLen <= 0 && argLen <= 0)
   {
     return;
   }
+  /*Show Hide/Unhide Input Arguments toggle linkbutton */
   insertArgToggleLink($_infoPanel);
   var infoPanelParams = '';
   var count = 0;
@@ -373,7 +384,7 @@ function displayModuleArguments($li_module)
       if( (argLen > 0) && libapp_m_args[param] != undefined ) {
         _pType = libapp_m_args[param].type;
         pVal = libapp_m_args[param].value;
-      }else
+      }else/*set appropriate error states*/
       {
         _pType = "unknown";
         pVal = "unknown";
@@ -381,20 +392,20 @@ function displayModuleArguments($li_module)
         
       infoPanelParams += '<li>'
                       +    '<span class="entry-label-name">'+count+'. </span>'
-                      +    '<span class="arg-name">'+param+'</span>'
+                      +    '<span class="param-name">'+param+'</span>'
                       +    '<span class="entry-label-name"> ('
-                      +       '<span class="arg-type">'+pType+'</span>) : '
+                      +       '<span class="param-type">'+pType+'</span>) : '
                       +    '</span>'
-                      +    '<span class="arg-desc">'+insertLinks(pDesc)+'</span><br />  '
+                      +    '<span class="param-desc">'+insertLinks(pDesc)+'</span><br />  '
                       +    '<span class="entry-label-name">Value: </span>'
-                      +    '<span class="entry-text arg-value">'+insertLinks(pVal)+'</span>'                            
+                      +    '<span class="entry-text param-value">'+insertLinks(pVal)+'</span>'                            
                       + '</li>';
-        
+      /*Check for error states*/
       if(pVal ==  "unknown"){
          infoPanelParams += '<li>'
                          +    '<span class="err"></span>'
                          +    '<span class="err-text">'
-                         +       'No matching argument was found in Libapp'
+                         +       'Parameter Value is unknown! No matching argument passed from the Libapp'
                          +    '</span>'
                          +  '</li>';
       }
@@ -403,9 +414,9 @@ function displayModuleArguments($li_module)
                          +     '<span class="err"></span>'
                          +     '<span class="err-text">'
                          +        'Parameter type mismatch: Module parameter type is '
-                         +        '<span class="arg-type">'+pType+'</span>'
+                         +        '<span class="param-type">'+pType+'</span>'
                          +        ' and Libapp argument type is '
-                         +        '<span class="arg-type">'+_pType+'</span>'
+                         +        '<span class="param-type">'+_pType+'</span>'
                          +     '</span>'
                          +  '</li>';
       }
@@ -416,6 +427,8 @@ function displayModuleArguments($li_module)
   {
      for(arg in libapp_m_args)
      {
+        /*Check for cases where an argument passed from libapp
+          was not declared for in the module*/
         if( (paramLen > 0) && params[arg] != undefined)
         {
            continue;
@@ -426,24 +439,24 @@ function displayModuleArguments($li_module)
            ++count;
            infoPanelParams += '<li>'
                            +     '<span class="entry-label-name">'+count+'. </span>'
-                           +     '<span class="arg-name">'+arg+'</span>'
+                           +     '<span class="param-name">'+arg+'</span>'
                            +     '<span class="entry-label-name"> ('
-                           +       '<span class="arg-type">'+_pType+'</span>) : '
+                           +       '<span class="param-type">'+_pType+'</span>) : '
                            +     '</span>'
-                           +    '<span class="arg-desc">'+pDesc+'</span><br />  '
+                           +    '<span class="param-desc">'+pDesc+'</span><br />  '
                            +    '<span class="entry-label-name">Value: </span>'
-                           +    '<span class="entry-text arg-value">'+insertLinks(pVal)+'</span>'                            
+                           +    '<span class="entry-text param-value">'+insertLinks(pVal)+'</span>'                            
                            +  ' </li>'
                            +  '<li>'
                            +    '<span class="err"></span>'
-                           +    '<span class="err-text"> No matching parameter was found in module.</span>'
+                           +    '<span class="err-text"> Argument is passed from  parent Libapp but is never declared (as parameter) in this module.</span>'
                            +  '</li>';
         }
      }
   }
   
   var pDiv = '<div class="info-panel-params">'
-           +    '<ul>'
+           +    '<ul class="info-panel-params-list">'
            +       infoPanelParams
            +    '</ul>'
            + '</div>';
@@ -462,12 +475,23 @@ function formatDate(dtStr)
   return dtStr;
 }
 
+/*
+ * This builds the main info panel which shows up
+   on-clock of any label of the node in out display
+   tree
+   It has following toogle-linkbuttons:
+   - Details
+   - Input Arguments (Only if module)
+   - Preferences( not in stand-alone mode)
+   - JS Code Body (Only if module)
+ */
 function makeInfoPanel(entry,$node,tmplData){
     var props = '';
     var isModule = false;
     var nodeType = entry.type;
     if(nodeType == "libapp")
     {
+      /*fetch all special properties of libapp*/
       for(var i = 0; i < appProps.length; ++i){
          for(var j =0; j < entry[appProps[i]].length; ++j)
          {
@@ -485,7 +509,7 @@ function makeInfoPanel(entry,$node,tmplData){
          }
       }
       var nodeEntries = entry.entries; var nodeEntry;
-      
+      /*fetch arguments map for each module inside the libapp*/
       for(var i = 0; i < nodeEntries.length; ++i)
       {
          nodeEntry = nodeEntries[i];
@@ -499,6 +523,7 @@ function makeInfoPanel(entry,$node,tmplData){
     }else if(nodeType == "module")
     {
        isModule = true;
+       /*fetch all special properties of module*/
        for(var i = 0; i < modProps.length; ++i){
          for(var j =0; j < entry[modProps[i]].length; ++j)
          {
@@ -515,13 +540,13 @@ function makeInfoPanel(entry,$node,tmplData){
            }
          }
        }
-      
+       /*fetch its parameters to display*/
        if(ObjectSize(entry.params) > 0)
        {         
           $node.data("params", entry.params); 
        }
     }
- 
+    /*main html construct for each info panel*/
     var $infoPanel = $(  '<div class="ui-state-default ui-corner-all info-panel ' + nodeType + '">'
                        +     '<div class="info-panel-heading">' 
                        +          '<span class="entry-label-name">' + entryType[nodeType] + ': </span>'
@@ -581,7 +606,8 @@ function makeInfoPanel(entry,$node,tmplData){
 		onready: function () {
 		    $popup.hide().appendTo($rightPanel);
 		    $node.children("label:first").after($infoPanel); 
-		    if (!(displaymode) && (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1)) {
+		    /*If not in display ,mode and node contains prefs: Show link button*/
+            if (!(displaymode) && (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1)) {
 				$infoPanel
 				        .children(".toggle-info-panel-links")
 						.find('.toggle-info-panel-details')
@@ -630,14 +656,28 @@ function addRemoveLink($node, id, isRoot) {
                    reloadPackages();
       });
 }
+
 var errCount = 0;
+/*
+ * @class RenderEntriesWalker -  Derives from PackageVisitor
+   @param {boolean} isRoot - If starting walk from root node of feed
+
+   This build our display tree, by walking through xml feed.
+   Calls appropriate functions when processing package/libapp/module
+   
+   Special Implementation node: 
+      - on* event of each entry type, a unique '_id' val is generated based
+        on url id of entry. Its used as an id attribute of each node sub-list
+      - Contains beforeentry event: that is called before any entry is walked,
+        for any prep-processing in preparation of walk begin on each entry
+ */
 var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
      initialize: function (isRoot) {
       this.isRoot = isRoot;
      },
-     onpackage: function(pkg,prep) {
+     onpackage: function(pkg,prep,parentid) {
        var _id = libx.utils.hash.hashString(pkg.id);
-       var $parent = $checkTree.find("#"+prep.parentId.toString());
+       var $parent = $checkTree.find("#"+parentid.toString());
        if(this.isRoot){
         $parent = $checkTree;
        }
@@ -652,6 +692,7 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
       
        var _isRoot = this.isRoot;
        this.isRoot = false;
+       /*parent onpackage call in atomparser.js*/
        this.parent(pkg,_id);
               
        prep.blocker.markReady();
@@ -660,9 +701,9 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        addRemoveLink($prefs, pkg.id,_isRoot);
        
      },
-     onlibapp: function(libapp,prep) {
+     onlibapp: function(libapp,prep,parentid) {
        var _id = libx.utils.hash.hashString(libapp.id);
-       var $parent = $checkTree.find("#"+prep.parentId.toString());
+       var $parent = $checkTree.find("#"+parentid.toString());
        libx.prefs.getCategoryForUrl(libapp.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
        var $node = makeNode(libapp,_id);
@@ -679,9 +720,9 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
                        },
                        libapp.entries);
      },
-     onmodule: function(module,prep) {
+     onmodule: function(module,prep,parentid) {
        var _id = libx.utils.hash.hashString(module.id);
-       var $parent = $checkTree.find("#"+prep.parentId.toString());
+       var $parent = $checkTree.find("#"+parentid.toString());
        libx.prefs.getCategoryForUrl(module.id,
            [{ name: "_enabled", type: "boolean", value: "true" }]);
        if (!libx.prefs[module.id]) {
@@ -698,19 +739,18 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
                                   });
       
     },
-    beforeentry: function(entryUrl,parentid) {
+    beforeentry: function(entryUrl) {
       var prep = {            
              blocker: new libx.utils.collections.EmptyActivity(),
-             packageUrl: entryUrl,
-             parentId: parentid
-        }; 
+             packageUrl: entryUrl
+       }; 
        processCheckTree.scheduleBefore(prep.blocker);
        return prep;
     },
-    error: function(err,prep) {
+    error: function(err,prep,parentid) {
        ++errCount;
        var _id = libx.utils.hash.hashString(errCount.toString()+prep.packageUrl);
-       var $parent = $checkTree.find("#"+prep.parentId.toString());
+       var $parent = $checkTree.find("#"+parentid.toString());
        var entry = { id: prep.packageUrl, description: "(Unknown Entry)" };
        var $node = makeNode(entry,_id);
        $parent.children(".checktree_separator").before($node);
