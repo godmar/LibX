@@ -139,9 +139,7 @@ libx.cache.defaultHashScheduler.scheduleUpdates(true);
 <link type="text/css" href="<? echo $base; ?>/src/base/preferences/css/pepper-grinder/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
 <link type="text/css" href="<? echo $base; ?>/src/base/preferences/prefs.css" rel="stylesheet" />	
 <link type="text/css" href="<? echo $base; ?>/src/base/preferences/checktree/checktree.css" rel="stylesheet" />
-<link rel="stylesheet" href="<? echo $base; ?>/src/base/preferences/treeview/jquery.treeview.css" />
 <link rel="stylesheet" href="<? echo $base; ?>/src/base/preferences/jquery-tooltip/jquery.tooltip.css" />
-<script type="text/javascript" src="<? echo $base; ?>/src/base/preferences/js/jquery-1.4.2.min.js"></script>
 <script src="<? echo $base; ?>/src/base/preferences/js/JsPlate.js" type="text/javascript" ></script>
 <script src="<? echo $base; ?>/src/base/preferences/checktree/jquery.checktree.js" type="text/javascript"></script>
 <script src="<? echo $base; ?>/src/base/preferences/jquery-tooltip/lib/jquery.bgiframe.js" type="text/javascript"></script>
