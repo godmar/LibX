@@ -69,7 +69,8 @@ libx.libapp.nsResolver = ns;
  */
 libx.libapp.PackageVisitor = libx.core.Class.create(
     /** @lends libx.libapp.PackageVisitor.prototype */{
-   onpackage: function (pkg,pkg_id) {
+    
+    onpackage: function (pkg,pkg_id) {
         for (var i = 0; i < pkg.entries.length; i++)
             handleEntry(this, pkg.entries[i].url,pkg_id);
     },
@@ -83,7 +84,19 @@ libx.libapp.PackageVisitor = libx.core.Class.create(
     }
 });
 
-function handleEntry(visitor, url, parentid, cacheMissActivity) {
+
+/**
+ * This function fetches each entry at given url. 
+ * @param visitor {PackageVisitor object} - visitor to pass each entries information
+ * @param url {string} - location of each entry
+ * @param objid {number} - id value of object thats needs to passed alongwith that 
+                           entry to its visitor 
+ */
+function handleEntry(visitor, url, objId, cacheMissActivity) {
+
+    if(visitor["beforeentry"]){
+      var prep =  visitor["beforeentry"](url);
+    }
 
     function handleEntryBody(xmlDoc, baseURL, entryNode) {
         var libx2Node = libx.utils.xpath.findSingleXML(
@@ -102,7 +115,7 @@ function handleEntry(visitor, url, parentid, cacheMissActivity) {
 
         if (libx2Node == null) {
             libx.log.write(baseURL + ": entry " + atomid + " does not contain any libx2:* node");
-            visitor.error && visitor.error();
+            visitor.error && visitor.error("Entry not found",prep,objId);
             return;
         }
 
@@ -231,15 +244,13 @@ function handleEntry(visitor, url, parentid, cacheMissActivity) {
             
         var visitorMethodName = "on" + String(libx2Node.localName);
         if (visitor[visitorMethodName])
-            visitor[visitorMethodName](nodeInfo,prep);
+            visitor[visitorMethodName](nodeInfo,prep,objId);
             
         var params = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:params/libx2:param", libx2Node, ns);
             
     }
-    if(visitor["beforeentry"]){
-      var prep =  visitor["beforeentry"](url,parentid);
-    }
+    
     var pathComp = url.split(/\//);
     var pathDir = String(url.match(/.*\//));
     var pathBase = url.replace(/.*\//, "");
@@ -278,7 +289,7 @@ function handleEntry(visitor, url, parentid, cacheMissActivity) {
                     },
                     error: function (err) {
                         libx.log.write("atomparser.js: Error status " + err + " when walking " + url);
-                        visitor.error && visitor.error(err,prep);
+                        visitor.error && visitor.error(err,prep,objId);
                     },
                     complete: function () {
                         if (urlRequest.cacheOnly && !success) {
@@ -302,7 +313,7 @@ function handleEntry(visitor, url, parentid, cacheMissActivity) {
         },
         error: function (err) {
             libx.log.write("atomparser.js: Error status " + err + " when walking " + pathDir);
-            visitor.error && visitor.error(err,prep);
+            visitor.error && visitor.error(err,prep,objId);
         }
     };
 
