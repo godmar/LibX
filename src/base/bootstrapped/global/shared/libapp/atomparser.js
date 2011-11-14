@@ -89,8 +89,10 @@ libx.libapp.PackageVisitor = libx.core.Class.create(
  * This function fetches each entry at given url. 
  * @param visitor {PackageVisitor object} - visitor to pass each entries information
  * @param url {string} - location of each entry
- * @param objid {number} - id value of object thats needs to passed alongwith that 
-                           entry to its visitor 
+ * @param objid {number} (optional) - id value of object thats needs to passed alongwith that 
+ *                                    entry to its visitor 
+ * @param cacheMissActivity {object}  (optional) - activity to mark ready if
+ *                                                 the entry is not in the object cache
  */
 function handleEntry(visitor, url, objId, cacheMissActivity) {
 
