@@ -40,6 +40,10 @@ ul {
     display:none;
 }
 
+.info-panel-prefs-sub-div {
+    padding: 12px !important;
+}
+
 .entry-label-name {
     color:grey;
     font-weight:normal;

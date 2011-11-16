@@ -657,9 +657,14 @@ function insertPreferences ($infoPanel)
 			$toggle_Prefs.text("Show Preferences");
 			
 		var r = process(libx.prefs[$infoPanel.parent().data("id")], null, $infoPanel.parent().data("tmplData"));
-		$infoPanel.append( '<div class="info-panel-prefs">'
-                         +   r.html 
-                         + '</div>');
+		$infoPanel.append(  '<div class="info-panel-prefs">'
+                          +    '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
+                          +       '<legend class="info-panel-sub-section-legend">Preferences</legend>'
+                          +       '<div class="info-panel-prefs-sub-div">'
+                          +          r.html
+                          +       '</div>'
+                          +    '</fieldset>'
+                          + '</div>');
 		r.doPostInsertionProcessing();
 	}
 }
