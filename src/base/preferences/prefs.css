@@ -92,14 +92,16 @@ ul {
     font-weight:normal;
     font-size:0.8em;
     color:black;
-    padding:5px;
     display:none;
+}
+
+.info-panel-codebody-sub-div {
+    padding: 12px !important;
     width:600px;
     word-wrap:break-word;
     max-height:500px;
     overflow:auto;
-    padding:12px 12px 12px 12px !important;
-}
+} 
 
 .info-panel-details {
     font-weight:normal;
@@ -110,7 +112,6 @@ ul {
 .info-panel-params {
     font-weight:normal;
     font-size:0.8em;
-    padding: 12px 12px 12px 12px !important;
 }
 
 .param-name {
@@ -123,6 +124,16 @@ ul {
     color:green;
 }
 
+.param-value a:hover {
+    color:red;
+    text-decoration:underline;
+}
+
+.param-value {
+    line-height: 150%;
+    padding: 17px !important;
+}
+
 .param-desc {
     color:black;
     word-wrap:break-word;
@@ -133,14 +144,28 @@ ul {
     text-decoration:underline;
 }
 
-.param-value a:hover {
-    color:red;
-    text-decoration:underline;
+ul .info-panel-params-list li {
+    line-height: 150%;
 }
 
-ul .info-panel-params-list li {
-    margin-top: 1em;
-    line-height: 150%;
+.info-panel-params-list-item {
+    padding-bottom: 10px !important;
+    margin-right: 15px !important;
+}
+
+.bottom-border {
+    border-bottom: 1px dotted #666666;
+}
+
+.info-panel-sub-section-fieldset {
+    margin: 12px !important;
+}
+
+.info-panel-sub-section-legend {
+    font-weight: bold;
+    font-size: small;
+    color: #0B559B !important;
+    margin-left: 15px !important;
 }
 
 li .err {

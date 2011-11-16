@@ -212,7 +212,7 @@ processCheckTree = {
                     }
                     
                     if($infoPanelElem.show().hasClass("module"))
-                        displayModuleArguments($infoPanelElem.parent()); 
+                        displayModuleParameters($infoPanelElem.parent()); 
 
                     e.stopPropagation();
                 }
@@ -287,11 +287,11 @@ processCheckTree.markReady();
 
 function toggleInfoPanelArgs($argsLink)
 {   
-    if($argsLink.text() == 'Show Input Arguments') {         
-         $argsLink.text("Hide Input Arguments");
-         displayModuleArguments($argsLink.parent().parent().parent());
-    }else if($argsLink.text() == 'Hide Input Arguments') {
-         $argsLink.text("Show Input Arguments");
+    if($argsLink.text() == 'Show Input Parameters') {         
+         $argsLink.text("Hide Input Parameters");
+         displayModuleParameters($argsLink.parent().parent().parent());
+    }else if($argsLink.text() == 'Hide Input Parameters') {
+         $argsLink.text("Show Input Parameters");
          $argsLink.parent().siblings(".info-panel-params").hide();
     } 
 }
@@ -336,11 +336,11 @@ function insertArgToggleLink($Info_Panel)
               .children(".toggle-info-panel-links")
               .find('.toggle-info-panel-details')
               .after(' | <a class="toggle-info-panel-args" href="#">'
-                                + 'Hide Input Arguments'
+                                + 'Hide Input Parameters'
                                 + '</a>');
 }
 
-function displayModuleArguments($li_module)
+function displayModuleParameters($li_module)
 {
   var $_infoPanel = $li_module.children(".info-panel:first");
   var $_infoPanelParams = $_infoPanel.find(".info-panel-params:first");
@@ -368,7 +368,7 @@ function displayModuleArguments($li_module)
   {
     return;
   }
-  /*Show Hide/Unhide Input Arguments toggle linkbutton */
+  /*Show Hide/Unhide Input Parameters toggle linkbutton */
   insertArgToggleLink($_infoPanel);
   var infoPanelParams = '';
   var count = 0;
@@ -390,36 +390,34 @@ function displayModuleArguments($li_module)
         pVal = "unknown";
       }
         
-      infoPanelParams += '<li>'
+      infoPanelParams += '<li class="info-panel-params-list-item bottom-border">'
                       +    '<span class="entry-label-name">'+count+'. </span>'
                       +    '<span class="param-name">'+param+'</span>'
                       +    '<span class="entry-label-name"> ('
                       +       '<span class="param-type">'+pType+'</span>) : '
                       +    '</span>'
-                      +    '<span class="param-desc">'+insertLinks(pDesc)+'</span><br />  '
-                      +    '<span class="entry-label-name">Value: </span>'
-                      +    '<span class="entry-text param-value">'+insertLinks(pVal)+'</span>'                            
-                      + '</li>';
+                      +    '<span class="param-desc">'+insertLinks(pDesc)+'</span><br />'
+                      +    '<span class="param-value">'
+                      +       '<span class="entry-label-name">Value: </span>'
+                      +       '<span class="entry-text">'+insertLinks(pVal)+'</span>'
+                      +    '</span>';
       /*Check for error states*/
       if(pVal ==  "unknown"){
-         infoPanelParams += '<li>'
-                         +    '<span class="err"></span>'
+         infoPanelParams +=  '<br/><span class="err"></span>'
                          +    '<span class="err-text">'
                          +       'Parameter Value is unknown! No matching argument passed from the Libapp'
-                         +    '</span>'
-                         +  '</li>';
+                         +    '</span>';
       }
       else if(_pType != pType){
-         infoPanelParams += '<li>'
-                         +     '<span class="err"></span>'
+         infoPanelParams += '</br><span class="err"></span>'
                          +     '<span class="err-text">'
                          +        'Parameter type mismatch: Module parameter type is '
                          +        '<span class="param-type">'+pType+'</span>'
                          +        ' and Libapp argument type is '
                          +        '<span class="param-type">'+_pType+'</span>'
-                         +     '</span>'
-                         +  '</li>';
+                         +     '</span>';
       }
+     infoPanelParams += '</li>';
     }
   }
 
@@ -437,30 +435,35 @@ function displayModuleArguments($li_module)
            _pType = libapp_m_args[arg].type;
            pVal = libapp_m_args[arg].value;
            ++count;
-           infoPanelParams += '<li>'
+           infoPanelParams += '<li class="info-panel-params-list-item bottom-border">'
                            +     '<span class="entry-label-name">'+count+'. </span>'
                            +     '<span class="param-name">'+arg+'</span>'
                            +     '<span class="entry-label-name"> ('
                            +       '<span class="param-type">'+_pType+'</span>) : '
                            +     '</span>'
-                           +    '<span class="param-desc">'+pDesc+'</span><br />  '
-                           +    '<span class="entry-label-name">Value: </span>'
-                           +    '<span class="entry-text param-value">'+insertLinks(pVal)+'</span>'                            
-                           +  ' </li>'
-                           +  '<li>'
-                           +    '<span class="err"></span>'
+                           +    '<span class="param-desc">'+pDesc+'</span><br />'
+                           +    '<span class="param-value">'
+                           +       '<span class="entry-label-name">Value: </span>'
+                           +       '<span class="entry-text">'+insertLinks(pVal)+'</span>'                            
+                           +    '</span>'
+                           +    '<br/><span class="err"></span>'
                            +    '<span class="err-text"> Argument is passed from  parent Libapp but is never declared (as parameter) in this module.</span>'
                            +  '</li>';
         }
      }
   }
   
-  var pDiv = '<div class="info-panel-params">'
-           +    '<ul class="info-panel-params-list">'
-           +       infoPanelParams
-           +    '</ul>'
-           + '</div>';
-     
+  var pDiv = $('<div class="info-panel-params">'
+           +   '<div>'
+           +     '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
+           +     '<legend class="info-panel-sub-section-legend">Parameters</legend>'
+           +       '<ul class="info-panel-params-list">'
+           +          infoPanelParams
+           +       '</ul>'
+           +     '</fieldset>'
+           +   '</div>'
+           + '</div>');
+  pDiv.find(".info-panel-params-list li:last-child").removeClass("bottom-border");   
   $_infoPanel.children(".info-panel-details:first").after(pDiv);
 }
 
@@ -481,7 +484,7 @@ function formatDate(dtStr)
    tree
    It has following toogle-linkbuttons:
    - Details
-   - Input Arguments (Only if module)
+   - Input Parameters (Only if module)
    - Preferences( not in stand-alone mode)
    - JS Code Body (Only if module)
  */
@@ -489,6 +492,7 @@ function makeInfoPanel(entry,$node,tmplData){
     var props = '';
     var isModule = false;
     var nodeType = entry.type;
+    var p;/*holds property val for libapp/module*/
     if(nodeType == "libapp")
     {
       /*fetch all special properties of libapp*/
@@ -496,15 +500,20 @@ function makeInfoPanel(entry,$node,tmplData){
          for(var j =0; j < entry[appProps[i]].length; ++j)
          {
            if( j == 0 ){
-             props = props +  '<li>'
+             props +=  '<li>'
                              +    '<span class="entry-label-name">'
                              +       appProps[i] + ': </span>';
-          }
-                      props +=   '<span class="entry-text">' + encode(entry[appProps[i]][j]) + '</span>';
-          if( j == entry[appProps[i]].length - 1){
-                      props += '</li>';
+           }
+           
+           p = entry[appProps[i]][j];
+           p = new RegExp(p.regex,p.flag);
+           p = p.toString();
+           
+           props +=             '<span class="entry-text">' + encode(p) + '</span>';
+           if( j == entry[appProps[i]].length - 1){
+             props +=  '</li>';
            }else{
-                      props += '<br/>';
+             props +=  '<br/>';
            }
          }
       }
@@ -528,15 +537,21 @@ function makeInfoPanel(entry,$node,tmplData){
          for(var j =0; j < entry[modProps[i]].length; ++j)
          {
            if( j == 0 ){
-             props = props +  '<li>'
-                             +    '<span class="entry-label-name">'
-                             +       modProps[i] + ': </span>';
-          }
-                      props +=   '<span class="entry-text">' + encode(entry[modProps[i]][j]) + '</span>';
+             props +=  '<li>'
+                   +      '<span class="entry-label-name">'
+                   +         modProps[i] + ':'
+                   +      '</span>';
+           }
+           p = entry[modProps[i]][j];
+           if(i != 2 && i !=4){
+             p = new RegExp(p.regex,p.flag);
+             p = p.toString();
+           }
+           props +=     '<span class="entry-text">' + encode(p) + '</span>';
            if( j == entry[modProps[i]].length - 1){
-                      props += '</li>';
+             props += '</li>';
            }else{
-                      props += '<br/>';
+             props += '<br/>';
            }
          }
        }
@@ -553,36 +568,41 @@ function makeInfoPanel(entry,$node,tmplData){
                        +             encode(entry.description) + '<br/>'
                        +     '</div>'
                        +     '<div class="toggle-info-panel-links">'
-                       +           '<a class="toggle-info-panel-details" href="#">Show Details</a>'
+                       +          '<a class="toggle-info-panel-details" href="#">Show Details</a>'
                        +     '</div>'
                        +     '<div class="info-panel-details">'
-                       +           '<ul>'
-                       +               '<li>'
-                       +                  '<span class="entry-label-name">Id: ' + '</span>'
+                       +        '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
+                       +          '<legend class="info-panel-sub-section-legend">Details</legend>'
+                       +          '<div>'
+                       +            '<ul>'
+                       +              '<li>'
+                       +                 '<span class="entry-label-name">Id: ' + '</span>'
                        +                  '<span class="entry-text">' + entry.id + '</span>'
-                       +                '</li>'
-                       +                '<li>'
-                       +                  '<span class="entry-label-name">Last Updated On: ' + '</span>'
-                       +                  '<span class="entry-text">' + formatDate(encode(entry.updated)) + '</span>'
-                       +                '</li>'
-                       +                '<li>'
-                       +                  '<span class="entry-label-name">Author: ' + '</span>'
-                       +                  '<span class="entry-text">' + encode(entry.author.name) + '</span>'
-                       +                '</li>'
-                       +                '<li>'
-                       +                  '<span class="entry-label-name">Weblink: ' + '</span>'
-                       +                  '<span class="entry-text">'
-                       +                     '<a href="' +encode(entry.author.uri)+ '" target="_blank">'
+                       +              '</li>'
+                       +              '<li>'
+                       +                 '<span class="entry-label-name">Last Updated On: ' + '</span>'
+                       +                 '<span class="entry-text">' + formatDate(encode(entry.updated)) + '</span>'
+                       +              '</li>'
+                       +              '<li>'
+                       +                 '<span class="entry-label-name">Author: ' + '</span>'
+                       +                 '<span class="entry-text">' + encode(entry.author.name) + '</span>'
+                       +              '</li>'
+                       +              '<li>'
+                       +                 '<span class="entry-label-name">Weblink: ' + '</span>'
+                       +                 '<span class="entry-text">'
+                       +                    '<a href="' +encode(entry.author.uri)+ '" target="_blank">'
                        +                         encode(entry.author.uri)
                        +                     '</a>'
                        +                 '</span>'
-                       +                '</li>'
-                       +                '<li>'
-                       +                   '<span class="entry-label-name">Email: ' + '</span>'
-                       +                   '<span class="entry-text">' + encode(entry.author.email) + '</span>'
-                       +                '</li>'
+                       +               '</li>'
+                       +               '<li>'
+                       +                  '<span class="entry-label-name">Email: ' + '</span>'
+                       +                  '<span class="entry-text">' + encode(entry.author.email) + '</span>'
+                       +               '</li>'
                        +                props
                        +           '</ul>'
+                       +         '</div>'
+                       +       '</fieldset>'
                        +     '</div>'
                        + '</div>');
 
@@ -590,8 +610,13 @@ function makeInfoPanel(entry,$node,tmplData){
 	{
 		$infoPanel
 		        .append('<div class="info-panel-codebody">'
-                      + '<pre>' + encode(entry.body) + '</pre>\n'
-                      + '</div>\n')
+                      +    '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
+                      +      '<legend class="info-panel-sub-section-legend">Implementation</legend>'
+                      +      '<div class="info-panel-codebody-sub-div">'
+                      +        '<pre>' + encode(entry.body) + '</pre>\n'
+                      +      '</div>'
+                      +    '</fieldset>'
+                      + '</div>')
 		        .children('.toggle-info-panel-links')
 				.append(' | <a class="toggle-info-panel-codebody" href="#">'
 						    + 'Show Code'
