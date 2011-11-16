@@ -8,3 +8,6 @@ libx.utils.getBootstrapURL = function (path) {
     return libx.cs.baseurl + "src/base/bootstrapped/" + path;
 };
 
+libx.utils.getExtensionURL = function (path) {
+    return libx.cs.baseurl + "src/base/" + path;
+}
