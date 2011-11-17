@@ -168,13 +168,12 @@ var $checkTree = $('<ul id="root" class="checktree" style="float: left;">'
 /*
 * Creates a node in display tree
 * @param {object} entry - Contains info describing each entry
-* @param {number} id - unique id of the entry
 */
-function makeNode(entry, id) {
+function makeNode(entry) {
     
     var $node = $('<li>\n'
                 + '   <label>' + entry.title + '</label>\n'
-                + '   <ul id="' + id + '"></ul>\n'
+                + '   <ul></ul>\n'
                 + '</li>\n');
     $node.data("id",entry.id);
     if (entry.type != 'module') {
@@ -656,7 +655,8 @@ function makeInfoPanel(entry,$node,tmplData){
 
     if( isModule )
 	{
-		$infoPanel
+	   $infoPanel
+                .addClass("marginLeft40")
 		        .append('<div class="info-panel-codebody">'
                       +    '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
                       +      '<legend class="info-panel-sub-section-legend">' + "{L "Code" L}" + '</legend>'
@@ -753,15 +753,15 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
      initialize: function (isRoot) {
       this.isRoot = isRoot;
      },
-     onpackage: function(pkg,prep,parentid) {
-       var _id = libx.utils.hash.hashString(pkg.id);
-       var $parent = $checkTree.find("#"+parentid.toString());
+     onpackage: function(pkg,prep,$parentElem) {
+       
+       var $parent = $parentElem;
        if(this.isRoot){
         $parent = $checkTree;
        }
       libx.prefs.getCategoryForUrl(pkg.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(pkg,_id);
+       var $node = makeNode(pkg);
        $node
            .children("ul")
            .append('<li class="checktree_separator"></li>')
@@ -771,7 +771,7 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        var _isRoot = this.isRoot;
        this.isRoot = false;
        /*parent onpackage call in atomparser.js*/
-       this.parent(pkg,_id);
+       this.parent(pkg,$node.children("ul"));
               
        prep.blocker.markReady();
         
@@ -779,16 +779,15 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        addRemoveLink($prefs, pkg.id,_isRoot);
        
      },
-     onlibapp: function(libapp,prep,parentid) {
-       var _id = libx.utils.hash.hashString(libapp.id);
-       var $parent = $checkTree.find("#"+parentid.toString());
+     onlibapp: function(libapp,prep,$parentElem) {
+      
        libx.prefs.getCategoryForUrl(libapp.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(libapp,_id);
-       $parent.children(".checktree_separator").after($node);
+       var $node = makeNode(libapp);
+       $parentElem.children(".checktree_separator").after($node);
      
        this.isRoot = false;
-       this.parent(libapp,_id);
+       this.parent(libapp,$node.children("ul"));
        
        prep.blocker.markReady();                    
        
@@ -798,18 +797,16 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
                        },
                        libapp.entries);
      },
-     onmodule: function(module,prep,parentid) {
-       var _id = libx.utils.hash.hashString(module.id);
-       var $parent = $checkTree.find("#"+parentid.toString());
-       libx.prefs.getCategoryForUrl(module.id,
+     onmodule: function(module,prep,$parentElem) {
+      libx.prefs.getCategoryForUrl(module.id,
            [{ name: "_enabled", type: "boolean", value: "true" }]);
        if (!libx.prefs[module.id]) {
              prep.blocker.markReady();
              return;
        }
                    
-       var $node = makeNode(module,_id);
-       $parent.append($node);
+       var $node = makeNode(module);
+       $parentElem.append($node);
        prep.blocker.markReady();
                     
        getStringBundle(module.id, function (tmplData) {
@@ -825,13 +822,11 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        processCheckTree.scheduleBefore(prep.blocker);
        return prep;
     },
-    error: function(err,prep,parentid) {
+    error: function(err,prep,parentElem) {
        ++errCount;
-       var _id = libx.utils.hash.hashString(errCount.toString()+prep.packageUrl);
-       var $parent = $checkTree.find("#"+parentid.toString());
        var entry = { id: prep.packageUrl, description: "(Unknown Entry)" };
-       var $node = makeNode(entry,_id);
-       $parent.children(".checktree_separator").before($node);
+       var $node = makeNode(entry);
+       $parentElem.children(".checktree_separator").before($node);
        var $prefs = makeInfoPanel(entry, $node);
        addRemoveLink($prefs, prep.packageUrl,this.isRoot);
        prep.blocker.markReady();

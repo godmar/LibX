@@ -66,17 +66,19 @@ libx.libapp.nsResolver = ns;
  * Hierarchical visitor for packages.
  * Visit all modules, libapps, and packages reachable from
  * a given package.
+ * For onpackage and onlibapp methods: 
+ *    We pass an (optional) object 
  */
 libx.libapp.PackageVisitor = libx.core.Class.create(
     /** @lends libx.libapp.PackageVisitor.prototype */{
     
-    onpackage: function (pkg,pkg_id) {
+    onpackage: function (pkg,pkgObj) {
         for (var i = 0; i < pkg.entries.length; i++)
-            handleEntry(this, pkg.entries[i].url,pkg_id);
+            handleEntry(this, pkg.entries[i].url,pkgObj);
     },
-    onlibapp: function (libapp,libapp_id) {
+    onlibapp: function (libapp,libappObj) {
         for (var i = 0; i < libapp.entries.length; i++)
-            handleEntry(this, libapp.entries[i].url,libapp_id);
+            handleEntry(this, libapp.entries[i].url,libappObj);
     },
     onmodule: function (module) {
     },
@@ -89,12 +91,12 @@ libx.libapp.PackageVisitor = libx.core.Class.create(
  * This function fetches each entry at given url. 
  * @param visitor {PackageVisitor object} - visitor to pass each entries information
  * @param url {string} - location of each entry
- * @param objid {number} (optional) - id value of object thats needs to passed alongwith that 
+ * @param obj {object} (optional) - a object thats needs to passed alongwith that 
  *                                    entry to its visitor 
  * @param cacheMissActivity {object}  (optional) - activity to mark ready if
  *                                                 the entry is not in the object cache
  */
-function handleEntry(visitor, url, objId, cacheMissActivity) {
+function handleEntry(visitor, url, obj, cacheMissActivity) {
 
     if(visitor["beforeentry"]){
       var prep =  visitor["beforeentry"](url);
@@ -117,7 +119,7 @@ function handleEntry(visitor, url, objId, cacheMissActivity) {
 
         if (libx2Node == null) {
             libx.log.write(baseURL + ": entry " + atomid + " does not contain any libx2:* node");
-            visitor.error && visitor.error("Entry not found",prep,objId);
+            visitor.error && visitor.error("Entry not found",prep,obj);
             return;
         }
 
@@ -246,7 +248,7 @@ function handleEntry(visitor, url, objId, cacheMissActivity) {
             
         var visitorMethodName = "on" + String(libx2Node.localName);
         if (visitor[visitorMethodName])
-            visitor[visitorMethodName](nodeInfo,prep,objId);
+            visitor[visitorMethodName](nodeInfo,prep,obj);
             
         var params = libx.utils.xpath.findNodesXML(
             xmlDoc, "./libx2:params/libx2:param", libx2Node, ns);
@@ -291,7 +293,7 @@ function handleEntry(visitor, url, objId, cacheMissActivity) {
                     },
                     error: function (err) {
                         libx.log.write("atomparser.js: Error status " + err + " when walking " + url);
-                        visitor.error && visitor.error(err,prep,objId);
+                        visitor.error && visitor.error(err,prep,obj);
                     },
                     complete: function () {
                         if (urlRequest.cacheOnly && !success) {
@@ -315,7 +317,7 @@ function handleEntry(visitor, url, objId, cacheMissActivity) {
         },
         error: function (err) {
             libx.log.write("atomparser.js: Error status " + err + " when walking " + pathDir);
-            visitor.error && visitor.error(err,prep,objId);
+            visitor.error && visitor.error(err,prep,obj);
         }
     };
 
@@ -348,7 +350,7 @@ libx.libapp.PackageWalker = libx.core.Class.create(
      *    the entry is not in the object cache
      */
     walk : function (visitor, cacheMissActivity) {
-        handleEntry(visitor, this.rootPackage, "root", cacheMissActivity);
+        handleEntry(visitor, this.rootPackage, cacheMissActivity);
     }
 });
 
