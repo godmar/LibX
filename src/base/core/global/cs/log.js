@@ -1,6 +1,6 @@
 
 /*
- * Google Chrome-specific implementation of logging.
+ * Browser-specific implementation of logging.
  */
 libx.log.bd = {
     /*
