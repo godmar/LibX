@@ -60,7 +60,7 @@
             "core/global/gc/utils/timer.js",
             "core/global/gc/utils/xml.js",
             "core/global/gc/utils/browserprefs.js",
-            "core/global/gc/utils/hash.js",
+            "core/global/shared/utils/hash.js",
             "core/global/shared/openurl.js",
             "core/global/shared/utils.js",
             "core/global/shared/utils/stdnumsupport.js",
