@@ -24,59 +24,105 @@
 // implements abstract functions in core/global/shared/libx.js
 
 libx.utils.xpath = {
-    /* See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
-     * and http://www.xulplanet.com/references/objref/XPathResult.html
-     *
-     * var xpathResult = document.evaluate(xpathExpression, 
-     *                                     contextNode, 
-     *                                     namespaceResolver, 
-     *                                     resultType, 
-     *                                     result);
-     *
-     * Note: namespaceResolver is required if examined XML uses namespaces.
-     * namespaceResolver is an object where the namespace prefix is the key and
-     * the URI is the value.  It's encapsulated in an anonymous function.
-     */
-
     findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
-        var r;
-        try {
+      var r,node;
+      try {
+        if( document.evaluate ){ //standard
+           /* See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
+            * and http://www.xulplanet.com/references/objref/XPathResult.html
+            *
+            * var xpathResult = document.evaluate(xpathExpression, 
+            *                                     contextNode, 
+            *                                     namespaceResolver, 
+            *                                     resultType, 
+            *                                     result);
+            *
+            * Note: namespaceResolver is required if examined XML uses namespaces.
+            * namespaceResolver is an object where the namespace prefix is the key and
+            * the URI is the value.  It's encapsulated in an anonymous function.
+            */
             r = doc.evaluate(xpathexpr, root ? root : doc, 
                              function (prefix) { 
                                  return namespaceresolver[prefix]; 
                              }, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-        }
-        catch (e) {
-            //XXX: Need to use a more specific log type
-            libx.log.write("In findSingleXML: XPath expression " + xpathexpr + " does not return a node");
-            return null;
-        }
+            node = r.singleNodeValue;
+         }else { //IE
+           /* See : http://www.w3schools.com/XPath/xpath_examples.asp#selecting_nodes
+            * IE5 and later has implemented that [0] should be the first node, 
+            * but according to the W3C standard it should have been [1].
+            * To solve the [0] and [1] problem in IE5+, 
+            * we set the SelectionLanguage to XPath.
+            */
+            doc.setProperty("SelectionLanguage","XPath");
+           /* Adapted from: 
+            * http://www.nczonline.net/blog/2009/04/04/xpath-in-javascript-part-3/
+            */
+            //TODO: Refactor and *Test* in IE, specialy w.r.t namespaces
+            var ns = "";
+            for ( prefix in namespaceresolver)
+              ns += "xmlns:"+prefix+"='"+namespaceresolver[prefix]+"' ";
+            ns += "xmlns='http://www.w3.org/2005/Atom'";
+
+            doc.setProperty("SelectionNamespaces",ns);
+            r = doc.selectSingleNode(xpathexpr);
+            /* Object 'r' returned is different from one returned by doc.evaluate
+             *                       selectSingleNode | evaluate 
+             *   property                             |
+             *                                        |
+             *  singlNodeValue         undefined      |  exists
+             *  node.localName         undefined      |  exists 
+             *  
+             * doc.selectSingleNode.nodeName == doc.evaluate.singleNodeValue.localName
+             *
+             * NOTE: without further modification in atomparser.js this will not work
+             * cases where node.localName is being used, property will be undefined for IE
+             */
+             node = r.childNodes[0];
+         }
+     }
+     catch (e) {
+         //XXX: Need to use a more specific log type
+         libx.log.write("In findSingleXML: XPath expression " + xpathexpr + " does not return a node: " + e);
+         return null;
+     }
 
         //If there's no result, this is set to null
-        return r.singleNodeValue;
-    },
+        return node;
+   },
 
-    findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
-        var r;
-        try {
-            r = doc.evaluate(xpathexpr, root ? root : doc, 
-                             function (prefix) { 
-                                 return namespaceresolver[prefix]; 
+   findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
+      var nodes,n, rr;
+      try {
+         if ( doc.evaluate ) { //standard
+              nodes = doc.evaluate(xpathexpr, root ? root : doc,
+                             function (prefix) {
+                                 return namespaceresolver[prefix];
                              }, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-        }
-        catch (e) {
-            //XXX: Need to use a more specific log type
-            libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes: " + e);
-            return null;    // XXX should you rethrow here?
-        }
-
-        var rr = new Array();
-        var n;
-        while ((n = r.iterateNext()) != null)
-            rr.push(n);
-
-        return rr;
-    }
+              rr = new Array();
+              
+              while ((n = nodes.iterateNext()) != null)
+                 rr.push(n); 
+         }else { //IE
+              doc.setProperty("SelectionLanguage","XPath");
+              var ns = ""; 
+              for ( prefix in namespaceresolver)
+                ns += "xmlns:"+prefix+"='"+namespaceresolver[prefix]+"' ";
+              ns += "xmlns='http://www.w3.org/2005/Atom'";
+              
+              doc.setProperty("SelectionNamespaces",ns);
+              nodes = doc.selectNodes(xpathexpr);
+              
+              rr = new Array();
+              
+              for (n=0;n < nodes.length;++n)
+                 rr.push(nodes[n].childNodes[0]);
+         }
+      }
+      catch ( e ) {
+         //XXX: Need to use a more specific log type
+         libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes: " + e);
+         return null;    // XXX should you rethrow here?
+      }
+      return rr;
+   }
 };
-
-// vim: ts=4
