@@ -46,7 +46,7 @@ libx.cs = {
 <!--redefining getBootstrapurl here for cs implementation -->
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/scheduler.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/utils/hash.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/shared/utils/hash.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/stdnumsupport.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/xpath.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/autocomplete.js"></script>
