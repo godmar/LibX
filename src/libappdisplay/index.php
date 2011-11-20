@@ -2,6 +2,7 @@
 <head>
 
 <? $base = "../../"; ?>
+
 <script src="<? echo $base; ?>/src/base/core/global/shared/core.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/libx.js"></script>
 
@@ -25,38 +26,13 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/shared/config/editionconfigurationreader.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/events.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/json.js"></script> 
-<!--script src="libx2/src/base/core/global/shared/catalog.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/catalog.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/preview.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/bookmarklet.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/scholar.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/millenium.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/horizon.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/voyager.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/aleph.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/sirsi.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/web2.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/centralsearch.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/custom.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/evergreen.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/worldcat.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/vubis.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/voyager7.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/talisprism.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/polaris.js"></script>
-<script src="libx2/src/base/core/global/shared/catalog/factory/openurlresolver.js"></script>
-<script src="libx2/src/base/core/global/shared/citeulike.js"></script> 
-<script src="libx2/src/base/core/global/shared/proxy.js"></script>
-<script src="libx2/src/base/core/global/shared/proxy/factory/ezproxy.js"></script>
-<script src="libx2/src/base/core/global/shared/proxy/factory/wam.js"></script-->
 <script src="<? echo $base; ?>/src/base/core/global/shared/bootstrap.js"></script>
 <!-- 
     see http://truetalkdev.blogspot.com/2007/09/how-to-put-log-messages-in-firefox.html
 -->
+<script src="<? echo $base; ?>/src/base/core/global/cs/detectbrowser.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/log.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/cache.js"></script>
-<!--<script src="libx2/src/base/core/window/cs/utils/xmlhttpreqwrapper.js"></script> -->
-<!--<script src="libx2/src/base/core/global/shared/libx.cs.js"></script> -->
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/timer.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/xml.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/bootstrap.js"></script>
@@ -71,12 +47,8 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/scheduler.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/hash.js"></script>
-<!--script src="libx2/src/base/core/global/shared/openurl.js"></script-->
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/stdnumsupport.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/xpath.js"></script>
-<!-- <script src="libx2/src/base/core/global/shared/services/xisbn.js"></script> -->
-<!-- <script src="libx2/src/base/core/global/shared/services/pubmed.js"></script> -->
-<!-- <script src="libx2/src/base/core/global/shared/services/crossref.js"></script> -->
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/autocomplete.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/dropdown.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/accordionmenu.js"></script>
@@ -84,8 +56,6 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/contextmenu.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/gc/ui.js"></script>
-<!--script src="libx2/src/base/core/global/gc.js"></script>
-<script src="libx2/src/base/core/global/shared/backgroundlisteners.js"></script-->
 <script src="<? echo $base; ?>/src/base/bootstrapped/global/shared/libapp/atomparser.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 
