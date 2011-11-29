@@ -107,6 +107,7 @@ return {
                     menuItem.setAttribute("class", "menuitem-iconic");
                     menuItem.addEventListener('click', function () {
                         var info = {
+                            pageUrl: gBrowser.currentURI.spec,
                             linkUrl: gContextMenu.linkURL,
                             selectionText: getSelectionText()
                         };
