@@ -7,28 +7,38 @@ $(function() {
         $(this).next().toggle();
     });
     
-    popup.initialize();
+    // we require the default string bundle to be available, so wait for it
+    libx.events.registerEventListener("DefaultLocaleLoaded", {
+        onDefaultLocaleLoaded: function () {
+            popup.initialize();
 
-    // show view depending on whether user already has edition loaded
-    if(libx.utils.browserprefs.getStringPref('libx.edition.configurl', null))
-        popup.loadPopup();
-    else
-        popup.showChangeEditionView();
-    
-    // load page actions
-    for(var i in popup.pageActions)
-        popup.pageActions[i]();
+            // show view depending on whether user already has edition loaded
+            if(libx.utils.browserprefs.getStringPref('libx.edition.configurl', null))
+                popup.loadPopup();
+            else
+                popup.showChangeEditionView();
+            
+            // load page actions
+            for (var i in popup.pageActions)
+                popup.pageActions[i]();
 
-    // notify parent window that the popup has finished loading
-    var evt = new libx.events.Event('PopupLoaded');
-    evt.notify();
-    
+            // notify parent window that the popup has finished loading
+            var evt = new libx.events.Event('PopupLoaded');
+            evt.notify();
+        }
+    }, function (eventName) {
+        var evt = null;
+        if (libx.locale.defaultStringBundle)
+            evt = new libx.events.Event(eventName);
+        return evt;
+    }, null, "popup_locale_loaded");
+
     // save search fields when popup is closed
     $(window).unload(function () { 
+        libx.events.removeListener("DefaultLocaleLoaded", null, "popup_locale_loaded");
         popup.saveFields();
         popup = null;
-    })
-    
+    });
 });
     
 // the menu element for the simple view
@@ -70,7 +80,7 @@ return {
     // opened the popup; becomes false if the user changes edition inside popup
     firstLoad: true,
     
-    initialize: function() {
+    initialize: function () {
         
         // replace all HTML placeholders with language-specific strings
         $('.set-locale').each(function() {
@@ -304,6 +314,8 @@ return {
             libx.ui.openSearchWindow(libx.utils.getExtensionURL('dev/cache.html'));
         });
         
+        // show the page once it's ready
+        $('body').show();
     },
     
     saveFields: function () {
