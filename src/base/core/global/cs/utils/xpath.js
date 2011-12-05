@@ -27,7 +27,7 @@ libx.utils.xpath = {
     findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
       var r,node;
       try {
-        if( document.evaluate ){ //standard
+        if( libx.cs.browser.safari || libx.cs.browser.opera || libx.cs.browser.chrome || libx.cs.browser.mozilla ){ //standard
            /* See http://developer.mozilla.org/en/docs/Introduction_to_using_XPath_in_JavaScript
             * and http://www.xulplanet.com/references/objref/XPathResult.html
             *
@@ -46,7 +46,7 @@ libx.utils.xpath = {
                                  return namespaceresolver[prefix]; 
                              }, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
             node = r.singleNodeValue;
-         }else { //IE
+         }else if ( libx.cs.browser.msie ) { //IE
            /* See : http://www.w3schools.com/XPath/xpath_examples.asp#selecting_nodes
             * IE5 and later has implemented that [0] should be the first node, 
             * but according to the W3C standard it should have been [1].
@@ -54,17 +54,19 @@ libx.utils.xpath = {
             * we set the SelectionLanguage to XPath.
             */
             doc.setProperty("SelectionLanguage","XPath");
-           /* Adapted from: 
-            * http://www.nczonline.net/blog/2009/04/04/xpath-in-javascript-part-3/
-            */
-            //TODO: Refactor and *Test* in IE, specialy w.r.t namespaces
+            /*Iterate through namespaceresolver object to get the prefixes*/
             var ns = "";
             for ( prefix in namespaceresolver)
               ns += "xmlns:"+prefix+"='"+namespaceresolver[prefix]+"' ";
             ns += "xmlns='http://www.w3.org/2005/Atom'";
 
             doc.setProperty("SelectionNamespaces",ns);
-            r = doc.selectSingleNode(xpathexpr);
+          
+            if ( root )
+                node = root.selectSingleNode(xpathexpr);
+            else 
+                node = doc.selectSingleNode(xpathexpr);
+
             /* Object 'r' returned is different from one returned by doc.evaluate
              *                       selectSingleNode | evaluate 
              *   property                             |
@@ -77,23 +79,25 @@ libx.utils.xpath = {
              * NOTE: without further modification in atomparser.js this will not work
              * cases where node.localName is being used, property will be undefined for IE
              */
-             node = r.childNodes[0];
+             
+         }else {
+             libx.log.write("Error - Unknown Browser! Check for appropriate feature support for libx.utils.xpath.findSingleNode");
+             node = null;
          }
      }
      catch (e) {
          //XXX: Need to use a more specific log type
          libx.log.write("In findSingleXML: XPath expression " + xpathexpr + " does not return a node: " + e);
-         return null;
+         node = null;
      }
-
-        //If there's no result, this is set to null
-        return node;
+     //If there's no result, this is set to null
+     return node;
    },
 
    findNodesXML : function (doc, xpathexpr, root, namespaceresolver) {
       var nodes,n, rr;
       try {
-         if ( doc.evaluate ) { //standard
+         if ( libx.cs.browser.safari || libx.cs.browser.opera || libx.cs.browser.chrome || libx.cs.browser.mozilla ) { //standard
               nodes = doc.evaluate(xpathexpr, root ? root : doc,
                              function (prefix) {
                                  return namespaceresolver[prefix];
@@ -102,7 +106,7 @@ libx.utils.xpath = {
               
               while ((n = nodes.iterateNext()) != null)
                  rr.push(n); 
-         }else { //IE
+         }else if ( libx.cs.browser.msie ) { //IE
               doc.setProperty("SelectionLanguage","XPath");
               var ns = ""; 
               for ( prefix in namespaceresolver)
@@ -115,7 +119,7 @@ libx.utils.xpath = {
               rr = new Array();
               
               for (n=0;n < nodes.length;++n)
-                 rr.push(nodes[n].childNodes[0]);
+                 rr.push(nodes[n]);
          }
       }
       catch ( e ) {
