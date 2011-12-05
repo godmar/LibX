@@ -45,20 +45,20 @@ StringBundle = libx.core.Class.create(
         this.l10ns = l10ns;
     },
     
-	/**
-	 *	Returns a message with the specified name.
+    /**
+     * Returns a message with the specified name.
      *  Beginning at the first element in the l10ns array given to
      *  libx.locale.StringBundle(), each l10n object is checked for a message
      *  with the given name. Consequently, subsequent elements in the array
      *  serve as fallback objects.
      *
-	 *	@param {String} name  name property to find
-	 *	@param {Strings} arg1...argn  variable number of replacement strings.
+     * @param {String} name  name property to find
+     * @param {Strings} arg1...argn  variable number of replacement strings.
      *      messages with replacement strings follow the format described in:
      *      http://code.google.com/chrome/extensions/i18n-messages.html#placeholders
      *  @returns {String} localized message
-	 */	
-	getProperty : function ( name /*, arg0, arg1, arg2, .... */) {
+     */
+    getProperty : function ( name /*, arg0, arg1, arg2, .... */) {
         
         var propertyObj = null;
         
@@ -96,8 +96,7 @@ StringBundle = libx.core.Class.create(
         }
         
         return message;
-	    
-	}
+    }
     
 } );
 
@@ -119,15 +118,15 @@ return /** @lends libx.locale */ {
         libx.locale.bd.initialize();
     },
     
-	/**
-	 *	Gets a localization bundle.
+    /**
+     *  Gets a localization bundle.
      *  Localizations will be searched similar to Google Chrome's i18n rules
      *  (http://code.google.com/chrome/extensions/i18n.html#l10):
      *      1. Search the messages file (if any) for the user's preferred locale.
      *         For example, if user's locale is en_GB, the en_GB locale will be searched first.
      *      2. Use the locale specified in defaultLocale. For example, if defaultLocale is set to "es",
      *         and the en_GB version of the URL does not contain the message, es is searched.
-	 *	@param {Object}  params          object parameter. either url|feed|object
+     *  @param {Object}  params          object parameter. either url|feed|object
      *                                   should be supplied.
      *  @config {String} url             (optional) URL to load bundle from.  URL can contain
      *                                   a $locale$ placeholder, which will be replaced with
@@ -140,7 +139,7 @@ return /** @lends libx.locale */ {
      *  @config {Function(libx.locale.StringBundle)} success  success callback function;
      *                                   takes a parameter which is the returned string bundle
      *  @config {Function()} error       error callback function
-	 */	
+     */
     getBundle: function (params) {
         
         var localesToFind = [];
@@ -246,7 +245,7 @@ return /** @lends libx.locale */ {
         }
         
     }
-	
+
 };
 
 } ) ();
