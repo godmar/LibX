@@ -232,6 +232,6 @@ libx.core = (function() {
             return function () {
                 throw new Error("function " + fname + " not implemented");
             }
-        },
+        }
     };
 })();

@@ -22,10 +22,15 @@ ul {
 }
 
 .info-panel {
-    padding-left:3px;
+    margin-left: 20px !important;
     min-width:400px;
     display:none;
 }
+
+.marginLeft40 {
+  margin-left: 40px !important;
+}
+
 
 .info-panel-heading {
     font-weight:normal;

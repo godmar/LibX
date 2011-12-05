@@ -276,6 +276,6 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 _value: enabled
             });
         }
-    },
+    }
     
 } );

@@ -4,7 +4,45 @@
     {
         "package_add": { "message": "Subscribe to a package:" },
         "package_whatis": { "message" : "What is a package?"},
-        "package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." }
+        "package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." },
+        
+        "banner": {"message" : "Libapps Display Tree:"},
+        "banner_msg1": {"message": "To explore packages/libapps, expand the tree"},
+        "banner_msg2": {"message": "To see details click on any label"},
+   
+        "showPrefs": {"message": "Show Preferences"},
+        "hidePrefs": {"message": "Hide Preferences"},
+        "showDetails": {"message": "Show Details"},
+        "hideDetails": {"message": "Hide Details"},
+        "showCode": {"message": "Show Code"},
+        "hideCode": {"message": "Hide Code"},
+        "showParams": {"message": "Show Input Parameters"},
+        "hideParams": {"message": "Hide Input Parameters"},
+        "unknown": {"message": "unknown"},
+        "Value": {"message": "Value"},
+        "Parameters": {"message": "Parameters"},
+        "Preferences": {"message": "Preferences"},
+        "Package": {"message": "Package"},
+        "Libapp": {"message": "Libapp"},
+        "Module": {"message": "Message"},
+        "include": {"message": "Include"},
+        "exclude": {"message": "Exclude"},
+        "guardedby": {"message": "Guarded By"},
+        "regexptexttransformer": {"message": "RegEx Text Transformer"},
+        "require": {"message": "Require"},
+        
+        "Details": {"message": "Details"},
+        "Id": {"message": "Id"},
+        "LastUpdatedOn": {"message": "Last Updated On"},
+        "Author": {"message": "Author"},
+        "Weblink": {"message": "Weblink"},
+        "Email": {"message": "Email"},
+        "Code": {"message": "Code"},
+
+        "param_err_0a": {"message": "Parameter type mismatch, Module parameter type is "},
+        "param_err_0b": {"message": " and Libapp argument is "},
+        "param_err_1": {"message": "Parameter Value is unknown! No matching argument passed from the Libapp"},
+        "param_err_2": {"message": "Argument is passed from  parent Libapp but is never declared (as parameter) in this module."}
     }
 {EndLocale}
 
@@ -15,9 +53,17 @@
  * In a stand-alone (Cleint Side) mode: we do not display box to subscribe; do not display preferences.
  */
 
-var entryType = { "package": "Package", "libapp": "Libapp", "module": "Module" };
+var entryType = { "package": "{L 'Package' L}", "libapp": "{L 'Libapp' L}", "module": "{L 'Module' L}" };
 var appProps = [ "include","exclude" ];
 var modProps = [ "include","exclude", "guardedby", "regexptexttransformer", "require" ];
+
+var i18n_props = {
+    "include": "{L 'include' L}",
+    "exclude": "{L 'exclude' L}",
+    "guardedby": "{L 'guardedby' L}",
+    "regexptexttransformer": "{L 'regexptexttransformer' L}",
+    "require": "{L 'require' L}"
+};
 
 /*
  * Gets a string bundle for a given entry before processing that entry.
@@ -122,13 +168,12 @@ var $checkTree = $('<ul id="root" class="checktree" style="float: left;">'
 /*
 * Creates a node in display tree
 * @param {object} entry - Contains info describing each entry
-* @param {number} id - unique id of the entry
 */
-function makeNode(entry, id) {
+function makeNode(entry) {
     
     var $node = $('<li>\n'
                 + '   <label>' + entry.title + '</label>\n'
-                + '   <ul id="' + id + '"></ul>\n'
+                + '   <ul></ul>\n'
                 + '</li>\n');
     $node.data("id",entry.id);
     if (entry.type != 'module') {
@@ -234,11 +279,11 @@ processCheckTree = {
 
         }else {/*display preferences toggle option*/
            $(".toggle-info-panel-prefs").live("click", function () {
-            if ($(this).text() == 'Show Preferences') {
-                $(this).text("Hide Preferences");
+            if ($(this).text() == "{L 'showPrefs' L}") {
+                $(this).text("{L 'hidePrefs' L}");
                 $(this).parent().siblings(".info-panel-prefs").show();
-            }else if ($(this).text() == 'Hide Preferences') {
-                $(this).text("Show Preferences");
+            }else if ($(this).text() == "{L 'hidePrefs' L}") {
+                $(this).text("{L 'showPrefs' L}");
                 $(this).parent().siblings(".info-panel-prefs").hide();
             }
             return false;
@@ -253,22 +298,22 @@ processCheckTree = {
 
         /* Show|Hide logic for info panel of each node in tree */
         $(".toggle-info-panel-details").live("click", function () {
-            if ($(this).text() == 'Show Details') {
-                $(this).text("Hide Details");
+            if ($(this).text() == "{L 'showDetails' L}") {
+                $(this).text("{L 'hideDetails' L}");
                 $(this).parent().siblings(".info-panel-details").show();
-            }else if ($(this).text() == 'Hide Details') {
-                $(this).text("Show Details");
+            }else if ($(this).text() == "{L 'hideDetails' L}") {
+                $(this).text("{L 'showDetails' L}");
                 $(this).parent().siblings(".info-panel-details").hide();
             }
             return false;
         } );
 
           $(".toggle-info-panel-codebody").live("click", function () {
-            if ($(this).text() == 'Show Code') {
-                $(this).text("Hide Code");
+            if ($(this).text() == "{L 'showCode' L}") {
+                $(this).text("{L 'hideCode' L}");
                 $(this).parent().siblings(".info-panel-codebody").show();
-            }else if($(this).text() == 'Hide Code') {
-                $(this).text("Show Code");
+            }else if($(this).text() == "{L 'hideCode' L}") {
+                $(this).text("{L 'showCode' L}");
                 $(this).parent().siblings(".info-panel-codebody").hide();
             }
             return false;
@@ -287,11 +332,11 @@ processCheckTree.markReady();
 
 function toggleInfoPanelArgs($argsLink)
 {   
-    if($argsLink.text() == 'Show Input Parameters') {         
-         $argsLink.text("Hide Input Parameters");
+    if($argsLink.text() == "{L 'showParams' L}") {         
+         $argsLink.text("{L 'hideParams' L}");
          displayModuleParameters($argsLink.parent().parent().parent());
-    }else if($argsLink.text() == 'Hide Input Parameters') {
-         $argsLink.text("Show Input Parameters");
+    }else if($argsLink.text() == "{L 'hideParams' L}") {
+         $argsLink.text("{L 'showParams' L}");
          $argsLink.parent().siblings(".info-panel-params").hide();
     } 
 }
@@ -336,7 +381,7 @@ function insertArgToggleLink($Info_Panel)
               .children(".toggle-info-panel-links")
               .find('.toggle-info-panel-details')
               .after(' | <a class="toggle-info-panel-args" href="#">'
-                                + 'Hide Input Parameters'
+                                + "{L 'hideParams' L}"
                                 + '</a>');
 }
 
@@ -386,8 +431,8 @@ function displayModuleParameters($li_module)
         pVal = libapp_m_args[param].value;
       }else/*set appropriate error states*/
       {
-        _pType = "unknown";
-        pVal = "unknown";
+        _pType = "{L 'unknown' L}";
+        pVal = "{L 'unknown' L}";
       }
         
       infoPanelParams += '<li class="info-panel-params-list-item bottom-border">'
@@ -398,22 +443,22 @@ function displayModuleParameters($li_module)
                       +    '</span>'
                       +    '<span class="param-desc">'+insertLinks(pDesc)+'</span><br />'
                       +    '<span class="param-value">'
-                      +       '<span class="entry-label-name">Value: </span>'
+                      +       '<span class="entry-label-name">'+ "{L 'Value' L}" +': </span>'
                       +       '<span class="entry-text">'+insertLinks(pVal)+'</span>'
                       +    '</span>';
       /*Check for error states*/
-      if(pVal ==  "unknown"){
+      if(pVal ==  "{L 'unknown' L}"){
          infoPanelParams +=  '<br/><span class="err"></span>'
                          +    '<span class="err-text">'
-                         +       'Parameter Value is unknown! No matching argument passed from the Libapp'
+                         +      "{L 'param_err_1' L}" 
                          +    '</span>';
       }
       else if(_pType != pType){
          infoPanelParams += '</br><span class="err"></span>'
                          +     '<span class="err-text">'
-                         +        'Parameter type mismatch: Module parameter type is '
+                         +        "{L 'param_err_0a' L}" 
                          +        '<span class="param-type">'+pType+'</span>'
-                         +        ' and Libapp argument type is '
+                         +        "{L 'param_err_0b' L}"
                          +        '<span class="param-type">'+_pType+'</span>'
                          +     '</span>';
       }
@@ -431,7 +476,7 @@ function displayModuleParameters($li_module)
         {
            continue;
         }else {
-           pDesc = "unknown";
+           pDesc = "{L 'unknown' L}";
            _pType = libapp_m_args[arg].type;
            pVal = libapp_m_args[arg].value;
            ++count;
@@ -443,11 +488,13 @@ function displayModuleParameters($li_module)
                            +     '</span>'
                            +    '<span class="param-desc">'+pDesc+'</span><br />'
                            +    '<span class="param-value">'
-                           +       '<span class="entry-label-name">Value: </span>'
+                           +       '<span class="entry-label-name">'+ "{L 'Value' L}" +':  </span>'
                            +       '<span class="entry-text">'+insertLinks(pVal)+'</span>'                            
                            +    '</span>'
                            +    '<br/><span class="err"></span>'
-                           +    '<span class="err-text"> Argument is passed from  parent Libapp but is never declared (as parameter) in this module.</span>'
+                           +    '<span class="err-text">'
+                           +      "{L 'param_err_2' L}"
+                           +    '</span>'
                            +  '</li>';
         }
      }
@@ -456,7 +503,7 @@ function displayModuleParameters($li_module)
   var pDiv = $('<div class="info-panel-params">'
            +   '<div>'
            +     '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-           +     '<legend class="info-panel-sub-section-legend">Parameters</legend>'
+           +     '<legend class="info-panel-sub-section-legend">' + "{L 'Parameters' L}" + '</legend>'
            +       '<ul class="info-panel-params-list">'
            +          infoPanelParams
            +       '</ul>'
@@ -502,7 +549,7 @@ function makeInfoPanel(entry,$node,tmplData){
            if( j == 0 ){
              props +=  '<li>'
                              +    '<span class="entry-label-name">'
-                             +       appProps[i] + ': </span>';
+                             +       i18n_props[appProps[i]] + ': </span>';
            }
            
            p = entry[appProps[i]][j];
@@ -539,7 +586,7 @@ function makeInfoPanel(entry,$node,tmplData){
            if( j == 0 ){
              props +=  '<li>'
                    +      '<span class="entry-label-name">'
-                   +         modProps[i] + ':'
+                   +        i18n_props[modProps[i]] + ':'
                    +      '</span>';
            }
            p = entry[modProps[i]][j];
@@ -568,27 +615,27 @@ function makeInfoPanel(entry,$node,tmplData){
                        +             encode(entry.description) + '<br/>'
                        +     '</div>'
                        +     '<div class="toggle-info-panel-links">'
-                       +          '<a class="toggle-info-panel-details" href="#">Show Details</a>'
+                       +          '<a class="toggle-info-panel-details" href="#">'+ "{L 'showDetails' L}" +'</a>'
                        +     '</div>'
                        +     '<div class="info-panel-details">'
                        +        '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-                       +          '<legend class="info-panel-sub-section-legend">Details</legend>'
+                       +          '<legend class="info-panel-sub-section-legend">'+"{L 'Details' L}"+'</legend>'
                        +          '<div>'
                        +            '<ul>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">Id: ' + '</span>'
+                       +                 '<span class="entry-label-name">'+"{L 'Id' L}"+': </span>'
                        +                  '<span class="entry-text">' + entry.id + '</span>'
                        +              '</li>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">Last Updated On: ' + '</span>'
+                       +                 '<span class="entry-label-name">'+"{L 'LastUpdatedOn' L}"+': </span>'
                        +                 '<span class="entry-text">' + formatDate(encode(entry.updated)) + '</span>'
                        +              '</li>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">Author: ' + '</span>'
+                       +                 '<span class="entry-label-name">'+"{L 'Author' L}"+': </span>'
                        +                 '<span class="entry-text">' + encode(entry.author.name) + '</span>'
                        +              '</li>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">Weblink: ' + '</span>'
+                       +                 '<span class="entry-label-name">'+"{L 'Weblink' L}"+': </span>'
                        +                 '<span class="entry-text">'
                        +                    '<a href="' +encode(entry.author.uri)+ '" target="_blank">'
                        +                         encode(entry.author.uri)
@@ -596,7 +643,7 @@ function makeInfoPanel(entry,$node,tmplData){
                        +                 '</span>'
                        +               '</li>'
                        +               '<li>'
-                       +                  '<span class="entry-label-name">Email: ' + '</span>'
+                       +                  '<span class="entry-label-name">'+ "{L 'Email' L}" +': </span>'
                        +                  '<span class="entry-text">' + encode(entry.author.email) + '</span>'
                        +               '</li>'
                        +                props
@@ -608,10 +655,11 @@ function makeInfoPanel(entry,$node,tmplData){
 
     if( isModule )
 	{
-		$infoPanel
+	   $infoPanel
+                .addClass("marginLeft40")
 		        .append('<div class="info-panel-codebody">'
                       +    '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-                      +      '<legend class="info-panel-sub-section-legend">Implementation</legend>'
+                      +      '<legend class="info-panel-sub-section-legend">' + "{L 'Code' L}" + '</legend>'
                       +      '<div class="info-panel-codebody-sub-div">'
                       +        '<pre>' + encode(entry.body) + '</pre>\n'
                       +      '</div>'
@@ -619,7 +667,7 @@ function makeInfoPanel(entry,$node,tmplData){
                       + '</div>')
 		        .children('.toggle-info-panel-links')
 				.append(' | <a class="toggle-info-panel-codebody" href="#">'
-						    + 'Show Code'
+						    + "{L 'showCode' L}"
 						+ '</a>');
 
 	}
@@ -637,7 +685,7 @@ function makeInfoPanel(entry,$node,tmplData){
 				        .children(".toggle-info-panel-links")
 						.find('.toggle-info-panel-details')
 						.after(' | <a class="toggle-info-panel-prefs" href="#">'
-						        + 'Show Preferences'
+						        + "{L 'showPrefs' L}"
 								+ '</a>');		    
 		    }
 		}
@@ -653,13 +701,13 @@ function insertPreferences ($infoPanel)
 	if (libx.prefs[$infoPanel.parent().data("id")] && libx.prefs[$infoPanel.parent().data("id")]._children.length > 1) {
 		$infoPanel.children(".info-panel-prefs").remove();
 		var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel-links").children("a.toggle-info-panel-prefs:first");
-		if($toggle_Prefs.text() == "Hide Preferences")
-			$toggle_Prefs.text("Show Preferences");
+		if($toggle_Prefs.text() == "{L 'hidePrefs' L}")
+			$toggle_Prefs.text("{L 'showPrefs' L}");
 			
 		var r = process(libx.prefs[$infoPanel.parent().data("id")], null, $infoPanel.parent().data("tmplData"));
 		$infoPanel.append(  '<div class="info-panel-prefs">'
                           +    '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-                          +       '<legend class="info-panel-sub-section-legend">Preferences</legend>'
+                          +       '<legend class="info-panel-sub-section-legend">' + "{L 'Preferences' L}" + '</legend>'
                           +       '<div class="info-panel-prefs-sub-div">'
                           +          r.html
                           +       '</div>'
@@ -705,15 +753,15 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
      initialize: function (isRoot) {
       this.isRoot = isRoot;
      },
-     onpackage: function(pkg,prep,parentid) {
-       var _id = libx.utils.hash.hashString(pkg.id);
-       var $parent = $checkTree.find("#"+parentid.toString());
+     onpackage: function(pkg,prep,$parentElem) {
+       
+       var $parent = $parentElem;
        if(this.isRoot){
         $parent = $checkTree;
        }
       libx.prefs.getCategoryForUrl(pkg.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(pkg,_id);
+       var $node = makeNode(pkg);
        $node
            .children("ul")
            .append('<li class="checktree_separator"></li>')
@@ -723,7 +771,7 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        var _isRoot = this.isRoot;
        this.isRoot = false;
        /*parent onpackage call in atomparser.js*/
-       this.parent(pkg,_id);
+       this.parent(pkg,$node.children("ul"));
               
        prep.blocker.markReady();
         
@@ -731,16 +779,15 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        addRemoveLink($prefs, pkg.id,_isRoot);
        
      },
-     onlibapp: function(libapp,prep,parentid) {
-       var _id = libx.utils.hash.hashString(libapp.id);
-       var $parent = $checkTree.find("#"+parentid.toString());
+     onlibapp: function(libapp,prep,$parentElem) {
+      
        libx.prefs.getCategoryForUrl(libapp.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(libapp,_id);
-       $parent.children(".checktree_separator").after($node);
+       var $node = makeNode(libapp);
+       $parentElem.children(".checktree_separator").after($node);
      
        this.isRoot = false;
-       this.parent(libapp,_id);
+       this.parent(libapp,$node.children("ul"));
        
        prep.blocker.markReady();                    
        
@@ -750,18 +797,16 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
                        },
                        libapp.entries);
      },
-     onmodule: function(module,prep,parentid) {
-       var _id = libx.utils.hash.hashString(module.id);
-       var $parent = $checkTree.find("#"+parentid.toString());
-       libx.prefs.getCategoryForUrl(module.id,
+     onmodule: function(module,prep,$parentElem) {
+      libx.prefs.getCategoryForUrl(module.id,
            [{ name: "_enabled", type: "boolean", value: "true" }]);
        if (!libx.prefs[module.id]) {
              prep.blocker.markReady();
              return;
        }
                    
-       var $node = makeNode(module,_id);
-       $parent.append($node);
+       var $node = makeNode(module);
+       $parentElem.append($node);
        prep.blocker.markReady();
                     
        getStringBundle(module.id, function (tmplData) {
@@ -777,13 +822,11 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        processCheckTree.scheduleBefore(prep.blocker);
        return prep;
     },
-    error: function(err,prep,parentid) {
+    error: function(err,prep,parentElem) {
        ++errCount;
-       var _id = libx.utils.hash.hashString(errCount.toString()+prep.packageUrl);
-       var $parent = $checkTree.find("#"+parentid.toString());
        var entry = { id: prep.packageUrl, description: "(Unknown Entry)" };
-       var $node = makeNode(entry,_id);
-       $parent.children(".checktree_separator").before($node);
+       var $node = makeNode(entry);
+       $parentElem.children(".checktree_separator").before($node);
        var $prefs = makeInfoPanel(entry, $node);
        addRemoveLink($prefs, prep.packageUrl,this.isRoot);
        prep.blocker.markReady();
@@ -819,10 +862,10 @@ templateScope.queueFunction(function () {
         <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div>
     </form>
     <div id="libapps-banner" class="libapps-banner">
-      <p><span class="libapps-banner-header">Libapps Display Tree:</span></p>
+      <p><span class="libapps-banner-header">{L "banner" L}</span></p>
       <ul>
-      <li>- <span class="libapps-banner-sub-header">To explore packages/libapps, expand the tree</span></li>
-      <li>- <span class="libapps-banner-sub-header">To see details click on any label</span></li>
+      <li>- <span class="libapps-banner-sub-header">{L "banner_msg1" L}</span></li>
+      <li>- <span class="libapps-banner-sub-header">{L "banner_msg2" L}</span></li>
       </ul>
     </div>
 </div>
