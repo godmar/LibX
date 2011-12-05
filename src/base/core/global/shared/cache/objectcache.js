@@ -252,7 +252,7 @@ libx.cache.ObjectCache = libx.core.Class.create(
             success: function(text) {
                 paramObj.success && paramObj.success(libx.utils.json.parse(text));
             },
-            notfound: paramObj.notfound,
+            notfound: paramObj.notfound
         });
     },
 

@@ -297,13 +297,13 @@ var memoryCacheClass = libx.core.Class.create (
 
             // set response MIME type if defined
             if (request.serverMIMEType !== undefined) {
-                xmlHttpReq.overrideMimeType(request.serverMIMEType);
+                xmlHttpReq.overrideMimeType && xmlHttpReq.overrideMimeType(request.serverMIMEType);
             } else if (isImage) {
                 // for images, we must use the raw data, which we get by setting this mime type
-                xmlHttpReq.overrideMimeType("text/plain; charset=x-user-defined");
+                xmlHttpReq.overrideMimeType && xmlHttpReq.overrideMimeType("text/plain; charset=x-user-defined");
             } else if (request.dataType == 'text') {
                 // if we only want text response, suppress responseXML parsing for efficiency
-                xmlHttpReq.overrideMimeType("text/plain");
+                xmlHttpReq.overrideMimeType && xmlHttpReq.overrideMimeType("text/plain");
             }
 
             var onreadystatechange = function () {
@@ -421,7 +421,7 @@ var memoryCacheClass = libx.core.Class.create (
             return xmlHttpReq;
             
         } // end if result not in cache
-    },
+    }
 
 });
 
@@ -526,7 +526,7 @@ var InternalCache = libx.core.Class.create (
                     xhr: xhr,
                     key: keyContents,
                     requests: [ request ]
-                },
+                }
             };
 
             this.cacheList.pushFront(newNode);
