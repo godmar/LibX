@@ -1,36 +1,43 @@
 
 libx.cache.bd = {
     getXMLHttpReqObj : function () {
-        var xmlhttp=false;
-        /*@cc_on @*/
-        /*@if (@_jscript_version >= 5)
-        // JScript gives us Conditional compilation, we can cope with old IE versions.
-        // and security blocked creation of the objects.
-         try {
-          xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-         } catch (e) {
+
+       var xmlhttp=null;
+       if( libx.cs.browser.safari || libx.cs.browser.opera || libx.cs.browser.chrome || libx.cs.browser.mozilla )
+       {
           try {
-           xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-          } catch (E) {
-           xmlhttp = false;
+             xmlhttp = new XMLHttpRequest();
+          }catch(err){
+             libx.log.write("Unable to create XMLHttpRequest object");
+             xmlhttp = undefined;
           }
-         }
-        @end @*/
-        if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
-            try {
-                xmlhttp = new XMLHttpRequest();
-            } catch (e) {
-                xmlhttp=false;
-            }
-        }
-        if (!xmlhttp && window.createRequest) {
+       }else if ( libx.cs.browser.msie ) {
+          try {
+             
+             if (window.XMLHttpRequest) {//IE 7+ supports XMLHttpRequest Object
+                 xmlhttp = new XMLHttpRequest();
+             } 
+             else if( window.ActiveXObject) { //fall back
+                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+             } 
+         }catch ( err ){
+             libx.log.write("Unbale to create XMLHttpRequest object for IE, "+err.message);
+             xmlhttp = undefined;
+          }
+       }else{
+          libx.log.write("Error - Unknown Browser! Check for appropriate feature support for getXMLHttpReqObj");
+          xmlhttp = undefined;
+       }
+       //NOTE TO SELF(RPK): not sure about this
+       if (!xmlhttp && window.createRequest) {
             try {
                 xmlhttp = window.createRequest();
             } catch (e) {
                 xmlhttp=false;
             }
-        }
-        if(xmlhttp) {
+       }
+    
+       if(xmlhttp) {
             var origOpen = xmlhttp.open;
             xmlhttp.open = function(sMethod, sUrl, bAsync, sUser, sPassword) {
                 var reqdomainMatch = sUrl.match(/:\/\/(.[^/]+)/);
@@ -46,7 +53,9 @@ libx.cache.bd = {
                                             ]
                                       );
                             } 
-        }
-        return xmlhttp;
+       }else {
+         libx.log.write("Error: In libx.cache.bd.getXMLHttpReqObj xmlhttprequest is undefined.");
+       }
+       return xmlhttp;
     }
 };
