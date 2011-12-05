@@ -2,7 +2,7 @@
 <head>
 
 <? $base = "../../"; ?>
-
+<script src="<? echo $base; ?>/src/base/core/global/shared/arrayfix.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/core.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/libx.js"></script>
 
@@ -49,13 +49,13 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/hash.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/stdnumsupport.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/xpath.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/autocomplete.js"></script>
+<!-- <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/autocomplete.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/dropdown.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/accordionmenu.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/magicsearch.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/contextmenu.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/gc/ui.js"></script>
+-->
 <script src="<? echo $base; ?>/src/base/bootstrapped/global/shared/libapp/atomparser.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 
