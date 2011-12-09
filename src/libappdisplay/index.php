@@ -63,8 +63,8 @@ libx.cs = {
 
 try {
     libx.initialize(true);
-} catch (er) {
-    console.log("Error in libx.initialize(): " + er);
+} catch (err) {
+    console.log("Error in libx.initialize(): " + err.message + "\nDesc: "+ err.description);
 }
 
 /* instead of calling libx.loadConfig (which would load a config.xml file,
