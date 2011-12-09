@@ -47,39 +47,28 @@ libx.utils.xpath = {
                              }, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
             node = r.singleNodeValue;
          }else if ( libx.cs.browser.msie ) { //IE
-           /* See : http://www.w3schools.com/XPath/xpath_examples.asp#selecting_nodes
-            * IE5 and later has implemented that [0] should be the first node, 
-            * but according to the W3C standard it should have been [1].
-            * To solve the [0] and [1] problem in IE5+, 
-            * we set the SelectionLanguage to XPath.
-            */
-            doc.setProperty("SelectionLanguage","XPath");
-            /*Iterate through namespaceresolver object to get the prefixes*/
+           /*Iterate through namespaceresolver object to get the prefixes*/
             var ns = "";
             for ( prefix in namespaceresolver)
               ns += "xmlns:"+prefix+"='"+namespaceresolver[prefix]+"' ";
             ns += "xmlns='http://www.w3.org/2005/Atom'";
-
-            doc.setProperty("SelectionNamespaces",ns);
-          
-            if ( root )
+            /* See : http://www.w3schools.com/XPath/xpath_examples.asp#selecting_nodes
+            * IE5 and later has implemented that [0] should be the first node, 
+            * but according to the W3C standard it should have been [1].
+            * To solve the [0] and [1] problem in IE5+, 
+            * we set the SelectionLanguage to XPath.
+            */        
+            if( root ){ /*sometimes root is a DOMElem rathery Doc type*/
+                try { 
+                  root.setProperty("SelectionLanguage","XPath"); 
+                  root.setProperty("SelectionNamespaces",ns);
+                }catch(er){}
                 node = root.selectSingleNode(xpathexpr);
-            else 
+            }else { 
+                doc.setProperty("SelectionLanguage","XPath");
+                doc.setProperty("SelectionNamespaces",ns);
                 node = doc.selectSingleNode(xpathexpr);
-
-            /* Object 'r' returned is different from one returned by doc.evaluate
-             *                       selectSingleNode | evaluate 
-             *   property                             |
-             *                                        |
-             *  singlNodeValue         undefined      |  exists
-             *  node.localName         undefined      |  exists 
-             *  
-             * doc.selectSingleNode.nodeName == doc.evaluate.singleNodeValue.localName
-             *
-             * NOTE: without further modification in atomparser.js this will not work
-             * cases where node.localName is being used, property will be undefined for IE
-             */
-             
+            }            
          }else {
              libx.log.write("Error - Unknown Browser! Check for appropriate feature support for libx.utils.xpath.findSingleNode");
              node = null;
@@ -87,7 +76,7 @@ libx.utils.xpath = {
      }
      catch (e) {
          //XXX: Need to use a more specific log type
-         libx.log.write("In findSingleXML: XPath expression " + xpathexpr + " does not return a node: " + e);
+         libx.log.write("In findSingleXML: XPath expression " + xpathexpr + " does not return a node: " + e.message + "\n Desc: "+ e.description);
          node = null;
      }
      //If there's no result, this is set to null
@@ -107,15 +96,24 @@ libx.utils.xpath = {
               while ((n = nodes.iterateNext()) != null)
                  rr.push(n); 
          }else if ( libx.cs.browser.msie ) { //IE
-              doc.setProperty("SelectionLanguage","XPath");
+              
               var ns = ""; 
               for ( prefix in namespaceresolver)
                 ns += "xmlns:"+prefix+"='"+namespaceresolver[prefix]+"' ";
               ns += "xmlns='http://www.w3.org/2005/Atom'";
               
-              doc.setProperty("SelectionNamespaces",ns);
-              nodes = doc.selectNodes(xpathexpr);
-              
+              if( root ){
+                 try {
+                    root.setProperty("SelectionLanguage","XPath");
+                    root.setProperty("SelectionNamespaces",ns);
+                 }catch(er){}
+                 nodes = root.selectNodes(xpathexpr);
+              }else {
+                 doc.setProperty("SelectionLanguage","XPath");
+                 doc.setProperty("SelectionNamespaces",ns);
+                 nodes = doc.selectNodes(xpathexpr);
+              }
+                           
               rr = new Array();
               
               for (n=0;n < nodes.length;++n)
@@ -124,7 +122,7 @@ libx.utils.xpath = {
       }
       catch ( e ) {
          //XXX: Need to use a more specific log type
-         libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes: " + e);
+         libx.log.write("In findNodesXML: XPath expression " + xpathexpr + " does not return a set of nodes: " + e.message + "\n Desc: "+ e.description);
          return null;    // XXX should you rethrow here?
       }
       return rr;
