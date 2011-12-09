@@ -18,13 +18,15 @@
         "hideCode": {"message": "Hide Code"},
         "showParams": {"message": "Show Input Parameters"},
         "hideParams": {"message": "Hide Input Parameters"},
+        
         "unknown": {"message": "unknown"},
         "Value": {"message": "Value"},
         "Parameters": {"message": "Parameters"},
         "Preferences": {"message": "Preferences"},
+        
         "Package": {"message": "Package"},
         "Libapp": {"message": "Libapp"},
-        "Module": {"message": "Message"},
+        "Module": {"message": "Module"},
         "include": {"message": "Include"},
         "exclude": {"message": "Exclude"},
         "guardedby": {"message": "Guarded By"},
@@ -57,12 +59,36 @@ var entryType = { "package": "{L 'Package' L}", "libapp": "{L 'Libapp' L}", "mod
 var appProps = [ "include","exclude" ];
 var modProps = [ "include","exclude", "guardedby", "regexptexttransformer", "require" ];
 
-var i18n_props = {
+var i18n = {
     "include": "{L 'include' L}",
     "exclude": "{L 'exclude' L}",
     "guardedby": "{L 'guardedby' L}",
     "regexptexttransformer": "{L 'regexptexttransformer' L}",
-    "require": "{L 'require' L}"
+    "require": "{L 'require' L}",
+    
+    "showDetails": "{L 'showDetails' L}","hideDetails": "{L 'hideDetails' L}",
+    "showPrefs": "{L 'showPrefs' L}", "hidePrefs": "{L 'hidePrefs' L}",
+    "showCode": "{L 'showCode' L}", "hideCode": "{L 'hideCode' L}",
+    "showParams": "{L 'showParams' L}", "hideParams": "{L 'hideParams' L}",
+
+    "Details": "{L 'Details' L}",
+    "Id": "{L 'Id' L}",
+    "LastUpdatedOn": "{L 'LastUpdatedOn' L}",
+    "Author": "{L 'Author' L}",
+    "Weblink": "{L 'Weblink' L}",
+    "Email": "{L 'Email' L}",
+    "Code": "{L 'Code' L}",
+
+    "unknown": "{L 'unknown' L}",
+    "Value": "{L 'Value' L}",
+    "Parameters": "{L 'Parameters' L}",
+    "Preferences": "{L 'Preferences' L}",
+
+    "param_err_0a": "{L 'param_err_0a' L}",
+    "param_err_0b": "{L 'param_err_0b' L}",
+    "param_err_1": "{L 'param_err_1' L}",
+    "param_err_2": "{L 'param_err_2' L}"
+   
 };
 
 /*
@@ -279,11 +305,11 @@ processCheckTree = {
 
         }else {/*display preferences toggle option*/
            $(".toggle-info-panel-prefs").live("click", function () {
-            if ($(this).text() == "{L 'showPrefs' L}") {
-                $(this).text("{L 'hidePrefs' L}");
+            if ($(this).text() == i18n["showPrefs"]) {
+                $(this).text(i18n["hidePrefs"]);
                 $(this).parent().siblings(".info-panel-prefs").show();
-            }else if ($(this).text() == "{L 'hidePrefs' L}") {
-                $(this).text("{L 'showPrefs' L}");
+            }else if ($(this).text() == i18n["hidePrefs"]) {
+                $(this).text(i18n["showPrefs"]);
                 $(this).parent().siblings(".info-panel-prefs").hide();
             }
             return false;
@@ -298,22 +324,22 @@ processCheckTree = {
 
         /* Show|Hide logic for info panel of each node in tree */
         $(".toggle-info-panel-details").live("click", function () {
-            if ($(this).text() == "{L 'showDetails' L}") {
-                $(this).text("{L 'hideDetails' L}");
+            if ($(this).text() == i18n["showDetails"]) {
+                $(this).text(i18n["hideDetails"]);
                 $(this).parent().siblings(".info-panel-details").show();
-            }else if ($(this).text() == "{L 'hideDetails' L}") {
-                $(this).text("{L 'showDetails' L}");
+            }else if ($(this).text() == i18n["hideDetails"]) {
+                $(this).text(i18n["showDetails"]);
                 $(this).parent().siblings(".info-panel-details").hide();
             }
             return false;
         } );
 
           $(".toggle-info-panel-codebody").live("click", function () {
-            if ($(this).text() == "{L 'showCode' L}") {
-                $(this).text("{L 'hideCode' L}");
+            if ($(this).text() == i18n["showCode"]) {
+                $(this).text(i18n["hideCode"]);
                 $(this).parent().siblings(".info-panel-codebody").show();
-            }else if($(this).text() == "{L 'hideCode' L}") {
-                $(this).text("{L 'showCode' L}");
+            }else if($(this).text() == i18n["hideCode"]) {
+                $(this).text(i18n["showCode"]);
                 $(this).parent().siblings(".info-panel-codebody").hide();
             }
             return false;
@@ -332,11 +358,11 @@ processCheckTree.markReady();
 
 function toggleInfoPanelArgs($argsLink)
 {   
-    if($argsLink.text() == "{L 'showParams' L}") {         
-         $argsLink.text("{L 'hideParams' L}");
+    if($argsLink.text() == i18n["showParams"]) {         
+         $argsLink.text(i18n["hideParams"]);
          displayModuleParameters($argsLink.parent().parent().parent());
-    }else if($argsLink.text() == "{L 'hideParams' L}") {
-         $argsLink.text("{L 'showParams' L}");
+    }else if($argsLink.text() == i18n["hideParams"]) {
+         $argsLink.text(i18n["showParams"]);
          $argsLink.parent().siblings(".info-panel-params").hide();
     } 
 }
@@ -381,7 +407,7 @@ function insertArgToggleLink($Info_Panel)
               .children(".toggle-info-panel-links")
               .find('.toggle-info-panel-details')
               .after(' | <a class="toggle-info-panel-args" href="#">'
-                                + "{L 'hideParams' L}"
+                                + i18n["hideParams"]
                                 + '</a>');
 }
 
@@ -431,8 +457,8 @@ function displayModuleParameters($li_module)
         pVal = libapp_m_args[param].value;
       }else/*set appropriate error states*/
       {
-        _pType = "{L 'unknown' L}";
-        pVal = "{L 'unknown' L}";
+        _pType = i18n["unknown"];
+        pVal = i18n["unknown"];
       }
         
       infoPanelParams += '<li class="info-panel-params-list-item bottom-border">'
@@ -443,22 +469,22 @@ function displayModuleParameters($li_module)
                       +    '</span>'
                       +    '<span class="param-desc">'+insertLinks(pDesc)+'</span><br />'
                       +    '<span class="param-value">'
-                      +       '<span class="entry-label-name">'+ "{L 'Value' L}" +': </span>'
+                      +       '<span class="entry-label-name">'+ i18n["Value"] +': </span>'
                       +       '<span class="entry-text">'+insertLinks(pVal)+'</span>'
                       +    '</span>';
       /*Check for error states*/
-      if(pVal ==  "{L 'unknown' L}"){
+      if(pVal ==  i18n["unknown"]){
          infoPanelParams +=  '<br/><span class="err"></span>'
                          +    '<span class="err-text">'
-                         +      "{L 'param_err_1' L}" 
+                         +      i18n["param_err_1"] 
                          +    '</span>';
       }
       else if(_pType != pType){
          infoPanelParams += '</br><span class="err"></span>'
                          +     '<span class="err-text">'
-                         +        "{L 'param_err_0a' L}" 
+                         +        i18n["param_err_0a"] 
                          +        '<span class="param-type">'+pType+'</span>'
-                         +        "{L 'param_err_0b' L}"
+                         +        i18n["param_err_0b"]
                          +        '<span class="param-type">'+_pType+'</span>'
                          +     '</span>';
       }
@@ -476,7 +502,7 @@ function displayModuleParameters($li_module)
         {
            continue;
         }else {
-           pDesc = "{L 'unknown' L}";
+           pDesc = i18n["unknown"];
            _pType = libapp_m_args[arg].type;
            pVal = libapp_m_args[arg].value;
            ++count;
@@ -488,12 +514,12 @@ function displayModuleParameters($li_module)
                            +     '</span>'
                            +    '<span class="param-desc">'+pDesc+'</span><br />'
                            +    '<span class="param-value">'
-                           +       '<span class="entry-label-name">'+ "{L 'Value' L}" +':  </span>'
+                           +       '<span class="entry-label-name">'+ i18n["Value"] +':  </span>'
                            +       '<span class="entry-text">'+insertLinks(pVal)+'</span>'                            
                            +    '</span>'
                            +    '<br/><span class="err"></span>'
                            +    '<span class="err-text">'
-                           +      "{L 'param_err_2' L}"
+                           +      i18n["param_err_2"]
                            +    '</span>'
                            +  '</li>';
         }
@@ -503,7 +529,7 @@ function displayModuleParameters($li_module)
   var pDiv = $('<div class="info-panel-params">'
            +   '<div>'
            +     '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-           +     '<legend class="info-panel-sub-section-legend">' + "{L 'Parameters' L}" + '</legend>'
+           +     '<legend class="info-panel-sub-section-legend">' + i18n["Parameters"] + '</legend>'
            +       '<ul class="info-panel-params-list">'
            +          infoPanelParams
            +       '</ul>'
@@ -549,7 +575,7 @@ function makeInfoPanel(entry,$node,tmplData){
            if( j == 0 ){
              props +=  '<li>'
                              +    '<span class="entry-label-name">'
-                             +       i18n_props[appProps[i]] + ': </span>';
+                             +       i18n[appProps[i]] + ': </span>';
            }
            
            p = entry[appProps[i]][j];
@@ -586,7 +612,7 @@ function makeInfoPanel(entry,$node,tmplData){
            if( j == 0 ){
              props +=  '<li>'
                    +      '<span class="entry-label-name">'
-                   +        i18n_props[modProps[i]] + ':'
+                   +        i18n[modProps[i]] + ':'
                    +      '</span>';
            }
            p = entry[modProps[i]][j];
@@ -615,27 +641,27 @@ function makeInfoPanel(entry,$node,tmplData){
                        +             encode(entry.description) + '<br/>'
                        +     '</div>'
                        +     '<div class="toggle-info-panel-links">'
-                       +          '<a class="toggle-info-panel-details" href="#">'+ "{L 'showDetails' L}" +'</a>'
+                       +          '<a class="toggle-info-panel-details" href="#">'+ i18n["showDetails"] +'</a>'
                        +     '</div>'
                        +     '<div class="info-panel-details">'
                        +        '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-                       +          '<legend class="info-panel-sub-section-legend">'+"{L 'Details' L}"+'</legend>'
+                       +          '<legend class="info-panel-sub-section-legend">'+ i18n["Details"] +'</legend>'
                        +          '<div>'
                        +            '<ul>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">'+"{L 'Id' L}"+': </span>'
+                       +                 '<span class="entry-label-name">'+ i18n["Id"] +': </span>'
                        +                  '<span class="entry-text">' + entry.id + '</span>'
                        +              '</li>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">'+"{L 'LastUpdatedOn' L}"+': </span>'
+                       +                 '<span class="entry-label-name">'+ i18n["LastUpdatedOn"] +': </span>'
                        +                 '<span class="entry-text">' + formatDate(encode(entry.updated)) + '</span>'
                        +              '</li>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">'+"{L 'Author' L}"+': </span>'
+                       +                 '<span class="entry-label-name">'+ i18n["Author"] +': </span>'
                        +                 '<span class="entry-text">' + encode(entry.author.name) + '</span>'
                        +              '</li>'
                        +              '<li>'
-                       +                 '<span class="entry-label-name">'+"{L 'Weblink' L}"+': </span>'
+                       +                 '<span class="entry-label-name">'+ i18n["Weblink"] +': </span>'
                        +                 '<span class="entry-text">'
                        +                    '<a href="' +encode(entry.author.uri)+ '" target="_blank">'
                        +                         encode(entry.author.uri)
@@ -643,7 +669,7 @@ function makeInfoPanel(entry,$node,tmplData){
                        +                 '</span>'
                        +               '</li>'
                        +               '<li>'
-                       +                  '<span class="entry-label-name">'+ "{L 'Email' L}" +': </span>'
+                       +                  '<span class="entry-label-name">'+ i18n["Email"] +': </span>'
                        +                  '<span class="entry-text">' + encode(entry.author.email) + '</span>'
                        +               '</li>'
                        +                props
@@ -659,7 +685,7 @@ function makeInfoPanel(entry,$node,tmplData){
                 .addClass("marginLeft40")
 		        .append('<div class="info-panel-codebody">'
                       +    '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-                      +      '<legend class="info-panel-sub-section-legend">' + "{L 'Code' L}" + '</legend>'
+                      +      '<legend class="info-panel-sub-section-legend">' + i18n["Code"] + '</legend>'
                       +      '<div class="info-panel-codebody-sub-div">'
                       +        '<pre>' + encode(entry.body) + '</pre>\n'
                       +      '</div>'
@@ -667,7 +693,7 @@ function makeInfoPanel(entry,$node,tmplData){
                       + '</div>')
 		        .children('.toggle-info-panel-links')
 				.append(' | <a class="toggle-info-panel-codebody" href="#">'
-						    + "{L 'showCode' L}"
+						    + i18n["showCode"]
 						+ '</a>');
 
 	}
@@ -685,7 +711,7 @@ function makeInfoPanel(entry,$node,tmplData){
 				        .children(".toggle-info-panel-links")
 						.find('.toggle-info-panel-details')
 						.after(' | <a class="toggle-info-panel-prefs" href="#">'
-						        + "{L 'showPrefs' L}"
+						        + i18n["showPrefs"]
 								+ '</a>');		    
 		    }
 		}
@@ -701,13 +727,13 @@ function insertPreferences ($infoPanel)
 	if (libx.prefs[$infoPanel.parent().data("id")] && libx.prefs[$infoPanel.parent().data("id")]._children.length > 1) {
 		$infoPanel.children(".info-panel-prefs").remove();
 		var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel-links").children("a.toggle-info-panel-prefs:first");
-		if($toggle_Prefs.text() == "{L 'hidePrefs' L}")
-			$toggle_Prefs.text("{L 'showPrefs' L}");
+		if($toggle_Prefs.text() == i18n["hidePrefs"])
+			$toggle_Prefs.text(i18n["showPrefs"]);
 			
 		var r = process(libx.prefs[$infoPanel.parent().data("id")], null, $infoPanel.parent().data("tmplData"));
 		$infoPanel.append(  '<div class="info-panel-prefs">'
                           +    '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
-                          +       '<legend class="info-panel-sub-section-legend">' + "{L 'Preferences' L}" + '</legend>'
+                          +       '<legend class="info-panel-sub-section-legend">' + i18n["Preferences"] + '</legend>'
                           +       '<div class="info-panel-prefs-sub-div">'
                           +          r.html
                           +       '</div>'
