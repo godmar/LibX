@@ -6,19 +6,19 @@ use HTML::Entities;
 use Cwd;
 
 # directory from which files will be bootstrapped
-my $bootstrap_url = "http://theta.cs.vt.edu/~rupen/libx2/src/base/bootstrapped/";
+my $bootstrap_url = "http://libx.org/libx2/bootstrapped/";
 # default package url for editions that have none specified
 my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
 
 # directory to which built files are output
-my $fs_base_dir = "/home/rupen/public_html/releases/";
+my $fs_base_dir = "/home/www/libx.org/releases/";
 # URL at which build is accessible
-my $publish_base_url = "http://theta.cs.vt.edu/~rupen//releases/";
+my $publish_base_url = "http://libx.org/releases/";
 
 my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 
 # directory that contains key3.db
-my $keydirectory = "/home/rupen/libxprivatekey";
+my $keydirectory = "/home/www/libxprivatekey";
 my $libxextid = "urn:mozilla:extension:{d75de36c-af0d-4dc2-b63a-0d482d4b9815}";
 
 # from http://hyperstruct.net/projects/spock
