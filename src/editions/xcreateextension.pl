@@ -11,7 +11,7 @@ my $bootstrap_url = "http://theta.cs.vt.edu/~rupen/libx2/src/base/bootstrapped/"
 my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
 
 # directory to which built files are output
-my $fs_base_dir = "/home/rupen/pubblic_html/releases/";
+my $fs_base_dir = "/home/rupen/public_html/releases/";
 # URL at which build is accessible
 my $publish_base_url = "http://theta.cs.vt.edu/~rupen//releases/";
 
