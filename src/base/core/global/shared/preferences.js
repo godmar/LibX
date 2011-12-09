@@ -79,7 +79,8 @@ var XMLPreferenceObject = libx.core.Class.create(
         
         for ( var i = 0; i < node.attributes.length; i++ ) {
             var attr = node.attributes.item(i);
-            descriptor['_' + attr.localName] = attr.nodeValue;
+            
+            descriptor['_' + (attr.localName || attr.nodeName.replace("libx:",""))] = attr.nodeValue;
         }
         
         return descriptor;    
@@ -140,7 +141,7 @@ prefFactory["category"] = libx.core.Class.create ( XMLPreferenceObject,
             for ( var i = 0; i < node.childNodes.length; i++ ) {
                 var childNode = node.childNodes.item(i);
                 if ( childNode.nodeType == ELEMENT_NODE ) {
-                    this._addChild ( null, childNode.localName, childNode );
+                    this._addChild ( null, (childNode.localName || childNode.nodeName.replace("libx:","")), childNode );
                 }
             }
         }
@@ -708,7 +709,7 @@ return /** @lends libx.preferences */ {
         var overwrite = descriptor.overwrite;
         var base = descriptor.base;
         
-        var loadedPrefs = new prefFactory[xmlNode.localName]( null, base, xmlNode );
+        var loadedPrefs = new prefFactory[(xmlNode.localName || xmlNode.nodeName.replace("libx:",""))]( null, base, xmlNode );
 
         if ( descriptor.prefs == null ) {
             descriptor.prefs = loadedPrefs;

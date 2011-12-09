@@ -420,7 +420,7 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
         activity._hasRun = false;
         var queue = this;
         activity.markReady = function () {
-            var myArgs = [].splice.call(arguments, 0);
+            var myArgs = [].slice.call(arguments, 0);
             queue.markActivityReady.apply(queue, [activity].concat(myArgs));
         }
         /* insert another activity that must be done before this one. */
@@ -458,7 +458,7 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
      */
     markActivityReady : function (activity) {
         activity._isReady = true;
-        activity._readyArgs = [].splice.call(arguments, 1);
+        activity._readyArgs = [].slice.call(arguments, 1);
         while (activity == this.front() && activity._isReady) {
             activity._hasRun = true;
             this.popFront();

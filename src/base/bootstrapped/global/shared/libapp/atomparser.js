@@ -127,7 +127,7 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
             baseURL: baseURL,
             id: atomid,
             title: title,
-            type: libx2Node.localName,
+            type: (libx2Node.localName || libx2Node.nodeName.replace("libx:","")),
             description: desc,
             entries: []
         };
@@ -143,12 +143,12 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
            else {
               var itemInfoArr = entryInfo[infoItem];
               nodeInfo[infoItem] = {};
-              for (item in itemInfoArr) {
+              for (var item = 0; item < itemInfoArr.length; ++item) {
                 tempNode = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:"+infoItem+"/atom:"+itemInfoArr[item]+"/text()",
                 entryNode,ns);
                 tempNode = tempNode != null ? tempNode.nodeValue : "atom:"+infoItem+"//"+itemInfoArr[item]+" is missing";
                 nodeInfo[infoItem][itemInfoArr[item]] = tempNode;
-              }
+              };
            }  
         }
 
@@ -246,7 +246,7 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
             }
         }
             
-        var visitorMethodName = "on" + String(libx2Node.localName);
+        var visitorMethodName = "on" + String((libx2Node.localName || libx2Node.nodeName.replace("libx:","")));
         if (visitor[visitorMethodName])
             visitor[visitorMethodName](nodeInfo,prep,obj);
             
