@@ -16,11 +16,17 @@ libx.cache.validators = {
      * @see libx.cache.MemoryCache.get for parameter properties
      */
     config: function (params) {
-        if (/xml/.test(params.mimeType)
-                && libx.utils.xpath.findSingleXML(params.data, '//edition/name'))
-            params.success();
-        else
+        if (!/xml/.test(params.mimeType)) {
             params.error();
+            libx.log.write("Validation error: invalid MIME type for config XML: " + params.mimeType);
+            return;
+        }
+        if (libx.utils.xpath.findSingleXML(params.data, '//edition/name'))
+            params.success();
+        else {
+            params.error();
+            libx.log.write("Validation error: edition name not found in config XML");
+        }
     },
 
     /**
@@ -40,6 +46,8 @@ libx.cache.validators = {
             return;
         }
 
+        // validators are called with the context that 'this' is an instance of
+        // a MemoryCache
         this.get({
             url: libx.utils.getBootstrapURL('updates.json'),
             dataType: 'json',
@@ -56,12 +64,18 @@ libx.cache.validators = {
                     params.success();
                 } else {
                     params.error();
+                    if (updates.files && updates.files[relPath]) {
+                        libx.log.write("Validation error: SHA1 mismatch; updates.json expected: "
+                                       + updates.files[relPath].hash + ", actual: " + sha1);
+                    } else {
+                        libx.log.write("Validation error: invalid updates.json");
+                    }
                 }
 
             },
             error: function (status) {
-                libx.log.write('error ' + status + ' when fetching updates.json');
                 params.error();
+                libx.log.write('Error ' + status + ' when fetching updates.json');
             }
         });
 
@@ -74,11 +88,18 @@ libx.cache.validators = {
      * @see libx.cache.MemoryCache.get for parameter properties
      */
     feed: function (params) {
-        if (/xml/.test(params.mimeType) && libx.utils.xpath.findSingleXML(params.data,
+        if (!/xml/.test(params.mimeType)) {
+            params.error();
+            libx.log.write("Validation error: invalid MIME type for atom feed: " + params.mimeType);
+            return;
+        }
+        if (libx.utils.xpath.findSingleXML(params.data,
                 '//libx:package|//libx:libapp|//libx:module', null, { libx: 'http://libx.org/xml/libx2' } ))
             params.success();
-        else
+        else {
             params.error();
+            libx.log.write("Validation error: no package, module, or libapp node found in feed");
+        }
     },
 
     /**
@@ -88,11 +109,17 @@ libx.cache.validators = {
      * @see libx.cache.MemoryCache.get for parameter properties
      */
     preference: function (params) {
-        if (/xml/.test(params.mimeType)
-                && libx.utils.xpath.findSingleXML(params.data, '//item|//preference|//category'))
-            params.success();
-        else
+        if (!/xml/.test(params.mimeType)) {
             params.error();
+            libx.log.write("Validation error: invalid MIME type for pref XML: " + params.mimeType);
+            return;
+        }
+        if (libx.utils.xpath.findSingleXML(params.data, '//item|//preference|//category'))
+            params.success();
+        else {
+            params.error();
+            libx.log.write("Validation error: no item, preference, or category node found in XML");
+        }
     },
 
     /**
@@ -104,8 +131,10 @@ libx.cache.validators = {
     image: function (params) {
         if (/image/.test(params.mimeType))
             params.success();
-        else
+        else {
             params.error();
+            libx.log.write("Validation error: invalid MIME type for image: " + params.mimeType);
+        }
     }
 };
 
