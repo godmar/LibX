@@ -265,6 +265,9 @@ return {
         });
 
         $('.factoryReset').click(function () {
+            // clear the memory cache
+            libx.cache.defaultMemoryCache.flush()
+
             // clear all storage
             libx.storage.metacacheStore.clear();
             libx.storage.cacheStore.clear();
@@ -285,6 +288,9 @@ return {
         });
 
         $('.clearCache').click(function () {
+            // clear the memory cache
+            libx.cache.defaultMemoryCache.flush()
+
             // clear the object cache
             libx.storage.metacacheStore.clear();
             libx.storage.cacheStore.clear();
