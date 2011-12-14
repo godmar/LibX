@@ -164,8 +164,15 @@ libx.cache.Scheduler = libx.core.Class.create(
 
             log("checking for updates to root: " + self.rootUrl);
             var rootUpdated = false;
-            var updateQueue = new libx.utils.collections.ActivityQueue();
             var updateError = false;
+
+            // used to determine when all items have been updated
+            var updateQueue = new libx.utils.collections.ActivityQueue();
+
+            // in FF, firing many successive validations is expensive and
+            // causes the browser to hang. using this queue, we yield to the
+            // browser between each validation to prevent hanging.
+            var validatorQueue = new libx.utils.collections.ActivityQueue();
             
             function checkForUpdates(url, shouldUpdate, callback) {
             
@@ -173,11 +180,22 @@ libx.cache.Scheduler = libx.core.Class.create(
 
                 function update(metadata) {
                     var updated = false;
+                    var timeoutBlocker = new libx.utils.collections.EmptyActivity();
                     self.objectCache.update({
                         url: url,
                         metadata: metadata,
                         dataType: self.childDataType,
-                        validator: self.childValidator,
+                        validator: function (params) {
+                            validatorSelf = this;
+                            var validatorAct = {
+                                onready: function () {
+                                    self.childValidator.call(validatorSelf, params);
+                                }
+                            };
+                            validatorQueue.scheduleLast(validatorAct);
+                            validatorQueue.scheduleLast(timeoutBlocker);
+                            validatorAct.markReady();
+                        },
                         success: function () {
                             updated = true;
                             log(url + " updated");
@@ -189,6 +207,11 @@ libx.cache.Scheduler = libx.core.Class.create(
                         complete: function () {
                             callback && callback(updated);
                             activity.markReady();
+
+                            // yield before allowing next validator to run
+                            libx.utils.timer.setTimeout(function () {
+                                timeoutBlocker.markReady();
+                            }, 0);
                         }
                     });
                 }
