@@ -22,7 +22,6 @@
  *                 Nathan Baker (nathanb@vt.edu)
  * 
  * ***** END LICENSE BLOCK ***** */
-
 libx.config.EditionConfigurationReader = libx.core.Class.create ( 
     /** @lends libx.config.EditionConfigurationReader.prototype */{
 
@@ -127,7 +126,7 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
             });
         
         if (!localizationfeeds['package'].length)
-            localizationfeeds['package'].push({ url: "$defaultpkgURL$" });
+            localizationfeeds['package'].push({ url: libx.config.EditionConfigurationReader.defaultpkgURL });
             
         return localizationfeeds;
     },
@@ -279,3 +278,5 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
     }
     
 } );
+
+libx.config.EditionConfigurationReader.defaultpkgURL = "$defaultpkgURL$";

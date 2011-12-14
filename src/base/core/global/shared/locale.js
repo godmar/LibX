@@ -195,11 +195,13 @@ return /** @lends libx.locale */ {
                     validator: function (vParams) {
                         function validateMessages() {
                             for (var i in vParams.data) {
-                                if (!vParams.data[i].message)
+                                if (!'message' in vParams.data[i])
                                     return false;
                             }
                             return true;
                         }
+                        // We require that .json file be served with a mime type such as
+                        // application/json
                         if (/json/.test(vParams.mimeType) && validateMessages())
                             vParams.success();
                         else

@@ -1,5 +1,6 @@
 
-popup.pageActions.autoSense = function () {
+// No auto-sensing in client-side mode
+if (libx.cs === undefined) popup.pageActions.autoSense = function () {
         
 function doAutoSense(response) {
     

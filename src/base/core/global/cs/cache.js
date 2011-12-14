@@ -43,9 +43,9 @@ libx.cache.bd = {
                 var reqdomainMatch = sUrl.match(/:\/\/(.[^/]+)/);
                 // reqdomainMatch is null for relative URLs, which are same-domain
                 if (reqdomainMatch == null || reqdomainMatch[1] == document.domain)
-                        origOpen.apply(this,[sMethod, sUrl, bAsync, sUser, sPassword]);
+                        origOpen.apply(xmlhttp,[sMethod, sUrl, bAsync, sUser, sPassword]);
                 else
-                        origOpen.apply(this,[sMethod, 
+                        origOpen.apply(xmlhttp,[sMethod, 
                                              libx.cs.proxy(sUrl),
                                              bAsync,
                                              sUser,

@@ -18,7 +18,8 @@ libx.cache.validators = {
     config: function (params) {
         if (!/xml/.test(params.mimeType)) {
             params.error();
-            libx.log.write("Validation error: invalid MIME type for config XML: " + params.mimeType);
+            libx.log.write("Validation error: invalid MIME type for config XML: " 
+                            + params.mimeType + " at " + params.url);
             return;
         }
         if (libx.utils.xpath.findSingleXML(params.data, '//edition/name'))
@@ -133,7 +134,7 @@ libx.cache.validators = {
             params.success();
         else {
             params.error();
-            libx.log.write("Validation error: invalid MIME type for image: " + params.mimeType);
+            libx.log.write("Validation error: invalid MIME type for image: " + params.mimeType + " at " + params.url + " data" + params.data);
         }
     }
 };

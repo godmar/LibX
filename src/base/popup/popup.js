@@ -1,5 +1,16 @@
 
 var popup = (function() {
+
+function makeConfigUrlFromEdition(editionRevision) {
+    var baseUrl = "http://libx.org/editions/";
+    // new style
+    var newStyle = editionRevision.match(/([0-9a-fA-F]{8})\.?(\d+)?/);
+    if (newStyle) {
+        var editionId = newStyle[0];
+        baseUrl += editionId.substr(0, 2) + "/" + editionId.substr(2, 2) + "/";
+    }
+    return baseUrl + editionRevision + "/config.xml";
+}
     
 $(function() {
     /* Expandable class that toggles its right sibling. */
@@ -12,11 +23,24 @@ $(function() {
         onDefaultLocaleLoaded: function () {
             popup.initialize();
 
+            // If run in client-side mode, use a hash tag to activate an
+            // edition/revision
+            var hash = window.location.hash;
+            if (/#edition=\S+/.test(hash)) {
+                var configUrl = makeConfigUrlFromEdition(hash.match(/#edition=(\S+)/)[1]);
+                libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
+            }
+
             // show view depending on whether user already has edition loaded
-            if(libx.utils.browserprefs.getStringPref('libx.edition.configurl', null))
-                popup.loadPopup();
-            else
+            if (libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
+                if (libx.edition) {
+                    popup.loadPopup();
+                } else {
+                    libx.initialize.reload();
+                }
+            } else {
                 popup.showChangeEditionView();
+            }
             
             // load page actions
             for (var i in popup.pageActions)
@@ -132,7 +156,7 @@ return {
                 $('#edition-search-load').unbind('click');
 
                 // get the revisions for this edition and populate search box 
-                $.ajax({
+                libx.cache.defaultMemoryCache.get({
                     type: "GET",
                     url: "http://libx.org/editions/config/" + selectedEdition.id,
                     dataType: "json",
@@ -255,6 +279,10 @@ return {
             }
         }, undefined, 'popup_reload');
         
+        // hide proxy & preferences tab in client-side view
+        $('a[href="#proxy-view"]').toggle(libx.cs === undefined);
+        $('a[href="#preferences"]').toggle(libx.cs === undefined);
+
         var devchecked = libx.utils.browserprefs.getBoolPref('libx.popup.developer', false);
         $('a[href="#dev-view"]').toggle(devchecked);
         $('#developer-enabled-checkbox').attr('checked', (devchecked ? 'checked' : ''));

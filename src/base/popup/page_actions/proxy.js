@@ -1,5 +1,6 @@
 
-popup.pageActions.proxy = function () {
+// no auto-sensing of proxy
+if (libx.cs === undefined) popup.pageActions.proxy = function () {
 
 if(!libx.edition)
     return;

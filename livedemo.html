@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+
+<style>
+/* These styles are for the button. Be sure to grab them! */
+.button {
+    font: medium/1.5 Arial, Helvetica, sans-serif;
+	display: inline-block;
+	line-height: 1;
+	padding: 7px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	color: #fff;
+	background-color: #39c;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	border-radius: 5px;
+}
+</style>
+<script>
+$(document).ready(function() {
+    $("#demo-button").click(function () {
+        $('<div title="LibX 2.0 Live Demo">'
+            +'<iframe width="640" height="400" src="src/base/popup/popup.html#edition=vt">'
+            +'</iframe></div>').dialog({ width: 'auto' });
+        });
+    });
+</script>
+</head>
+<body style="font-size:62.5%;">
+
+<a id="demo-button" href="#" class="button">Demo LibX 2.0</a>
+
+</body>
+</html>
