@@ -613,7 +613,7 @@ return {
             libx.utils.getEditionResource({
                 url: libx.edition.options.logo,
                 success: function (dataUri) {
-                    image.attr('src', libx.edition.options.logo);
+                    image.attr('src', dataUri);
                 }
             });
             image.load(function() {
