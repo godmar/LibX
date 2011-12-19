@@ -32,6 +32,9 @@ libx.locale.bd.initialize = function () {
             libx.locale.defaultStringBundle = bundle;
             var localeLoadedEvent = new libx.events.Event("DefaultLocaleLoaded");
             localeLoadedEvent.notify();
+        },
+        error: function ( err ) {
+          libx.log.write("Failed to get locale bundle in client side for "+ this.url + " \nError: " + err );
         }
     } );
 };
