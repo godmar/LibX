@@ -29,6 +29,7 @@ $(function() {
             if (/#edition=\S+/.test(hash)) {
                 var configUrl = makeConfigUrlFromEdition(hash.match(/#edition=(\S+)/)[1]);
                 libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
+                libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
             }
 
             // show view depending on whether user already has edition loaded

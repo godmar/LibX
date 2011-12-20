@@ -6,5 +6,3 @@ try {
 
 libx.config.EditionConfigurationReader.defaultpkgURL = "http://libx.org/libx2/libapps/libxcore";
 
-// libx.loadConfig("http://libx.org/editions/vt/config.xml");
-
