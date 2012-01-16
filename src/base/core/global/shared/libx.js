@@ -620,42 +620,44 @@ libx.loadConfig = function (configUrl) {
             libx.edition = edition;
             libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
             
-            var bootGlobalUrls = [];
-            if (libx.initialize.loadGlobalScripts)
-                bootGlobalUrls.push({
-                    url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.global.url",
-                            libx.utils.getBootstrapURL("bootstrapglobal.js") )
-                });
+            if( libx.cs === undefined || libx.cs.editionOnly === undefined ){
+              var bootGlobalUrls = [];
+              if (libx.initialize.loadGlobalScripts)
+                  bootGlobalUrls.push({
+                     url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.global.url",
+                             libx.utils.getBootstrapURL("bootstrapglobal.js") )
+                  });
 
-            var globalBootStrapper 
-                = libx.initialize.globalBootStrapper 
-                = new libx.bootstrap.BootStrapper( 
-                    new libx.events.Event("GlobalBootstrapDone")
-                );
+               var globalBootStrapper 
+                  = libx.initialize.globalBootStrapper 
+                  = new libx.bootstrap.BootStrapper( 
+                      new libx.events.Event("GlobalBootstrapDone")
+                    );
             
-            // replace chrome with URLs with the actual images (data URIs)
-            function chromeURL2DataURI(item) {
-                if (libx.edition.options[item] == null)
+                // replace chrome with URLs with the actual images (data URIs)
+                function chromeURL2DataURI(item) {
+                  if (libx.edition.options[item] == null)
                     return;
-                libx.utils.getEditionResource({
-                    url: libx.edition.options[item],
-                    success: function (dataURI) {
+                  libx.utils.getEditionResource({
+                     url: libx.edition.options[item],
+                     success: function (dataURI) {
                         libx.edition.options[item] = dataURI;
-                    }
-                });
+                     }
+                   });
+                 }
+
+                 chromeURL2DataURI("icon");
+                 chromeURL2DataURI("cueicon");
+                 chromeURL2DataURI("logo");
             }
-            chromeURL2DataURI("icon");
-            chromeURL2DataURI("cueicon");
-            chromeURL2DataURI("logo");
-            
             var loadScriptsAct = {
                 onready: function () {
                     var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
                     edLoadedEvent.edition = edition;
                     edLoadedEvent.notify();
-
-                    for (var i = 0; i < bootGlobalUrls.length; i++)
-                        globalBootStrapper.loadScript(bootGlobalUrls[i].url, { libx: libx });
+                    if( libx.cs === undefined || libx.cs.editionOnly === undefined )
+                      for (var i = 0; i < bootGlobalUrls.length; i++)
+                         globalBootStrapper.loadScript(bootGlobalUrls[i].url, { libx: libx });
                 }
             };
             localeQueue.scheduleLast(loadScriptsAct );

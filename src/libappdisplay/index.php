@@ -58,7 +58,21 @@ libx.cs = {
 -->
 <script src="<? echo $base; ?>/src/base/bootstrapped/global/shared/libapp/atomparser.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script>
 
+var editionId = "<? 
+                    $loadConfig = isset($_GET['edition']) ? $_GET['edition'] : undefined;
+                    echo $loadConfig;
+                 ?>";
+
+if ( editionId )
+{
+ /* document.write('<script src="<? echo $base; ?>/src/base/core/global/shared/catalog.js">'+'<\/script>');
+  document.write('<script src="<? echo $base; ?>/src/base/core/global/shared/openurl.js">'+'<\/script>');*/
+ libx.cs.editionOnly = {};
+}
+ 
+</script>
 <script>
 
 try {
@@ -67,13 +81,43 @@ try {
     console.log("Error in libx.initialize(): " + err.message + "\nDesc: "+ err.description);
 }
 
+function makeConfigUrlFromEdition(editionRevision) {
+    var baseUrl = "http://libx.org/editions/";
+    // new style
+    var newStyle = editionRevision.match(/([0-9a-fA-F]{8})\.?(\d+)?/);
+    if (newStyle) {
+        var editionId = newStyle[0];
+        baseUrl += editionId.substr(0, 2) + "/" + editionId.substr(2, 2) + "/";
+    }
+    return baseUrl + editionRevision + "/config.xml";
+}
+
+var pageProcessingQueue = new libx.utils.collections.DelayedActivityQueue();
+if ( editionId )
+{
+ var editionConfigLoaded = new libx.utils.collections.EmptyActivity();
+ pageProcessingQueue.scheduleLast(editionConfigLoaded);
+ libx.events.addListener('EditionConfigurationLoaded',{
+   onEditionConfigurationLoaded: function() {
+       console.log("Edition Loaded");
+       editionConfigLoaded.markReady();
+   }
+ });
+ libx.config.EditionConfigurationReader.defaultpkgURL = "http://libx.org/libx2/libapps/libxcore";
+
+ var configUrl = makeConfigUrlFromEdition(editionId);
+ libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
+ libx.initialize.reload();
+ 
+}
+else {
 /* instead of calling libx.loadConfig (which would load a config.xml file,
  * say for vt edition), we fake a partial libx.edition. Just enough to make
  * libapp API work (libx.libapps.getPackages()) for first root package.
  * But this will not use EditionConfigurationReader and will not fire
  * EditionConfigurationLoaded
  */
-libx.edition = {
+ libx.edition = {
     localizationfeeds: {
         package: [{
             description: "LibX 2.0 Core Package",
@@ -86,8 +130,9 @@ libx.edition = {
                   ?>"
         }]
     }
-};
+ };
 
+}
 /* Now, we must make sure we don't proceed until we have the latest version
  * of all bootstrapped files (which includes the .tmpl our display relies on!)
  * in the cache.
@@ -96,7 +141,7 @@ libx.edition = {
 var jsonUrl = libx.utils.getBootstrapURL("updates.json");
 /*libx.log.write("bootstrapurl is " + jsonUrl);*/
 libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
-var pageProcessingQueue = new libx.utils.collections.DelayedActivityQueue();
+
 libx.cache.defaultHashScheduler.updatesFinished = function () {
     // now we know that cache contains up-to-date versions of all templates
     pageProcessingQueue.markReady(); 

@@ -46,19 +46,24 @@ libx.config.EditionConfigurationReader = libx.core.Class.create (
                 var doc = new libx.config.XMLConfigWrapper(xml);
 
                 var edition = {};
-           		edition.openurl = editionConfigReader.loadResolvers ( doc );
-                edition.catalogs = editionConfigReader.loadCatalogs ( doc, edition );
-                edition.proxy = editionConfigReader.loadProxies ( doc );
-                edition.options = editionConfigReader.loadOptions ( doc );
-                edition.links = editionConfigReader.loadLinks ( doc );
-                edition.searchoptions = editionConfigReader.loadSearchOptions ( doc );
+                if( libx.cs === undefined || libx.cs.editionOnly === undefined ){
+           		   edition.openurl = editionConfigReader.loadResolvers ( doc );
+                   edition.catalogs = editionConfigReader.loadCatalogs ( doc, edition );
+                   edition.proxy = editionConfigReader.loadProxies ( doc );
+                   edition.options = editionConfigReader.loadOptions ( doc );
+                   edition.links = editionConfigReader.loadLinks ( doc );
+                   edition.searchoptions = editionConfigReader.loadSearchOptions ( doc );
+                }
                 edition.localizationfeeds = editionConfigReader.loadLocalizationFeeds ( doc );
                 edition.name = { };
                 doc.copyAttributes(doc.getNode("/edition/name"), edition.name);
                 doc.copyAttributes(doc.getNode("/edition"), edition);
-                editionConfigReader.loadContextMenuPrefs("Google Scholar", "magicsearch",
-                edition.options.magicsearchincontextmenu ? "magicsearch" : "");
 
+                if( libx.cs === undefined || libx.cs.editionOnly === undefined )
+                { 
+                   editionConfigReader.loadContextMenuPrefs("Google Scholar", "magicsearch",
+                      edition.options.magicsearchincontextmenu ? "magicsearch" : "");
+                }
                 invofcc.onload ( edition );
             },
 
