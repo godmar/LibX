@@ -11,6 +11,17 @@ function makeConfigUrlFromEdition(editionRevision) {
     }
     return baseUrl + editionRevision + "/config.xml";
 }
+
+function extractRevision () {
+  var reg = /\d+/
+  var ver = libx.edition.version;
+  if (reg.test(ver)) {
+     ver = ver.split(".");
+     return ver[ver.length -1];
+  }else { 
+    return ver;
+  }  
+}
     
 $(function() {
     /* Expandable class that toggles its right sibling. */
@@ -604,7 +615,7 @@ return {
             $('#edition-name-header').text(libx.edition.name.edition);
             $('#about-name').text(libx.edition.name.long);
             $('#about-libx-version').text(libx.locale.defaultStringBundle.getProperty('about_libxversion', libx.version));
-            $('#about-edition-version').text(libx.locale.defaultStringBundle.getProperty('about_editionversion', libx.edition.version));
+            $('#about-edition-version').text(libx.locale.defaultStringBundle.getProperty('about_editionversion', extractRevision()));
             $('#about-desc').text(libx.edition.name.description);
             $('#about-adaptedby').text(libx.edition.name.adaptedby);
 
