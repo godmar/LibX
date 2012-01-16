@@ -208,7 +208,15 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         }, false);
         ]]>
     </script>
-    
+
+    <commandset id="mainCommandSet">
+        <command id="cmd_toggleLibX" oncommand="document.getElementById('libx-button').click()"/>
+    </commandset>
+    <keyset id="mainKeyset">
+        <key keycode="VK_F9" command="cmd_toggleLibX"/>
+        <key keycode="VK_F6" modifiers="control" command="cmd_toggleLibX"/>
+    </keyset>   
+ 
 	<menupopup id="contentAreaContextMenu">
 		<menuseparator id="libx-context-menu-separator" />
 		<!-- create a nested menu like so -->
