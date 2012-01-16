@@ -1,16 +1,8 @@
 <?
-include ('readconfigxml.php');
-/*
-$libx2edition = $editiondir . "/" . $editionid . ".islibx2";
-if (! file_exists( $libx2edition ) )
-{
-   die(" This edition ( " . $editionid . " ) is not been upgraded to Libx 2.0 . ");
-}
-*/
+include ('readconfigxml2.php');
 
 $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package"]');
 
-$libx2base = "/libx2/libx2-git/";
 ?>
 
 <html>
@@ -45,17 +37,11 @@ $libx2base = "/libx2/libx2-git/";
                 $("#demo-iframe").fadeIn(2000);
                 $(".demo-iframe-close").fadeIn(2000);
           });
-                      /*click(function () {
-                     $('<div title="LibX 2.0 Live Demo">'
-                      +'<iframe width="640" height="400" src="http://theta.cs.vt.edu/~rupen/libx2/src/base/popup/popup.html#edition=<? echo $edition .
-            ($revision != "" ? "." . $revision : "")?>">'
-                      +'</iframe></div>').dialog({ width: 'auto' });
-           });*/
-          //$("#demo-button2").button();
        });
 
       function toggletopnav(item) {
-        $("#demo-iframe").fadeOut();
+        $("#demo-iframe").hide();
+        $(".demo-iframe-close").hide();
         $anchorItem = $(item);
         $li_parent = $anchorItem.parent();
         // for each li elem in ul add anchor element
@@ -111,12 +97,10 @@ $libx2base = "/libx2/libx2-git/";
         <span class="demo">
           <a id="demo-button" href="#" class="button">Demo LibX 2.0</a>
         </span>
-
-        <!--<div class="demo-iframe-close" onclick="hideDemoIframe()"/></div>-->
         <div>
            <div class="demo-iframe-close" onclick="hideDemoIframe()"/>Close[X]</div>
            <div id="demo-iframe" class="ui-widget-content ui-corner-all">
-             <iframe frameborder="0" scrolling="no" width="640" height="300" src="<? echo $libx2base ?>src/base/popup/popup.html#edition=<? echo $edition .
+             <iframe frameborder="0" scrolling="no" width="640" height="300" src="http://theta.cs.vt.edu/~rupen/libx2/src/base/popup/popup.html#edition=<? echo $edition .
              ($revision != '' ? '.' . $revision : '')?>"></iframe>
            </div>
         </div>
@@ -126,7 +110,7 @@ $libx2base = "/libx2/libx2-git/";
             <? foreach($subscribedpkgs as $pkg) { ?>
                <h2><? $haspkg = true; ?></h2>
                <li class="pkgs">
-                 <a href="<? echo $libx2base ?>src/libappdisplay/index.php?pkg=<? echo $pkg['url'] ?>" ><? echo $pkg['description'] ?></a>
+                 <a href="http://theta.cs.vt.edu/~rupen/libx2/src/libappdisplay/index.php?pkg=<? echo $pkg['url'] ?>" ><? echo $pkg['description'] ?></a>
                </li>
              <? } ?>
           </ul>
