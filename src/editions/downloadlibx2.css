@@ -1,0 +1,367 @@
+@import url(//fonts.googleapis.com/css?family=Open+Sans:400,600&subset=latin&effect=smoothing);
+
+
+html {
+  height:100%;
+}
+html, body {
+  margin:0;
+  padding:0;
+  background-color: #fff;
+  color:#333;
+  font-family: 'Open Sans', arial, sans-serif;
+  font-size: 13px;
+}
+a, a:visited {
+  color: #1a489d;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+img {
+  border: 0;
+}
+img.logo {
+  padding-top: 10px;
+  float: left;
+}
+strong {
+  font-weight:600;
+}
+.c-doc {
+  margin: 24px auto;
+  padding: 0 15px;
+  width: 870px;
+}
+h1 {
+  font-weight: 600;
+  font-size:22px;
+  line-height:30px;
+  letter-spacing:-.02em;
+  margin: 0 0 10px 0;
+  padding: 0;
+}
+h2 {
+  font-weight:600;
+  font-size: 18px;
+  line-height:24px;
+  padding: 0;
+  margin: 0 0 10px 0;
+}
+h3 {
+  padding:0;
+  margin: 0;
+  font-weight:600;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+}
+strong {
+  font-weight:600;
+}
+body ol, body ul {
+  padding-left:3em;
+}
+body ol li, body ul li {
+  line-height:1.4em;
+}
+#c-doc {
+  margin: 24px auto;
+  padding: 0 15px;
+  width: 870px;
+}
+#c-header {
+  background-color: #fff;
+  height:70px;
+}
+/*
+#c-header {
+  float:left;
+  min-width:140px;
+ *width:140px;
+}
+*/
+#c-header #lang-select {
+  font-family:sans-serif;
+  font-size:11px;
+  float:right;
+  margin-top:9px;
+}
+#c-nav {
+  float:left;
+  list-style:none;
+  margin:0;
+  padding:0;
+  color:#333;
+  font-weight:600;
+}
+#c-nav li {
+  float:left;
+  display:inline;
+  margin-left:26px;
+  padding:0;
+  line-height:36px;
+}
+#c-nav li a {
+  font-weight:normal;
+}
+#c-nav .c-nav-button {
+  margin-top:2px;
+  line-height:30px;
+  background:url(../images/c-button-basic-1.gif) no-repeat;
+}
+#c-nav .c-nav-button span {
+  display:block;
+  background:url(../images/c-button-basic-1.gif) no-repeat right -400px;
+  height:1%;
+  float:left;
+}
+#c-nav .c-nav-button span span {
+  background:url(../images/c-button-basic-1.gif) no-repeat left bottom;
+}
+#c-nav .c-nav-button span span a {
+  display:block;
+  float:left;
+  text-align:center;
+  color:#fff !important;
+  background:url(../images/c-button-basic-2.gif) no-repeat right bottom;
+  padding:0 11px 4px 11px;
+  text-decoration:none;
+  font-weight:600;
+  text-shadow:0 -1px 0 rgba(0,0,0,.15);
+}
+#c-nav .c-nav-button:hover span span a {
+  -moz-box-shadow:inset 0 4px 7px rgba(255,255,255,.2);
+  -webkit-box-shadow:inset 0 4px 7px rgba(255,255,255,0.25);
+  -o-box-shadow:inset 0 4px 7px rgba(255,255,255,0.25);
+  box-shadow:inset 0 4px 7px rgba(255,255,255,0.25);
+}
+#c-doc .c-sub-nav {
+  width:140px;
+  float:left;
+  display:inline;
+  list-style:none;
+  font-weight:600;
+  padding:0;
+  margin:0;
+}
+#c-doc .c-sub-nav li {
+  padding:0;
+  float:left;
+  width:140px;
+  display:inline;
+  margin:0 0 .5em;
+}
+.c-sub-nav ul {
+list-style:none;
+  padding:0;
+  margin:.5em 0 0 1em;
+}
+.c-sub-nav a {
+  font-weight:normal;
+}
+.c-doc-150 #c-main {
+  margin-left:167px;
+}
+#download-buttons {
+  list-style: none;
+}
+#download-buttons li {
+  float: none;
+  border-bottom: 1px solid #E6E6E6;
+  padding: 5px 0;
+  margin: 0;
+  line-height: 2em;
+}
+
+#demo-iframe {
+  display: none;
+  width: 650px;
+  padding: 2px;
+}
+
+.demo-iframe-close {
+  display: none;
+  margin-top: 35px;
+  color:red;
+  margin-bottom: 10px;
+  width: 30px;
+  height: 20px;
+}
+
+div .demo-iframe-close:hover {
+  cursor: pointer;
+  text-decoration:underline;
+}
+.displaypackages {
+  padding-top: 50px;
+}
+
+#c-footer {
+  clear:both;
+  float:left;
+  display:inline;
+  width:100%;
+  border-top:1px solid #eee;
+  font-size:12px;
+  margin-top:3em;
+  padding:1em 0;
+  color:#777;
+}
+#c-footer p {
+  padding:0 0 0.4em;
+}
+#c-footer h3 {
+  font-size:12px;
+  line-height:normal;
+  display:inline;
+}
+.c-copyright {
+  width:33%;
+}
+
+#intro {
+  margin-bottom:.5em;
+  width:530px;
+}
+#intro h1 {
+  margin-bottom:.1em;
+}
+#intro p {
+  font-size:1em;
+  color:#666;
+}
+#userprivacy {
+  margin-bottom:.5em;
+  width:530px;
+}
+#userprivacy p {
+  font-size:1.2em;
+  color:#666;
+}
+#userprivacy h2 {
+  margin-bottom:0.05em;
+}
+.privacy {
+  display:none;
+}
+#intro span {
+  font-size:1.2em;
+  color:#666;
+  /*width: 530px;*/
+}
+.features {
+  display:none;
+}
+#libxfeatures {
+  width:530px;
+}
+#libxfeatures .shift {
+  margin-left:-3px;
+}
+#libxfeatures .libxfeatures-list {
+  list-style: none;
+  margin: 1em 0;
+  padding: 0;
+}
+#libxfeatures li {
+  margin-bottom: 2em;
+  clear: left;
+  float: left;
+  width: 100%;
+}
+#libxfeatures span.feat-img-set{
+  float: left;
+  margin-right: 5px;
+}
+#libxfeatures span.feat-img-set img.f1-right-click-img {
+  float: left;
+  border: 1px;
+  /*width: 300px;*/ 
+}
+#libxfeatures span.feat-img-set img.f2-oca-img {
+  float: left;
+  border: 1px;
+  width: 250px;
+  padding-right: 60px; 
+}
+#libxfeatures span.feat-img-set img.f1-icon {
+  float: left;
+  border: 0;
+  position: relative;
+  left: -24.5em;
+  top: 147px;
+  height: 16px;
+}
+#libxfeatures span.feat-img-set img.f3-ft-img {
+  float: left;
+  border: 1px;
+  width: 250px;
+  padding-right: 60px; 
+}
+#libxfeatures span.feat-img-set img.f4-amazon-cue-img {
+  float: left;
+  border: 1px;
+  padding-right: 28px;
+  padding-top: 2px; 
+}
+#libxfeatures span.feat-img-set img.f4-icon {
+  float: left;
+  border: 0;
+  position: relative;
+  left: -11.5em;
+  top: 25px;
+  height: 16px;
+}
+#libxfeatures span.feat-img-set img.f5-isbn-img {
+  float: left;
+  border: 1px;
+  padding-right: 19.5px;   
+}
+#libxfeatures div {
+  margin-left: 135px;
+}
+#libxfeatures h2  {
+  line-height: 1em;
+}
+#libxfeatures p.features-intro {
+  margin-bottom: 0;
+  font-size: 14px;
+  line-height: 1.3em;
+}
+#main-content {
+  float:right;
+  width:295px;
+  margin:.6em 0 4em;
+}
+#main-content h1 {
+  font-weight:normal;
+  font-size:26px;
+  margin-bottom:1em;
+}
+#main-content h2 {
+  font-weight:normal;
+  color:#777;
+  margin:-1.2em 0 2em;
+}
+#subcontent {
+  clear:both;
+  float:left;
+  margin-top:4em;
+  width:100%;
+}
+.button {
+    font: medium/1.5 Arial, Helvetica, sans-serif;
+    display: inline-block;
+    line-height: 1;
+    padding: 7px 10px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #fff;
+    background-color: #39c;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+}
+
