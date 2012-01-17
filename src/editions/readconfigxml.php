@@ -5,6 +5,7 @@
 
 $edition = @$_GET['edition'];
 $libxbase = "/libx/src/base";
+$libx2base = "/libx2/libx2-git";
 
 /* on libx.org only */
 $libxiedir = "/home/www/libx.org/libx/src/editions/LibXIE";
