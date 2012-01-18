@@ -124,7 +124,7 @@ function loadLibX() {
         var cookieSvc = Components.classes["@mozilla.org/cookieService;1"]
                           .getService(Components.interfaces.nsICookieService);
         var cookie = cookieSvc.getCookieString(uri, null);
-        var match = cookie && cookie.match(/^libxedition=(.*)/, '');
+        var match = cookie && cookie.match(/^libxedition=([^;]*)/, '');
         var edition = match && match[1];
         if (edition) {
             Components.classes["@mozilla.org/cookiemanager;1"]
