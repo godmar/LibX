@@ -9,11 +9,16 @@ libx.ffwindow = {
      */
     initialize : function () {
 
-        // make sure libx button is visible
-        var navbar = document.getElementById("nav-bar");
-        var newset = navbar.currentSet + ",libx-button";
-        navbar.currentSet = newset;
-        navbar.setAttribute("currentset", newset);
+        // If loading libx for the first time, add libx button to toolbar.
+        // Using persist, button will remain there (unless user moves it).
+        if (libx.utils.browserprefs.getBoolPref("libx.firstrun", true)) {
+            var navbar = document.getElementById("nav-bar");
+            var newset = navbar.currentSet + ",libx-button";
+            navbar.currentSet = newset;
+            navbar.setAttribute("currentset", newset);
+            document.persist(navbar.id, "currentset");
+            libx.utils.browserprefs.setBoolPref("libx.firstrun", false);
+        }
 
         libx.ui.initialize();
     
