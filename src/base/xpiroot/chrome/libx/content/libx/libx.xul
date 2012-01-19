@@ -217,13 +217,12 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         <key keycode="VK_F6" modifiers="control" command="cmd_toggleLibX"/>
     </keyset>   
  
-	<menupopup id="contentAreaContextMenu">
-		<menuseparator id="libx-context-menu-separator" />
-		<!-- create a nested menu like so -->
-        <menu hidden="true" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as...">
-		</menu>
-		<menuitem hidden="true" id="libx-endholder"/>
-	</menupopup>
+    <menupopup id="contentAreaContextMenu">
+        <menuseparator id="libx-context-menu-separator" />
+        <!-- create a nested menu like so -->
+        <menu hidden="true" class="menu-iconic" id="toolbarFieldsMenu" label="Add Selection to Search as..."/>
+        <menuitem hidden="true" id="libx-endholder"/>
+    </menupopup>
     
     <!-- used in all OSs except Windows -->
     <popupset>
@@ -234,16 +233,16 @@ Author: Annette Bailey <annette.bailey@gmail.com>
 
     <!-- button details -->
     <toolbarpalette id="BrowserToolbarPalette">
-    <toolbarbutton id="libx-button"
-      ondragenter="event.stopPropagation(); event.preventDefault();"
-      ondragover="event.stopPropagation(); event.preventDefault();"
-      ondrop="event.stopPropagation(); event.preventDefault(); libx.ui.magicSearch(event.dataTransfer.getData('text/plain'));"
-      label="LibX"
-      tooltiptext="LibX"
-      image="chrome://libx/skin/$libxicon$"
-      class="toolbarbutton-1 chromeclass-toolbar-additional"
-      />
-  </toolbarpalette>
+        <toolbarbutton id="libx-button"
+                       ondragenter="event.stopPropagation(); event.preventDefault();"
+                       ondragover="event.stopPropagation(); event.preventDefault();"
+                       ondrop="event.stopPropagation(); event.preventDefault(); libx.ui.magicSearch(event.dataTransfer.getData('text/plain'));"
+                       label="LibX"
+                       tooltiptext="LibX"
+                       image="chrome://libx/skin/$libxicon$"
+                       class="toolbarbutton-1 chromeclass-toolbar-additional"
+        />
+    </toolbarpalette>
 
 </overlay>
 

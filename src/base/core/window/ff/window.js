@@ -5,11 +5,11 @@ libx.ffwindow = (function () {
     
 return { 
 
-	/* Initialize the browser-specific GUI elements, if needed.
+    /* Initialize the browser-specific GUI elements, if needed.
      * In Firefox, this code is called once per new window. 
      * It is called after libx.xul has been loaded.
-	 */
-	initialize : function () {	
+     */
+    initialize : function () {
 
         libx.ui.initialize();
     
@@ -205,7 +205,7 @@ return {
         var container = gBrowser.tabContainer;
         container.addEventListener("TabClose", removeListeners, false);
         
-	}
+    }
 };
 
 })();
