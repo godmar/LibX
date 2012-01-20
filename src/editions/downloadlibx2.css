@@ -180,6 +180,10 @@ list-style:none;
   padding: 2px;
 }
 
+.popup-iframe {
+  background-color: transparent;
+}
+
 .demo-iframe-close {
   display: none;
   margin-top: 35px;
