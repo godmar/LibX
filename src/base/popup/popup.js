@@ -615,7 +615,7 @@ return {
             $('#edition-name-header').text(libx.edition.name.edition);
             $('#about-name').text(libx.edition.name.long);
             $('#about-libx-version').text(libx.locale.defaultStringBundle.getProperty('about_libxversion', libx.version));
-            $('#about-edition-version').text(libx.locale.defaultStringBundle.getProperty('about_editionversion', extractRevision()));
+            $('#about-edition-revision').text(libx.locale.defaultStringBundle.getProperty('about_editionrevision', extractRevision()));
             $('#about-desc').text(libx.edition.name.description);
             $('#about-adaptedby').text(libx.edition.name.adaptedby);
 
