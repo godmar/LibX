@@ -16,6 +16,11 @@
     "about_writtenby":      { "message": "LibX was written by:" },
     "about_contrib":        { "message": "Contributors:" },
     "about_translator":     { "message": "This translation by:" },
+    "about_editionrevision": { "message": "Edition revision: $revision$",
+                              "placeholders": {
+                                "revision":    { "content": "$1" }
+                              }
+                            },
     "about_editionversion": { "message": "Edition version: $version$",
                               "placeholders": {
                                 "version":    { "content": "$1" }
