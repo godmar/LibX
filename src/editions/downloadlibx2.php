@@ -83,17 +83,17 @@ $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package
         <div id="main-content">
           <ul id="download-buttons">
             <li>
-              <a id="ff-button" href="<? echo $ff_extpath ?><? echo $edition ?>">Install Extension for Firefox</a>
+              <a id="ff-button" href="<? echo $ff_extpath ?><? echo $edition . ($revision != '' ? '.' . $revision : '') ?>">Install Extension for Firefox</a>
             </li>
             <li>
-              <a id="gc-button" href="<? echo $gc_extpath ?><? echo $edition ?>">Install Extension for Google Chrome</a>
+              <a id="gc-button" href="<? echo $gc_extpath ?><? echo $edition . ($revision != '' ? '.' . $revision : '') ?>">Install Extension for Google Chrome</a>
             </li>
           </ul>
         </div>
       </div>
       <div id="intro">
         <h1 class="title">LibX <? echo $edition_name ?></h1>
-        <span>Revision <? echo $version ?></span></br></br>
+        <span>Revision <? echo ($revision != '' ? $revision : 'Live') ?></span></br></br>
         <span class="demo">
           <a id="demo-button" href="#" class="button">Demo LibX 2.0</a>
         </span>
