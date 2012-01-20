@@ -65,6 +65,10 @@ $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package
          $(".demo-iframe-close").fadeOut();
          $("#demo-iframe").fadeOut();
       }
+
+      function demoIframeLoaded() {
+         document.getElementById("popup-iframe").contentWindow.document.body.setAttribute("Style","display:block;")
+      }
     </script>
 
   </head>
@@ -100,7 +104,7 @@ $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package
         <div>
            <div class="demo-iframe-close" onclick="hideDemoIframe()"/>Close[X]</div>
            <div id="demo-iframe" class="ui-widget-content ui-corner-all">
-             <iframe frameborder="0" ALLOWTRANSPARENCY="true" class="popup-iframe" scrolling="no" width="640" height="300" src="<? echo $libx2base ?>/src/base/popup/popup.html#edition=<? echo $edition .
+             <iframe id="popup-iframe" onload="demoIframeLoaded()" frameborder="0" scrolling="no" width="640" height="300" src="<? echo $libx2base ?>/src/base/popup/popup.html#edition=<? echo $edition .
              ($revision != '' ? '.' . $revision : '')?>"></iframe>
            </div>
         </div>
