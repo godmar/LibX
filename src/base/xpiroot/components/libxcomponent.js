@@ -142,7 +142,7 @@ function loadLibX() {
 
     // listen for libx uninstallation
     Cu.import("resource://gre/modules/AddonManager.jsm");  
-    var libxAddonId = "{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"
+    var libxAddonId = "{d75de36c-af0d-4dc2-b63a-0d482d4b9815}";
     var beingUninstalled = false;
     AddonManager.addAddonListener({
       onUninstalling: function (addon) {
@@ -156,7 +156,7 @@ function loadLibX() {
     });
 
     // if libx uninstalled, remove all libx prefs
-    Cu.import("resource://gre/modules/Services.jsm")
+    Cu.import("resource://gre/modules/Services.jsm");
     Services.obs.addObserver({
       observe: function (subject, topic, data) {
         if (beingUninstalled && topic == "profile-before-change")
