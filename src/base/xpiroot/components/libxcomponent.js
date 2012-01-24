@@ -12,6 +12,7 @@
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
+const Cu = Components.utils;
 
 function loadLibX() {
     
@@ -138,7 +139,30 @@ function loadLibX() {
     } catch (er) {
         log("Error in libx.loadConfig(): " + er);
     }
-    
+
+    // listen for libx uninstallation
+    Cu.import("resource://gre/modules/AddonManager.jsm");  
+    var libxAddonId = "{d75de36c-af0d-4dc2-b63a-0d482d4b9815}"
+    var beingUninstalled = false;
+    AddonManager.addAddonListener({
+      onUninstalling: function (addon) {
+        if (addon.id == libxAddonId)
+          beingUninstalled = true;
+      },
+      onOperationCancelled: function (addon) {
+        if (addon.id == libxAddonId)
+          beingUninstalled = (addon.pendingOperations & AddonManager.PENDING_UNINSTALL) != 0;  
+      }
+    });
+
+    // if libx uninstalled, remove all libx prefs
+    Cu.import("resource://gre/modules/Services.jsm")
+    Services.obs.addObserver({
+      observe: function (subject, topic, data) {
+        if (beingUninstalled && topic == "profile-before-change")
+          Services.prefs.getBranch("libx.").deleteBranch("");
+      }
+    }, "profile-before-change", false);
 }
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
