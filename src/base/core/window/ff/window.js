@@ -11,13 +11,13 @@ libx.ffwindow = {
 
         // If loading libx for the first time, add libx button to toolbar.
         // Using persist, button will remain there (unless user moves it).
-        if (libx.utils.browserprefs.getBoolPref("libx.firstrun", true)) {
+        if (!libx.utils.browserprefs.getStringPref("libx.version", "")) {
             var navbar = document.getElementById("nav-bar");
             var newset = navbar.currentSet + ",libx-button";
             navbar.currentSet = newset;
             navbar.setAttribute("currentset", newset);
             document.persist(navbar.id, "currentset");
-            libx.utils.browserprefs.setBoolPref("libx.firstrun", false);
+            libx.utils.browserprefs.setStringPref("libx.version", "$libxversion$");
         }
 
         libx.ui.initialize();
