@@ -119,7 +119,9 @@ $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package
              <? } ?>
           </ul>
            <? if(! $haspkg ) { ?>
-               <h3>None</h3>
+               <li class="pkgs">
+                 <a href="<? echo $libx2base ?>/src/libappdisplay/index.php">LibX 2.0 Core Package></a>
+               </li>
            <? } ?>
         </div>
       </div>
