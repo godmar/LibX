@@ -1,5 +1,6 @@
 {
-    "extension_name":       { "message" : "LibX for Google Chrome" },
+    "translator" :          { "message" : "Michele Pola (michele.pola@unimore.it)" },
+    "extension_name" :      { "message" : "LibX for Google Chrome" },
     "tab_search" :          { "message" : "Ricerca" },
     "tab_links" :           { "message" : "Links" },
     "tab_about" :           { "message" : "Informazioni" },
@@ -8,9 +9,9 @@
     "label_search" :        { "message" : "Ricerca" },
     "label_for" :           { "message" : "per campo..." },
     "label_select" :        { "message" : "Seleziona un'edizione di LibX:" },
-    "label_error" :         { "message" : "Non è stato possibile caricare una configurazione da" },
+    "label_error" :         { "message" : "Non Ã¨ stato possibile caricare una configurazione da" },
     "about_adapted" :       { "message" : "Personalizzazione a cura di:" },
-    "about_writtenby" :     { "message" : "LibX è stato creato da:" },
+    "about_writtenby" :     { "message" : "LibX Ã¨ stato creato da:" },
     "about_contrib" :       { "message" : "Contributi di:" },
     "view_simple" :         { "message" : "Visualizzazione semplice" },
     "view_full" :           { "message" : "Visualizzazione intera" },
@@ -20,7 +21,7 @@
     "load_link" :           { "message" : "Carica questa edizione" },
     "load_cancel" :         { "message" : "Cancella" },
     "button_search" :       { "message" : "Ricerca" },
-    "update_message1" :     { "message" : "La configurazione corrente di LibX è \"$name$\", revisione $revision$ (id: $edition$).",
+    "update_message1" :     { "message" : "La configurazione corrente di LibX Ã¨ \"$name$\", revisione $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
                                 "edition":    { "content": "$2" },
@@ -41,7 +42,7 @@
                                 "name":       { "content": "$3" }
                               }
                             },
-    "proxy_message1" :      { "message" : "Questa pagina può essere ricaricata utilizzando \"$proxyname$\" proxy (type: $proxytype$).",
+    "proxy_message1" :      { "message" : "Questa pagina puÃ² essere ricaricata utilizzando \"$proxyname$\" proxy (type: $proxytype$).",
                               "placeholders": {
                                 "proxyname":  { "content": "$1" },
                                 "proxytype":  { "content": "$2" }
