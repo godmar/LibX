@@ -1,11 +1,13 @@
 {
-    "translator" :          { "message" : "Michele Pola (michele.pola@unimore.it)" },
-    "extension_name" :      { "message" : "LibX for Google Chrome" },
+    "translator":           { "message": "Michele Pola (michele.pola@unimore.it)" },
+    "extension_name":       { "message" : "LibX per Google Chrome" },
     "tab_search" :          { "message" : "Ricerca" },
     "tab_links" :           { "message" : "Links" },
+    "tab_proxy":            { "message": "Accessi via Proxy" },
     "tab_about" :           { "message" : "Informazioni" },
     "tab_change" :          { "message" : "Cambia Edizione" },
-    "tab_pageactions" :     { "message" : "Azioni della Pagina" },
+    "tab_prefs":            { "message": "Impostazioni" },
+    "tab_pageactions" :     { "message" : "Curatore" },
     "label_search" :        { "message" : "Ricerca" },
     "label_for" :           { "message" : "per campo..." },
     "label_select" :        { "message" : "Seleziona un'edizione di LibX:" },
@@ -13,14 +15,32 @@
     "about_adapted" :       { "message" : "Personalizzazione a cura di:" },
     "about_writtenby" :     { "message" : "LibX è stato creato da:" },
     "about_contrib" :       { "message" : "Contributi di:" },
-    "view_simple" :         { "message" : "Visualizzazione semplice" },
-    "view_full" :           { "message" : "Visualizzazione intera" },
+    "about_translator":     { "message": "Traduzione di: " },
+    "about_editionrevision": { "message": "Revisione dell'edizione: $revision$",
+                              "placeholders": {
+                                "revision":    { "content": "$1" }
+                              }
+                            },
+    "about_editionversion": { "message": "Versione dell'edizione: $version$",
+                              "placeholders": {
+                                "version":    { "content": "$1" }
+                              }
+                            },
+    "about_libxversion":    { "message": "LibX versione: $version$",
+                              "placeholders": {
+                                "version":    { "content": "$1" }
+                              }
+                            },
+    "view_simple" :         { "message" : "Visualizzazione compatta" },
+    "view_full" :           { "message" : "Visualizzazione estesa" },
     "load_edition" :        { "message" : "Edizione:" },
     "load_maintainers" :    { "message" : "Aggiornamenti di:" },
     "load_revision" :       { "message" : "Revisione:" },
     "load_link" :           { "message" : "Carica questa edizione" },
     "load_cancel" :         { "message" : "Cancella" },
     "button_search" :       { "message" : "Ricerca" },
+    "button_preview":       { "message": "Anteprima" },
+    "button_clear":         { "message": "Svuota campi" },
     "update_message1" :     { "message" : "La configurazione corrente di LibX è \"$name$\", revisione $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
@@ -42,13 +62,63 @@
                                 "name":       { "content": "$3" }
                               }
                             },
-    "proxy_message1" :      { "message" : "Questa pagina può essere ricaricata utilizzando \"$proxyname$\" proxy (type: $proxytype$).",
+    "proxy_message1":       { "message": "Clicca qui per ricaricare questa pagina usando il proxy/vpn \"$proxyname$\"",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" }
+                              }
+                            },
+    "proxy_message2":       { "message": "Ricarica usando \"$proxyname$\"",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" }
+                              }
+                            },
+    "proxy_message3":       { "message": "$proxyname$ (tipo: $proxytype$)",
                               "placeholders": {
                                 "proxyname":  { "content": "$1" },
                                 "proxytype":  { "content": "$2" }
                               }
                             },
-    "proxy_message2" :      { "message" : "Clicca per ricaricare la pagina attraverso il proxy." },
-    "search_and" :          { "message" : "AND" },
-    "search_more" :         { "message" : "altro..." }
+    "proxy_reload":         { "message": "Ricarica pagina attraverso questo proxy/vpn" },
+    "proxy_follow_label":   { "message": "Segui il link via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+    "proxy_reload_label":   { "message": "Ricarica la pagina via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+  "enabled_contextmenu":  { "message": "Abilita nel menu contestuale (tasto destro)" },
+    "enabled_option_contextmenu":  { "message": "Abilita $option$ nel menu contestuale",
+                                     "placeholders": {
+                                       "option":   { "content": "$1" }
+                                     }
+                                   },
+    "label_search_catalog":
+                            { "message": "Cerca in $catalog$ per questo elemento",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" }
+                              }
+                            },
+    "label_search_catalog_str":
+                            { "message": "Cerca in $catalog$ per $searchstr$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "searchstr":    { "content": "$2" }
+                              }
+                            },
+    "label_search_catalog_type_str":
+                            { "message": "Cerca in $catalog$ per $type$ $searchstr$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "type":         { "content": "$2" },
+                                "searchstr":    { "content": "$3" }
+                              }
+                            },
+    "label_search_scholar": { "message": "Cerca in Google Scholar per $searchstr$",
+                              "placeholders": {
+                                "searchstr":    { "content": "$1" }
+                              }
+                            }
 }
