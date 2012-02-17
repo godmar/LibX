@@ -21,11 +21,6 @@
                                 "revision":    { "content": "$1" }
                               }
                             },
-    "about_editionversion": { "message": "Edition version: $version$",
-                              "placeholders": {
-                                "version":    { "content": "$1" }
-                              }
-                            },
     "about_libxversion":    { "message": "LibX version: $version$",
                               "placeholders": {
                                 "version":    { "content": "$1" }
