@@ -34,8 +34,13 @@ libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog,
     
     xisbn: { opacid: "primo" },
     
+    isbnindex: "isbn",
+    issnindex: "issn",
+
 	convert: function (stype) {
-        /* XXX: these only apply to Waterloo, probably */
+        /* Taken from Waterloo configuration.  We may need to make more than isbnindex
+         * customizable.  
+         */
 	    switch (stype) {
             case 'Y':  return "any";
             case 't':  return "title";
@@ -43,8 +48,8 @@ libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog,
             case 'd':  return "sub";
             case 'c':  return "lsr01";
             case 'ut': return "usertag";
-            case 'i':  return "isbn";
-            case 'is': return "issn";
+            case 'i':  return this.isbnindex;
+            case 'is': return this.issnindex;
             case 'p':  return "lsr03";
 	    }
 	},
