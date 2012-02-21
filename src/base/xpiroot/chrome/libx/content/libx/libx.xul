@@ -80,10 +80,9 @@ Author: Annette Bailey <annette.bailey@gmail.com>
         <menuitem hidden="true" id="libx-endholder"/>
     </menupopup>
     
-    <!-- used in all OSs except Windows -->
     <popupset>
         <panel position="after_end" id="libx-panel">
-            <iframe style="overflow: hidden;" id="libx-iframe"></iframe>
+            <iframe id="libx-iframe"></iframe>
         </panel>
     </popupset>
 
@@ -94,11 +93,11 @@ Author: Annette Bailey <annette.bailey@gmail.com>
                        ondragover="event.stopPropagation(); event.preventDefault();"
                        ondrop="event.stopPropagation(); event.preventDefault(); libx.ui.magicSearch(event.dataTransfer.getData('text/plain'));"
                        oncommand="libx.ffwindow.libxButtonCommand(event)"
-                       onmousedown="libx.ffwindow.libxButtonMouseDown(event)"
                        label="LibX"
                        tooltiptext="LibX"
                        image="chrome://libx/skin/$libxicon$"
                        class="toolbarbutton-1 chromeclass-toolbar-additional"
+                       popup="libx-panel"
         />
     </toolbarpalette>
 

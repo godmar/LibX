@@ -99,3 +99,12 @@
 .libx-align-center {
     -moz-box-align: center !important;
 }
+
+#libx-panel {
+    border: none;
+}
+
+#libx-iframe {
+    overflow: hidden;
+    border: 1px solid #666;
+}

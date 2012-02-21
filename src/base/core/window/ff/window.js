@@ -218,107 +218,8 @@ libx.ffwindow = {
         var container = gBrowser.tabContainer;
         container.addEventListener("TabClose", removeListeners, false);
         
-        // use an alternative to panel for Windows due to Firefox bug #385609,
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=385609
-        var strOS = navigator.appVersion;
-        if (strOS.indexOf('Win') != -1) {
-            libx.ffwindow.initPopupForWindowsOS();
-        } else {
-            libx.ffwindow.initPopupForOtherOS();
-        }
-    },
-
-    initPopupForWindowsOS: function () {
-        var popupWindow = { close: libx.core.EmptyFunction };
-
-        libx.ffwindow.libxButtonMouseDown = libx.core.EmptyFunction;
-        libx.ffwindow.libxButtonCommand = function () {
-            popupWindow.close();
-            popupWindow = window.open("chrome://libx/content/popup/popup.xul",
-                "libx-popup",
-                "left=-10000,titlebar=no,chrome=yes,dependent=yes");
-        };
-
-        libx.events.addListener('PopupLoaded', {
-            onPopupLoaded: function() {
-
-                var iframe = popupWindow.document.getElementById('iframe');
-                iframe.contentWindow.focus();
-                
-                // close popup if user clicks outside of it
-                iframe.contentWindow.addEventListener('blur', function() {
-                    popupWindow.close();
-                }, false);
-            
-                // close popup if user presses Esc
-                popupWindow.addEventListener('keydown', function(e) {
-                    if(e.which == 27)
-                        popupWindow.close();
-                }, false);
-            
-                var $ = iframe.contentWindow.$;
-                $('body').css('border', '1px solid #666');
-
-                function adjustPopupPosition(e) {
-                    var width = $('body').outerWidth();
-                    var height = $('body').outerHeight();
-                    iframe.style.width = width + 'px';
-                    iframe.style.height = height +'px';
-                    popupWindow.innerWidth = width;
-                    popupWindow.innerHeight = height;
-                        
-                    // screenX and screenY specify the coordinates of the
-                    // top left corner of the popup
-                    var buttonBox = document.getElementById('libx-button').boxObject;
-                    var screenX = buttonBox.screenX - popupWindow.outerWidth + buttonBox.width;
-                    var screenY = buttonBox.screenY + buttonBox.height;
-
-                    // readjust popup position if it goes off the screen to the left
-                    if (screenX < 0)
-                        screenX = 0;
-                        
-                    // if the popup is too long, shorten it and add scrolling
-                    iframe.style.overflow = "hidden";
-                    if (screenY > screen.height - popupWindow.outerHeight - 50) {
-                        setTimeout(function() {
-                            height = screen.height - screenY - 50;
-                            iframe.style.height = height +'px';
-                            popupWindow.innerHeight = height;
-                            libx.log.write("adjusted height: " + height);
-                            iframe.style.overflow = "visible";
-                        }, 100);
-                    }
-
-                    popupWindow.moveTo(screenX, screenY);
-                }
-                
-                $('body').bind('DOMSubtreeModified', function () {
-                    adjustPopupPosition();
-                    // sometimes doesn't work, adjust again after a delay
-                    // to ensure correct positioning
-                    setTimeout(function() {
-                        adjustPopupPosition();
-                    }, 100);
-                });
-                
-                // this timeout fixes a layout bug where the border for the change edition view
-                // is not set correctly
-                setTimeout(function() {
-                    adjustPopupPosition();
-                }, 0);
-                
-            }
-        });
-    },
-
-    initPopupForOtherOS: function () {
         var iframe = document.getElementById('libx-iframe'); 
 
-        libx.ffwindow.libxButtonMouseDown = function (e) {
-            // one-time event to set the popup attribute on the button
-            e.target.setAttribute('popup', 'libx-panel');
-            libx.ffwindow.libxButtonMouseDown = libx.core.EmptyFunction;
-        };
         libx.ffwindow.libxButtonCommand = function (e) {
             iframe.style.width = "0";
             iframe.style.height = "0";
@@ -329,7 +230,6 @@ libx.ffwindow = {
             onPopupLoaded: function() {
 
                 var $ = iframe.contentWindow.$;
-                $('body').css('border', '1px solid #666');
         
                 function adjustPopupPosition(e) {
 
