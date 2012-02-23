@@ -36,6 +36,7 @@ libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog,
     
     isbnindex: "isbn",
     issnindex: "issn",
+    titlesearchmode: "contains",
 
 	convert: function (stype) {
         /* Taken from Waterloo configuration.  We may need to make more than isbnindex
@@ -62,7 +63,10 @@ libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog,
         url += "&dum=true";
         url += "&vl(freeText0)=" + encodeURIComponent(sterm);
         url += "&" + this.materialvar + "=" + this.defaultmaterial;
-        url += "&vl(1UI0)=" + this.defaultsearchmode;
+        if(stype == 't')
+            url += "&" + this.searchmodevar + "=" + this.titlesearchmode;
+        else
+            url += "&" + this.searchmodevar + "=" + this.defaultsearchmode;
         url += "&" + this.searchvar + "=" + this.convert(stype);
         url += "&scps=" + this.scps;
         return url;
@@ -72,7 +76,10 @@ libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog,
         var url = this.url + this.path + "/action/search.do?frbg=&ct=search&indx=1";
         for(var i = 0; i < fields.length; i++) {
             url += '&' + this['advsearchvar' + (i+1)] + '=' + this.convert(fields[i].searchType);
-            url += '&' + 'vl(1UI' + i + ')=' + this.defaultsearchmode;
+            if(this.convert(fields[i].searchType) == 't')
+                url += '&' + this['advsearchmode' + (i+1)] + '=' + this.titlesearchmode;
+            else
+                url += '&' + this['advsearchmode' + (i+1)] + '=' + this.defaultsearchmode;
             url += '&' + 'vl(freeText' + i + ')=' + encodeURIComponent(fields[i].searchTerms);
         }
         url += '&' + this.langvar + '=' + this.defaultlanguage;
