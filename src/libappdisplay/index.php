@@ -1,7 +1,15 @@
 <html>
 <head>
 
-<? $base = "../../"; ?>
+<? 
+ $base = "../../";
+ $file = "getBase.php";
+ if ( file_exists( $file ) )
+ {
+   include ('getBase.php');
+ } 
+?>
+
 <script src="<? echo $base; ?>/src/base/core/global/shared/arrayfix.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/core.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/libx.js"></script>
