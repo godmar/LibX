@@ -10,7 +10,7 @@ $libx2base = "/libx2/libx2-git";
 /* on libx.org only */
 $libxiedir = "/home/www/libx.org/libx/src/editions/LibXIE";
 $libxiedll = $libxiedir . "/LibXIE.dll";
-
+$editiondir = "";
 $oldeditionformat = false;
 // edition ids must be all alphanumerical.
 if (!preg_match("/^[a-zA-Z0-9\.]+$/", $edition)) die ("Wrong argument.");
