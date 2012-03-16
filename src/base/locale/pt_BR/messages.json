@@ -1,0 +1,119 @@
+{
+    "translator":           { "message": "Denise Ramires" },
+    "extension_name":       { "message": "LibX para Google Chrome" },
+    "tab_search":           { "message": "Pesquisa" },
+    "tab_links":            { "message": "Links" },
+    "tab_about":            { "message": "Sobre" },
+    "tab_proxy":            { "message": "Proxies" },
+    "tab_change":           { "message": "Mudar edição" },
+    "tab_prefs":            { "message": "Preferências" },
+    "tab_pageactions":      { "message": "Mantenedor" },
+    "label_search":         { "message": "Pesquisa" },
+    "label_for":            { "message": "por..." },
+    "label_select":         { "message": "Pesquisar uma edição do LibX" },
+    "label_error":          { "message": "Não foi possível carregar a configuração" },
+    "about_adapted":        { "message": "Adaptado por:" },
+    "about_writtenby":      { "message": "LibX foi desenvolvido por:" },
+    "about_contrib":        { "message": "Contribuidores:" },
+    "about_translator":     { "message": "Esta tradução foi realizada por:" },
+    "about_editionrevision": { "message": "Versão da Edição: $version$",
+                              "placeholders": {
+                                "version":    { "content": "$1" }
+                              }
+                            },
+    "about_libxversion":    { "message": "LibX versão: $version$",
+                              "placeholders": {
+                                "version":    { "content": "$1" }
+                              }
+                            },
+    "view_simple":          { "message": "Visão simples" },
+    "view_full":            { "message": "Visão completa" },
+    "load_edition":         { "message": "Edição:" },
+    "load_maintainers":     { "message": "Mantenedores:" },
+    "load_revision":        { "message": "Revisão:" },
+    "load_link":            { "message": "Carregar esta edição" },
+    "load_cancel":          { "message": "Cancelar" },
+    "button_search":        { "message": "Pesquisa" },
+    "button_preview":       { "message": "Visualizar" },
+    "button_clear":         { "message": "Limpar campos" },
+    "update_message1":      { "message": "A configuração do LibX ativo atualmente é \"$name$\", revisão $revision$ (id: $edition$).",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "update_message2":      { "message": "A página que você está vendo divulga a seguinte configuração do LibX: \"$name$\", revisão $revision$ (id: $edition$).",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "update_message3":      { "message": "Clique aqui para ativar a seguinte configuração do LibX: \"$name$\", revision $revision$ (id: $edition$).",
+                              "placeholders": {
+                                "revision":   { "content": "$1" },
+                                "edition":    { "content": "$2" },
+                                "name":       { "content": "$3" }
+                              }
+                            },
+    "proxy_message1":       { "message": "Clique aqui para recarregar esta página usando o \"$proxyname$\" proxy.",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" }
+                              }
+                            },
+    "proxy_message2":       { "message": "Reload using \"$proxyname$\"",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" }
+                              }
+                            },
+    "proxy_message3":       { "message": "$proxyname$ (type: $proxytype$)",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" },
+                                "proxytype":  { "content": "$2" }
+                              }
+                            },
+    "proxy_reload":         { "message": "Recarregar a página com este proxy" },
+    "proxy_follow_label":   { "message": "Seguir link via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+    "proxy_reload_label":   { "message": "Recarregar página via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+    "enabled_contextmenu":  { "message": "Habilitar no menu de contexto" },
+    "enabled_option_contextmenu":  { "message": "Habilitar $option$ no menu de contexto",
+                                     "placeholders": {
+                                       "option":   { "content": "$1" }
+                                     }
+                                   },
+    "label_search_catalog":
+                            { "message": "Pesquisar $catalog$ por este item",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" }
+                              }
+                            },
+    "label_search_catalog_str":
+                            { "message": "Pesquisar $catalog$ por $searchstr$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "searchstr":    { "content": "$2" }
+                              }
+                            },
+    "label_search_catalog_type_str":
+                            { "message": "Pesquisar $catalog$ por $type$ $searchstr$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "type":         { "content": "$2" },
+                                "searchstr":    { "content": "$3" }
+                              }
+                            },
+    "label_search_scholar": { "message": "Pesquisar no Google Scholar por $searchstr$",
+                              "placeholders": {
+                                "searchstr":    { "content": "$1" }
+                              }
+                            }
+}

@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <html>
 <head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <title>LibX 2.0 Translation Checker</title>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <style>
@@ -55,8 +56,22 @@ if (isset($_GET['locale'])) {
         exit;
     }
     $lRaw = file_get_contents($localedir . $locale . "/messages.json");
+    // handle BOM
+    if ($lRaw[0] == chr(0xef) && $lRaw[1] == chr(0xbb) && $lRaw[2] == chr(0xbf))
+        $lRaw = substr($lRaw, 3);
+
     // echo $lRaw;
     $lMsg = json_decode($lRaw);
+    if (!isset($lMsg)) {
+        echo 'Error decoding JSON: ' . $lRaw;
+        exit;
+    }
+
+    echo '<p>Download current translation for editing: <a href="' . $localedir . $locale . '/messages.json">' . $locale . '/messages.json';
+    echo '</a></p>';
+    echo '<p>Download en_US for reference: <a href="' . $localedir . 'en_US/messages.json">en_US/messages.json';
+    echo '</a></p>';
+
     echo '<table>';
     echo '<tr><th>Label</th><th>en_US</th><th>' . $locale . '</th></tr>';
     foreach ($enUSMsg as $enUSlabel => $enUSobj) {
