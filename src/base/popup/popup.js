@@ -682,6 +682,9 @@ return {
                 });
                 $('#links').append(link);
             });
+
+            var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
+            $('#dev-configxml-href').attr('href', configUrl).text(configUrl);
             
             popup.showPreferredView();
         } catch (e) {
