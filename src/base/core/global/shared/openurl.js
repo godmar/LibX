@@ -383,17 +383,22 @@ libx.openurl.factory["oclcgateway"] = libx.core.Class.create(libx.openurl.factor
     url : "http://worldcatlibraries.org/registry/gateway",
     name : "OCLC Gateway",
     sid : "libx:oclcgateway",
+    /* Try to determine which OpenURL would be used at this IP
+     * address and see if it has a linkIcon
+     */
     initialize: function () {
-        var thisOpenURL = this;
+        var self = this;
         var xhrParams = {
-            url : this.url,
+            url : "http://worldcatlibraries.org/registry/lookup?IP=requestor",
             dataType : "xml",
             type     : "GET",
             bypassCache : true,
             complete : function ( doc ) {
                 try {
-                    var link = doc.getElementsByTagName ( 'linkIcon' )[0].firstChild.nodeValue;
-                    thisOpenURL.image = link;
+                    var icons = doc.getElementsByTagName ( 'linkIcon' );
+                    if (icons.length > 0) {
+                        self.image = icons[0].textContent;
+                    }
                 } catch (e) { /* ignore */ }
             }
         };
@@ -403,19 +408,11 @@ libx.openurl.factory["oclcgateway"] = libx.core.Class.create(libx.openurl.factor
 });
 
 /*
+ * Note - IP ranges are no longer returned
+ *
 <?xml version="1.0" encoding="UTF-8"?>
 <records xmlns="http://worldcatlibraries.org/registry" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://worldcatlibraries.org/registry http://worldcatlibraries.org/registry/resolver/ResolverRecords.xsd"><resolverRegistryEntry xmlns="http://worldcatlibraries.org/registry/resolver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://worldcatlibraries.org/registry/resolver http://worldcatlibraries.org/registry/resolver/Resolver.xsd">
   <institutionName>VIRGINIA TECH</institutionName>
-  <IPAddressRange>128.173.*.*</IPAddressRange>
-  <IPAddressRange>198.82.*.*</IPAddressRange>
-  <IPAddressRange>192.101.20.*</IPAddressRange>
-  <IPAddressRange>208.22.18.*</IPAddressRange>
-  <IPAddressRange>208.27.104.*</IPAddressRange>
-  <IPAddressRange>208.29.54.*</IPAddressRange>
-  <IPAddressRange>208.30.170.*</IPAddressRange>
-  <IPAddressRange>208.22.128-159.*</IPAddressRange>
-  <IPAddressRange>206.105.198.105-149</IPAddressRange>
-  <IPAddressRange>208.17.194.64-217</IPAddressRange>
   <OCLCInstSymbol>VPI</OCLCInstSymbol>
   <InstitutionID>5027</InstitutionID>
   <resolver>
