@@ -1,10 +1,12 @@
-﻿{
-    "translator" :          { "message" : "Pare Francois-Xavier (francois-xavier.pare@umontreal.ca), Geoffroy Lucie (lucie.geoffroy@umontreal.ca)" },
+{
+    "translator" :          { "message" : "Pare Francois-Xavier (francois-xavier.pare@umontreal.ca), Geoffroy Lucie (lucie.geoffroy@umontreal.ca), Raphael Grolimund (raphael.grolimund@epfl.ch)" },
     "extension_name":       { "message" : "LibX pour Google Chrome" },
     "tab_search" :          { "message" : "Recherche" },
     "tab_links" :           { "message" : "Liens" },
     "tab_about" :           { "message" : "À propos" },
+    "tab_proxy":            { "message" : "Proxies" }, 
     "tab_change" :          { "message" : "Changer d'édition" },
+    "tab_prefs":            { "message": "Préférences" }, 
     "tab_pageactions" :     { "message" : "Actions de la page" },
     "label_search" :        { "message" : "Rechercher" },
     "label_for" :           { "message" : "pour..." },
@@ -13,6 +15,17 @@
     "about_adapted" :       { "message" : "Adapté par:" },
     "about_writtenby" :     { "message" : "LibX a été développé par:" },
     "about_contrib" :       { "message" : "Contributeurs:" },
+    "about_translator":     { "message": "Traduction par:" }, 
+    "about_editionrevision": { "message": "Révision de l'édition: $revision$", 
+                              "placeholders": {
+                                "revision":    { "content": "$1" }
+                              }
+                            },
+    "about_libxversion":    { "message": "Version de LibX: $version$", 
+                              "placeholders": {
+                                "version":    { "content": "$1" }
+                              }
+                            },
     "view_simple" :         { "message" : "Affichage compact" },
     "view_full" :           { "message" : "Affichage complet" },
     "load_edition" :        { "message" : "Édition:" },
@@ -21,7 +34,9 @@
     "load_link" :           { "message" : "Charger cette édition" },
     "load_cancel" :         { "message" : "Annuler" },
     "button_search" :       { "message" : "Rechercher" },
-    "update_message1" :     { "message" : "La version présentement active de LibX est \"$name$\", révision $revision$ (id: $edition$).",
+    "button_preview":       { "message": "Aperçu" }, 
+    "button_clear":         { "message": "Réinitialiser" }, 
+    "update_message1" :     { "message" : "La version actuelle de LibX est \"$name$\", révision $revision$ (id: $edition$).",
                               "placeholders": {
                                 "revision":   { "content": "$1" },
                                 "edition":    { "content": "$2" },
@@ -42,13 +57,66 @@
                                 "name":       { "content": "$3" }
                               }
                             },
-    "proxy_message1" :      { "message" : "Cette page peut être rechargée en utilisant le proxy \"$proxyname$\" (type: $proxytype$).",
+    "proxy_message1" :      { "message" : "Rechercher la page en utilisant le proxy \"$proxyname$\" (type: $proxytype$).",
                               "placeholders": {
                                 "proxyname":  { "content": "$1" },
                                 "proxytype":  { "content": "$2" }
                               }
                             },
-    "proxy_message2" :      { "message" : "Cliquer ici pour recharger cette page en utilisant le proxy." },
+    "proxy_message2":       { "message": "Recharger la page en utilisant le proxy \"$proxyname$\"",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" }
+                              }
+                            },
+    "proxy_message3":       { "message": "$proxyname$ (type: $proxytype$)",
+                              "placeholders": {
+                                "proxyname":  { "content": "$1" },
+                                "proxytype":  { "content": "$2" }
+                              }
+                            },
+    "proxy_reload":         { "message": "Recharger la page avec ce proxy" },
+    "proxy_follow_label":   { "message": "Suivre le lien via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+    "proxy_reload_label":   { "message": "Recharger la page via $proxy$",
+                              "placeholders": {
+                                "proxy":      { "content": "$1" }
+                              }
+                            },
+    "enabled_contextmenu":  { "message": "Activer dans le menu contextuel" },
+    "enabled_option_contextmenu":  { "message": "Activer $option$ dans le menu contextuel",
+                                     "placeholders": {
+                                       "option":   { "content": "$1" }
+                                     }
+                                   },
+    "label_search_catalog":
+                            { "message": "Rechercher ce document dans $catalog$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" }
+                              }
+                            },
+    "label_search_catalog_str":
+                            { "message": "Rechercher $searchstr$ dans $catalog$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "searchstr":    { "content": "$2" }
+                              }
+                            },
+    "label_search_catalog_type_str":
+                            { "message": "Rechercher $type$ $searchstr$ dans $catalog$",
+                              "placeholders": {
+                                "catalog":      { "content": "$1" },
+                                "type":         { "content": "$2" },
+                                "searchstr":    { "content": "$3" }
+                              }
+                            },
+    "label_search_scholar": { "message": "Rechercher $searchstr$ dans Google Scholar",
+                              "placeholders": {
+                                "searchstr":    { "content": "$1" }
+                              }
+                            },
     "search_and" :          { "message" : "ET" },
     "search_more" :         { "message" : "plus..." }
 }
