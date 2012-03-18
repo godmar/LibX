@@ -105,7 +105,7 @@
                               }
                             },
     "label_search_catalog_type_str":
-                            { "message": "Rechercher $type$ $searchstr$ dans $catalog$",
+                            { "message": "Rechercher $searchstr$ comme $type$ dans $catalog$",
                               "placeholders": {
                                 "catalog":      { "content": "$1" },
                                 "type":         { "content": "$2" },
