@@ -10,7 +10,7 @@ libx.utils.getBootstrapURL = function (path) {
 
 libx.utils.getExtensionURL = function (path) {
     return libx.cs.baseurl + "src/base/" + path;
-}
+};
 
 /**
  * Get the browser type. [client-side implementation]
@@ -38,5 +38,5 @@ libx.utils.browserType = function () {
    }else {
       return "unknown";
    }
-}
+};
 
