@@ -44,6 +44,7 @@ if ($tcout > 1 && preg_match("/\d+/", $revision)) {
 $gc_extpath = "/releases/gc/libx2-latest.crx?edition=";
 $ff_extpath = "/releases/ff/libx2-latest.xpi?edition=";
 
+$edition_with_revision = $edition .  ($revision != "" ? "." . $revision : "");
 
 $edition_config_xml = $editionpath . '/config.xml';
 $edition_xpi = $editionpath . '/libx-' . $edition . '.xpi';
