@@ -36,6 +36,8 @@ libx.ui.windows = {
 
 };
 
+(function () {
+
 function getVisibilityPattern(visible) {
     if (visible)
         return ["http://*/*", "https://*/*"];
@@ -78,3 +80,6 @@ libx.ui.ContextMenu = libx.core.Class.create( libx.ui.ContextMenu,
     }            
 
 });
+
+})();
+
