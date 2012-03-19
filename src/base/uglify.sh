@@ -85,7 +85,6 @@ core/global/shared/ui/contextmenu.js
 core/global/cs/ui.js
 bootstrapped/global/shared/libapp/atomparser.js
 getlibx-step3.js
-./getlibx-step3.js
 "
 
 if [ "x$1" = "x-v" ]; then
