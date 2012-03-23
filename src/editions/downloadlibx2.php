@@ -2,6 +2,7 @@
 include ('readconfigxml.php');
 
 $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package"]');
+$subscribedpkgs = $subscribedpkgs == null ? array() : $subscribedpkgs;
 
 ?>
 
@@ -118,7 +119,7 @@ $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package
                </li>
              <? } ?>
           </ul>
-           <? if(! $haspkg ) { ?>
+           <? if(! @$haspkg ) { ?>
                <li class="pkgs">
                  <a href="<? echo $libx2base ?>/src/libappdisplay/index.php">LibX 2.0 Core Package</a>
                </li>

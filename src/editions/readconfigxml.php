@@ -18,8 +18,8 @@ if ($edition{0} >= 'a' && $edition{0} <= 'z') {
     $editionpath = $edition;
     $oldeditionformat = true;
 } else {
-    $editiondir = substr($edition, 0, 2) . "/" . substr($edition, 2, 2);
-    $editionpath = $editiondir . "/" . $edition;
+    $editiondir = substr($edition, 0, 2) . "/" . substr($edition, 2, 2) . "/";
+    $editionpath = $editiondir . $edition;
 }
 
 /* Some edition ids have periods in them.  This was a bad idea, we must now handle it.
@@ -33,9 +33,6 @@ $revision = @$t[$tcout-1];
 if ($tcout > 1 && preg_match("/\d+/", $revision)) {
     $edition = join(".", array_slice($t, 0, $tcout-1));
     $editionid = @$t[0];
-    if($oldeditionformat){
-       $editiondir = $editionid;
-    }
 } else {
     $editionid = $edition;
     $revision = "";
@@ -53,6 +50,7 @@ $exp_edition_xpi = $editionpath . '/libx2-' . $edition . '.xpi';
 $exp_edition_exe = $editionpath . '/libx2-' . $edition . '.exe';
 $edition_built = file_exists($edition_xpi);
 $edition_exe_built = file_exists($edition_exe);
+$islibx2 = file_exists($editiondir . $editionid . ".islibx2");
 
 if (!file_exists($edition_config_xml)) {
  die ("No such edition - check the edition argument; given was edition=" . $edition); 

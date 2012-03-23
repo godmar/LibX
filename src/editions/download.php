@@ -2,8 +2,7 @@
 
 include ('readconfigxml.php');
 
-$file = $editiondir . "/" . $editionid . ".islibx2";
-if ( file_exists( $file ) )
+if ( $islibx2 ) 
 {
    header("Location: /editions/downloadlibx2.php?edition=" . $edition . ($revision != "" ? "." . $revision : "") );
 }
