@@ -68,7 +68,7 @@ $subscribedpkgs = $subscribedpkgs == null ? array() : $subscribedpkgs;
       }
 
       function demoIframeLoaded() {
-         document.getElementById("popup-iframe").contentWindow.document.body.setAttribute("Style","display:block;")
+         document.getElementById("popup-iframe").contentWindow.document.body.setAttribute("style","display:block;")
       }
     </script>
 

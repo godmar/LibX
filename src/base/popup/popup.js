@@ -37,6 +37,8 @@ $(function() {
             // If run in client-side mode, use a hash tag to activate an
             // edition/revision
             var hash = window.location.hash;
+            var showSearchBox = "#showsearchbox" == hash;
+
             if (/#edition=\S+/.test(hash)) {
                 var configUrl = makeConfigUrlFromEdition(hash.match(/#edition=(\S+)/)[1]);
                 libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
@@ -44,7 +46,7 @@ $(function() {
             }
 
             // show view depending on whether user already has edition loaded
-            if (libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
+            if (!showSearchBox && libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
                 if (libx.edition) {
                     popup.loadPopup();
                 } else {
@@ -117,7 +119,7 @@ return {
     firstLoad: true,
     
     initialize: function () {
-        
+
         // replace all HTML placeholders with language-specific strings
         $('.set-locale').each(function() {
             if(this.tagName == 'INPUT')
@@ -338,7 +340,7 @@ return {
             libx.initialize.reload();
         });
         
-        var debugLevels = [0, 1, 2, 9].map(function (val) {
+        var debugLevels = [0, 1, 2, 3, 9].map(function (val) {
             return {text: val, value: val};
         });
         $('#libapp-debuglevel').text(libx.utils.browserprefs.getIntPref('libx.libapp.debuglevel', 0));
