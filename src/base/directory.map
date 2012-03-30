@@ -1,0 +1,101 @@
+
+The location of the files in this tree is guided by a number of principles.
+
+A. Browser Type (ff/gc/cs/shared)
+B. Environment (global/window)
+C. Distribution (core/bootstrapped)
+
+
+A. Browser Type
+---------------
+
+gc  - Google Chrome (extension or content script)
+        For instance, chrome.extension is accessible here.
+        Privileged.
+
+ff  - Firefox (extension or sandbox)
+        Typically, Components.class etc. is accessible here and other XPCOM APIs
+        Privileged.
+
+cs  - Client-side - any browser such as Chrome, IE, Firefox, Safari.  Such code must
+      use jQuery or browser-sniffing to be portable.  Like a normal webpage.
+        Not Privileged - subject to SOR.
+
+shared - Code in here must not have any dependencies beyond those on objects
+      defined by ECMAScript, such as Date, Regexp, etc.
+
+
+B. Environment
+--------------
+
+global - This word has dual meanings.
+
+        1) In code that lives in a global subdirectory, WE DO NOT ASSUME THAT
+        'window' or 'document' IS DEFINED or that we have a window or document to
+        which to refer.  Thus, we do not assume that there is a DOM.  
+        Example: in Firefox, everything included from xpiroot/components/libxcomponent.js
+        lives in global - it's shared code and does not refer to any open FF chrome window.
+        In Chrome, code run in the background page is considered global (even though there
+        technically is a DOM).
+
+        2) Any state defined and maintained by this code EXISTS ONLY ONCE for a given
+        browser process.  For example, in Firefox, multiple windows may be open, with
+        multiple tabs each, but there's only one global memory cache instance.
+        In Chrome, each extension gets one dedicated process in which the v8 engine
+        that tends to its background page is run, even though multiple other processes
+        display  pages.
+
+window - This word has multiple meanings, depending on the browser.
+
+        IN ALL CASES, CODES THAT REQUIRES ACCESS TO A window/document MUST GO HERE.
+
+        What that 'window/document' is varies, unfortunately.
+
+        In Chrome's content scripts, the 'window/document' will be the window/document
+        of the page the user currently visits.
+        See http://code.google.com/chrome/extensions/content_scripts.html#execution-environment
+
+        In Chrome's UI (popup), the 'window/document' is the window/document of the
+        popup.
+
+        Note that we do not consider the Chrome background page's window here.
+
+        In FF's XUL Environment (JavaScript sourced from libx.xul etc.), the 'window/document'
+        refers to the XUL document that describe's the browser's UI ("Chrome"), including, for
+        instance, <toolbarbuttonpalette> and the like.
+
+        In FF's Sandbox environment (JavaScript run though sandbox.evaluate(), we set up a 
+        window specifically for it, and it is designed to act like in Chrome's isolated worlds.
+        The DOM of the page the user is visiting is accessible.
+
+C. Distribution
+---------------
+
+core    - Core code is bundled with the download package (.xpi or .crx)
+          Any changes require that a new distribution be created and installed by the
+          user. This works automatically in Google Chrome, and almost automatically in Firefox. 
+
+bootstrapped - Code in bootstrapped is loaded over the web from a location
+        (currently http://libx.org/libx2/bootstrapped ). This code is checked whether it's
+         up-to-date by a periodically scheduled script.  Any changes will be distributed
+         automatically.  Up-to-date check is based on SHA1 hash; see 'genhash.pl'
+
+        A first copy (to start from) of the bootstrapped files are included in each
+        .crx/.xpi files, reflecting a snapshot when it was built.
+
+        Note - in the 'cs' environment, we still bootstrap some code so that we can use
+        the existing framework.
+
+        Historical note: originally, FF made it very hard to distribute updates, so we 
+        felt we needed a mechanism to 'hot-patch' fixes without requiring a rebuild/redistribution.
+        This was especially pertinent before we moved to a single-build model.
+        Today, perhaps this was a bad idea. While it gives us the option to hot-patch things,
+        it also introduces awkwardness because any script in the bootstrapped section is
+        loaded asynchronously.  This means their loading must be managed with an activity
+        queue to ensure they execute in the correct order, and any code that depends on 
+        bootstrapped code being present must be delayed until all bootstrapped files have
+        arrived.
+        Our original goal was to keep the core simple to require only infrequent updates.
+
+----------------------------------------------
+
