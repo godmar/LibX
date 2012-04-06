@@ -389,7 +389,7 @@ libx.openurl.factory["oclcgateway"] = libx.core.Class.create(libx.openurl.factor
     initialize: function () {
         var self = this;
         var xhrParams = {
-            url : "http://worldcatlibraries.org/registry/lookup?IP=requestor",
+            url : "http://www.worldcat.org/registry/lookup?IP=requestor",
             dataType : "xml",
             type     : "GET",
             bypassCache : true,
