@@ -863,7 +863,9 @@ var rootPackages = libx.libapp.getPackages().map(function (pkg) {
     return { url: pkg };
 });
 var renderEntriesWalker = new RenderEntriesWalker(true);
-new libx.libapp.PackageWalker(rootPackages[0].url).walk(renderEntriesWalker);
+for (var i = 0; i < rootPackages.length; i++) {
+    new libx.libapp.PackageWalker(rootPackages[i].url).walk(renderEntriesWalker);
+}
 
 templateScope.queueFunction(function () {
     $("#libapps-tmpl").find(".tooltip").tooltip({
