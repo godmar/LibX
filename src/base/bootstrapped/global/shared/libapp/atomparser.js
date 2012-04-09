@@ -91,9 +91,9 @@ libx.libapp.PackageVisitor = libx.core.Class.create(
  * This function fetches each entry at given url. 
  * @param visitor {PackageVisitor object} - visitor to pass each entries information
  * @param url {string} - location of each entry
- * @param obj {object} (optional) - a object thats needs to passed alongwith that 
+ * @param obj {object}  - a object thats needs to passed alongwith that 
  *                                    entry to its visitor 
- * @param cacheMissActivity {object}  (optional) - activity to mark ready if
+ * @param cacheMissActivity {object} - activity to mark ready if
  *                                                 the entry is not in the object cache
  */
 function handleEntry(visitor, url, obj, cacheMissActivity) {
@@ -350,7 +350,7 @@ libx.libapp.PackageWalker = libx.core.Class.create(
      *    the entry is not in the object cache
      */
     walk : function (visitor, cacheMissActivity) {
-        handleEntry(visitor, this.rootPackage, cacheMissActivity);
+        handleEntry(visitor, this.rootPackage, null, cacheMissActivity);
     }
 });
 
