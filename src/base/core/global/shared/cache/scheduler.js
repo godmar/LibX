@@ -180,19 +180,21 @@ libx.cache.Scheduler = libx.core.Class.create(
 
                 function update(metadata) {
                     var updated = false;
-                    var timeoutBlocker = new libx.utils.collections.EmptyActivity();
+                    var timeoutBlocker = null;
                     self.objectCache.update({
                         url: url,
                         metadata: metadata,
                         dataType: self.childDataType,
+                        // NB: validator is not called if resource didn't change (304)
                         validator: function (params) {
-                            validatorSelf = this;
+                            var validatorSelf = this;
                             var validatorAct = {
                                 onready: function () {
                                     self.childValidator.call(validatorSelf, params);
                                 }
                             };
                             validatorQueue.scheduleLast(validatorAct);
+                            timeoutBlocker = new libx.utils.collections.EmptyActivity();
                             validatorQueue.scheduleLast(timeoutBlocker);
                             validatorAct.markReady();
                         },
@@ -208,10 +210,12 @@ libx.cache.Scheduler = libx.core.Class.create(
                             callback && callback(updated);
                             activity.markReady();
 
-                            // yield before allowing next validator to run
-                            libx.utils.timer.setTimeout(function () {
-                                timeoutBlocker.markReady();
-                            }, 0);
+                            if (timeoutBlocker != null) {
+                                // yield before allowing next validator to run
+                                libx.utils.timer.setTimeout(function () {
+                                    timeoutBlocker.markReady();
+                                }, 0);
+                            }
                         }
                     });
                 }
@@ -390,6 +394,14 @@ libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler,
         var xmlItems = libx.utils.xpath.findNodesXML(configDoc, "/edition/additionalfiles/*");
         xmlItems.forEach(function (node) {
             var name = node.getAttribute("name");
+
+            // ignore absence of defaultprefs.xml, it is obsolete
+            // the absence of all other required resources (currently) makes
+            // the update of config.xml fail, resulting in the edition not
+            // being activated
+            if (name == "defaultprefs.xml")
+                return;
+
             var url = configPath + "/" + name;
             checkForUpdates(url, libx.core.TrueFunction);
         });

@@ -44,16 +44,19 @@ function getVisibilityPattern(visible) {
     return ["http://do.not.show.this.item/"];
 }
 
+/**
+ * Context Menus aren't currently supported in client-side mode.
+ */
 libx.ui.ContextMenu = libx.core.Class.create( libx.ui.ContextMenu,
 
 {
 
     initialize: function () {
-        chrome.contextMenus.removeAll();
         this.parent();
     },
     
     addItem: function (item) {
+/*
         var contexts = item.contexts;
         var id = chrome.contextMenus.create({
             type: "normal",
@@ -65,10 +68,11 @@ libx.ui.ContextMenu = libx.core.Class.create( libx.ui.ContextMenu,
             documentUrlPatterns: getVisibilityPattern(item.visible)
         });
         this.registerItem(id, item);
+*/
     },
     
     update: function (itemId, updateProperties) {
-    
+ /*   
         // Google Chrome currently has no option to set item visibility, so
         // changing the document url pattern works around this
         if (updateProperties.visible != null) {
@@ -76,7 +80,7 @@ libx.ui.ContextMenu = libx.core.Class.create( libx.ui.ContextMenu,
             delete updateProperties.visible;
         }
         chrome.contextMenus.update(itemId, updateProperties);
-        
+*/      
     }            
 
 });

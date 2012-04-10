@@ -43,25 +43,34 @@ $(function() {
             popup.initialize();
 
             // If run in client-side mode, use a hash tag to activate an
-            // edition/revision
+            // edition/revision.  
             var hash = window.location.hash;
-            var showSearchBox = "#showsearchbox" == hash;
 
             if (/#edition=\S+/.test(hash)) {
                 var configUrl = makeConfigUrlFromEdition(hash.match(/#edition=(\S+)/)[1]);
                 libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
                 libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
-            }
-
-            // show view depending on whether user already has edition loaded
-            if (!showSearchBox && libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
-                if (libx.edition) {
-                    popup.loadPopup();
-                } else {
-                    libx.initialize.reload();
+                
+                // force immediate config.xml update if running in client-side environment
+                // ensure up-to-date config.xml
+                var configScheduler = new libx.cache.ConfigScheduler(configUrl);
+                configScheduler.updatesFinished = function (updated) {
+                    libx.loadConfig(this.rootUrl);
                 }
+                configScheduler.scheduleUpdates(true);
             } else {
-                popup.showChangeEditionView();
+                var showSearchBox = "#showsearchbox" == hash;
+
+                // show view depending on whether user already has edition loaded
+                if (!showSearchBox && libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
+                    if (libx.edition) {
+                        popup.loadPopup();
+                    } else {
+                        libx.initialize.reload();
+                    }
+                } else {
+                    popup.showChangeEditionView();
+                }
             }
             
             // load page actions

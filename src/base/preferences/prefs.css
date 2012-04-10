@@ -27,6 +27,19 @@ ul {
     display:none;
 }
 
+.close-info-panel {
+    margin-left: 80px !important;
+}
+
+.close-info-panel a {
+    color: #0B559B !important;
+    font-size: 0.8em;
+}
+
+.close-info-panel a:hover {
+    color: red;
+}
+
 .marginLeft40 {
   margin-left: 40px !important;
 }
@@ -66,32 +79,14 @@ ul {
     text-decoration:underline;
 }
 
-.toggle-info-panel-links {
+.toggle-info-panel {
     font-size:0.7em;
     padding:0.5em 0.7em;
     padding-left:0.5em !important;
     padding-bottom:1em !important;
 }
 
-.toggle-info-panel-args {
-  color:#0B559B !important;
-  margin:0 0.4em !important;
-  cursor:pointer !important;
-}
-
-.toggle-info-panel-details {
-  color:#0B559B !important;
-  margin:0 0.4em !important;
-  cursor:pointer !important;
-}
-
-.toggle-info-panel-codebody {
-  color:#0B559B !important;
-  margin:0 0.4em !important;
-  cursor:pointer !important;
-}
-
-.toggle-info-panel-prefs{
+.toggle-info-panel-link {
   color:#0B559B !important;
   margin:0 0.4em !important;
   cursor:pointer !important;

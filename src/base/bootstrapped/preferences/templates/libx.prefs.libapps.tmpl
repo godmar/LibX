@@ -5,11 +5,15 @@
         "package_add": { "message": "Subscribe to a package:" },
         "package_whatis": { "message" : "What is a package?"},
         "package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." },
+        "package_unsubscribe": { "message" : "Unsubscribe packages"},
+        "package_unsubscribe_tooltip": { "message" : "You can unsubscribe only those packages, which have been added by you explicitly from above input. And packages which are subscribed by default by the edition remain intact; to deactivate them simply uncheck entire package." },
         
         "banner": {"message" : "Libapps Display Tree:"},
         "banner_msg1": {"message": "To explore packages/libapps, expand the tree"},
         "banner_msg2": {"message": "To see details click on any label"},
    
+        "close": {"message": "Close"},
+        "unsubscribe": {"message": "Unsubscribe Package"},
         "showPrefs": {"message": "Show Preferences"},
         "hidePrefs": {"message": "Hide Preferences"},
         "showDetails": {"message": "Show Details"},
@@ -66,6 +70,8 @@ var i18n = {
     "regexptexttransformer": "{L 'regexptexttransformer' L}",
     "require": "{L 'require' L}",
     
+    "close": "{L 'close' L}",
+    "unsubscribe": "{L 'unsubscribe' L}",
     "showDetails": "{L 'showDetails' L}","hideDetails": "{L 'hideDetails' L}",
     "showPrefs": "{L 'showPrefs' L}", "hidePrefs": "{L 'hidePrefs' L}",
     "showCode": "{L 'showCode' L}", "hideCode": "{L 'hideCode' L}",
@@ -350,6 +356,10 @@ processCheckTree = {
              return false;
          } );
 
+         $(".close-info-panel").live("click", function () {
+             $(this).parent().parent().hide();
+             return false;
+         } );
         $rightPanel.hide();
     }
 };
@@ -404,9 +414,9 @@ function insertLinks(text) {
 function insertArgToggleLink($Info_Panel)
 {
     $Info_Panel
-              .children(".toggle-info-panel-links")
+              .children(".toggle-info-panel")
               .find('.toggle-info-panel-details')
-              .after(' | <a class="toggle-info-panel-args" href="#">'
+              .after(' | <a class="toggle-info-panel-link toggle-info-panel-args" href="#">'
                                 + i18n["hideParams"]
                                 + '</a>');
 }
@@ -638,10 +648,11 @@ function makeInfoPanel(entry,$node,tmplData){
     var $infoPanel = $(  '<div class="ui-state-default ui-corner-all info-panel ' + nodeType + '">'
                        +     '<div class="info-panel-heading">' 
                        +          '<span class="entry-label-name">' + entryType[nodeType] + ': </span>'
-                       +             encode(entry.description) + '<br/>'
+                       +          '<span>' +  encode(entry.description) + '</span>'
+                       +          '<span class="close-info-panel"><a href="#">' + i18n['close'] + '</a></span><br/>'
                        +     '</div>'
-                       +     '<div class="toggle-info-panel-links">'
-                       +          '<a class="toggle-info-panel-details" href="#">'+ i18n["showDetails"] +'</a>'
+                       +     '<div class="toggle-info-panel">'
+                       +          '<a class="toggle-info-panel-link toggle-info-panel-details" href="#">'+ i18n["showDetails"] +'</a>'
                        +     '</div>'
                        +     '<div class="info-panel-details">'
                        +        '<fieldset class="ui-corner-all info-panel-sub-section-fieldset">'
@@ -691,8 +702,8 @@ function makeInfoPanel(entry,$node,tmplData){
                       +      '</div>'
                       +    '</fieldset>'
                       + '</div>')
-		        .children('.toggle-info-panel-links')
-				.append(' | <a class="toggle-info-panel-codebody" href="#">'
+		        .children('.toggle-info-panel')
+				.append(' | <a class="toggle-info-panel-link toggle-info-panel-codebody" href="#">'
 						    + i18n["showCode"]
 						+ '</a>');
 
@@ -708,9 +719,9 @@ function makeInfoPanel(entry,$node,tmplData){
 		    /*If not in display ,mode and node contains prefs: Show link button*/
             if (!(displaymode) && (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1)) {
 				$infoPanel
-				        .children(".toggle-info-panel-links")
+				        .children(".toggle-info-panel")
 						.find('.toggle-info-panel-details')
-						.after(' | <a class="toggle-info-panel-prefs" href="#">'
+						.after(' | <a class="toggle-info-panel-link toggle-info-panel-prefs" href="#">'
 						        + i18n["showPrefs"]
 								+ '</a>');		    
 		    }
@@ -726,7 +737,7 @@ function insertPreferences ($infoPanel)
 {
 	if (libx.prefs[$infoPanel.parent().data("id")] && libx.prefs[$infoPanel.parent().data("id")]._children.length > 1) {
 		$infoPanel.children(".info-panel-prefs").remove();
-		var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel-links").children("a.toggle-info-panel-prefs:first");
+		var $toggle_Prefs = $infoPanel.children("div.toggle-info-panel").children("a.toggle-info-panel-prefs:first");
 		if($toggle_Prefs.text() == i18n["hidePrefs"])
 			$toggle_Prefs.text(i18n["showPrefs"]);
 			
@@ -745,7 +756,7 @@ function insertPreferences ($infoPanel)
 
 function addRemoveLink($node, id, isRoot) {
    /* only show remove link for top level, user-added feeds */
-   if(!isRoot)
+   if(!isRoot || displaymode)
      return;
 
    for (var i = 0; i < libx.edition.localizationfeeds.package.length; i++) {
@@ -753,12 +764,21 @@ function addRemoveLink($node, id, isRoot) {
        if (editionPkg.url == id)
             return;
    }
-   $('<a href="#" style="text-decoration: underline;">Remove from my packages</a>')
-      .appendTo($node)
-      .click(function () {
-              if (libx.libapp.removeUserPackage(id))
-                   reloadPackages();
-      });
+
+   $node.children(".toggle-info-panel")
+        .append(" | ");
+
+   $node.children(".toggle-info-panel")
+        .append(
+           $('<a class="toggle-info-panel-link toggle-info-panel-unsubscribe" href="#">' + i18n["unsubscribe"] +'</a>')
+           .click(function () {
+                   if (libx.libapp.removeUserPackage(id))
+                       reloadPackages();
+           })
+        );
+   
+
+
 }
 
 var errCount = 0;
@@ -776,94 +796,92 @@ var errCount = 0;
         for any prep-processing in preparation of walk begin on each entry
  */
 var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
-     initialize: function (isRoot) {
-      this.isRoot = isRoot;
-     },
-     onpackage: function(pkg,prep,$parentElem) {
-       
-       var $parent = $parentElem;
-       if(this.isRoot){
-        $parent = $checkTree;
-       }
-      libx.prefs.getCategoryForUrl(pkg.id,
+    /*initialize: function (isRoot) {
+        this.isRoot = isRoot;
+    },*/
+    onpackage: function(pkg,prep,$parentElem) {
+        var $parent = $parentElem || $checkTree;
+        libx.prefs.getCategoryForUrl(pkg.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(pkg);
-       $node
-           .children("ul")
-           .append('<li class="checktree_separator"></li>')
-           .end()
-           .insertBefore($parent.children(".checktree_separator"));
-      
-       var _isRoot = this.isRoot;
-       this.isRoot = false;
-       /*parent onpackage call in atomparser.js*/
-       this.parent(pkg,$node.children("ul"));
+        var $node = makeNode(pkg);
+        $node
+             .children("ul")
+             .append('<li class="checktree_separator"></li>')
+             .end()
+             .insertBefore($parent.children(".checktree_separator"));
+      /*
+        var _isRoot = this.isRoot;
+        this.isRoot = false;
+        *//*parent onpackage call in atomparser.js*/
+        this.parent(pkg,$node.children("ul"));
               
-       prep.blocker.markReady();
-        
-       var $prefs = makeInfoPanel(pkg, $node);
-       addRemoveLink($prefs, pkg.id,_isRoot);
+        prep.blocker.markReady();
+        var $prefs = makeInfoPanel(pkg, $node);
+        addRemoveLink($prefs, pkg.id,($parentElem ? false : true));
        
-     },
-     onlibapp: function(libapp,prep,$parentElem) {
-      
-       libx.prefs.getCategoryForUrl(libapp.id,
+    },
+    onlibapp: function(libapp,prep,$parentElem) {
+        libx.prefs.getCategoryForUrl(libapp.id,
                         [{ name: "_enabled", type: "boolean", value: "true" }]);
-       var $node = makeNode(libapp);
-       $parentElem.children(".checktree_separator").after($node);
+        var $node = makeNode(libapp);
+        var $parent = $parentElem || $checkTree;
+        $parent.children(".checktree_separator").after($node);
      
-       this.isRoot = false;
-       this.parent(libapp,$node.children("ul"));
+        /*this.isRoot = false;*/
+        this.parent(libapp,$node.children("ul"));
        
-       prep.blocker.markReady();                    
+        prep.blocker.markReady();                    
        
-       getStringBundle(libapp.id, 
+        getStringBundle(libapp.id, 
                        function (tmplData) {
                           makeInfoPanel(libapp, $node, tmplData);
                        },
                        libapp.entries);
-     },
-     onmodule: function(module,prep,$parentElem) {
-      libx.prefs.getCategoryForUrl(module.id,
-           [{ name: "_enabled", type: "boolean", value: "true" }]);
-       if (!libx.prefs[module.id]) {
-             prep.blocker.markReady();
-             return;
-       }
-                   
-       var $node = makeNode(module);
-       $parentElem.append($node);
-       prep.blocker.markReady();
-                    
-       getStringBundle(module.id, function (tmplData) {
-                                    makeInfoPanel(module, $node, tmplData);
-                                  });
-      
     },
-    beforeentry: function(entryUrl) {
-      var prep = {            
-             blocker: new libx.utils.collections.EmptyActivity(),
-             packageUrl: entryUrl
+    onmodule: function(module,prep,$parentElem) {
+        libx.prefs.getCategoryForUrl(module.id,
+           [{ name: "_enabled", type: "boolean", value: "true" }]);
+        if (!libx.prefs[module.id]) {
+            prep.blocker.markReady();
+            return;
+        }
+                   
+        var $node = makeNode(module);
+        var $parent = $parentElem || $checkTree;
+        $parent.append($node);
+        prep.blocker.markReady();
+                    
+        getStringBundle(module.id, function (tmplData) {
+                                     makeInfoPanel(module, $node, tmplData);
+                                  });
+   },
+   beforeentry: function(entryUrl) {
+       var prep = {            
+           blocker: new libx.utils.collections.EmptyActivity(),
+           packageUrl: entryUrl
        }; 
        processCheckTree.scheduleBefore(prep.blocker);
        return prep;
-    },
-    error: function(err,prep,parentElem) {
+   },
+   error: function(err,prep,$parentElem) {
        ++errCount;
        var entry = { id: prep.packageUrl, description: "(Unknown Entry)" };
        var $node = makeNode(entry);
-       $parentElem.children(".checktree_separator").before($node);
+       var $parent = $parentElem || $checkTree;
+       $parent.children(".checktree_separator").before($node);
        var $prefs = makeInfoPanel(entry, $node);
-       addRemoveLink($prefs, prep.packageUrl,this.isRoot);
+       addRemoveLink($prefs, prep.packageUrl,($parentElem ? false : true ));
        prep.blocker.markReady();
-     }
+   }
 });
     
 var rootPackages = libx.libapp.getPackages().map(function (pkg) {
     return { url: pkg };
 });
-var renderEntriesWalker = new RenderEntriesWalker(true);
-new libx.libapp.PackageWalker(rootPackages[0].url).walk(renderEntriesWalker);
+var renderEntriesWalker = new RenderEntriesWalker();
+for (var i = 0; i < rootPackages.length; i++) {
+    new libx.libapp.PackageWalker(rootPackages[i].url).walk(renderEntriesWalker);
+}
 
 templateScope.queueFunction(function () {
     $("#libapps-tmpl").find(".tooltip").tooltip({
@@ -885,7 +903,8 @@ templateScope.queueFunction(function () {
     <form id="libapps-subscribe-form" style="margin-bottom: 20px;">
         {L "package_add" L}
         <input style="width: 500px;"></input><br/>
-        <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div>
+        <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div><br/>
+        <div class="tooltip" title="{L 'package_unsubscribe_tooltip' L}">{L "package_unsubscribe" L}</div>
     </form>
     <div id="libapps-banner" class="libapps-banner">
       <p><span class="libapps-banner-header">{L "banner" L}</span></p>
