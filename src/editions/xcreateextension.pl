@@ -6,14 +6,14 @@ use HTML::Entities;
 use Cwd;
 
 # directory from which files will be bootstrapped
-my $bootstrap_url = "http://theta.cs.vt.edu/~rupen/libx2/src/base/bootstrapped/";
+my $bootstrap_url = "http://libx.org/libx2/bootstrapped/";
 # default package url for editions that have none specified
-my $default_package_url = "http://theta.cs.vt.edu/~rupen/feedga/analytics";
+my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
 
 # directory to which built files are output
-my $fs_base_dir = "/home/rupen/public_html/dev-releases/analytics/";
+my $fs_base_dir = "/home/www/libx.org/releases/";
 # URL at which build is accessible
-my $publish_base_url = "http://theta.cs.vt.edu/~rupen/dev-releases/analytics";
+my $publish_base_url = "http://libx.org/releases/";
 
 my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 
@@ -31,7 +31,7 @@ chomp ($spockexe);
 
 # Change this to build, say "libx2-experimental-<edition>.xpi",
 # If set to non-empty, will suppress creation of update.rdf file
-my $localbuild = "rupen-analytics-";
+my $localbuild = "";
 
 my $docinputdir = undef;
 
