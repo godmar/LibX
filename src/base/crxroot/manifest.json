@@ -66,6 +66,7 @@
             "core/global/shared/utils/stdnumsupport.js",
             "core/global/gc/utils/xpath.js",
             "core/global/gc/locale.js",
+            "core/global/shared/analytics.js",
             "core/window/gc/window.js",
             "core/window/shared/autosense.js"
         ]

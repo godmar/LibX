@@ -94,6 +94,12 @@ libx.cues.Cue = libx.core.Class.create(
         thisCue.show();
         thisCue.fadeOut("slow");
         thisCue.fadeIn("slow");
+    },
+    /**
+     * Attach click event handler for this cue
+     */
+    onClick : function( handler ) {
+        $(this.cue).click(handler);
     }
 });
 
@@ -190,7 +196,14 @@ libx.cues.Autolink = libx.core.Class.create(
         oldParent.insertBefore(link, oldSibling);
 
         this.link = link;
+    },
+    /**
+     * Attach click event handler for this cue
+     */
+    onClick : function( handler ) {
+        $(this.link).click(handler);
     }
+    
 });
 
 /**

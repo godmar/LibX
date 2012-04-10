@@ -22,6 +22,14 @@ function extractRevision () {
     return ver;
   }  
 }
+
+function trackSearchActivity( type, catalogName ) {
+    libx.analytics.track({
+            activity: "search",
+            catalog: catalogName,
+            searchtype: type
+    });
+}
     
 $(function() {
     /* Expandable class that toggles its right sibling. */
@@ -222,6 +230,7 @@ return {
         /* Opens the search URL in a browser tab. */
         function doSearch(searchParams) {
             var catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
+            trackSearchActivity("searches", libx.edition.catalogs[catalog].name );
             libx.ui.openSearchWindow(libx.edition.catalogs[catalog].search(searchParams));
             window.close();
         }
@@ -600,6 +609,8 @@ return {
                                     $(this).attr("href", "javascript:void(0);");
                                 });
                     });
+                    var _catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
+                    trackSearchActivity("previews", libx.edition.catalogs[_catalog].name );
                 });
             });
         

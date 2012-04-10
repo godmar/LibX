@@ -92,6 +92,7 @@ function loadLibX() {
         "shared/ui/contextmenu.js",
         "ff/ui.js",
         "ff/background.js",
+        "shared/analytics.js"
     ];
     
     for (var i = 0; i < globalScripts.length; i++) {
@@ -110,6 +111,14 @@ function loadLibX() {
         log("Error in libx.initialize(): " + er);
     }
 
+    try {
+        var script = "chrome://libx/content/core/global/ff/analytics.js";
+        jsSubScriptLoader.loadSubScript(script);
+    } catch (e) {
+        var where = e.location || (e.fileName + ":" + e.lineNumber);
+        log("Error while loading " + script + ": " + e + " " + where);
+    }
+    
     try {
         // load config if user has one set
         var configUrl = libx.utils.browserprefs.getStringPref("libx.edition.configurl", null);

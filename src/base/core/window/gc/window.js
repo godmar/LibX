@@ -181,6 +181,7 @@ var imported = {};
     libxTemp.magicImport('libx.storage.prefsStore.removeItem');
     libxTemp.magicImport('libx.storage.prefsStore.clear');
     libxTemp.magicImport('libx.storage.prefsStore.find');
+    libxTemp.magicImport('libx.analytics.bd.push');
 
     // because the object cache and memory cache are used frequently,
     // magicImporting them can consume a lot of memory.  this is because each

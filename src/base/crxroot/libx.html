@@ -1,6 +1,6 @@
 <html>
 <head>
-
+<title>LibX 2.0</title>
 <script src="core/global/shared/core.js"></script>
 <script src="core/global/shared/libx.js"></script>
 <script src="core/global/shared/log.js"></script>
@@ -36,7 +36,6 @@
 <script src="core/global/shared/catalog/factory/polaris.js"></script>
 <script src="core/global/shared/catalog/factory/openurlresolver.js"></script>
 <script src="core/global/shared/catalog/factory/primo.js"></script>
-<!-- <script src="core/global/shared/citeulike.js"></script> -->
 <script src="core/global/shared/proxy.js"></script>
 <script src="core/global/shared/proxy/factory/ezproxy.js"></script>
 <script src="core/global/shared/proxy/factory/wam.js"></script>
@@ -57,9 +56,6 @@
 <script src="core/global/shared/openurl.js"></script>
 <script src="core/global/shared/utils/stdnumsupport.js"></script>
 <script src="core/global/gc/utils/xpath.js"></script>
-<!-- <script src="core/global/shared/services/xisbn.js"></script> -->
-<!-- <script src="core/global/shared/services/pubmed.js"></script> -->
-<!-- <script src="core/global/shared/services/crossref.js"></script> -->
 <script src="core/global/shared/ui/jquery/autocomplete.js"></script>
 <script src="core/global/shared/ui/jquery/dropdown.js"></script>
 <script src="core/global/shared/ui/jquery/accordionmenu.js"></script>
@@ -68,6 +64,9 @@
 <script src="core/global/shared/ui/contextmenu.js"></script>
 <script src="core/global/gc/ui.js"></script>
 <script src="core/global/gc/background.js"></script>
+<script src="core/window/shared/cookie.js"></script>
+<script src="core/global/shared/analytics.js"></script>
+<script src="core/global/gc/analytics.js"></script>
 
 <script>
 
@@ -85,6 +84,13 @@ libx.events.addListener("EditionConfigurationLoaded", {
             url: libx.edition.options.icon,
             success: function (dataUri) {
                 libx.ui.setIcon(dataUri);
+                /*Track everytime edition loads*/
+                libx.analytics.track({activity:"activeEdition"});
+                /*Track firstRun of extension. LibX analytics
+                  checks if firstRun cookie is set already, if not
+                  then tracks it!
+                */
+                libx.analytics.track({activity:"firstRun"});
             }
         });
     }
@@ -204,6 +210,5 @@ libx.background.addListener("magicImport", function (request, sender, sendRespon
 });
     
 </script>
-
 </head>
 </html>

@@ -4,5 +4,7 @@
     "displaypref.newtab" : { "message" : "Open in a new tab without focusing the tab" },
     "displaypref.sametab" : { "message" : "Open in the current tab" },
     "displaypref.newwindow" : { "message" : "Open in a new browser window" },
-    "savesearches" : { "message" : "Remember search fields when popup is closed" }
+    "savesearches" : { "message" : "Remember search fields when popup is closed" },
+    "trackextension" : { "message" : "Send extension usage (e.g edition installed, catalogs used for searches) [Note: LibX uses Google Analytics]" },
+    "tracklibapps" : { "message" : "Send libapp usage (e.g frequently used libapps) [Note: LibX uses Google Analytics]" }
 }

@@ -356,10 +356,25 @@ function executeLibapp(libapp, pkgArgs) {
          * correct libx.space property.  Assumes that libxDotLibappData was
          * initialized correctly prior to calling into the sandbox.
          * Repeated execution will clone the previous clone, which 
-         * is fine (and almost autopoeitic.) */
+         * is fine (and almost autopoeitic.) 
+         *
+         * We also create a shallow copy of libx.libapp to capture the
+         * getCurrentModule/getCurrentLibapp functions.
+         */
         var setupSandbox = 
             "var libx = __libx.core.Class.mixin({ }, __libx, true); /* clone libx */\n"
-          + "libx.space = libx.libappdata.space;\n";
+          + "libx.space = libx.libappdata.space;\n"
+          + "libx.libapp = __libx.core.Class.mixin({ }, libx.libapp, true);\n"
+          + "libx.libapp.getCurrentModule = function () { return '" + module.id + "'; };\n"
+          + "libx.libapp.getCurrentLibapp = function () { return '" + libapp.id + "'; };\n"
+          + "libx.libapp.track = function (args) { "
+          +     "libx.analytics.track({"
+          +         "activity  : 'libapp',"
+          +         "libapp    : args.libapp || libx.libapp.getCurrentLibapp(),"
+          +         "module    : args.module || libx.libapp.getCurrentModule(),"
+          +         "actiontype: args.actiontype || 'CLICK' "
+          +     "});"
+          + "};\n" ;
         
         var setupArgs = "";
         if (libappArgs) {
@@ -445,8 +460,6 @@ function executeLibapp(libapp, pkgArgs) {
                 var jsCode = "(function (__libx) {\n"
                     + setupSandbox
                     + setupArgs
-                    + "  libx.libapp.getCurrentModule = function () { return '" + module.id + "'; };\n"
-                    + "  libx.libapp.getCurrentLibapp = function () { return '" + libapp.id + "'; };\n"
                     + "  var textNode = libx.libappdata.textNode;\n"
                     + "  var match = libx.libappdata.match;\n"
                     +       module.body
@@ -467,14 +480,6 @@ function executeLibapp(libapp, pkgArgs) {
         
             libx.libappdata.space = libappSpace;
             var jsCode = "/* begin module body */\n" + module.body + "\n/* end module body */\n";
-
-            jsCode = "var __getCurrentModule = libx.libapp.getCurrentModule;\n"
-                   + "var __getCurrentLibapp = libx.libapp.getCurrentLibapp;\n"
-                   + "libx.libapp.getCurrentModule = function () { return '" + module.id + "'; };\n"
-                   + "libx.libapp.getCurrentLibapp = function () { return '" + libapp.id + "'; };\n"
-                   + jsCode
-                   + "libx.libapp.getCurrentModule = __getCurrentModule;\n"
-                   + "libx.libapp.getCurrentLibapp = __getCurrentLibapp;\n";
             
             // wrap in 'guardedby' clauses, if needed
             // compute indentation

@@ -94,6 +94,19 @@ libx.libapp.Sandbox = libx.core.Class.create(
                 self.evaluate(data, url);
             }
         });
+    },
+    /**
+      * Load a script from a given URL synchronously
+      * 
+      * @param {String} url  location of script
+      * The url pointing to the script to load. It MUST be a
+      * local chrome:, resource: or file:
+      * @see  https://developer.mozilla.org/en/XPCOM_Interface_Reference/mozIJSSubScriptLoader
+     **/
+    loadSubScript : function ( url ) {
+        var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]  
+                       .getService(Components.interfaces.mozIJSSubScriptLoader);
+        loader.loadSubScript(url,this.sandBox);
     }
     
 });
