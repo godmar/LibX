@@ -5,6 +5,8 @@
         "package_add": { "message": "Subscribe to a package:" },
         "package_whatis": { "message" : "What is a package?"},
         "package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." },
+        "package_unsubscribe": { "message" : "Unsubscribe packages"},
+        "package_unsubscribe_tooltip": { "message" : "You can unsubscribe only those packages, which have been added by you explicitly from above input. And packages which are subscribed by default by the edition remain intact; to deactivate them simply uncheck entire package." },
         
         "banner": {"message" : "Libapps Display Tree:"},
         "banner_msg1": {"message": "To explore packages/libapps, expand the tree"},
@@ -901,7 +903,8 @@ templateScope.queueFunction(function () {
     <form id="libapps-subscribe-form" style="margin-bottom: 20px;">
         {L "package_add" L}
         <input style="width: 500px;"></input><br/>
-        <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div>
+        <div class="tooltip" title="{L 'package_tooltip' L}">{L "package_whatis" L}</div><br/>
+        <div class="tooltip" title="{L 'package_unsubscribe_tooltip' L}">{L "package_unsubscribe" L}</div>
     </form>
     <div id="libapps-banner" class="libapps-banner">
       <p><span class="libapps-banner-header">{L "banner" L}</span></p>
