@@ -394,6 +394,14 @@ libx.cache.ConfigScheduler = libx.core.Class.create(libx.cache.Scheduler,
         var xmlItems = libx.utils.xpath.findNodesXML(configDoc, "/edition/additionalfiles/*");
         xmlItems.forEach(function (node) {
             var name = node.getAttribute("name");
+
+            // ignore absence of defaultprefs.xml, it is obsolete
+            // the absence of all other required resources (currently) makes
+            // the update of config.xml fail, resulting in the edition not
+            // being activated
+            if (name == "defaultprefs.xml")
+                return;
+
             var url = configPath + "/" + name;
             checkForUpdates(url, libx.core.TrueFunction);
         });
