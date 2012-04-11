@@ -31,7 +31,7 @@ chomp ($spockexe);
 
 # Change this to build, say "libx2-experimental-<edition>.xpi",
 # If set to non-empty, will suppress creation of update.rdf file
-my $localbuild = "rupen-analytics-";
+my $localbuild = "";
 
 my $docinputdir = undef;
 
