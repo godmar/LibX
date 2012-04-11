@@ -57,7 +57,7 @@ my $updatepath = $fs_base_dir . "gc";
 #######################################################
 my %conf = ();
 
-$conf{'gaaccountid'} = 'UA-29381019-1'; 
+$conf{'gaaccountid'} = 'UA-30755371-1'; 
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
 

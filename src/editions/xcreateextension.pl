@@ -6,19 +6,19 @@ use HTML::Entities;
 use Cwd;
 
 # directory from which files will be bootstrapped
-my $bootstrap_url = "http://libx.org/libx2/bootstrapped/";
+my $bootstrap_url = "http://theta.cs.vt.edu/~rupen/libx2/src/base/bootstrapped/";
 # default package url for editions that have none specified
-my $default_package_url = "http://libx.org/libx2/libapps/libxcore";
+my $default_package_url = "http://theta.cs.vt.edu/~rupen/feedga/analytics";
 
 # directory to which built files are output
-my $fs_base_dir = "/home/www/libx.org/releases/";
+my $fs_base_dir = "/home/rupen/public_html/dev-releases/analytics/";
 # URL at which build is accessible
-my $publish_base_url = "http://libx.org/releases/";
+my $publish_base_url = "http://theta.cs.vt.edu/~rupen/dev-releases/analytics";
 
 my $addtoplevelfiles = "install.rdf changelog.txt chrome.manifest";
 
 # directory that contains key3.db
-my $keydirectory = "/home/www/libxprivatekey";
+my $keydirectory = "/home/rupen/libxprivatekey";
 my $xpiguid = "{d75de36c-af0d-4dc2-b63a-0d482d4b9815}";
 my $libxextid = "urn:mozilla:extension:" . $xpiguid;
 
@@ -31,7 +31,7 @@ chomp ($spockexe);
 
 # Change this to build, say "libx2-experimental-<edition>.xpi",
 # If set to non-empty, will suppress creation of update.rdf file
-my $localbuild = "";
+my $localbuild = "rupen-analytics-";
 
 my $docinputdir = undef;
 
@@ -73,7 +73,7 @@ my $updatepath = $fs_base_dir . "ff";
 
 #######################################################
 my %conf = ();
-$conf{'gaaccountid'} = 'UA-29381019-1'; 
+$conf{'gaaccountid'} = 'UA-30755371-1'; 
 $conf{'xpiguid'} = $xpiguid;
 $conf{'builddate'} = `date +%Y%m%d`;
 chomp($conf{'builddate'});
