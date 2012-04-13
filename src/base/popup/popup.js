@@ -24,7 +24,7 @@ function extractRevision () {
 }
 
 function trackSearchActivity( type, catalogName ) {
-    libx.analytics.track({
+    libx.analytics && libx.analytics.track({
             activity: "search",
             catalog: catalogName,
             searchtype: type
