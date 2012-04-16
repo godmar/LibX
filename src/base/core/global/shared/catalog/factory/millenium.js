@@ -28,6 +28,16 @@
  *	@augments libx.catalog.Catalog
  *  @class 
  */
+(function () {
+
+function cleanColon(stype, sterm) {
+    if (stype != 'Y')
+        return sterm;
+
+    // III's keyword searches don't like a colon, it's interpreted as index
+    return sterm.replace(/:/g,"");
+}
+
 libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog, 
 /** @lends libx.catalog.factory.millenium.prototype */
 {
@@ -56,6 +66,7 @@ libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog,
     },
 	makeSearch: function(stype, sterm) {
         stype = this.normalizeSearchType(stype);
+        sterm = cleanColon(stype, sterm);
 
         // substitute special code for keyword searches if defined
         // some III catalogs prefer to use X for keyword searches, apparently.
@@ -100,10 +111,10 @@ libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog,
 	makeAdvancedSearch: function(fields) {
 		var url = this.url + "/search"  + this.language + "/" 
                 + this.advancedcode + "?SEARCH=";
-		url += this.normalizeSearchType(fields[0].searchType) + ":(" + encodeURIComponent(fields[0].searchTerms) + ")";
+		url += this.normalizeSearchType(fields[0].searchType) + ":(" + encodeURIComponent(cleanColon(fields[0].searchType, fields[0].searchTerms)) + ")";
 		for (var i = 1; i < fields.length; i++) {
 			url += "+and+" + this.normalizeSearchType(fields[i].searchType) 
-                            + ":(" + encodeURIComponent(fields[i].searchTerms) + ")"; 
+                            + ":(" + encodeURIComponent(cleanColon(fields[i].searchType, fields[i].searchTerms)) + ")"; 
 		}
         url += (this.searchscope != null ? "&searchscope=" + this.searchscope : "");
 		url += "&SORT=" + this.sort;
@@ -113,5 +124,7 @@ libx.catalog.factory["millenium"] = libx.core.Class.create(libx.catalog.Catalog,
 		return url;
 	}
 });
+
+}) ();  // end anonymous scope
 
 // vim: ts=4
