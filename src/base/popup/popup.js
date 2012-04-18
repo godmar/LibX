@@ -672,7 +672,7 @@ return {
 
             // load edition image
             var image = $('.edition-image');
-            libx.utils.getEditionResource({
+            libx.edition.options.logo && libx.utils.getEditionResource({
                 url: libx.edition.options.logo,
                 success: function (dataUri) {
                     image.attr('src', dataUri);
