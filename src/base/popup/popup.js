@@ -588,41 +588,49 @@ return {
                 }
             }
         }
-        
-        var catalog = libx.edition.catalogs[index];
-        var previewer = libx.catalog.preview.getPreviewer(catalog);
-        
-        $("#preview-button")
-            .toggle(previewer != null)
-            .unbind()
-            .click(function () {
-                var $lastInput = $('#full-search-fields input:last');
-                $lastInput.addClass("searchLoading");
-                previewer.doPreview(getSearchParamsFromInputField(), function (data) {
-                    $lastInput.removeClass("searchLoading");
-                    // alert("got: " + libx.utils.json.stringify(data));
-                    var $p = $('#preview-results-div');
-                    $p.empty();
-                    $p.append("<p>Found " + data.recordCount + " results in " + data.queryTime + "ms.</p>");    // XXX i18n
 
-                    $.each(data.documents, function (idx, el) {
-                        previewer.formatResult(el, $)
-                            .appendTo($p)
-                            .find("a")
-                                .each(function () {
-                                    // ensure links open according to user prefs
-                                    var href = $(this).attr("href");
-                                    $(this).click(function () {
-                                        libx.ui.openSearchWindow(href);
+        function displayPreviewer() {
+            var catalog = libx.edition.catalogs[index];
+            var previewer = libx.catalog.preview.getPreviewer(catalog);
+            
+            $("#preview-button")
+                .toggle(previewer != null)
+                .unbind()
+                .click(function () {
+                    var $lastInput = $('#full-search-fields input:last');
+                    $lastInput.addClass("searchLoading");
+                    previewer.doPreview(getSearchParamsFromInputField(), function (data) {
+                        $lastInput.removeClass("searchLoading");
+                        // alert("got: " + libx.utils.json.stringify(data));
+                        var $p = $('#preview-results-div');
+                        $p.empty();
+                        $p.append("<p>Found " + data.recordCount + " results in " + data.queryTime + "ms.</p>");    // XXX i18n
+
+                        $.each(data.documents, function (idx, el) {
+                            previewer.formatResult(el, $)
+                                .appendTo($p)
+                                .find("a")
+                                    .each(function () {
+                                        // ensure links open according to user prefs
+                                        var href = $(this).attr("href");
+                                        $(this).click(function () {
+                                            libx.ui.openSearchWindow(href);
+                                        });
+                                        $(this).attr("href", "javascript:void(0);");
                                     });
-                                    $(this).attr("href", "javascript:void(0);");
-                                });
+                        });
+                        var _catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
+                        trackSearchActivity("previews", libx.edition.catalogs[_catalog].name );
                     });
-                    var _catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
-                    trackSearchActivity("previews", libx.edition.catalogs[_catalog].name );
-                });
-            });
-        
+               });
+        }
+
+        libx.events.addListener("PreviewerRegistered",{
+            onPreviewerRegistered: function() {
+                displayPreviewer();
+            }
+        });
+        displayPreviewer();
     },
     
     /* Load the edition into the popup. */
@@ -632,6 +640,9 @@ return {
             // reset previously loaded page actions
             $('a[href$="#pageactions-view"]', $('#tab-pane')).hide();
             $('#pageactions-view').empty();
+
+            $('#preview-results-div').empty();
+            $("#preview-button").is(":visible") && $("#preview-button").toggle(false);
             
             // load the edition information
             $('#edition-name-header').text(libx.edition.name.edition);

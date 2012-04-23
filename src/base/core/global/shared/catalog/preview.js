@@ -38,6 +38,8 @@ libx.catalog.preview = {
         var previewkey = classDef.previewkey;
         libx.catalog.factory[catalog].prototype.previewers[previewkey] =
             libx.core.Class.create(libx.catalog.preview.Previewer, classDef);
+        var evt = new libx.events.Event('PreviewerRegistered');
+        evt.notify();
     },
     
     Previewer: libx.core.Class.create(
