@@ -1,0 +1,17 @@
+
+Existing web services used by edition selection
+(Both do JSON-P)
+
+http://libx.org/editions/search?q=vt
+
+http://libx.org/editions/config/vt
+
+Located in /home/www/libx.org/editions/{search|config}
+
+Use PhP -> MySQL to get edition description, maintainer(s).
+
+Port to Python. 
+
+Use http://stackoverflow.com/questions/372885/how-do-i-connect-to-a-mysql-database-in-python
+
+
