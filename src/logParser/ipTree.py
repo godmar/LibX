@@ -1,3 +1,5 @@
+import pprint
+
 # Convert an IP string into a decimal number.
 def convertIP(ip):
     return reduce(lambda x, y: 256 * x + y, map(int, ip.split(".")))
@@ -45,6 +47,24 @@ class ipTree():
             bit -= 1
             if "ip" in currentNode:
                 return currentNode["editions"]
+            if bit < 0:
+                return False
+            currentBitValue = (ip >> bit) % 2
+
+    # Get the CIDR info of an IP.
+    def getCIDR(self, ip):
+        currentNode = self.root
+        bit = 31
+        currentBitValue = (ip >> bit) % 2
+        while 1:
+            try:
+                currentNode = currentNode[currentBitValue]
+            except KeyError:
+                return False
+
+            bit -= 1
+            if "ip" in currentNode:
+                return (currentNode["ip"], 32 - bit)
             if bit < 0:
                 return False
             currentBitValue = (ip >> bit) % 2

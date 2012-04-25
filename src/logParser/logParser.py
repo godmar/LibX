@@ -2,7 +2,7 @@
 
 from getopt import getopt
 import pickle
-import pprint
+import re
 import sys
 from time import sleep
 from twisted.internet import reactor
@@ -47,30 +47,46 @@ class ipProcessor():
     # Called every time a callback function runs. Processes the finished request, adds a new one, and stops the reactor if we are finished.
     def refresh(self, requestOutput, decimalIP, edition):
         # We need to figure out the CIDR group to use, not an easy task. Some queries return multiple groups, and not all cover the called IP. We find the CIDR group that covers the called IP and that covers the most IPs in total.
-        secondLine = requestOutput.partition("\n")[2].partition("\n")[0]
-        cidrLine = secondLine[16:]
-        cidrIP = ""
-        cidrValue = 64
-        cidrPartition = ['', '', cidrLine]
-        while cidrPartition[2] is not "":
-            cidrPartition = cidrPartition[2].partition("/")
-            newIP = cidrPartition[0]
-            cidrPartition = cidrPartition[2].partition(", ")
-            newValue = int(cidrPartition[0])
+
+        # An example of a WHOIS entry returned by ARIN.
+        exampleWhois = """
+NetRange:       198.82.0.0 - 198.82.255.255
+CIDR:           198.82.0.0/16
+OriginAS:       AS1312
+NetName:        VPI-BLK
+NetHandle:      NET-198-82-0-0-1
+Parent:         NET-198-0-0-0-0
+NetType:        Direct Assignment
+Comment:        DMCA and copyright complaints to DMCA@vt.edu.
+RegDate:        1993-09-23
+Updated:        2010-04-20
+Ref:            http://whois.arin.net/rest/net/NET-198-82-0-0-1
+"""
+
+        cidrSplit = re.split("CIDR: *", requestOutput)
+        cidrLine = cidrSplit[1].split('\n')
+        ipList = cidrLine[0].split(', ')
+        finalIP = ''
+        finalValue = 64
+        for ip in ipList:
+            newIP, newValue = ip.split("/")
+            newValue = int(newValue)
             newStart = convertIP(newIP)
             newEnd = newStart + 2 ** (32 - newValue)
-            if newValue < cidrValue and decimalIP >= newStart and decimalIP < newEnd:
-                cidrIP = newIP
-                cidrValue = newValue
-        print(cidrIP + "/" + str(cidrValue))
-        self.tree.addIP(convertIP(cidrIP), cidrValue, edition)
+            if newValue < finalValue and decimalIP >= newStart and decimalIP < newEnd:
+                finalIP = newIP
+                finalValue = newValue
+        print(finalIP + "/" + str(finalValue))
+        self.tree.addIP(convertIP(finalIP), finalValue, edition)
         self.numRequestsIdle += 1
         
         # Now we process a new request.
-        if len(self.ips) > 0:
+        while len(self.ips) > 0 and self.numRequestsIdle > 0:
             newIP, newEdition = self.ips.pop(0)
-            sendRequest(newIP, newEdition, self)
-            self.numRequestsIdle -= 1
+            editionList = tree.inTree(convertIP(newIP))
+            if editionList is False or newEdition not in editionList:
+                sendRequest(newIP, newEdition, self)
+                self.numRequestsIdle -= 1
         
         # If we are out of requests, we stop the reactor and clean up. The main function will then resume.
         if self.numRequestsIdle is self.numRequests and len(self.ips) is 0:
@@ -109,18 +125,16 @@ processor = ipProcessor(40, tree, 1)
 logFile = open(logFile)
 
 # Iterate over the lines of the log file. If an IP isn't in the tree, we add it to the processor.
-for currentLine in logFile:
-    currentLineEdition = currentLine[:currentLine.index(" ")]
-    currentLineIPs = currentLine[currentLine.index(" ") + 1:]
-    currentLineSplit = currentLineIPs.partition(" ")
-    firstIP = currentLineSplit[0]
-    while "\n" not in firstIP:
-        if tree.inTree(convertIP(firstIP)) is False:
-            processor.ips.append((firstIP, currentLineEdition))
-        currentLineSplit = currentLineSplit[2].partition(" ")
-        firstIP = currentLineSplit[0]
-    if tree.inTree(convertIP(firstIP)) is False:
-        processor.ips.append((firstIP[:-1], currentLineEdition))
+for line in logFile:
+    ipList = line.rstrip().split(" ")
+    edition = ipList.pop(0)
+    for ip in ipList:
+        editionList = tree.inTree(convertIP(ip))
+        if editionList is False:
+            processor.ips.append((ip, edition))
+        elif edition not in editionList:
+            startIP, cidrLength = tree.getCIDR(convertIP(ip))
+            tree.addIP(convertIP(ip), cidrLength, edition)
 
 # Process the IPs.
 processor.start()
