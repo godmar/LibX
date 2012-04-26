@@ -15,29 +15,26 @@ tree_mod = 0
 # Callable 'application' is the WSGI entry point
 #
 def application(env, start_response):
-    ipTree = imp.load_source('ipTree', '/home/nova/public_html/logParser/ipTree.py')
+    ipTree = imp.load_source('ipTree', '/home/nova/public_html/libx/src/logParser/ipTree.py')
     global tree
     global tree_mod
+
     # get QUERY parameters
     params = dict([(urllib.unquote_plus(k), urllib.unquote_plus(v))
         for k, v in [kv.strip().split('=', 1) \
                      for kv in env['QUERY_STRING'].split('&') if '=' in kv]])
 
+# FIX: Probably doesn't work correctly without the rewrite engine. Check on local machine.
     m = pathinfoformat.match(env['PATH_INFO'])
-    (type, urlIP) = m.groups()
+#    (type, urlIP) = m.groups()
     if 'ip' in params:
         ip = params['ip']
-    if urlIP != "":
-        ip = urlIP
-    #dummyanswerobject = {
-    #    'type': env['QUERY_STRING'],
-    #    'requested_ip': ip,
-    #    'requestno' : requestnumber
-    #}
-
-    new_mod = os.path.getmtime("/home/nova/public_html/autoedition/tree.bin")
+#    if urlIP != "":
+#        ip = urlIP
+#
+    new_mod = os.path.getmtime("/home/nova/public_html/libx/src/autoedition/tree.bin")
     if new_mod > tree_mod:
-        tree = pickle.load(open("/home/nova/public_html/autoedition/tree.bin", "rb"))
+        tree = pickle.load(open("/home/nova/public_html/libx/src/autoedition/tree.bin", "rb"))
         tree_mod = new_mod
     try:
         editions = copy.deepcopy(tree.inTree(ipTree.convertIP(ip)))
