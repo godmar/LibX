@@ -17,10 +17,15 @@ def sendRequest(ip, edition, processor):
     print(urlToGet)
     request = getPage(urlToGet)
     request.addCallback(finishRequest, decimalIP, edition, processor)
+    request.addErrback(requestError, ip, edition, processor)
 
 # Callback from the WHOIS request.
 def finishRequest(output, decimalIP, edition, processor):
     processor.refresh(output, decimalIP, edition)
+
+# Errback from the WHOIS request.
+def requestError(output, ip, edition, processor):
+    sendRequest(ip, edition, processor)
 
 # IPs to query against WHOIS are added to the self.ips variable. When start() is called, the Twisted Reactor starts and processes the IPs in parallel.
 class ipProcessor():
