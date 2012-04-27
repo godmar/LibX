@@ -2,11 +2,11 @@ Options +ExecCGI
 
 <IfModule mod_rewrite.c>
   RewriteEngine on
-  RewriteBase /~nova/autoedition/
+  RewriteBase /~nova/libx/src/autoedition/
   RewriteRule ^(findbyip/.*)$ editionip.py/$1
+  RewriteRule ^(findedition/.*)$ editiondata.py/$1
 </IfModule>
 
-<Files editionip.py>
+<Files *.py>
     SetHandler wsgi-script
 </Files>
-
