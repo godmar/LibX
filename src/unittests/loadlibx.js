@@ -359,7 +359,7 @@ libx.utils.getBootstrapURL = function (path) {
 };
 
 var libxscripts2 = [
-    "global/gc/utils/hash.js",
+    "global/shared/utils/hash.js",
     "global/shared/cache/objectcache.js",
     "global/shared/cache/scheduler.js",
     "../bootstrapped/global/shared/services/crossref.js",
