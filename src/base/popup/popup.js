@@ -94,6 +94,8 @@ $(function() {
         popup.saveFields();
         popup = null;
     });
+
+
 });
     
 // the menu element for the simple view
@@ -379,7 +381,6 @@ return {
         $('#dev-cache').click(function () {
             libx.ui.openSearchWindow(libx.utils.getExtensionURL('dev/cache.html'));
         });
-        
         // show the page once it's ready
         $('body').show();
     },
@@ -640,6 +641,48 @@ return {
             // reset previously loaded page actions
             $('a[href$="#pageactions-view"]', $('#tab-pane')).hide();
             $('#pageactions-view').empty();
+           
+            var tmpPkgs = libx.libapp.getTempPackages();
+            if(tmpPkgs.length == 0)
+            {
+                $('#tmp-packages-div').hide();
+            }else {
+                tmpPkgs.forEach(function(pkg, index, ar){
+                    libx.cache.defaultMemoryCache.get({
+                        type:"GET",
+                        url: pkg.tempUrl,
+                        dataType: "xml",
+                        bypassCache: true,
+                        success: function (xmlDoc){
+                            var ns = { atom:       "http://www.w3.org/2005/Atom",
+                                       libx2:      "http://libx.org/xml/libx2"
+                            };
+                            var feedTitle = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:title/text()",
+                                xmlDoc.documentElement,ns);
+                            feedTitle = feedTitle != null ? feedTitle.nodeValue : "Unable to find feed title";
+                            var el = $("<div>" + "Temp feed title: " + feedTitle + " </div>")
+                                      .append($(" <a/>").attr("href", "#")
+                                               .attr("title","Unsubscribe feed from temporary subscribed packages list") 
+                                               .click(function () {
+                                                    $(this).parent().fadeOut('fast').remove();
+                                                    libx.libapp.removeTempPackage(pkg.tempUrl);
+                                                   libx.libapp.reloadPackages();
+                                               })
+                                               .text("(Unsubscribe)")).after("</br>");
+                            el.append($("</br>Permanent: <a target='_blank' style='font-size:0.9em;' href='" + pkg.permUrl+ "'>" + pkg.permUrl + "</a></br>" +
+                                        "Temporary: <a target='_blank' style='font-size:0.9em;' href='" + pkg.tempUrl+ "'>" + pkg.tempUrl + "</a></br></br>")
+                                     );
+                            
+                            $("#tmp-packages-content-div").append(el);
+                        },
+                        error: function (err) {
+                           feedTitle = "Error fetching feed !";
+                        }
+                    });
+                });
+                $('#tmp-packages-div').show();
+            }
+
 
             $('#preview-results-div').empty();
             $("#preview-button").is(":visible") && $("#preview-button").toggle(false);
@@ -718,7 +761,7 @@ return {
 
             var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
             $('#dev-configxml-href').attr('href', configUrl).text(configUrl);
-            
+           
             popup.showPreferredView();
         } catch (e) {
             libx.log.write("Error displaying popup: " + e + ", line " + e.lineNumber);
