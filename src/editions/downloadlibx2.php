@@ -3,7 +3,7 @@ include ('readconfigxml.php');
 
 $subscribedpkgs = $config->xpath('/edition/localizationfeeds/feed[@type="package"]');
 $subscribedpkgs = $subscribedpkgs == null ? array() : $subscribedpkgs;
-
+$editionplusrev = $edition . ($revision != "" ? "." . $revision : "");
 ?>
 
 <html>
@@ -28,11 +28,14 @@ $subscribedpkgs = $subscribedpkgs == null ? array() : $subscribedpkgs;
          <meta name="libxeditioninfo" content="vt.16;1.5.16" />
          <meta name="libxeditioninfo" content="vt;1.5.17;Virginia Tech Edition" />
     -->
-    <meta name="libxeditioninfo" content="<? echo $edition . 
-            ($revision != "" ? "." . $revision : "") . ";" . $version ?>" />
+    <meta name="libxeditioninfo" content="<? echo $editionplusrev . ";" . $version ?>" />
     <title>LibX <? echo $edition_name ?></title>
-    
     <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-1264018-1']);
+      _gaq.push(['_trackPageview', '/downloadlibx2/demo/'+ "<? echo $edition ?>"]);
+
       $(document).ready(function() {
           $("#demo-button").button().click( function () {
                 $("#demo-iframe").fadeIn(2000);
@@ -74,24 +77,32 @@ $subscribedpkgs = $subscribedpkgs == null ? array() : $subscribedpkgs;
 
   </head>
   <body>
-    <div id="c-doc">
-      <div id="c-header">
+    <div id="doc">
+      <div id="header">
         <img class="logo" src="<? echo $icon ?>" alt="<? echo $edition_name ?>"> 
-        <ul id="c-nav">
+        <ul id="nav">
           <li>Demo</li>
 	  <li><a onclick="toggletopnav(this)" href="#" >Features</a></li>
           <li><a onclick="toggletopnav(this)" href="#" >Privacy</a></li>
           <li><a href="http://libx.org/faq.html">FAQs</a></li>
         </ul>   
       </div>
-      <div id="c-main">
+      <div id="main">
         <div id="main-content">
           <ul id="download-buttons">
             <li>
-              <a id="ff-button" href="<? echo $ff_extpath ?><? echo $edition . ($revision != '' ? '.' . $revision : '') ?>">Install Extension for Firefox</a>
+              <a id="ff-button" 
+                 onclick="_gaq.push(['_trackEvent', 'LibX Firefox Extension', 'Download-<? echo $edition ?>' , '<? echo ($edition_name . '-' . $editionplusrev)  ?>' ]);" 
+                 href="<? echo $ff_extpath ?><? echo $editionplusrev ?>">
+                 Install Extension for Firefox
+              </a>
             </li>
             <li>
-              <a id="gc-button" href="<? echo $gc_extpath ?><? echo $edition . ($revision != '' ? '.' . $revision : '') ?>">Install Extension for Google Chrome</a>
+              <a id="gc-button"  
+                 onclick="_gaq.push(['_trackEvent', 'LibX Chrome Extension', 'Download-<? echo $edition ?>' , '<? echo ($edition_name . '-' . $editionplusrev)  ?>' ]);" 
+                 href="<? echo $gc_extpath ?><? echo $editionplusrev ?>">
+                 Install Extension for Google Chrome
+              </a>
             </li>
           </ul>
         </div>
@@ -100,13 +111,13 @@ $subscribedpkgs = $subscribedpkgs == null ? array() : $subscribedpkgs;
         <h1 class="title">LibX <? echo $edition_name ?></h1>
         <span>Revision <? echo ($revision != '' ? $revision : 'Live') ?></span></br></br>
         <span class="demo">
-          <a id="demo-button" href="#" class="button">Demo LibX 2.0</a>
+        <a id="demo-button" href="#" onclick="_gaq.push(['_trackEvent', 'LibX Demo', 'EditionDemo-<? echo $edition ?>', 'Show LibX 2.0 Popup']);" class="button">Demo LibX 2.0</a>
         </span>
         <div>
            <div class="demo-iframe-close" onclick="hideDemoIframe()"/>Close[X]</div>
            <div id="demo-iframe" class="ui-widget-content ui-corner-all">
              <iframe id="popup-iframe" onload="demoIframeLoaded()" frameborder="0" scrolling="no" width="640" height="300" src="<? echo $libx2base ?>/src/base/popup/popup.html#edition=<? echo $edition .
-             ($revision != '' ? '.' . $revision : '')?>"></iframe>
+             $rev ?>"></iframe>
            </div>
         </div>
         <div class="displaypackages">
@@ -191,10 +202,16 @@ Watch <a target="_top" href="http://libx.org/screencasts/demo3.htm">this screenc
         <p>For more information about LibX, visit the <a href="http://libx.org">LibX Homepage</a>.</p>
       </div>
       <div id="libxfaqs" class="faqs tabcontent-hide"></div>
-      <div id="c-footer">
-        LibX is distributed under the <a href="http://www.mozilla.org/MPL/MPL-1.1.html">Mozilla Public License</a>. <span class="c-copyright">&#169; 2012</span> Annette Bailey and <a href="http://www.vt.edu">Virginia Tech.</a>
+      <div id="footer">
+        LibX is distributed under the <a href="http://www.mozilla.org/MPL/MPL-1.1.html">Mozilla Public License</a>. <span class="copyright">&#169; 2012</span> Annette Bailey and <a href="http://www.vt.edu">Virginia Tech.</a>
 
       </div>
     </div>
+    <script type="text/javascript">  (function() {
+      var ga = document.createElement('script');     ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:'   == document.location.protocol ? 'https://ssl'   : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   </body>
 </html>
