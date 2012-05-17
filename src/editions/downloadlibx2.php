@@ -33,7 +33,8 @@ $editionplusrev = $edition . ($revision != "" ? "." . $revision : "");
     <script>
 
       var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-1264018-1']);
+      //_gaq.push(['_setAccount', 'UA-1264018-1']);
+      _gaq.push(['_setAccount', 'UA-30711176-1']);
       _gaq.push(['_trackPageview', '/downloadlibx2/demo/'+ "<? echo $edition ?>"]);
 
       $(document).ready(function() {
@@ -73,6 +74,12 @@ $editionplusrev = $edition . ($revision != "" ? "." . $revision : "");
       function demoIframeLoaded() {
          document.getElementById("popup-iframe").contentWindow.document.body.setAttribute("style","display:block;")
       }
+
+      function recordOutboundLink(link, category, action,label) {
+          _gaq.push(['_trackEvent',category,action,label]);
+          setTimeout('document.location = "' + link.href + '"', 100);
+      }
+
     </script>
 
   </head>
@@ -92,14 +99,14 @@ $editionplusrev = $edition . ($revision != "" ? "." . $revision : "");
           <ul id="download-buttons">
             <li>
               <a id="ff-button" 
-                 onclick="_gaq.push(['_trackEvent', 'LibX Firefox Extension', 'Download-<? echo $edition ?>' , '<? echo ($edition_name . '-' . $editionplusrev)  ?>' ]);" 
+                 onclick="recordOutboundLink(this, 'LibX Firefox Extension', 'Download-<? echo $edition ?>' , '<? echo ($edition_name . '-' . $editionplusrev)  ?>'); return false;" 
                  href="<? echo $ff_extpath ?><? echo $editionplusrev ?>">
                  Install Extension for Firefox
               </a>
             </li>
             <li>
               <a id="gc-button"  
-                 onclick="_gaq.push(['_trackEvent', 'LibX Chrome Extension', 'Download-<? echo $edition ?>' , '<? echo ($edition_name . '-' . $editionplusrev)  ?>' ]);" 
+                 onclick="recordOutboundLink(this, 'LibX Chrome Extension', 'Download-<? echo $edition ?>' , '<? echo ($edition_name . '-' . $editionplusrev)  ?>'); return false;" 
                  href="<? echo $gc_extpath ?><? echo $editionplusrev ?>">
                  Install Extension for Google Chrome
               </a>
