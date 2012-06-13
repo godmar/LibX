@@ -204,9 +204,14 @@ var $checkTree = $('<ul id="root" class="checktree" style="float: left;">'
 function makeNode(entry) {
     
     var $node = $('<li>\n'
-                + '   <label>' + entry.title + '</label>\n'
+                + '   <label></label>\n'
                 + '   <ul></ul>\n'
                 + '</li>\n');
+    /* jQuery breaks if entry.title contains HTML entities, so ensure proper
+     * escaping by using jQuery's .text() function rather than embedding entry.title
+     * in HTML above.
+     */
+    $node.children("label").text(entry.title);
     $node.data("id",entry.id);
     if (entry.type != 'module') {
         var checked = libx.prefs[entry.id]._enabled._value ? 'checked="checked"' : "";
