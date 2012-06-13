@@ -118,8 +118,9 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
         atomid = atomid != null ? atomid.nodeValue : "atom:id is missing";
 
         if (libx2Node == null) {
-            libx.log.write(baseURL + ": entry " + atomid + " does not contain any libx2:* node");
-            visitor.error && visitor.error("Entry not found",prep,obj);
+            var err = "Entry (" + atomid + ") does not contain any libx2:* node";
+            libx.log.write(err);
+            visitor.error && visitor.error(err,prep,obj);
             return;
         }
 
@@ -292,8 +293,9 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
                         handleEntryBody(xmlDoc, pathDir, xmlDoc.documentElement);
                     },
                     error: function (err) {
-                        libx.log.write("atomparser.js: Error status " + err + " when walking " + url);
-                        visitor.error && visitor.error(err,prep,obj);
+                        var err2 = "atomparser.js: Error status " + err + " when walking " + url;
+                        libx.log.write(err2);
+                        visitor.error && visitor.error(err2,prep,obj);
                     },
                     complete: function () {
                         if (urlRequest.cacheOnly && !success) {
@@ -316,8 +318,9 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
             }
         },
         error: function (err) {
-            libx.log.write("atomparser.js: Error status " + err + " when walking " + pathDir);
-            visitor.error && visitor.error(err,prep,obj);
+            var err2 = "atomparser.js: Error status " + err + " when walking " + pathDir;
+            libx.log.write(err2);
+            visitor.error && visitor.error(err2,prep,obj);
         }
     };
 

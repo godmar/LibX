@@ -32,7 +32,8 @@ libx.cues.Cue = libx.core.Class.create(
     initialize : function (url, title, imageurl) {
         var doc = document;
         var link = doc.createElement('a');
-        link.setAttribute('title', title);
+        if( title )
+           link.setAttribute('title', title);
         link.setAttribute('href', url);
         var image = doc.createElement('img');
         if (!imageurl) {
@@ -182,7 +183,8 @@ libx.cues.Autolink = libx.core.Class.create(
     initialize : function (domelement, url, title) {
         var doc = document;
         var link = doc.createElement('a');
-        link.setAttribute('title', title);
+        if( title )
+           link.setAttribute('title', title);
         link.setAttribute('href', url);
         link.style.borderBottom = 
             libx.utils.browserprefs.getStringPref("libx.autolinkstyle", 

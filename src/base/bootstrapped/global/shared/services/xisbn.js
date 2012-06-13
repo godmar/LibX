@@ -65,6 +65,23 @@ function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
  * Support for OCLC's xISBN/xISSN services
  */
 libx.services.xisbn = {
+    getISBNEditions: function (invofcc) {
+        /* Return comma-separated list of editions */
+        function formatISBNEditions(xisbnrspisbn, invofcc) {
+            var r = libx.utils.xpath.findNodesXML(xisbnrspisbn, "./xisbn:isbn/text()", xisbnrspisbn, xisbnNSResolver);
+            var cslist = "", sep = "";
+            for (var i = 0; i < r.length; i++) {
+                cslist += sep + r[i].nodeValue;
+                sep = ",";
+            }
+            return cslist;
+        }
+
+        retrieve("http://xisbn.worldcat.org/webservices/xid/isbn/" 
+                        + invofcc.isbn + "?method=getEditions&format=xml&fl=*",
+                 "//xisbn:rsp[@stat='ok']", 
+                 formatISBNEditions, invofcc);
+    },
 
     /** 
      * Retrieve information about ISBN from xISBN and format as text 
@@ -185,6 +202,20 @@ libx.services.xisbn = {
             isbn: "9780060731335",
             ifFound: function (text) {
                 out.write(this.isbn + " -> " + text + "\n");
+            }
+        });
+
+        this.getISBNEditions({
+            isbn: "0596002815",
+            ifFound: function (text) {
+                out.write("Editions: " + this.isbn + " -> " + text + "\n");
+            }
+        });
+
+        this.getISBNEditions({
+            isbn: "0596002816",
+            notFound: function (text) {
+                out.write("Editions: " + this.isbn + " -> not found\n");
             }
         });
     }
