@@ -1,0 +1,5 @@
+Possibilities for comprehensive testing:
+
+Iterating over nodes in the tree
+Rechecking IPs against ARIN and log
+Rechecking editions against log

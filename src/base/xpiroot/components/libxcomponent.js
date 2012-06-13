@@ -92,7 +92,8 @@ function loadLibX() {
         "shared/ui/contextmenu.js",
         "ff/ui.js",
         "ff/background.js",
-        "shared/analytics.js"
+        "shared/analytics.js",
+        "shared/autoedition.js"
     ];
     
     for (var i = 0; i < globalScripts.length; i++) {

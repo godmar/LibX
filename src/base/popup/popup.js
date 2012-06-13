@@ -60,16 +60,22 @@ $(function() {
                 configScheduler.scheduleUpdates(true);
             } else {
                 var showSearchBox = "#showsearchbox" == hash;
+                var showRecommendations = "#showrecommendations" == hash;
 
                 // show view depending on whether user already has edition loaded
-                if (!showSearchBox && libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
-                    if (libx.edition) {
-                        popup.loadPopup();
-                    } else {
-                        libx.initialize.reload();
-                    }
-                } else {
+                if (showRecommendations) {
                     popup.showChangeEditionView();
+                    $('#edition-search-header').hide();
+                } else {
+                    if (!showSearchBox && libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
+                        if (libx.edition) {
+                            popup.loadPopup();
+                        } else {
+                            libx.initialize.reload();
+                        }
+                    } else {
+                        popup.showChangeEditionView();
+                    }
                 }
             }
             
@@ -134,6 +140,118 @@ return {
     // flag to indicate whether this is the first popup load since the user has
     // opened the popup; becomes false if the user changes edition inside popup
     firstLoad: true,
+
+    recommendations : function() {
+        $.getJSON(libx.services.autoedition.url + '?callback=?', function(data) {
+            outputHTML = "<br /><br /><a href=\"http://libx.org/edition-recommendation-system/\">The following editions were recommended for you based on your IP address of " + data["ip"] + ":</a><br /><br /><div class=\"results\" style=\"display: block\">";
+            data["editions"].sort(function(a, b) {
+                return b["timestamp"] - a["timestamp"];
+            });
+            for (index = 0; index < data["editions"].length; index = index + 1) {
+                var currentEdition = data["editions"][index];
+                outputHTML = outputHTML + "<div class=\"unselected\"><b><span class=\"editionDesc\">" + currentEdition["description"] + "</span></b>";
+                outputHTML = outputHTML + " (id: <span class=\"editionId\">" + currentEdition["id"] + "</span>)";
+                outputHTML = outputHTML + " maintained by <i><span class=\"editionMaintainers\">";
+                for (mIndex = 0; mIndex < currentEdition["maintainers"].length; mIndex = mIndex + 1) {
+                    outputHTML = outputHTML + currentEdition["maintainers"][mIndex] + ", ";
+                }
+                outputHTML = outputHTML.slice(0, -2);
+                outputHTML = outputHTML + "</span></i></div>";
+            }
+            outputHTML = outputHTML + "</div>";
+            $('#edition-search-ip').html(outputHTML);
+            $('#edition-search-ip .results div').mouseenter(function() {
+                $(this).removeClass('unselected');
+                $(this).addClass('selected');
+            });
+            $('#edition-search-ip .results div').mouseleave(function() {
+                $(this).removeClass('selected');
+                $(this).addClass('unselected');
+            });
+            $('#edition-search-ip .results div').click(function() {
+                var editionId = $('span.editionId', this).html();
+                var editionDesc = $('span.editionDesc', this).html();
+                var editionMaintainers = $('span.editionMaintainers', this).html();
+                libx.analytics && libx.analytics.track({
+                        activity: "recommendation",
+                        edition: { id: editionId, desc: editionDesc }
+                });
+                popup.loadEdition({'id': editionId, 'shortDesc': editionDesc, 'maintainers': editionMaintainers});
+            });
+        });
+    },
+
+
+    loadEdition: function(selectedEdition) {
+        $('#edition-search-details').show();
+
+        // show edition name and maintainers
+        $('#edition-search-name').text(selectedEdition.shortDesc);
+        $('#edition-search-maintainers').empty();
+        $(selectedEdition.maintainers.split(",")).each(
+            function(i, elem) {
+                $('#edition-search-maintainers').append("<li>" + elem + "</li>");
+            }
+        );
+
+        // highlight text after user makes selection
+        $('#edition-search-input').select();
+
+        var revisions = $('#edition-search-select');
+        revisions.empty();
+
+        // reset load button if user already loaded an edition
+        $('#edition-search-load').unbind('click');
+
+        // get the revisions for this edition and populate search box 
+        libx.cache.defaultMemoryCache.get({
+            type: "GET",
+            url: "http://libx.org/editions/config/" + selectedEdition.id,
+            dataType: "json",
+            success: function(json) {
+                        
+                var map = [];
+                for(var rev in json.revisions) {
+                    var elem = {
+                        text: rev,
+                        value: json.revisions[rev].config
+                    };
+                    map.push(elem);
+                }
+                map.sort(function(a, b) {
+                    a = a.text;
+                    b = b.text;
+                    if(!isNaN(a) && !isNaN(b)) {
+                        a = parseInt(a);
+                        b = parseInt(b);
+                    }
+                    if(a < b) return -1;
+                    if(b < a) return 1;
+                    return 0;
+                });
+                var selectedRevision = map[map.length-1].value;
+                var link = $('<a href="#">' + map[map.length-1].text + '</a>');
+                $('#edition-search-select').append(link);
+                        
+                libx.ui.jquery.dropdown($, {
+                dropdown_items: map,
+                field: link,
+                    select: function(url) {
+                        selectedRevision = url;
+                    }
+                });
+                        
+                $('#edition-search-load').click(function() {
+                    libx.utils.browserprefs.setStringPref('libx.edition.configurl', selectedRevision);
+                    // reset catalog index when changing editions
+                    libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
+                    libx.log.write('Loading config from ' + selectedRevision);
+                    libx.initialize.reload();
+                });
+            }
+        });
+    },
+ 
     
     initialize: function () {
 
@@ -166,73 +284,7 @@ return {
                     + je.maintainers + "</i>";
             },
             select: function(selectedEdition) {
-                $('#edition-search-details').show();
-
-                // show edition name and maintainers
-                $('#edition-search-name').text(selectedEdition.shortDesc);
-                $('#edition-search-maintainers').empty();
-                $(selectedEdition.maintainers.split(",")).each(
-                    function(i, elem) {
-                        $('#edition-search-maintainers').append("<li>" + elem + "</li>");
-                    }
-                );
-
-                // highlight text after user makes selection
-                $('#edition-search-input').select();
-
-                var revisions = $('#edition-search-select');
-                revisions.empty();
-
-                // reset load button if user already loaded an edition
-                $('#edition-search-load').unbind('click');
-
-                // get the revisions for this edition and populate search box 
-                libx.cache.defaultMemoryCache.get({
-                    type: "GET",
-                    url: "http://libx.org/editions/config/" + selectedEdition.id,
-                    dataType: "json",
-                    success: function(json) {
-                        
-                        var map = [];
-                        for(var rev in json.revisions) {
-                            var elem = {
-                                text: rev,
-                                value: json.revisions[rev].config
-                            };
-                            map.push(elem);
-                        }
-                        map.sort(function(a, b) {
-                            a = a.text;
-                            b = b.text;
-                            if(!isNaN(a) && !isNaN(b)) {
-                                a = parseInt(a);
-                                b = parseInt(b);
-                            }
-                            if(a < b) return -1;
-                            if(b < a) return 1;
-                            return 0;
-                        });
-                        var selectedRevision = map[map.length-1].value;
-                        var link = $('<a href="#">' + map[map.length-1].text + '</a>');
-                        $('#edition-search-select').append(link);
-                        
-                        libx.ui.jquery.dropdown($, {
-                            dropdown_items: map,
-                            field: link,
-                            select: function(url) {
-                                selectedRevision = url;
-                            }
-                        });
-                        
-                        $('#edition-search-load').click(function() {
-                            libx.utils.browserprefs.setStringPref('libx.edition.configurl', selectedRevision);
-                            // reset catalog index when changing editions
-                            libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
-                            libx.log.write('Loading config from ' + selectedRevision);
-                            libx.initialize.reload();
-                        });
-                    }
-                });
+                popup.loadEdition(selectedEdition);
             }
         });
         
@@ -440,6 +492,7 @@ return {
             $('#change-edition-cancel').hide();
             
         $('#tabs').hide();
+        popup.recommendations();
         $('#change-edition-view').show();
         focus($('#edition-search-input'));
         $('#edition-search-input').val('');

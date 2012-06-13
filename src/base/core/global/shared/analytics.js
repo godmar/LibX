@@ -126,6 +126,14 @@ libx.analytics = (function() {
               push([_trackPageview, arg]);
            }
         },
+
+        recommendation : function ( args ) {
+            if(! libx.prefs.browser.trackextension._value) return;
+            if( args.edition ) {
+                var arg = '/recommendation/' + args.edition.id + '/' + unescape(args.edition.desc);
+                push([_trackPageview, arg]);
+            }
+        },
         /**
          * Initializes google analytics tracker by setting user account
          */

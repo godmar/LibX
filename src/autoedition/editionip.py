@@ -2,9 +2,20 @@
 
 import copy
 import imp
+import MySQLdb
 import os
 import pickle
+import time
 import sys, re, simplejson, urllib
+
+# add directory in which script is located to python path
+script_dir = "/".join(__file__.split("/")[:-1])
+if script_dir == "":
+    script_dir = "."
+script_dir += "/logParser"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+import ipTree
 
 pathinfoformat = re.compile('/([^/]*)/(.*)')
 
@@ -15,7 +26,6 @@ tree_mod = 0
 # Callable 'application' is the WSGI entry point
 #
 def application(env, start_response):
-    ipTree = imp.load_source('ipTree', os.path.dirname(__file__) + '/../logParser/ipTree.py')
     global tree
     global tree_mod
 
@@ -26,35 +36,53 @@ def application(env, start_response):
 
     m = pathinfoformat.match(env['PATH_INFO'])
     (type, urlIP) = m.groups()
+    ip = env['REMOTE_ADDR']
     if 'ip' in params:
         ip = params['ip']
     if urlIP != "":
         ip = urlIP
 
-    new_mod = os.path.getmtime(os.path.dirname(__file__) + '/tree.bin')
+    new_mod = os.path.getmtime(os.path.dirname(__file__) + '/logParser/treetest.bin')
     if new_mod > tree_mod:
-        tree = pickle.load(open(os.path.dirname(__file__) + '/tree.bin', "rb"))
+        tree = pickle.load(open(os.path.dirname(__file__) + '/logParser/treetest.bin', "rb"))
         tree_mod = new_mod
-    try:
-        editions = copy.deepcopy(tree.inTree(ipTree.convertIP(ip)))
-    except UnboundLocalError:
-        ip = ''
-        editions = False
+    ips, eds, cidr = tree.inTree(ipTree.convertIP(ip))
 
-    editionsOutput = []
-    if editions is not False:
-        while len(editions) > 0:
-            editionsOutput.append(editions.pop())
+    db = MySQLdb.connect(host="localhost", user="root", passwd="sqlroot", db="libxeb")
+    cursor = db.cursor()
+    editionData = []
+    raw = ""
+    for edition, timestamp in eds.items():
+        raw += edition + " "
+        cursor.execute("""
+        SELECT editionId, shortDesc
+            FROM editionInfo
+            WHERE isPublic = 1 AND editionId = %s
+    """, edition)
+        for row in cursor:
+            raw += "hit "
+            editionId, shortDesc = row
+            editionData.append({'id': editionId, 'description': shortDesc, 'timestamp': timestamp})
+    for edition in editionData:
+        cursor.execute("""
+        SELECT email
+            FROM editionMaintainer
+            WHERE editionId = %s
+""", edition['id'])
+        edition['maintainers'] = []
+        for row in cursor:
+            edition['maintainers'].append(row[0])
 
     dummyanswerobject = {
         'ip': ip,
-        'editions': editionsOutput,
-        'tree_mod': tree_mod
+        'tree_mod': time.strftime("%Y %m %d %H:%M:%S", time.gmtime(tree_mod)),
+        'editions': editionData,
+        'raw': raw,
     }
-    headers = [('Content-Type', 'application/javascript;charset=utf-8'), \
+    headers = [('Content-Type', 'application/javascript;charset=latin-1'), \
                ('Cache-Control', 'max-age=1,must-revalidate')]
 
-    body = simplejson.dumps(dummyanswerobject, encoding="utf-8")
+    body = simplejson.dumps(dummyanswerobject, encoding="latin-1")
     if params.has_key('callback'):
         body = params.get('callback') + "(" + body + ");"
     start_response("200 OK", headers)
