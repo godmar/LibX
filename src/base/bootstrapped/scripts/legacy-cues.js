@@ -245,6 +245,7 @@ libx.cues.addISBNMetadataTooltip = function (domelement, catalogname, isbn) {
         }
     });
 };
+
 /**
  * Contact OCLC's xISBN service to  retrieve information about 'issn', then
  * create tooltip using catalog.contextmenu.search.label localized
@@ -268,3 +269,25 @@ libx.cues.addISSNMetadataTooltip = function (domelement, catalogname, issn) {
     });
 };
 
+/**
+ * Contact CrossRef's DOI service to retrieve information about 'doi', then
+ * create tooltip using catalog.contextmenu.search.label localized
+ * template. 
+ *
+ * @param {DOMElement} domelement - element to which to add the tooltip
+ * @param {String} catalogname - name of catalog
+ * @param {String} doi - doi to use in DOI service
+ */
+libx.cues.addDOIMetadataTooltip = function (domelement, catalogname, doi) {
+    libx.services.crossref.getDOIMetadata({
+        doi: doi,
+        ifFound: function (text) {
+            domelement.setAttribute(
+				'title', 
+				"LibX: " + libx.locale.defaultStringBundle.getProperty("label_search_catalog_str", catalogname, text));
+        },
+		notFound: function () {
+			domelement.setAttribute('title', "No information available");
+		}
+    });
+};
