@@ -1,8 +1,8 @@
 // test LibX services
-libx.services.crossref.unittests(logger);
-libx.services.xisbn.unittests(logger);
-libx.services.pubmed.unittests(logger);
+libx.services.crossref.unittests(libx.log);
+//libx.services.xisbn.unittests(libx.log);
+//libx.services.pubmed.unittests(libx.log);
 
-logger.write("waiting 4 sec for services tests to complete\n");
+libx.log.write("waiting 4 sec for services tests to complete\n");
 java.lang.Thread.sleep(4000);
 
