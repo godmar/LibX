@@ -104,7 +104,7 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
 
     function handleEntryBody(xmlDoc, baseURL, entryNode) {
         var libx2Node = libx.utils.xpath.findSingleXML(
-            xmlDoc, "./libx2:*", entryNode, ns
+            xmlDoc, "./libx2:package|./libx2:libapp|./libx2:module", entryNode, ns
         );
 
         var title = libx.utils.xpath.findSingleXML(xmlDoc, "./atom:title/text()",
