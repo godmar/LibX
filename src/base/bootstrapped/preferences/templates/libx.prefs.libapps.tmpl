@@ -204,9 +204,14 @@ var $checkTree = $('<ul id="root" class="checktree" style="float: left;">'
 function makeNode(entry) {
     
     var $node = $('<li>\n'
-                + '   <label>' + entry.title + '</label>\n'
+                + '   <label></label>\n'
                 + '   <ul></ul>\n'
                 + '</li>\n');
+    /* jQuery breaks if entry.title contains HTML entities, so ensure proper
+     * escaping by using jQuery's .text() function rather than embedding entry.title
+     * in HTML above.
+     */
+    $node.children("label").text(entry.title);
     $node.data("id",entry.id);
     if (entry.type != 'module') {
         var checked = libx.prefs[entry.id]._enabled._value ? 'checked="checked"' : "";
@@ -644,8 +649,12 @@ function makeInfoPanel(entry,$node,tmplData){
           $node.data("params", entry.params); 
        }
     }
-    /*main html construct for each info panel*/
-    var $infoPanel = $(  '<div class="ui-state-default ui-corner-all info-panel ' + nodeType + '">'
+
+    var $infoPanel = "";
+    if( nodeType != "error" )
+    {
+        /*main html construct for each info panel*/
+        $infoPanel = $(  '<div class="ui-state-default ui-corner-all info-panel ' + nodeType + '">'
                        +     '<div class="info-panel-heading">' 
                        +          '<span class="entry-label-name">' + entryType[nodeType] + ': </span>'
                        +          '<span>' +  encode(entry.description) + '</span>'
@@ -690,7 +699,7 @@ function makeInfoPanel(entry,$node,tmplData){
                        +     '</div>'
                        + '</div>');
 
-    if( isModule )
+        if( isModule )
 	{
 	   $infoPanel
                 .addClass("marginLeft40")
@@ -708,29 +717,31 @@ function makeInfoPanel(entry,$node,tmplData){
 						+ '</a>');
 
 	}
+    }
 
-	var $popup = $("<div>\n" + entry.description + "</div>\n");
+    var $popup = $("<div>\n" + entry.description + "</div>\n");
     $node.data("popup", $popup);
-	$node.data("tmplData",tmplData);
-	var addToPanel = {
-		onready: function () {
-		    $popup.hide().appendTo($rightPanel);
-		    $node.children("label:first").after($infoPanel); 
-		    /*If not in display ,mode and node contains prefs: Show link button*/
-            if (!(displaymode) && (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1)) {
-				$infoPanel
-				        .children(".toggle-info-panel")
-						.find('.toggle-info-panel-details')
-						.after(' | <a class="toggle-info-panel-link toggle-info-panel-prefs" href="#">'
-						        + i18n["showPrefs"]
-								+ '</a>');		    
-		    }
-		}
-       };
+    $node.data("tmplData",tmplData);
+    var addToPanel = {
+	onready: function () {
+	   $popup.hide().appendTo($rightPanel);
+	   $node.children("label:first").after($infoPanel); 
+	   /*If not in display ,mode and node contains prefs: Show link button*/
+           if ( (nodeType != "error") && !(displaymode) && (libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1))
+           {
+		$infoPanel
+	        .children(".toggle-info-panel")
+		.find('.toggle-info-panel-details')
+		.after(' | <a class="toggle-info-panel-link toggle-info-panel-prefs" href="#">'
+		        + i18n["showPrefs"]
+			+ '</a>');		    
+           }
+	}
+    };
     aQ.scheduleLast(addToPanel);
     addToPanel.markReady();
 	
-	return $infoPanel;
+    return $infoPanel;
 }
 
 function insertPreferences ($infoPanel)
@@ -781,7 +792,6 @@ function addRemoveLink($node, id, isRoot) {
 
 }
 
-var errCount = 0;
 /*
  * @class RenderEntriesWalker -  Derives from PackageVisitor
    @param {boolean} isRoot - If starting walk from root node of feed
@@ -796,9 +806,6 @@ var errCount = 0;
         for any prep-processing in preparation of walk begin on each entry
  */
 var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
-    /*initialize: function (isRoot) {
-        this.isRoot = isRoot;
-    },*/
     onpackage: function(pkg,prep,$parentElem) {
         var $parent = $parentElem || $checkTree;
         libx.prefs.getCategoryForUrl(pkg.id,
@@ -809,10 +816,7 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
              .append('<li class="checktree_separator"></li>')
              .end()
              .insertBefore($parent.children(".checktree_separator"));
-      /*
-        var _isRoot = this.isRoot;
-        this.isRoot = false;
-        *//*parent onpackage call in atomparser.js*/
+        /*parent onpackage call in atomparser.js*/
         this.parent(pkg,$node.children("ul"));
               
         prep.blocker.markReady();
@@ -827,7 +831,6 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
         var $parent = $parentElem || $checkTree;
         $parent.children(".checktree_separator").after($node);
      
-        /*this.isRoot = false;*/
         this.parent(libapp,$node.children("ul"));
        
         prep.blocker.markReady();                    
@@ -864,9 +867,13 @@ var RenderEntriesWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
        return prep;
    },
    error: function(err,prep,$parentElem) {
-       ++errCount;
-       var entry = { id: prep.packageUrl, description: "(Unknown Entry)" };
-       var $node = makeNode(entry);
+       var entry = { id: prep.packageUrl, description: err, type: "error" };
+       /*makeNode(entry);*/
+       var $node = $('<li>'
+                +     '<span class="err"></span>'
+                +     '<label>Unable to fetch feed at url: ' + prep.packageUrl + '</label>'
+                +     '<ul></ul>'
+                +    '</li>');
        var $parent = $parentElem || $checkTree;
        $parent.children(".checktree_separator").before($node);
        var $prefs = makeInfoPanel(entry, $node);

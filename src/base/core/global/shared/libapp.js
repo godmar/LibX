@@ -51,6 +51,35 @@ libx.libapp.addTempPackage = function (permUrl, tempUrl) {
 };
 
 /**
+ * Get an array of packages the user is temporarily subscribed to.
+ *
+ * @returns {Array} array of object ; each object has two properties of type string,
+ *  permUrl and tempUrl which are package URLs
+ */
+libx.libapp.getTempPackages = function ( ) {
+    return tmpPackages;
+};
+
+/**
+ * Unsubscribes from a temporary subscribed package.
+ * Note: {@link libx.libapp.reloadPackages} must be called for changes to take effect.
+ *
+ * @param {String} pkg  URL of package to unsubscribe from
+ * @returns {Boolean} whether the package was successfully unsubscribed
+ */
+libx.libapp.removeTempPackage = function (tempUrl) {
+    for (var i = 0; i < tmpPackages.length; i++) {
+        // disallow duplicates
+        if (tmpPackages[i].tempUrl == tempUrl)
+        {
+           tmpPackages.splice(i,1);
+           return true;
+        }
+    }
+    return false;
+};
+
+/**
  * Unsubscribes from a user-subscribed package.
  * Note: {@link libx.libapp.reloadPackages} must be called for changes to take effect.
  *

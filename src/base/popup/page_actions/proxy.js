@@ -28,7 +28,7 @@ libx.ui.tabs.getSelected( function (tab) {
                 .click(reloadTab);
         
         // add proxy autosense notification if supported
-        if (!proxy.checkURL)
+        if (!proxy.canCheck())
             return;
         
         proxy.checkURL({
