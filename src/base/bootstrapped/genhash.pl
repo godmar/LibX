@@ -4,7 +4,7 @@ use JSON;
 use File::Basename;
 
 chdir dirname($0);
-my @files = `find -type f ! -regex '.*/CVS/.*' ! -name .htaccess ! -name updates.json ! -name genhash.pl ! -name .cvsignore ! -name README`;
+my @files = `find -type f ! -regex '.*/CVS/.*' ! -regex '.*.swp' ! -name .htaccess ! -name updates.json ! -name genhash.pl ! -name .cvsignore ! -name README`;
 
 my %filemap = ( 'files' => {} );
 foreach my $file ( @files ) {
