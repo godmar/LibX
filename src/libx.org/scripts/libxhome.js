@@ -2,6 +2,19 @@
  */
 // alert(jQuery);
 
+    function runDemo( edition ) {
+        jQuery("#demo-iframe").show();
+        var pf = jQuery("#popup-iframe").get(0);
+        if (edition != "") {
+            pf.src = 'http://libx.org/~nova/libx/src/base/popup/popup.html#editionrec=' + edition;
+        } else {
+            _gaq && _gaq.push(['_trackEvent', 'LibX Demo', 'EditionSearch', 'Show LibX 2.0 Popup' ]);
+            pf.src = 'http://libx.org/~nova/libx/src/base/popup/popup.html#showsearchbox';
+        }
+        pf.contentWindow.location.replace(pf.src);
+        pf.contentWindow.location.reload();
+    }
+
 (function ($) {
 
 $(function () {
@@ -10,11 +23,42 @@ $(function () {
     });
 
     $("#demo-button").click(function () {
-        _gaq && _gaq.push(['_trackEvent', 'LibX Demo', 'EditionSearch', 'Show LibX 2.0 Popup' ]);
-        $("#demo-iframe").show();
-        var pf = $("#popup-iframe").get(0);
-        pf.contentWindow.location.replace(pf.src);
+        runDemo("");
     });
+
+$.getJSON('http://libx.org/~nova/libx/src/autoedition/findbyip/?callback=?', function(data) {
+    outputHTML = "<br /><br /><a href=\"http://libx.org/edition-recommendation-system/\">The following editions were recommended for you based on your IP address of " + data["ip"] + ":</a><br /><br /><ul>";
+    data["editions"].sort(function(a, b) {
+        return b["timestamp"] - a["timestamp"];
+    });
+    for (index = 0; index < data["editions"].length; index = index + 1) {
+        var currentEdition = data["editions"][index];
+        outputHTML = outputHTML + "<li><a href=\"#\" onclick=\"javascript:runDemo('" + currentEdition['id']  + "');\"><b><span class=\"editionDesc\">" + currentEdition["description"] + "</span></b>";
+        outputHTML = outputHTML + " (id: <span class=\"editionId\">" + currentEdition["id"] + "</span>)";
+        outputHTML = outputHTML + " maintained by <i><span class=\"editionMaintainers\">";
+        for (mIndex = 0; mIndex < currentEdition["maintainers"].length; mIndex = mIndex + 1) {
+            outputHTML = outputHTML + currentEdition["maintainers"][mIndex] + ", ";
+        }
+            outputHTML = outputHTML.slice(0, -2);
+            outputHTML = outputHTML + "</span></i>";
+            var mod_date = new Date(currentEdition["timestamp"] * 1000);
+            outputHTML = outputHTML + " modified on " + mod_date.toDateString();
+            outputHTML = outputHTML + "</a></li>";
+    }
+    outputHTML = outputHTML + "</ul>";
+    $('#libx-recommendations').html(outputHTML);
+    $('#libx-recommendations .results div').click(function() {
+        var editionId = $('span.editionId', this).html();
+        var editionDesc = $('span.editionDesc', this).html();
+        var editionMaintainers = $('span.editionMaintainers', this).html();
+                //libx.on runDemo( edition ) {
+                //        activity: "recommendation",
+                //        edition: { id: editionId, desc: editionDesc }
+                //});
+                //popup.loadEdition({'id': editionId, 'shortDesc': editionDesc, 'maintainers': editionMaintainers});
+    });
+});
+
 
     $("#popup-iframe").load(function () {
         /* Work-around for FF bug.  If an iframe is initially hidden, $().show()

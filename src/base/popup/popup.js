@@ -46,8 +46,15 @@ $(function() {
             // edition/revision.  
             var hash = window.location.hash;
 
-            if (/#edition=\S+/.test(hash)) {
-                var configUrl = makeConfigUrlFromEdition(hash.match(/#edition=(\S+)/)[1]);
+            if (/#edition(rec)?=\S+/.test(hash)) {
+                if (/#editionrec?=\S+/.test(hash)) {
+                    libx.analytics && libx.analytics.track({
+                        activity: "recommendation",
+                        edition: {id: hash.match(/#editionrec=(\S+)/)[1], desc: "unknown"}
+                    });
+                }
+
+                var configUrl = makeConfigUrlFromEdition(hash.match(/=(\S+)/)[1]);
                 libx.utils.browserprefs.setStringPref('libx.edition.configurl', configUrl);
                 libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
                 
@@ -60,22 +67,16 @@ $(function() {
                 configScheduler.scheduleUpdates(true);
             } else {
                 var showSearchBox = "#showsearchbox" == hash;
-                var showRecommendations = "#showrecommendations" == hash;
 
                 // show view depending on whether user already has edition loaded
-                if (showRecommendations) {
-                    popup.showChangeEditionView();
-                    $('#edition-search-header').hide();
-                } else {
-                    if (!showSearchBox && libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
-                        if (libx.edition) {
-                            popup.loadPopup();
-                        } else {
-                            libx.initialize.reload();
-                        }
+                if (!showSearchBox && libx.utils.browserprefs.getStringPref('libx.edition.configurl', null)) {
+                    if (libx.edition) {
+                        popup.loadPopup();
                     } else {
-                        popup.showChangeEditionView();
+                        libx.initialize.reload();
                     }
+                } else {
+                    popup.showChangeEditionView(false);
                 }
             }
             
@@ -158,7 +159,10 @@ return {
                     outputHTML = outputHTML + currentEdition["maintainers"][mIndex] + ", ";
                 }
                 outputHTML = outputHTML.slice(0, -2);
-                outputHTML = outputHTML + "</span></i></div>";
+                outputHTML = outputHTML + "</span></i>";
+                var mod_date = new Date(currentEdition["timestamp"] * 1000);
+                outputHTML = outputHTML + " modified on " + mod_date.toDateString();
+                outputHTML = outputHTML + "</div>";
             }
             outputHTML = outputHTML + "</div>";
             $('#edition-search-ip').html(outputHTML);
@@ -218,7 +222,9 @@ return {
                         text: rev,
                         value: json.revisions[rev].config
                     };
-                    map.push(elem);
+                    if(!isNaN(elem.text) || elem.text == "live") {
+                        map.push(elem);
+                    }
                 }
                 map.sort(function(a, b) {
                     a = a.text;
@@ -256,7 +262,6 @@ return {
  
     
     initialize: function () {
-
         // replace all HTML placeholders with language-specific strings
         $('.set-locale').each(function() {
             if(this.tagName == 'INPUT')
@@ -344,7 +349,7 @@ return {
             libx.ui.openSearchWindow(libx.utils.getExtensionURL("preferences/pref.xhtml"));
             window.close();
         });
-        
+
         // show change edition page when link is clicked
         $('#change-edition').click(function() {
             popup.showChangeEditionView();
@@ -483,7 +488,9 @@ return {
         $('#error-view').show();
     },
     
-    showChangeEditionView: function() {
+    showChangeEditionView: function(showRec) {
+        if(typeof(showRec)==='undefined') showRec = true;
+
         popup.showFullView();
     
         // allow user to go back to previous screen if an edition is loaded
@@ -493,7 +500,9 @@ return {
             $('#change-edition-cancel').hide();
             
         $('#tabs').hide();
-        popup.recommendations();
+        if(showRec) {
+            popup.recommendations();
+        }
         $('#change-edition-view').show();
         focus($('#edition-search-input'));
         $('#edition-search-input').val('');

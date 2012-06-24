@@ -6,7 +6,7 @@
 # The output of this script can be directed to > getlibx.js 
 #
 
-cat << EOF > /tmp/step2nova.js
+cat << EOF > /tmp/step2.js
 libx.version = "2.0 (clientside)";
 
 /* special client-side setup */
@@ -21,7 +21,7 @@ EOF
 FILES="
 core/global/shared/core.js
 core/global/shared/libx.js
-/tmp/step2nova.js
+/tmp/step2.js
 core/global/shared/log.js
 core/global/shared/utils/binary.js
 core/global/cs/storage.js
@@ -85,6 +85,8 @@ core/global/shared/ui/contextmenu.js
 core/global/cs/ui.js
 core/global/shared/autoedition.js
 core/global/cs/autoedition.js
+core/global/shared/analytics.js
+core/global/cs/analytics.js
 bootstrapped/global/shared/libapp/atomparser.js
 getlibx-step3.js
 "

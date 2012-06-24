@@ -36,7 +36,8 @@ libx.analytics = (function() {
     var _trackEvent    = '_trackEvent';
     var _trackPageview = '_trackPageview';
     var _setAccount    = '_setAccount';
-    var _accountId     =  "$gaaccountid$";
+    //var _accountId     =  "$gaaccountid$";
+    var _accountId = "UA-30755371-1";
     /* Google analytics cookies -- that need to be removed*/
     var _cookiesToRemove = ["__utma", "__utmb", "__utmc", "__utmz", "__utmv", "_utmx"];
 
