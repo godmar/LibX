@@ -257,7 +257,13 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
     }
     
     var pathComp = url.split(/\//);
-    var pathDir = String(url.match(/.*\//));
+    /* Note: the pathDir must not include a trailing slash!
+     * Otherwise, we can't serve saved feeds straight from disk, as in
+     * http://libx.org/libx2/libapps/libx.editions@gmail.com/core
+     * To ensure resolveURL works, we re-add the trailing slash
+     * below before calling handleEntryBody
+     */
+    var pathDir = String(url.match(/(.*)\//)[1]);
     var pathBase = url.replace(/.*\//, "");
 
     if (debug) libx.log.write("url= " + url + " path=" + pathDir + " base=" + pathBase);
@@ -279,7 +285,7 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
             var entry = libx.utils.xpath.findSingleXML(xmlDoc, xpathExpr, xmlDoc, ns);
             if (entry != null) {
                 // URL entry was found in this feed
-                handleEntryBody(xmlDoc, pathDir, entry);
+                handleEntryBody(xmlDoc, pathDir + "/", entry);
             } else {
                 success = false;
                 // URL entry not found in this feed; fetch the entry individually
@@ -290,7 +296,7 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
                     cacheOnly: pathRequest.cacheOnly,
                     success: function (xmlDoc, metadata) {
                         success = true;
-                        handleEntryBody(xmlDoc, pathDir, xmlDoc.documentElement);
+                        handleEntryBody(xmlDoc, pathDir + "/", xmlDoc.documentElement);
                     },
                     error: function (err) {
                         var err2 = "atomparser.js: Error status " + err + " when walking " + url;
