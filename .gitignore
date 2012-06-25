@@ -1,3 +1,5 @@
 
 # ignore updates.json
 updates.json
+
+*.pyc
