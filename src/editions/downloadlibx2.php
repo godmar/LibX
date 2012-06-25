@@ -123,8 +123,7 @@ $editionplusrev = $edition . ($revision != "" ? "." . $revision : "");
         <div>
            <div class="demo-iframe-close" onclick="hideDemoIframe()"/>Close[X]</div>
            <div id="demo-iframe" class="ui-widget-content ui-corner-all">
-             <iframe id="popup-iframe" onload="demoIframeLoaded()" frameborder="0" scrolling="no" width="640" height="300" src="<? echo $libx2base ?>/src/base/popup/popup.html#edition=<? echo $edition .
-             $rev ?>"></iframe>
+             <iframe id="popup-iframe" onload="demoIframeLoaded()" frameborder="0" scrolling="no" width="640" height="300" src="<? echo $libx2base ?>/src/base/popup/popup.html#edition=<? echo $editionplusrev ?>"></iframe>
            </div>
         </div>
         <div class="displaypackages">

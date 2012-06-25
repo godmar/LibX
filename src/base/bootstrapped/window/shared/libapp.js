@@ -229,8 +229,8 @@ function executeLibapp(libapp, pkgArgs) {
     // alert("executing: " + libx.utils.json.stringify(libapp));
     prepLibappOrModule(libapp);
 
-    // unlike for modules, 'include' for libapps is optional.
-    if (libapp.include.length > 0) {
+    // unlike for modules, 'include'/'exclude' for libapps is optional.
+    if (libapp.include.length > 0 || libapp.exclude.length > 0) {
         var executeLibapp = checkIncludesExcludes(libapp, window.location.href);
         if (executeLibapp == null) {
             logDetail({

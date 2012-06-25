@@ -125,9 +125,11 @@ libx.catalog.preview.registerPreviewer({
         var title = w(d.Title);
 
         // what kind of hodgepodge is Summon sending?
-        var uri = d.url || w(d.uri) || w(d.URI);
+        // we're using 2.0.0 now where 'link' is the preferred link
+        var uri = d.link || d.url || w(d.uri) || w(d.URI);
         if (uri)
-            title = '<a title="' + uri + '" href="' + uri + '">' + title + '</a>';
+            // not sure what to put in here
+            title = '<a title="' + "" + '" href="' + uri + '">' + title + '</a>';
 
         add(title);
         add(join(d.Author, 3, " et al"));

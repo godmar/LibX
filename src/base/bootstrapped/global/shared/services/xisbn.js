@@ -68,7 +68,7 @@ libx.services.xisbn = {
     getISBNEditions: function (invofcc) {
         /* Return comma-separated list of editions */
         function formatISBNEditions(xisbnrspisbn, invofcc) {
-            var r = libx.utils.xpath.findNodesXML(xisbnrspisbn, "./xisbn:isbn/text()", xisbnrspisbn, xisbnNSResolver);
+            var r = libx.utils.xpath.findNodesXML(xisbnrspisbn.ownerDocument, "./xisbn:isbn/text()", xisbnrspisbn, xisbnNSResolver);
             var cslist = "", sep = "";
             for (var i = 0; i < r.length; i++) {
                 cslist += sep + r[i].nodeValue;
