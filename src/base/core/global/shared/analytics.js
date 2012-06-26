@@ -37,7 +37,7 @@ libx.analytics = (function() {
     var _trackPageview = '_trackPageview';
     var _setAccount    = '_setAccount';
     //var _accountId     =  "$gaaccountid$";
-    var _accountId = "UA-30755371-1";
+    libx.analytics._accountId = "$gaaccountid$";
     /* Google analytics cookies -- that need to be removed*/
     var _cookiesToRemove = ["__utma", "__utmb", "__utmc", "__utmz", "__utmv", "_utmx"];
 
@@ -131,7 +131,7 @@ libx.analytics = (function() {
         recommendation : function ( args ) {
             if(! libx.prefs.browser.trackextension._value) return;
             if( args.edition ) {
-                var arg = '/recommendation/' + args.edition.id + '/' + unescape(args.edition.desc);
+                var arg = '/autoedition/' + args.edition.id + '/' + unescape(args.edition.desc);
                 push([_trackPageview, arg]);
             }
         },
@@ -139,7 +139,7 @@ libx.analytics = (function() {
          * Initializes google analytics tracker by setting user account
          */
         setAccount : function ( ) {
-           push([_setAccount, _accountId]);
+           push([_setAccount, libx.analytics._accountId]);
         }
     };
 

@@ -16,7 +16,7 @@ if ( libx.analytics.debug )
 
 /*initialize google analytics queue (as per async syntax)*/
 var _gaq = _gaq || [];
-//libx.analytics._accountId = "UA-30755371-1";
+libx.analytics._accountId = "UA-30755371-1";
 libx.analytics.track({activity:"setAccount"});
 
 (function() {
