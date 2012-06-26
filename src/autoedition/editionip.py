@@ -48,7 +48,7 @@ def application(env, start_response):
         tree_mod = new_mod
     ips, eds, cidr = tree.inTree(ipTree.convertIP(ip))
 
-    db = MySQLdb.connect(host="localhost", user="root", passwd="sqlroot", db="libxeb")
+    db = MySQLdb.connect(host="<insert host>", user="<insert user>", passwd="<insert password>", db="<insert database>")
     cursor = db.cursor()
     editionData = []
     raw = ""
