@@ -486,19 +486,21 @@ return {
     },
     
     showChangeEditionView: function(args) {
-        if(typeof(args)==='undefined') args = {};
-        if(typeof(args.showRecommendation)) args.showRecommendation = true;
+        if (args === undefined)
+            args = { showRecommendation: true };
+        if (!('showRecommendation' in args))
+            args.showRecommendation = true;
 
         popup.showFullView();
     
         // allow user to go back to previous screen if an edition is loaded
-        if(libx.edition)
+        if (libx.edition)
             $('#change-edition-cancel').show();
         else
             $('#change-edition-cancel').hide();
             
         $('#tabs').hide();
-        if(args.showRecommendation) {
+        if (args.showRecommendation) {
             popup.recommendations();
         }
         $('#change-edition-view').show();
