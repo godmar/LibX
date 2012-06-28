@@ -76,7 +76,7 @@ $(function() {
                         libx.initialize.reload();
                     }
                 } else {
-                    popup.showChangeEditionView(false);
+                    popup.showChangeEditionView({showRecommendation: false});
                 }
             }
             
@@ -146,7 +146,7 @@ return {
 
     recommendations : function() {
         $.getJSON(libx.services.autoedition.url + '?callback=?', function(data) {
-            outputHTML = "<br /><br /><a href=\"http://libx.org/edition-recommendation-system/\">The following editions were recommended for you based on your IP address of " + data["ip"] + ":</a><br /><br /><div class=\"results\" style=\"display: block\">";
+            outputHTML = "<br /><br /><a href=\"http://libx.org/edition-recommendation-system/\">" + libx.locale.defaultStringBundle.getProperty('ip_recommendations', data["ip"]) + ":</a><br /><br /><div class=\"results\" style=\"display: block\">";
             data["editions"].sort(function(a, b) {
                 return b["timestamp"] - a["timestamp"];
             });
@@ -154,11 +154,8 @@ return {
                 var currentEdition = data["editions"][index];
                 outputHTML = outputHTML + "<div class=\"unselected\"><b><span class=\"editionDesc\">" + currentEdition["description"] + "</span></b>";
                 outputHTML = outputHTML + " (id: <span class=\"editionId\">" + currentEdition["id"] + "</span>)";
-                outputHTML = outputHTML + " maintained by <i><span class=\"editionMaintainers\">";
-                for (mIndex = 0; mIndex < currentEdition["maintainers"].length; mIndex = mIndex + 1) {
-                    outputHTML = outputHTML + currentEdition["maintainers"][mIndex] + ", ";
-                }
-                outputHTML = outputHTML.slice(0, -2);
+                outputHTML = outputHTML + libx.locale.defaultStringBundle.getProperty('maintained_by') + "<i><span class=\"editionMaintainers\">";
+                outputHTML = outputHTML + currentEdition["maintainers"].join(", ");
                 outputHTML = outputHTML + "</span></i>";
                 var mod_date = new Date(currentEdition["timestamp"] * 1000);
                 outputHTML = outputHTML + " modified on " + mod_date.toDateString();
@@ -488,8 +485,9 @@ return {
         $('#error-view').show();
     },
     
-    showChangeEditionView: function(showRec) {
-        if(typeof(showRec)==='undefined') showRec = true;
+    showChangeEditionView: function(args) {
+        if(typeof(args)==='undefined') args = {};
+        if(typeof(args.showRecommendation)) args.showRecommendation = true;
 
         popup.showFullView();
     
@@ -500,7 +498,7 @@ return {
             $('#change-edition-cancel').hide();
             
         $('#tabs').hide();
-        if(showRec) {
+        if(args.showRecommendation) {
             popup.recommendations();
         }
         $('#change-edition-view').show();

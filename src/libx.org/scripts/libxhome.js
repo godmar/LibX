@@ -36,14 +36,11 @@ $.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/?callback=?'
         outputHTML = outputHTML + "<li><a href=\"#\" onclick=\"javascript:runDemo('" + currentEdition['id']  + "');\"><b><span class=\"editionDesc\">" + currentEdition["description"] + "</span></b>";
         outputHTML = outputHTML + " (id: <span class=\"editionId\">" + currentEdition["id"] + "</span>)";
         outputHTML = outputHTML + " maintained by <i><span class=\"editionMaintainers\">";
-        for (mIndex = 0; mIndex < currentEdition["maintainers"].length; mIndex = mIndex + 1) {
-            outputHTML = outputHTML + currentEdition["maintainers"][mIndex] + ", ";
-        }
-            outputHTML = outputHTML.slice(0, -2);
-            outputHTML = outputHTML + "</span></i>";
-            var mod_date = new Date(currentEdition["timestamp"] * 1000);
-            outputHTML = outputHTML + " modified on " + mod_date.toDateString();
-            outputHTML = outputHTML + "</a></li>";
+        outputHTML = outputHTML + currentEdition["maintainers"].join(", ");
+        outputHTML = outputHTML + "</span></i>";
+        var mod_date = new Date(currentEdition["timestamp"] * 1000);
+        outputHTML = outputHTML + " modified on " + mod_date.toDateString();
+        outputHTML = outputHTML + "</a></li>";
     }
     outputHTML = outputHTML + "</ul>";
     $('#libx-recommendations').html(outputHTML);

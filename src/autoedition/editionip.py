@@ -6,7 +6,7 @@ import MySQLdb
 import os
 import pickle
 import time
-import sys, re, simplejson, urllib
+import sys, re, json, urllib
 
 # add directory in which script is located to python path
 script_dir = "/".join(__file__.split("/")[:-1])
@@ -48,30 +48,36 @@ def application(env, start_response):
         tree_mod = new_mod
     ips, eds, cidr = tree.inTree(ipTree.convertIP(ip))
 
-    db = MySQLdb.connect(host="<insert host>", user="<insert user>", passwd="<insert password>", db="<insert database>")
-    cursor = db.cursor()
-    editionData = []
-    raw = ""
-    for edition, timestamp in eds.items():
-        raw += edition + " "
-        cursor.execute("""
-        SELECT editionId, shortDesc
-            FROM editionInfo
-            WHERE isPublic = 1 AND editionId = %s
-    """, edition)
-        for row in cursor:
-            raw += "hit "
-            editionId, shortDesc = row
-            editionData.append({'id': editionId, 'description': shortDesc, 'timestamp': timestamp})
-    for edition in editionData:
-        cursor.execute("""
-        SELECT email
-            FROM editionMaintainer
-            WHERE editionId = %s
-""", edition['id'])
-        edition['maintainers'] = []
-        for row in cursor:
-            edition['maintainers'].append(row[0])
+    try:
+        db = MySQLdb.connect(host="localhost", user="root", passwd="sqlroot", db="libxeb")
+        cursor = db.cursor()
+        editionData = []
+        raw = ""
+        for edition, timestamp in eds.items():
+            raw += edition + " "
+            cursor.execute("""
+            SELECT editionId, shortDesc
+                FROM editionInfo
+                WHERE isPublic = 1 AND editionId = %s
+        """, edition)
+            for row in cursor:
+                raw += "hit "
+                editionId, shortDesc = row
+                editionData.append({'id': editionId, 'description': shortDesc, 'timestamp': timestamp})
+        for edition in editionData:
+            cursor.execute("""
+            SELECT email
+                FROM editionMaintainer
+                WHERE editionId = %s
+    """, edition['id'])
+            edition['maintainers'] = []
+            for row in cursor:
+                edition['maintainers'].append(row[0])
+        db.close();
+    except:
+        db.close();
+        start_response("500 Internal Server Error");
+        return
 
     dummyanswerobject = {
         'ip': ip,
@@ -82,7 +88,7 @@ def application(env, start_response):
     headers = [('Content-Type', 'application/javascript;charset=latin-1'), \
                ('Cache-Control', 'max-age=1,must-revalidate')]
 
-    body = simplejson.dumps(dummyanswerobject, encoding="latin-1")
+    body = json.dumps(dummyanswerobject, encoding="latin-1")
     if params.has_key('callback'):
         body = params.get('callback') + "(" + body + ");"
     start_response("200 OK", headers)

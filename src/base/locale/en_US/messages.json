@@ -115,5 +115,11 @@
                               "placeholders": {
                                 "searchstr":    { "content": "$1" }
                               }
-                            }
+                            },
+    "ip_recommendations":   { "message": "The following editions were recommended for you based on your IP address of $ip$:",
+                              "placeholders": {
+                                "ip":           { "content": "$1" }
+                              }
+                            },
+    "maintained_by":        { "message": " maintained by " }
 }
