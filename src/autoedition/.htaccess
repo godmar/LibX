@@ -10,3 +10,4 @@ Options +ExecCGI
 <Files *.py>
     SetHandler wsgi-script
 </Files>
+

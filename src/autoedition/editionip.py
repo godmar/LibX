@@ -16,6 +16,15 @@ script_dir += "/logParser"
 if script_dir not in sys.path:
     sys.path.append(script_dir)
 import ipTree
+from dbAccess import dbAccessCredentials
+
+editionpath = "/home/www/libx.org/editions";
+
+def isLive(editionid):
+    if editionid[0] < 'a':
+        editionid = "%s/%s/%s" % (editionid[:2], editionid[2:4], editionid)
+        
+    return os.path.lexists(editionpath + "/" + editionid)
 
 pathinfoformat = re.compile('/([^/]*)/(.*)')
 
@@ -49,7 +58,7 @@ def application(env, start_response):
     ips, eds, cidr = tree.inTree(ipTree.convertIP(ip))
 
     try:
-        db = MySQLdb.connect(host="<insert host>", user="<insert user>", passwd="<insert password>", db="<insert database>")
+        db = MySQLdb.connect(**dbAccessCredentials)
         cursor = db.cursor()
         editionData = []
         raw = ""
@@ -59,25 +68,28 @@ def application(env, start_response):
             SELECT editionId, shortDesc
                 FROM editionInfo
                 WHERE isPublic = 1 AND editionId = %s
-        """, edition)
+            """, edition)
             for row in cursor:
                 raw += "hit "
                 editionId, shortDesc = row
-                editionData.append({'id': editionId, 'description': shortDesc, 'timestamp': timestamp})
+                if isLive(editionId):
+                    editionData.append({'id': editionId, 'description': shortDesc, 'timestamp': timestamp})
+
         for edition in editionData:
             cursor.execute("""
             SELECT email
                 FROM editionMaintainer
                 WHERE editionId = %s
-    """, edition['id'])
+            """, edition['id'])
             edition['maintainers'] = []
             for row in cursor:
                 edition['maintainers'].append(row[0])
-        db.close();
+
     except:
-        db.close();
         start_response("500 Internal Server Error");
         return
+    finally:
+        db.close();
 
     dummyanswerobject = {
         'ip': ip,

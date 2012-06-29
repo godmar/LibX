@@ -36,8 +36,6 @@ libx.analytics = (function() {
     var _trackEvent    = '_trackEvent';
     var _trackPageview = '_trackPageview';
     var _setAccount    = '_setAccount';
-    //var _accountId     =  "$gaaccountid$";
-    libx.analytics._accountId = "$gaaccountid$";
     /* Google analytics cookies -- that need to be removed*/
     var _cookiesToRemove = ["__utma", "__utmb", "__utmc", "__utmz", "__utmv", "_utmx"];
 
@@ -211,6 +209,7 @@ libx.analytics = (function() {
          * @description Debug flag, If set to true loads ga_debug.js other wise ga.js is loaded.
          * @default false 
          */
-        debug : false 
+        debug : false ,
+        _accountId : "$gaaccountid$"
     }
 }());

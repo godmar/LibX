@@ -191,7 +191,9 @@ return /** @lends libx.locale */ {
         if (params.url) {
             // get locales from url
             scheduleLocales(function (locale, activity) {
-                libx.cache.defaultObjectCache.get( {
+                /* Make sure that locale information is always fetched from server 
+                 * when in 'cs' mode. */
+                libx.cache.defaultObjectCache[libx.cs ? 'update' : 'get']( {
                     validator: function (vParams) {
                         function validateMessages() {
                             for (var i in vParams.data) {
