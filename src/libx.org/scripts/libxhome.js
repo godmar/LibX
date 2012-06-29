@@ -2,20 +2,21 @@
  */
 // alert(jQuery);
 
-    function runDemo( edition ) {
-        jQuery("#demo-iframe").show();
-        var pf = jQuery("#popup-iframe").get(0);
-        if (edition != "") {
-            pf.src = 'http://libx.org/libx2/libx2-git/src/base/popup/popup.html#editionrec=' + edition;
-        } else {
-            _gaq && _gaq.push(['_trackEvent', 'LibX Demo', 'EditionSearch', 'Show LibX 2.0 Popup' ]);
-            pf.src = 'http://libx.org/libx2/libx2-git/src/base/popup/popup.html#showsearchbox';
-        }
-        pf.contentWindow.location.replace(pf.src);
-        pf.contentWindow.location.reload();
-    }
-
 (function ($) {
+
+runDemo = function ( edition ) {
+    $("#demo-iframe").show();
+    var pf = $("#popup-iframe").get(0);
+    if (edition != "") {
+        pf.src = 'http://libx.org/libx2/libx2-git/src/base/popup/popup.html#editionrec=' + edition;
+    } else {
+        _gaq && _gaq.push(['_trackEvent', 'LibX Demo', 'EditionSearch', 'Show LibX 2.0 Popup' ]);
+        pf.src = 'http://libx.org/libx2/libx2-git/src/base/popup/popup.html#showsearchbox';
+    }
+    /* Needed because of hash change. */
+    pf.contentWindow.location.replace(pf.src);
+    pf.contentWindow.location.reload();
+}
 
 $(function () {
     $(".libx-hide-parent").click(function () {
@@ -59,11 +60,14 @@ $.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/?callback=?'
 
     $("#popup-iframe").load(function () {
         /* Work-around for FF bug.  If an iframe is initially hidden, $().show()
-         * in popup.html does not work
+         * in popup.html does not work.
+         * Apply work-around only for initial view.
          */
         var frame = $(this).get(0);
-        frame.contentWindow.document.body.setAttribute("style", "display: block");
-        frame.contentWindow.window.$("div#change-edition-view").get(0).style.display = "block";
+        if (frame.contentWindow.location.toString().match(/.*#showsearchbox/)) {
+            frame.contentWindow.document.body.setAttribute("style", "display: block");
+            frame.contentWindow.window.$("div#change-edition-view").get(0).style.display = "block";
+        }
 
         var libx = $(this).get(0).contentWindow.libx;
         libx.events.addListener("EditionConfigurationLoaded", {

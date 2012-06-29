@@ -647,7 +647,8 @@ return {
                         }
                     });
                 } catch (e) {
-                    libx.log.write("Error: Invalid saved fields in popup");
+                    libx.log.write("Error: Invalid saved fields in popup: " + e 
+                        + " savedFields was: " + libx.utils.json.stringify(savedFields));
                 }
             }
         }
