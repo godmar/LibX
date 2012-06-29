@@ -5,6 +5,10 @@
  *
  * 'window' and 'document' refer to the current content window's 
  * window and document.
+ *
+ * FIXME: currently, this script assumes $ is defined in some places, 
+ * so any module requiring legacy-cues must first require $.
+ * Possible fix: just always include jquery, period.
  */
 
 /**
@@ -231,6 +235,8 @@ libx.cues.addPubmedMetadataTooltip = function (domelement, catalogname, pmid) {
  * Contact OCLC's xISBN service to  retrieve information about 'isbn', then
  * create tooltip using catalog.contextmenu.search.label localized
  * template
+ *
+ * @deprecated
  *
  * @param {DOMElement} domelement - element to which to add the tooltip
  * @param {String} catalogname - name of catalog

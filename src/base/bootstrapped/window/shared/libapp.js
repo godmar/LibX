@@ -23,6 +23,8 @@ var requireAlias = {
     "jquery" : "jquery-latest.js",
     "jgrowl" : "jquery.jgrowl.js",
     "jgrowl.css" : "jquery.jgrowl.css",
+    "autolink.css" : "autolink.css",
+    "tooltip.css" : "tooltip.css",
     "legacy-cues" : "legacy-cues.js"
 };
 

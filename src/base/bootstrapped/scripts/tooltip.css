@@ -1,0 +1,28 @@
+/**
+ * Style sheet used by new LibX tooltip code
+ */
+
+/* Note: since we insert our tooltips into the DOM at the position where the anchor
+ * is, we really can't afford to inherit undesirable styles - we must redefine what
+ * we need.
+ */
+.libx-tooltip {
+    display: none;
+    position: absolute;
+    top: 2em;   /* 2em below libx-autolink anchor */
+    padding: 5px;
+    z-index: 100;
+    background-color: #eee;
+    color: #000;
+    font-weight: normal;
+    font-style: normal;
+    border: 2px solid #666;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.libx-tooltip p {
+    /* override default 1em margin to keep paragraphs inside a tooltip closer together. */
+    margin: .2em;
+}
