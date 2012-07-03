@@ -170,7 +170,7 @@ libx.ffwindow = {
                 libx.events.addListener('RequestToContentScript', {
                     onRequestToContentScript: function(e, request, sender, sendResponse) {
                         var reqObj = libx.utils.json.parse(request);
-                        if (! reqObj.type in listeners) {
+                        if (!(reqObj.type in listeners)) {
                             libx.log.write("invalid request type: " + reqObj.type);
                             return;
                         }

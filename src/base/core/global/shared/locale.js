@@ -197,7 +197,7 @@ return /** @lends libx.locale */ {
                     validator: function (vParams) {
                         function validateMessages() {
                             for (var i in vParams.data) {
-                                if (!'message' in vParams.data[i])
+                                if (!('message' in vParams.data[i]))
                                     return false;
                             }
                             return true;

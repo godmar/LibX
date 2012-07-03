@@ -149,7 +149,7 @@ libx.catalog.preview.registerPreviewer({
          * IsScholarly : true
          */
         function getBool(d, label) {
-            if (!label in d)
+            if (!(label in d))
                 return; 
             switch (typeof d[label]) {
             case "boolean":

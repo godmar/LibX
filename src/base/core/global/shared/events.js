@@ -134,7 +134,7 @@ libx.events = {
      *                 observerId
      */
     removeListener : function (eventName, observerWindow, observerId) {
-        if (!eventName in handlerMap)
+        if (!(eventName in handlerMap))
             return;
         var handlers = handlerMap[eventName];
         
