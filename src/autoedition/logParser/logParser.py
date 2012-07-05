@@ -110,7 +110,7 @@ for line in logFile:
         if ips is None or convertIP(ip) not in ips:
             processor.ips.append((ip, edition, timestamp))
             new_ips.add(ip)
-        elif edition not in eds or eds[edition] < timestamp:
+        elif edition not in eds or eds[edition] < timestamp or edition not in tree.stamps or tree.stamps[edition] < timestamp:
             tree.addIP(convertIP(ip), cidr, edition, timestamp, convertIP(ip))
 print("Processing " + str(len(processed_ips)) + " unique IPs.")
 print("Processing " + str(len(processed_eds)) + " editions.")

@@ -63,6 +63,8 @@ def application(env, start_response):
         editionData = []
         raw = ""
         for edition, timestamp in eds.items():
+            if edition in tree.stamps:
+                timestamp = tree.stamps[edition]
             raw += edition + " "
             cursor.execute("""
             SELECT editionId, shortDesc
@@ -84,10 +86,9 @@ def application(env, start_response):
             edition['maintainers'] = []
             for row in cursor:
                 edition['maintainers'].append(row[0])
-
-    except:
-        start_response("500 Internal Server Error");
-        return
+    except BaseException as ex:
+        start_response("200 OK", [('Content-Type', 'text/plain;charset=latin-1'), ('Cache-Control', 'max-age=1,must-revalidate')]);
+        return ['Error: ' + str(ex)]
     finally:
         db.close();
 

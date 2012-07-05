@@ -54,6 +54,7 @@ def cidr2ip(start, value):
 class ipTree():
     def __init__(self):
         self.root = {"tag": "0.0.0.0/0", "ips": set(), "eds": dict()}
+        self.stamps = dict()
     
     # Adds an IP to the tree as well as its corresponding edition. Parameters are the decimal IP to be added and the CIDR value and the edition string.
     def addIP(self, cidr_ip, cidr_value, edition, timestamp, source_ip):
@@ -76,6 +77,8 @@ class ipTree():
                 if source_ip not in currentNode["ips"] or edition not in currentNode["eds"]:
                     currentNode["ips"].add(source_ip)
                     currentNode["eds"][edition] = timestamp
+                if edition not in self.stamps or self.stamps[edition] < timestamp:
+                    self.stamps[edition] = timestamp
                 return
             currentBitValue = (cidr_ip >> bit) % 2
     
