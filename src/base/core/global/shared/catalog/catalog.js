@@ -116,6 +116,11 @@ libx.catalog.Catalog = libx.core.Class.create(
     // given an array of {searchType: xxx, searchTerms: xxx } items
     // formulate a query against this catalog
     search: function (fields) {
+        /* Remove all empty fields to avoid problems in bookmarklets. */
+        fields = fields.filter(function (field) {
+            return field.searchTerms != "";
+        });
+
         if (fields.length == 0) {//nothing entered
             fields = [{searchType: 'Y', searchTerms: ""}];
         }

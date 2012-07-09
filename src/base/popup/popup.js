@@ -770,13 +770,16 @@ return {
                     value: i
                 });
             }
-            var link = $('<a href="#">' + libx.edition.catalogs[catalog].name + '</a>');
+
+            // See http://www.alanwood.net/unicode/geometric_shapes.html for options
+            var arrow = '&#9654; ';
+            var link = $('<a style="text-decoration: none" href="#">' + arrow + libx.edition.catalogs[catalog].name + '</a>');
             $('#full-catalogs').empty();
             $('#full-catalogs').append(link);
             function catalogChosen(num, name) {
                 popup.saveFields();
                 popup.loadCatalog(num);
-                $('#full-catalogs > a').text(name);
+                $('#full-catalogs > a').html(arrow + name);
                 $('#simple-menu-catalogs > a').text(name);
             }
             libx.ui.jquery.dropdown($, {
