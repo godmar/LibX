@@ -27,7 +27,13 @@ $(function () {
         runDemo("");
     });
 
-$.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/?callback=?', function(data) {
+var ip = ''; // default, IP address of requestor
+/* for testing. 
+var ip = "171.64.72.55";   // keeda.stanford.edu
+var ip = "18.9.22.169";    // www.mit.edu
+var ip = "128.143.22.23";  // www.lib.virginia.edu
+*/
+$.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/' + ip + '?callback=?', function(data) {
     outputHTML = "<br /><br /><a href=\"http://libx.org/edition-recommendation-system/\">The following editions were recommended for you based on your IP address of " + data["ip"] + ":</a><br /><br /><ul>";
     data["editions"].sort(function(a, b) {
         return b["timestamp"] - a["timestamp"];

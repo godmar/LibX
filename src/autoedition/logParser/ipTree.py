@@ -9,7 +9,7 @@ def convertIP(ip):
 
 # Convert a decimal IP into a string.
 def deconvertIP(ip):
-    group0 = str(ip // 256 // 256 // 256)
+    group0 = str((ip // 256 // 256 // 256) % 256)
     group1 = str((ip // 256 // 256) % 256)
     group2 = str((ip // 256) % 256)
     group3 = str(ip % 256)
@@ -125,7 +125,7 @@ class ipTree():
         while 1:
             print("Current level: " + currentNode["tag"])
             if "ips" in currentNode:
-                print("IPs: " + str(currentNode["ips"]))
+                print("IPs: " + ",".join(map(deconvertIP, currentNode["ips"])))
                 print("Editions: " + ", ".join(list(currentNode["eds"])))
             try:
                 currentNode = currentNode[currentBitValue]

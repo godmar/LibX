@@ -11,6 +11,7 @@ var files = [
     "global/shared/services/crossref.js",
     "global/shared/services/pubmed.js",
     "global/shared/services/xisbn.js",
+    "global/shared/services/rfc.js",
     "global/shared/libapp/textexplorer.js",
     "global/shared/libapp/texttransformer.js",
     "window/shared/libapp.js",
