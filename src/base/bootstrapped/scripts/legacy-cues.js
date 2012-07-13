@@ -151,7 +151,17 @@ libx.cues.CatalogCue = libx.core.Class.create(libx.cues.Cue,
      */
     initialize : function (searchtype, searchterms, catalog) {
         catalog = catalog || libx.edition.catalogs.primary;
-        var searchUrl = catalog.makeSearch(searchtype, searchterms);
+
+        switch (searchtype) {
+        case 'i':
+            /* respect xISBN settings. */
+            var searchUrl = catalog.linkByISBN(searchterms);
+            break;
+        default:
+            var searchUrl = catalog.makeSearch(searchtype, searchterms);
+            break;
+        }
+
         var searchImage = catalog.image || null;
 
         // create localized label based on current locale and search type
