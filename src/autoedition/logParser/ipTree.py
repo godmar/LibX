@@ -105,10 +105,11 @@ class ipTree():
                 return found_ips, found_eds, found_cidr
             startDecimal += (2 ** bit) * currentBitValue
             endDecimal = startDecimal + 2 ** (bit + 1)
-            bit -= 1
             if bit < 0:
                 return found_ips, found_eds, found_cidr
-            currentBitValue = (ip >> bit) % 2
+            bit -= 1
+            if bit >= 0:
+                currentBitValue = (ip >> bit) % 2
     
     # Use pretty print to dump the tree.
     def printTree(self):
@@ -125,7 +126,7 @@ class ipTree():
         while 1:
             print("Current level: " + currentNode["tag"])
             if "ips" in currentNode:
-                print("IPs: " + ",".join(map(deconvertIP, currentNode["ips"])))
+                print("IPs: " + str(currentNode["ips"]))
                 print("Editions: " + ", ".join(list(currentNode["eds"])))
             try:
                 currentNode = currentNode[currentBitValue]
@@ -135,7 +136,8 @@ class ipTree():
             if currentBitValue == 1:
                 currentIP += 2 ** bit
             bit -= 1
-            currentBitValue = (ip >> bit) % 2
+            if bit >= 0:
+                currentBitValue = (ip >> bit) % 2
 
     # all_nodes: Total number of nodes in the tree.
     # cidr_nodes: Total number of nodes with CIDR data.

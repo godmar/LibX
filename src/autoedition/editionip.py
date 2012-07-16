@@ -26,6 +26,16 @@ def isLive(editionid):
         
     return os.path.lexists(editionpath + "/" + editionid)
 
+def isoncampus(ip):
+    iplist = open(os.path.dirname(__file__) + "/vtips.txt")
+    for line in iplist:
+        ips = line.split("-")
+        start = ipTree.convertIP(ips[0].rstrip())
+        end = ipTree.convertIP(ips[1].rstrip())
+        if ip >= start and ip <= end:
+            return True
+    return False
+
 pathinfoformat = re.compile('/([^/]*)/(.*)')
 
 tree = None
@@ -56,6 +66,8 @@ def application(env, start_response):
         tree = pickle.load(open(os.path.dirname(__file__) + '/logParser/treetest.bin', "rb"))
         tree_mod = new_mod
     ips, eds, cidr = tree.inTree(ipTree.convertIP(ip))
+    if isoncampus(ipTree.convertIP(ip)):
+        eds = {'vt': 0}
 
     try:
         db = MySQLdb.connect(**dbAccessCredentials)

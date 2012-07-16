@@ -2,13 +2,14 @@
 
 from getopt import getopt
 import pickle
+import pkgutil
 import sys
 from twisted.internet import reactor
 
 from ipTree import *
 
-import arin
-import ripe
+import registries
+registry_list = [name for _, name, _ in pkgutil.iter_modules(['registries'])]
 
 # IPs to query against WHOIS are added to the self.ips variable. When start() is called, the Twisted Reactor starts and processes the IPs in parallel.
 class ipProcessor():
@@ -16,8 +17,7 @@ class ipProcessor():
         self.num_requests = num_requests
         self.tree = tree
         self.ips = []
-        self.arin_slots = []
-        self.ripe_slots = []
+        self.results = {}
     
     # Begin processing the IPs. If the number of IPs is less than the number of parallel requests, we knock down the number of parallel requests to accomodate that.
     def start(self):
@@ -27,40 +27,70 @@ class ipProcessor():
             return
         for i in range(self.num_requests):
             newIP, newEdition, newTimestamp = self.ips.pop(0)
-            self.arin_slots.append(None)
-            arin.sendRequest(newIP, newEdition, newTimestamp, self, i)
-            self.ripe_slots.append(None)
-            ripe.sendRequest(newIP, newEdition, newTimestamp, self, i)
+            print("Processing IP " + newIP)
+            self.results[newIP] = {'edition': newEdition, 'timestamp': newTimestamp}
+            for registry in registry_list:
+                getattr(registries, registry).sendRequest(newIP, self.callback)
         reactor.run()
 
-    def check_slot(self, index, source_ip, edition, timestamp):
-        if self.arin_slots[index] is not None and self.ripe_slots[index] is not None:
-            self.refresh(index, source_ip, edition, timestamp)
-
-    def refresh(self, index, source_ip, edition, timestamp):
-        all_cidrs = []
-        for current in self.arin_slots[index]:
-            all_cidrs.append(current)
-        for current in self.ripe_slots[index]:
-            all_cidrs.append(current)
-        for cidr_ip, cidr_value in all_cidrs:
-            start, end = cidr2ip(cidr_ip, cidr_value)
-            if source_ip >= start and source_ip <= end:
-                self.tree.addIP(cidr_ip, cidr_value, edition, timestamp, source_ip)
+    def callback(self, ip, result, registry):
+        self.results[ip][registry] = result
+        done = True
+        valid = True
+        for current_registry in registry_list:
+            if current_registry not in self.results[ip]:
+                done = False
+            elif self.results[ip][current_registry] is None:
+                valid = False
+        if done:
+            if valid:
+                self.refresh(ip)
             else:
-                self.tree.addIP(cidr_ip, cidr_value, edition, timestamp, -1)
-        self.arin_slots[index] = None
-        self.ripe_slots[index] = None
+                self.clear(ip)
+                
+    def refresh(self, ip):
+        print("Adding IP " + ip + " to database")
+        all_cidrs = []
+        valid = True
+        for registry1 in registry_list:
+            for registry2 in registry_list:
+                if registry1 != registry2:
+                    start1 = self.results[ip][registry1][0]
+                    end1 = self.results[ip][registry1][1]
+                    start2 = self.results[ip][registry2][0]
+                    end2 = self.results[ip][registry2][1]
+                    if start1 > start2 and end1 > end2:
+                        valid = False
+        if valid is False:
+            print("IP ranges are not disjoint")
+        else:
+            current_registry = ''
+            current_length = 2 ** 32
+            for registry in registry_list:
+                temp_length = self.results[ip][registry][1] - self.results[ip][registry][0]
+                if temp_length < current_length:
+                    current_registry = registry
+                    current_length = temp_length
+            for cidr_ip, cidr_value in self.results[ip][current_registry][2:]:
+                start, end = cidr2ip(cidr_ip, cidr_value)
+                source_ip = convertIP(ip)
+                if source_ip >= start and source_ip <= end:
+                    self.tree.addIP(cidr_ip, cidr_value, self.results[ip]['edition'], self.results[ip]['timestamp'], source_ip)
+                else:
+                    self.tree.addIP(cidr_ip, cidr_value, self.results[ip]['edition'], self.results[ip]['timestamp'], -1)
+        self.clear(ip)
+
+    def clear(self, ip):
+        del self.results[ip]
         if len(self.ips) > 0:
             newIP, newEdition, newTimestamp = self.ips.pop(0)
-            arin.sendRequest(newIP, newEdition, newTimestamp, self, index)
-            ripe.sendRequest(newIP, newEdition, newTimestamp, self, index)
-        else:
-            for i in range(len(self.arin_slots)):
-                if self.arin_slots[i] is None or self.ripe_slots[i] is None:
-                    return
+            print("Processing IP " + newIP)
+            self.results[newIP] = {'edition': newEdition, 'timestamp': newTimestamp}
+            for registry in registry_list:
+                getattr(registries, registry).sendRequest(newIP, self.callback)
+        elif len(self.results) == 0:
             reactor.stop()
-            return
+        return
     
 optlist, args = getopt(sys.argv[1:], 'l:t:')
 treeFile = ''
