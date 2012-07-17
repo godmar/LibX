@@ -1,5 +1,5 @@
 
 libx.services.autoedition = {
-    url : '$bootstrapURL$../../autoedition/findbyip/',
+    url : '$bootstrapURL$autoedition/findbyip/',
 };
 

@@ -1,4 +1,6 @@
 
+var recommendationSystemDocumentationUrl = "http://libx.org/edition-recommendation-system/";
+
 var popup = (function() {
 
 function makeConfigUrlFromEdition(editionRevision) {
@@ -146,7 +148,7 @@ return {
 
     recommendations : function() {
         $.getJSON(libx.services.autoedition.url + '?callback=?', function(data) {
-            outputHTML = "<br /><br /><a href=\"http://libx.org/edition-recommendation-system/\">" + libx.locale.defaultStringBundle.getProperty('ip_recommendations', data["ip"]) + ":</a><br /><br /><div class=\"results\" style=\"display: block\">";
+            outputHTML = "<br /><br /><a target=\"_blank\" href=\"" + recommendationSystemDocumentationUrl + "\">" + libx.locale.defaultStringBundle.getProperty('ip_recommendations', data["ip"]) + ":</a><br /><br /><div class=\"results\" style=\"display: block\">";
             data["editions"].sort(function(a, b) {
                 return b["timestamp"] - a["timestamp"];
             });
