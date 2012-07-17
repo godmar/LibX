@@ -89,7 +89,7 @@ libx.catalog.Catalog = libx.core.Class.create(
     makeXISBNRequest: function(isbn) {
         if (this.xisbn.res_id) {
             // new service described at http://xisbn.worldcat.org/liblook/howtolink.htm
-            return "http://xisbn.worldcat.org:80/liblook/resolve.htm?res_id="
+            return "http://xisbn.worldcat.org:80/liblook2/resolve.htm?res_id="
                 + this.xisbn.res_id
                 + "&rft.isbn=" + isbn
                 + "&url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:book";
