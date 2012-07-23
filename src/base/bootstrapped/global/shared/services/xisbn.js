@@ -31,8 +31,8 @@ var xisbnNSResolver = {
 
 /* Helper:
  * retrieve info about ISBN or ISSN from xISBN - either from cache or from service, and 
-   call formatFunc(result, invofcc) */
-function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
+   call extractFunc(result); then pass result to formatFunc  */
+function retrieve(requestUrlPath, xpathResponseOk, formatFunc, extractFunc, invofcc) {
     var xmlParam = {
         dataType : "xml",
         type     : "POST",
@@ -47,7 +47,8 @@ function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
                     xisbnNSResolver);
 
             if (node) {
-                invofcc.ifFound(formatFunc(node), xmlhttp);
+                var metadata = extractFunc(node);
+                invofcc.ifFound(formatFunc(metadata, node), metadata, xmlhttp);
             } else {
                 if (invofcc.notFound)
                     invofcc.notFound(xmlhttp);
@@ -67,20 +68,18 @@ function retrieve(requestUrlPath, xpathResponseOk, formatFunc, invofcc) {
 libx.services.xisbn = {
     getISBNEditions: function (invofcc) {
         /* Return comma-separated list of editions */
-        function formatISBNEditions(xisbnrspisbn, invofcc) {
-            var r = libx.utils.xpath.findNodesXML(xisbnrspisbn.ownerDocument, "./xisbn:isbn/text()", xisbnrspisbn, xisbnNSResolver);
-            var cslist = "", sep = "";
-            for (var i = 0; i < r.length; i++) {
-                cslist += sep + r[i].nodeValue;
-                sep = ",";
-            }
-            return cslist;
+        function formatISBNEditions(editions, xisbnrspisbn) {
+            return editions.join(",");
+        }
+
+        function extractISBNEditions(xisbnrspisbn) {
+            return libx.utils.xpath.findNodesXML(xisbnrspisbn.ownerDocument, "./xisbn:isbn/text()", xisbnrspisbn, xisbnNSResolver).map(function (r) { return r.nodeValue; });
         }
 
         retrieve("http://xisbn.worldcat.org/webservices/xid/isbn/" 
                         + invofcc.isbn + "?method=getEditions&format=xml&fl=*",
                  "//xisbn:rsp[@stat='ok']", 
-                 formatISBNEditions, invofcc);
+                 formatISBNEditions, extractISBNEditions, invofcc);
     },
 
     /** 
@@ -93,30 +92,48 @@ libx.services.xisbn = {
      */ 
     getISBNMetadata: function (invofcc) {
         /* xisbnrsp is a XML document node returned by xisbn.worldcat.org */
-        function formatISBNMetadataAsText(xisbnrspisbn, invofcc) {
+        function formatISBNMetadataAsText(metadata, xisbnrspisbn) {
             var text = '';
-            function addIfPresent(before, attr, after) {
+            function addIfPresent(before, key, after) {
                 var s = "";
-                if (attr != null) {
-                    s = before + libx.utils.xml.decodeEntities ( String(attr) );
+                if (key in metadata) {
+                    s = before + metadata[key];
                     if (after !== undefined)
                         s += after;
                 }
                 return s;
             }
             // has: lccn form year lang ed title author publisher city
-            text += addIfPresent('"', xisbnrspisbn.getAttribute('title'), '"');
-            text += addIfPresent(" ", xisbnrspisbn.getAttribute('author'));
-            text += addIfPresent(", ", xisbnrspisbn.getAttribute('year'));
-            text += addIfPresent(", ", xisbnrspisbn.getAttribute('publisher'));
-            text += addIfPresent(", ", xisbnrspisbn.getAttribute('city'));
+            text += addIfPresent('"', 'title', '"');
+            text += addIfPresent(" ", 'author');
+            text += addIfPresent(", ", 'year');
+            text += addIfPresent(", ", 'publisher');
+            text += addIfPresent(", ", 'city');
             return text;
+        }
+
+        function extractISBNMetadata(xisbnrspisbn) {
+            var metadata = { };
+            function addIfPresent(key, attr) {
+                if (attr != null) {
+                    metadata[key] = libx.utils.xml.decodeEntities ( String(attr) );
+                }
+            }
+
+            // has: lccn form year lang ed title author publisher city
+            addIfPresent('title', xisbnrspisbn.getAttribute('title'));
+            addIfPresent('author', xisbnrspisbn.getAttribute('author'));
+            addIfPresent('year', xisbnrspisbn.getAttribute('year'));
+            addIfPresent('publisher', xisbnrspisbn.getAttribute('publisher'));
+            addIfPresent('city', xisbnrspisbn.getAttribute('city'));
+            addIfPresent('oclcnum', xisbnrspisbn.getAttribute('oclcnum'));  // space separated list if multiple
+            return metadata;
         }
 
         retrieve("http://xisbn.worldcat.org/webservices/xid/isbn/" 
                         + invofcc.isbn + "?method=getMetadata&format=xml&fl=*",
                  "//xisbn:rsp[@stat='ok']/xisbn:isbn", 
-                 formatISBNMetadataAsText, invofcc);
+                 formatISBNMetadataAsText, extractISBNMetadata, invofcc);
     },
 
     /** 
@@ -146,23 +163,42 @@ libx.services.xisbn = {
         // MA ( Microform )
         //
         /* xissnrsp is a XML document node returned by xisbn.worldcat.org */
-        function formatISSNMetadataAsText(xissnrsp) {
-            var text = '';
-            function addIfPresent(before, attr, after) {
-                var s = "";
+        function extractISSNMetadata(xissnrsp) {
+            var metadata = { };
+            function addIfPresent(key, attr) {
                 if (attr != null) {
-                    s = before + libx.utils.xml.decodeEntities ( String(attr) );
+                    metadata[key] = libx.utils.xml.decodeEntities ( String(attr) );
+                }
+            }
+            addIfPresent('title', xissnrsp.getAttribute('title'));
+            addIfPresent('rssurl', xissnrsp.getAttribute('rssurl'));
+            addIfPresent('form', xissnrsp.getAttribute('form'));
+            addIfPresent('rawcoverage', xissnrsp.getAttribute('rawcoverage'));
+            addIfPresent('peerreview', xissnrsp.getAttribute('peerreview'));
+            addIfPresent('oclcnum', xissnrsp.getAttribute('oclcnum'));  // space separated list if multiple
+
+            return metadata;
+        }
+
+        function formatISSNMetadataAsText(metadata, xissnrsp) {
+            var text = '';
+            function addIfPresent(before, key, after) {
+                var s = "";
+                if (key in metadata) {
+                    s = before + metadata[key];
                     if (after !== undefined)
                         s += after;
                 }
                 return s;
             }
 
-            text += addIfPresent('"', xissnrsp.getAttribute('title'), '"');
-            text += addIfPresent(", ", xissnrsp.getAttribute('publisher'));
-            text += addIfPresent(" ", 
-                xissnrsp.getAttribute('peerreview') == 'Y' ? "(peer-reviewed)" : "(non-peer-reviewed)");
-            switch (xissnrsp.getAttribute('form')) {
+            text += addIfPresent('"', 'title', '"');
+            text += addIfPresent(", ", 'publisher');
+            if (metadata.peerreview != null) {
+                text += metadata.peerreview == 'Y' ? "(peer-reviewed)" : "(non-peer-reviewed)";
+            }
+
+            switch (metadata.form) {
             case "JB": 
                 var form = "Printed serial"; break;
             case "JC": 
@@ -172,43 +208,47 @@ libx.services.xisbn = {
             case "MA": 
                 var form = "Microform"; break;
             }
-            text += addIfPresent(", ", form);
+            text += ", " + form;
             return text;
         }
 
         retrieve("http://xissn.worldcat.org/webservices/xid/issn/" 
                   + invofcc.issn + "?method=getMetadata&format=xml&fl=*&ai=libx.org",
                  "//xissn:rsp[@stat='ok']//xissn:issn", 
-                 formatISSNMetadataAsText, invofcc);
+                 formatISSNMetadataAsText, extractISSNMetadata, invofcc);
     },
 
     /** @private */
     unittests: function (out) {
         this.getISSNMetadataAsText({
             issn: "1940-5758",
-            ifFound: function (text) {
+            ifFound: function (text, metadata) {
                 out.write(this.issn + " -> " + text + "\n");
+                out.write(this.issn + " -> " + libx.utils.json.stringify(metadata) + "\n");
             }
         });
 
         this.getISBNMetadata({
             isbn: "0060731338",
-            ifFound: function (text) {
+            ifFound: function (text, metadata) {
                 out.write(this.isbn + " -> " + text + "\n");
+                out.write(this.isbn + " -> " + libx.utils.json.stringify(metadata) + "\n");
             }
         });
 
         this.getISBNMetadata({
             isbn: "9780060731335",
-            ifFound: function (text) {
+            ifFound: function (text, metadata) {
                 out.write(this.isbn + " -> " + text + "\n");
+                out.write(this.isbn + " -> " + libx.utils.json.stringify(metadata) + "\n");
             }
         });
 
         this.getISBNEditions({
             isbn: "0596002815",
-            ifFound: function (text) {
+            ifFound: function (text, asarray) {
                 out.write("Editions: " + this.isbn + " -> " + text + "\n");
+                out.write("Editions: " + this.isbn + " -> " + asarray + "\n");
             }
         });
 
