@@ -6,10 +6,20 @@ import pkgutil
 import sys
 from twisted.internet import reactor
 
+
+# add directory in which script is located to python path
+script_dir = "/".join(__file__.split("/")[:-1])
+if script_dir == "":
+    script_dir = "."
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+print("logParser directory: " + script_dir)
+
 from ipTree import *
 
 import registries
-registry_list = [name for _, name, _ in pkgutil.iter_modules(['registries'])]
+registry_list = [name for _, name, _ in pkgutil.iter_modules([script_dir + '/registries'])]
+print("logParser will use the following registries: " + ",".join(registry_list))
 
 # IPs to query against WHOIS are added to the self.ips variable. When start() is called, the Twisted Reactor starts and processes the IPs in parallel.
 class ipProcessor():
