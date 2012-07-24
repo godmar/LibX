@@ -45,14 +45,9 @@ class ipProcessor():
 
     def callback(self, ip, result, registry):
         self.results[ip][registry] = result
-        done = True
-        valid = True
-        for current_registry in registry_list:
-            if current_registry not in self.results[ip]:
-                done = False
-            elif self.results[ip][current_registry] is None:
-                valid = False
+        done = self.results[ip].keys() == registry_list
         if done:
+            valid = all(result != None for result in self.results[ip].values())
             if valid:
                 self.refresh(ip)
             else:
