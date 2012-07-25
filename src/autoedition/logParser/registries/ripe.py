@@ -1,5 +1,6 @@
 import json
 import math
+import sys
 
 from twisted.internet import reactor
 from twisted.web.client import getPage
@@ -22,17 +23,23 @@ def network_error(error, ip, callback):
 def finishRequest(output, ip, callback):
     print("RIPE callback called with " + ip)
 
-    json_data = json.loads(output)
     result = None
-    for whois_object in json_data['whois-resources']['objects']['object']:
-        if whois_object['type'] == 'inetnum':
-            whois_ips = whois_object['primary-key']['attribute']['value'].split(" - ")
-            whois_start = convertIP(whois_ips[0])
-            whois_end = convertIP(whois_ips[1])
-            whois_values = ip2cidr(whois_start, whois_end)
-            result = []
-            result.append(whois_start)
-            result.append(whois_end)
-            result.extend(whois_values)
-    callback(ip, result, 'ripe')
+    try:
+        json_data = json.loads(output)
+        for whois_object in json_data['whois-resources']['objects']['object']:
+            if whois_object['type'] == 'inetnum':
+                whois_ips = whois_object['primary-key']['attribute']['value'].split(" - ")
+                whois_start = convertIP(whois_ips[0])
+                whois_end = convertIP(whois_ips[1])
+                whois_values = ip2cidr(whois_start, whois_end)
+                result = {}
+                result['start'] = whois_start
+                result['end'] = whois_end
+                result['cidrs'] = whois_values
+    except:
+        print("Error occurred in RIPE callback: " + sys.exc_info()[0])
+        result = None
+    finally:
+        print("Calling back from RIPE")
+        callback(ip, result, 'ripe')
 

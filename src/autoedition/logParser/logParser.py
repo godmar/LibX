@@ -45,8 +45,12 @@ class ipProcessor():
 
     def callback(self, ip, result, registry):
         self.results[ip][registry] = result
-        done = self.results[ip].keys() == registry_list
+        done = True
+        for cur_registry in registry_list:
+            if cur_registry not in self.results[ip]:
+                done = False
         if done:
+            print("All registries for " + ip + " have returned")
             valid = all(result != None for result in self.results[ip].values())
             if valid:
                 self.refresh(ip)
@@ -60,10 +64,10 @@ class ipProcessor():
         for registry1 in registry_list:
             for registry2 in registry_list:
                 if registry1 != registry2:
-                    start1 = self.results[ip][registry1][0]
-                    end1 = self.results[ip][registry1][1]
-                    start2 = self.results[ip][registry2][0]
-                    end2 = self.results[ip][registry2][1]
+                    start1 = self.results[ip][registry1]['start']
+                    end1 = self.results[ip][registry1]['end']
+                    start2 = self.results[ip][registry2]['start']
+                    end2 = self.results[ip][registry2]['end']
                     if start1 > start2 and end1 > end2:
                         valid = False
         if valid is False:
@@ -72,11 +76,11 @@ class ipProcessor():
             current_registry = ''
             current_length = 2 ** 32
             for registry in registry_list:
-                temp_length = self.results[ip][registry][1] - self.results[ip][registry][0]
+                temp_length = self.results[ip][registry]['end'] - self.results[ip][registry]['start']
                 if temp_length < current_length:
                     current_registry = registry
                     current_length = temp_length
-            for cidr_ip, cidr_value in self.results[ip][current_registry][2:]:
+            for cidr_ip, cidr_value in self.results[ip][current_registry]['cidrs']:
                 start, end = cidr2ip(cidr_ip, cidr_value)
                 source_ip = convertIP(ip)
                 if source_ip >= start and source_ip <= end:
