@@ -8,6 +8,7 @@
  */
 .libx-tooltip {
     display: none;
+    overflow: visible;
     position: absolute;
     top: 2em;   /* 2em below libx-autolink anchor */
     padding: 5px;
