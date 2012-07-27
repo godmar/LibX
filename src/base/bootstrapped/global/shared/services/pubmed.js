@@ -37,30 +37,74 @@ libx.services.pubmed = {
      * @param {Function} invofcc.notFound (optional) function to be called on failure.
      */
     getPubmedMetadata: function (invofcc) {
+        function extractPubmedMetadata(docsum) {
+            function get(xpath, s) {
+                var node = libx.utils.xpath.findSingleXML(docsum.ownerDocument, xpath, s || docsum);
+                return node ? node.nodeValue : null;
+            }
+
+            var m = {}
+            function addIfPresent(key, attr, sep) {
+                if (attr != null) {
+                    var content = libx.utils.xml.decodeEntities ( String(attr) );
+                    if (key in m)
+                        m[key] += (sep || "") + content;
+                    else
+                        m[key] = content;
+                }
+            }
+
+            addIfPresent('atitle', get("./Item[@Name = 'Title']/text()"));
+            addIfPresent('author', get("./Item[@Name = 'AuthorList']/Item[position() = 1 and @Name = 'Author']/text()"));
+            /*
+            if (get("./Item[@Name = 'AuthorList']/Item[position() = 2 and @Name = 'Author']/text()"))
+                text += " et al.";
+            */
+            addIfPresent('jtitle', get("./Item[@Name = 'FullJournalName']/text()"));
+            addIfPresent('volume', get("./Item[@Name = 'Volume']/text()"));
+            addIfPresent('issue', get("./Item[@Name = 'Issue']/text()"));
+            addIfPresent('pages', get("./Item[@Name = 'Pages']/text()"));
+            addIfPresent('year', get("./Item[@Name = 'PubDate']/text()"));
+            m.genre = 'article';
+
+            if ('pages' in m) {
+                try {
+                    m.spage = m.pages.split(/-/)[0];
+                    m.epage = m.pages.split(/-/)[1];
+                    var s = Number(m.spage);
+                    var e = Number(m.epage);
+                    // 1323-7 means 1323 to 1327
+                    if (s > e) {
+                        m.epage = m.spage.substring(0, m.spage.length - m.epage.length) + m.epage;
+                    }
+                } catch (er) { }
+            }
+
+            addIfPresent('so', get("./Item[@Name = 'SO']/text()"));
+            return m;
+        }
+
         /* docsum is a XML document node at /eSummaryResult/DocSum */
-        function formatPubmedMetadataAsText(docsum) {
+        function formatPubmedMetadataAsText(metadata, docsum) {
             var text = '';
             function addIfPresent(before, attr, after) {
                 var s = "";
-                if (attr != null) {
-                    s = before + libx.utils.xml.decodeEntities ( String(attr) );
+                if (metadata[attr] != null) {
+                    s = before + metadata[attr];
                     if (after !== undefined)
                         s += after;
                 }
                 return s;
             }
 
-            function get(xpath) {
-                var node = libx.utils.xpath.findSingleXML(docsum.ownerDocument, xpath, docsum);
-                return node ? node.nodeValue : null;
-            }
-
-            text += addIfPresent('"', get("./Item[@Name = 'Title']/text()"), '"');
-            text += addIfPresent(', ', get("./Item[@Name = 'AuthorList']/Item[position() = 1 and @Name = 'Author']/text()"));
+            text += addIfPresent('"', 'atitle', '"');
+            text += addIfPresent(', ', 'author');
+            text += addIfPresent(', ', 'jtitle');
+            text += addIfPresent(', ', 'so');
+            /*
             if (get("./Item[@Name = 'AuthorList']/Item[position() = 2 and @Name = 'Author']/text()"))
                 text += " et al.";
-            text += addIfPresent(', ', get("./Item[@Name = 'FullJournalName']/text()"));
-            text += addIfPresent(', ', get("./Item[@Name = 'SO']/text()"));
+            */
             return text;
         }
 
@@ -82,7 +126,8 @@ libx.services.pubmed = {
                         xmlResponse, docsumxpath, xmlResponse);
 
                 if (node) {
-                    invofcc.ifFound(formatPubmedMetadataAsText(node), xmlResponse);
+                    var metadata = extractPubmedMetadata(node);
+                    invofcc.ifFound(formatPubmedMetadataAsText(metadata, node), metadata, xmlResponse);
                 } else {
                     if (invofcc.notFound) {
                         invofcc.notFound(responsetext);
@@ -97,12 +142,17 @@ libx.services.pubmed = {
 
     /** @private */
     unittests: function (out) {
-        this.getPubmedMetadata({
-            pubmedid: "16646082",
-            ifFound: function (text) {
-                out.write(this.pubmedid + " -> " + text + "\n");
-            }
-        });
+        var pmids = ["12541934", "1234432", "22592717", "12344321", "16646082"];
+
+        for (var i = 0; i < pmids.length; i++) {
+            this.getPubmedMetadata({
+                pubmedid: pmids[i],
+                ifFound: function (text, metadata) {
+                    out.write(this.pubmedid + " -> " + text + "\n");
+                    out.write(this.pubmedid + " -> " + libx.utils.json.stringify(metadata) + "\n");
+                }
+            });
+        }
     }
 };
 
