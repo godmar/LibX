@@ -116,7 +116,9 @@ libx.services.pubmed = {
             dataType : "text",
             type     : "POST",
             // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082
-            url      : "http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + invofcc.pubmedid,
+            // NB: efetch.fcgi gives more detailed results, but is more difficult to parse.
+            // See http://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
+            url      : "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + invofcc.pubmedid,
 
             // NCBI returns a content type text/html
             success  : function (responsetext) {
@@ -142,7 +144,7 @@ libx.services.pubmed = {
 
     /** @private */
     unittests: function (out) {
-        var pmids = ["12541934", "1234432", "22592717", "12344321", "16646082"];
+        var pmids = ["12541934", "1234432", "22592717", "12344321", "16646082", "22834042"];
 
         for (var i = 0; i < pmids.length; i++) {
             this.getPubmedMetadata({
