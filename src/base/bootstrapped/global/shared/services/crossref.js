@@ -85,14 +85,13 @@ libx.services.crossref = {
                 m.genre = 'article';
 
             var con = getList("./conference/conference_paper/contributors");
-            if (con == null)
+            if (con.length == 0)
                 con = getList("./journal/journal_article/contributors");
-            if (con != null) {
-                for (var i = 0; i < con.length; i++) {
-                    var ci = con[i];
-                    addIfPresent('author', get("./person_name[@sequence='first']/given_name/text()", ci));
-                    addIfPresent('author', get("./person_name[@sequence='first']/surname/text()", ci), " ");
-                }
+
+            for (var i = 0; i < con.length; i++) {
+                var ci = con[i];
+                addIfPresent('author', get("./person_name[@sequence='first']/given_name/text()", ci));
+                addIfPresent('author', get("./person_name[@sequence='first']/surname/text()", ci), " ");
             }
             /* XXX add more authors etc. here. */
             return m;

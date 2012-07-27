@@ -115,7 +115,7 @@ libx.utils.browserprefs.getIntPref = returnDefault;
 libx.utils.xpath = {
     findSingleXML : function (doc, xpathexpr, root, namespaceresolver) {
         var nodes = this.findNodesXML(doc, xpathexpr, root, namespaceresolver);
-        if (nodes == null)
+        if (nodes.length == 0)
             return null;
 
         switch (nodes[0].nodeType) {
@@ -163,9 +163,6 @@ libx.utils.xpath = {
 
             throw er;
         }
-
-        if (nodes.getLength() == 0)
-            return null;
 
         var r = new Array();
         for (var i = 0; i < nodes.getLength(); i++) {
