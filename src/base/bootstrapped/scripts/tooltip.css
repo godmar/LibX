@@ -2,15 +2,14 @@
  * Style sheet used by new LibX tooltip code
  */
 
-/* Note: since we insert our tooltips into the DOM at the position where the anchor
- * is, we really can't afford to inherit undesirable styles - we must redefine what
- * we need.
+/* We insert a <div> with libx-tooltip style under the body.
+ * This will inherit body's style - we can't afford to inherit undesirable 
+ * styles and we must redefine what we need.  OTOH, some things, e.g.
+ * font-size, might be ok to be inherited to stay within the page's tone.
  */
 .libx-tooltip {
     display: none;
     overflow: visible;
-    position: absolute;
-    top: 2em;   /* 2em below libx-autolink anchor */
     padding: 5px;
     z-index: 100;
     background-color: #eee;
