@@ -8,6 +8,9 @@ importPackage(java.io);
 importPackage(javax.xml.xpath);
 importPackage(javax.xml.parsers);
 importPackage(javax.xml.namespace);
+importPackage(javax.xml.transform);
+importPackage(javax.xml.transform.dom);
+importPackage(javax.xml.transform.stream);
 importClass(java.util.TimerTask);
 importClass(org.xml.sax.SAXException);
 load("env.rhino.js");
@@ -85,6 +88,15 @@ libx.core.Class.mixin(libx.utils.xml, {
         } finally {
             this.saxParserLock.unlock();
         }
+    },
+    convertXMLDocumentToString: function (node) {
+        var source = new DOMSource(node);
+        var stringWriter = new StringWriter();
+        var result = new StreamResult(stringWriter);
+        var factory = TransformerFactory.newInstance();
+        var transformer = factory.newTransformer();
+        transformer.transform(source, result);
+        return stringWriter.getBuffer().toString();
     }
 }, true);
 
