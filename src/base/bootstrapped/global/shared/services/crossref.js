@@ -141,7 +141,6 @@ libx.services.crossref = {
 
         // format-unixref gives full metadata rather than short metadata, but uses a completely different response format
         var requestUrlPath = "http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&format=unixref&rft_id=info:doi/" + encodeURIComponent(invofcc.doi);
-        println("Retrieving '" + requestUrlPath + "'");
 
         // xmlParam.error is not implemented since CrossRef returns 200 OK
         // even for DOI that are not known to it.
