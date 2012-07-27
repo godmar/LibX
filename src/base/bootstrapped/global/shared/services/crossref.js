@@ -85,14 +85,13 @@ libx.services.crossref = {
                 m.genre = 'article';
 
             var con = getList("./conference/conference_paper/contributors");
-            if (con == null)
+            if (con.length == 0)
                 con = getList("./journal/journal_article/contributors");
-            if (con != null) {
-                for (var i = 0; i < con.length; i++) {
-                    var ci = con[i];
-                    addIfPresent('author', get("./person_name[@sequence='first']/given_name/text()", ci));
-                    addIfPresent('author', get("./person_name[@sequence='first']/surname/text()", ci), " ");
-                }
+
+            for (var i = 0; i < con.length; i++) {
+                var ci = con[i];
+                addIfPresent('author', get("./person_name[@sequence='first']/given_name/text()", ci));
+                addIfPresent('author', get("./person_name[@sequence='first']/surname/text()", ci), " ");
             }
             /* XXX add more authors etc. here. */
             return m;
@@ -169,7 +168,7 @@ libx.services.crossref = {
 
     /** @private */
     unittests: function (out) {
-        var dois = [ "10.1145/268998.266642", "10.1038/nature00967", "10.1145/1075382.1075383", "10.1126/science.1157784" ];
+        var dois = [ "10.1145/268998.266642", "10.1038/nature00967", "10.1145/1075382.1075383", "10.1126/science.1157784", "10.1145/1047915.1047919" ];
 
         for (var i = 0; i < dois.length; i++) {
             this.getDOIMetadata({
