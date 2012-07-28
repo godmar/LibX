@@ -54,18 +54,25 @@ libx.services.pubmed = {
                 }
             }
 
-            addIfPresent('atitle', get("./Item[@Name = 'Title']/text()"));
-            addIfPresent('author', get("./Item[@Name = 'AuthorList']/Item[position() = 1 and @Name = 'Author']/text()"));
-            /*
-            if (get("./Item[@Name = 'AuthorList']/Item[position() = 2 and @Name = 'Author']/text()"))
-                text += " et al.";
-            */
-            addIfPresent('jtitle', get("./Item[@Name = 'FullJournalName']/text()"));
-            addIfPresent('volume', get("./Item[@Name = 'Volume']/text()"));
-            addIfPresent('issue', get("./Item[@Name = 'Issue']/text()"));
-            addIfPresent('pages', get("./Item[@Name = 'Pages']/text()"));
-            addIfPresent('year', get("./Item[@Name = 'PubDate']/text()"));
-            m.genre = 'article';
+            addIfPresent('atitle', get(".//ArticleTitle/text()"));
+            addIfPresent('pages', get(".//Pagination/MedlinePgn/text()"));
+            addIfPresent('jtitle', get(".//Journal/Title/text()"));
+            addIfPresent('issn', get(".//Journal/ISSN/text()"));
+            addIfPresent('volume', get(".//Journal/JournalIssue/Volume/text()"));
+            addIfPresent('issue', get(".//Journal/JournalIssue/Issue/text()"));
+            addIfPresent('year', get(".//Journal/JournalIssue/PubDate/Year/text()"));
+            addIfPresent('year', get(".//Book/PubDate/Year/text()"));
+            addIfPresent('publisher', get(".//Book/Publisher/PublisherName/text()"));
+            addIfPresent('btitle', get(".//Book/BookTitle/text()"));
+
+            addIfPresent('author', get(".//AuthorList/Author[1]/ForeName/text()"));
+            addIfPresent('author', get(".//AuthorList/Author[1]/LastName/text()"), " ");
+            switch (docsum.localName) {
+            case "PubmedArticle":
+            case "PubmedBookArticle":
+                m.genre = 'article';
+                break;
+            }
 
             if ('pages' in m) {
                 try {
@@ -73,14 +80,13 @@ libx.services.pubmed = {
                     m.epage = m.pages.split(/-/)[1];
                     var s = Number(m.spage);
                     var e = Number(m.epage);
-                    // 1323-7 means 1323 to 1327
+                    // convert 1323-7 to 1323 to 1327
                     if (s > e) {
                         m.epage = m.spage.substring(0, m.spage.length - m.epage.length) + m.epage;
                     }
                 } catch (er) { }
             }
 
-            addIfPresent('so', get("./Item[@Name = 'SO']/text()"));
             return m;
         }
 
@@ -100,11 +106,10 @@ libx.services.pubmed = {
             text += addIfPresent('"', 'atitle', '"');
             text += addIfPresent(', ', 'author');
             text += addIfPresent(', ', 'jtitle');
-            text += addIfPresent(', ', 'so');
-            /*
-            if (get("./Item[@Name = 'AuthorList']/Item[position() = 2 and @Name = 'Author']/text()"))
-                text += " et al.";
-            */
+            text += addIfPresent(', ', 'year');
+            text += addIfPresent(';', 'volume');
+            text += addIfPresent('(', 'issue', ')');
+            text += addIfPresent(':', 'pages');
             return text;
         }
 
@@ -118,14 +123,13 @@ libx.services.pubmed = {
             // see for example http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=16646082
             // NB: efetch.fcgi gives more detailed results, but is more difficult to parse.
             // See http://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
-            url      : "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=xml&id=" + invofcc.pubmedid,
+            url      : "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id=" + invofcc.pubmedid,
 
             // NCBI returns a content type text/html
             success  : function (responsetext) {
                 var xmlResponse = libx.utils.xml.loadXMLDocumentFromString(responsetext);
-                var docsumxpath = '/eSummaryResult/DocSum[./Id/text() = ' + invofcc.pubmedid + ']';
-                var node = libx.utils.xpath.findSingleXML(
-                        xmlResponse, docsumxpath, xmlResponse);
+                var article = '/PubmedArticleSet/*[.//ArticleId/text() = ' + invofcc.pubmedid + ']';
+                var node = libx.utils.xpath.findSingleXML(xmlResponse, article, xmlResponse);
 
                 if (node) {
                     var metadata = extractPubmedMetadata(node);
@@ -137,6 +141,7 @@ libx.services.pubmed = {
                 }
             }
         }
+        //println("curl '" + xmlParam.url + "' > pubmed.xml");
 
         //Send the request
         libx.cache.defaultMemoryCache.get(xmlParam);
