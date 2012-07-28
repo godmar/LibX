@@ -77,11 +77,11 @@ libx.services.crossref = {
             addIfPresent('issue', get("./journal/journal_issue/issue/text()"));
             addIfPresent('atitle', get("./journal/journal_article/titles/title/text()"));
             addIfPresent('atitle', get("./journal/journal_article/titles/subtitle/text()"), " ");
-            addIfPresent('spage', get("./journal/journal_article/pages/first_page/text()"), " ");
-            addIfPresent('epage', get("./journal/journal_article/pages/last_page/text()"), " ");
-            addIfPresent('year', get("./journal/journal_article/publication_date/year/text()"), " ");
+            addIfPresent('spage', get(".//pages/first_page/text()"), " ");
+            addIfPresent('epage', get(".//pages/last_page/text()"), " ");
+            addIfPresent('year', get(".//publication_date/year/text()"), " ");
             addIfPresent('url', get("./journal/journal_article/doi_data/resource/text()"), " ");
-
+            addIfPresent('url', get("./conference/conference_paper/doi_data/resource/text()"), " ");
 
             var typenode = libx.utils.xpath.findSingleXML(query.ownerDocument, "./*[1]", query);
             switch (String(typenode.localName)) {
