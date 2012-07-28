@@ -81,8 +81,15 @@ libx.services.crossref = {
             addIfPresent('epage', get("./journal/journal_article/pages/last_page/text()"), " ");
             addIfPresent('year', get("./journal/journal_article/publication_date/year/text()"), " ");
             addIfPresent('url', get("./journal/journal_article/doi_data/resource/text()"), " ");
-            if (get("./journal") || get("./conference"))
+
+
+            var typenode = libx.utils.xpath.findSingleXML(query.ownerDocument, "./*[1]", query);
+            switch (String(typenode.localName)) {
+            case 'journal':
+            case 'conference':
                 m.genre = 'article';
+                break;
+            }
 
             var con = getList("./conference/conference_paper/contributors");
             if (con.length == 0)
@@ -116,19 +123,9 @@ libx.services.crossref = {
             // (write a small custom formatting engine?)
             text += addIfPresent('"', 'atitle', '",');
 
-            // schema says choice of author/contributors
-            /*
-            var author = get("./qr:author/text()");
-            if (author == null) {
-                var author = get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:surname/text()");
-                author += addIfPresent(", ", get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:given_name/text()"));
-            }
-            */
             text += addIfPresent(" ", 'author');
-
-            text += addIfPresent("; ", 'vtitle');
+            text += addIfPresent("; ", 'ptitle');
             text += addIfPresent("; ", 'jtitle');
-            text += addIfPresent("; ", 'stitle');
             text += addIfPresent(" ", 'volume');
             text += addIfPresent("(", 'issue', ")");
             text += addIfPresent(":", 'spage', "-");
@@ -168,7 +165,7 @@ libx.services.crossref = {
 
     /** @private */
     unittests: function (out) {
-        var dois = [ "10.1145/268998.266642", "10.1038/nature00967", "10.1145/1075382.1075383", "10.1126/science.1157784", "10.1145/1047915.1047919" ];
+        var dois = [ "10.1145/268998.266642", "10.1038/nature00967", "10.1145/1075382.1075383", "10.1126/science.1157784", "10.1145/1047915.1047919", "10.1145/1409720.1409729" ];
 
         for (var i = 0; i < dois.length; i++) {
             this.getDOIMetadata({
