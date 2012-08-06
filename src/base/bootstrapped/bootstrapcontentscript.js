@@ -14,6 +14,7 @@ var files = [
     "global/shared/services/rfc.js",
     "global/shared/libapp/textexplorer.js",
     "global/shared/libapp/texttransformer.js",
+    "window/shared/utils/coins.js",
     "window/shared/libapp.js",
     "window/shared/libappbuilder.js"
 ];
