@@ -40,55 +40,103 @@ libx.services.crossref = {
         if (!libx.utils.browserprefs.getBoolPref ('libx.doi.ajaxpref', true))
             return;
 
-        var crossrefNSResolver = { 'qr' : 'http://www.crossref.org/qrschema/2.0' };
+        function extractDOIMetadata (query) {
+            // println(libx.utils.xml.convertXMLDocumentToString(query));
+
+            var m = {}
+            function addIfPresent(key, attr, sep) {
+                if (attr != null) {
+                    var content = libx.utils.xml.decodeEntities ( String(attr) );
+                    if (key in m)
+                        m[key] += (sep || "") + content;
+                    else
+                        m[key] = content;
+                }
+            }
+
+            function get(xpath, s) {
+                var node = libx.utils.xpath.findSingleXML(query.ownerDocument, xpath, s || query);
+                return node ? node.nodeValue : null;
+            }
+            function getList(xpath) {
+                return libx.utils.xpath.findNodesXML(query.ownerDocument, xpath, query);
+            }
+            function getAttr(xpath, attr) {
+                var node = libx.utils.xpath.findSingleXML(query.ownerDocument, xpath, query);
+                return node ? node.getAttribute(attr) : null;
+            }
+
+            addIfPresent('atitle', get("./conference/conference_paper/titles/title/text()"));
+            addIfPresent('atitle', get("./conference/conference_paper/titles/subtitle/text()"), " ");
+            addIfPresent('jtitle', get("./journal/journal_metadata/full_title/text()"));
+            addIfPresent('issn', get("./journal/journal_metadata/issn/text()"));
+            addIfPresent('isbn', get("./conference/proceedings_metadata/isbn/text()"));
+            addIfPresent('ptitle', get("./conference/proceedings_metadata/proceedings_title/text()"));
+            addIfPresent('publisher', get("./conference/proceedings_metadata/publisher/publisher_name/text()"));
+            addIfPresent('volume', get("./journal/journal_issue/journal_volume/volume/text()"));
+            addIfPresent('issue', get("./journal/journal_issue/issue/text()"));
+            addIfPresent('atitle', get("./journal/journal_article/titles/title/text()"));
+            addIfPresent('atitle', get("./journal/journal_article/titles/subtitle/text()"), " ");
+            addIfPresent('spage', get(".//pages/first_page/text()"), " ");
+            addIfPresent('epage', get(".//pages/last_page/text()"), " ");
+            addIfPresent('year', get(".//publication_date/year/text()"), " ");
+            addIfPresent('url', get("./journal/journal_article/doi_data/resource/text()"), " ");
+            addIfPresent('url', get("./conference/conference_paper/doi_data/resource/text()"), " ");
+
+            var typenode = libx.utils.xpath.findSingleXML(query.ownerDocument, "./*[1]", query);
+            switch (String(typenode.localName)) {
+            case 'journal':
+            case 'conference':
+                m.genre = 'article';
+                break;
+            }
+
+            var con = getList("./conference/conference_paper/contributors");
+            if (con.length == 0)
+                con = getList("./journal/journal_article/contributors");
+
+            for (var i = 0; i < con.length; i++) {
+                var ci = con[i];
+                addIfPresent('author', get("./person_name[@sequence='first']/given_name/text()", ci));
+                addIfPresent('author', get("./person_name[@sequence='first']/surname/text()", ci), " ");
+            }
+            /* XXX add more authors etc. here. */
+            return m;
+        }
 
         /* query is a XML document node at //query */
-        function formatDOIMetadataAsText (query) {
+        function formatDOIMetadataAsText (metadata, query) {
             var text = '';
             function addIfPresent(before, attr, after) {
                 var s = "";
-                if (attr != null) {
-                    s = before + libx.utils.xml.decodeEntities ( String(attr) );
+                if (metadata[attr] != null) {
+                    s = before + metadata[attr];
                     if (after !== undefined)
                         s += after;
                 }
                 return s;
             }
 
-            function get(xpath) {
-                var node = libx.utils.xpath.findSingleXML(query.ownerDocument, xpath, query, crossrefNSResolver);
-                return node ? node.nodeValue : null;
-            }
-
             // create an ad-hoc reference format here.
-            var atitle = get("./qr:article_title/text()");
-            var vtitle = get("./qr:volume_title/text()");
-            var stitle = get("./qr:series_title/text()");
-            var jtitle = get("./qr:journal_title/text()");
-            if (atitle) {
-                text += addIfPresent('"', atitle, '",');
-            }
+            // XXX since some may be absent, use of a separator
+            // should really depend on presence of previous element.
+            // (write a small custom formatting engine?)
+            text += addIfPresent('"', 'atitle', '",');
 
-            // schema says choice of author/contributors
-            var author = get("./qr:author/text()");
-            if (author == null) {
-                var author = get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:surname/text()");
-                author += addIfPresent(", ", get("./qr:contributors/qr:contributor[@first-author = 'true']/qr:given_name/text()"));
-            }
-            text += addIfPresent(" ", author);
-
-            text += addIfPresent("; ", vtitle);
-            text += addIfPresent("; ", jtitle);
-            text += addIfPresent("; ", stitle);
-            text += addIfPresent(" ", get("./qr:volume/text()"));
-            text += addIfPresent("(", get("./qr:issue/text()"), ")");
-            text += addIfPresent(":", get("./qr:first_page/text()"), "-");
-            text += addIfPresent(" (", get("./qr:year/text()"), ")");
+            text += addIfPresent(" ", 'author');
+            text += addIfPresent("; ", 'ptitle');
+            text += addIfPresent("; ", 'jtitle');
+            text += addIfPresent(" ", 'volume');
+            text += addIfPresent("(", 'issue', ")");
+            text += addIfPresent(":", 'spage', "-");
+            text += addIfPresent("", 'epage');
+            text += addIfPresent(" (", "year", ")");
 
             return text;
         }
 
-        var requestUrlPath = "http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&rft_id=info:doi/" + encodeURIComponent(invofcc.doi);
+        // format-unixref gives full metadata rather than short metadata, but uses a completely different response format
+        var requestUrlPath = "http://www.crossref.org/openurl/?url_ver=Z39.88-2004&req_dat=libx.org&multihit=true&format=unixref&rft_id=info:doi/" + encodeURIComponent(invofcc.doi);
 
         // xmlParam.error is not implemented since CrossRef returns 200 OK
         // even for DOI that are not known to it.
@@ -98,11 +146,12 @@ libx.services.crossref = {
             url      : requestUrlPath,
 
             success  : function (xmlhttp) {
-                var querypath = "//qr:query[@status = 'resolved' and ./qr:doi/text() = '" + invofcc.doi + "']";
+                var querypath = "/doi_records/doi_record/crossref[.//doi_data/doi/text() = '" + invofcc.doi + "']";
 
-                var node = libx.utils.xpath.findSingleXML(xmlhttp, querypath, xmlhttp, crossrefNSResolver);
+                var node = libx.utils.xpath.findSingleXML(xmlhttp, querypath, xmlhttp);
                 if (node) {
-                    invofcc.ifFound(formatDOIMetadataAsText(node), xmlhttp);
+                    var metadata = extractDOIMetadata(node);
+                    invofcc.ifFound(formatDOIMetadataAsText(metadata, node), metadata, xmlhttp);
                 } else {
                     if (invofcc.notFound)
                         invofcc.notFound(xmlhttp);
@@ -116,13 +165,14 @@ libx.services.crossref = {
 
     /** @private */
     unittests: function (out) {
-        var dois = [ "10.1145/268998.266642", "10.1038/nature00967", "10.1145/1075382.1075383" ];
+        var dois = [ "10.1145/268998.266642", "10.1038/nature00967", "10.1145/1075382.1075383", "10.1126/science.1157784", "10.1145/1047915.1047919", "10.1145/1409720.1409729" ];
 
         for (var i = 0; i < dois.length; i++) {
             this.getDOIMetadata({
                 doi: dois[i],
-                ifFound: function (text) {
+                ifFound: function (text, metadata) {
                     out.write(this.doi + " -> " + text + "\n");
+                    out.write(this.doi + " -> " + libx.utils.json.stringify(metadata) + "\n");
                 }
             });
         }
