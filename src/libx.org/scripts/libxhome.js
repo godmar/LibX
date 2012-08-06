@@ -38,6 +38,7 @@ $.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/' + ip + '?c
     data["editions"].sort(function(a, b) {
         return b["timestamp"] - a["timestamp"];
     });
+    /* Please rewrite to avoid global function 'runDemo' */
     for (index = 0; index < data["editions"].length; index = index + 1) {
         var currentEdition = data["editions"][index];
         outputHTML = outputHTML + "<li><a href=\"#\" onclick=\"javascript:runDemo('" + currentEdition['id']  + "');\"><b><span class=\"editionDesc\">" + currentEdition["description"] + "</span></b>";
@@ -51,16 +52,6 @@ $.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/' + ip + '?c
     }
     outputHTML = outputHTML + "</ul>";
     $('#libx-recommendations').html(outputHTML);
-    $('#libx-recommendations .results div').click(function() {
-        var editionId = $('span.editionId', this).html();
-        var editionDesc = $('span.editionDesc', this).html();
-        var editionMaintainers = $('span.editionMaintainers', this).html();
-                //libx.on runDemo( edition ) {
-                //        activity: "recommendation",
-                //        edition: { id: editionId, desc: editionDesc }
-                //});
-                //popup.loadEdition({'id': editionId, 'shortDesc': editionDesc, 'maintainers': editionMaintainers});
-    });
 });
 
 
@@ -76,26 +67,32 @@ $.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/' + ip + '?c
         }
 
         var libx = $(this).get(0).contentWindow.libx;
-        libx.events.addListener("EditionConfigurationLoaded", {
-            onEditionConfigurationLoaded: function() {
-                var $iButton = $("#libx-install-button");
-                var downloadbase = "http://libx.org/releases/";
-                if (window.chrome) {
-                    var downloadurl = downloadbase + "gc/libx2-latest.crx?edition=" + libx.edition.id;
-                    var label = "Install " + libx.edition.name.long + " for Chrome";
-                } else
-                if ($.browser.mozilla) {
-                    var downloadurl = downloadbase + "ff/libx2-latest.xpi?edition=" + libx.edition.id;
-                    var label = "Install " + libx.edition.name.long + " for Firefox";
-                } else {
-                    var label = "LibX is not supported for this browser";
-                }
-                $iButton.show().children("span").text(label).attr('title', downloadurl).click(function () {
-                    window.location = downloadurl;
-                });
-               _gaq && _gaq.push(['_trackEvent', 'LibX Demo', 'EditionConfigurationLoaded', libx.edition.id + " " + libx.edition.name.long ]);
+        function activateInstallButton() {
+            var $iButton = $("#libx-install-button");
+            var downloadbase = "http://libx.org/releases/";
+            if (window.chrome) {
+                var downloadurl = downloadbase + "gc/libx2-latest.crx?edition=" + libx.edition.id;
+                var label = "Install " + libx.edition.name.long + " for Chrome";
+            } else
+            if ($.browser.mozilla) {
+                var downloadurl = downloadbase + "ff/libx2-latest.xpi?edition=" + libx.edition.id;
+                var label = "Install " + libx.edition.name.long + " for Firefox";
+            } else {
+                var label = "LibX is not supported for this browser";
             }
-        }, undefined, 'popup_reload_in_parent');
+            $iButton.show().children("span").text(label).attr('title', downloadurl).click(function () {
+                window.location = downloadurl;
+            });
+           _gaq && _gaq.push(['_trackEvent', 'LibX Demo', 'EditionConfigurationLoaded', libx.edition.id + " " + libx.edition.name.long ]);
+        }
+
+        if (libx.edition) {
+            activateInstallButton();
+        } else {
+            libx.events.addListener("EditionConfigurationLoaded", {
+                onEditionConfigurationLoaded: activateInstallButton
+            }, undefined, 'popup_reload_in_parent');
+        }
     });
 
 });
