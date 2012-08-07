@@ -98,7 +98,7 @@ sub copyandreplace
     close (FD);
 }
 
-my $tmpdir = "tmp2.$$";
+my $tmpdir = "build-" . $conf{'libxversion'};
 if (-d $tmpdir) {
     system("/bin/rm -r $tmpdir") == 0 or die "$!: cannot rm " . $tmpdir . " in " . `pwd` . " running as " . `id`;
 }
@@ -143,13 +143,15 @@ if ($localbuild eq "") {
 }
 system("chmod g+w $updatepath/$crxfile") == 0 || die "chmod g+w failed";
 
-system ("/bin/rm -rf $tmpdir");
+my $zipfilename = "libx-" . $conf{'libxversion'} . ".zip";
+print "Build directory is $tmpdir, now preparing for upload to Google Store; target zip is $zipfilename\n";
+system("cd $tmpdir; cp $keypath key.pem; zip -qr ../$zipfilename .; /bin/rm key.pem");
 
 exit 0;
 
 sub usage {
     print STDERR "@_\n";
-    print STDERR "xcreateextension.pl [-localbuild prefix]\n";
+    print STDERR "buildgc.pl [-localbuild prefix]\n";
     print STDERR "\n";
     print STDERR " -localbuild     an alternate prefix, such as 'experimental-'\n";
     print STDERR "\n";
