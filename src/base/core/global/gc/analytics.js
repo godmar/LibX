@@ -49,7 +49,8 @@ var _gaq = _gaq || [];
 libx.analytics.track({activity:"setAccount"});
 
 (function() {
-  /*Syntax for async download google analytics tracking script*/
+  /* Syntax for async download google analytics tracking script */
+  /* See http://developer.chrome.com/chrome/extensions/tut_analytics.html#toc-installing */
   var ga = document.createElement('script'); ga.type = 'text/javascript';
   ga.async = true;
   ga.src = 'https://ssl.google-analytics.com/' + (window.ga_debug ? 'u/ga_debug.js' : 'ga.js');
