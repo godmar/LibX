@@ -85,7 +85,11 @@ function process( pref, layout, data ) {
             result = result.replace(
                 /\{BeginLocale=([a-zA-Z_]+)\}([\s\S]+?)\{EndLocale\}/gi,
                 function(match, language, messages) {
-                    localeObj[language] = libx.utils.json.parse(messages);
+                    try {
+                        localeObj[language] = libx.utils.json.parse(messages);
+                    } catch (er) {
+                        libx.log.write("Error parsing JSON for locale(" + language + "): " + messages);
+                    }
                     return "";
                 }
             );
