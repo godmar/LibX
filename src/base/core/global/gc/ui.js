@@ -16,11 +16,15 @@ libx.ui.tabs = {
     },
     
     getSelected: function (callback) {
-        chrome.tabs.getSelected(null, callback);
+        // http://developer.chrome.com/extensions/tabs.html#method-query
+        // http://developer.chrome.com/extensions/whats_new.html#16
+        chrome.tabs.query({'active': true}, function (tabs) {
+            callback(tabs[0]);
+        });
     },
     
-    sendRequest: function (tabId, request, callback) {
-    	chrome.tabs.sendRequest(tabId, request, callback);
+    sendMessage: function (tabId, request, callback) {
+    	chrome.tabs.sendMessage(tabId, request, callback);
     }
     
 };

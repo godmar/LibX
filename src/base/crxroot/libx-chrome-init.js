@@ -107,7 +107,7 @@ libx.background.addListener("magicImport", function (request, sender, sendRespon
         if (typeof(obj._function_index) != "undefined") {
             return function () {
                 var args = scrub(arguments);
-                chrome.tabs.sendRequest(sender.tab.id, {
+                chrome.tabs.sendMessage(sender.tab.id, {
                     type: "magicImportFunction",
                     index: obj._function_index,
                     args: args,

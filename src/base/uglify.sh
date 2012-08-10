@@ -32,13 +32,11 @@ core/global/shared/config/xmlconfigwrapper.js
 core/global/shared/config/editionconfigurationreader.js
 core/global/shared/events.js
 core/global/shared/utils/json.js
-core/global/shared/bootstrap.js
 core/global/cs/detectbrowser.js
 core/global/cs/log.js
 core/global/cs/cache.js
 core/global/cs/utils/timer.js
 core/global/cs/utils/xml.js
-core/global/cs/bootstrap.js
 core/global/cs/utils/browserprefs.js
 core/global/shared/cache/objectcache.js
 core/global/shared/locale.js
@@ -87,7 +85,7 @@ core/global/shared/autoedition.js
 core/global/cs/autoedition.js
 core/global/shared/analytics.js
 core/global/cs/analytics.js
-bootstrapped/global/shared/libapp/atomparser.js
+core/global/shared/libapp/atomparser.js
 getlibx-step3.js
 "
 

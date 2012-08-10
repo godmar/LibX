@@ -46,7 +46,7 @@ libx.config.XMLConfigWrapper = libx.core.Class.create(
     copyAttributes : function(xnode, obj) {
         for (var i = 0; i < xnode.attributes.length; i++) {
             var attr = xnode.attributes.item(i);
-            var opt = libx.utils.types.normalize(attr.nodeValue);
+            var opt = libx.utils.types.normalize(attr.value);
             if (opt != null)
                 obj[attr.nodeName] = opt;
             // else preserve default.

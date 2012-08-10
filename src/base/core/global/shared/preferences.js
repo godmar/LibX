@@ -80,7 +80,7 @@ var XMLPreferenceObject = libx.core.Class.create(
         for ( var i = 0; i < node.attributes.length; i++ ) {
             var attr = node.attributes.item(i);
             
-            descriptor['_' + (attr.localName || attr.nodeName.replace("libx:",""))] = attr.nodeValue;
+            descriptor['_' + (attr.localName || attr.nodeName.replace("libx:",""))] = attr.value;
         }
         
         return descriptor;    

@@ -1,4 +1,8 @@
 
+// Are we running in a CSP environment?  If so, certain APIs must not be used (such as $.getJSON)
+// on the other hand, we assume that we are not under same-domain restrictions, so can use 
+// $.get (XHR) instead
+var inCSPEnv = typeof chrome != 'undefined' && chrome.tabs !== undefined;
 var recommendationSystemDocumentationUrl = "http://libx.org/edition-recommendation-system/";
 
 var popup = (function() {
@@ -78,7 +82,7 @@ $(function() {
                         libx.initialize.reload();
                     }
                 } else {
-                    popup.showChangeEditionView({showRecommendation: false});
+                    popup.showChangeEditionView({showRecommendation: !showSearchBox});
                 }
             }
             
@@ -147,7 +151,7 @@ return {
     firstLoad: true,
 
     recommendations : function() {
-        $.getJSON(libx.services.autoedition.url + '?callback=?', function(data) {
+        function processRecommendation (data) {
             outputHTML = "<br /><br /><a target=\"_blank\" href=\"" + recommendationSystemDocumentationUrl + "\">" + libx.locale.defaultStringBundle.getProperty('ip_recommendations', data["ip"]) + ":</a><br /><br /><div class=\"results\" style=\"display: block\">";
             data["editions"].sort(function(a, b) {
                 return b["timestamp"] - a["timestamp"];
@@ -183,7 +187,15 @@ return {
                 });
                 popup.loadEdition({'id': editionId, 'shortDesc': editionDesc, 'maintainers': editionMaintainers});
             });
-        });
+        }
+
+        if (inCSPEnv) {
+            $.get(libx.services.autoedition.url, function(data) {
+                processRecommendation(libx.utils.json.parse(data));
+            });
+        } else {
+            $.getJSON(libx.services.autoedition.url + '?callback=?', processRecommendation);
+        }
     },
 
 
@@ -279,6 +291,7 @@ return {
         
         // attach autocomplete to search input
         libx.ui.jquery.autocomplete($, {
+            xhrUnrestricted: inCSPEnv,
             field: $('#edition-search-input'),
             make_url: function (part) {
                 return "http://libx.org/editions/search?q=" 

@@ -22,11 +22,11 @@ var imported = {};
     // object containing all of the listeners that have been registered for this window.
     // listeners are registered using libxTemp.addListener().
     var listeners = {};
-    chrome.extension.onRequest.addListener(function (request, sender, sendResponse) {
+    chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
         for (var i in listeners) {
             if (request.type == i) {
                 listeners[i].apply(this, arguments);
-                return;
+                return true;
             }
         }
         sendResponse();
@@ -39,8 +39,8 @@ var imported = {};
             listeners[type] = listener;
         },
         
-        sendRequest: function (request, callback) {
-            chrome.extension.sendRequest.apply(this, arguments);
+        sendMessage: function (request, callback) {
+            chrome.extension.sendMessage.apply(this, arguments);
         },
         
         // Chrome-only logic for RMI.  the main libx object resides in a
@@ -125,7 +125,7 @@ var imported = {};
                     timestamp: timestamp
                 };
                 
-                chrome.extension.sendRequest(request, function (response) {
+                chrome.extension.sendMessage(request, function (response) {
                     if (options.returns)
                         returnFunc(response.result);
                 });
@@ -171,7 +171,7 @@ var imported = {};
     libxTemp.magicImport('libx.utils.browserprefs.setStringPref');
     libxTemp.magicImport('libx.utils.browserprefs.setIntPref');
     libxTemp.magicImport('libx.preferences.loadUserPrefs', { namespace: imported });
-    libxTemp.magicImport('libx.libapp.getPackages', { returns: true, namespace: imported });
+    libxTemp.magicImport('libx.libapp.getPackages', { returns: true });
     libxTemp.magicImport('libx.libapp.addTempPackage');
     libxTemp.magicImport('libx.libapp.clearTempPackages');
     libxTemp.magicImport('libx.libapp.reloadPackages');
@@ -222,7 +222,7 @@ var imported = {};
             },
             defaultMemoryCache: {
                 get: function (request) {
-                    chrome.extension.sendRequest({ type: "memoryCache", args: request }, function (response) {
+                    chrome.extension.sendMessage({ type: "memoryCache", args: request }, function (response) {
                         fireCallbacks(request, response, true);
                     });
                 }
@@ -243,7 +243,7 @@ var imported = {};
                         }
                     } else {
                         cacheEntry = ocCache[request.url] = { success: false, queue: [] };
-                        chrome.extension.sendRequest({ type: "objectCache", args: request }, function (response) {
+                        chrome.extension.sendMessage({ type: "objectCache", args: request }, function (response) {
 
                             // if the request succeeded, add the response to
                             // the local cache; future requests for this
@@ -269,47 +269,12 @@ var imported = {};
     }) ();
 
     // get browserprefs from background page
-    chrome.extension.sendRequest({ type: "browserPrefs" }, function (result) {
+    chrome.extension.sendMessage({ type: "browserPrefs" }, function (result) {
         libx.utils.browserprefs.setStore(result.prefs);
         libx.initialize(false);
         var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
         if (configUrl != null)
             libx.loadConfig(configUrl);
-    });
-
-    libx.events.addListener("EditionConfigurationLoaded", {
-        onEditionConfigurationLoaded: function () {
-            
-            // Load all URLs marked as @type = 'bootwindow' in configuration
-            var bootWindowUrls = libx.edition.localizationfeeds.bootwindow;
-            if (bootWindowUrls.length == 0) {
-                // Fall back to local preference
-                bootWindowUrls.push({
-                    url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.contentscript.url",
-                            libx.utils.getBootstrapURL("bootstrapcontentscript.js") )
-                });
-            }
-
-            var windowBootStrapper = new libx.bootstrap.BootStrapper();
-            
-            var blockUntilEnabledPackagesReceived = new libx.utils.collections.EmptyActivity();
-            windowBootStrapper.scriptQueue.scheduleFirst(blockUntilEnabledPackagesReceived);
-            
-            imported.libx.libapp.getPackages(true, function (enabledPackages) {
-                libx.libapp.getPackages = function (enabledOnly) {
-                    if (!enabledOnly)
-                        libx.log.write('libx.libapp.getPackages(false) not supported in content script');
-                    return enabledPackages
-                };
-                blockUntilEnabledPackagesReceived.markReady();
-            });
-            
-            for (var i = 0; i < bootWindowUrls.length; i++)
-                windowBootStrapper.loadScript(bootWindowUrls[i].url, {
-                    libx: libx
-                });
-            
-        }
     });
 
     // Aside from saving preferences to the background page localStorage, the

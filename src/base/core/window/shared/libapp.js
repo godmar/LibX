@@ -1,3 +1,11 @@
+/*
+ * This code is run as a content script in the isolated world (Chrome) or the
+ * sandbox emulating it (Firefox)
+ *
+ * An edition may not have been loaded yet.
+ * Preferences are also not available yet (in Chrome)
+ */
+(function () {
 
 /*
  * Internal storage of string bundles.
@@ -50,8 +58,8 @@ function checkIncludesExcludes(spec, url)
     return executeModule;
 }
 
-var debugLevel = libx.utils.browserprefs.getIntPref('libx.libapp.debuglevel', 0);
-libx.log.write("executing with a debug level of " + debugLevel + ": " + window.location.href);
+var debugLevel;
+
 /*
  * Log libapp activity.
  * 0: no logging
@@ -70,17 +78,6 @@ function logDetail(args) {
     msg && libx.log.write(msg);
 }
 
-logDetail({
-    msg: "beginning page visit " + libx.edition.name.long +
-        " time=" + new Date().getTime(),
-    level: 1
-});
-
-/*
-if (event.url.match("libx.cs.vt.edu") != null)
-    sbox.evaluate("alert('You are running libx: ' + libx.edition.name.long);");
-*/
-
 /*
  * Queue that determines order of required scripts.
  * In the implementation below, this is a global queue.
@@ -97,20 +94,20 @@ if (event.url.match("libx.cs.vt.edu") != null)
  * libapp's tuple space in libx.space.
  */
 var requiredScripts = new libx.utils.collections.ActivityQueue();
-var cachedTextTransformerModuleQueue = new libx.utils.collections.ActivityQueue();
+
+/* This activity queue controls all dependencies here.
+ * It's marked ready in processPage below once the edition is known.
+ */
+var cachedTextTransformerModuleQueue = new libx.utils.collections.DelayedActivityQueue();
 
 /* map require url to activity */
 var requireURL2Activity = { };
 
 var textExplorer = new libx.libapp.TextExplorer();
 
-var overridden;
-var overriddenAct = new libx.utils.collections.EmptyActivity();
-cachedTextTransformerModuleQueue.scheduleFirst(overriddenAct);
-libx.libapp.getOverridden(function (val) {
-    overridden = val;
-    overriddenAct.markReady();
-});
+var overridden;         // list of override pairs
+var haveOverridden = new libx.utils.collections.EmptyActivity();
+cachedTextTransformerModuleQueue.scheduleFirst(haveOverridden);
 
 /*
  * libx.libapp.getOverridden() only returns items that are in the cache,
@@ -189,15 +186,26 @@ function processEntries(entries) {
 
 }
 
+// processing entries has returned, which means that all in-cache
+// modules have run; the text transformer queue is primed for document
+// traversal.
+var haveProcessedEntries = new libx.utils.collections.EmptyActivity();
+
 var doWalk = {
-    onready: function () {
-        processEntries(libx.libapp.getPackages(true).map(function (pkg) {
+    onready: function (enabledPackages) {
+        processEntries(enabledPackages.map(function (pkg) {
             return { url: pkg };
         }));
+        haveProcessedEntries.markReady();
     }
 };
+
 cachedTextTransformerModuleQueue.scheduleLast(doWalk);
-doWalk.markReady();
+libx.libapp.getPackages(true, function (enabledPackages) {
+    doWalk.markReady(enabledPackages);
+});
+
+cachedTextTransformerModuleQueue.scheduleLast(haveProcessedEntries);
 
 var traverseTextActivity = {
     onready: function () {
@@ -312,15 +320,30 @@ function executeLibapp(libapp, pkgArgs) {
                 return;
 
             var rAct = requireURL2Activity[rUrl] = {
+                /* In FF, sbox.evaluate is not synchronous. We have seen executeAsync callbacks
+                 * delivered, which would move forward our activity queue.  Place an additional
+                 * blocker here.
+                 */
+                hasCompleted: new libx.utils.collections.EmptyActivity(),
                 onready : function (scriptText, metadata) {
-                    if (metadata == null)
+                    if (metadata == null) {
+                        this.hasCompleted.markReady();
                         return;
+                    }
                     if (/.*\.js$/.test(rUrl)) {
                         logDetail({
                             msg: "injecting required script: " + rUrl,
                             level: 1
                         });
+                        logDetail({
+                            msg: scriptText,
+                            level: 2
+                        });
                         sbox.evaluate(scriptText, rUrl);
+                        logDetail({
+                            msg: "required script injected: " + rUrl,
+                            level: 1
+                        });
                     } else
                     if (/.*\.css$/.test(rUrl)) {
                         var doc = window.document;
@@ -334,10 +357,12 @@ function executeLibapp(libapp, pkgArgs) {
                         });
                         heads[0].appendChild(sheet);
                     }
+                    this.hasCompleted.markReady();
                 }
             }
 
             requiredScripts.scheduleLast(rAct);
+            requiredScripts.scheduleLast(rAct.hasCompleted);
 
             var success = false;
             libx.cache.defaultObjectCache.get({
@@ -416,6 +441,7 @@ function executeLibapp(libapp, pkgArgs) {
             if (bundle) return;
             else {
                 var stringBundleActivity = new libx.utils.collections.EmptyActivity();
+
                 requiredScripts.scheduleLast(stringBundleActivity);
                 libx.locale.getBundle({
                     feed: url,
@@ -448,7 +474,7 @@ function executeLibapp(libapp, pkgArgs) {
         
         function runTextTransformerModule(module) {
             logDetail({
-                msg: "Adding RegexpTextTransformer Module: "
+                msg: "adding RegexpTextTransformer module: "
                     + module.regexptexttransformer[0],
                 level: 1
             });
@@ -550,3 +576,33 @@ function executeLibapp(libapp, pkgArgs) {
         }
     }
 }
+
+/* Actions that require preferences and edition loaded */
+function processPage() {
+    debugLevel = libx.utils.browserprefs.getIntPref('libx.libapp.debuglevel', 0);
+    logDetail({
+        msg: "beginning page visit " + libx.edition.name.long +
+            " time=" + new Date().getTime() +
+            " debuglevel=" + debugLevel +
+            " url=" + window.location.href,
+        level: 1
+    });
+
+    libx.libapp.getOverridden(function (val) {
+        overridden = val;
+        haveOverridden.markReady();
+    });
+
+    cachedTextTransformerModuleQueue.markReady();
+}
+
+if (libx.edition) {
+    processPage();
+} else {
+    libx.events.addListener("EditionConfigurationLoaded", {
+        onEditionConfigurationLoaded: processPage
+    });
+}
+
+}) ();  // end namespace encapsulation
+

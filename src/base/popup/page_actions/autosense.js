@@ -4,8 +4,9 @@ if (libx.cs === undefined) popup.pageActions.autoSense = function () {
         
 function doAutoSense(response) {
     
-    if(!response.id)
+    if (response === undefined || response.id === undefined) {
         return;
+    }
     
     function loadEdition() {
         libx.cache.defaultMemoryCache.get({
@@ -84,8 +85,14 @@ function doAutoSense(response) {
 }
 
 // autosense document in the currently selected tab
-libx.ui.tabs.getSelected( function(tab) {
-    libx.ui.tabs.sendRequest( tab.id, { type: "pageEdition" }, doAutoSense );
+libx.ui.tabs.getSelected( function (tab) {
+    // avoid sending this message to tabs into which we didn't inject a listener,
+    // such as chrome://extension. This will avoid 
+    // 'Port error: Could not establish connection. Receiving end does not exist.'
+    // errors in Chrome
+    if (tab.url.match(/https?:\/\//) != null) {
+        libx.ui.tabs.sendMessage( tab.id, { type: "pageEdition" }, doAutoSense );
+    }
 });
 
 };
