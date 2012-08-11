@@ -212,7 +212,7 @@ libx.ui.jquery.autocomplete = function ($, options)
         }
 
         if (options.xhrUnrestricted) {
-            $.get(options.make_url(part).replace(/&?(\s+)=\?/, ""), function (data) {
+            $.get(options.make_url(part).replace(/&([^&]+)=\?/, ""), function (data) {
                 processResult(libx.utils.json.parse(data));
             });
         } else {
