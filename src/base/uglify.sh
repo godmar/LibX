@@ -91,7 +91,7 @@ getlibx-step3.js
 
 if [ "x$1" = "x-v" ]; then
     cat `echo $FILES` > /tmp/before.js
-    uglifyjs -nc < /tmp/before.js > /tmp/after.js
+    uglifyjs -nc -b < /tmp/before.js > /tmp/after.js
 else
     cat `echo $FILES` | uglifyjs -nc
 fi

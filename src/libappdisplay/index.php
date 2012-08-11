@@ -34,7 +34,6 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/shared/config/editionconfigurationreader.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/events.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/utils/json.js"></script> 
-<script src="<? echo $base; ?>/src/base/core/global/shared/bootstrap.js"></script>
 <!-- 
     see http://truetalkdev.blogspot.com/2007/09/how-to-put-log-messages-in-firefox.html
 -->
@@ -43,7 +42,6 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/cs/cache.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/timer.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/xml.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/bootstrap.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/cs/utils/browserprefs.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/cache/objectcache.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/locale.js"></script>
@@ -64,7 +62,7 @@ libx.cs = {
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui.js"></script>
 <script src="<? echo $base; ?>/src/base/core/global/shared/ui/contextmenu.js"></script>
 -->
-<script src="<? echo $base; ?>/src/base/bootstrapped/global/shared/libapp/atomparser.js"></script>
+<script src="<? echo $base; ?>/src/base/core/global/shared/libapp/atomparser.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 
 <script>
