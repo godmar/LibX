@@ -227,8 +227,6 @@ libx.ffwindow = {
         var iframe = document.getElementById('libx-iframe'); 
 
         libx.ffwindow.libxButtonCommand = function (e) {
-            iframe.style.width = "0";
-            iframe.style.height = "0";
             iframe.contentWindow.location = "chrome://libx/content/popup/popup.html";
         };
         
