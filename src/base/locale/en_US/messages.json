@@ -121,5 +121,82 @@
                                 "ip":           { "content": "$1" }
                               }
                             },
-    "maintained_by":        { "message": " maintained by " }
+    "maintained_by":        { "message": " maintained by " },
+
+    "prefs_browser_tabname" :     { "message" : "Browser" },
+    "prefs_browser_tooltip" :     { "message" : "Preferences related to the browser interface" },
+    "prefs_contextmenu_tabname" : { "message" : "Context Menu" },
+    "prefs_contextmenu_tooltip" : { "message" : "Change which search options appear when right-clicking on a page" },
+    "prefs_libapps_tabname" :     { "message" : "Libapps" },
+    "prefs_libapps_tooltip" :     { "message" : "Add/remove packages and configure current libapps" },
+    "prefs_developer_tabname" :   { "message" : "Developer" },
+    "prefs_developer_tooltip" :   { "message" : "Cache and libapp information" },
+    "prefs_about_tabname" :       { "message" : "About" },
+    "prefs_about_tooltip" :       { "message" : "See the authors of LibX" },
+
+    "prefs_browser_displaypref" : { "message" : "Display Preferences" },
+    "prefs_browser_displaypref_newtabswitch" : { "message" : "Open in a new tab and focus the tab" },
+    "prefs_browser_displaypref_newtab" : { "message" : "Open in a new tab without focusing the tab" },
+    "prefs_browser_displaypref_sametab" : { "message" : "Open in the current tab" },
+    "prefs_browser_displaypref_newwindow" : { "message" : "Open in a new browser window" },
+    "prefs_browser_savesearches" : { "message" : "Remember search fields when popup is closed" },
+    "prefs_browser_trackextension" : { "message" : "Send extension usage (e.g edition installed, catalogs used for searches) [Note: LibX uses Google Analytics]" },
+    "prefs_browser_tracklibapps" : { "message" : "Send libapp usage (e.g frequently used libapps) [Note: LibX uses Google Analytics]" },
+
+    "prefs_contextmenu_reset": {"message": "Reset to default options"},
+
+    "prefs_about_adaptedby" :   { "message" : "Adapted By" },
+    "prefs_about_libxversion" : { "message" : "LibX Version:" },
+    "prefs_about_builddate" :   { "message" : "Build Date:" },
+    "prefs_about_authors" :     { "message" : "Authors" },
+    "prefs_about_homepage" :    { "message" : "LibX Home Page" },
+
+    "prefs_libapps_package_add": { "message": "Subscribe to a package:" },
+    "prefs_libapps_package_whatis": { "message" : "What is a package?"},
+    "prefs_libapps_package_tooltip": { "message" : "A package is a collection of libapps and other packages.  By subscribing to a package, you will experience enhanced functionality on pages where the package's libapps are active." },
+    "prefs_libapps_package_unsubscribe": { "message" : "Unsubscribe packages"},
+    "prefs_libapps_package_unsubscribe_tooltip": { "message" : "You can unsubscribe only those packages, which have been added by you explicitly from above input. And packages which are subscribed by default by the edition remain intact; to deactivate them simply uncheck entire package." },
+    
+    "prefs_libapps_banner": {"message" : "Libapps Display Tree:"},
+    "prefs_libapps_banner_msg1": {"message": "To explore packages/libapps, expand the tree"},
+    "prefs_libapps_banner_msg2": {"message": "To see details click on any label"},
+
+    "prefs_libapps_close": {"message": "Close"},
+    "prefs_libapps_unsubscribe": {"message": "Unsubscribe Package"},
+    "prefs_libapps_show_prefs": {"message": "Show Preferences"},
+    "prefs_libapps_hide_prefs": {"message": "Hide Preferences"},
+    "prefs_libapps_show_details": {"message": "Show Details"},
+    "prefs_libapps_hide_details": {"message": "Hide Details"},
+    "prefs_libapps_show_code": {"message": "Show Code"},
+    "prefs_libapps_hide_code": {"message": "Hide Code"},
+    "prefs_libapps_show_params": {"message": "Show Input Parameters"},
+    "prefs_libapps_hide_params": {"message": "Hide Input Parameters"},
+    
+    "prefs_libapps_unknown": {"message": "unknown"},
+    "prefs_libapps_value": {"message": "Value"},
+    "prefs_libapps_parameters": {"message": "Parameters"},
+    "prefs_libapps_preferences": {"message": "Preferences"},
+    
+    "prefs_libapps_package": {"message": "Package"},
+    "prefs_libapps_libapp": {"message": "Libapp"},
+    "prefs_libapps_module": {"message": "Module"},
+    "prefs_libapps_error": {"message": "Error (Ill-formed package)"},
+    "prefs_libapps_include": {"message": "Include"},
+    "prefs_libapps_exclude": {"message": "Exclude"},
+    "prefs_libapps_guardedby": {"message": "Guarded By"},
+    "prefs_libapps_regexptexttransformer": {"message": "RegEx Text Transformer"},
+    "prefs_libapps_require": {"message": "Require"},
+    
+    "prefs_libapps_details": {"message": "Details"},
+    "prefs_libapps_id": {"message": "Id"},
+    "prefs_libapps_last_updated_on": {"message": "Last Updated On"},
+    "prefs_libapps_author": {"message": "Author"},
+    "prefs_libapps_weblink": {"message": "Weblink"},
+    "prefs_libapps_email": {"message": "Email"},
+    "prefs_libapps_code": {"message": "Code"},
+
+    "prefs_libapps_param_err_0a": {"message": "Parameter type mismatch, Module parameter type is "},
+    "prefs_libapps_param_err_0b": {"message": " and Libapp argument is "},
+    "prefs_libapps_param_err_1": {"message": "Parameter value is unknown! No matching argument passed from the Libapp"},
+    "prefs_libapps_param_err_2": {"message": "Argument is passed from parent libapp but is never declared (as parameter) in this module."}
 }

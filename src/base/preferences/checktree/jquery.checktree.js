@@ -8,6 +8,9 @@
         The CheckTree jQuery plugin is currently available for use in all personal or 
         commercial projects under both MIT and GPL licenses. This means that you can choose 
         the license that best suits your project, and use it accordingly.
+
+    Revised as per https://code.google.com/p/jquery-checktree/issues/detail?id=24
+    to work with recent jQuery.
 */
 (function(jQuery) {
 jQuery.fn.checkTree = function(settings) {
@@ -38,17 +41,17 @@ jQuery.fn.checkTree = function(settings) {
     $tree.find("li")
         
         // Hide all checkbox inputs
-        .find(":checkbox")
+        .find("input:checkbox")
             .change(function(e, dontDoCallback) {
                 // Fired when the children of this checkbox have changed.
                 // Children can change the state of a parent based on what they do as a group.
                 var $all = jQuery(this).siblings("ul").find(":checkbox");
-                var $checked = $all.filter(":checked");
+                var $checked = $all.filter("input:checked");
                 
                 // All children are checked
                 if ($all.length == $checked.length) {
                     jQuery(this)
-                        .attr("checked", "checked")
+                        .prop("checked", true)
                         .siblings(".checkbox")
                             .removeClass("half_checked")
                             .addClass("checked")
@@ -60,7 +63,7 @@ jQuery.fn.checkTree = function(settings) {
                 // All children are unchecked
                 else if($checked.length == 0) {
                     jQuery(this)
-                        .attr("checked", "")
+                        .prop("checked", false)
                         .siblings(".checkbox")
                             .removeClass("checked")
                             .removeClass("half_checked")
@@ -76,7 +79,7 @@ jQuery.fn.checkTree = function(settings) {
                         settings.onHalfCheck(jQuery(this).parent());
                     
                     jQuery(this)
-                        .attr("checked", "")
+                        .prop("checked", false)
                         .siblings(".checkbox")
                             .removeClass("checked")
                             .addClass("half_checked")
@@ -136,11 +139,12 @@ jQuery.fn.checkTree = function(settings) {
                     .toggleClass("checked")
                     // if it's half checked, its now either checked or unchecked
                     .removeClass("half_checked")
-                    
-                    // Send a click event to the checkbox to toggle it as well
-                    // (this is the actual input element)
-                    .siblings(":checkbox").click()
                 ;
+
+                // Send a click event to the checkbox to toggle it as well
+                // (this is the actual input element)
+                var checked = jQuery(this).hasClass("checked");
+                jQuery(this).siblings(":checkbox").prop("checked", checked);
                 
                 // Check/uncheck children depending on our status.
                 if (jQuery(this).hasClass("checked")) {
@@ -160,7 +164,7 @@ jQuery.fn.checkTree = function(settings) {
                         
                         // For each one, check the checkbox (actual input element)
                         .siblings(":checkbox")
-                            .attr("checked", "checked")
+                            .prop("checked", true)
                     ;
                 }
                 
@@ -182,7 +186,7 @@ jQuery.fn.checkTree = function(settings) {
                         
                         // For each one, uncheck the checkbox (the actual input element)
                         .siblings(":checkbox")
-                            .attr("checked", "")
+                            .prop("checked", false)
                     ;
                 }
                 
@@ -193,7 +197,7 @@ jQuery.fn.checkTree = function(settings) {
             // Add the appropriate classes to the new checkbox image based on the old one:
             if (jQuery(this).children(".checkbox").hasClass("checked"))
                 $checkbox.addClass("checked");
-            else if (jQuery(this).children(":checkbox").attr("checked")) {
+            else if (jQuery(this).children(":checkbox").prop("checked")) {
                 $checkbox.addClass("checked");
                 jQuery(this).parents("ul").siblings(":checkbox").trigger("change", true);
             }

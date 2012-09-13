@@ -1,13 +1,5 @@
-{libxtemplate}
-
-{BeginLocale=en_US}
-    {
-        "context_prefs_reset": {"message": "Reset to default options"}
-    }
-{EndLocale}
-
-{!
-  
+/* Context Menu Tree Controls */
+(function () {
     function updateContextMenu(pref, checked) {
         pref._setValue(checked);
 
@@ -103,7 +95,7 @@
         });
     }
 
-    templateScope.queueFunction(function () {
+    $(document).ready(function () {
         createTree();
         $("#context-prefs-reset").click(function () {
             /* reset all context menu options to their default values */
@@ -129,10 +121,4 @@
             createTree();
         });
     });
-    
-!}
-
-<div id="context-prefs"></div>
-<p style="margin-top: 1em;">
-  <button id="context-prefs-reset">{L "context_prefs_reset" L}</button>
-</p>
+}) ();

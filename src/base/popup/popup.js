@@ -358,7 +358,7 @@ return {
         
         // bind preferences page to click
         $("#tab-pane").find('a[href="#preferences"]').click(function () {
-            libx.ui.openSearchWindow(libx.utils.getExtensionURL("preferences/pref.xhtml"));
+            libx.ui.openSearchWindow(libx.utils.getExtensionURL("preferences/pref.html"));
             window.close();
         });
 
