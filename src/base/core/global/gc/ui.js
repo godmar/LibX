@@ -18,7 +18,7 @@ libx.ui.tabs = {
     getSelected: function (callback) {
         // http://developer.chrome.com/extensions/tabs.html#method-query
         // http://developer.chrome.com/extensions/whats_new.html#16
-        chrome.tabs.query({'active': true}, function (tabs) {
+        chrome.tabs.query({'active': true, 'currentWindow': true}, function (tabs) {
             callback(tabs[0]);
         });
     },
