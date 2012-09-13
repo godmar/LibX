@@ -243,7 +243,7 @@ libx.libapp.getOverridden = function (callback) {
                 error: function () {
                     activity.markReady();
                 }
-            }, activity);
+            }, null, activity);
             
         });
     }

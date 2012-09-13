@@ -451,7 +451,7 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
     },
     /**
      * Mark an activity as ready.  If the activity is at the head
-     * of the queue, run all ready activities in the queue.
+     * of the queue, run all subsequent ready activities in the queue.
      *
      * Alternatively, activity.markReady() may be called.
      * @param {Object} activity

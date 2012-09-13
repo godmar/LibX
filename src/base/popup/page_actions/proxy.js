@@ -31,6 +31,10 @@ libx.ui.tabs.getSelected( function (tab) {
         if (!proxy.canCheck())
             return;
         
+        // only autosense for http/https URLs
+        if (tab.url.match(/https?:\/\//) == null)
+            return;
+
         proxy.checkURL({
             url: tab.url,
             onsuccess: function () {

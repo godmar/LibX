@@ -72,15 +72,15 @@ libx.libapp.nsResolver = ns;
 libx.libapp.PackageVisitor = libx.core.Class.create(
     /** @lends libx.libapp.PackageVisitor.prototype */{
     
-    onpackage: function (pkg,pkgObj) {
+    onpackage: function (pkg,prep,pkgObj) {
         for (var i = 0; i < pkg.entries.length; i++)
             handleEntry(this, pkg.entries[i].url,pkgObj);
     },
-    onlibapp: function (libapp,libappObj) {
+    onlibapp: function (libapp,prep,libappObj) {
         for (var i = 0; i < libapp.entries.length; i++)
             handleEntry(this, libapp.entries[i].url,libappObj);
     },
-    onmodule: function (module) {
+    onmodule: function (module,prep) {
     },
     beforeentry: function(entryUrl) {
     }
@@ -352,8 +352,8 @@ libx.libapp.PackageWalker = libx.core.Class.create(
      * @param {Object} cacheMissActivity  (optional) activity to mark ready if
      *    the entry is not in the object cache
      */
-    walk : function (visitor, cacheMissActivity) {
-        handleEntry(visitor, this.rootPackage, null, cacheMissActivity);
+    walk : function (visitor, rootObj, cacheMissActivity) {
+        handleEntry(visitor, this.rootPackage, rootObj, cacheMissActivity);
     }
 });
 

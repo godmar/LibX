@@ -46,6 +46,25 @@ StringBundle = libx.core.Class.create(
     },
     
     /**
+     * Check if a property is present in any locale string bundle.
+     * @return {boolean} if property is present
+     */
+    hasProperty : function (name) {
+        return this.getPropertyObject(name) != null;
+    },
+
+    getPropertyObject : function ( name ) {
+        var propertyObj = null;
+        
+        for (var i = 0; i < this.l10ns.length; i++) {
+            propertyObj = this.l10ns[i][name];
+            if (propertyObj)
+                return propertyObj;
+        }
+        return null;
+    },
+        
+    /**
      * Returns a message with the specified name.
      *  Beginning at the first element in the l10ns array given to
      *  libx.locale.StringBundle(), each l10n object is checked for a message
@@ -60,13 +79,7 @@ StringBundle = libx.core.Class.create(
      */
     getProperty : function ( name /*, arg0, arg1, arg2, .... */) {
         
-        var propertyObj = null;
-        
-        for (var i = 0; i < this.l10ns.length; i++) {
-            propertyObj = this.l10ns[i][name];
-            if (propertyObj)
-                break;
-        }
+        var propertyObj = this.getPropertyObject(name);
         
         if (propertyObj == null) {
             libx.log.write("Property '" + name + "' not found");
