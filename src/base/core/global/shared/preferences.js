@@ -80,7 +80,7 @@ var XMLPreferenceObject = libx.core.Class.create(
         for ( var i = 0; i < node.attributes.length; i++ ) {
             var attr = node.attributes.item(i);
             
-            descriptor['_' + (attr.localName || attr.nodeName.replace("libx:",""))] = attr.nodeValue;
+            descriptor['_' + (attr.localName || attr.nodeName.replace("libx:",""))] = attr.value;
         }
         
         return descriptor;    
@@ -615,7 +615,7 @@ return /** @lends libx.preferences */ {
         
         // initialize browser preferences
         libx.preferences.load ( {
-            filename : libx.utils.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
+            filename : libx.utils.getExtensionURL("preferences/browser.prefs.xml"),
             overwrite : false,
             base : "libx.prefs",
             callback : function () {

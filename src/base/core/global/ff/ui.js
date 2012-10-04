@@ -95,7 +95,7 @@
          * @param {Function(response)}  callback  callback function that receives the
          *                                        response object
          */
-        sendRequest: function(tabId, request, callback) {
+        sendMessage: function(tabId, request, callback) {
             var win = getBrowser().getBrowserForTab(tabId).contentWindow;
             var pageRequest = new libx.events.Event("RequestToContentScript", win);
             var reqStr = libx.utils.json.stringify(request);

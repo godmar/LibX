@@ -190,7 +190,7 @@ libx.ffwindow = {
                         addListener : function (name, listener) {
                             listeners[name] = listener;
                         },
-                        sendRequest: function (request, callback) {
+                        sendMessage: function (request, callback) {
                             var reqStr = libx.utils.json.stringify(request);
                             new libx.events.Event('RequestFromContentScript').notify(reqStr, null, function (response) {
                                 if (callback) {
@@ -201,10 +201,16 @@ libx.ffwindow = {
                         }
                     }
                 };
+
                 var sbox = new libx.libapp.Sandbox(e.window, globalScope);
-                sbox.loadScript("chrome://libx/content/core/window/shared/autosense.js");
-                if (libx.global.edition != null) {
-                    sbox.loadScript("chrome://libx/content/core/window/ff/contentscript.js");
+                var files = [
+                    "window/shared/autosense.js",
+                    "window/ff/contentscript.js",
+                    "window/shared/libapp.js",
+                    "window/shared/libappbuilder.js"
+                ];
+                for (var i = 0; i < files.length; i++) {
+                    sbox.loadScript("chrome://libx/content/core/" + files[i]);
                 }
             }
         }, window);
@@ -221,8 +227,6 @@ libx.ffwindow = {
         var iframe = document.getElementById('libx-iframe'); 
 
         libx.ffwindow.libxButtonCommand = function (e) {
-            iframe.style.width = "0";
-            iframe.style.height = "0";
             iframe.contentWindow.location = "chrome://libx/content/popup/popup.html";
         };
         

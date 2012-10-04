@@ -119,9 +119,23 @@ libx.libapp.addUserPackage = function (pkg) {
  * Get an array of packages the user is subscribed to.
  *
  * @param {Boolean} enabledOnly  if true, only returns the packages that are enabled
+ * @param {Function} optCallback  if given, invoke with return value also
  * @returns {Array} array of strings; each string is a package URL
  */
-libx.libapp.getPackages = function (enabledOnly) {
+libx.libapp.getPackages = function (enabledOnly, optCallback) {
+    /* This function can be invoked both with a synchronous return
+     * value and with a callback. 
+     */
+    function Return(what) { 
+        if (optCallback !== undefined) 
+            optCallback(what);
+        return what;
+    }
+
+    /* User may not have selected an edition */
+    if (libx.edition == null) {
+        return Return([]);
+    }
 
     if (!allPackages) {
         allPackages = [];
@@ -137,7 +151,7 @@ libx.libapp.getPackages = function (enabledOnly) {
     }
 
     if (!enabledOnly)
-        return allPackages;
+        return Return (allPackages);
 
     if (!enabledPackages) {
         enabledPackages = allPackages.filter(function (pkg) {
@@ -152,8 +166,7 @@ libx.libapp.getPackages = function (enabledOnly) {
             enabledPackages.push(tmpPackages[i].tempUrl);
         }
     }
-    return enabledPackages;
-
+    return Return (enabledPackages);
 };
 
 /**
@@ -167,6 +180,7 @@ libx.libapp.reloadPackages = function () {
     libx.libapp.clearOverridden();
     for (var scheduler; scheduler = packageSchedulers.pop();)
         scheduler.stopScheduling();
+
     this.getPackages(true).forEach(function (pkg) {
         var scheduler = new libx.cache.PackageScheduler(pkg);
         scheduler.scheduleUpdates(true);
@@ -229,7 +243,7 @@ libx.libapp.getOverridden = function (callback) {
                 error: function () {
                     activity.markReady();
                 }
-            }, activity);
+            }, null, activity);
             
         });
     }
@@ -251,29 +265,25 @@ libx.libapp.getOverridden = function (callback) {
 
 };
 
-var prereqQueue = new libx.utils.collections.ActivityQueue();
+// wait for edition configuration and preferences to see which packages are subscribed to
+var prereqQueue = new libx.utils.collections.DelayedActivityQueue();
 
-// wait for preferences to see which packages are subscribed to
-var prefsLoadedAct = new libx.utils.collections.EmptyActivity();
-prereqQueue.scheduleLast(prefsLoadedAct);
 libx.events.addListener("PreferencesLoaded", {
     onPreferencesLoaded: function () {
-        prefsLoadedAct.markReady();
+        prereqQueue.markReady();
     }
 });
 
-// wait for global scripts so we can use the package walker.
-// also, reload package schedulers whenever the edition configuration changes.
-// this event takes care of both cases.
-libx.events.addListener("GlobalBootstrapDone", {
-    onGlobalBootstrapDone: function () {
-        var bootstrapAct = {
-            onready: function () {
-                libx.libapp.reloadPackages();
-            }
-        };
-        prereqQueue.scheduleLast(bootstrapAct);
-        bootstrapAct.markReady();
+var reloadLibapps = {
+    onready: function () {
+        libx.libapp.reloadPackages();
+    }
+};
+prereqQueue.scheduleLast(reloadLibapps);
+
+libx.events.addListener("EditionConfigurationLoaded", {
+    onEditionConfigurationLoaded: function () {
+        reloadLibapps.markReady();
     }
 });
 

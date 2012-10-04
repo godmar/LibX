@@ -13,12 +13,13 @@ libx.version = "2.0 (clientside)";
 libx.cs = {
     proxy: function (sUrl) {
         return "../core/global/cs/proxy.php?url="+ encodeURIComponent(sUrl);
-    },
-    baseurl : "../../../"
+    }
+
 };
 EOF
 
 FILES="
+core/global/shared/arrayfix.js
 core/global/shared/core.js
 core/global/shared/libx.js
 /tmp/step2.js
@@ -32,13 +33,11 @@ core/global/shared/config/xmlconfigwrapper.js
 core/global/shared/config/editionconfigurationreader.js
 core/global/shared/events.js
 core/global/shared/utils/json.js
-core/global/shared/bootstrap.js
 core/global/cs/detectbrowser.js
 core/global/cs/log.js
 core/global/cs/cache.js
 core/global/cs/utils/timer.js
 core/global/cs/utils/xml.js
-core/global/cs/bootstrap.js
 core/global/cs/utils/browserprefs.js
 core/global/shared/cache/objectcache.js
 core/global/shared/locale.js
@@ -87,13 +86,14 @@ core/global/shared/autoedition.js
 core/global/cs/autoedition.js
 core/global/shared/analytics.js
 core/global/cs/analytics.js
-bootstrapped/global/shared/libapp/atomparser.js
-getlibx-step3.js
+core/global/shared/libapp/atomparser.js
+core/global/shared/utils/collections/vector.js
+core/global/shared/previewers/summon.js
 "
 
 if [ "x$1" = "x-v" ]; then
     cat `echo $FILES` > /tmp/before.js
-    uglifyjs -nc < /tmp/before.js > /tmp/after.js
+    uglifyjs -nc -b < /tmp/before.js > /tmp/after.js
 else
     cat `echo $FILES` | uglifyjs -nc
 fi

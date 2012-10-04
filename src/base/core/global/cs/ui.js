@@ -22,8 +22,8 @@ libx.ui.tabs = {
         throw "libx.ui.tabs.getSelected not implemented in client-side";
     },
     
-    sendRequest: function (tabId, request, callback) {
-        throw "libx.ui.tabs.sendRequest not implemented in client-side";
+    sendMessage: function (tabId, request, callback) {
+        throw "libx.ui.tabs.sendMessage not implemented in client-side";
     }
     
 };

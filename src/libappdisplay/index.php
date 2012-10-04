@@ -8,79 +8,32 @@
  {
    include ('getBase.php');
  } 
+
 ?>
-
-<script src="<? echo $base; ?>/src/base/core/global/shared/arrayfix.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/core.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/libx.js"></script>
-
+<link type="text/css" href="loading.css" rel="stylesheet" />
+<script src="<? echo $base; ?>/src/base/getlibx.js"></script>
 <script type="text/javascript">
 /* special client-side setup */
-libx.cs = {
-    proxy: function (sUrl) {
-        return "<? echo $base; ?>/src/base/core/global/cs/proxy.php?url="+ encodeURIComponent(sUrl);
-    },
-    baseurl : "<? echo $base; ?>"
-};
-</script>
 
-<script src="<? echo $base; ?>/src/base/core/global/shared/log.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/utils/binary.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/storage.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/preferences.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/cache/memorycache.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/config.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/config/xmlconfigwrapper.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/config/editionconfigurationreader.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/events.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/utils/json.js"></script> 
-<script src="<? echo $base; ?>/src/base/core/global/shared/bootstrap.js"></script>
+libx.cs.baseurl = "<? echo $base; ?>";
+
+</script>
+ 
 <!-- 
     see http://truetalkdev.blogspot.com/2007/09/how-to-put-log-messages-in-firefox.html
 -->
-<script src="<? echo $base; ?>/src/base/core/global/cs/detectbrowser.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/log.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/cache.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/utils/timer.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/utils/xml.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/bootstrap.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/utils/browserprefs.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/cache/objectcache.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/locale.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/locale.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/libapp.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/cache/validators.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/utils.js"></script>
-<!--redefining getBootstrapurl here for cs implementation -->
-<script src="<? echo $base; ?>/src/base/core/global/cs/utils.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/cache/scheduler.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/utils/hash.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/utils/stdnumsupport.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/cs/utils/xpath.js"></script>
-<!-- <script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/autocomplete.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/dropdown.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/ui/jquery/accordionmenu.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/ui/magicsearch.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/ui.js"></script>
-<script src="<? echo $base; ?>/src/base/core/global/shared/ui/contextmenu.js"></script>
--->
-<script src="<? echo $base; ?>/src/base/bootstrapped/global/shared/libapp/atomparser.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+<script src="<? echo $base; ?>/src/base/bootstrapped/scripts/jquery-latest.js"></script>
 
 <script>
-
-try {
-    libx.initialize(true);
-} catch (err) {
-    console.log("Error in libx.initialize(): " + err.message + "\nDesc: "+ err.description);
-}
-
 /* instead of calling libx.loadConfig (which would load a config.xml file,
  * say for vt edition), we fake a partial libx.edition. Just enough to make
  * libapp API work (libx.libapps.getPackages()) for first root package.
  * But this will not use EditionConfigurationReader and will not fire
  * EditionConfigurationLoaded
  */
+
+
 libx.edition = {
     localizationfeeds: {
         package: [{
@@ -95,55 +48,88 @@ libx.edition = {
         }]
     }
 };
-
-/* Now, we must make sure we don't proceed until we have the latest version
- * of all bootstrapped files (which includes the .tmpl our display relies on!)
- * in the cache.
- * Simulate the process that would be done in the actual plug-in.
- */
-var jsonUrl = libx.utils.getBootstrapURL("updates.json");
-/*libx.log.write("bootstrapurl is " + jsonUrl);*/
-libx.cache.defaultHashScheduler = new libx.cache.HashScheduler(jsonUrl);
-var pageProcessingQueue = new libx.utils.collections.DelayedActivityQueue();
-libx.cache.defaultHashScheduler.updatesFinished = function () {
-    // now we know that cache contains up-to-date versions of all templates
-    pageProcessingQueue.markReady(); 
+</script>
+<script type="text/javascript">
+try {
+    libx.initialize(true);
+} catch(err) {
+    libx.log.write("Error in libx.initialize(): " + err.message + "\nDesc: " + err.description);
 }
-libx.cache.defaultHashScheduler.scheduleUpdates(true);
-
 </script>
 
 <!-- xxx: these elements copied from pref.xhtml; use that file directly if possible -->
-<link type="text/css" href="<? echo $base; ?>/src/base/preferences/css/pepper-grinder/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
+<link type="text/css" href="<? echo $base; ?>/src/base/preferences/css/pepper-grinder/jquery-ui-1.8.23.custom.css" rel="stylesheet" />	
 <link type="text/css" href="<? echo $base; ?>/src/base/preferences/prefs.css" rel="stylesheet" />	
 <link type="text/css" href="<? echo $base; ?>/src/base/preferences/checktree/checktree.css" rel="stylesheet" />
 <link rel="stylesheet" href="<? echo $base; ?>/src/base/preferences/jquery-tooltip/jquery.tooltip.css" />
-<script src="<? echo $base; ?>/src/base/preferences/js/JsPlate.js" type="text/javascript" ></script>
 <script src="<? echo $base; ?>/src/base/preferences/checktree/jquery.checktree.js" type="text/javascript"></script>
 <script src="<? echo $base; ?>/src/base/preferences/jquery-tooltip/lib/jquery.bgiframe.js" type="text/javascript"></script>
-<script src="<? echo $base; ?>/src/base/preferences/jquery-tooltip/lib/jquery.dimensions.js" type="text/javascript"></script>
 <script src="<? echo $base; ?>/src/base/preferences/jquery-tooltip/jquery.tooltip.js" type="text/javascript"></script>
-<script type="text/javascript" src="<? echo $base; ?>/src/base/preferences/js/jquery-ui-1.8.4.custom.min.js"></script>
-<script type="text/javascript" src="<? echo $base; ?>/src/base/preferences/js/prefs.js"></script>
+<script type="text/javascript" src="<? echo $base; ?>/src/base/preferences/js/jquery-ui-1.8.23.custom.min.js"></script>
+<script src="<? echo $base; ?>/src/base/preferences/js/angular-1.0.1.js" type="text/javascript"></script>
+<script src="<? echo $base; ?>/src/base/preferences/js/libapptree.js" type="text/javascript"></script>
 
 <script type="text/javascript">
+function dots2uscore(s) {
+    return s.replace(/\./g, "_");
+}
+
+function PrefsController($scope) {
+    $scope.libx = libx;
+    $scope.basepath = "<? echo $base; ?>";
+    $scope.prefpath = $scope.basepath + "/src/base/preferences/";
+    $scope.checktreenodetmpl= $scope.prefpath + "checktreenode.tmpl";
+    $scope.preftmpl = $scope.prefpath + "preference.tmpl";
+    $scope.displaymode = true;
+    $(".bar").show();
+    $scope.hideloading = function(){
+    $(".spinner").hide();
+}
+    $scope.locale = function (lkey) {
+          var lkey = dots2uscore(lkey.replace(/^libx./, ""));
+          return libx.locale.defaultStringBundle.getProperty(lkey);
+    }
+}
+
 $(document).ready ( function () {
-    var processPage = {
-        onready: function () {
-            var result = process ( null, "libx.prefs.libapps", { libappdisplaymode: true });
-            $('#content-div').append ( $( result.html ) );
-            result.doPostInsertionProcessing();
-        }
-    };
-    pageProcessingQueue.scheduleLast(processPage);
-    processPage.markReady();
+    angular.bootstrap(document);
 } );
 
 </script>
 </head>
 
-<body id="body">
-    <div id="content-div">
+<body id="body" ng-controller="PrefsController">
+    <div id="libapps-tmpl" class="ui-tabs ui-widget ui-widget-content ui-corner-all" style="background: transparent; background-position: initial initial; background-repeat: initial initial" ng-controller="TreeController">
+       <div id="libapps-banner" class="libapps-banner" style="display:block;">
+       <p>
+           <span class="libapps-banner-header">Libapps Display Tree:</span>
+       <p> 
+       <ul>
+           <li>- <span class="libapps-banner-sub-header">To explore packages/libapps, expand the tree</span>
+           </li>
+           <li>- <span class="libapps-banner-sub-header">To see details click on any label </span>
+           </li>
+       </ul>
+       </div>	
+  
+      <div class="spinner">
+            <div class="bar1"></div>
+            <div class="bar2"></div>
+            <div class="bar3"></div>
+            <div class="bar4"></div>
+            <div class="bar5"></div>
+            <div class="bar6"></div>
+            <div class="bar7"></div>
+            <div class="bar8"></div>
+            <div class="bar9"></div>
+            <div class="bar10"></div>
+            <div class="bar11"></div>
+            <div class="bar12"></div>
+            <span class="loadtxt">Loading....</span>
+       </div>
+       <ul class="checktree"> 
+	    <ng-include src="checktreenodetmpl" onload="hideloading()" ng-repeat="entry in model.children" />
+       </ul>
     </div>
 </body>
 

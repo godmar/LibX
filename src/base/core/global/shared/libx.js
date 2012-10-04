@@ -451,7 +451,7 @@ libx.utils.collections.ActivityQueue = libx.core.Class.create(libx.utils.collect
     },
     /**
      * Mark an activity as ready.  If the activity is at the head
-     * of the queue, run all ready activities in the queue.
+     * of the queue, run all subsequent ready activities in the queue.
      *
      * Alternatively, activity.markReady() may be called.
      * @param {Object} activity
@@ -531,9 +531,9 @@ var localeLoaded = new libx.utils.collections.EmptyActivity();
  *
  * @namespace
  * @function
- * @param {Boolean} loadGlobalScripts  whether global scripts should be loaded
+ * @param {Boolean} primeCache whether bundled content should be added to cache
  */
-libx.initialize = function (loadGlobalScripts) 
+libx.initialize = function (primeCache)
 {
     
     /**
@@ -566,11 +566,10 @@ libx.initialize = function (loadGlobalScripts)
         }
     });
 
-    libx.initialize.loadGlobalScripts = loadGlobalScripts;
     libx.locale.initialize();
     libx.preferences.initialize();
     
-    if (loadGlobalScripts) {
+    if (primeCache) {
         /*
          * Prime the object cache with local copies of bootstrapped files. This
          * saves us from unnecessary xhr after initial LibX installation. We store
@@ -620,19 +619,6 @@ libx.loadConfig = function (configUrl) {
             libx.edition = edition;
             libx.log.write("Loaded configuration for edition: " + libx.edition.name['long']);
             
-            var bootGlobalUrls = [];
-            if (libx.initialize.loadGlobalScripts)
-                bootGlobalUrls.push({
-                    url: libx.utils.browserprefs.getStringPref( "libx.bootstrap.global.url",
-                            libx.utils.getBootstrapURL("bootstrapglobal.js") )
-                });
-
-            var globalBootStrapper 
-                = libx.initialize.globalBootStrapper 
-                = new libx.bootstrap.BootStrapper( 
-                    new libx.events.Event("GlobalBootstrapDone")
-                );
-            
             // replace chrome with URLs with the actual images (data URIs)
             function chromeURL2DataURI(item) {
                 if (libx.edition.options[item] == null)
@@ -653,9 +639,6 @@ libx.loadConfig = function (configUrl) {
                     var edLoadedEvent = new libx.events.Event("EditionConfigurationLoaded");
                     edLoadedEvent.edition = edition;
                     edLoadedEvent.notify();
-
-                    for (var i = 0; i < bootGlobalUrls.length; i++)
-                        globalBootStrapper.loadScript(bootGlobalUrls[i].url, { libx: libx });
                 }
             };
             localeQueue.scheduleLast(loadScriptsAct );

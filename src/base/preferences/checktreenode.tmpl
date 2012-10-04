@@ -1,0 +1,187 @@
+<li ng-init="collapsed=true; showpanel=false; showprefs=false">
+  <ng-switch on="entry.children.length > 0"> 
+      <div ng-switch-when="true" class="arrow" 
+           ng-class="{ collapsed : $parent.collapsed, expanded : !$parent.collapsed }" 
+           ng-click="$parent.collapsed = !$parent.collapsed" />
+      <div ng-switch-when="false">
+         <ng-switch on="displaymode">
+          <div ng-switch-when="false" class="arrow" />
+          <div ng-switch-when="true" class="bullet-point" style="margin-top:5px;" />
+         </ng-switch> 
+      </div>
+      
+  </ng-switch>
+
+  
+      <div ng-hide="displaymode" class="checkbox" ng-class="{ 'checked' : libx.prefs[entry.id]._enabled._value }" 
+		   ng-click="flipentry(entry)" />
+
+  
+  <input style="display:none" type="checkbox" checked="checked"/>
+  <span ng-show="entry.type == 'error'" class="err"></span>
+  <label ng-click="showpanel = !showpanel" class="tooltip-noicon" title="{{entry.description}}">{{entry.title}}</label>
+  <div ng-show="showpanel"
+       ng-init="showpaneldetails = false; showcodebody = false; showparams = !isEmptyObject(entry.params) || !isEmptyObject(unexpectedargs(entry))">
+    
+     <div class="ui-state-default ui-corner-all info-panel" ng-class="entry.type">
+       <div class="info-panel-heading">
+         <span class="entry-label-name">{{locale('prefs_libapps_' + entry.type)}}:</span>
+         <span>{{entry.description}}</span>
+         <span class="close-info-panel">
+           <a ng-click="showpanel = false" href="#">{{locale('prefs_libapps_close')}}</a>
+         </span>
+       </div>
+       <div class="toggle-info-panel">
+         <a ng-click="showpaneldetails = !showpaneldetails"
+            class="toggle-info-panel-link toggle-info-panel-details" href="#">
+            <span ng-hide="showpaneldetails">{{locale("prefs_libapps_show_details")}}</span>
+            <span ng-show="showpaneldetails">{{locale("prefs_libapps_hide_details")}}</span>
+         </a>
+
+         <span ng-show="!displaymode && libx.prefs[entry.id] && libx.prefs[entry.id]._children.length > 1">
+           | <a ng-click="showprefs = !showprefs"
+                   class="toggle-info-panel-link toggle-info-panel-prefs" href="#">
+               <span ng-hide="showprefs">{{locale("prefs_libapps_show_prefs")}}</span>
+               <span ng-show="showprefs">{{locale("prefs_libapps_hide_prefs")}}</span>
+            </a>
+         </span>
+
+         <span ng-hide="isEmptyObject(entry.params) && isEmptyObject(unexpectedargs(entry))">
+           | <a ng-click="showparams = !showparams"
+                   class="toggle-info-panel-link toggle-info-panel-args" href="#">
+               <span ng-hide="showparams">{{locale("prefs_libapps_show_params")}}</span>
+               <span ng-show="showparams">{{locale("prefs_libapps_hide_params")}}</span>
+            </a>
+         </span>
+
+         <span ng-show="entry.type == 'module'">
+		   | <a ng-click="showcodebody = !showcodebody" 
+                class="toggle-info-panel-link toggle-info-panel-codebody" href="#">
+               <span ng-hide="showcodebody">{{locale("prefs_libapps_show_code")}}</span>
+               <span ng-show="showcodebody">{{locale("prefs_libapps_hide_code")}}</span>
+            </a>
+         </span>
+
+         <span ng-show="!displaymode && userMayUnsubscribe(entry)"> 
+           | <a ng-click="unsubscribe(entry.id)"
+                class="toggle-info-panel-link toggle-info-panel-unsubscribe" href="#">{{locale('prefs_libapps_unsubscribe')}}</a>
+         </span> 
+       </div>
+
+       <div ng-show="showpaneldetails" class="info-panel-details">
+         <fieldset class="ui-corner-all info-panel-sub-section-fieldset">
+           <legend class="info-panel-sub-section-legend">{{locale('prefs_libapps_details')}}</legend>
+           <div>
+             <ul>
+               <li>
+                 <span class="entry-label-name">{{locale('prefs_libapps_id')}}: </span>
+                 <span class="entry-text">{{entry.id}}</span>
+               </li>
+               <li>
+                 <span class="entry-label-name">{{locale('prefs_libapps_last_updated_on')}}: </span>
+                 <span class="entry-text">{{formatDate(entry.updated)}}</span>
+               </li>
+               <li>
+                 <span class="entry-label-name">{{locale('prefs_libapps_author')}}: </span>
+                 <span class="entry-text">{{entry.author.name}}</span>
+               </li>
+               <li>
+                 <span class="entry-label-name">{{locale('prefs_libapps_weblink')}}: </span>
+                 <span class="entry-text">
+                   <a href="{{entry.author.uri}}" target="_blank">{{entry.author.uri}}</a>
+                 </span>
+               </li>
+               <li>
+                 <span class="entry-label-name">{{locale('prefs_libapps_email')}}: </span>
+                 <span class="entry-text">{{entry.author.email}}</span>
+               </li>
+               <!-- props -->
+               <li ng-repeat="prop in [ 'include', 'exclude', 'regexptexttransformer', 'guardedby', 'require' ]" ng-show="entry[prop].length > 0">
+                   <span class="entry-label-name">{{locale('prefs_libapps_' + prop)}}:</span>
+                   <span ng-repeat="exp in entry[prop]" class="entry-text">{{formatIfRegexp(exp)}}, </span>
+               </li>
+             </ul>
+           </div>
+         </fieldset>
+       </div>
+
+       <div ng-show="showprefs" class="info-panel-prefs">
+         <fieldset class="ui-corner-all info-panel-sub-section-fieldset">
+           <legend class="info-panel-sub-section-legend">{{locale('prefs_libapps_preferences')}}</legend>
+           <div class="info-panel-prefs-sub-div">
+             <ng-include ng-init="pref=libx.prefs[entry.id]" src="preftmpl"></ng-include>
+           </div>
+         </fieldset>
+       </div>
+
+       <div ng-show="showparams" class="info-panel-params">
+         <div>
+           <fieldset class="ui-corner-all info-panel-sub-section-fieldset">
+             <legend class="info-panel-sub-section-legend">{{locale('prefs_libapps_parameters')}}</legend>
+             <ul class="info-panel-params-list">
+               <!-- first list expected parameters -->
+               <li ng-repeat="(name, param) in entry.params" class="info-panel-params-list-item">
+                 <span class="param-name">{{name}}</span>
+                 <span class="entry-label-name"> (<span class="param-type">{{param.type}}</span>) : </span>
+                 <span class="param-desc">{{param.desc}}</span>
+                 <br />
+                 <span class="param-value"> 
+                    <span class="entry-label-name">{{locale("prefs_libapps_value")}}: </span>
+                    <span class="entry-text">
+                      <ng-switch on="resolveparam(entry.parent, name).type">
+                        <span ng-switch-when="__magic__unknown__">{{locale('prefs_libapps_unknown')}}</span>
+                        <span ng-switch-default>{{resolveparam(entry.parent, name).value}}</span>
+                      </ng-switch>
+                    </span>
+                 </span>
+                 <!-- no argument exists -->
+                 <span ng-show="resolveparam(entry.parent, name).value == '__magic__unknown__'">
+                   <br/>
+                   <span class="err"></span>
+                   <span class="err-text">{{locale("prefs_libapps_param_err_1")}}</span>
+                 </span>
+                 <!-- argument exists, but has wrong type -->
+                 <span ng-show="resolveparam(entry.parent, name).value != '__magic__unknown__' && resolveparam(entry.parent, name).type != param.type">
+                   </br>
+                   <span class="err"></span>
+                   <span class="err-text">
+                     {{locale("prefs_libapps_param_err_0a")}}
+                     <span class="param-type">{{param.type}}</span>
+                     {{locale("prefs_libapps_param_err_0b")}}
+                     <span class="param-type">{{resolveparam(entry.parent, name).type}}</span>
+                   </span>
+                 </span>
+               </li>
+
+               <!-- list passed parameters that weren't expected -->
+               <li ng-repeat="(argname, arg) in unexpectedargs(entry)" class="info-panel-params-list-item">
+                 <span class="param-name">{{argname}}</span>
+                 <span class="entry-label-name"> (<span class="param-type">{{arg.type}}</span>) : </span>
+                 <span class="param-value">
+                   <span class="entry-label-name">{{locale("prefs_libapps_value")}}:  </span>
+                   <span class="entry-text">{{arg.value}}</span>
+                 </span>
+                 <br/>
+                 <span class="err"></span>
+                 <span class="err-text">{{locale("prefs_libapps_param_err_2")}}</span>
+               </li>
+             </ul>
+           </fieldset>
+         </div>
+       </div>
+
+	   <div ng-show="showcodebody" class="info-panel-codebody">
+         <fieldset class="ui-corner-all info-panel-sub-section-fieldset">
+           <legend class="info-panel-sub-section-legend">{{locale('prefs_libapps_code')}}</legend>
+             <div class="info-panel-codebody-sub-div">
+               <pre>{{entry.body}}</pre>
+             </div>
+          </fieldset>
+        </div>
+     </div>
+  </div>
+  <!-- info panel -->
+  <ul ng-hide="collapsed || entry.children == null || entry.children.length == 0">
+        <ng-include src="checktreenodetmpl" ng-repeat="entry in entry.children"></ng-include>
+  </ul>
+</li>

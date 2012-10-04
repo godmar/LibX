@@ -24,11 +24,10 @@ ul {
 .info-panel {
     margin-left: 20px !important;
     min-width:400px;
-    display:none;
 }
 
 .close-info-panel {
-    margin-left: 80px !important;
+    float: right;
 }
 
 .close-info-panel a {
@@ -40,7 +39,7 @@ ul {
     color: red;
 }
 
-.marginLeft40 {
+.module {
   margin-left: 40px !important;
 }
 
@@ -54,8 +53,7 @@ ul {
 .info-panel-prefs {
     font-size:0.8em;
     font-weight:normal;
-    padding 0.7em 0.3em 0.0em;
-    display:none;
+    padding: 0.7em 0.3em 0.0em;
 }
 
 .info-panel-prefs-sub-div {
@@ -92,11 +90,10 @@ ul {
   cursor:pointer !important;
 }
 
-.info-panel-codebody{
+.info-panel-codebody {
     font-weight:normal;
     font-size:0.8em;
     color:black;
-    display:none;
 }
 
 .info-panel-codebody-sub-div {
@@ -110,7 +107,6 @@ ul {
 .info-panel-details {
     font-weight:normal;
     font-size:0.8em;
-    display:none;
 }
 
 .info-panel-params {

@@ -97,5 +97,11 @@ bootstrapped - Code in bootstrapped is loaded over the web from a location
         arrived.
         Our original goal was to keep the core simple to require only infrequent updates.
 
+        Update Aug 20. With Chrome enforcing CSP on core code, we cannot bootstrap any
+        code anymore that's to be executed inside the background page in Chrome.  As such,
+        we have removed bootstrapping all global and window code.  However, scripts that
+        are included via 'require' in libapps still live in the bootstrapped code
+        directory.
+
 ----------------------------------------------
 

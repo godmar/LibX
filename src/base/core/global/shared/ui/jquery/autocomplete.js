@@ -161,7 +161,7 @@ libx.ui.jquery.autocomplete = function ($, options)
         }
 
         // get remote data as JSON
-        $.getJSON(options.make_url(part), function(json){
+        function processResult(json) {
 
             // reposition div
             repositionResultsDiv();
@@ -209,6 +209,15 @@ libx.ui.jquery.autocomplete = function ($, options)
             } else {
                 clearAutoComplete();
             }
-        });
+        }
+
+        if (options.xhrUnrestricted) {
+            var url = options.make_url(part).replace(/&([^&]+)=\?/, "");
+            $.get(url, function (data) {
+                processResult(libx.utils.json.parse(data));
+            }, "html");
+        } else {
+            $.getJSON(options.make_url(part), processResult);
+        }
     }
 }

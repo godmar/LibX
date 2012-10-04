@@ -1,8 +1,5 @@
 {
-    "manifest_version": 2,
-    "background": {
-        "page" : "libx.html"
-    },
+    "background_page": "libx.html",
     "name": "__MSG_extension_name__",
     "version": "$libxversion$",
     "icons": {
@@ -14,8 +11,7 @@
     "update_url": "$emupdateURL$",
     "browser_action": {
         "default_icon": "libx2-48.png",
-        "default_popup": "popup/popup.html",
-        "default_title": "LibX 2.0"
+        "popup": "popup/popup.html"
     },
     "content_scripts": [{
         "matches": [
@@ -23,6 +19,7 @@
             "https://*/*"
         ],
         "js": [
+            // reinclude all of libx for each page visited
             "core/global/shared/core.js",
             "core/global/shared/libx.js",
             "core/global/shared/log.js",
@@ -93,6 +90,5 @@
         "*://*/",
         "cookies"
     ],
-    "default_locale": "en_US",
-    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
+    "default_locale": "en_US"
 }

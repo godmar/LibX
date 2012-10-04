@@ -51,4 +51,4 @@ libx.utils.xml.convertXMLDocumentToString = function (xmlDoc) {
        libx.log.write("Error converting xml to string");
 
     return xmlstring;
-}
+};
