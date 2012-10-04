@@ -1,20 +1,21 @@
 <!-- UI element to implement both intermediate nodes in a preference tree
-     as well as a single 'pref' element 
-	 intermediate nodes have a _layout attribute, whereas leaf nodes have a _type
+     as well as a single 'pref' element intermediate nodes have a _layout attribute,
+     whereas leaf nodes have a _type
 -->
+ 
 <ng-switch on="pref._layout">
   <div ng-switch-when="group" class="groupbox">
-    <ng-include src="'preference.tmpl'" ng-repeat="pref in pref._children"></ng-include>
+    <ng-include src="preftmpl" ng-repeat="pref in pref._children"></ng-include>
   </div>
 
   <div ng-switch-when="tree" class="groupbox">
 	Tree Preference Layout not yet implemented.
   </div>
 
-  <ng-switch ng-switch-default on="pref._type" ng-hide="pref._name == '_enabled'">
-    <div ng-switch-when="boolean">
+  <ng-switch ng-switch-default on="pref._type" ng-hide="pref._name=='_enabled'">
+  <div ng-switch-when="boolean">
         <input type="checkbox" name="{{pref._id}}" ng-model="pref._value" />
-        <label>{{locale(pref._idstr, pref._name)}}</label>
+        <label>{{locale(pref._idstr,pref._name)}}</label>
     </div>
     <div ng-switch-when="string">
         <label>{{locale(pref._idstr, pref._name)}}</label>

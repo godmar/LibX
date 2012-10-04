@@ -450,8 +450,13 @@ return {
         $('#dev-cache').click(function () {
             libx.ui.openSearchWindow(libx.utils.getExtensionURL('dev/cache.html'));
         });
-        // show the page once it's ready
-        $('body').show();
+
+        // Firefox does not compute styles for hidden elements
+        // Since the embedding iframe is hidden, body.style.display is
+        // not computed.  It's set to "" instead of "none"
+        // Calling $('body').show() causes Firefox to crash with
+        // jQuery 1.8.0.  Work-around: set style to block directly.
+        $('body').get(0).style.display = 'block';
     },
     
     saveFields: function () {

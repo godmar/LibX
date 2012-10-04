@@ -6,8 +6,10 @@ function dots2uscore(s) {
 
 function PrefsController($scope) {
     $scope.libx = libx;
-
-    /* See https://groups.google.com/d/msg/angular/fGQnq7w83S0/gskWH4eurMYJ */
+    $scope.checktreenodetmpl= "checktreenode.tmpl"; 
+    $scope.displaymode= false;
+    $scope.preftmpl = "preference.tmpl"; 
+  /* See https://groups.google.com/d/msg/angular/fGQnq7w83S0/gskWH4eurMYJ */
     $scope.$watch(function ($scope) {
         //console.log("persisting preferences.");
         //console.log("displaypref is: " + libx.prefs.browser.displaypref._value);
@@ -22,9 +24,6 @@ function PrefsController($scope) {
 
 /* Initialize the tabs */
 $(document).ready(function () {
-    console.dir(libx.prefs);
-    console.dir(libx.edition.options);
-
     angular.bootstrap(document);
 
     $('#libx-prefs-tabs').tabs();

@@ -13,12 +13,13 @@ libx.version = "2.0 (clientside)";
 libx.cs = {
     proxy: function (sUrl) {
         return "../core/global/cs/proxy.php?url="+ encodeURIComponent(sUrl);
-    },
-    baseurl : "../../../"
+    }
+
 };
 EOF
 
 FILES="
+core/global/shared/arrayfix.js
 core/global/shared/core.js
 core/global/shared/libx.js
 /tmp/step2.js
@@ -86,7 +87,8 @@ core/global/cs/autoedition.js
 core/global/shared/analytics.js
 core/global/cs/analytics.js
 core/global/shared/libapp/atomparser.js
-getlibx-step3.js
+core/global/shared/utils/collections/vector.js
+core/global/shared/previewers/summon.js
 "
 
 if [ "x$1" = "x-v" ]; then

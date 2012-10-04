@@ -18,7 +18,9 @@
     <script src="js/prefs-ang.js" type="text/javascript"></script>
     <script src="js/contextmenutree.js" type="text/javascript"></script>
     <script src="js/libapptree.js" type="text/javascript"></script>
+  
 </head>
+
 <body id="body">
     <div id="libx-prefs-tabs" ng-controller="PrefsController"> 
         <ul>
@@ -47,8 +49,8 @@
         </ul>
 
         <div id="browser-maintab"> 
-            <ng-include src="'preference.tmpl'" ng-repeat="pref in libx.prefs.browser._children" />
-	    </div>
+           <ng-include src="preftmpl" ng-repeat="pref in libx.prefs.browser._children" />
+        </div>
     
 	    <div id="contextmenu-maintab">
             <div id="context-prefs"></div>
@@ -74,7 +76,7 @@
                 </div>
 
                 <ul class="checktree"> 
-                    <ng-include src="'checktreenode.tmpl'" ng-repeat="entry in model.children" />
+                     <ng-include src="checktreenodetmpl"  ng-repeat="entry in model.children" />
                 </ul>
             </div>
         </div>

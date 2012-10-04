@@ -8,6 +8,9 @@
 libx.utils.getBootstrapURL = function (path) {
     return "$bootstrapURL$" + path;
 };
+libx.utils.getExtensionURL = function (path) {
+    return "$bootstrapURL$" + "../" + path; 
+}
 
 /**
  * Fetch a remote resource from a local URL.  Temporary solution until chrome://

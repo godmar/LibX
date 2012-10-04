@@ -1,41 +1,5 @@
 /* Libapp Menu Tree Controls */
 (function () {
-
-var displaymode = false;
-
-if (self.data && self.data.libappdisplaymode)
-    displaymode = true;
-
-    /*
-     * Stand-Alone mode == displaymode, If true remove checkboxes from
-     * our display tree
-    if (displaymode)
-    {
-        $checkTree.find(".checked").hide()
-                                   .end()
-                                   .find(".uncheckable")
-                                   .removeClass("uncheckable")
-                                   .addClass("bullet-point");
-        $("#libapps-tmpl")
-                      .addClass("ui-tabs ui-widget ui-widget-content ui-corner-all")
-                      .css("background","transparent");
-
-    } 
-     */
-    
-    /* When saving preferences because user checks/unchecks
-     * if this entry is a root package, reloadPackages() will reset the package schedulers
-     *
-    if ($.inArray($li.data('id'), libx.libapp.getPackages()) >= 0)
-        libx.libapp.reloadPackages();
-    else
-        libx.libapp.clearOverridden();      IS THIS NECESSARY?
-    */
-
-/**
- * New version begins here.
- */
-
 var entry2StringBundle = { };
 
 // last entry created for a given 'id'
@@ -52,7 +16,6 @@ var EntryWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
         this.rootPackages = rootPackages;
     },
     walk: function (whenDoneCallback) {
-        console.log("walking to get model");
         this.queue = new libx.utils.collections.ActivityQueue();
         var self = this;
         var model = { isroot: true, children: [] };
@@ -147,7 +110,7 @@ var EntryWalker = libx.core.Class.create(libx.libapp.PackageVisitor, {
 });
 
 TreeController = function ($scope, $compile) {
-    $scope.displaymode = displaymode;
+    
     $scope.formatDate = function (dtStr) {
         dtStr = new Date(dtStr);
         var dt = dtStr.toDateString().split(" ");
@@ -159,25 +122,31 @@ TreeController = function ($scope, $compile) {
     }
 
     $scope.locale = function (lkey, name) {
-        var _idstr_format = /libx\.prefs\.(http.*)\.(\S+)/;
-        var m = lkey.match(_idstr_format);
-        if (m != null) {
-            var url = m[1];
-            var key = m[2];
-            if (entry2StringBundle[url] && entry2StringBundle[url].hasProperty(key))
-                return entry2StringBundle[url].getProperty(key);
+       if (name != "_enabled") {
+           var _idstr_format = /libx\.prefs\.(http.*)\.(\S+)/;
+           var m = lkey.match(_idstr_format);
+           if (m != null) {
+               var url = m[1];
+               var key = m[2];
+               if (entry2StringBundle[url] && entry2StringBundle[url].hasProperty(key))
+                   return entry2StringBundle[url].getProperty(key);
+ 
+                   // fallback - look in locales of children (when libapp
+                   // pref's locale is specified in module.)
+                   var e = entryid2entry[url];
+                   for (var i = 0; e.children && i < e.children.length; i++) {
+                       var modid = e.children[i].id;
+                       if (entry2StringBundle[modid] && entry2StringBundle[modid].hasProperty(key))
+                       return entry2StringBundle[modid].getProperty(key);
+                }
+           }
 
-            // fallback - look in locales of children (when libapp
-            // pref's locale is specified in module.)
-            var e = entryid2entry[url];
-            for (var i = 0; e.children && i < e.children.length; i++) {
-                var modid = e.children[i].id;
-                if (entry2StringBundle[modid] && entry2StringBundle[modid].hasProperty(key))
-                    return entry2StringBundle[modid].getProperty(key);
-            }
+           return $scope.$parent.locale(lkey);
+  
+        } else {
+           return "";
         }
-
-        return $scope.$parent.locale(lkey);
+  
     }
 
     $scope.formatIfRegexp = function (p) {
@@ -204,10 +173,12 @@ TreeController = function ($scope, $compile) {
 
     $scope.resolveparam = function (libapp, paramname) {
         var value = { value: "__magic__unknown__", type: "__magic__unknown__" };
-        libapp.entries.forEach(function (e) {
-            if (e.args != null && paramname in e.args)
-                value = e.args[paramname];
-        });
+        if(libapp.entries != null) {
+            libapp.entries.forEach(function (e) {
+                if (e.args != null && paramname in e.args)
+                    value = e.args[paramname];
+            });
+        }
         return value;
     }
 
@@ -258,16 +229,25 @@ TreeController = function ($scope, $compile) {
     }
 
     function loadPackages() {
+        var inLoadPackages = true;
         var rootPackages = libx.libapp.getPackages().map(function (pkg) {
             return { url: pkg };
         });
 
         var constructEntryModel = new EntryWalker(rootPackages);
         constructEntryModel.walk(function (model) {
-            console.dir(model);
-            $scope.$apply(function () {
-                $scope.model = model;
-            });
+            
+            function setModel() {
+               $scope.model = model;
+            }
+
+            if (inLoadPackages) {
+                // walk completed synchronously, we are already in a $digest cycle,
+                // don't trigger another one
+                setModel();
+            } else {
+                $scope.$apply(setModel());
+            }
 
             setTimeout(function () {
                 /* Calling this immediately does not work since $apply is not synchronous */
@@ -278,6 +258,8 @@ TreeController = function ($scope, $compile) {
                 });
             }, 2000);
         });
+
+        inLoadPackages = false;
     }
     loadPackages();
 
@@ -313,13 +295,15 @@ TreeController = function ($scope, $compile) {
     });
 
     /* run jQuery tooltip */
-    $("#libapps-tmpl").find(".tooltip").tooltip({
-        delay: 0,
-        icon: true,
-        extraClass: "ui-state-default ui-widget ui-corner-all"
-    });
-    
-    if (displaymode) {
+    setTimeout(function() {
+        $("#libapps-tmpl").find(".tooltip").tooltip({
+            delay: 0,
+            icon: true,
+            extraClass: "ui-state-default ui-widget ui-corner-all"
+        });
+    },2000);
+
+    if ($scope.displaymode) {
         $("#libapps-subscribe-form").hide();                      
     } else {
         $("#libapps-banner").hide();

@@ -3,17 +3,20 @@
       <div ng-switch-when="true" class="arrow" 
            ng-class="{ collapsed : $parent.collapsed, expanded : !$parent.collapsed }" 
            ng-click="$parent.collapsed = !$parent.collapsed" />
-      <div ng-switch-when="false" class="arrow" />
+      <div ng-switch-when="false">
+         <ng-switch on="displaymode">
+          <div ng-switch-when="false" class="arrow" />
+          <div ng-switch-when="true" class="bullet-point" style="margin-top:5px;" />
+         </ng-switch> 
+      </div>
+      
   </ng-switch>
 
-  <ng-switch on="entry.type">
-      <div ng-switch-default class="checkbox" ng-class="{ 'checked' : libx.prefs[entry.id]._enabled._value }" 
-		   ng-click="flipentry(entry)"
-		/>
-      <div ng-switch-when="'module'" class="uncheckable" />
-      <div ng-switch-when="'error'" class="uncheckable" />
-  </ng-switch>
+  
+      <div ng-hide="displaymode" class="checkbox" ng-class="{ 'checked' : libx.prefs[entry.id]._enabled._value }" 
+		   ng-click="flipentry(entry)" />
 
+  
   <input style="display:none" type="checkbox" checked="checked"/>
   <span ng-show="entry.type == 'error'" class="err"></span>
   <label ng-click="showpanel = !showpanel" class="tooltip-noicon" title="{{entry.description}}">{{entry.title}}</label>
@@ -106,7 +109,7 @@
          <fieldset class="ui-corner-all info-panel-sub-section-fieldset">
            <legend class="info-panel-sub-section-legend">{{locale('prefs_libapps_preferences')}}</legend>
            <div class="info-panel-prefs-sub-div">
-             <ng-include ng-init="pref=libx.prefs[entry.id]" src="'preference.tmpl'"></ng-include>
+             <ng-include ng-init="pref=libx.prefs[entry.id]" src="preftmpl"></ng-include>
            </div>
          </fieldset>
        </div>
@@ -179,6 +182,6 @@
   </div>
   <!-- info panel -->
   <ul ng-hide="collapsed || entry.children == null || entry.children.length == 0">
-    <ng-include src="'checktreenode.tmpl'" ng-repeat="entry in entry.children"></ng-include>
+        <ng-include src="checktreenodetmpl" ng-repeat="entry in entry.children"></ng-include>
   </ul>
 </li>

@@ -123,6 +123,7 @@ a:hover {
     margin-left: auto;
     margin-right: auto;
     padding: 5px;
+    max-width: 200px;
 }
 
 #error-view {

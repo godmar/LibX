@@ -615,7 +615,7 @@ return /** @lends libx.preferences */ {
         
         // initialize browser preferences
         libx.preferences.load ( {
-            filename : libx.utils.getBootstrapURL("preferences/builtin/browser.prefs.xml"),
+            filename : libx.utils.getExtensionURL("preferences/browser.prefs.xml"),
             overwrite : false,
             base : "libx.prefs",
             callback : function () {
