@@ -192,7 +192,7 @@ return {
         if (inCSPEnv) {
             $.get(libx.services.autoedition.url, function(data) {
                 processRecommendation(libx.utils.json.parse(data));
-            });
+            },"text");
         } else {
             $.getJSON(libx.services.autoedition.url + '?callback=?', processRecommendation);
         }
@@ -388,7 +388,7 @@ return {
 
         var devchecked = libx.utils.browserprefs.getBoolPref('libx.popup.developer', false);
         $('a[href="#dev-view"]').toggle(devchecked);
-        $('#developer-enabled-checkbox').attr('checked', (devchecked ? 'checked' : ''));
+        $('#developer-enabled-checkbox').attr('checked', devchecked );   
         $('#developer-enabled-checkbox').click(function () {
             var checked = $(this).attr('checked');
             libx.utils.browserprefs.setBoolPref('libx.popup.developer', checked);
