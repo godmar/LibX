@@ -29,10 +29,9 @@ img.logo {
 strong {
   font-weight:600;
 }
-.doc {
+#installdoc {
   margin: 24px auto;
   padding: 0 15px;
-  width: 870px;
 }
 h1 {
   font-weight: 600;

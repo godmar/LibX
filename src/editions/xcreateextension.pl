@@ -85,7 +85,7 @@ while(-f $updatepath . "/" . ($xpifile = $xpiname . ($dailyrev ? "-" . $dailyrev
     $dailyrev++;
 }
 
-$conf{'maxversion'} = "13.0.*";
+$conf{'maxversion'} = "18.*";
 # use days since epoch for versioning due to chrome's strict versioning rules
 $conf{'libxversion'} = "2.0." . int(time/86400) . "." . $dailyrev;
 $conf{'emupdateURL'} = $publish_base_url . "ff/update.rdf";
@@ -158,6 +158,14 @@ system("cd $tmpdir; " .
        "zip -r $updatepath/$xpifile ./chrome ./components " . $addtoplevelfiles) == 0 || die "zip failed";
 
 system("chmod g+w $updatepath/$xpifile") == 0 || die "chmod g+w failed";
+
+#
+# Build .xpi for AMO
+#
+system("cd $tmpdir; grep -v updateKey install.rdf | grep -v updateURL > .a; mv .a install.rdf; " .
+       "find . -name CVS -type d | xargs /bin/rm -fr ; " .
+       "find . -name .htaccess -or -name .cvsignore | xargs /bin/rm -fr ; " .
+       "zip -r $updatepath/amo-$xpifile ./chrome ./components " . $addtoplevelfiles) == 0 || die "zip for amofailed";
 
 ############################################################
 

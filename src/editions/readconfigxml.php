@@ -10,15 +10,15 @@ $libx2base = "/libx2/libx2-git";
 /* on libx.org only */
 $libxiedir = "/home/www/libx.org/libx/src/editions/LibXIE";
 $libxiedll = $libxiedir . "/LibXIE.dll";
-$editiondir = "";
+$editiondir = isset($editiondir) ? $editiondir : "";
 $oldeditionformat = false;
 // edition ids must be all alphanumerical.
 if (!preg_match("/^[a-zA-Z0-9\.]+$/", $edition)) die ("Wrong argument.");
 if ($edition{0} >= 'a' && $edition{0} <= 'z') {
-    $editionpath = $edition;
+    $editionpath = $editiondir . $edition;
     $oldeditionformat = true;
 } else {
-    $editiondir = substr($edition, 0, 2) . "/" . substr($edition, 2, 2) . "/";
+    $editiondir = $editiondir . substr($edition, 0, 2) . "/" . substr($edition, 2, 2) . "/";
     $editionpath = $editiondir . $edition;
 }
 
@@ -38,7 +38,7 @@ if ($tcout > 1 && preg_match("/\d+/", $revision)) {
     $revision = "";
 }
 
-$gc_extpath = "/releases/gc/libx2-latest.crx?edition=";
+$gc_extpath = "/releases/gc/install.php?edition=";
 $ff_extpath = "/releases/ff/libx2-latest.xpi?edition=";
 
 $edition_with_revision = $edition .  ($revision != "" ? "." . $revision : "");

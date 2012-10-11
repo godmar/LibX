@@ -71,7 +71,7 @@ $.getJSON('http://libx.org/libx2/libx2-git/src/autoedition/findbyip/' + ip + '?c
             var $iButton = $("#libx-install-button");
             var downloadbase = "http://libx.org/releases/";
             if (window.chrome) {
-                var downloadurl = downloadbase + "gc/libx2-latest.crx?edition=" + libx.edition.id;
+                var downloadurl = downloadbase + "gc/install.php?edition=" + libx.edition.id;
                 var label = "Install " + libx.edition.name.long + " for Chrome";
             } else
             if ($.browser.mozilla) {

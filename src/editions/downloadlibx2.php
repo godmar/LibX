@@ -91,7 +91,7 @@ $editionplusrev = $edition . ($revision != "" ? "." . $revision : "");
           <li>Demo</li>
 	  <li><a onclick="toggletopnav(this)" href="#" >Features</a></li>
           <li><a onclick="toggletopnav(this)" href="#" >Privacy</a></li>
-          <li><a href="http://libx.org/faq.html">FAQs</a></li>
+          <li><a href="/documentation">Documentation</a></li>
         </ul>   
       </div>
       <div id="main">
