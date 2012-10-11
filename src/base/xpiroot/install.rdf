@@ -46,10 +46,11 @@
                    em:homepageURL="http://www.libx.org/"
                    em:updateURL="$emupdateURL$"
                    em:iconURL="chrome://libx/skin/libx2-48.png"
-                   em:updateKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDIddUqmiyYAp8BNkGBBJqQf7xIfMpeiSIXHzatrHFvhAnmcYkKmqH2QC/t5zDFfNppwcjh+qS1jU9WBJnisjefF228+r5zknHKGH16zf9rGGAw862XjFoRoDNJ6u8y4XQtrGzuXQ8n7BSF+vrOW9ADTCOkjD+o3czo23ytTzEgOQIDAQAB">
+                   em:updateKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDIddUqmiyYAp8BNkGBBJqQf7xIfMpeiSIXHzatrHFvhAnmcYkKmqH2QC/t5zDFfNppwcjh+qS1jU9WBJnisjefF228+r5zknHKGH16zf9rGGAw862XjFoRoDNJ6u8y4XQtrGzuXQ8n7BSF+vrOW9ADTCOkjD+o3czo23ytTzEgOQIDAQAB"
+                    >
     <em:contributor>Godmar Back</em:contributor>
     <em:contributor>Richard Karnesky</em:contributor>
-    <em:file RDF:resource="urn:mozilla:extension:file:libx"/>
+    <em:type>2</em:type>
     <em:targetApplication RDF:resource="rdf:#$RRni43"/>
     <em:targetApplication RDF:resource="rdf:#$WRni43"/>
     <em:targetApplication RDF:resource="rdf:#$+Rni43"/>
