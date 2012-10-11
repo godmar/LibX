@@ -145,7 +145,7 @@ system("chmod g+w $updatepath/$crxfile") == 0 || die "chmod g+w failed";
 
 my $zipfilename = "libx-" . $conf{'libxversion'} . ".zip";
 print "Build directory is $tmpdir, now preparing for upload to Google Store; target zip is $zipfilename\n";
-system("cd $tmpdir; cp $keypath key.pem; zip -qr ../$zipfilename .; /bin/rm key.pem");
+system("cd $tmpdir; grep -v 'update_url' manifest.json > /tmp/mjson; mv /tmp/mjson manifest.json; cp $keypath key.pem; zip -qr ../$zipfilename .; chmod go-r ../$zipfilename; /bin/rm key.pem");
 
 exit 0;
 
