@@ -14,7 +14,9 @@
 <script src="<? echo $base; ?>/src/base/getlibx.js"></script>
 <script type="text/javascript">
 /* special client-side setup */
-
+libx.cs.proxy =  function (sUrl) {
+    return "<? echo $base ?>src/base/core/global/cs/proxy.php?url="+ encodeURIComponent(sUrl);
+}
 libx.cs.baseurl = "<? echo $base; ?>";
 
 </script>
