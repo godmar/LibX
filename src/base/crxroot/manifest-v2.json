@@ -40,6 +40,7 @@
             "core/global/gc/utils/timer.js",
             "core/global/gc/utils/xml.js",
             "core/global/gc/utils/browserprefs.js",
+            "core/global/gc/utils/getextensionurl.js",
             "core/global/shared/utils/hash.js",
             "core/global/shared/utils/json.js", 
             "core/global/shared/catalog.js",
