@@ -68,18 +68,24 @@ libx.catalog.factory["vubis"] = libx.core.Class.create(libx.catalog.Catalog,
     profile: 'Default',
     opaclanguage: 'eng',
     searchmethod: 'Find_1',
+    authorindex: "1*Authorbib",
+    keywordindex: "1*Keywordsbib",
+    subjectindex: "1*Subjectbib",
+    titleindex: "1*Titlebib",
+    issnindex: "1*Issn",
+    isbnindex: "1*Isbn",
     xisbn: { opacid: "vubis" },
 
 	searchType2Index: function (stype) {
 	    switch (stype) {
-	        case 'd':   return "1*Subjectbib";
-	        case 'a':   return "1*Authorbib";
-	        case 't':   return "1*Titlebib";
-            case 'is':  return "1*Issn";
-            case 'i':   return "1*Isbn";
-	        case 'Y':   return "1*Keywordsbib";
-	        default:
-	            return "1*Keywordsbib";
+            case 'd':   return this.subjectindex;
+            case 'a':   return this.authorindex;
+            case 't':   return this.titleindex;
+            case 'is':  return this.issnindex;
+            case 'i':   return this.isbnindex;
+            case 'Y':   return this.keywordindex;
+            default:
+                return this.keywordindex;
 	    }
 	},
 	makeSearch: function(stype, sterm) {
@@ -106,13 +112,14 @@ libx.catalog.factory["vubis"] = libx.core.Class.create(libx.catalog.Catalog,
             "&OpacLanguage=" + this.opaclanguage +
             "&NumberToRetrieve=50" +
             "&SearchMethod=" + this.searchmethod +
-            "&Profile=" + this.profile
+            "&Profile=" + this.profile +
             "&PreviousList=Start" +
             "&PageType=Start" +
             "&WebPageNr=1" +
             "&WebAction=NewSearch" +
             "&StartValue=1" +
-            "&RowRepeat=1";
+            "&RowRepeat=1" +
+            "&EncodedRequest=a";
 	}
     // XXX may have to override makeXISBNRequest to send url+path along to xisbn.worldcat
 });
