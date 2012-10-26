@@ -1,3 +1,7 @@
+/**
+ * Firefox-specific implementations of libx.utils.timer.setInterval/setTimeout
+ * TBD: implement additional arguments.
+ */
 
 (function () {
 // store reference to interval timers to prevent GC
@@ -8,7 +12,7 @@ function setTimer(callback, timeout, nsITimer_TYPE) {
     	.createInstance(Components.interfaces.nsITimer);
     timer.initWithCallback({notify: function (timer) {		
                     if (typeof callback == "string")
-                        eval (callback);
+                        libx.log.write("Error: use a function, not a string, in setTimeout/setInterval");
                     else
                         callback ();
                 }}, timeout, nsITimer_TYPE);
@@ -40,7 +44,18 @@ libx.utils.timer.setInterval = function ( callback, timeout ) {
  *	@param {Integer} Timeout ( in milliseconds )
  */
 libx.utils.timer.setTimeout = function ( callback, timeout ) {
-    setTimer(callback, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+    var timerpos = timers.length;
+    var hasFired = false;
+    var timer = setTimer(function () {
+        if (timers[timerpos] === timer)
+            delete timers[timerpos];
+
+        hasFired = true;
+        callback();
+    }, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+
+    if (!hasFired)
+        timers.push ( timer );
 }
 
 }) ();
