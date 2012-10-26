@@ -1,5 +1,5 @@
 {
-    "translator" :          { "message" : "Pare Francois-Xavier (francois-xavier.pare@umontreal.ca), Geoffroy Lucie (lucie.geoffroy@umontreal.ca), Raphael Grolimund (raphael.grolimund@epfl.ch)" },
+    "translator" :          { "message" : "Pare Francois-Xavier (francois-xavier.pare@umontreal.ca), Geoffroy Lucie (lucie.geoffroy@umontreal.ca), Raphael Grolimund (raphael.grolimund@epfl.ch), Véronique de Kok (vdekok@gmail.com)" },
     "extension_name":       { "message" : "LibX pour Google Chrome" },
     "tab_search" :          { "message" : "Recherche" },
     "tab_links" :           { "message" : "Liens" },
@@ -117,6 +117,86 @@
                                 "searchstr":    { "content": "$1" }
                               }
                             },
-    "search_and" :          { "message" : "ET" },
-    "search_more" :         { "message" : "plus..." }
+    "ip_recommendations":   { "message": "Les éditions suivantes vous ont été suggérées en fonction de votre adresse IP qui est $ip$:",
+                              "placeholders": {
+                                "ip":           { "content": "$1" }
+                              }
+                            },
+    "maintained_by":        { "message": " mis à jour par " },
+    "prefs_browser_tabname" :     { "message" : "Navigateur" },
+    "prefs_browser_tooltip" :     { "message" : "Préférences associées au navigateur" },
+    "prefs_contextmenu_tabname" : { "message" : "Menu contextuel" },
+    "prefs_contextmenu_tooltip" : { "message" : "Un clic-droit sur la page fait apparaître la modification dans les options de recherche" },
+    "prefs_libapps_tabname" :     { "message" : "Applications LibX" },
+    "prefs_libapps_tooltip" :     { "message" : "Ajouter/supprimer des paquets et configuer les applications LibX actuelles" },
+    "prefs_developer_tabname" :   { "message" : "Développeur" },
+    "prefs_developer_tooltip" :   { "message" : "Cache et informations sur l'application LibX" },
+    "prefs_about_tabname" :       { "message" : "À propos" },
+    "prefs_about_tooltip" :       { "message" : "Voir les auteurs de LibX" },
+
+    "prefs_browser_displaypref" : { "message" : "Préférences d'affichage" },
+    "prefs_browser_displaypref_newtabswitch" : { "message" : "Ouvrir dans un nouvel onglet actif" },
+    "prefs_browser_displaypref_newtab" : { "message" : "Ouvrir dans un nouvel onglet en arrière-plan" },
+    "prefs_browser_displaypref_sametab" : { "message" : "Ouvrir dans l'onglet actuel" },
+    "prefs_browser_displaypref_newwindow" : { "message" : "Ouvrir dans une nouvelle fenêtre" },
+    "prefs_browser_savesearches" : { "message" : "Mémoriser les champs de recherche quand la fenêtre pop-up est fermée" },
+    "prefs_browser_trackextension" : { "message" : "Send extension usage (e.g edition installed, catalogs used for searches) [Note: LibX uses Google Analytics]" },
+    "prefs_browser_tracklibapps" : { "message" : "Send libapp usage (e.g frequently used libapps) [Note: LibX uses Google Analytics]" },
+
+    "prefs_contextmenu_reset": {"message": "Revenir aux options par défaut"},
+
+    "prefs_about_adaptedby" :   { "message" : "Adapté(e) par" },
+    "prefs_about_libxversion" : { "message" : "Version de LibX:" },
+    "prefs_about_builddate" :   { "message" : "Date de création:" },
+    "prefs_about_authors" :     { "message" : "Auteurs" },
+    "prefs_about_homepage" :    { "message" : "Page d'accueil LibX" },
+
+    "prefs_libapps_package_add": { "message": "S'abonner à un paquet:" },
+    "prefs_libapps_package_whatis": { "message" : "Qu'est-ce qu'un paquet?"},
+    "prefs_libapps_package_tooltip": { "message" : "Un paquet est un ensemble d'applications LibX et d'autres paquets. En vous abonnant à un paquet, vous profitez de fonctionnalités enrichies sur les pages où les applications Libx sont actives." },
+    "prefs_libapps_package_unsubscribe": { "message" : "Désabonnement au paquet"},
+    "prefs_libapps_package_unsubscribe_tooltip": { "message" : "You can unsubscribe only those packages, which have been added by you explicitly from above input. And packages which are subscribed by default by the edition remain intact; to deactivate them simply uncheck entire package." },
+    
+    "prefs_libapps_banner": {"message" : "Arborescence des applications LibX:"},
+    "prefs_libapps_banner_msg1": {"message": "Pour explorer les paquets/applications LibX, ouvrir l'arborescence"},
+    "prefs_libapps_banner_msg2": {"message": "To see details click on any label"},
+
+    "prefs_libapps_close": {"message": "Fermer"},
+    "prefs_libapps_unsubscribe": {"message": "Se désabonner à un paquet"},
+    "prefs_libapps_show_prefs": {"message": "Voir les préférences"},
+    "prefs_libapps_hide_prefs": {"message": "Cacher les préférences"},
+    "prefs_libapps_show_details": {"message": "Voir les détails"},
+    "prefs_libapps_hide_details": {"message": "Cacher les détails"},
+    "prefs_libapps_show_code": {"message": "Voir le code"},
+    "prefs_libapps_hide_code": {"message": "Cacher le code"},
+    "prefs_libapps_show_params": {"message": "Voir les paramètres"},
+    "prefs_libapps_hide_params": {"message": "Cacher les paramètres"},
+    
+    "prefs_libapps_unknown": {"message": "inconnu"},
+    "prefs_libapps_value": {"message": "Valeur"},
+    "prefs_libapps_parameters": {"message": "Paramètres"},
+    "prefs_libapps_preferences": {"message": "Préférences"},
+    
+    "prefs_libapps_package": {"message": "Paquet"},
+    "prefs_libapps_libapp": {"message": "Application LibX"},
+    "prefs_libapps_module": {"message": "Module"},
+    "prefs_libapps_error": {"message": "Erreur (paquet mal formé)"},
+    "prefs_libapps_include": {"message": "Include"},
+    "prefs_libapps_exclude": {"message": "Exclude"},
+    "prefs_libapps_guardedby": {"message": "Guarded By"},
+    "prefs_libapps_regexptexttransformer": {"message": "RegEx Text Transformer"},
+    "prefs_libapps_require": {"message": "Require"},
+    
+    "prefs_libapps_details": {"message": "Détails"},
+    "prefs_libapps_id": {"message": "Id"},
+    "prefs_libapps_last_updated_on": {"message": "Dernière mise à jour le"},
+    "prefs_libapps_author": {"message": "Auteur"},
+    "prefs_libapps_weblink": {"message": "Lien web"},
+    "prefs_libapps_email": {"message": "Email"},
+    "prefs_libapps_code": {"message": "Code"},
+
+    "prefs_libapps_param_err_0a": {"message": "Dysfonctionnement du type de paramètre, le type de paramètre du module est "},
+    "prefs_libapps_param_err_0b": {"message": " et l'argument de l'application LibX est "},
+    "prefs_libapps_param_err_1": {"message": "La valeur du paramètre est inconnue ! Aucun argument valide n'a été envoyé par l'application LibX"},
+    "prefs_libapps_param_err_2": {"message": "L'argument est envoyé par l'application LibX parente mais n'a pas été déclaré comme paramètre dans ce module"}
 }
