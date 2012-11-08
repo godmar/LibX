@@ -17,7 +17,6 @@ function makeConfigUrlFromEdition(editionRevision) {
     }
     return baseUrl + editionRevision + "/config.xml";
 }
-
 function extractRevision () {
   var reg = /\d+/
   var ver = libx.edition.version;
@@ -47,7 +46,6 @@ $(function() {
     libx.events.registerEventListener("DefaultLocaleLoaded", {
         onDefaultLocaleLoaded: function () {
             popup.initialize();
-
             // If run in client-side mode, use a hash tag to activate an
             // edition/revision.  
             var hash = window.location.hash;
@@ -177,6 +175,7 @@ return {
                 $(this).removeClass('selected');
                 $(this).addClass('unselected');
             });
+			
             $('#edition-search-ip .results div').click(function() {
                 var editionId = $('span.editionId', this).html();
                 var editionDesc = $('span.editionDesc', this).html();
@@ -200,6 +199,7 @@ return {
 
 
     loadEdition: function(selectedEdition) {
+		
         $('#edition-search-details').show();
 
         // show edition name and maintainers
@@ -264,6 +264,7 @@ return {
                     libx.utils.browserprefs.setStringPref('libx.edition.configurl', selectedRevision);
                     // reset catalog index when changing editions
                     libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
+                    libx.utils.browserprefs.setBoolPref('setWidgetPref',true);
                     libx.log.write('Loading config from ' + selectedRevision);
                     libx.initialize.reload();
                 });
@@ -329,7 +330,7 @@ return {
         
         // attach simple search event
         $('#simple-search-form').submit(function() {
-            var searchParams = [{
+	    var searchParams = [{
                 searchType: simpleSelectedOption,
                 searchTerms: $('#simple-search-form input').val()
             }];
@@ -379,7 +380,7 @@ return {
                     popup.firstLoad = false;
                     popup.loadPopup();
                 }
-            }
+            }            
         }, undefined, 'popup_reload');
         
         // hide proxy & preferences tab in client-side view
@@ -548,7 +549,6 @@ return {
                 value: i
             };
         });
-        
         simpleSelectedOption = optionsMap[0].value;
         
         // populate simple view with search options
@@ -672,41 +672,26 @@ return {
                 }
             }
         }
-
+	
         function displayPreviewer() {
             var catalog = libx.edition.catalogs[index];
             var previewer = libx.catalog.preview.getPreviewer(catalog);
-            
-            $("#preview-button")
+	    $("#preview-button")
                 .toggle(previewer != null)
                 .unbind()
                 .click(function () {
-                    var $lastInput = $('#full-search-fields input:last');
+                    previewer = libx.catalog.preview.getPreviewer(catalog);
+	            var $lastInput = $('#full-search-fields input:last');
                     $lastInput.addClass("searchLoading");
+		  
                     previewer.doPreview(getSearchParamsFromInputField(), function (data) {
                         $lastInput.removeClass("searchLoading");
-                        // alert("got: " + libx.utils.json.stringify(data));
                         var $p = $('#preview-results-div');
-                        $p.empty();
-                        $p.append("<p>Found " + data.recordCount + " results in " + data.queryTime + "ms.</p>");    // XXX i18n
-
-                        $.each(data.documents, function (idx, el) {
-                            previewer.formatResult(el, $)
-                                .appendTo($p)
-                                .find("a")
-                                    .each(function () {
-                                        // ensure links open according to user prefs
-                                        var href = $(this).attr("href");
-                                        $(this).click(function () {
-                                            libx.ui.openSearchWindow(href);
-                                        });
-                                        $(this).attr("href", "javascript:void(0);");
-                                    });
-                        });
-                        var _catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
-                        trackSearchActivity("previews", libx.edition.catalogs[_catalog].name );
+                        previewer.renderPreview(data,$p,$);
                     });
-               });
+                    var _catalog = libx.utils.browserprefs.getIntPref('libx.popup.selectedcatalog', 0);
+                    trackSearchActivity("previews", libx.edition.catalogs[_catalog].name );
+                });
         }
 
         libx.events.addListener("PreviewerRegistered",{
@@ -784,20 +769,38 @@ return {
             
             // load catalog selection menus
             var catalogs = [];
+            var issummonprxyavail = false;
+            var issummonurlavail = false;
+
             for(var i = 0; i < libx.edition.catalogs.length; i++) {
+                var currentcatalog = libx.edition.catalogs[i];
+                if('summonproxyurl' in currentcatalog) {
+                    issummonprxyavail = true;    
+                }
+                if('url' in currentcatalog && currentcatalog.type == 'bookmarklet') {
+                    if(currentcatalog.url.indexOf('summon.serialssolutions.com') > 0) {
+                        issummonurlavail = true;
+                    }
+                }
                 catalogs.push({
-                    text: libx.edition.catalogs[i].name,
+                    text: currentcatalog.name,
                     value: i
                 });
             }
+            var chksummonwidget = $('#chksummonwidget');
+            chksummonwidget.attr('checked', libx.prefs.browser.showsummonwidget._value);
+            chksummonwidget.attr('disabled', !(issummonprxyavail && issummonurlavail));
+            $('#chksummonwidget').click(function() {
+                libx.prefs.browser.showsummonwidget._value = this.checked;
+            });
 
             // See http://www.alanwood.net/unicode/geometric_shapes.html for options
             var arrow = '&#9654; ';
             var link = $('<a style="text-decoration: none" href="#">' + arrow + libx.edition.catalogs[catalog].name + '</a>');
             $('#full-catalogs').empty();
             $('#full-catalogs').append(link);
-            function catalogChosen(num, name) {
-                popup.saveFields();
+	    function catalogChosen(num, name) {
+	        popup.saveFields();
                 popup.loadCatalog(num);
                 $('#full-catalogs > a').html(arrow + name);
                 $('#simple-menu-catalogs > a').text(name);

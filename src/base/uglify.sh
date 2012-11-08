@@ -89,6 +89,8 @@ core/global/cs/analytics.js
 core/global/shared/libapp/atomparser.js
 core/global/shared/utils/collections/vector.js
 core/global/shared/previewers/summon.js
+core/global/shared/previewers/summonwidget.js
+core/global/shared/search.js
 "
 
 if [ "x$1" = "x-v" ]; then
