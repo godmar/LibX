@@ -1,38 +1,23 @@
 (function() {
 
-
 libx.events.addListener("EditionConfigurationLoaded", {
-    onEditionConfigurationLoaded: function() {
-            var previewurl = '';
-            var issummonprxyavail = false;
-            var issummonurlavail = false;
-            for(var k=0;k < libx.edition.catalogs.length; k++) {
-                var catalog = libx.edition.catalogs[k];
-                if('url' in catalog && catalog.type == 'bookmarklet') {
-                    if(catalog.url.indexOf('summon.serialssolutions.com') > 0) {
-                        issummonurlavail = true;
-                        libx.catalog.preview.addActualPreviewer(catalog,'url',catalog.previewers['url']);
-                        previewurl = catalog.url;
+    onEditionConfigurationLoaded: function () {
+        for (var k = 0; k < libx.edition.catalogs.length; k++) {
+            var catalog = libx.edition.catalogs[k];
+            if ('url' in catalog && catalog.type == 'bookmarklet') {
+                if (catalog.url.indexOf('summon.serialssolutions.com') > 0) {
+                    libx.catalog.preview.addActualPreviewer(catalog, 'url', catalog.previewers['url']);
+                    /* Add a preference the very first time a Summon edition is activated */
+                    if (libx.prefs.browser.showsummonwidget == null) {
+                        libx.prefs.browser._addPreference({ _name: "showsummonwidget", _type: "boolean" });
+                        libx.prefs.browser.showsummonwidget._value = false;
+                        libx.preferences.save();
                     }
                 }
-                if('summonproxyurl' in catalog) {
-                    issummonprxyavail = true;
-                }
-            } 
-        if(libx.utils.browserprefs.getBoolPref('setWidgetPref')) {
-            if(!issummonprxyavail) {
-                if(issummonurlavail) {
-                    libx.prefs.browser.showsummonwidget._setValue(true);
-                } else {
-                     libx.prefs.browser.showsummonwidget._setValue(false);
-                }
-            } else {
-                 libx.prefs.browser.showsummonwidget._setValue(false);
             }
-        libx.utils.browserprefs.setBoolPref('setWidgetPref',false);
         }
     }
-},undefined,'init_summonWidget');          
+}, undefined, 'init_summonWidget');
 
 libx.catalog.preview.registerPreviewer({
 

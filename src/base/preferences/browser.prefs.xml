@@ -10,5 +10,4 @@
   <preference name="savesearches" type="boolean" value="true"/>
   <preference name="trackextension" type="boolean" value="true"/>
   <preference name="tracklibapps" type="boolean" value="true"/>
-  <preference name="showsummonwidget" type="boolean" value="true"/>
 </category>

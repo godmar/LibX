@@ -264,7 +264,6 @@ return {
                     libx.utils.browserprefs.setStringPref('libx.edition.configurl', selectedRevision);
                     // reset catalog index when changing editions
                     libx.utils.browserprefs.setIntPref('libx.popup.selectedcatalog', 0);
-                    libx.utils.browserprefs.setBoolPref('setWidgetPref',true);
                     libx.log.write('Loading config from ' + selectedRevision);
                     libx.initialize.reload();
                 });
