@@ -105,6 +105,9 @@ libx.catalog.Catalog = libx.core.Class.create(
             return this.makeISBNSearch(isbn);
         }
     },
+    linkByISSN: function (issn) {
+        return this.makeISSNSearch(issn);
+    },
     linkByISBN: function (isbn) {
         if (this.xisbn.cues) {
             return this.makeXISBNRequest(isbn);

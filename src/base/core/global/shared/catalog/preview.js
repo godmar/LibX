@@ -6,7 +6,6 @@
  * @namespace
  */
 libx.catalog.preview = {
-
     /**
      * Get the previewer for a catalog.
      * The previewer must have previously been registered using {@link
@@ -16,15 +15,37 @@ libx.catalog.preview = {
      * @param {Object} jQuery                 the jQuery object
      */
     getPreviewer: function (catalog, jQuery) {
-        if (!catalog.previewers)
+        if (!catalog.actualpreviewers)
             return null;
-        for (var i in catalog.previewers) {
-            if (catalog[i] != null)
-                return new catalog.previewers[i](catalog, jQuery);
+
+        var previewer = null;
+        for (var i in catalog.actualpreviewers) {
+            var temp = new catalog.actualpreviewers[i](catalog, jQuery);
+            if (catalog[i] != null && temp.isPreferred()) {
+                previewer = temp;
+                break;
+            }
+        }
+
+        if (previewer)
+            return previewer;
+            
+        for (var i in catalog.actualpreviewers) {
+            if (catalog[i] != null) {
+                return new catalog.actualpreviewers[i](catalog, jQuery);
+            }
         }
         return null;
-    },
-    
+    }, 
+
+    addActualPreviewer: function(catalog, previewkey, previewer) {
+        
+       if(!catalog.actualpreviewers) {
+           catalog.actualpreviewers= {};
+       }
+       catalog.actualpreviewers[previewkey] = previewer;
+
+    },  
     /**
      * Register a previewer.
      * @param {Object} classDef  the parameter object
@@ -71,8 +92,16 @@ libx.catalog.preview = {
                 success: callback
             });
         },
-        
-        /**
+
+         /*
+         * Default method that returns true if any function has not been defined by the 
+         * repective previewer
+         * @return {bool} If the Previewer is valid/enabled
+         */
+        isPreferred: function() {
+            return true;
+        },
+         /**
          * Format a result.
          * @param {Object} result  the result to format
          * @param {Object} $       the jQuery object
@@ -80,7 +109,12 @@ libx.catalog.preview = {
          */
         formatResult: function (result, $) {
             return result;
+        },
+
+        renderPreview: function(data, $elem, $) {
+            $elem.html(data);
         }
+
         
     })
     

@@ -11,10 +11,12 @@
     <script src="page_actions/autosense.js"></script>
     <script src="page_actions/proxy.js"></script>
     <script src="libxinit.js"></script>
+    <script src="search.js"></script>
 </head>
 
 <body>
-
+<div style='display: none;' id='dummyHiddendiv'>
+</div>
 <div id="full-view">
     <table id="tabs">
         <tr>
@@ -57,8 +59,12 @@
                         <input class="set-locale" type="submit" value="button_search"></input>
                         <input type="reset" class="set-locale" value="button_clear"></input>
                         <input id="preview-button" type="button" class="set-locale" value="button_preview"></input>
-                    </form>
-                    <div id="preview-results-div" style="max-height: 400px; width: 100%; overflow: auto;"></div>
+                    
+	             </form>
+		     <div class="summon-search-box-widget" style="padding-top:30px" >
+		         <div id="preview-results-div"  class="widget-results"style="max-height: 200px; width: 99.5%; overflow: auto;"></div>
+		     </div>
+                   
                 </div>
             
                 <!-- links view -->
@@ -107,6 +113,9 @@
                     <div><a class="clearCache" href="#">Clear cache</a></div>
                     <br/>
                     <div><a class="factoryReset" href="#">Factory reset</a></div>
+                    <div>
+                        <input type="checkbox" id="chksummonwidget"style="margin-left:0px"/><span class="set-locale">prefs_browser_showsummonwidget</span>   
+                    </div>  
                     <div id="tmp-packages-div">
                         <p id="tmp-packages-header">Subscribed Temporary Packages:</p>
                         <div id="tmp-packages-content-div" style="max-height: 400px; width: 100%; overflow: auto;"></div>

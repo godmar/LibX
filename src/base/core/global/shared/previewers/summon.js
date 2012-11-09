@@ -1,6 +1,20 @@
 
 (function () {
 
+libx.events.addListener("EditionConfigurationLoaded", {
+    onEditionConfigurationLoaded: function() {
+        for(var k=0;k < libx.edition.catalogs.length; k++) {
+            var catalog = libx.edition.catalogs[k];
+            if('summonproxyurl' in catalog && catalog.type == 'bookmarklet') {
+                if(catalog.url.indexOf('summon.serialssolutions.com') > 0) {
+                    issummonurlavail = true;
+                    libx.catalog.preview.addActualPreviewer(catalog,'summonproxyurl',catalog.previewers['summonproxyurl']);
+                    previewurl = catalog.url;
+                }
+            }
+        } 
+    }
+}, undefined, 'initsummonproxy');
 /* Temporary types */
 var docTypeIcons = {
     "Architectual Drawing": { },
@@ -50,8 +64,16 @@ libx.catalog.preview.registerPreviewer({
 
     catalog: "bookmarklet",
     previewkey: "summonproxyurl",
+ 
+     /*
+     * Checks if the preference or other settings are enabled for the previewer
+     * @return {bool} If the Previewer is valid/enabled
+     */   
+    isPreferred : function () {
+       return !libx.prefs.browser.showsummonwidget._value;
+    },
     
-    /* Format a single line of a Summon result */
+     /* Format a single line of a Summon result */
     formatResult: function (d, $) {
  
         function join(arr, max, replacewith) {
@@ -218,6 +240,25 @@ libx.catalog.preview.registerPreviewer({
         
         return $s;
     
+    },
+
+    renderPreview : function(data,$elem,$) {
+        $elem.empty();
+        $elem.append("<p>Found " + data.recordCount + " results in " + data.queryTime + "ms.</p>");    // XXX i18n
+        var previewer =this;             
+        $.each(data.documents, function (idx, el) {
+            previewer.formatResult(el, $)
+                .appendTo($elem)
+                .find("a")
+                .each(function () {
+                    //ensure links open according to user prefs
+                    var href = $(this).attr("href");
+                    $(this).click(function () {
+                        libx.ui.openSearchWindow(href);
+                    });
+                    $(this).attr("href", "javascript:void(0);");
+                 });
+         });
     }
 
 });
