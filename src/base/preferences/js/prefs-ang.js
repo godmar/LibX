@@ -48,20 +48,21 @@ $(document).ready(function () {
 
     var issummonprxyavail = false;
     var issummonurlavail = false;
-    for(var k=0;k < libx.edition.catalogs.length; k++) {
+    for (var k=0;k < libx.edition.catalogs.length; k++) {
         var catalog = libx.edition.catalogs[k];
-        if('url' in catalog && catalog.type == 'bookmarklet') {
+        if ('url' in catalog && catalog.type == 'bookmarklet') {
             if(catalog.url.indexOf('summon.serialssolutions.com') > 0) {
                 issummonurlavail = true;
             }
         }
-        if('summonproxyurl' in catalog) {
+        if ('summonproxyurl' in catalog) {
             issummonprxyavail = true;
         }
     }
     var issummonchkdisabled = !(issummonprxyavail && issummonurlavail);
     var chksummonwidgetname = libx.prefs.browser.showsummonwidget._id;
-    $('input[name='+chksummonwidgetname+']').attr('disabled', issummonchkdisabled);
-
+    setTimeout(function() {
+        $('input[name='+chksummonwidgetname+']').attr('disabled', issummonchkdisabled);
+    });
 });
 

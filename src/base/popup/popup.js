@@ -701,6 +701,20 @@ return {
         displayPreviewer();
     },
     
+    initializeSummonWidget: function(prefix) {
+        $('#dummyHiddendiv').html("<p id='hiddenwidget' data-url='http://"+ prefix +".summon.serialssolutions.com/'></p>");
+
+        new SummonSearchWidget({
+            "id":"#hiddenwidget",
+            "logo":"http://assets.summon.serialssolutions.com/4e2d8068e8c195719f0000bb",
+            "params":{"q":""},
+            "style":{"width":"fixed"},
+            "title":"Summon Search Widget",
+            "searchbutton_text":"Search",
+            "jQuery": $
+        });
+
+    },
     /* Load the edition into the popup. */
     loadPopup: function() {
         
@@ -770,7 +784,7 @@ return {
             var catalogs = [];
             var issummonprxyavail = false;
             var issummonurlavail = false;
-
+            var tempurl = '';
             for(var i = 0; i < libx.edition.catalogs.length; i++) {
                 var currentcatalog = libx.edition.catalogs[i];
                 if('summonproxyurl' in currentcatalog) {
@@ -779,6 +793,7 @@ return {
                 if('url' in currentcatalog && currentcatalog.type == 'bookmarklet') {
                     if(currentcatalog.url.indexOf('summon.serialssolutions.com') > 0) {
                         issummonurlavail = true;
+                        tempurl = currentcatalog.url.split('.');
                     }
                 }
                 catalogs.push({
@@ -786,13 +801,17 @@ return {
                     value: i
                 });
             }
+           
             var chksummonwidget = $('#chksummonwidget');
             chksummonwidget.attr('checked', libx.prefs.browser.showsummonwidget._value);
             chksummonwidget.attr('disabled', !(issummonprxyavail && issummonurlavail));
             $('#chksummonwidget').click(function() {
                 libx.prefs.browser.showsummonwidget._value = this.checked;
             });
-
+            if (tempurl.length > 0) {
+                var prefix = tempurl[0].substr(tempurl[0].indexOf('//') + 2, tempurl[0].length);
+                popup.initializeSummonWidget(prefix);
+            }
             // See http://www.alanwood.net/unicode/geometric_shapes.html for options
             var arrow = '&#9654; ';
             var link = $('<a style="text-decoration: none" href="#">' + arrow + libx.edition.catalogs[catalog].name + '</a>');

@@ -90,18 +90,6 @@ libx.catalog.preview.registerPreviewer({
     },
 
     renderPreview: function(data,$elem,$) {
-        var prefix = this.getPrefix();
-        $('#dummyHiddendiv').html("<p id='hiddenwidget' data-url='http://"+ prefix +".summon.serialssolutions.com/'></p>");
-
-        new SummonSearchWidget({
-            "id":"#hiddenwidget",
-            "logo":"http://assets.summon.serialssolutions.com/4e2d8068e8c195719f0000bb",
-            "params":{"q":""},
-            "style":{"width":"fixed"},
-            "title":"Summon Search Widget",
-            "searchbutton_text":"Search",
-            "jQuery": $
-        });
         $elem.html(libx.utils.json.parse(data.substr(1, data.length-2)).results);
     }
 });

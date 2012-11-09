@@ -64,7 +64,6 @@ function loadLibX() {
         "shared/catalog/factory/openurlresolver.js",
         "shared/catalog/factory/primo.js",
         "shared/previewers/summon.js",
-        "shared/search.js",
         "shared/previewers/summonwidget.js",
         "shared/citeulike.js",
         "shared/proxy.js",
