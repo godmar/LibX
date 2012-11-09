@@ -803,11 +803,18 @@ return {
             }
            
             var chksummonwidget = $('#chksummonwidget');
-            chksummonwidget.attr('checked', libx.prefs.browser.showsummonwidget._value);
             chksummonwidget.attr('disabled', !(issummonprxyavail && issummonurlavail));
-            $('#chksummonwidget').click(function() {
-                libx.prefs.browser.showsummonwidget._value = this.checked;
-            });
+
+            if (libx.prefs.browser.showsummonwidget) {
+                chksummonwidget.attr('checked', libx.prefs.browser.showsummonwidget._value);
+            }
+
+            if (issummonprxyavail && issummonurlavail) {
+                $ ('#chksummonwidget').click(function() {
+                    libx.prefs.browser.showsummonwidget._value = this.checked;
+                });
+            }
+
             if (tempurl.length > 0) {
                 var prefix = tempurl[0].substr(tempurl[0].indexOf('//') + 2, tempurl[0].length);
                 popup.initializeSummonWidget(prefix);
