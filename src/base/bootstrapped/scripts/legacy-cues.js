@@ -56,8 +56,9 @@ libx.cues.Cue = libx.core.Class.create(
             });
         } else
             image.setAttribute('src', imageurl);
-        image.setAttribute('border', '0');
-        image.setAttribute('height', '16px');
+
+        image.style.border = "0";
+        image.style.height = "16px";
         link.appendChild(image);
         this.image = image;
         this.cue = link;
