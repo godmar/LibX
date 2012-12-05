@@ -33,7 +33,8 @@ var requireAlias = {
     "jgrowl.css" : "jquery.jgrowl.css",
     "autolink.css" : "autolink.css",
     "tooltip.css" : "tooltip.css",
-    "legacy-cues" : "legacy-cues.js"
+    "legacy-cues" : "legacy-cues.js",
+    "search-widget" : "search.js"
 };
 
 /*

@@ -810,8 +810,9 @@ return {
             }
 
             if (issummonprxyavail && issummonurlavail) {
-                $ ('#chksummonwidget').click(function() {
+                $('#chksummonwidget').click(function() {
                     libx.prefs.browser.showsummonwidget._value = this.checked;
+                    libx.preferences.save();
                 });
             }
 

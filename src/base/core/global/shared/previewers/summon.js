@@ -259,6 +259,11 @@ libx.catalog.preview.registerPreviewer({
                     $(this).attr("href", "javascript:void(0);");
                  });
          });
+        libx.analytics && libx.analytics.track({
+            activity: "search",
+            catalog: this.catalog.name,
+            searchtype: "SummonProxy"
+        });
     }
 
 });

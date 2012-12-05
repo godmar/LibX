@@ -44,25 +44,28 @@ $(document).ready(function () {
     $(".preference-radio").live("click", function () {
         libx.preferences.getByID ( this.name )._setValue ( this.value );
         libx.preferences.save();
-    } );
-
-    var issummonprxyavail = false;
-    var issummonurlavail = false;
-    for (var k=0;k < libx.edition.catalogs.length; k++) {
-        var catalog = libx.edition.catalogs[k];
-        if ('url' in catalog && catalog.type == 'bookmarklet') {
-            if(catalog.url.indexOf('summon.serialssolutions.com') > 0) {
-                issummonurlavail = true;
-            }
-        }
-        if ('summonproxyurl' in catalog) {
-            issummonprxyavail = true;
-        }
-    }
-    var issummonchkdisabled = !(issummonprxyavail && issummonurlavail);
-    var chksummonwidgetname = libx.prefs.browser.showsummonwidget._id;
-    setTimeout(function() {
-        $('input[name='+chksummonwidgetname+']').attr('disabled', issummonchkdisabled);
     });
+
+    if (libx.prefs.browser.showsummonwidget != null) {
+        var issummonprxyavail = false;
+        var issummonurlavail = false;
+        for (var k=0;k < libx.edition.catalogs.length; k++) {
+            var catalog = libx.edition.catalogs[k];
+            if ('url' in catalog && catalog.type == 'bookmarklet') {
+                if(catalog.url.indexOf('summon.serialssolutions.com') > 0) {
+                    issummonurlavail = true;
+                }
+            }
+            if ('summonproxyurl' in catalog) {
+                issummonprxyavail = true;
+            } 
+        }
+        var issummonchkdisabled = !(issummonprxyavail && issummonurlavail);
+        var chksummonwidgetname = libx.prefs.browser.showsummonwidget._id;
+
+        setTimeout(function() {
+            $('input[name='+chksummonwidgetname+']').attr('disabled', issummonchkdisabled);
+        });
+    }    
 });
 

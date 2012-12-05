@@ -91,6 +91,12 @@ libx.catalog.preview.registerPreviewer({
 
     renderPreview: function(data,$elem,$) {
         $elem.html(libx.utils.json.parse(data.substr(1, data.length-2)).results);
+        libx.analytics && libx.analytics.track({
+            activity: "search",
+            catalog: this.catalog.name,
+            searchtype: "Summon Widget"
+        });
+
     }
 });
 
