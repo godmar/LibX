@@ -133,20 +133,41 @@ TreeController = function ($scope, $compile) {
  
                    // fallback - look in locales of children (when libapp
                    // pref's locale is specified in module.)
-                   var e = entryid2entry[url];
+               var e = entryid2entry[url];
+               if (e != null) {                
                    for (var i = 0; e.children && i < e.children.length; i++) {
-                       var modid = e.children[i].id;
-                       if (entry2StringBundle[modid] && entry2StringBundle[modid].hasProperty(key))
-                       return entry2StringBundle[modid].getProperty(key);
+                           var modid = e.children[i].id;
+                           if (entry2StringBundle[modid] && entry2StringBundle[modid].hasProperty(key))
+                               return entry2StringBundle[modid].getProperty(key);
+                       }
+                } else {
+                   return name;
                 }
-           }
-
-           return $scope.$parent.locale(lkey);
-  
+            }
+            return $scope.$parent.locale(lkey);
         } else {
            return "";
         }
   
+    }
+
+    $scope.getLocales = function (locales) {
+        var localeObjs = [];
+        for (var prop in locales) {
+            var localeObj = {};
+            localeObj.lang = prop;
+            var localeVals = JSON.parse(locales[prop]);
+            localeObj.values = [];
+ 
+            for (var lprop in localeVals) {
+                var localeentry = {};
+                localeentry.text = lprop;
+                localeentry.value = localeVals[lprop].message;
+                localeObj.values.push(localeentry);
+            }   
+            localeObjs.push(localeObj);
+        }
+        return localeObjs;
     }
 
     $scope.formatIfRegexp = function (p) {

@@ -23,6 +23,19 @@
             <input type="text" name="{{pref._id}}" ng-model="pref._value" style="width: 50em;" />
         </div>
     </div>
+    <div ng-switch-when="multichoice">
+        <label>{{locale(pref._idstr,pref._name)}}</label>
+        <div style="padding-left: 20px;padding-top:10px">
+            <form>
+                <div ng-repeat="item in pref._items">
+                    <input type="checkbox" name="{{pref._id}}" ng-model="item._selected" />
+                    <label>{{locale(item._idstr, item._value)}}</label>
+                    <br/>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div ng-switch-when="choice">
         <label>{{locale(pref._idstr, pref._name)}}</label>
         <div style="padding-left: 20px;">

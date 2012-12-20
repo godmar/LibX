@@ -166,6 +166,8 @@
     "prefs_libapps_unsubscribe": {"message": "Unsubscribe Package"},
     "prefs_libapps_show_prefs": {"message": "Show Preferences"},
     "prefs_libapps_hide_prefs": {"message": "Hide Preferences"},
+    "prefs_libapps_show_locale": {"message": "Show Locale"},
+    "prefs_libapps_hide_locale": {"message": "Hide Locale"},
     "prefs_libapps_show_details": {"message": "Show Details"},
     "prefs_libapps_hide_details": {"message": "Hide Details"},
     "prefs_libapps_show_code": {"message": "Show Code"},
@@ -177,7 +179,7 @@
     "prefs_libapps_value": {"message": "Value"},
     "prefs_libapps_parameters": {"message": "Parameters"},
     "prefs_libapps_preferences": {"message": "Preferences"},
-    
+    "prefs_libapps_locale": {"message":"Locale"},
     "prefs_libapps_package": {"message": "Package"},
     "prefs_libapps_libapp": {"message": "Libapp"},
     "prefs_libapps_module": {"message": "Module"},

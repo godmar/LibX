@@ -45,6 +45,14 @@
                <span ng-show="showprefs">{{locale("prefs_libapps_hide_prefs")}}</span>
             </a>
          </span>
+        
+          <span ng-show="isEmptyObject(entry.locales)">
+          | <a ng-click="showlocale = !showlocale"
+                   class="toggle-info-panel-link toggle-info-panel-locale" href="#">
+               <span ng-hide="showlocale">{{locale("prefs_libapps_show_locale")}}</span>
+               <span ng-show="showlocale">{{locale("prefs_libapps_hide_locale")}}</span>
+            </a>
+         </span>
 
          <span ng-hide="isEmptyObject(entry.params) && isEmptyObject(unexpectedargs(entry))">
            | <a ng-click="showparams = !showparams"
@@ -113,6 +121,24 @@
            </div>
          </fieldset>
        </div>
+
+       <div ng-show="showlocale" class="info-panel-locale">
+           <fieldset class="ui-corner-all info-panel-sub-section-fieldset">
+ 	            <legend class="info-panel-sub-section-legend">{{locale('prefs_libapps_locale')}}</legend>
+	            <div class="info-panel-locales-sub-div">
+   		            <div ng-init="localeObjs = getLocales(entry.locales)">
+		                <li ng-repeat="localeObj in localeObjs" ng-show="isEmptyObject(entry.locales)">
+		                <span class="entry-label-name" style="padding-left:10px">{{localeObj.lang}} :</span>
+ 
+		                    <div ng-repeat="localeEntry in localeObj.values" style="padding-left:30px">
+			                <span class="entry-text">{{localeEntry.text}} : </span>
+			                <span class="entry-text">{{localeEntry.value}}</span>
+		                    </div>
+		                </li>
+		            </div>
+	            </div>
+	        </fieldset>
+        </div>
 
        <div ng-show="showparams" class="info-panel-params">
          <div>

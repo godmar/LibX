@@ -171,7 +171,7 @@ function handleEntry(visitor, url, obj, cacheMissActivity) {
                 }
             } else {
                 if (clauseNodes.length > 0)
-                    nodeInfo[clause] = String(clauseNodes[0].firstChild.nodeValue);
+                    nodeInfo[clause] = clauseNodes[0].textContent;
 
                 if (clauseNodes.length > 1) {
                     libx.log.write("module: '" + desc + "' additional <" + clause + "> ignored");
