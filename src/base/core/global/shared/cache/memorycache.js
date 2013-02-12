@@ -293,14 +293,19 @@ var memoryCacheClass = libx.core.Class.create (
             //Used in onreadystate change function (captured through closure)
             var cache = this.xhrCache; 
 
+            // When making a request, we don't always know if we're requesting
+            // an image, so determine that here by checking the file extension.
+            // When fetching an image, the dataType property of the request is
+            // ignored.
             var isImage = /\.(jpg|jpeg|tiff|gif|ico|bmp|png|webp)$/i.test(request.url);
 
             // set response MIME type if defined
             if (request.serverMIMEType !== undefined) {
                 xmlHttpReq.overrideMimeType && xmlHttpReq.overrideMimeType(request.serverMIMEType);
             } else if (isImage) {
-                // for images, we must use the raw data, which we get by setting this mime type
-                xmlHttpReq.overrideMimeType && xmlHttpReq.overrideMimeType("text/plain; charset=x-user-defined");
+                // For images, we must use the raw data, which we get by
+                // setting this response type.
+                xmlHttpReq.responseType = "arraybuffer";
             } else if (request.dataType == 'text') {
                 // if we only want text response, suppress responseXML parsing for efficiency
                 xmlHttpReq.overrideMimeType && xmlHttpReq.overrideMimeType("text/plain");
@@ -309,24 +314,27 @@ var memoryCacheClass = libx.core.Class.create (
             var onreadystatechange = function () {
                 if (xmlHttpReq.readyState == 4) {
 
-                    var text = xmlHttpReq.responseText;
+                    var text;
                     var contentType = xmlHttpReq.getResponseHeader("Content-Type");
 
-                    if (request.dataType == "xml") {
-                        result = xmlHttpReq.responseXML;
-                    } else if (isImage) {
-                        text = libx.utils.binary.binary2Base64(text);
+                    if (isImage) {
+                        text = libx.utils.binary.binary2Base64(xmlHttpReq.response);
                         result = 'data:' + contentType + ';base64,' + text;
-                    } else if (request.dataType == "text") {
-                        result = xmlHttpReq.responseText;
-                    } else if (request.dataType == "json") {
-                        try {
-                            result = libx.utils.json.parse(xmlHttpReq.responseText);
-                        } catch (e) {
-                            result = null;
-                        }
                     } else {
-                        result = xmlHttpReq.responseBody || xmlHttpReq.responseText;
+                        text = xmlHttpReq.responseText;
+                        if (request.dataType == "xml") {
+                            result = xmlHttpReq.responseXML;
+                        } else if (request.dataType == "text") {
+                            result = xmlHttpReq.responseText;
+                        } else if (request.dataType == "json") {
+                            try {
+                                result = libx.utils.json.parse(xmlHttpReq.responseText);
+                            } catch (e) {
+                                result = null;
+                            }
+                        } else {
+                            result = xmlHttpReq.responseBody || xmlHttpReq.responseText;
+                        }
                     }
 
                     function saveAndInvokeCallbacks() {

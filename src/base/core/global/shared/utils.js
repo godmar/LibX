@@ -37,7 +37,6 @@ libx.utils.getEditionResource = function(paramObj) {
 
     libx.cache.defaultObjectCache.get({
         url: url,
-        dataType: "text",
         validator: libx.cache.validators.image,
         success: paramObj.success,
         error: paramObj.error,
