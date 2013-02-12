@@ -135,6 +135,7 @@
     "prefs_about_tooltip" :       { "message" : "Voir les auteurs de LibX" },
 
     "prefs_browser_displaypref" : { "message" : "Préférences d'affichage" },
+    "prefs_browser_showsummonwidget" : {"message" : "Utiliser le widget plutôt que l'API proxy de Summon (si configuré)"},
     "prefs_browser_displaypref_newtabswitch" : { "message" : "Ouvrir dans un nouvel onglet actif" },
     "prefs_browser_displaypref_newtab" : { "message" : "Ouvrir dans un nouvel onglet en arrière-plan" },
     "prefs_browser_displaypref_sametab" : { "message" : "Ouvrir dans l'onglet actuel" },
@@ -165,6 +166,8 @@
     "prefs_libapps_unsubscribe": {"message": "Se désabonner à un paquet"},
     "prefs_libapps_show_prefs": {"message": "Voir les préférences"},
     "prefs_libapps_hide_prefs": {"message": "Cacher les préférences"},
+    "prefs_libapps_show_locale": {"message": "Afficher les paramètres régionaux"},
+    "prefs_libapps_hide_locale": {"message": "Cacher les paramètres régionaux"},
     "prefs_libapps_show_details": {"message": "Voir les détails"},
     "prefs_libapps_hide_details": {"message": "Cacher les détails"},
     "prefs_libapps_show_code": {"message": "Voir le code"},
@@ -176,7 +179,7 @@
     "prefs_libapps_value": {"message": "Valeur"},
     "prefs_libapps_parameters": {"message": "Paramètres"},
     "prefs_libapps_preferences": {"message": "Préférences"},
-    
+    "prefs_libapps_locale": {"message":"Paramètres régionaux"},    
     "prefs_libapps_package": {"message": "Paquet"},
     "prefs_libapps_libapp": {"message": "Application LibX"},
     "prefs_libapps_module": {"message": "Module"},
