@@ -2,7 +2,7 @@ Options +ExecCGI
 
 <IfModule mod_rewrite.c>
   RewriteEngine on
-  RewriteBase /libx2/libx2-git/src/autoedition/
+  RewriteBase /libx2/bootstrapped/autoedition/
   RewriteRule ^(findbyip/.*)$ editionip.py/$1
   RewriteRule ^(findedition/.*)$ editiondata.py/$1
 </IfModule>
