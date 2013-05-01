@@ -206,6 +206,28 @@ Watch <a target="_top" href="http://libx.org/screencasts/demo3.htm">this screenc
         <p>By using this extension you may send the URL of pages you are currently visiting to your library's catalog server. Such information is sent <i>only</i> if you are actively using the extension; it is never sent automatically. If you wish to avoid this you must turn off the referrer URL by setting <a href="http://kb.mozillazine.org/Network.http.sendRefererHeader">network.http.sendRefererHeader to 0</a> in your preferences.</p>
         <p>In addition, you may be sending information such as ISBN and ISSN numbers to OCLC, DOIs to CrossRef's server, and PubMed IDs to the PubMed server in order to retrieve metadata information. If configured for your edition, you may also send URLs to your library's EZProxy to determine whether the current page can be proxied when using the right-click context menu. Use the LibX -&gt; Preferences panel to turn these services off if desired.</p>
         <p>For more information about LibX, visit the <a href="http://libx.org">LibX Homepage</a>.</p>
+        <p>Starting with LibX 2.0, we are using <a href="http://www.google.com/analytics/">Google Analytics</a>
+        to track how users interact with LibX.  We track the following events:</p>
+        <ul>
+        <li>First-time installation of LibX.
+        </li>
+        <li>Browser Start with LibX installed (to obtain an estimate of active users).
+        </li>
+        <li>Use of the autoedition facilty - if a user activates an edition suggested by IP.
+        </li>
+        <li>When a user performs a search (or preview) via a configured catalog. 
+            (Just the event is logged, not what the user is searching for).
+        </li>
+        <li>When a user interacts with a LibApp - for instance, when a user clicks on an autolinked
+            ISBNs, we track this event (we do not track the page the user is on, or the ISBN being
+            clicked on).  This will help us learn how LibApps are used.
+        </li>
+        </ul>
+        <p>
+        LibX users can turn off (opt-out) Google Analytics in the preferences.
+        We are working on a web interface that will allow edition maintainers access to the
+        Analytics data for their editions.
+        </p>
       </div>
       <div id="libxfaqs" class="faqs tabcontent-hide"></div>
       <div id="footer">
