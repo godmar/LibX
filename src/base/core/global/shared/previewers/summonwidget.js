@@ -94,7 +94,7 @@ libx.catalog.preview.registerPreviewer({
         libx.analytics && libx.analytics.track({
             activity: "search",
             catalog: this.catalog.name,
-            searchtype: "Summon Widget"
+            searchtype: "previewedbysummonwidget"
         });
 
     }

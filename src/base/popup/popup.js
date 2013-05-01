@@ -249,7 +249,8 @@ return {
                     return 0;
                 });
                 var selectedRevision = map[map.length-1].value;
-                var link = $('<a href="#">' + map[map.length-1].text + '</a>');
+                var link = $('<a href="#"></a>');
+                link.text(map[map.length-1].text);
                 $('#edition-search-select').append(link);
                         
                 libx.ui.jquery.dropdown($, {
@@ -675,7 +676,7 @@ return {
         function displayPreviewer() {
             var catalog = libx.edition.catalogs[index];
             var previewer = libx.catalog.preview.getPreviewer(catalog);
-	    $("#preview-button")
+            $("#preview-button")
                 .toggle(previewer != null)
                 .unbind()
                 .click(function () {
@@ -822,13 +823,14 @@ return {
             }
             // See http://www.alanwood.net/unicode/geometric_shapes.html for options
             var arrow = '&#9654; ';
-            var link = $('<a style="text-decoration: none" href="#">' + arrow + libx.edition.catalogs[catalog].name + '</a>');
+            var link = $('<a style="text-decoration: none" href="#">' + arrow + '</a>');
+            link.append($('<span>').text(libx.edition.catalogs[catalog].name));
             $('#full-catalogs').empty();
             $('#full-catalogs').append(link);
-	    function catalogChosen(num, name) {
-	        popup.saveFields();
+            function catalogChosen(num, name) {
+                popup.saveFields();
                 popup.loadCatalog(num);
-                $('#full-catalogs > a').html(arrow + name);
+                $('#full-catalogs > a').html(arrow).append($('<span>').text(name));
                 $('#simple-menu-catalogs > a').text(name);
             }
             libx.ui.jquery.dropdown($, {
@@ -866,11 +868,14 @@ return {
             // load edition links
             $('#links').empty();
             $.each(libx.edition.links, function(i, elem) {
-                var link = $('<li><a href="#">' + elem.label + '</a></li>');
+                var link = $('<a href="#"></a>');
+                link.text(elem.label);
                 link.click(function() {
                     libx.ui.openSearchWindow(elem.href);
                     window.close();
                 });
+                var li = $("<li>");
+                li.append(link);
                 $('#links').append(link);
             });
 

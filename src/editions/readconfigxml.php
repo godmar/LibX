@@ -59,10 +59,10 @@ if (!file_exists($edition_config_xml)) {
 $config = simplexml_load_file($edition_config_xml);
 $searchoptions = $config->xpath('/edition/searchoptions/*');
 
-$edition_name = $config->name['edition'];
+$edition_name = htmlspecialchars($config->name['edition']);
 $version = $config['version'];/*$revision == "" ? "Live" : $revision;*/
 $_primary_catalog = $config->xpath('/edition/catalogs/*[1]');
-$primary_catalog_name = @$_primary_catalog[0]['name'];
+$primary_catalog_name = htmlspecialchars(@$_primary_catalog[0]['name']);
 
 function getOption($key) {
     global $config;

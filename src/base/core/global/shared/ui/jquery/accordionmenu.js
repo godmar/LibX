@@ -34,7 +34,8 @@ libx.ui.jquery.accordionmenu = function ($, options) {
             // reset this menu item if it has already been populated
             itemRef.empty();
             
-            var itemLink = $('<a href="#">' + itemName + '</a>');
+            var itemLink = $('<a href="#"></a>');
+            itemLink.text(itemName);
             var subItemList = $('<ul/>');
             itemRef.append(itemLink).append(subItemList);
             
@@ -48,8 +49,11 @@ libx.ui.jquery.accordionmenu = function ($, options) {
             });
             
             for(var i = 0; i < subItems.length; i++) {
-                var subItem = $('<li><a href="#">' + subItems[i].text + '</a></li>')
-                    .appendTo(subItemList);
+                var subItem = $('<a href="#"></a>');
+                subItem.text(subItems[i].text);
+                var li = $("<li></li>");
+                li.append(subItem);
+                li.appendTo(subItemList);
                 (function(text, value) {
                     subItem.click(function() {
                         itemLink.text(text);
