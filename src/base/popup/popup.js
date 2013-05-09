@@ -876,7 +876,7 @@ return {
                 });
                 var li = $("<li>");
                 li.append(link);
-                $('#links').append(link);
+                $('#links').append(li);
             });
 
             var configUrl = libx.utils.browserprefs.getStringPref('libx.edition.configurl', null);
