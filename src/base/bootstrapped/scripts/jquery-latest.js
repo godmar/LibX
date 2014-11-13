@@ -420,7 +420,7 @@ jQuery.extend({
 		if ( (wait === true && !--jQuery.readyWait) || (wait !== true && !jQuery.isReady) ) {
 			// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
 			if ( !document.body ) {
-				return setTimeout( jQuery.ready, 1 );
+				return window.setTimeout( jQuery.ready, 1 );
 			}
 
 			// Remember that the DOM is ready
@@ -452,7 +452,7 @@ jQuery.extend({
 		// browser event has already occurred.
 		if ( document.readyState === "complete" ) {
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
-			return setTimeout( jQuery.ready, 1 );
+			return window.setTimeout( jQuery.ready, 1 );
 		}
 
 		// Mozilla, Opera and webkit nightlies currently support this event
@@ -970,7 +970,7 @@ function doScrollCheck() {
 		// http://javascript.nwbox.com/IEContentLoaded/
 		document.documentElement.doScroll("left");
 	} catch(e) {
-		setTimeout( doScrollCheck, 1 );
+		window.setTimeout( doScrollCheck, 1 );
 		return;
 	}
 
@@ -2041,7 +2041,7 @@ function handleQueueMarkDefer( elem, type, src ) {
 		( src === "mark" || !jQuery._data(elem, markDataKey) ) ) {
 		// Give room for hard-coded callbacks to fire first
 		// and eventually mark/queue something else on the element
-		setTimeout( function() {
+		window.setTimeout( function() {
 			if ( !jQuery._data( elem, queueDataKey ) &&
 				!jQuery._data( elem, markDataKey ) ) {
 				jQuery.removeData( elem, deferDataKey, true );
@@ -2165,9 +2165,9 @@ jQuery.fn.extend({
 		type = type || "fx";
 
 		return this.queue( type, function( next, hooks ) {
-			var timeout = setTimeout( next, time );
+			var timeout = window.setTimeout( next, time );
 			hooks.stop = function() {
-				clearTimeout( timeout );
+				window.clearTimeout( timeout );
 			};
 		});
 	},
@@ -7463,7 +7463,7 @@ jQuery.extend({
 
 			// Clear timeout if it exists
 			if ( timeoutTimer ) {
-				clearTimeout( timeoutTimer );
+				window.clearTimeout( timeoutTimer );
 			}
 
 			// Dereference transport for early garbage collection
@@ -7709,7 +7709,7 @@ jQuery.extend({
 			}
 			// Timeout
 			if ( s.async && s.timeout > 0 ) {
-				timeoutTimer = setTimeout( function(){
+				timeoutTimer = window.setTimeout( function(){
 					jqXHR.abort( "timeout" );
 				}, s.timeout );
 			}
@@ -8690,7 +8690,7 @@ jQuery.fn.extend({
 
 // Animations created synchronously will run synchronously
 function createFxNow() {
-	setTimeout( clearFxNow, 0 );
+	window.setTimeout( clearFxNow, 0 );
 	return ( fxNow = jQuery.now() );
 }
 
@@ -8831,7 +8831,7 @@ jQuery.fx.prototype = {
 		};
 
 		if ( t() && jQuery.timers.push(t) && !timerId ) {
-			timerId = setInterval( fx.tick, fx.interval );
+			timerId = window.setInterval( fx.tick, fx.interval );
 		}
 	},
 
@@ -8967,7 +8967,7 @@ jQuery.extend( jQuery.fx, {
 	interval: 13,
 
 	stop: function() {
-		clearInterval( timerId );
+		window.clearInterval( timerId );
 		timerId = null;
 	},
 
