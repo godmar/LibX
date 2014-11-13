@@ -37,6 +37,7 @@ libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog,
     isbnindex: "isbn",
     issnindex: "issn",
     titlesearchmode: "contains",
+    searchfn: "go", // default search function, can be overriden for single term search
 
 	convert: function (stype) {
         /* Taken from Waterloo configuration.  We may need to make more than isbnindex
@@ -56,7 +57,9 @@ libx.catalog.factory["primo"] = libx.core.Class.create(libx.catalog.Catalog,
 	},
 
 	makeSearch: function(stype, sterm) {
-        var url = this.url + this.path + "/action/search.do?fn=go&ct=search";
+        var url = this.url + this.path + "/action/search.do?";
+        url += "fn=" + this.searchfn;
+        url += "&ct=search";
         url += "&vid=" + this.vid;
         url += "&mode=Basic";
         url += "&indx=0";
