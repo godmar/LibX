@@ -11,7 +11,7 @@
         "128": "libx2-128.png"
     },
     "description": "LibX (libx.org) for Google Chrome (TM)",
-    "update_url": "$emupdateURL$",
+    "update_url": "http://clients2.google.com/service/update2/crx",
     "browser_action": {
         "default_icon": "libx2-48.png",
         "default_popup": "popup/popup.html",
