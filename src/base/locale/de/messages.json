@@ -64,8 +64,6 @@
                               }
                             },
     "proxy_message2" :      { "message" : "Klicken Sie hier, um diese Seite über den Proxy-Server zu laden." },
-    "search_and" :          { "message" : "UND" },
-    "search_more" :         { "message" : "mehr..." },
     "proxy_message3":       { "message": "$proxyname$ (Typ: $proxytype$)",
                               "placeholders": {
                                 "proxyname":  { "content": "$1" },
@@ -90,29 +88,115 @@
                                      }
                                    },
     "label_search_catalog":
-                            { "message": "$catalog$ danach suchen",
+                            { "message": "$catalog$ durchsuchen",
                               "placeholders": {
                                 "catalog":      { "content": "$1" }
                               }
                             },
     "label_search_catalog_str":
-                            { "message": "$catalog$ nach $searchstr$ suchen",
+                            { "message": "$catalog$ nach $searchstr$ durchsuchen",
                               "placeholders": {
                                 "catalog":      { "content": "$1" },
                                 "searchstr":    { "content": "$2" }
                               }
                             },
     "label_search_catalog_type_str":
-                            { "message": "$catalog$ nach $type$ $searchstr$ suchen",
+                            { "message": "$catalog$ nach $type$ $searchstr$ durchsuchen",
                               "placeholders": {
                                 "catalog":      { "content": "$1" },
                                 "type":         { "content": "$2" },
                                 "searchstr":    { "content": "$3" }
                               }
                             },
-    "label_search_scholar": { "message": "Google Scholar nach $searchstr$ suchen",
+    "label_search_scholar": { "message": "Google Scholar nach $searchstr$ durchsuchen",
                               "placeholders": {
                                 "searchstr":    { "content": "$1" }
                               }
-                            }
+                            },
+    "ip_recommendations":   { "message": "Die folgenden Editionen werden für Sie basierend auf ihrer IP addresse ($ip$) empfohlen:",
+                              "placeholders": {
+                                "ip":           { "content": "$1" }
+                              }
+                            },
+    "maintained_by":        { "message": "Verantwortliche(r) " },
+
+    "prefs_browser_tabname" :     { "message" : "Browser" },
+    "prefs_browser_tooltip" :     { "message" : "Einstellungen" },
+    "prefs_contextmenu_tabname" : { "message" : "Kontextmenü" },
+    "prefs_contextmenu_tooltip" : { "message" : "Welche Suchoptionen erscheinen, wenn man mit der rechten Maustaste klickt" },
+    "prefs_libapps_tabname" :     { "message" : "Libapps" },
+    "prefs_libapps_tooltip" :     { "message" : "Packages hinzufügen/entfernen sowie Libapps konfigurieren" },
+    "prefs_developer_tabname" :   { "message" : "Entwickler" },
+    "prefs_developer_tooltip" :   { "message" : "Informationen für Entwickler" },
+    "prefs_about_tabname" :       { "message" : "Impressum" },
+    "prefs_about_tooltip" :       { "message" : "Autorinformationen" },
+
+    "prefs_browser_displaypref" : { "message" : "Einstellungen zum Anzeigen der Suchergebnisse" },
+    "prefs_browser_showsummonwidget" : {"message" : "Summon's widget service benutzen anstelle des Summon API proxy (nur wenn so konfiguriert)"},
+    "prefs_browser_displaypref_newtabswitch" : { "message" : "In neuem Tab öffnen" },
+    "prefs_browser_displaypref_newtab" : { "message" : "In neuem Tab im Hintergrund öffnen" },
+    "prefs_browser_displaypref_sametab" : { "message" : "In gleichem Tab öffnen" },
+    "prefs_browser_displaypref_newwindow" : { "message" : "In neuem Fenster öffnen" },
+    "prefs_browser_savesearches" : { "message" : "Speicherung der letzten Suchwörter when das Suchfenster geschlossen wird" },
+    "prefs_browser_trackextension" : { "message" : "Sende anonymisierte Benutzungsinformation (z.B. welche Edition, welche Kataloge benutzt werden) [LibX benutzt Google Analytics]" },
+    "prefs_browser_tracklibapps" : { "message" : "Sende anonymisierte Libapp-Benutzungsinformation [LibX benutzt Google Analytics]" },
+
+    "prefs_contextmenu_reset": {"message": "Standardeinstellungen wiederherstellen"},
+
+    "prefs_about_adaptedby" :   { "message" : "Adaptiert von " },
+    "prefs_about_libxversion" : { "message" : "LibX Version:" },
+    "prefs_about_builddate" :   { "message" : "LibX wurde kompiliert am:" },
+    "prefs_about_authors" :     { "message" : "Autoren" },
+    "prefs_about_homepage" :    { "message" : "LibX Home Page" },
+
+    "prefs_libapps_package_add": { "message": "Ein `package' abonnieren:" },
+    "prefs_libapps_package_whatis": { "message" : "Was ist ein `package'?"},
+    "prefs_libapps_package_tooltip": { "message" : "Ein `package' ist eine Sammlung (Gruppierung) von Libapps und anderen packages.  Durch das Abonnieren einer 'package' werden die in ihr enthaltenen Funktionalitäten aktiviert." },
+    "prefs_libapps_package_unsubscribe": { "message" : "packages abbestellen"},
+    "prefs_libapps_package_unsubscribe_tooltip": { "message" : "Sie können nur die packages abbestellen, die sie selber abonniert haben. Die 'packages', die ihr Editionsverwalter für Sie abonniert hat, bleiben erhalten.  Sie können sie aber unten deaktivieren." },
+    
+    "prefs_libapps_banner": {"message" : "Libapps Anzeigebaum:"},
+    "prefs_libapps_banner_msg1": {"message": "Um sich packages/libapps anzusehen, öffnen sie den Baum"},
+    "prefs_libapps_banner_msg2": {"message": "Um Details zu sehen, klicken Sie auf die Überschriften"},
+
+    "prefs_libapps_close": {"message": "Schließen"},
+    "prefs_libapps_unsubscribe": {"message": "Package abbestellen"},
+    "prefs_libapps_show_prefs": {"message": "Einstellungen anzeigen"},
+    "prefs_libapps_hide_prefs": {"message": "Einstellungen schließen"},
+    "prefs_libapps_show_locale": {"message": "Übersetzungen anzeigen"},
+    "prefs_libapps_hide_locale": {"message": "Übersetzungen schließen"},
+    "prefs_libapps_show_details": {"message": "Details anzeigen"},
+    "prefs_libapps_hide_details": {"message": "Details schließen"},
+    "prefs_libapps_show_code": {"message": "Code anzeigen"},
+    "prefs_libapps_hide_code": {"message": "Code schließen"},
+    "prefs_libapps_show_params": {"message": "Eingabeparameter anzeigen"},
+    "prefs_libapps_hide_params": {"message": "Eingabeparameter schließen"},
+    
+    "prefs_libapps_unknown": {"message": "unbekannt"},
+    "prefs_libapps_value": {"message": "Wert"},
+    "prefs_libapps_parameters": {"message": "Parameter"},
+    "prefs_libapps_preferences": {"message": "Einstellungen"},
+    "prefs_libapps_locale": {"message":"Übersetzungen"},
+    "prefs_libapps_package": {"message": "Package"},
+    "prefs_libapps_libapp": {"message": "Libapp"},
+    "prefs_libapps_module": {"message": "Modul"},
+    "prefs_libapps_error": {"message": "Fehler (package entspricht nicht erwarteter Form)"},
+    "prefs_libapps_include": {"message": "Include"},
+    "prefs_libapps_exclude": {"message": "Exclude"},
+    "prefs_libapps_guardedby": {"message": "Guarded By"},
+    "prefs_libapps_regexptexttransformer": {"message": "RegEx Text Transformer"},
+    "prefs_libapps_require": {"message": "Require"},
+    
+    "prefs_libapps_details": {"message": "Details"},
+    "prefs_libapps_id": {"message": "Id"},
+    "prefs_libapps_last_updated_on": {"message": "Letztes Update am"},
+    "prefs_libapps_author": {"message": "Autor"},
+    "prefs_libapps_weblink": {"message": "URL"},
+    "prefs_libapps_email": {"message": "Email"},
+    "prefs_libapps_code": {"message": "Code"},
+
+    "prefs_libapps_param_err_0a": {"message": "Typen stimmen nicht überein, Modul Parametertyp ist "},
+    "prefs_libapps_param_err_0b": {"message": " und Libapp Argumenttyp ist "},
+    "prefs_libapps_param_err_1": {"message": "Parameterwert fehlt!"},
+    "prefs_libapps_param_err_2": {"message": "Ein Argument wurde angegeben, aber es ist keines deklariert in diesem Modul."}
 }
