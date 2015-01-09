@@ -6,6 +6,7 @@ body {
     padding: 5px;
     float: left; /* resizes body element for Firefox */
     background-color: white;
+    overflow: hidden;   /* avoid scrollbars in Firefox 33.0 and later */
 }
 
 a {
