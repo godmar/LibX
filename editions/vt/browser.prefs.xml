@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE category SYSTEM "http://libx.org/xml/libxprefs.dtd">
+<category name="browser" layout="groups">
+  <preference name="displaypref" type="choice">
+    <item type="string" value="newtabswitch" selected="true"/>
+    <item type="string" value="newtab"/>
+    <item type="string" value="sametab"/>
+    <item type="string" value="newwindow"/>
+  </preference>
+  <preference name="autolinking" type="boolean" value="true"/>
+  <preference name="citeulike" type="boolean" value="true"/>
+</category>

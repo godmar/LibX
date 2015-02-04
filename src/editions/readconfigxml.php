@@ -4,8 +4,16 @@
  */
 
 $edition = @$_GET['edition'];
-$libxbase = "/libx/src/base";
-$libx2base = "/libx2/libx2-git";
+if (true) {
+    /* if we are running on libx.org, use these */
+    $libxbase = "/libx/src/base";
+    $libx2base = "/libx2/libx2-git";
+} else {
+    /* if we are running elsewhere, use these */
+    $editiondir = "../../editions/";
+    /* change this to where this is served */
+    $libx2base = "/~gback/libx";
+}
 
 /* on libx.org only */
 $libxiedir = "/home/www/libx.org/libx/src/editions/LibXIE";
