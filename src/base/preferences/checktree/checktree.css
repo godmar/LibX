@@ -9,7 +9,7 @@ ul.checktree img.arrow {
 	width: 20px;
 }
 ul.checktree li {
-	padding: 4px 0 0 0;
+	padding: 4px 0 4px 0;
 }
 ul.checktree li ul {
 	padding: 0 0 0 20px;
