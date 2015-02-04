@@ -24,10 +24,26 @@ After cloning a fresh repository, some setup is required.
 
     This should create a file updates.json there
 
-+ Done.  Now visiting
++ Now visiting
 
     http://[your host]/[your libx base]/src/libappdisplay/index.php?pkg=http://libx.org/libx2/libapps/libxcore
     should work, like this one:
     http://theta.cs.vt.edu/~gback/libx/src/libappdisplay/index.php?pkg=http://libx.org/libx2/libapps/libxcore
 
++ Now change ../editions/readconfigxml.php ; change true to false and set libx2base.
 
+  Now this should work:
+
+    http://theta.cs.vt.edu/~gback/libx/src/editions/downloadlibx2.php?edition=vt
+
+  or, respectively
+
+    http://localhost/~abigail/libx/src/editions/downloadlibx2.php?edition=vt
+
++ Now you can test (most of) the base LibX without having LibX installed, straight from a webpage.
+  We refer to this as 'client-side' mode, short 'cs' - if you see directories 'cs' in the code,
+  those contain the platform-specific code for this. (ff - Firefox extension, gc - Chrome extension)
+  Just remember that you must rerun uglify.sh every time since the above .php pages include the
+  code from there.
+
+  
