@@ -64,7 +64,6 @@ try {
 <link type="text/css" href="<? echo $base; ?>/src/base/preferences/prefs.css" rel="stylesheet" />	
 <link type="text/css" href="<? echo $base; ?>/src/base/preferences/checktree/checktree.css" rel="stylesheet" />
 <link rel="stylesheet" href="<? echo $base; ?>/src/base/preferences/jquery-tooltip/jquery.tooltip.css" />
-<script src="<? echo $base; ?>/src/base/preferences/checktree/jquery.checktree.js" type="text/javascript"></script>
 <script src="<? echo $base; ?>/src/base/preferences/jquery-tooltip/lib/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="<? echo $base; ?>/src/base/preferences/jquery-tooltip/jquery.tooltip.js" type="text/javascript"></script>
 <script type="text/javascript" src="<? echo $base; ?>/src/base/preferences/js/jquery-ui-1.8.23.custom.min.js"></script>

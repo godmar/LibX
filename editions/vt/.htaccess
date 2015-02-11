@@ -1,0 +1,2 @@
+AddType application/x-xpinstall .xpi
+Redirect /editions/vt/libx.html http://libx.org/editions/downloadlibx2.php?edition=vt
