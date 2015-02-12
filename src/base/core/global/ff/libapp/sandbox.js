@@ -41,25 +41,37 @@ libx.libapp.Sandbox = libx.core.Class.create(
     initialize : function ( win, globalproperties ) {
     
         // XPCNativeWrappers should be on, so win should implicitly
-        // be an XPCNativeWrapper'd window
+        // be an XPCNativeWrapper'd window -- side note: do XPCNativeWrappers
+        // still exist in recent version of Firefox?  
+        // Or are they now using "Xraywrappers"
+        // In any event, the purpose of XPCNativeWrappers/Xraywrappers is to 
+        // prevent a situation where malicious JS code provided by the
+        // publisher of the window - say a 3rd party website would override
+        // getters, prototypes, and the like and trick us into accessing them
+        // This would be bad particularly since we're running as system
+        // principal.
 
         // We use the system principal for all sandboxed code, since exposing
         // the LibX object to the page principal would require setting the
         // __exposedProps__ attribute.  This is described at:
         // https://bugzilla.mozilla.org/show_bug.cgi?id=630779.
+        //
+        // gback (2015/02/12): is this still necessary?  I'd like for the code
+        // to run with the principal of the served page, and allow access to
+        // privileged stuff through the libx object we embed only.
         var systemPrincipal = Cc["@mozilla.org/systemprincipal;1"] 
                              .createInstance(Ci.nsIPrincipal); 
         
-        this.sandBox = new Components.utils.Sandbox( systemPrincipal );
+        // as per https://developer.mozilla.org/en-US/docs/Components.utils.Sandbox
+        this.sandBox = new Components.utils.Sandbox( systemPrincipal, {
+            // This will expose window, document, etc. to the sandboxed code.
+            sandboxPrototype : win
+        });
 
         for (var prop in globalproperties) {
             this.sandBox[prop] = { };
             libx.core.Class.mixin(this.sandBox[prop], globalproperties[prop], true);
         }
-
-        // Set the prototype chain.
-        // This will expose window, document, etc. to the sandboxed code.
-        this.sandBox.__proto__ = win; 
     },
     
     /**
